@@ -420,8 +420,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private onRowFieldChanged(rowfield: FieldAndJournalEntryData) {
         var lines = this.getJournalEntryData();
-
         switch (rowfield.Field) {
+            case 'AmountCurrency':
+                if (!rowfield.JournalEntryData['_costAllocationTime']) {
+                    var useAccount = rowfield.JournalEntryData.CreditAccount &&
+                                     rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup && 
+                                     rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup.GroupNumber == "3"
+                                     ? rowfield.JournalEntryData.CreditAccountID
+                                     : rowfield.JournalEntryData.DebitAccountID;
+
+                    this.addCostAllocationForAccount(
+                        useAccount,
+                        rowfield.JournalEntryData.AmountCurrency,
+                        this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
+                        this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
+                        this.costAllocationData ? this.costAllocationData.FinancialDate : null,
+                        this.costAllocationData ? this.costAllocationData.VatDate : null,
+                        rowfield.JournalEntryData.CreditAccountID == useAccount,
+                        true);
+                }
+                break;
             case 'CostAllocation':
                 this.currentJournalEntryData = rowfield.JournalEntryData;
 
@@ -439,6 +457,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
                     this.costAllocationData ? this.costAllocationData.FinancialDate : null,
                     this.costAllocationData ? this.costAllocationData.VatDate : null,
+                    rowfield.JournalEntryData.CreditAccountID == useAccount,
                     true);
                 break;
             case 'DebitAccount':
@@ -487,19 +506,33 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+    public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, creditAllocation: boolean = false, keepCurrentLine: boolean = false) {
+        if (costAllocationID === 0) return;
         this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
             if (costAllocation) {
+                this.toastService.addToast(
+                    `Fordeler basert på fordelingsnøkkel`,
+                    ToastType.good,
+                    ToastTime.short,
+                    `Fordelingsnøkkel ${costAllocation.ID} - ${costAllocation.Name}`
+                );
                 this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
-                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation, creditAllocation);
                 });
             }
         });
     }
 
     public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        if (supplierID === 0) return;
         this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
             if (supplier.CostAllocationID) {
+                this.toastService.addToast(
+                    `Fordeler basert på fordelingsnøkkel for leverandør`,
+                    ToastType.good,
+                    ToastTime.short,
+                    `Leverandør ${supplier.SupplierNumber} tilknyttet fordelingsnøkkel ${supplier.CostAllocation.ID} - ${supplier.CostAllocation.Name}`
+                );
                 this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
                     this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
                 });
@@ -507,30 +540,32 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    public addCostAllocationForAccount(accountID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
-        if (!currencyAmount || currencyAmount === 0) return;
+    public addCostAllocationForAccount(accountID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, creditAllocation: boolean = false, keepCurrentLine: boolean = false) {
+        if (!currencyAmount || currencyAmount === 0 || accountID === 0) return;
         this.accountService.Get(accountID, ['CostAllocation']).subscribe(account => {
             if (account.CostAllocationID) {
+                this.toastService.addToast(
+                    `Fordeler basert på fordelingsnøkkel for konto`,
+                    ToastType.good,
+                    ToastTime.short,
+                    `Konto ${account.AccountNumber} tilknyttet fordelingsnøkkel ${account.CostAllocation.ID} - ${account.CostAllocation.Name}`
+                );
                 this.costAllocationService.getDraftLinesByAccountID(accountID, accountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
-                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, account.CostAllocation);
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, account.CostAllocation, creditAllocation);
                 });
             }
         });
     }
 
-    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null) {
+    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null, creditAllocation: boolean = false) {
         if (draftlines == null || draftlines.length == 0) return;
 
         var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
-        var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
         var dimensions = _.uniq(draftlines.map(draftline => draftline.DimensionsID).filter(Boolean));
 
         Observable.forkJoin(
             accounts.length > 0
                 ? Observable.forkJoin(accounts.map(accountID => this.accountService.Get(accountID)))
-                : Observable.of([]),
-            vattypes.length > 0
-                ? Observable.forkJoin(vattypes.map(vattypeID => this.vatTypeService.Get(vattypeID)))
                 : Observable.of([]),
             dimensions.length > 0
                 ? Observable.forkJoin(dimensions.map(dimensionID => this.dimensionService.Get(dimensionID, ['Project','Department','Dimension5','Dimension6','Dimension7','Dimension8','Dimension9','Dimension10'])))
@@ -538,17 +573,20 @@ export class JournalEntryManual implements OnChanges, OnInit {
         )
         .subscribe((res) => {
             let accounts = res[0];
-            let vattypes = res[1];
-            let dimensions = res[2];
+            let dimensions = res[1];
 
             var first = true;
             var lines = this.getJournalEntryData();
             var currentIndex = lines.findIndex(line => line['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+            var currentLine = lines[currentIndex];
+            var creditLine = _.clone(currentLine);
+
             draftlines.map((draftline, index) => {
                 var newline = JSON.parse(JSON.stringify(draftline));
                 newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID);
                 newline.DebitAccountID = draftline.AccountID;
-                newline.DebitVatType = vattypes.find(vattype => vattype.ID == draftline.VatTypeID);
+                draftline.VatTypeID = newline.VatTypeID || (newline.DebitAccount ? newline.DebitAccount.VatTypeID : null);
+                newline.DebitVatType = this.vatTypes.find(vattype => vattype.ID == draftline.VatTypeID);
                 newline.DebitVatTypeID = draftline.VatTypeID;
                 newline.Dimensions = dimensions.find(dimension => dimension.ID == draftline.DimensionsID);
                 newline.CostAllocation = costAllocation;
@@ -556,19 +594,32 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 newline.isDirty = true;
                 newline['_costAllocationTime'] = (new Date()).getTime();
 
+                if (this.mode == JournalEntryMode.Manual) {
+                    this.switchDebetAndCredit(newline, creditAllocation);
+                    this.setDebetOrCreditToNull(newline, creditAllocation)
+                    newline.JournalEntryNo = currentLine.JournalEntryNo;
+                    newline.FinancialDate = currentLine.FinancialDate;
+                    newline.VatDate = currentLine.VatDate;
+                }
+
                 if (first && keepCurrentLine) {
-                    var currentLine = lines[currentIndex];
                     currentLine.DebitAccount = newline.DebitAccount;
                     currentLine.DebitAccountID = newline.DebitAccountID;
                     currentLine.DebitVatType = newline.DebitVatType;
                     currentLine.DebitVatTypeID = newline.DebitVatTypeID;
-                    currentLine.Dimensions = newline.Dimensions;
                     currentLine.DimensionsID = newline.DimensionsID;
                     currentLine.Description = newline.Description;
                     currentLine.AmountCurrency = newline.AmountCurrency;
                     currentLine.Amount = newline.Amount;
                     currentLine.CostAllocation = costAllocation;
                     currentLine['_costAllocationTime'] = newline['_costAllocationTime'];
+
+                    if (this.mode == JournalEntryMode.Manual) {
+                        currentLine.CreditAccount = newline.CreditAccount;
+                        currentLine.CreditAccountID = newline.CreditAccountID;
+                        currentLine.CreditVatType = newline.CreditVatType;
+                        currentLine.CreditVatTypeID = newline.CreditVatTypeID;
+                    }
 
                     this.currentJournalEntryData = currentLine;
                 } else {
@@ -578,6 +629,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 first = false;
             });
 
+            // Insert new line for journal entry manual
+            if (this.mode == JournalEntryMode.Manual) {
+                this.setDebetOrCreditToNull(creditLine, !creditAllocation);
+                creditLine.CostAllocation = currentLine.CostAllocation;
+                creditLine['_costAllocationTime'] = currentLine['_costAllocationTime'];
+                lines.push(creditLine);
+            }
+
             this.setJournalEntryData(lines);
             this.dataChanged.emit(lines);
 
@@ -586,6 +645,29 @@ export class JournalEntryManual implements OnChanges, OnInit {
             });
         });
 
+    }
+
+    private switchDebetAndCredit(line: JournalEntryData, creditAllocation: boolean) {
+        if (creditAllocation) {
+            line.CreditAccount = line.DebitAccount;
+            line.CreditAccountID = line.DebitAccountID;
+            line.CreditVatType = line.DebitVatType;
+            line.CreditVatTypeID = line.DebitVatTypeID;
+        }
+    }
+
+    private setDebetOrCreditToNull(line: JournalEntryData, creditAllocation: boolean) {
+        if (creditAllocation) {
+            line.DebitAccount = null;
+            line.DebitAccountID = null;
+            line.DebitVatType = null;
+            line.DebitVatTypeID = null;
+        } else {
+            line.CreditAccount = null;
+            line.CreditAccountID = null;    
+            line.CreditVatType = null;
+            line.CreditVatTypeID = null;
+        }
     }
 
     //
