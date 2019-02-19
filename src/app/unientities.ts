@@ -1881,6 +1881,23 @@ export class TaxCard extends UniEntity {
 }
 
 
+export class OtpExportWagetype extends UniEntity {
+    public static RelativeUrl = 'otpexportwagetypes';
+    public static EntityType = 'OtpExportWagetype';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WageTypeNumber: number;
+    public CustomFields: any;
+}
+
+
 export class PostingSummaryDraft extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PostingSummaryDraft';
@@ -2484,7 +2501,6 @@ export class WageType extends UniEntity {
     public _createguid: string;
     public AccountNumber: number;
     public AccountNumber_balance: number;
-    public Base_div1: boolean;
     public Base_div2: boolean;
     public Base_div3: boolean;
     public Base_EmploymentTax: boolean;
@@ -2510,6 +2526,7 @@ export class WageType extends UniEntity {
     public Rate: number;
     public RateFactor: number;
     public RatetypeColumn: RateTypeColumn;
+    public ReportOtp: boolean;
     public SpecialAgaRule: SpecialAgaRule;
     public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
     public StandardWageTypeFor: StdWageType;
@@ -5900,8 +5917,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatReportReferences: Array<VatReportReference>;
     public VatCodeGroup: VatCodeGroup;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -6289,8 +6306,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Account: Account;
     public Bank: Bank;
+    public Account: Account;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6675,9 +6692,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 

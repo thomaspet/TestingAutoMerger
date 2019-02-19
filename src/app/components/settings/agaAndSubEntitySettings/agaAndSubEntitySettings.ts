@@ -513,7 +513,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             interrimRemit,
             paymentInterval,
             postTax,
-            // otpExportActive,
+            otpExportActive,
             vacationSettingsBtn,
             vacationPayBtn,
             calculateFinancial,

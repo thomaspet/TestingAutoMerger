@@ -391,11 +391,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/salary/annualstatements',
                         moduleID: UniModules.AnnualStatements
                     },
-                    // {
-                    //     name: 'OTP-eksport',
-                    //     url: '/salary/otpexport',
-                    //     moduleID: UniModules.OTPExport
-                    // },
+                    {
+                        name: 'OTP-eksport',
+                        url: '/salary/otpexport',
+                        moduleID: UniModules.OTPExport
+                    },
                     {
                         name: 'Variable lønnsposter',
                         url: '/salary/variablepayrolls',
