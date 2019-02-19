@@ -50,15 +50,15 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
         this.setSelectedAmelding(this.ameldingerInPeriod[selectedindex]);
     }
 
-  private setupTable() {
-    const idCol = new UniTableColumn('ID', 'A-melding ID', UniTableColumnType.Number);
-    const statusCol = new UniTableColumn('altinnstatus', 'Altinn status', UniTableColumnType.Text);
-    const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text)
-    .setTemplate(rowModel => {
-      return this.statusType().find(p => p.id === rowModel.type).name;
-    });
-    const sentCol = new UniTableColumn('sent', 'Dato sendt', UniTableColumnType.LocalDate);
-    const receiptCol = new UniTableColumn('', '', UniTableColumnType.Link);
+    private setupTable() {
+        const idCol = new UniTableColumn('ID', 'A-melding ID', UniTableColumnType.Number);
+        const statusCol = new UniTableColumn('altinnstatus', 'Altinn status', UniTableColumnType.Text);
+        const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text)
+            .setTemplate(rowModel => {
+                return this.statusType().find(p => p.id === rowModel.type).name;
+            });
+        const sentCol = new UniTableColumn('sent', 'Dato sendt', UniTableColumnType.LocalDate);
+        const receiptCol = new UniTableColumn('', '', UniTableColumnType.Link);
 
         this.tableConfig = new UniTableConfig('amelding.period.ameldinger.data', false, false)
             .setColumns([idCol, statusCol, typeCol, sentCol, receiptCol])
@@ -89,7 +89,13 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                 },
                 {
                     label: 'Send a-melding på nytt',
-                    action: (row: AmeldingData) => console.log('resend a-melding')
+                    action: (row: AmeldingData) =>
+                        of(row)
+                            .pipe(
+                                this.switchMapLoadAndClose(() => this.ameldingService.sendAMelding(row.ID))
+                            )
+                            .subscribe(),
+                    disabled: (row: AmeldingData) => (row.receiptID && !!row.feedbackFileID) || !row.sent
                 }
             ]);
     }
