@@ -40,7 +40,6 @@
     "@angular/platform-browser-dynamic": "~7.0.0",
     "@angular/router": "~7.0.0",
     "@ng-select/ng-select": "^2.13.1",
-    "ag-grid-enterprise": "19.0.0",
     "ag-grid-angular": "^19.0.0",
     "ag-grid-community": "19.0.0",
     "angular-tree-component": "^7.0.1",

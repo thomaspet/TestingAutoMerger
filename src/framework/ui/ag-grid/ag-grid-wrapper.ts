@@ -670,9 +670,9 @@ export class AgGridWrapper {
                 headerClass: col.headerCls,
                 cellClass: cellClass,
                 headerTooltip: col.header,
-                rowGroup: col.rowGroup,
-                aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
-                enableRowGroup: col.enableRowGroup,
+                // rowGroup: col.rowGroup,
+                // aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
+                // enableRowGroup: col.enableRowGroup,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
             };
