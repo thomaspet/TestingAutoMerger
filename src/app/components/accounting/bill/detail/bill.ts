@@ -34,7 +34,6 @@ import {BillHistoryView} from './history/history';
 import {UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
-import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
 import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
@@ -84,6 +83,7 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 declare var _;
 
 interface ITab {
@@ -2183,13 +2183,14 @@ export class BillView implements OnInit {
     }
 
     public openAddFileModal() {
-        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
-            if (element) {
-                if (this.files.length === 0) {
-                    this.startUpFileID = [safeInt(element.ID)];
+        this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
+            if (file) {
+                if (this.files.length) {
+                    this.uniImage.fetchDocumentWithID(safeInt(file.ID));
                 } else {
-                    this.uniImage.fetchDocumentWithID(safeInt(element.ID));
+                    this.startUpFileID = [safeInt(file.ID)];
                 }
+
                 this.numberOfDocuments++;
                 this.hasUnsavedChanges = true;
             }

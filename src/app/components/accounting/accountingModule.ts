@@ -55,7 +55,6 @@ import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
 import {UniAssignModal} from './bill/detail/assignmodal';
-import {UniAddFileModal} from './bill/detail/addFileModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {DimensionList} from './accountSettings/dimensionList/dimensionList';
@@ -73,6 +72,7 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
+import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {UniBudgetView} from './budget/budgetview';
@@ -84,7 +84,7 @@ import {
     MatIconModule,
     MatTooltipModule,
     MatProgressBarModule,
-    MatMenuModule
+    MatMenuModule,
 } from '@angular/material';
 import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
 import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
@@ -136,6 +136,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
+        FileFromInboxModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -151,7 +152,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
-        UniAddFileModal, NumberAsMoneyPipe,
+        NumberAsMoneyPipe,
 
         // vatreport
         CheckListVat,
@@ -199,7 +200,6 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         EditSupplierInvoicePayments,
         NewAccountModal,
         UniAssignModal,
-        UniAddFileModal,
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
@@ -208,7 +208,8 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         UniBudgetEditModal,
         UniCostAllocation,
         UniCostAllocationList,
-        UniCostAllocationDetails
+        UniCostAllocationDetails,
+        FileFromInboxModal
     ],
     exports: [
         AccountSettings,

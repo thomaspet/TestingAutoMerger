@@ -1,0 +1,34 @@
+<section role="dialog" class="uni-modal">
+    <header>Hent fil fra innboks</header>
+
+    <article class="scrollable">
+        <span *ngIf="files?.length === 0">Ingen filer i innboks</span>
+
+        <section *ngIf="files?.length" class="flex-container">
+            <ag-grid-wrapper
+                [resource]="files"
+                [config]="tableConfig"
+                (rowSelectionChange)="onFileSelected($event)">
+            </ag-grid-wrapper>
+
+            <uni-image *ngIf="selectedFile"
+                [singleImage]="true"
+                [readonly]="true"
+                [uploadWithoutEntity]="true"
+                [fileIDs]="[selectedFile.ID]">
+            </uni-image>
+        </section>
+    </article>
+
+    <footer>
+        <button
+            (click)="onClose.emit(selectedFile)"
+            class="c2a"
+            style="min-width: 8rem">
+
+            Velg fil
+        </button>
+
+        <button (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</section>
