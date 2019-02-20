@@ -196,6 +196,15 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg hovedbokskonto manuelt",
+                "Code": "select_main_account",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "SubTickersCodes": ["payment_details", "post_in_file", "payment_status_log"]

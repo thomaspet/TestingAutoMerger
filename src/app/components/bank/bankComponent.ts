@@ -157,6 +157,11 @@ export class BankComponent implements AfterViewInit {
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         },
         {
+            Code: 'select_main_account',
+            ExecuteActionHandler: (selectedRows) => this.setMainAccountForPayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
             Code: 'revert_batch',
             ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentBatchStatusCode === 45009
@@ -712,6 +717,14 @@ export class BankComponent implements AfterViewInit {
                         .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
                 }
             });
+        });
+    }
+
+    public setMainAccountForPayment(selectedRows: any) {
+        return new Promise(() => {
+            const row = selectedRows[0];
+            this.journalEntryService.PutAction(null, 'book-payment-against-main-account', 'paymentID=' + row.ID)
+            .subscribe(() => this.tickerContainer.mainTicker.reloadData());
         });
     }
 
