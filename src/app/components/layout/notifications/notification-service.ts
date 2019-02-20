@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Notification} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
@@ -8,10 +7,7 @@ import * as moment from 'moment';
 
 @Injectable()
 export class NotificationService extends BizHttp<Notification> {
-    notifications$: BehaviorSubject<Notification[]> = new BehaviorSubject([]);
-    unreadCount$: BehaviorSubject<number> = new BehaviorSubject(0);
-
-    readTimestamp: Date = new Date('2019-01-20');
+    readTimestamp: Date;
 
     constructor(uniHttp: UniHttp) {
         super(uniHttp);

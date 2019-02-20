@@ -1,5 +1,23 @@
 <section *ngIf="showFeedback">
-    <h1 *ngIf="allAvvikGroupedByPeriod.length > 0">Avvik</h1>
+    <table *ngIf="allAvvikGroupedByPeriod.length">
+        <tr>
+            <th>
+                <h1 style="color: red">Avvik</h1>
+            </th>
+            <td></td>
+        </tr>
+        <tr>
+            <th>
+                <em class="amelding_validation_errors" title="Avvik"></em>
+            </th>
+            <td>
+                A-meldingen du har sendt inn har blitt avvist i altinn<br>
+                Det betyr at a-meldingen du leverte før denne er den gjeldende i altinn<br>
+                Vennligst korriger feilen, generer ny a-melding og send den inn
+            </td>
+        </tr>
+    </table>
+
     <ul>
         <section *ngFor="let avvik of allAvvikGroupedByPeriod">
             <h4>Periode {{avvik.periode}}</h4>

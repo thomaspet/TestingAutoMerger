@@ -16,6 +16,17 @@ ag-grid-angular
     display: block
     position: relative
 
+    span.expand-collapse-groups
+        cursor: pointer
+        color: #1565c0
+        position: absolute
+        top: 1px
+        right: 1rem
+        z-index: 999
+        font-size: 14px
+        line-height: 30px
+        user-select: none
+
 .ag-icon-checkbox-indeterminate
     @extend .ag-icon-checkbox-unchecked
 
@@ -41,6 +52,15 @@ ag-grid-angular
     .ag-pinned-right-cols-container .ag-cell
         border-left: $table-border-style
         border-right: $table-border-style
+
+    .ag-row-group
+        font-style: italic
+        font-weight: bold
+        .table-link
+            text-decoration: none !important
+            cursor: default
+            &:hover
+                background: transparent
 
 ag-grid-wrapper:not(.selection-list)
     .ag-header
@@ -75,8 +95,14 @@ ag-grid-angular.col-menu-hidden
 
 .ag-cell
     line-height: 35px
+    > span
+        display: flex
 .ag-header-cell
     line-height: 35px // 40px
+
+// Hide resize indicator
+.ag-header-cell::after
+    display: none !important
 
 .ag-cell, .ag-header-cell
     padding: 0 10px

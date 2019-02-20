@@ -134,17 +134,12 @@ export class WagetypeDetail extends UniView {
             baseOptions.push(WageTypeBaseOptions.AGA);
         }
 
-        if (wageType.Base_div1) {
-            baseOptions.push(WageTypeBaseOptions.Pension);
-        }
-
         return baseOptions;
     }
 
     private setBaseOptionsOnWagetype(wageType: WageType, baseOptions: WageTypeBaseOptions[]): void {
         wageType.Base_Vacation = baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
         wageType.Base_EmploymentTax = baseOptions.some(x => x === WageTypeBaseOptions.AGA);
-        wageType.Base_div1 = baseOptions.some(x => x === WageTypeBaseOptions.Pension);
     }
 
     private getSetupSources(wageType: WageType) {

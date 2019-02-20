@@ -1040,6 +1040,7 @@ export class TickerColumn {
     public Expand?: string;
     public SelectRequired?: boolean;
     public Alignment?: 'left' | 'right' | 'center';
+    public EnableRowGroup?: boolean;
 }
 
 export interface ITickerColumnOverride {

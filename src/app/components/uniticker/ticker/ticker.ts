@@ -53,6 +53,7 @@ import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+declare const _;
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk distribusjonsplan'},
@@ -96,6 +97,7 @@ export class UniTicker {
     private defaultExpand: string;
     public tableConfig: UniTableConfig;
     public prefetchDataLoaded: boolean = false;
+    public resource: any;
     public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
 
@@ -108,6 +110,8 @@ export class UniTicker {
 
     public unitableFilter: string;
     public publicParams: URLSearchParams;
+    public groupingIsOn: boolean = false;
+    public groupFilter: string = '';
 
     public busy: boolean = false;
 
@@ -190,6 +194,50 @@ export class UniTicker {
         };
     }
 
+    public turnGroupingOnOff() {
+        this.groupingIsOn = !this.groupingIsOn;
+        this.tableConfig = this.buildTableConfig();
+        if (this.groupingIsOn) {
+            this.getGroupingData();
+        }
+    }
+
+    public getGroupingData() {
+        let searchParams = this.publicParams || new URLSearchParams();
+        const TOP: number = 5000;
+
+        searchParams.set('top', TOP.toString());
+        searchParams.delete('hateoas');
+        if (this.groupFilter) {
+            searchParams.set('filter', this.groupFilter);
+        } else {
+            searchParams.delete('filter');
+        }
+
+        searchParams = this.getSearchParams(searchParams);
+
+        const countSearchParams = new URLSearchParams();
+        countSearchParams.set('select', 'count(ID) as count');
+        countSearchParams.set('filter', searchParams.get('filter'));
+        countSearchParams.set('model', searchParams.get('model'));
+        countSearchParams.set('expand', searchParams.get('expand'));
+
+        Observable.forkJoin(
+            this.statisticsService.GetAllByUrlSearchParams(searchParams),
+            this.statisticsService.GetAllByUrlSearchParams(countSearchParams)
+        ).subscribe((res: any) => {
+            const result = res[0].json();
+            const counter = res[1].json();
+            if (counter && counter.Data && counter.Data[0].count > TOP) {
+                this.toastService.addToast('For mye data', ToastType.warn, 8,
+                `Du har prøvd å hente ut for mye data. Vi har returnert de ${TOP} første linjene. ` +
+                `Tilpass søket ditt for å bedre datasettet`);
+            }
+            this.resource = result.Data;
+            this.cdr.markForCheck();
+        });
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['ticker']) {
             // if ticker was changed, check that the selectedFilter is
@@ -260,7 +308,10 @@ export class UniTicker {
                                 });
                             }
                         }
-                        // let uni-table get its own data
+                        if (this.groupingIsOn) {
+                            this.getGroupingData();
+                        }
+                        // else let uni-table get its own data
                     } else {
                         // get detaildata using the same lookupfunction as uni-table, but no point in
                         // retrieving more than one row
@@ -342,7 +393,7 @@ export class UniTicker {
     private getSearchParams(urlParams: URLSearchParams): URLSearchParams {
         let params = urlParams;
 
-        if (params === null) {
+        if (!params) {
             params = new URLSearchParams();
         }
 
@@ -505,6 +556,11 @@ export class UniTicker {
 
     public onFilterChange(filterChangeEvent) {
         this.unitableFilter = filterChangeEvent.filter;
+    }
+
+    public filtersChangeWhileGroup(event) {
+        this.groupFilter = event;
+        this.getGroupingData();
     }
 
     public editModeChanged(event) {
@@ -762,6 +818,8 @@ export class UniTicker {
         });
     }
 
+
+
     private buildTableConfig() {
         // Define configStoreKey
         const configStoreKey = `uniTicker.${this.ticker.Code}`;
@@ -833,6 +891,7 @@ export class UniTicker {
                 col.width = column.Width;
                 col.isSumColumn = column.SumColumn;
                 col.sumFunction = column.SumFunction;
+                col.enableRowGroup = this.groupingIsOn;
 
                 if (column.Resizeable === false) {
                     col.resizeable = false;
@@ -937,9 +996,17 @@ export class UniTicker {
                             col.setAlignment('right');
                             break;
                         case 'NumberPositiveNegative':
-                            col.setConditionalCls(row => +row[column.Alias || column.Field] >= 0 ?
+                            col.setConditionalCls(row => {
+                                let value = +row[column.Alias || column.Field];
+
+                                if (!!row.value) {
+                                    value = parseInt(row.value.toString().replace('\u2009', '').replace(' ', ''), 10);
+                                }
+                                return  value >= 0 ?
                                 'number-good'
-                                : 'number-bad'
+                                : 'number-bad';
+                            }
+
                             );
                             break;
                         case 'DatePassed':
@@ -1124,7 +1191,7 @@ export class UniTicker {
             });
         }
 
-        return new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 19)
+        const config = new UniTableConfig(configStoreKey, false, true, this.groupingIsOn ? 100 : (this.ticker.Pagesize || 19))
             .setColumns(columns)
             .setEntityType(this.ticker.Model)
             .setAllowGroupFilter(true)
@@ -1135,6 +1202,7 @@ export class UniTicker {
             .setAllowEditToggle(this.ticker.EditToggle)
             .setContextMenu(contextMenuItems, true, false)
             .setShowTotalRowCount(true)
+            .setSearchable(true)
             .setDataMapper((data) => {
                 if (this.ticker.Model) {
                     const tmp = data !== null ? data.Data : [];
@@ -1160,6 +1228,19 @@ export class UniTicker {
                 return this.ticker.ReadOnlyCases
                     .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
             });
+
+        if (this.groupingIsOn && this.ticker.IsTopLevelTicker) {
+            config.setRowGroupPanelShow('always')
+                .setSuppressMakeColumnVisibleAfterUnGroup(true)
+                .setSuppressDragLeaveHidesColumns(true)
+                .setAutoGroupColumnDef({
+                    headerName: 'Gruppering'
+                });
+        }
+
+        config.groupingIsOn = this.groupingIsOn;
+
+        return config;
     }
 
     private isMultiRowSelect(): boolean {
@@ -1248,6 +1329,14 @@ export class UniTicker {
     // this function assumes that the unitablesetup has already been run, so that all needed
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
+
+        // If grouping is on, use AG-Grids own export!
+        if (this.groupingIsOn) {
+            this.table.exportFromGrid();
+            completeEvent('Eksport kjørt');
+            return;
+        }
+
         // Remove ID and CustomerID from select if they exist, so it doesn't create columns for them
         // Remove code from here after test!!
         const selectSplit = this.selects.split(',');
@@ -1309,7 +1398,7 @@ export class UniTicker {
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
-                this.ticker.Expand, headers.join(','), this.ticker.Joins)
+                this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
                     .subscribe((blob) => {
                         // download file so the user can open it
                         saveAs(blob, 'export.xlsx');

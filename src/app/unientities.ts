@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -2238,6 +2238,7 @@ export class CompanySalary extends UniEntity {
     public MainAccountCostFinancial: number;
     public MainAccountCostFinancialVacation: number;
     public MainAccountCostVacation: number;
+    public OtpExportActive: boolean;
     public PaymentInterval: CompanySalaryPaymentInterval;
     public PostToTaxDraw: boolean;
     public RateFinancialTax: number;
@@ -2314,6 +2315,7 @@ export class EmployeeLeave extends UniEntity {
     public static EntityType = 'EmployeeLeave';
 
     public _createguid: string;
+    public AffectsOtp: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3831,23 +3833,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultEmail: Email;
-    public DefaultPhone: Phone;
     public DefaultAddress: Address;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -5898,8 +5900,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatCodeGroup: VatCodeGroup;
     public CustomFields: any;
 }
 
@@ -6164,6 +6166,7 @@ export class Account extends UniEntity {
     public CustomerID: number;
     public Deleted: boolean;
     public DimensionsID: number;
+    public DoSynchronize: boolean;
     public EmployeeID: number;
     public ID: number;
     public Locked: boolean;
@@ -6286,8 +6289,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -7049,6 +7052,20 @@ export class PostingSummary extends UniEntity {
 }
 
 
+export class PaycheckReportSetup extends UniEntity {
+    public EmpIDs: string;
+    public Mail: PaycheckEmailInfo;
+}
+
+
+export class PaycheckEmailInfo extends UniEntity {
+    public GroupByWageType: boolean;
+    public Message: string;
+    public ReportID: number;
+    public Subject: string;
+}
+
+
 export class WorkItemToSalary extends UniEntity {
     public PayrollRunID: number;
     public Rate: number;
@@ -7668,6 +7685,13 @@ export class AltinnSigningTextResponse extends UniEntity {
 export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
     public Message: string;
     public Status: AltinnGetVatReportDataFromAltinnStatus;
+}
+
+
+export class AccountUsageReference extends UniEntity {
+    public Entity: string;
+    public EntityID: number;
+    public Info: string;
 }
 
 

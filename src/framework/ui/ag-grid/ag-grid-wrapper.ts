@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
-
 import {UniTableConfig} from '../unitable/config/unitableConfig';
 import {UniTableColumn} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uni-modal/modalService';
@@ -66,6 +65,7 @@ export class AgGridWrapper {
     @Output() public rowSelectionChange: EventEmitter<any|any[]> = new EventEmitter(false);
     @Output() public rowSelect: EventEmitter<any> = new EventEmitter(false);
     @Output() public filtersChange: EventEmitter<{filter: string}> = new EventEmitter(false);
+    @Output() public filtersChangeWhileGroup: EventEmitter<{filter: string}> = new EventEmitter(false);
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
@@ -78,6 +78,7 @@ export class AgGridWrapper {
     public usePagination: boolean;
     public selectionMode: string = 'single';
     public paginationInfo: any;
+    public allIsExpanded = true;
 
     public columns: UniTableColumn[];
     private agColDefs: ColDef[];
@@ -101,7 +102,7 @@ export class AgGridWrapper {
         private tableUtils: TableUtils,
         private modalService: UniModalService,
         private router: Router,
-        private cdr: ChangeDetectorRef,
+        private cdr: ChangeDetectorRef
     ) {}
 
     public ngOnInit() {
@@ -181,7 +182,6 @@ export class AgGridWrapper {
         if (changes['columnSumResolver'] && this.columnSumResolver) {
             this.dataService.columnSumResolver = this.columnSumResolver;
         }
-
         if (this.config && this.resource && (changes['config'] || changes['resource'])) {
             if (Array.isArray(this.resource)) {
                 this.localData = true;
@@ -223,6 +223,12 @@ export class AgGridWrapper {
     public onAgGridReady(event: GridReadyEvent) {
         this.agGridApi = event.api;
         this.agGridApi.sizeColumnsToFit();
+        if (this.config.groupingIsOn) {
+            const doc = document.getElementsByClassName('ag-column-drop-empty-message');
+            if (doc && doc.length) {
+                doc[0].innerHTML = 'Dra kolonner her for å gruppere';
+            }
+        }
         this.initialize();
     }
 
@@ -306,6 +312,16 @@ export class AgGridWrapper {
         }
     }
 
+    public expandCollapseAll() {
+        if (this.allIsExpanded) {
+            this.agGridApi.collapseAll();
+        } else {
+            this.agGridApi.expandAll();
+        }
+        this.allIsExpanded = !this.allIsExpanded;
+        this.config.groupDefaultExpanded = this.allIsExpanded ? -1 : 0;
+    }
+
     public onRowDragEnd(event: RowDragEndEvent) {
         try {
             const originalIndex = event.node.data['_originalIndex'];
@@ -344,7 +360,7 @@ export class AgGridWrapper {
     }
 
     public onColumnMove(event: ColumnMovedEvent) {
-        if (!this.config || !this.config.configStoreKey) {
+        if (!this.config || !this.config.configStoreKey || this.config.groupingIsOn) {
             return;
         }
 
@@ -432,6 +448,10 @@ export class AgGridWrapper {
         this.agGridApi.paginationGoToPage(pageNumber - 1);
     }
 
+    public addAggFunction(func) {
+        this.agGridApi.addAggFunc('summing', func);
+    }
+
     public onPaginationChange(event: PaginationChangedEvent) {
         this.paginationInfo = {
             currentPage: event.api.paginationGetCurrentPage() + 1,
@@ -444,7 +464,12 @@ export class AgGridWrapper {
             this.rowSelectionChange.next([]);
         }
 
-        this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
+        if (this.config.groupingIsOn) {
+            this.filtersChangeWhileGroup.emit(this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters, false));
+        } else {
+            this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
+        }
+
         // TODO: refactor this once every table using it is over on ag-grid
         // Should just emit the filterString, not an object containing it
         this.filtersChange.emit({filter: this.dataService.filterString});
@@ -498,6 +523,9 @@ export class AgGridWrapper {
     }
 
     public onLinkClick(column: UniTableColumn, row) {
+        if (!column) {
+           return;
+        }
         if (column.linkClick) {
             column.linkClick(row);
             return;
@@ -587,6 +615,33 @@ export class AgGridWrapper {
         this.rowSelect.emit(event.data);
     }
 
+    private sumTotalInGroup(values) {
+        const nums = values.map(value => {
+            value = value.toString().replace('\u2009', '').replace(' ', '');
+            return isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10);
+        });
+
+        const options = {
+            thousandSeparator: '\u2009',
+            decimalSeparator: ',',
+            decimalLength: 2
+        };
+
+        const asMoney = (value) => {
+            let stringValue = value.toString().replace(',', '.');
+            stringValue = parseFloat(stringValue).toFixed(options.decimalLength);
+
+            let [integer, decimal] = stringValue.split('.');
+            integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, options.thousandSeparator);
+
+            stringValue = decimal ? (integer + options.decimalSeparator + decimal) : integer;
+
+            return stringValue;
+        };
+
+        return asMoney(nums.length ? nums.reduce((total, number) =>  total + number ) : 0);
+    }
+
     private getAgColDefs(columns: UniTableColumn[]): ColDef[] {
         if (!columns) {
             return [];
@@ -610,10 +665,14 @@ export class AgGridWrapper {
 
             const agCol: ColDef = {
                 headerName: col.header,
+                suppressMenu: true,
                 hide: !col.visible,
                 headerClass: col.headerCls,
                 cellClass: cellClass,
                 headerTooltip: col.header,
+                // rowGroup: col.rowGroup,
+                // aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
+                // enableRowGroup: col.enableRowGroup,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
             };
@@ -889,5 +948,25 @@ export class AgGridWrapper {
      */
     public removeFilter(field: string): void {
         this.dataService.removeFilter(field);
+    }
+
+    public exportFromGrid() {
+        // exportMode will work when we upgrade AG to V20
+        const obj: any = {
+            exportMode: 'xlsx',
+            sheetName: 'Gruppert_export',
+            fileName: 'Gruppert_export'
+        };
+
+        obj.shouldRowBeSkipped = function(params) {
+            if (params.node.group && !params.node.leafGroup) {
+                return false;
+            } else if (params.node.parent && params.node.parent.expanded) {
+                return false;
+            }
+            return true;
+        };
+
+        this.agGridApi.exportDataAsExcel(obj);
     }
 }

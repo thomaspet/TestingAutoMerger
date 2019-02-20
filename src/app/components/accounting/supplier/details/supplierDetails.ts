@@ -585,7 +585,7 @@ export class SupplierDetails implements OnInit {
 
         const supplier = this.supplier$.getValue();
         const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
-        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(supplier.CostAllocationID);
+        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(this.supplier$.asObservable());
 
         const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {

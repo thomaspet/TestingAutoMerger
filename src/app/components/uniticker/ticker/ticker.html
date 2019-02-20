@@ -7,7 +7,6 @@
             {{action.Name}}
         </a>
     </section>
-
     <!-- Sub ticker header (ng else) -->
     <ng-template #subTickerHeader>
         <header class="sub-ticker-header">
@@ -39,6 +38,7 @@
 
     <section class="ticker-data">
         <section class="data-container">
+            <!-- && !groupingIsOn -->
             <ag-grid-wrapper *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"
@@ -47,6 +47,15 @@
                 (rowSelectionChange)="onRowSelectionChange($event)"
                 (rowClick)="onRowClick($event)">
             </ag-grid-wrapper>
+
+            <!-- <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
+                [resource]="resource"
+                [columnSumResolver]="columnSumResolver"
+                [config]="tableConfig"
+                (rowSelectionChange)="onRowSelectionChange($event)"
+                (filtersChangeWhileGroup)="filtersChangeWhileGroup($event)"
+                (rowClick)="onRowClick($event)">
+            </ag-grid-wrapper> -->
 
             <div *ngIf="ticker.Type !== 'table'">
                 <uni-ticker-detail-view

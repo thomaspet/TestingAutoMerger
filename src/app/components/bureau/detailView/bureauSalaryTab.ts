@@ -44,7 +44,7 @@ const BASE = environment.BASE_URL;
     <section class="tab-part">
         <section class="image-container">
             <img class="amelding-icon">
-            <span>A-Melding</span>
+            <span>A-melding</span>
         </section>
         <section class="text-container">
             <p>

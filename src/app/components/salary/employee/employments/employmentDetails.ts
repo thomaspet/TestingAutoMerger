@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account} from '../../../../unientities';
+import {Employment, Account, Employee, LocalDate, CompanySalary} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
@@ -9,9 +9,14 @@ import {
     ErrorService,
     EmploymentService,
     AccountService,
-    StatisticsService
+    StatisticsService,
+    CompanySalaryService
 } from '../../../../services/services';
 import {filter, take} from 'rxjs/operators';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import { ConfirmActions } from '@uni-framework/uni-modal';
+import * as moment from 'moment';
+
 declare var _;
 
 @Component({
@@ -31,9 +36,10 @@ export class EmploymentDetails implements OnChanges {
     @ViewChild(UniForm) private form: UniForm;
 
     @Input() public employment: Employment;
-    @Input() private employeeID: number;
+    @Input() private employee: Employee;
 
     @Output() private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
+    @Output() private employeeChange: EventEmitter<Employee> = new EventEmitter<Employee>();
 
     private focusJobCode: boolean;
 
@@ -43,13 +49,21 @@ export class EmploymentDetails implements OnChanges {
     private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
     private jobCodeInitValue: Observable<any>;
+    private companySalarySettings: CompanySalary;
 
     constructor(
         private employmentService: EmploymentService,
         private accountService: AccountService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-    ) {}
+        private modalService: UniModalService,
+        private companySalaryService: CompanySalaryService
+    ) {
+        this.companySalaryService.getCompanySalary()
+            .subscribe((compsalarysettings: CompanySalary) => {
+                this.companySalarySettings = compsalarysettings;
+            });
+     }
 
     public ngOnChanges(change: SimpleChanges) {
         if (!this.formReady) {
@@ -137,8 +151,8 @@ export class EmploymentDetails implements OnChanges {
             ledgerAccountField.Options = {
                 getDefaultData: () => accountObs,
                 search: (query: string) => {
-                    const filter = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
-                    return this.accountService.GetAll(filter);
+                    const filtr = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
+                    return this.accountService.GetAll(filtr);
                 },
                 displayProperty: 'AccountName',
                 valueProperty: 'AccountNumber',
@@ -256,6 +270,39 @@ export class EmploymentDetails implements OnChanges {
             });
         } else {
             this.employmentChange.emit(this.employment$.getValue());
+        }
+
+        if (changes['StartDate'] && !this.employee.EmploymentDateOtp) {
+            this.employee.EmploymentDateOtp = changes['StartDate'].currentValue;
+            this.employeeChange.emit(this.employee);
+        }
+
+        if (changes['EndDate']) {
+            const enddate: LocalDate = changes['EndDate'].currentValue;
+            if (!!enddate) {
+                if (this.companySalarySettings.OtpExportActive) {
+                    const includedate = moment(new Date()).add(2, 'months');
+                    const obs = this.modalService
+                    .confirm({
+                        header: 'Oppdater Slutttdato OTP',
+                        message: 'Vil du også oppdatere sluttdato OTP?',
+                        buttonLabels: {
+                            accept: 'Ja, oppdater sluttdato OTP',
+                            cancel: 'Nei, setter den selv'
+                        }
+                    })
+                    .onClose;
+                    return obs
+                        .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+                        .switchMap(() => Observable.of(this.employee))
+                        .subscribe((employee) => {
+                            employee.EndDateOtp = enddate;
+                            employee.IncludeOtpUntilMonth = includedate.month();
+                            employee.IncludeOtpUntilYear = includedate.year();
+                            this.employeeChange.emit(employee);
+                        });
+                }
+            }
         }
     }
 

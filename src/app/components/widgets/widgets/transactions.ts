@@ -37,6 +37,9 @@ enum PayrollRunPaymentStatus {
                                 [ngClass]="col.class">
                                 {{ col.label }}
                             </th>
+
+                            <th *ngIf="current?.contextMenu">
+                            </th>
                         <tr>
                     </thead>
 
@@ -47,7 +50,23 @@ enum PayrollRunPaymentStatus {
                                 (click)="rowSelected(row)">
                                 {{ col.displayFunction ? col.displayFunction(row[col.key]) : row[col.key] }}
                             </td>
+
+                            <td *ngIf="current?.contextMenu" class="center hovereffect" [matMenuTriggerFor]="contextMenu">
+                                <ng-container>
+                                    <i class="material-icons">
+                                        more_horiz
+                                    </i>
+                                    <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                        <ul class="menu-list">
+                                            <li *ngFor="let item of current.contextMenu" (click)="contextMenuLinkClick(item, row)">
+                                                    {{item.label}}
+                                                </li>
+                                        </ul>
+                                    </mat-menu>
+                                </ng-container>
+                            </td>
                         </tr>
+
                     </tbody>
 
                 </table>
@@ -91,6 +110,10 @@ export class UniTransactionsWidget implements AfterViewInit {
                 }
             });
         }
+    }
+
+    contextMenuLinkClick(item, row) {
+        this.router.navigateByUrl(item.link + row.ID);
     }
 
     public changeModel(index: number) {
@@ -558,6 +581,12 @@ export class UniTransactionsWidget implements AfterViewInit {
                             return moment(value).format('DD MMM YYYY');
                         },
                         key: 'PayDate'
+                    }
+                ],
+                contextMenu: [
+                    {
+                        label: 'Gå til variable lønnsposter',
+                        link: '/salary/variablepayrolls/',
                     }
                 ],
                 urlToNew: '/salary/payrollrun/0',

@@ -52,6 +52,7 @@ import {
     MatMenuModule,
     MatTooltipModule
 } from '@angular/material';
+import {SalaryModule} from '../salary/salary.module';
 
 @NgModule({
     imports: [
@@ -72,7 +73,8 @@ import {
         MatListModule,
         MatProgressSpinnerModule,
         MatMenuModule,
-        MatTooltipModule
+        MatTooltipModule,
+        SalaryModule,
     ],
     declarations: [
         Settings,

@@ -5,14 +5,15 @@ import {EmploymentService} from '../../../../services/services';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../framework/ui/unitable/index';
-import {Employee, Employment, SubEntity, Project, Department, EmploymentValidValues} from '../../../../unientities';
+import {Employee, Employment} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {ReplaySubject, Subscription} from 'rxjs';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
 import { UniConfirmModalV2, UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
-import { doesNotThrow } from 'assert';
+
+const EMPLOYMENT_KEY = 'employments';
+const EMPLOYEE_KEY = 'employee';
 
 @Component({
     selector: 'employments',
@@ -67,9 +68,9 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 .switchMap(res => {
                     const [params, queryParams] = res;
                     return Observable.forkJoin(
-                        super.getStateSubject('employee')
+                        super.getStateSubject(EMPLOYEE_KEY)
                         .do(employee => this.employee = employee, err => this.errorService.handle(err)),
-                        super.getStateSubject('employments')
+                        super.getStateSubject(EMPLOYMENT_KEY)
                         .do((employments: Employment[]) => {
                             this.employments = employments || [];
                             if (employments && employments.length) {
@@ -108,7 +109,7 @@ export class Employments extends UniView implements OnInit, OnDestroy {
         const employments = this.employments.filter(emp => emp.ID > 0 || emp['_isDirty']);
         if (employments.length !== this.employments.length) {
             const isDirty = employments.some(emp => emp['_isDirty']);
-            super.updateState('employments', employments, isDirty);
+            super.updateState(EMPLOYMENT_KEY, employments, isDirty);
         }
         this.subs.forEach(sub => sub.unsubscribe());
     }
@@ -167,7 +168,11 @@ export class Employments extends UniView implements OnInit, OnDestroy {
         }
         this.employments[index] = _.cloneDeep(employment);
         this.selectedEmployment$.next(employment);
-        super.updateState('employments', this.employments, true);
+        super.updateState(EMPLOYMENT_KEY, this.employments, true);
+    }
+
+    public onEmployeeChange(employee: Employee) {
+        super.updateState(EMPLOYEE_KEY, employee, true);
     }
 
     public onRowSelected(event) {

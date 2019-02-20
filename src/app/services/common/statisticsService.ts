@@ -97,7 +97,7 @@ export class StatisticsService extends BizHttp<string> {
             });
     }
 
-    public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string): Observable<any> {
+    public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string, distinct: boolean): Observable<any> {
 
         const params: URLSearchParams = new URLSearchParams();
 
@@ -105,7 +105,7 @@ export class StatisticsService extends BizHttp<string> {
         params.set('select', selects);
         params.set('expand', expands);
         params.set('headings', headings);
-        params.set('distinct', 'false');
+        params.set('distinct', (distinct || false).toString());
 
         // remove empty filters, causes problem on backend
         if (filters && filters !== '') {

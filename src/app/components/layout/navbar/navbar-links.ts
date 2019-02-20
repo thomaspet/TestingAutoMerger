@@ -372,7 +372,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Payrollrun
                     },
                     {
-                        name: 'A-Melding',
+                        name: 'A-melding',
                         url: '/salary/amelding',
                         moduleID: UniModules.Amelding
                     },
@@ -390,6 +390,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Årsoppgave til inntektsmottaker',
                         url: '/salary/annualstatements',
                         moduleID: UniModules.AnnualStatements
+                    },
+                    // {
+                    //     name: 'OTP-eksport',
+                    //     url: '/salary/otpexport',
+                    //     moduleID: UniModules.OTPExport
+                    // },
+                    {
+                        name: 'Variable lønnsposter',
+                        url: '/salary/variablepayrolls',
+                        moduleID: UniModules.VariablePayrolls
                     }
                 ]
             },

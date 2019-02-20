@@ -40,11 +40,13 @@ export class UniEmailModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public formModel$: BehaviorSubject<Email> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    initialState: any;
 
     constructor(private elementRef: ElementRef) {}
 
     public ngOnInit() {
         const email = this.options.data || {};
+        this.initialState = Object.assign({}, email);
         const fields = this.getFormFields();
 
         if (email._initValue && fields[0] && !email[fields[0].Property]) {
@@ -73,6 +75,8 @@ export class UniEmailModal implements IUniModal {
         let email: Email;
         if (emitValue) {
             email = this.formModel$.getValue();
+        } else {
+            email = this.initialState;
         }
 
         this.onClose.emit(email);

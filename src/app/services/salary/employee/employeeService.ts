@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
-    Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity, InternationalIDType, Address, Country
+    Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity, InternationalIDType, Address, Country, OtpStatus, TypeOfPaymentOtp
 } from '../../../unientities';
 import {Observable} from 'rxjs';
 import {MunicipalService} from '../../common/municipalsService';
@@ -40,6 +40,42 @@ export class EmployeeService extends BizHttp<Employee> {
         { ID: InternationalIDType.TaxIdentificationNumber, Name: 'Tax identit. nr'},
         { ID: InternationalIDType.ValueAddedTaxNumber, Name: 'Value added nr'}
     ];
+
+    private  periods(): Array<any> {
+        return [
+            {period: 0, name: 'Ikke valgt'},
+            {period: 1, name: 'Januar'},
+            {period: 2, name: 'Februar'},
+            {period: 3, name: 'Mars'},
+            {period: 4, name: 'April'},
+            {period: 5, name: 'Mai'},
+            {period: 6, name: 'Juni'},
+            {period: 7, name: 'Juli'},
+            {period: 8, name: 'August'},
+            {period: 9, name: 'September'},
+            {period: 10, name: 'Oktober'},
+            {period: 11, name: 'November'},
+            {period: 12, name: 'Desember'}
+        ];
+      }
+
+    private  otpStatus(): Array<any> {
+        return [
+            {id: OtpStatus.A, name: 'Aktiv'},
+            {id: OtpStatus.S, name: 'Syk'},
+            {id: OtpStatus.P, name: 'Permittert'},
+            {id: OtpStatus.LP, name: 'Lovfestet Permisjon'},
+            {id: OtpStatus.AP, name: 'Avtalt Permisjon'},
+        ];
+    }
+
+    private typeOfOtpPayments(): Array<any> {
+        return [
+            {id: TypeOfPaymentOtp.FixedSalary, name: 'Fast'},
+            {id: TypeOfPaymentOtp.HourlyPay, name: 'Time'},
+            {id: TypeOfPaymentOtp.PaidOnCommission, name: 'Provisjon'},
+        ];
+    }
 
     constructor(
         http: UniHttp,
@@ -161,24 +197,6 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(resultSet => resultSet[0]);
     }
 
-    private getMunicipalityOptions(employee: Employee) {
-        const defaultValue = Observable
-            .of(employee)
-            .switchMap(emp => emp && emp.MunicipalityNo
-                ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
-                : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]))
-            .take(1);
-
-        return {
-            getDefaultData: () => defaultValue,
-            template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
-            search: (query: string) => this.municipalService.search(query),
-            valueProperty: 'MunicipalityNo',
-            displayProperty: 'MunicipalityName',
-            debounceTime: 200
-        };
-    }
-
     private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
         return (value: any, field: UniFieldLayout) => {
             if (!!value) {
@@ -194,7 +212,7 @@ export class EmployeeService extends BizHttp<Employee> {
         };
     }
 
-    public layout(layoutID: string, employee: Employee) {
+    public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'Employee',
@@ -289,7 +307,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Options: this.getMunicipalityOptions(employee),
                     Label: 'Kommunenummer',
                     FieldSet: 2,
                     Section: 0
@@ -398,6 +415,95 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 5,
                     Section: 0,
                 },
+            ]
+        }]);
+    }
+
+    public layoutOTP(layoutID: string) {
+        return Observable.from([{
+            Name: layoutID,
+            BaseEntity: 'Employee',
+            Fields: [
+                {
+                    EntityType: 'Employee',
+                    Property: 'OtpExport',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Inkluderes i eksport',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'OtpStatus',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Status',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: {
+                        source: this.otpStatus(),
+                        template: (obj) => `${obj.id} - ${obj.name}`,
+                        valueProperty: 'id',
+                        displayProperty: 'name'
+                    }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'EmploymentDateOtp',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Ansettelsesdato OTP',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'EndDateOtp',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Sluttdato',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'IncludeOtpUntilMonth',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Inkl. i eksport t.o.m. måned',
+                    FieldSet: 1,
+                    Section: 0,
+                    // Classes: 'quarter-width',
+                    Options: {
+                        source: this.periods(),
+                        template: (obj) => `${obj.period} - ${obj.name}`,
+                        valueProperty: 'period',
+                        displayProperty: 'name'
+                    }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'IncludeOtpUntilYear',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Inkl. i eksport t.o.m. år',
+                    FieldSet: 1,
+                    Section: 0,
+                    // Classes: 'quarter-width, visuallyHideLabel',
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'TypeOfPaymentOtp',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Avlønningsform',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: {
+                        source: this.typeOfOtpPayments(),
+                        template: (obj) => `${obj.id} - ${obj.name}`,
+                        valueProperty: 'id',
+                        displayProperty: 'name'
+                    }
+                }
             ]
         }]);
     }

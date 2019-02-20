@@ -6,6 +6,9 @@
     </header>
 
     <article>
+        <uni-paycheck-mail-options
+            (mailOptions)="onEmailOptions($event)">
+        </uni-paycheck-mail-options>
         <paycheck-sending
             [runID]="options.data"
             (busy)="setBusy($event)"

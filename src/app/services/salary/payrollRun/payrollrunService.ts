@@ -33,6 +33,18 @@ export enum PayrollRunPaymentStatus {
     Paid = 3
 }
 
+export interface IPaycheckEmailInfo {
+    ReportID?: number;
+    Subject?: string;
+    Message?: string;
+    GroupByWageType?: boolean;
+}
+
+export interface IPaycheckReportSetup {
+    EmpIDs: number[];
+    Mail: IPaycheckEmailInfo;
+}
+
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
 
@@ -240,13 +252,17 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
-    public emailPaychecks(emps: Employee[], runID: number, grouping: boolean = false) {
-        return super.ActionWithBody(runID, emps, 'email-paychecks', RequestMethod.Put, `grouped=${grouping}`);
+    public emailPaychecks(runID: number, setup: IPaycheckReportSetup) {
+        return super.ActionWithBody(runID, setup, 'email-paychecks', RequestMethod.Put);
     }
 
 
     public getPaymentsOnPayrollRun(id: number): Observable<Payment[]> {
         return super.GetAction(id, 'payments-on-runs');
+    }
+
+    public getOTPExportData(payrollIDs: string, otpPeriode: number, otpYear: number, asXml: boolean = false) {
+        return super.GetAction(null, 'otp-export', `runs=${payrollIDs}&month=${otpPeriode}&year=${otpYear}&&asXml=${asXml}`);
     }
 
     public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null): boolean {

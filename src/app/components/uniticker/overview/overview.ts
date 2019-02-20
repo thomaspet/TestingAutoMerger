@@ -143,4 +143,8 @@ export class UniTickerOverview {
             this.exportBusy = false;
         });
     }
+
+    public turnGroupingOnOff() {
+        this.tickerContainer.turnGroupingOnOff();
+    }
 }

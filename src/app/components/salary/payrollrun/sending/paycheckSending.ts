@@ -1,31 +1,19 @@
 import {Component, OnInit, Input, ViewChild, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {Employee} from '../../../../unientities';
-import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
-import {UniModalService} from '../../../../../framework/uni-modal';
 import {
     UniTableConfig,
     UniTableColumn,
     UniTableColumnType,
     UniTable
 } from '../../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
-    ErrorService,
     PayrollrunService,
-    ReportDefinitionService,
-    ReportNames
 } from '../../../../services/services';
-import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
     PRINT = 'Utskrift'
-}
-
-interface IPaycheckFormModel {
-    grouped: boolean;
 }
 
 @Component({
@@ -35,101 +23,21 @@ interface IPaycheckFormModel {
 })
 export class PaycheckSending implements OnInit {
     @Input() public runID: number;
-    @Output() public busy: EventEmitter<boolean> = new EventEmitter();
-    @Output() public selectedEmps: EventEmitter<number> = new EventEmitter();
+    @Output() public selectedEmps: EventEmitter<Employee[]> = new EventEmitter();
     @ViewChild(UniTable) public table: UniTable;
 
     public paychecksEmail: Employee[] = [];
     public paychecksPrint: Employee[] = [];
     public employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
-    public formModel$: BehaviorSubject<IPaycheckFormModel> = new BehaviorSubject({grouped: false});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
         private payrollrunService: PayrollrunService,
-        private reportdefinitionService: ReportDefinitionService,
-        private errorService: ErrorService,
-        private modalService: UniModalService,
-        private toastService: ToastService
     ) {}
 
     public ngOnInit() {
         this.loadEmployeesInPayrollrun();
         this.setupPaycheckTable();
-        this.fields$.next(this.getLayout());
-    }
-
-    public handlePaychecks(printAll: boolean = false) {
-        const emps = this.getSelected();
-        const selectedPrints = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
-        const selectedEmails = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
-
-        this.printPaychecks(printAll ? emps : selectedPrints);
-
-        if (printAll) {
-            this.resetRows();
-            return;
-        }
-
-        this.emailPaychecks(selectedEmails)
-            .subscribe(response => {
-                if (!response) {
-                    return;
-                }
-                this.resetRows();
-            });
-    }
-
-    private emailPaychecks(employees: Employee[]): Observable<boolean> {
-        return Observable
-            .of(employees)
-            .filter(emps => !!emps.length)
-            .do(() => this.busy.next(true))
-            .switchMap(emps => this.payrollrunService.emailPaychecks(emps, this.runID, this.formModel$.getValue().grouped))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .finally(() => this.busy.next(false))
-            .do((response: boolean) => {
-                response
-                    ? this.toastService
-                        .addToast(
-                        'Lønnslipper er sendt',
-                        ToastType.good,
-                        ToastTime.short,
-                        'Valgte lønnslipper er sendt til ansatte')
-                    : this.toastService
-                        .addToast(
-                        'Feil',
-                        ToastType.bad,
-                        ToastTime.short,
-                        'Sending av valgte lønnslipper feilet');
-            });
-    }
-
-    private printPaychecks(employees: Employee[]) {
-        if (!employees.length) {
-            return;
-        }
-        this.reportdefinitionService
-            .getReportByName(ReportNames.PAYCHECK_EMP_FILTER)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe((report) => {
-                if (!report) {
-                    return;
-                }
-                const employeeFilter = employees
-                    .map(emp => emp.EmployeeNumber)
-                    .join(',');
-
-                report.parameters = [
-                    {Name: 'EmployeeFilter', value: employeeFilter},
-                    {Name: 'RunID', value: this.runID},
-                    {Name: 'Grouped', value: this.formModel$.getValue().grouped},
-                ];
-
-                this.modalService.open(UniPreviewModal, {data: report});
-            });
     }
 
     private resetRowSelection() {
@@ -143,20 +51,6 @@ export class PaycheckSending implements OnInit {
 
     private getSelected(): Employee[] {
         return this.table.getSelectedRows();
-    }
-
-    private getLayout(): UniFieldLayout[] {
-        return [
-            <any>{
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Gruppering på lønnsart',
-                Property: 'grouped',
-                Tooltip: {
-                    Text: 'Grupperer på lønnsart når lønnsart og sats er lik. Tekst på lønnsposten blir lik lønnsartnavn',
-                    Alignment: 'bottom'
-                }
-            }
-        ];
     }
 
     private loadEmployeesInPayrollrun() {
@@ -222,13 +116,13 @@ export class PaycheckSending implements OnInit {
             && row.BusinessRelationInfo.DefaultEmail.EmailAddress);
     }
 
-    private resetRows() {
+    public resetRows() {
         this.resetRowSelection();
         this.rowSelectionChange();
     }
 
     public rowSelectionChange() {
-        this.selectedEmps.next(this.getSelected().length);
+        this.selectedEmps.next(this.getSelected());
     }
 
 }

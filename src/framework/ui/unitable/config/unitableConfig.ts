@@ -116,6 +116,16 @@ export class UniTableConfig implements IUniTableConfig {
     public headerVisible: boolean;
     public autofocus: boolean;
     public showTotalRowCount: boolean;
+    public rowGroupPanelShow?: string;
+    public groupUseEntireRow?: boolean;
+    public suppressMakeColumnVisibleAfterUnGroup: boolean;
+    public suppressDragLeaveHidesColumns: boolean;
+    public groupHideOpenParents: boolean;
+    public autoGroupColumnDef: any;
+    public getChildCount?: (event) => any;
+    public groupDefaultExpanded: number;
+    public groupIncludeFooter: boolean;
+    public groupingIsOn: boolean;
 
     /**
      * @constructor
@@ -143,6 +153,7 @@ export class UniTableConfig implements IUniTableConfig {
 
         this.copyFromCellAbove = true;
         this.headerVisible = true;
+        this.groupDefaultExpanded = -1;
     }
 
     public static fromObject(obj: IUniTableConfig, configStoreKey: string) {
@@ -187,6 +198,40 @@ export class UniTableConfig implements IUniTableConfig {
     public setColumnMenuVisible(columnMenuVisible: boolean, advancedColumnMenu: boolean = false) {
         this.columnMenuVisible = columnMenuVisible;
         this.advancedColumnMenu = advancedColumnMenu;
+        return this;
+    }
+
+    public setRowGroupPanelShow(rowGroupPanelShow: string) {
+        this.rowGroupPanelShow = rowGroupPanelShow;
+        return this;
+    }
+    public setGroupUseEntireRow(groupUseEntireRow: boolean) {
+        this.groupUseEntireRow = groupUseEntireRow;
+        return this;
+    }
+
+    public setSuppressMakeColumnVisibleAfterUnGroup(suppressMakeColumnVisibleAfterUnGroup: boolean) {
+        this.suppressMakeColumnVisibleAfterUnGroup = suppressMakeColumnVisibleAfterUnGroup;
+        return this;
+    }
+
+    public setSuppressDragLeaveHidesColumns(suppressDragLeaveHidesColumns: boolean) {
+        this.suppressDragLeaveHidesColumns = suppressDragLeaveHidesColumns;
+        return this;
+    }
+
+    public setGroupHideOpenParents(groupHideOpenParents) {
+        this.groupHideOpenParents = groupHideOpenParents;
+        return this;
+    }
+
+    public setAutoGroupColumnDef(autoGroupColumnDef: any) {
+        this.autoGroupColumnDef = autoGroupColumnDef;
+        return this;
+    }
+
+    public setGroupIncludeFooter(groupIncludeFooter: boolean) {
+        this.groupIncludeFooter = groupIncludeFooter;
         return this;
     }
 
@@ -237,6 +282,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setChangeCallback(changeCallback: (event) => any) {
         this.changeCallback = changeCallback;
+        return this;
+    }
+
+    public setGetChildCount(getChildCount: (event) => number) {
+        this.getChildCount = getChildCount;
         return this;
     }
 

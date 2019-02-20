@@ -17,9 +17,9 @@ export class CostAllocationService extends BizHttp<CostAllocation> {
         return super.GetAll(`filter=startswith(ID,'${query}') or contains(Name,'${query}')`);
     }
 
-    public getCostAllocationOptions(costAllocationID) {
-        const defaultValue = Observable
-            .of(costAllocationID)
+    public getCostAllocationOptions(source$) {
+        const defaultValue = source$
+            .map(source => (source && source.CostAllocationID) || 0)
             .switchMap(id => id > 0
                 ? this.GetAll(`filter=ID eq ${id}&top=1`)
                 : Observable.of([]))
@@ -32,7 +32,7 @@ export class CostAllocationService extends BizHttp<CostAllocation> {
             valueProperty: 'ID',
             displayProperty: 'Name',
             debounceTime: 200
-        }   
+        }
     }
 
     public getDraftLinesBySupplierID(supplierID: number, useAccountID?: number, currencyAmount?: number, currencyCodeID?: number, exchangeRate?: number, financialDate?: LocalDate, vatDate?: LocalDate): Observable<JournalEntryLineDraft[]> {

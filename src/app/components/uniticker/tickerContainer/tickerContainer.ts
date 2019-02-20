@@ -47,6 +47,7 @@ export class UniTickerContainer {
     private expressionFilters: Array<IExpressionFilterValue> = [];
     public currentUserGlobalIdentity: string;
     public currentAccountingYear: string;
+    public grouping: boolean = false;
 
     constructor(
         private authService: AuthService,
@@ -206,6 +207,11 @@ export class UniTickerContainer {
 
     public exportToExcel(completeEvent) {
         this.mainTicker.exportToExcel(completeEvent);
+    }
+
+    public turnGroupingOnOff() {
+        this.grouping = !this.grouping;
+        this.mainTicker.turnGroupingOnOff();
     }
 
     public runAction(action) {

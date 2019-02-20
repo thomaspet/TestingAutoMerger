@@ -23,7 +23,7 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
         { id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn' }
     ];
 
-    public getVacationpayBasis(year: number, payrun: number): Observable<VacationPayLine[]> {
+    public getVacationpayBasis(year: number, payrun: number = 0): Observable<VacationPayLine[]> {
         return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}`);
     }
 

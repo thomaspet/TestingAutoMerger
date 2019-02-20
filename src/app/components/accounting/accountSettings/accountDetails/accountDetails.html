@@ -2,7 +2,8 @@
      <uni-form
         [config]="config$ | async"
         [fields]="fields$ | async"
-        [model]="account$ | async">
+        [model]="account$ | async"
+        (changeEvent)="onChange($event)">
     </uni-form>
 </div>
 <div *ngIf="!(account$ | async)">

@@ -10,7 +10,7 @@
 <section *ngIf="ticker" class="ticker-container"
     [ngClass]="{'detail-visible': showSubTickers && ticker?.SubTickers?.length}">
 
-    <section class="main-ticker-container">
+    <section class="main-ticker-container" [ngClass]="{ 'ticker-grouping': grouping }">
         <uni-ticker
             [ticker]="ticker"
             [selectedFilter]="selectedFilter"

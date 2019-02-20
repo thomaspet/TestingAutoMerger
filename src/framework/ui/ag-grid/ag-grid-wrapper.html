@@ -14,6 +14,14 @@
     *ngIf="rowModelType"
     [ngStyle]="{'height': tableHeight}">
 
+    <span
+        *ngIf="config?.groupingIsOn"
+        role="button"
+        class="expand-collapse-groups"
+        (click)="expandCollapseAll()">
+        Åpne/lukk alle grupper
+    </span>
+
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"
         [config]="config"
@@ -25,7 +33,9 @@
     <ag-grid-angular #agGrid
         [ngClass]="{
             'editable': config?.editable,
-            'col-menu-hidden': config && !config.columnMenuVisible
+            'col-menu-hidden': config && !config.columnMenuVisible,
+            'ag-theme-balham': config?.groupingIsOn,
+            'grouping-class': config?.groupingIsOn
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -33,7 +43,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [domLayout]="localData ? 'autoHeight' : 'normal'"
+        [domLayout]="(localData && !config?.groupingIsOn) ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
@@ -47,7 +57,13 @@
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"
+        [animateRows]="true"
+        [suppressMakeColumnVisibleAfterUnGroup]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [suppressDragLeaveHidesColumns]="config?.suppressDragLeaveHidesColumns"
+        [autoGroupColumnDef]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [rowGroupPanelShow]="config?.rowGroupPanelShow"
         [blockLoadDebounceMillis]="250"
+        [suppressContextMenu]="true"
 
         [pagination]="usePagination"
         [paginationPageSize]="config?.pageSize"
@@ -72,7 +88,7 @@
         [frameworkComponents]="cellRendererComponents">
     </ag-grid-angular>
 
-    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1">
+    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
         <i class="material-icons" (click)="paginate('first')">first_page</i>
         <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 

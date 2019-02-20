@@ -66,6 +66,7 @@ export class AMeldingView implements OnInit {
     public toolbarConfig: IToolbarConfig;
     public toolbarSearchConfig: IToolbarSearchConfig;
     public periodStatus: string;
+    public ameldingStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
     private companySalary: CompanySalary;
@@ -95,7 +96,7 @@ export class AMeldingView implements OnInit {
             });
 
         this._tabService.addTab({
-            name: 'A-Melding',
+            name: 'A-melding',
             url: 'salary/amelding',
             moduleID: UniModules.Amelding,
             active: true
@@ -484,6 +485,13 @@ export class AMeldingView implements OnInit {
         }
     }
 
+    private replaceAmeldingInPeriod(melding) {
+        const ind = this.aMeldingerInPeriod.findIndex(x => x.ID === melding.ID);
+        if (ind >= 0) {
+            this.aMeldingerInPeriod[ind] = melding;
+        }
+    }
+
     private getSumUpForAmelding() {
         if (!!this.currentAMelding && this.currentAMelding.ID === 0) {
             return;
@@ -491,6 +499,9 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
+            if (this.currentSumUp.status === 3) {
+                this.currentSumUp._sumupStatusText = this.currentAMelding.altinnStatus; //  getAmeldingStatus();
+            }
             this.legalEntityNo = response.LegalEntityNo;
         }, err => this.errorService.handle(err));
     }
@@ -510,9 +521,7 @@ export class AMeldingView implements OnInit {
 
     private setStatusFromAvvik(avvikIamld: any[] = null) {
         let statusSet: boolean = false;
-        this.periodStatus = '';
         const alleAvvik = avvikIamld != null ? avvikIamld : this.alleAvvikStatuser;
-
         alleAvvik.forEach(avvik => {
             if (!statusSet) {
                 switch (avvik.alvorlighetsgrad) {
@@ -534,9 +543,6 @@ export class AMeldingView implements OnInit {
         });
         if (this.periodStatus === '') {
             this.periodStatus = 'Mottatt';
-        }
-        if (!!this.currentSumUp) {
-            this.currentSumUp._sumupStatusText = this.periodStatus;
         }
     }
 
@@ -572,7 +578,6 @@ export class AMeldingView implements OnInit {
     }
 
     private getLastSentAmeldingWithFeedback() {
-        // 1. if any with status 'sent' set status to 'Tilbakemelding må hentes'
         // 2. if any with altinnstatus 'mottatt' set period-status from feedback
         let ameld: AmeldingData = new AmeldingData();
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
@@ -702,6 +707,7 @@ export class AMeldingView implements OnInit {
             .catch((err, obs) => this.handleError(err, obs, done))
             .subscribe((response: AmeldingData) => {
                 if (response) {
+                    this.replaceAmeldingInPeriod(response);
                     this.refresh(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');

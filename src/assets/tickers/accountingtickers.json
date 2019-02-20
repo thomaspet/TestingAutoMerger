@@ -456,6 +456,7 @@
         "Group": "Regnskap",
         "Model": "SupplierInvoice",
         "Expand": "",
+        "Distinct": true,
         "Joins": "SupplierInvoice.ID eq Task.EntityID and Task.ID eq Approval.TaskID and Approval.UserID eq User.ID",
         "Columns": [
             {
@@ -533,7 +534,8 @@
                 "Field": "stuff(user.displayname)",
                 "Alias": "Assignees",
                 "Expand": "",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "SelectRequired": true
             },
             {
                 "Header": "Prosjektnavn",

@@ -14,8 +14,7 @@ import {CompanySalaryService} from '../companySalary/companySalaryService';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
-    AGA = 1,
-    Pension = 2
+    AGA = 1
 }
 
 @Injectable()
@@ -277,6 +276,14 @@ export class WageTypeService extends BizHttp<WageType> {
                         },
                         {
                             EntityType: 'wagetype',
+                            Property: 'ReportOtp',
+                            FieldType: FieldType.CHECKBOX,
+                            Label: 'OTP-rapportering',
+                            FieldSet: 3,
+                            Section: 0
+                        },
+                        {
+                            EntityType: 'wagetype',
                             Property: '_baseOptions',
                             FieldType: FieldType.CHECKBOXGROUP,
                             Label: 'Med i grunnlag for: ',
@@ -286,8 +293,7 @@ export class WageTypeService extends BizHttp<WageType> {
                                 multivalue: true,
                                 source: [
                                     {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
-                                    {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
-                                    {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
+                                    {ID: WageTypeBaseOptions.AGA, Name: 'Aga'}
                                 ],
                                 valueProperty: 'ID',
                                 labelProperty: 'Name'
