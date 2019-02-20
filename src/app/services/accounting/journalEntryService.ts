@@ -1025,7 +1025,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             this.statisticsService.GetAll(`model=Tracelink&filter=DestinationEntityName eq 'Payment' `
                 + `and SourceEntityName eq 'JournalEntry' and JournalEntry.ID eq ${journalEntryID}`
-                + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID as SupplierInvoice and `
+                + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID and `
                 + `Tracelink.DestinationInstanceId eq Payment.ID`
                 + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`)
         ).map(responses => {
