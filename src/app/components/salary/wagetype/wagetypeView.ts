@@ -302,7 +302,6 @@ export class WageTypeView extends UniView implements OnDestroy {
         wageType.GetRateFrom = GetRateFrom.WageType;
         wageType.Base_Vacation = true;
         wageType.Base_EmploymentTax = true;
-        wageType.ReportOtp = true;
         return wageType;
     }
 

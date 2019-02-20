@@ -2526,7 +2526,6 @@ export class WageType extends UniEntity {
     public Rate: number;
     public RateFactor: number;
     public RatetypeColumn: RateTypeColumn;
-    public ReportOtp: boolean;
     public SpecialAgaRule: SpecialAgaRule;
     public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
     public StandardWageTypeFor: StdWageType;
