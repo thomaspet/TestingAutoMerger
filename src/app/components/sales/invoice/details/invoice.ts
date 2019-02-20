@@ -417,6 +417,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     if (hasCopyParam) {
+                        if (!this.currentCustomer && invoice.Customer) {
+                            this.currentCustomer = invoice.Customer;
+                        }
                         this.refreshInvoice(this.copyInvoice(invoice));
                     } else {
                         this.refreshInvoice(invoice);
@@ -1573,12 +1576,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        return(this.refreshInfo(invoice));
+    }
+
+    public refreshInfo(invoice: CustomerInvoice): CustomerInvoice {
         if (this.currentCustomer && this.currentCustomer.Info) {
-            invoice.CustomerName = this.currentCustomer.Info.Name;
-            if (this.currentCustomer.Info.Addresses && this.currentCustomer.Info.Addresses.length > 0) {
-                var address = this.currentCustomer.Info.Addresses[0];
-                if (this.currentCustomer.Info.InvoiceAddressID) {
-                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.InvoiceAddressID);
+            let info = this.currentCustomer.Info;
+            invoice.CustomerName = info.Name;
+            if (info.Addresses && info.Addresses.length > 0) {
+                var address = info.Addresses[0];
+                if (info.InvoiceAddressID) {
+                    address = info.Addresses.find(x => x.ID == info.InvoiceAddressID);
                 }
                 invoice.InvoiceAddressLine1 = address.AddressLine1;
                 invoice.InvoiceAddressLine2 = address.AddressLine2;
@@ -1588,8 +1596,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 invoice.InvoiceCountry = address.Country;
                 invoice.InvoiceCountryCode = address.CountryCode;
 
-                if (this.currentCustomer.Info.ShippingAddressID) {
-                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.ShippingAddressID);
+                if (info.ShippingAddressID) {
+                    address = info.Addresses.find(x => x.ID == info.ShippingAddressID);
                 }
                 invoice.ShippingAddressLine1 = address.AddressLine1;
                 invoice.ShippingAddressLine2 = address.AddressLine2;
