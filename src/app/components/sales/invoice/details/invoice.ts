@@ -1241,7 +1241,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
                             this.invoice = <CustomerInvoice>invoice;
                             this.readonlyDraft = true;
-                            this.toastService.addToast('periodiseringen er oppdatert', ToastType.good, 3);
+                            this.toastService.addToast('Periodiseringen er oppdatert', ToastType.good, 3);
                         });
                     }
                 });
