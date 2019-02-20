@@ -311,6 +311,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                         if (hasCopyParam) {
+                            if (!this.currentCustomer && order.Customer) {
+                                this.currentCustomer = order.Customer;
+                            }
                             this.refreshOrder(this.copyOrder(order));
                         } else {
                             this.refreshOrder(order);

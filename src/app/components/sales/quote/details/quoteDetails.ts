@@ -285,6 +285,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     quote.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     if (hasCopyParam) {
+                        if (!this.currentCustomer && quote.Customer) {
+                            this.currentCustomer = quote.Customer;
+                        }
                         this.refreshQuote(this.copyQuote(quote));
                     } else {
                         this.refreshQuote(quote);
