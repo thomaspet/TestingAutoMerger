@@ -1,0 +1,21 @@
+<div class="container uni-redesign">
+    <div class="row">
+        <div class="col-lg-4" *ngFor="let template of templates">
+            <div class="flow-template">
+                <div class="icon-wrap">
+                    <i [style.color]="template.Color" class="material-icons not-center-icon">{{template.MaterialIcon1}}</i>
+                    <i class="material-icons center-icon">add</i>
+                    <i [style.color]="template.Color" class="material-icons not-center-icon">{{template.MaterialIcon2}}</i>
+                </div>
+                <div class="description">
+                    <h3>{{template.Label.no}}</h3>
+                    <p>{{template.TemplateComment.no}}</p>
+                </div>
+
+                <button class="c2a" (click)="createFlow(template)">
+                    Opprett
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

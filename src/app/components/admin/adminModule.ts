@@ -20,17 +20,20 @@ import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.com
 import {PeopleService} from '@app/components/admin/gdpr/people.service';
 import {GdprFileWriter} from '@app/components/admin/gdpr/gdpr-file-writer';
 import {SaftExportModal} from './jobs/saft/saftexportmodal';
-import {MatAutocompleteModule, MatSlideToggleModule} from '@angular/material';
-import {FlowSettings, FLOW_SETTINGS_TABS} from '@app/components/admin/flow/flowSettings';
-import {FlowModal, FLOW_MODAL_PAGES} from '@app/components/admin/flow/flowModals/flowModal';
-import {FlowGenericInputModal} from '@app/components/admin/flow/flowGenericInputModal/flowGenericInputModal';
+import {MatAutocompleteModule, MatSlideToggleModule, MatRadioModule, MatCheckboxModule, MatProgressSpinnerModule} from '@angular/material';
+
+import {FlowSettings} from './flow/flowSettings';
+import {FlowModal} from './flow/flow-modal/flow-modal';
+import {FlowList} from './flow/flow-list/flow-list';
+import {FlowTemplates} from './flow/templates/templates';
+import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
 
 @NgModule({
     entryComponents: [
         SaftImportModal,
         SaftExportModal,
+        FlowTemplateModal,
         FlowModal,
-        FlowGenericInputModal,
     ],
     imports: [
         BrowserModule,
@@ -46,6 +49,9 @@ import {FlowGenericInputModal} from '@app/components/admin/flow/flowGenericInput
         UniQueryModule,
         MatAutocompleteModule,
         MatSlideToggleModule,
+        MatProgressSpinnerModule,
+        MatRadioModule,
+        MatCheckboxModule
     ],
     declarations: [
         JobList,
@@ -57,11 +63,12 @@ import {FlowGenericInputModal} from '@app/components/admin/flow/flowGenericInput
         SaftImportModal,
         SaftExportModal,
         UniGdprPeopleList,
+
         FlowSettings,
-        ...FLOW_SETTINGS_TABS,
         FlowModal,
-        ...FLOW_MODAL_PAGES,
-        FlowGenericInputModal,
+        FlowTemplateModal,
+        FlowList,
+        FlowTemplates
     ],
     providers: [
         PeopleService,

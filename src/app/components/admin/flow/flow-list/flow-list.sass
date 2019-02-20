@@ -1,0 +1,46 @@
+@import '~src/styles/uni-redesign/_color.sass'
+
+\:host
+    display: block
+    padding: 2rem
+    font-family: 'Roboto', sans-serif
+    font-size: 15px
+    background: #fff
+
+    > span
+        display: block
+        text-align: center
+        font-weight: 300
+        font-size: 17px
+        color: #455463
+
+.icon-wrap
+    display: flex
+    justify-content: center
+    i
+        font-size: 1.5rem
+
+table
+    border-collapse: collapse
+    width: 100%
+    th
+        text-align: left
+        color: $redesign-scale3
+        font-weight: 500
+    tr
+        cursor: pointer
+        & + tr
+            border-top: 1px solid $redesign-scale4
+        &:hover
+            background: #f9f9f9
+    td
+        padding: .75rem 0
+        color: $redesign-scale1
+
+    td.delete-plan
+        color: rgba(0, 0, 0, .65)
+        text-align: center
+        &:hover
+            color: $redesign-bad
+        i.material-icons
+            vertical-align: middle
