@@ -1,18 +1,17 @@
-<table-search
+<table-filters
     *ngIf="config?.searchable"
     [tableConfig]="config"
     [columns]="columns"
-    [configFilters]="dataService?.advancedSearchFilters"
+    [filters]="dataService?.advancedSearchFilters"
     (filtersChange)="onFiltersChange($event)">
-</table-search>
-
-<section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
-    Antall rader: {{dataService?.totalRowCount$ | async}}
-</section>
+</table-filters>
 
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
-    [ngStyle]="{'height': tableHeight}">
+    [ngStyle]="{
+        'height': tableHeight,
+        'flex': config?.groupingIsOn ? '1' : 'unset'
+    }">
 
     <span
         *ngIf="config?.groupingIsOn"
@@ -21,6 +20,10 @@
         (click)="expandCollapseAll()">
         Åpne/lukk alle grupper
     </span>
+
+    <section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
+        Antall rader: {{dataService?.totalRowCount$ | async}}
+    </section>
 
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"
@@ -34,8 +37,7 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.groupingIsOn,
-            'grouping-class': config?.groupingIsOn
+            'ag-theme-balham': config?.groupingIsOn
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"

@@ -1,11 +1,18 @@
 $table-border-style: 1px solid $uni-color-scale9
 
 ag-grid-wrapper
-    display: block
+    display: flex
+    flex-direction: column
+
+    table-filters
+        flex: 0 0 auto
+
+    .uni-ag-wrapper
+        overflow: hidden
 
     .row-count
         position: absolute
-        bottom: 10px
+        bottom: 5px
         left: 5px
 
 ag-grid-angular

@@ -281,7 +281,6 @@ export class UniDimensionView implements OnInit {
                 operator: 'eq',
                 value: this.currentItem.ID,
                 group: 0,
-                selectConfig: null
             };
 
             this.TOFTableConfig = new UniTableConfig('dimension.tof.list', false)

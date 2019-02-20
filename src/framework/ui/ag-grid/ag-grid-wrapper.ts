@@ -75,6 +75,7 @@ export class AgGridWrapper {
     public localData: boolean;
     public cacheBlockSize: number;
     public tableHeight: string;
+    public flex: string = '1';
     public usePagination: boolean;
     public selectionMode: string = 'single';
     public paginationInfo: any;
@@ -271,27 +272,27 @@ export class AgGridWrapper {
 
                 this.isInitialLoad = false;
             }
-
-
-
-            // if (this.config.autofocus && !this.autofocusPerformed) {
-            //     this.focusRow(0);
-            // }
         }
     }
 
     public onDataLoaded(api: GridApi) {
         if (!this.localData) {
             const loadedRowCount = this.dataService.loadedRowCount;
+            const pageSize = this.config.pageSize || 20;
 
-            if (loadedRowCount < this.config.pageSize) {
-                if (loadedRowCount > 0) {
-                    this.tableHeight = 80 + (loadedRowCount * 35) + 'px';
-                } else {
-                    this.tableHeight = '95px';
-                }
+            if (loadedRowCount < pageSize) {
+                this.tableHeight = loadedRowCount > 0
+                    ? 75 + (loadedRowCount * 35) + 'px'
+                    : '95px';
             } else {
-                this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
+                let height = 75 + (pageSize * 35);
+
+                // Make room for the bar displaying active filters
+                if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
+                    height -= 40;
+                }
+
+                this.tableHeight = height + 'px';
             }
 
             setTimeout(() => {
@@ -460,6 +461,8 @@ export class AgGridWrapper {
     }
 
     public onFiltersChange(event) {
+        console.log(event);
+
         if (this.config.multiRowSelect) {
             this.rowSelectionChange.next([]);
         }

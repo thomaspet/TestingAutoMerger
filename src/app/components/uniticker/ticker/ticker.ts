@@ -9,8 +9,7 @@ import {
     ChangeDetectionStrategy
 } from '@angular/core';
 import {URLSearchParams, Http} from '@angular/http';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Router} from '@angular/router';
 import {
     Ticker,
     TickerAction,
@@ -37,17 +36,15 @@ import {
     ReportDefinitionParameterService,
     CustomDimensionService
 } from '../../../services/services';
-import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
 import {Observable} from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';
-import {SharingType, StatusCodeSharing, ReportDefinition} from '../../../unientities';
+import {SharingType, StatusCodeSharing} from '../../../unientities';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -116,10 +113,7 @@ export class UniTicker {
     public busy: boolean = false;
 
     constructor(
-        private uniHttpService: UniHttp,
         private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
         private statisticsService: StatisticsService,
         private toastService: ToastService,
         private statusService: StatusService,
@@ -128,7 +122,6 @@ export class UniTicker {
         private modelService: ApiModelService,
         private http: Http,
         private reportDefinitionService: ReportDefinitionService,
-        private storageService: BrowserStorageService,
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
         private tableUtils: TableUtils,
@@ -200,6 +193,8 @@ export class UniTicker {
         if (this.groupingIsOn) {
             this.getGroupingData();
         }
+
+        this.cdr.markForCheck();
     }
 
     public getGroupingData() {
@@ -440,19 +435,19 @@ export class UniTicker {
 
         if (this.selectedFilter) {
             const uniTableFilter = urlParams.get('filter');
-            let newFilter = '';
+            let tickerFilter = '';
 
-            if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
-                newFilter = this.selectedFilter.Filter;
+            if (this.selectedFilter.Filter) {
+                tickerFilter = this.selectedFilter.Filter;
 
-                if (newFilter.indexOf(':currentuserid') >= 0) {
+                if (tickerFilter.indexOf(':currentuserid') >= 0) {
                     const expressionFilterValue = this.expressionFilters.find(x => x.Expression === ':currentuserid');
                     if (expressionFilterValue) {
-                        newFilter = newFilter.replace(':currentuserid', `'${expressionFilterValue}'`);
+                        tickerFilter = tickerFilter.replace(':currentuserid', `'${expressionFilterValue}'`);
                     }
                 }
             } else if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
-                newFilter =
+                tickerFilter =
                     this.uniTickerService.getFilterString(
                         this.selectedFilter.FilterGroups,
                         this.expressionFilters,
@@ -462,14 +457,16 @@ export class UniTicker {
             }
 
             let filter = null;
-
-            if (newFilter && newFilter !== '' && uniTableFilter && uniTableFilter !== '') {
-                filter = '(' + uniTableFilter + ' ) and (' + newFilter + ' )';
-            } else if (newFilter && newFilter !== '') {
-                filter = newFilter;
-            } else if (uniTableFilter && uniTableFilter !== '') {
-                filter = uniTableFilter;
+            if (uniTableFilter) {
+                if (tickerFilter && !uniTableFilter.includes(tickerFilter)) {
+                    filter = `(${uniTableFilter} ) and (${tickerFilter} )`;
+                } else {
+                    filter = uniTableFilter;
+                }
+            } else if (tickerFilter) {
+                filter = tickerFilter;
             }
+
             params.set('filter', filter);
         }
 
@@ -996,6 +993,7 @@ export class UniTicker {
                             col.setAlignment('right');
                             break;
                         case 'NumberPositiveNegative':
+                            col.setType(UniTableColumnType.Number);
                             col.setConditionalCls(row => {
                                 let value = +row[column.Alias || column.Field];
 
@@ -1052,7 +1050,7 @@ export class UniTicker {
                 if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
                     const statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
                     if (statusCodes && statusCodes.length > 0) {
-                        col.selectConfig = {
+                        col.filterSelectConfig = {
                             options: statusCodes,
                             displayField: 'name',
                             valueField: 'statusCode'

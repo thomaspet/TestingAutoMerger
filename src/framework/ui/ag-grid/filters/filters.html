@@ -1,0 +1,33 @@
+<section class="filter-inputs">
+    <input #searchInput [formControl]="searchControl" type="text" placeholder="Søk">
+
+    <button class="icon-button" (click)="showAdvancedFilters()">
+        <i class="material-icons">filter_list</i>
+    </button>
+
+    <button *ngIf="savedSearches?.length" [matMenuTriggerFor]="savedFiltersMenu" class="saved-filters-toggle">
+        Lagrede filter
+        <i class="material-icons">keyboard_arrow_down</i>
+    </button>
+
+    <mat-menu style="margin-left: 1rem" #savedFiltersMenu="matMenu">
+        <button (click)="applySearch()" mat-menu-item>Ikke valgt</button>
+        <button (click)="applySearch(search)" *ngFor="let search of savedSearches; let idx = index" mat-menu-item>
+            <span>{{search.name}}</span>
+            <i (click)="showAdvancedFilters(null, search)" class="material-icons">edit</i>
+            <i (click)="deleteSearch(idx, $event)" class="material-icons">close</i>
+        </button>
+    </mat-menu>
+</section>
+
+<section class="active-filters-display" *ngIf="advancedSearchFilters?.length">
+    <i class="material-icons">subdirectory_arrow_right</i>
+
+    <section class="active-filter" *ngFor="let filter of advancedSearchFilters; let idx = index">
+        <span (click)="showAdvancedFilters(idx)">{{filter._displayText}}</span>
+        <i class="material-icons" (click)="removeFilter(idx)">close</i>
+    </section>
+
+    <span *ngIf="advancedSearchFilters.length > 1" role="button" class="clear-all" (click)="removeAll()">Fjern alle</span>
+</section>
+

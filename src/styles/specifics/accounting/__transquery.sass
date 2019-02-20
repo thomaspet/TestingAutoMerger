@@ -6,15 +6,8 @@
         color: $uni-color-scale7 !important
 
 transquery-details
-    .application
-        position: relative
-
     .transquery-filter-form
-        position: absolute
-        top: .4rem
-        left: 21rem
-        z-index: #{map-get($zindex, toolbar) - 2}
-
+        margin-left: 2rem
         uni-field
             width: 8.8rem
             padding: 0
@@ -36,12 +29,6 @@ transquery-details
                     span
                         width: 6rem
 
-        .collapsable.-is-open > .collapsable-content
-            justify-content: left
-
-.transquery-grid-font-size
-    font-size: .9rem
-
-@media screen and (max-width: 1000px)
-    transquery-details .transquery-filter-form
-        position: static
+ag-grid-wrapper
+    height: calc(100vh - 14rem)
+    font-size: 14px
