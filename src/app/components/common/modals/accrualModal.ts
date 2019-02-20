@@ -96,7 +96,7 @@ export class AccrualModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    private buttonsDisabled: boolean = false;
+    buttonsDisabled: boolean = false;
 
     private lockDate: any;
     public currentFinancialYear: number;
