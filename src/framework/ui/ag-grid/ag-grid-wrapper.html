@@ -10,7 +10,8 @@
     *ngIf="rowModelType"
     [ngStyle]="{
         'height': tableHeight,
-        'flex': config?.groupingIsOn ? '1' : 'unset'
+        'flex': config?.groupingIsOn ? '1' : 'unset',
+        'overflow': config?.editable ? 'unset' : 'hidden'
     }">
 
     <span
