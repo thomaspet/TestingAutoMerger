@@ -84,6 +84,7 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import { UniReinvoiceModal } from '@app/components/accounting/bill/detail/reinvoiceModal';
 declare var _;
 
 interface ITab {
@@ -2196,6 +2197,12 @@ export class BillView implements OnInit {
         });
     }
 
+    public openReinvoiceModal() {
+        this.modalService.open(UniReinvoiceModal).onClose.subscribe((result) => {
+
+        });
+    }
+
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
         const current = this.current.getValue();
         switch (key) {
@@ -3529,6 +3536,11 @@ export class BillView implements OnInit {
             {
                 label: lang.clearpostings,
                 action: () => this.journalEntryManual.removeJournalEntryData(),
+                disabled: () => false,
+            },
+            {
+                label: lang.reinvoice,
+                action: () => this.openReinvoiceModal(),
                 disabled: () => false,
             },
         ];
