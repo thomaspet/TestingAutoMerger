@@ -151,7 +151,7 @@ export class App {
                           <b>Kontaktinfo:</b><br />
                           ${company.ContactPerson}<br />
                           ${company.ContactEmail}`,
-                header: `Kunde-Lisens må godkjennes`,
+                header: `Lisensavtale må godtas`,
                 buttonLabels: {
                     accept: 'OK'
                 }
@@ -178,7 +178,7 @@ export class App {
                             'Suksess',
                             ToastType.good,
                             ToastTime.short,
-                            'Brukerlisens godkjenning lagret',
+                            'Brukerlisens godtatt',
                         ),
                         err => this.errorService.handle(err),
                     );
