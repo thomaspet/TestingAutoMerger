@@ -96,6 +96,9 @@ export class OtpFilterModalComponent implements OnInit, IUniModal {
     periodField.Label = 'OTP-periode';
     periodField.EntityType = 'otpExportModel';
     periodField.Property = 'otpPeriode';
+    periodField.Tooltip = {
+      Text: 'Her velges hvilken periode det skal rapporteres for'
+    },
     periodField.Options = {
       source: this.periods(),
       displayProperty: 'name',

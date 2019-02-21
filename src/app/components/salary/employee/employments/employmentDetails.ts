@@ -277,6 +277,33 @@ export class EmploymentDetails implements OnChanges {
             this.employeeChange.emit(this.employee);
         }
 
+        if (changes['StartDate'] && this.employee.EndDateOtp) {
+            if (!changes['StartDate'].previousValue && !employment.ID) {
+                if (this.companySalarySettings.OtpExportActive) {
+                    const obs = this.modalService
+                    .confirm({
+                        header: 'Oppdater Slutttdato OTP',
+                        message: `Den ansatte er satt opp med sluttdato for OTP.
+                            Vil du fjerne sluttdato for OTP nå som du legger til nytt arbeidsforhold?`,
+                        buttonLabels: {
+                            accept: 'Ja, fjern sluttdato OTP',
+                            cancel: 'Nei, behold sluttdato OTP'
+                        }
+                    })
+                    .onClose;
+                    return obs
+                        .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+                        .map(() => this.employee)
+                        .subscribe((employee) => {
+                            employee.EndDateOtp = null;
+                            employee.IncludeOtpUntilMonth = 0;
+                            employee.IncludeOtpUntilYear = 0;
+                            this.employeeChange.emit(employee);
+                        });
+                }
+            }
+        }
+
         if (changes['EndDate']) {
             const enddate: LocalDate = changes['EndDate'].currentValue;
             if (!!enddate) {
@@ -288,7 +315,7 @@ export class EmploymentDetails implements OnChanges {
                         message: 'Vil du også oppdatere sluttdato OTP?',
                         buttonLabels: {
                             accept: 'Ja, oppdater sluttdato OTP',
-                            cancel: 'Nei, setter den selv'
+                            cancel: 'Nei, den ansatte har ikke sluttet. Endrer bare på arbeidsforhold'
                         }
                     })
                     .onClose;

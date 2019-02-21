@@ -12,6 +12,7 @@ import { ErrorService, CompanySalaryService, PayrollrunService } from '@app/serv
 import { CompanySalary, TypeOfPaymentOtp } from '@uni-entities';
 import { Router } from '@angular/router';
 import { OtpPeriodWagetypeModalComponent } from './otp-period-wagetype-modal/otp-period-wagetype-modal.component';
+import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
 
 @Component({
   selector: 'uni-otpexport',
@@ -22,6 +23,10 @@ export class OTPExportComponent implements OnInit {
 
   public toolbarConfig: IToolbarConfig = {
     title: 'OTP-eksport'
+  };
+
+  public infoConfig: IUniInfoConfig = {
+    headline: ''
   };
 
   public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

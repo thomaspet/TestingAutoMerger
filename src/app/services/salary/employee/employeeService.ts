@@ -90,6 +90,41 @@ export class EmployeeService extends BizHttp<Employee> {
         this.defaultExpand = ['BusinessRelationInfo'];
     }
 
+    private getHelpText(colname: string) {
+        let helptext: string = '';
+        switch (colname.toLowerCase()) {
+            case 'otpexport':
+                helptext = 'Fjern krysset hvis den ansatte ikke skal være med i otp-eksporten';
+                break;
+            case 'status':
+                helptext = 'Vedlikeholdes manuelt.' +
+                    'Info i dette feltet kommer med i eksporten og brukes av forsikringsselskapet i utregning av pensjonsgrunnlag';
+                break;
+            case 'empdate':
+                helptext = 'Vanligvis lik ansettelsesdato, men ønskes annen innmeldingsdato kan denne datoen settes her.' +
+                    'Den ansatte blir med på eksport fom perioden som er lik måned i dette feltet';
+                break;
+            case 'enddate':
+                helptext = 'Vanligvis lik sluttdato på arbeidsforhold.' +
+                    'Skal kun settes når den ansatte slutter helt i bedriften og ikke når det er endringer i arbeidsforhold';
+                break;
+            case 'month':
+                helptext = 'Her kan en bestemme hvor mange måneder en ønsker å ha vedkommende med i eksporten etter sluttdato.';
+                break;
+            case 'year':
+                helptext = 'Hører sammen med måned og tilsammen bestemmer disse feltene hvor lenge den ansatte rapporteres i otp';
+                break;
+            case 'paytype':
+                helptext = 'Rapporteres i otp-eksporten.' +
+                    'Er den ansatte merket med avlønningsform Fast, rapporteres årslønn fra arbeidsforholdet på den ansatte.' +
+                    'Er den ansatte merket timer rapporteres kun lønnsarter som er med i periodelønn.';
+                break;
+            default:
+                break;
+        }
+        return helptext;
+    }
+
     public canAccesssEmployee(id: number): Observable<boolean> {
         if (!id) {
             return Observable.of(true);
@@ -431,6 +466,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Inkluderes i eksport',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('otpexport')
+                    },
                     Options: { }
                 },
                 {
@@ -440,6 +478,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Status',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('status')
+                    },
                     Options: {
                         source: this.otpStatus(),
                         template: (obj) => `${obj.id} - ${obj.name}`,
@@ -454,6 +495,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Ansettelsesdato OTP',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('empdate')
+                    },
                     Options: { }
                 },
                 {
@@ -463,6 +507,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Sluttdato',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('enddate')
+                    },
                     Options: { }
                 },
                 {
@@ -472,6 +519,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Inkl. i eksport t.o.m. måned',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('month')
+                    },
                     // Classes: 'quarter-width',
                     Options: {
                         source: this.periods(),
@@ -487,6 +537,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Inkl. i eksport t.o.m. år',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('year')
+                    },
                     // Classes: 'quarter-width, visuallyHideLabel',
                     Options: { }
                 },
@@ -497,6 +550,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: 'Avlønningsform',
                     FieldSet: 1,
                     Section: 0,
+                    Tooltip: {
+                        Text: this.getHelpText('paytype')
+                    },
                     Options: {
                         source: this.typeOfOtpPayments(),
                         template: (obj) => `${obj.id} - ${obj.name}`,
