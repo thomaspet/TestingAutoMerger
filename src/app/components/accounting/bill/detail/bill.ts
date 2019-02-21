@@ -688,6 +688,7 @@ export class BillView implements OnInit {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`)
             .subscribe((invoice: SupplierInvoice) => {
+                invoice.ID = this.currentID;
                 this.updateSummary([]);
                 this.toast.clear();
                 this.handleEHFResult(invoice);
@@ -2969,6 +2970,8 @@ export class BillView implements OnInit {
 
             const saveFunc = () => {
                 if (current.ID) {
+                    // Items should only be saved first time with post
+                    current.Items = null;
                     // if the journalentry is already booked, clear the object before saving as we don't
                     // want to resave a booked journalentry
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
