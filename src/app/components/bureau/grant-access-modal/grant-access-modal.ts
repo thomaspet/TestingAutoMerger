@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, UniConfirmModalV2} from '@uni-framework/uni-modal';
-import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaUserLicense} from '@app/models';
+import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaCustomer} from '@app/models';
 import {MatStepper} from '@angular/material';
 import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
 import {IAuthDetails, AuthService} from '@app/authService';
@@ -20,6 +20,7 @@ export enum PAGE_TYPE {
 }
 
 export interface GrantAccessData {
+    customer: ElsaCustomer;
     contract: ElsaContract;
     companies: ElsaCompanyLicense[];
     users: ElsaUserLicense[];
