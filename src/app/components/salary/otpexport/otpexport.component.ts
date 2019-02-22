@@ -125,7 +125,7 @@ export class OTPExportComponent implements OnInit {
       .open(OtpFilterModalComponent)
       .onClose
       .subscribe(filterModel => {
-        if (!!filterModel.otpPeriod) {
+        if (filterModel && !!filterModel.otpPeriod) {
           this.otpexportModel$
             .take(1)
             .subscribe(otpModel => {
@@ -147,7 +147,7 @@ export class OTPExportComponent implements OnInit {
       .open(OtpPeriodWagetypeModalComponent)
       .onClose
       .subscribe(modalresponse => {
-        if (modalresponse.runupdate) {
+        if (modalresponse && modalresponse.runupdate) {
           this.getData();
         }
       });

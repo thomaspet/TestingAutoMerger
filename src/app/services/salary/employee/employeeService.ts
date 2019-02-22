@@ -516,31 +516,29 @@ export class EmployeeService extends BizHttp<Employee> {
                     EntityType: 'Employee',
                     Property: 'IncludeOtpUntilMonth',
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Inkl. i eksport t.o.m. måned',
+                    Label: 'Inkl. i eksp tom. måned',
                     FieldSet: 1,
                     Section: 0,
                     Tooltip: {
                         Text: this.getHelpText('month')
                     },
-                    // Classes: 'quarter-width',
                     Options: {
                         source: this.periods(),
                         template: (obj) => `${obj.period} - ${obj.name}`,
                         valueProperty: 'period',
-                        displayProperty: 'name'
+                        displayProperty: 'name',
                     }
                 },
                 {
                     EntityType: 'Employee',
                     Property: 'IncludeOtpUntilYear',
                     FieldType: FieldType.TEXT,
-                    Label: 'Inkl. i eksport t.o.m. år',
+                    Label: 'Inkl. i eksp tom. år',
                     FieldSet: 1,
                     Section: 0,
                     Tooltip: {
                         Text: this.getHelpText('year')
                     },
-                    // Classes: 'quarter-width, visuallyHideLabel',
                     Options: { }
                 },
                 {

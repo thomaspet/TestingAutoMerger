@@ -37,10 +37,11 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
 
     public ngOnInit() {
         this.setupTable();
+        this.selectDefaultAmelding();
     }
 
     public ngAfterViewInit() {
-        this.selectDefaultAmelding(this.ameldingerInPeriod);
+        this.table.focusRow(this.ameldingerInPeriod.length - 1);
     }
 
     public onRowSelected(row) {
@@ -110,12 +111,11 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
         );
     }
 
-    private selectDefaultAmelding(ameldingerInPeriod: AmeldingData[]) {
-        if (!ameldingerInPeriod.length) {
+    private selectDefaultAmelding() {
+        if (!this.ameldingerInPeriod.length) {
             return;
         }
-        this.table.focusRow(0);
-        this.setSelectedAmelding(ameldingerInPeriod[0]);
+        this.setSelectedAmelding(this.ameldingerInPeriod[this.ameldingerInPeriod.length - 1]);
     }
 
     private setSelectedAmelding(amelding: AmeldingData) {
