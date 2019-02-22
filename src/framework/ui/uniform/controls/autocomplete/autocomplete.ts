@@ -211,11 +211,12 @@ export class UniAutocompleteInput extends BaseControl {
             this.selectedIndex = -1;
             this.selectedItem = null;
             this.preventSearch = true;
-        }
-        if (this.control.value === '') {
-            this.confirmSelection(null);
-        } else {
-            this.confirmSelection(this.currentValue);
+
+            if (this.control.value === '') {
+                this.confirmSelection(null);
+            } else {
+                this.confirmSelection(this.currentValue);
+            }
         }
     }
 
