@@ -8,6 +8,7 @@
   </nav>
   <main class="splitview_detail">
     <amelding-receipt-view
+      *ngIf="selectedAmelding"
       [attr.aria-busy]="loading"
       [currentAMelding]="selectedAmelding"
       [aMeldingerInPeriod]="ameldingerInPeriod"
