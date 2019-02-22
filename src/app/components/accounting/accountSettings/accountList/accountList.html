@@ -1,6 +1,6 @@
 
-<uni-table
+<ag-grid-wrapper
     [resource]="lookupFunction"
     [config]="accountTable"
-    (rowSelected)="onRowSelected($event)">
-</uni-table>
+    (rowSelectionChange)="onRowSelected($event)">
+</ag-grid-wrapper>
