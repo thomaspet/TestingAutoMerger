@@ -51,7 +51,6 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
         ameldTypeField.EntityType = 'ameldingModel';
         ameldTypeField.FieldType = FieldType.DROPDOWN;
         ameldTypeField.Property = 'type';
-
         ameldTypeField.Options = {
             displayProperty: 'name',
             source: [
