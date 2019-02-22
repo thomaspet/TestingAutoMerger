@@ -205,14 +205,18 @@ export class UniAutocompleteInput extends BaseControl {
         } catch (e) {}
     }
 
-    public onClickOutside() {
+    public onClickOutside(event) {
         if (this.isExpanded$.getValue()) {
             this.isExpanded$.next(false);
             this.selectedIndex = -1;
             this.selectedItem = null;
             this.preventSearch = true;
         }
-        // this.control.setValue(this.initialDisplayValue, {onlySelf: true, emitEvent: false});
+        if (this.control.value === '') {
+            this.confirmSelection(null);
+        } else {
+            this.confirmSelection(this.currentValue);
+        }
     }
 
     private template(obj: any) {
@@ -310,7 +314,6 @@ export class UniAutocompleteInput extends BaseControl {
         this.isExpanded$.next(false); // = false;
         this.focusPositionTop = 0;
 
-        debugger;
         if (this.selectedIndex < 0) {
             if (this.control.value === '') { // allow empty string as value
                 this.currentValue = null;
@@ -482,16 +485,5 @@ export class UniAutocompleteInput extends BaseControl {
         } else if (currItem.offsetTop >= bottom) {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
-    }
-
-    public blurHandler() {
-        // Allow confirmSelection to run first
-        setTimeout(() => {
-            if (this.control.value === '') {
-                this.confirmSelection(null);
-            } else {
-                this.confirmSelection(this.currentValue);
-            }
-        });
     }
 }
