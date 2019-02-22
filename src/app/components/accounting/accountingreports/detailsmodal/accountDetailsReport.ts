@@ -235,12 +235,6 @@ export class AccountDetailsReport {
 
 
     public doTurnAndInclude() {
-        // "turn" amounts for accountgroup 2 and 3, because it will be confusing for the users when these amounts are
-        // displayed as negative numbers (which they will usually be)
-        this.doTurnDistributionAmounts$
-            .next(this.config.accountNumber.toString().substring(0, 1) === '2'
-                || this.config.accountNumber.toString().substring(0, 1) === '3');
-
         // include incoming balance for balance accounts
         this.includeIncomingBalanceInDistributionReport$
             .next(this.config.accountNumber.toString().substring(0, 1) === '1'
