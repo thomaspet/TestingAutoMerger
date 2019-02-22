@@ -30,7 +30,7 @@ import {BehaviorSubject} from 'rxjs';
 
             <footer>
                 <span class="warn" *ngIf="isEmpty">Passordet kan ikke være tomt</span>
-                <button class="good" (click)="onGoodClick()">{{ okButtonText }}</button>
+                <button class="good" [disabled]="busy" (click)="onGoodClick()">{{ okButtonText }}</button>
                 <button class="bad" (click)="onBadClick()">Avbryt</button>
             </footer>
         </section>
@@ -48,6 +48,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public isEmpty: boolean;
+    public busy: boolean = false;
     public isFirstStage: boolean = true;
     public okButtonText: string = 'Betale';
     public fieldText: string = 'Fyll inn passord.';
@@ -75,6 +76,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     }
 
     public onGoodClick() {
+        this.busy = true;
         const model = this.formModel$.getValue();
         if (model['Password']) {
             if (this.isFirstStage) {
@@ -91,13 +93,20 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                                 ' Vennligst skriv inn kode for å fortsette.';
                             this.okButtonText = 'Fullfør betaling';
                             this.formFields$.next(this.getFormFields(true));
+                            this.busy = false;
                        }
-                    }, err => this.errorService.handle(err));
+                    }, err => {
+                        this.busy = false;
+                        this.errorService.handle(err);
+                    });
                } else {
                    // Without two-stage authentification
                    this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
                        this.onClose.emit('Sendingen er fullført');
-                   }, err => this.errorService.handle(err));
+                   }, err => {
+                    this.busy = false;
+                    this.errorService.handle(err);
+                });
                }
             } else {
                 // When user has written password and gotten code
@@ -106,7 +115,10 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                     // Send PASSWORD, CODE and PAYMENTIDS as body
                     this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
                         this.onClose.emit('Sendingen er fullført');
-                    }, err => this.errorService.handle(err));
+                    }, err => {
+                        this.busy = false;
+                        this.errorService.handle(err);
+                    });
                 } else {
                     // If code field is empty, show toast...
                     this.toastService.addToast('Vennligst fyll inn koden', ToastType.bad, 5);
@@ -114,6 +126,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
             }
         } else {
             this.isEmpty = true;
+            this.busy = false;
         }
     }
 

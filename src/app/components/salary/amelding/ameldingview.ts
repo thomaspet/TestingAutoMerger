@@ -765,7 +765,7 @@ export class AMeldingView implements OnInit {
         let anySentInAmeldingerWithStandardAmeldingType: boolean = false;
 
         if ((this.aMeldingerInPeriod && this.aMeldingerInPeriod.filter(x => x.type === AmeldingType.Standard)[0])
-            && (this.currentSumUp && this.currentSumUp.Status > InternalAmeldingStatus.GENERATED)
+            && (this.currentSumUp && this.currentSumUp.status > InternalAmeldingStatus.GENERATED)
         ) {
             anySentInAmeldingerWithStandardAmeldingType = true;
         }
