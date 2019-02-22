@@ -1,9 +1,10 @@
-<uni-table
-    [resource]="employees$ | async"
-    [config]="tableConfig$ | async"
-    (rowSelectionChanged)="rowSelectionChange()">
-</uni-table>
+<ag-grid-wrapper
+    [resource]="employees"
+    [config]="tableConfig"
+    (rowSelectionChange)="rowSelectionChange($event)">
+</ag-grid-wrapper>
+
 <section class="counters">
-    <p>Antall til e-post: {{paychecksEmail?.length}}</p>
-    <p>Antall til utskrift: {{paychecksPrint?.length}}</p>
+    <p>Antall til e-post: {{emailCount}}</p>
+    <p>Antall til utskrift: {{printCount}}</p>
 </section>

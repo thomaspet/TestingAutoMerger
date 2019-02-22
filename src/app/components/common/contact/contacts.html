@@ -1,10 +1,9 @@
-<uni-table
-    [resource]="contacts"
+<ag-grid-wrapper
     [config]="contactTableConfig"
-    (rowDeleted)="onRowDelete($event)"
-    (rowChanged)="onRowChanged($event)"
-    (rowSelected)="onRowSelected($event)">
-</uni-table>
+    [(resource)]="contacts"
+    (resourceChange)="onDataChange()">
+</ag-grid-wrapper>
+
 <p *ngIf="!contacts || contacts.length === 0">
     Registrer eventuelle kontaktpersoner i tabellen over
 </p>

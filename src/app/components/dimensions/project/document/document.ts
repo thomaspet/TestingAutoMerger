@@ -1,18 +1,19 @@
 import {Component} from '@angular/core';
-import {Project} from '../../../../unientities';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
+import {Observable, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+
+import {Project, File} from '@uni-entities';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
-import {UniModalService} from '../../../../../framework/uni-modal';
-import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
+import {UniImageSize} from '@uni-framework/uniImage/uniImage';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {
     ProjectService,
     ErrorService,
     StatisticsService,
     FileService
-} from '../../../../services/services';
+} from '@app/services/services';
 
 declare var _;
 
@@ -21,12 +22,11 @@ declare var _;
     templateUrl: './document.html'
 })
 export class ProjectDocument {
+    project: Project;
+    tableConfig: UniTableConfig;
+    documents: File[];
 
-    public project: Project;
-
-    // Table
-    public tableConfig: UniTableConfig;
-    private documents$: BehaviorSubject<any> = new BehaviorSubject(null);
+    private onDestroy$: Subject<any> = new Subject();
 
     constructor(
         private projectService: ProjectService,
@@ -40,14 +40,19 @@ export class ProjectDocument {
     }
 
     public ngOnInit() {
-        this.projectService.currentProject.subscribe(
-            (project) => {
-                this.project = project;
-                if (project) {
-                    this.loadDocumentList();
-                }
+        this.projectService.currentProject.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(project => {
+            this.project = project;
+            if (project) {
+                this.loadDocumentList();
             }
-        );
+        });
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     private loadBasedOn(register: string) {
@@ -65,13 +70,13 @@ export class ProjectDocument {
     }
 
     private loadCurrentProject() {
-        return this.statisticsService
-            .GetAllUnwrapped(
-                `model=File&` +
-                `select=ID,Name,FileEntityLink.EntityID as EntityID,FileEntityLink.EntityType as EntityType&` +
-                `join=File.ID eq FileEntityLink.FileID and FileEntityLink.EntityID eq Project.ID&` +
-                `filter=FileEntityLink.EntityType eq 'Project' and FileEntityLink.EntityID eq ${this.project.ID}&` +
-                `orderby=Name desc`);
+        return this.statisticsService.GetAllUnwrapped(
+            `model=File&` +
+            `select=ID,Name,FileEntityLink.EntityID as EntityID,FileEntityLink.EntityType as EntityType&` +
+            `join=File.ID eq FileEntityLink.FileID and FileEntityLink.EntityID eq Project.ID&` +
+            `filter=FileEntityLink.EntityType eq 'Project' and FileEntityLink.EntityID eq ${this.project.ID}&` +
+            `orderby=Name desc`
+        );
     }
 
     private loadDocumentList() {
@@ -84,9 +89,8 @@ export class ProjectDocument {
             this.loadBasedOn('Order'),
             this.loadBasedOn('Quote'),
             this.loadCurrentProject()
-        ).subscribe((response: Array<any>) => {
-            let documents = _.flatten(response);
-            this.documents$.next(documents);
+        ).subscribe(response => {
+            this.documents = _.flatten(response);
         });
     }
 
@@ -95,15 +99,15 @@ export class ProjectDocument {
         const nameCol = new UniTableColumn('FileName', 'Navn', UniTableColumnType.Text)
             .setOnCellClick(row => this.previewDocument(row));
         const invoiceCol = new UniTableColumn('CustomerInvoiceNumber', 'Faktura', UniTableColumnType.Link)
-            .setWidth('6rem')
+            .setWidth('6rem', false)
             .setLinkResolver(row => `/sales/invoices/${row.CustomerInvoiceID}`);
 
         const orderCol = new UniTableColumn('CustomerOrderNumber', 'Ordre', UniTableColumnType.Link)
-            .setWidth('6rem')
+            .setWidth('6rem', false)
             .setLinkResolver(row => `/sales/orders/${row.CustomerOrderID}`);
 
         const quoteCol = new UniTableColumn('CustomerQuoteNumber', 'Tilbud', UniTableColumnType.Link)
-            .setWidth('6rem')
+            .setWidth('6rem', false)
             .setLinkResolver(row => `/sales/quotes/${row.CustomerQuoteID}`);
 
         // Setup table
@@ -117,7 +121,7 @@ export class ProjectDocument {
     public onRowDeleted(file) {
         this.fileService.deleteOnEntity(file.EntityType, file.EntityID, file.FileID)
             .subscribe(
-                res => {
+                () => {
                     this.toastService.addToast('Fil slettet', ToastType.good, ToastTime.short);
                     this.loadDocumentList();
                 },

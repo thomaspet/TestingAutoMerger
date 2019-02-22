@@ -277,7 +277,7 @@ export class Project {
 
     public saveProject(done: Function) {
         const project = this.projectService.currentProject.getValue();
-        if (project.WorkPlaceAddress.ID === 0) {
+        if (project.WorkPlaceAddress && !project.WorkPlaceAddress.ID) {
             project.WorkPlaceAddress._createguid = this.projectService.getNewGuid();
         }
 

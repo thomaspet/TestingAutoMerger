@@ -1,6 +1,5 @@
-﻿<uni-table
+﻿<ag-grid-wrapper
     [config]="tableConfig"
-    [resource]="project?.ProjectTasks || []"
-    (rowChanged)="onRowChanged($event)"
-    (rowDeleted)="onRowDeleted($event)">
-</uni-table>
+    [(resource)]="projectTasks"
+    (resourceChange)="onTasksChange()">
+</ag-grid-wrapper>

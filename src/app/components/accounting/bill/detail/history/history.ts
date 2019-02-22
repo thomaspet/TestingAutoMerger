@@ -78,40 +78,31 @@ export class BillHistoryView {
 
     private createTableConfig(): UniTableConfig {
         const cols = [
-            new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.LocalDate).setWidth('5.5em')
-                .setFilterOperator('eq')
-                .setFormat('DD.MM.YY'),
+            new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.LocalDate)
+                .setWidth('6rem'),
             new UniTableColumn(
                 'PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate
             )
-                .setWidth('4em')
                 .setVisible(false)
-                .setFilterOperator('eq')
                 .setConditionalCls(item =>
                     moment(item.PaymentDueDate).isBefore(moment())
                         ? 'supplier-invoice-table-payment-overdue'
                         : 'supplier-invoice-table-payment-ok'
-                )
-                .setFormat('DD.MM.YY'),
-            new UniTableColumn(
-                'ID', 'Nr.', UniTableColumnType.Number
-            ).setVisible(false).setWidth('3em').setFilterOperator('startswith'),
-            new UniTableColumn(
-                'StatusCode', 'Status', UniTableColumnType.Number
-            ).setVisible(true).setAlignment('center').setTemplate((dataItem) => {
-                return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
-            }).setWidth('6em'),
+                ),
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setVisible(false),
+            new UniTableColumn('StatusCode', 'Status')
+                .setTemplate((dataItem) => {
+                    return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
+                }),
 
-            new UniTableColumn('InvoiceNumber', 'Fakturanr').setWidth('6em'),
-            new UniTableColumn('BankAccount', 'Bankgiro').setVisible(false).setWidth('10%'),
-            new UniTableColumn('PaymentID', 'KID/Melding').setVisible(false).setWidth('10%')
+            new UniTableColumn('InvoiceNumber', 'Fakturanr'),
+            new UniTableColumn('BankAccount', 'Bankgiro').setVisible(false),
+            new UniTableColumn('PaymentID', 'KID/Melding').setVisible(false)
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setVisible(true)
-                .setFilterOperator('startswith')
                 .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
 
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
-                .setFilterOperator('contains')
                 .setConditionalCls(item =>
                     item.TaxInclusiveAmount >= 0 ? 'supplier-invoice-table-plus' : 'supplier-invoice-table-minus'
                 ),

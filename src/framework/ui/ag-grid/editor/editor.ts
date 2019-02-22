@@ -240,6 +240,7 @@ export class TableEditor {
 
             _.set(rowModel, field, res);
             _.set(rowModel, '_isEmpty', false);
+            _.set(rowModel, '_isDirty', true);
 
             return Observable.of({
                 rowModel: rowModel,

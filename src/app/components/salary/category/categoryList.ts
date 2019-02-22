@@ -1,9 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
-import {EmployeeCategoryService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs';
-import {EmployeeCategory} from '../../../unientities';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable';
+import {EmployeeCategoryService, ErrorService} from '@app/services/services';
+import {EmployeeCategory} from '@uni-entities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
@@ -11,9 +10,8 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
     templateUrl: './categoryList.html',
 })
 export class CategoryList implements OnInit {
-
-    public tableConfig: UniTableConfig;
-    public categories$: Observable<EmployeeCategory>;
+    tableConfig: UniTableConfig;
+    categories: EmployeeCategory[];
 
     public toolbarActions = [{
         label: 'Ny kategori',
@@ -23,36 +21,37 @@ export class CategoryList implements OnInit {
     }];
 
     constructor(
-        private _router: Router,
-        private tabSer: TabService,
-        private _categoryService: EmployeeCategoryService,
+        private router: Router,
+        private tabService: TabService,
+        private categoryService: EmployeeCategoryService,
         private errorService: ErrorService
     ) {
-        this.tabSer.addTab(
-            {
-                name: 'Kategorier', url: 'salary/employeecategories', moduleID: UniModules.Categories, active: true
-            }
-        );
+        this.tabService.addTab({
+            name: 'Kategorier', url: 'salary/employeecategories', moduleID: UniModules.Categories, active: true
+        });
     }
 
     public ngOnInit() {
-        this.categories$ = this._categoryService.GetAll('')
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-
-        const idCol = new UniTableColumn('ID', 'Nummer', UniTableColumnType.Number);
-        idCol.setWidth('7rem');
-        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
+        this.categoryService.GetAll().subscribe(
+            res => this.categories = res,
+            err => this.errorService.handle(err)
+        );
 
         this.tableConfig = new UniTableConfig('salary.category.categoryList', false, true, 15)
-            .setColumns([idCol, nameCol])
-            .setSearchable(true);
+            .setSearchable(true)
+            .setColumns([
+                new UniTableColumn('ID', 'Nummer', UniTableColumnType.Number)
+                    .setWidth('7rem')
+                    .setResizeable(false),
+                new UniTableColumn('Name', 'Navn')
+            ]);
     }
 
-    public rowSelected(event) {
-        this._router.navigateByUrl('/salary/employeecategories/' + event.rowModel.ID);
+    public rowSelected(row) {
+        this.router.navigateByUrl('/salary/employeecategories/' + row.ID);
     }
 
     public createCategory() {
-        this._router.navigateByUrl('/salary/employeecategories/0');
+        this.router.navigateByUrl('/salary/employeecategories/0');
     }
 }

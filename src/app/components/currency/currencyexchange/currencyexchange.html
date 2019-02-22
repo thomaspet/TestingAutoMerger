@@ -3,15 +3,15 @@
 <section class="application">
     <section class="uni-container">
         <uni-form
-            [config]="config$"
-            [fields]="fields$"
-            [model]="filter$"
-            (changeEvent)="onFormFilterChange($event)">
+            [config]="{}"
+            [fields]="fields"
+            [model]="filter"
+            (changeEvent)="loadData()">
         </uni-form>
 
-        <uni-table
+        <ag-grid-wrapper
             [resource]="exchangelist"
             [config]="exchangeTable">
-        </uni-table>
+        </ag-grid-wrapper>
     </section>
 </section>

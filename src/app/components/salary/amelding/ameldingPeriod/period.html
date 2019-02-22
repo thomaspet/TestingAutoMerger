@@ -1,13 +1,13 @@
 <h1>Fra system</h1>
 <section class="unitableWidthAuto">
-    <uni-table [config]="systemTableConfig" [resource]="systemData"></uni-table>
+    <ag-grid-wrapper [config]="systemTableConfig" [resource]="systemData"></ag-grid-wrapper>
     <uni-summary [configs]="systemPeriodSums"></uni-summary>
 </section>
 
 <section *ngIf="amldData.length">
     <h1>Fra tilbakemelding</h1>
     <section class="unitableWidthAuto">
-        <uni-table [config]="amldTableConfig" [resource]="amldData"></uni-table>
+        <ag-grid-wrapper [config]="amldTableConfig" [resource]="amldData"></ag-grid-wrapper>
         <article  class="collapsable" [ngClass]="{'-is-open': !collapsePaymentInfo}" *ngIf="amldData.length">
             <h4 (click)="collapsePaymentInfo = !collapsePaymentInfo">Betalingsinformasjon</h4>
             <div class="collapsable-content">

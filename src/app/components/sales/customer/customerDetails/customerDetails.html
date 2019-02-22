@@ -38,8 +38,7 @@
                 <div class="collapsable-content">
                     <contacts
                         [parentBusinessRelation]="(customer$ | async)?.Info"
-                        (contactChanged)="onContactChanged($event)"
-                        (deleted)="onContactChanged($event)">
+                        (parentBusinessRelationChange)="onContactsChange()">
                     </contacts>
                 </div>
             </article>

@@ -1,15 +1,8 @@
-import {Component, OnInit, Input, ViewChild, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
-import {Employee} from '../../../../unientities';
-import {BehaviorSubject} from 'rxjs';
-import {
-    UniTableConfig,
-    UniTableColumn,
-    UniTableColumnType,
-    UniTable
-} from '../../../../../framework/ui/unitable/index';
-import {
-    PayrollrunService,
-} from '../../../../services/services';
+import {Component, OnInit, Input, ViewChild, Output, EventEmitter} from '@angular/core';
+import {Employee} from '@uni-entities';
+import {PayrollrunService} from '@app/services/services';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -19,110 +12,73 @@ export enum PaycheckFormat {
 @Component({
     selector: 'paycheck-sending',
     templateUrl: './paycheckSending.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaycheckSending implements OnInit {
-    @Input() public runID: number;
-    @Output() public selectedEmps: EventEmitter<Employee[]> = new EventEmitter();
-    @ViewChild(UniTable) public table: UniTable;
+    @ViewChild(AgGridWrapper) table: AgGridWrapper;
 
-    public paychecksEmail: Employee[] = [];
-    public paychecksPrint: Employee[] = [];
-    public employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
-    public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+    @Input() runID: number;
+    @Output() selectedEmps: EventEmitter<Employee[]> = new EventEmitter();
 
-    constructor(
-        private payrollrunService: PayrollrunService,
-    ) {}
+    emailCount: number = 0;
+    printCount: number = 0;
+    employees: Employee[];
+    tableConfig: UniTableConfig;
 
-    public ngOnInit() {
+    constructor(private payrollrunService: PayrollrunService) {}
+
+    ngOnInit() {
         this.loadEmployeesInPayrollrun();
         this.setupPaycheckTable();
     }
 
-    private resetRowSelection() {
-        this.table
-            .getSelectedRows()
-            .forEach(row => {
-                row['_rowSelected'] = false;
-                this.table.updateRow(row['_originalIndex'], row);
-            });
+    resetRows() {
+        this.table.clearSelection();
     }
 
-    private getSelected(): Employee[] {
-        return this.table.getSelectedRows();
+    rowSelectionChange(selectedEmployees?: Employee[]) {
+        this.selectedEmps.next(selectedEmployees);
+        this.emailCount = 0;
+        this.printCount = 0;
+        selectedEmployees.forEach(employee => {
+            if (employee['_paycheckFormat'] === PaycheckFormat.E_MAIL) {
+                this.emailCount++;
+            } else {
+                this.printCount++;
+            }
+        });
     }
 
     private loadEmployeesInPayrollrun() {
-        const tmpEmail: Employee[] = [];
-        const tmpPrint: Employee[] = [];
-
-        this.payrollrunService.getEmployeesOnPayroll(this.runID,
-            ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail'])
-            .subscribe((emps: Employee[]) => {
-                emps.forEach(employee => {
-                    if (employee.BusinessRelationInfo &&
-                        employee.BusinessRelationInfo.DefaultEmail &&
-                        employee.BusinessRelationInfo.DefaultEmail.EmailAddress) {
-                        employee['_paycheckFormat'] = PaycheckFormat.E_MAIL;
-                        tmpEmail.push(employee);
-                    } else {
-                        employee['_paycheckFormat'] = PaycheckFormat.PRINT;
-                        tmpPrint.push(employee);
-                    }
-                });
-                this.employees$.next(emps);
-                this.paychecksEmail = tmpEmail;
-                this.paychecksPrint = tmpPrint;
+        this.payrollrunService.getEmployeesOnPayroll(
+            this.runID, ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail']
+        ).subscribe((employees: Employee[]) => {
+            employees.forEach(employee => {
+                if (
+                    employee.BusinessRelationInfo &&
+                    employee.BusinessRelationInfo.DefaultEmail &&
+                    employee.BusinessRelationInfo.DefaultEmail.EmailAddress
+                ) {
+                    employee['_paycheckFormat'] = PaycheckFormat.E_MAIL;
+                } else {
+                    employee['_paycheckFormat'] = PaycheckFormat.PRINT;
+                }
             });
+
+            this.employees = employees;
+        });
     }
 
     private setupPaycheckTable() {
-        const employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text, false);
-        const employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
-        const emailCol = new UniTableColumn(
-            'BusinessRelationInfo.DefaultEmail.EmailAddress',
-            'E-post',
-            UniTableColumnType.Text,
-            false);
+        const employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer');
+        const employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn');
+        const emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'E-post');
+        const typeCol = new UniTableColumn('_paycheckFormat', 'Type');
 
-        const typeCol = new UniTableColumn(
-            '_paycheckFormat',
-            'Type',
-            UniTableColumnType.Select,
-            (row) => this.typeColIsEditable(row))
-            .setOptions({
-                resource: [
-                    PaycheckFormat.E_MAIL,
-                    PaycheckFormat.PRINT
-                ],
-                itemTemplate: item => item
-            });
-
-        const config = new UniTableConfig('salary.payrollrun.sending.paychecks', true, true, 25)
+        this.tableConfig = new UniTableConfig('salary.payrollrun.sending.paychecks', false, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
-            .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol]);
-
-        this.tableConfig$.next(config);
     }
-
-    private typeColIsEditable(row: Employee): boolean {
-        return !!(row.BusinessRelationInfo
-            && row.BusinessRelationInfo.DefaultEmail
-            && row.BusinessRelationInfo.DefaultEmail.EmailAddress);
-    }
-
-    public resetRows() {
-        this.resetRowSelection();
-        this.rowSelectionChange();
-    }
-
-    public rowSelectionChange() {
-        this.selectedEmps.next(this.getSelected());
-    }
-
 }

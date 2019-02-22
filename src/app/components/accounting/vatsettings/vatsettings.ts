@@ -81,22 +81,21 @@ export class VatSettings {
     public showVatDeductionGroups(completeEvent) {
         completeEvent();
 
-        this.modalService.open(VatDeductionGroupSetupModal, {}).onClose
-            .subscribe(result => {
-                if (result.didSave) {
-                    if (this.vatDeductionSettings.isDirty) {
-                        this.toastService.addToast(
-                            'Ulagrede endringer',
-                            ToastType.warn,
-                            ToastTime.long,
-                            'Du har endringer i tabellen under som ikke er lagret. ' +
-                            'Lagre disse endringene for å få inn oppdaterte/nye grupper i "Gruppe" kolonnen'
-                        );
-                    } else {
-                        this.vatDeductionSettings.loadData();
-                    }
+        this.modalService.open(VatDeductionGroupSetupModal).onClose.subscribe(changes => {
+            if (changes) {
+                if (this.vatDeductionSettings.isDirty) {
+                    this.toastService.addToast(
+                        'Ulagrede endringer',
+                        ToastType.warn,
+                        ToastTime.long,
+                        'Du har endringer i tabellen under som ikke er lagret. ' +
+                        'Lagre disse endringene for å få inn oppdaterte/nye grupper i "Gruppe" kolonnen'
+                    );
+                } else {
+                    this.vatDeductionSettings.loadData();
                 }
-            });
+            }
+        });
     }
 
     public changeVatType(vatType) {

@@ -1,7 +1,7 @@
-import {NumberFormat} from './../../../../services/services';
 import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
-import {AmeldingData, SalaryTransactionPeriodSums, CompanySalary} from '../../../../unientities';
+import {NumberFormat} from '@app/services/services';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {AmeldingData, SalaryTransactionPeriodSums, CompanySalary} from '@uni-entities';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import * as moment from 'moment';
 
@@ -9,7 +9,6 @@ import * as moment from 'moment';
     selector: 'amelding-periodsummary-view',
     templateUrl: './period.html'
 })
-
 export class AmeldingPeriodSummaryView {
     @Input() public systemData: SalaryTransactionPeriodSums[] = [];
     @Input() public currentAMelding: any;
@@ -208,9 +207,7 @@ export class AmeldingPeriodSummaryView {
         const soneCol = new UniTableColumn('AgaZone', 'Sone', UniTableColumnType.Text).setWidth('4rem');
         const municipalCol = new UniTableColumn('MunicipalName', 'Kommune', UniTableColumnType.Text);
         const typeCol = new UniTableColumn('_type', 'Type', UniTableColumnType.Number).setWidth('7rem');
-        const rateCol = new UniTableColumn('AgaRate', 'Sats', UniTableColumnType.Number)
-            .setWidth('4rem')
-            .setCls('column-align-right');
+        const rateCol = new UniTableColumn('AgaRate', 'Sats', UniTableColumnType.Number).setWidth('4rem')
         const amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Money).setWidth('7rem');
         const agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money).setWidth('7rem');
 
