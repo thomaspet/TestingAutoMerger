@@ -57,7 +57,6 @@ import {BillPreviousView} from './bill/detail/previous/previous';
 import {UniAssignModal} from './bill/detail/assignmodal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
-import {DimensionList} from './accountSettings/dimensionList/dimensionList';
 import {AccountList} from './accountSettings/accountList/accountList';
 import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
 import {VatSettings} from './vatsettings/vatsettings';
@@ -116,7 +115,6 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         UniAccounting,
 
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
 
@@ -213,7 +211,6 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
     ],
     exports: [
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
         NewAccountModal,
