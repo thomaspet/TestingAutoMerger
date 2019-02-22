@@ -189,7 +189,13 @@ export class TableEditor {
         component.column = Immutable.Map(this.currentColumn);
 
         setTimeout(() => {
-            component.inputElement.nativeElement.focus();
+            let elementVisible = false;
+            try {
+                const rect = component.inputElement.nativeElement.getBoundingClientRect();
+                elementVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+            } catch (e) {}
+
+            component.inputElement.nativeElement.focus({preventScroll: elementVisible});
             component.inputElement.nativeElement.select();
         });
 
