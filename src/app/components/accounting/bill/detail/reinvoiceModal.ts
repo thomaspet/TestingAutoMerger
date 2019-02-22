@@ -14,6 +14,8 @@ import {
 import {UniTable} from '../../../../../framework/ui/unitable/index';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 import { IUniSaveAction } from '@uni-framework/save/save';
+import { Customer } from '@app/unientities';
+import { CustomerService } from '@app/services/sales/customerService';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -28,7 +30,9 @@ import { IUniSaveAction } from '@uni-framework/save/save';
         `uni-information a { position: absolute; right: 1rem; bottom: 0.5rem }`,
         `uni-information span { display: inline-block; margin-bottom: 1rem; margin-top: 1rem }`,
         `dl {  margin: 0; margin-left: 2rem; }`,
-        `dd, dt { display: inline-block }`
+        `dd, dt { display: inline-block }`,
+        `.comboButton { margin: 1rem 0 0 1rem; top: 0.85rem }`,
+        `footer .comboButton_moreList:not(#saveActionMenu).comboButton_moreList li { width: 100% }`,
     ],
     template: `
         <section role="dialog" class="uni-modal uni-redesing maybe-default large">
@@ -84,7 +88,24 @@ import { IUniSaveAction } from '@uni-framework/save/save';
                     <a>Endre instillinger</a>
                 </uni-information>
             </article>
+            <p>Velge kunde(r) som skal viderefaktureres:</p>
+            <ag-grid-wrapper
+                [resource]="reinvoingCustomers"
+                [config]="reinvoicingTableConfig"
+            ></ag-grid-wrapper>
+            <p>Velg vare(r)</p>
+            <ag-grid-wrapper
+                [resource]="items"
+                [config]="itemsTableConfig"
+            ></ag-grid-wrapper>
             <footer>
+                <section role="group" class="comboButton">
+                    <button class="comboButton_btn good" type="button" (click)="saveactions[0].action()" [attr.aria-busy]="busy" [disabled]="saveactions[0].disabled">{{saveactions[0].label}}</button>
+                    <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open">More options</button>
+                    <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
+                        <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
+                    </ul>
+                </section>
                 <button (click)="this.onClose.emit(true)" class="good">Lagre</button>
                 <button (click)="this.onClose.emit(false)" class="bad">Avbryt</button>
             </footer>
@@ -96,7 +117,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     public tableConfig: UniTableConfig;
     public list: any[] = [];
 
-    public loadingPreview: boolean = false;
+    public loadingPreview = false;
     private fileID: any;
     public currentFiles: any;
     public file: any;
@@ -106,15 +127,15 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniTable) private table: UniTable;
 
-    public uniSaveConfig: IUniSaveAction[] = [
+    public open = false;
+    public saveactions: IUniSaveAction[] = [
         {
             label: 'Lagre faktur (Fakturert)',
             action: (done) => {
                 console.log(done);
             },
             main: true,
-            disabled: false,
-            isUpload: false
+            disabled: false
         },
         {
             label: 'Lagre faktur (Kladd)',
@@ -122,8 +143,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 console.log(done);
             },
             main: false,
-            disabled: false,
-            isUpload: false
+            disabled: false
         },
         {
             label: 'Lagre ordre (Registrert)',
@@ -131,10 +151,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 console.log(done);
             },
             main: false,
-            disabled: false,
-            isUpload: false
+            disabled: false
         }
     ];
+    public reinvoicingCustomers = [];
+    public items = [];
+    public reinvoicingTableConfig = null;
+    public itemsTableConfig = null;
     public invoiceSum: number = 4000;
     public forReinvoice: boolean = false;
     public reinvoiceType: number = 1;
@@ -150,54 +173,42 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     `;
 
     constructor(
-        private supplierInvoiceService: SupplierInvoiceService,
+        private customerService: CustomerService,
         private errorService: ErrorService,
-        private modalService: UniModalService,
-        private toast: ToastService) {}
+        private modalService: UniModalService) {}
 
     public ngOnInit() {
-        this.getData();
-    }
-
-    public getData() {
-
-    }
-
-    public setUpTable() {
-        const cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
-                .setWidth('4rem')
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Name', 'Filnavn')
-                .setWidth('18rem')
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Description', 'Tekst'
-                ).setFilterOperator('contains'),
-            new UniTableColumn('Size', 'Størrelse', UniTableColumnType.Number)
-                .setVisible(false).setWidth('6rem')
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Source', 'Kilde', UniTableColumnType.Lookup)
-                .setWidth('6rem')
-                .setFilterOperator('startswith')
-                .setTemplate((rowModel) => {
-                if (rowModel.FileTags) {
-                    switch (rowModel.FileTags[0].TagName) {
-                        case 'IncomingMail': return 'Epost';
-                        case 'IncomingEHF': return 'EHF';
-                        case 'IncomingTravel': return 'Reise';
-                        case 'IncomingExpense': return 'Utlegg';
-                    }
+        const customerTemplateFn = (item: Customer | any): string => {
+            if (item && item.ID === 0) {
+                return 'Egen kostnad';
+            } else {
+                if (item && item.Info) {
+                    return item.CustomerNumber + ' - ' + item.Info.Name;
+                } else {
+                    return item ? item.CustomerNumber : '';
                 }
-                return '';
-            }),
+            }
+            return '';
+        };
+        const customerColumn = new UniTableColumn('CustomerID', 'Kunde', UniTableColumnType.Lookup, (rowModel) => rowModel.CustomerID !== 0);
+        customerColumn.setTemplate(customerTemplateFn)
+            .setOptions({
+                itemTemplate: customerTemplateFn,
+                lookupFunction: (query) => {
+                    return this.customerService.GetAll(`contains(Info.Name,${query}&top=50`, ['Info']);
+                },
+            });
+        const shareColumn = new UniTableColumn('SharePercent', 'Andel', UniTableColumnType.Percent, (rowModel) => rowModel.CustomerID !== 0);
+        const netColumn = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money, (rowModel) => rowModel.CustomerID !== 0);
+        const surchargeColumn = new UniTableColumn('SurchargePercent', 'Påslag %', UniTableColumnType.Percent, (rowModel) => rowModel.CustomerID !== 0);
+        const columns = [
+            customerColumn,
+            shareColumn,
+            netColumn,
+            surchargeColumn
         ];
-        const cfg = new UniTableConfig('accounting.bills.addfilemodal', false, true)
-            .setSearchable(false)
-            .setColumns(cols)
-            .setPageSize(12)
-            .setColumnMenuVisible(true)
-            .setDeleteButton(true);
 
-        this.tableConfig = cfg;
+        this.reinvoicingTableConfig = new UniTableConfig('reinvoicing.table', true, false);
+        this.reinvoicingTableConfig.setColumns(columns);
     }
 }
