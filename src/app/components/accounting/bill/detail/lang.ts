@@ -28,7 +28,7 @@ export const billViewLanguage = {
     col_currency_code: 'Valuta',
 
     tool_save: 'Lagre endringer',
-    tool_save_and_new: 'Lagre og start ny',
+    tool_save_and_new: 'Lagre og start ny fra innboks',
     tool_delete: 'Slett',
     tool_save_and_reject: 'Lagre og avvis',
     save_error: 'Feil ved lagring',

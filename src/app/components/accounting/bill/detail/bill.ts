@@ -199,7 +199,7 @@ export class BillView implements OnInit {
             label: lang.tool_save_and_new,
             action: (done) => this.saveAndGetNewDocument(done),
             main: true,
-            disabled: true
+            disabled: false
         },
         {
             label: lang.tool_delete,
@@ -811,7 +811,7 @@ export class BillView implements OnInit {
                 this.current.next(invoice);
 
                 // supplier
-                var idx = supplier.Info.BankAccounts.findIndex(ba => ba.ID == 0 && ba.AccountNumber == res.AccountNumber);
+                const idx = supplier.Info.BankAccounts.findIndex(ba => ba.ID == 0 && ba.AccountNumber == res.AccountNumber);
                 idx != undefined
                     ? supplier.Info.BankAccounts[idx] = res
                     : supplier.Info.BankAccounts.push(res);
@@ -1888,7 +1888,6 @@ export class BillView implements OnInit {
 
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
-        this.flagActionBar(actionBar.saveWithNewDocument, !reset);
         if (!reset && !this.isBlockedSupplier) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
