@@ -34,98 +34,12 @@ import { CustomerService } from '@app/services/sales/customerService';
         `.comboButton { margin: 1rem 0 0 1rem; top: 0.85rem }`,
         `footer .comboButton_moreList:not(#saveActionMenu).comboButton_moreList li { width: 100% }`,
     ],
-    template: `
-        <section role="dialog" class="uni-modal uni-redesing maybe-default large">
-            <header><h1>Viderefakturering</h1></header>
-            <article class="reinvoiceContent">
-                <form id="reinvoiceFormData">
-                    <label for="forReinvoice">
-                        Marker leverandørfaktura for viderefakturering
-                        <mat-checkbox
-                            name="forReinvoice"
-                            tabindex="-1"
-                            [(ngModel)]="forReinvoice"
-                            [labelPosition]="'before'"
-                            [disableRipple]="true">
-                        </mat-checkbox>
-                    </label>
-                    <label id="reinvoiceTypeLabel">
-                        <span>Type viderefakturering</span>
-                        <uni-tooltip [type]="'info'"
-                                     [alignment]="'top'"
-                                     [text]="infoText">
-                        </uni-tooltip>
-                    </label>
-                    <mat-radio-group [value]="reinvoiceType">
-                        <mat-radio-button [value]="1">
-                            Kostnadsdeling
-                        </mat-radio-button>
-                        <mat-radio-button [value]="2">
-                            Viderefakturering, omsetning
-                        </mat-radio-button>
-                    </mat-radio-group>
-                    <p class="totalsum">Totalsum leverandørfaktura: {{ invoiceSum | uninumberformat:'money' }} Kr</p>
-                </form>
-                <uni-information [config]="{ headline: 'Instillinger'}">
-                    <span>Kostandsdeling:</span>
-                    <dl>
-                        <dt>Varenummer</dt>
-                        <dd>5 - Kostnadsdeling</dd>
-                    </dl>
-                    <dl>    
-                        <dt>Hovedbokskonto</dt>
-                        <dd>1579 - Andre kortsiktige fordringer</dd>
-                    </dl>
-                    <span>Viderefakturering:</span>
-                    <dl>
-                        <dt>Varenummer</dt>
-                        <dd>6 - Omsetningsvaren</dd>
-                    </dl>
-                    <dl>
-                        <dt>Hovedbokskonto</dt>
-                        <dd>3000 - Varesalg</dd>
-                    </dl>
-                    <a>Endre instillinger</a>
-                </uni-information>
-            </article>
-            <p>Velge kunde(r) som skal viderefaktureres:</p>
-            <ag-grid-wrapper
-                [resource]="reinvoingCustomers"
-                [config]="reinvoicingTableConfig"
-            ></ag-grid-wrapper>
-            <p>Velg vare(r)</p>
-            <ag-grid-wrapper
-                [resource]="items"
-                [config]="itemsTableConfig"
-            ></ag-grid-wrapper>
-            <footer>
-                <section role="group" class="comboButton">
-                    <button class="comboButton_btn good" type="button" (click)="saveactions[0].action()" [attr.aria-busy]="busy" [disabled]="saveactions[0].disabled">{{saveactions[0].label}}</button>
-                    <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open">More options</button>
-                    <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
-                        <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
-                    </ul>
-                </section>
-                <button (click)="this.onClose.emit(true)" class="good">Lagre</button>
-                <button (click)="this.onClose.emit(false)" class="bad">Avbryt</button>
-            </footer>
-        </section>
-    `
+    templateUrl: './reinvoiceModal.html'
 })
 export class UniReinvoiceModal implements OnInit, IUniModal {
 
-    public tableConfig: UniTableConfig;
-    public list: any[] = [];
-
-    public loadingPreview = false;
-    private fileID: any;
-    public currentFiles: any;
-    public file: any;
-    public previewVisible: boolean;
-
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
-    @ViewChild(UniTable) private table: UniTable;
 
     public open = false;
     public saveactions: IUniSaveAction[] = [
@@ -154,7 +68,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             disabled: false
         }
     ];
-    public reinvoicingCustomers = [];
+    public reinvoicingCustomers = [
+        {Customer: { ID: 0 } }
+    ];
     public items = [];
     public reinvoicingTableConfig = null;
     public itemsTableConfig = null;
@@ -178,37 +94,89 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         private modalService: UniModalService) {}
 
     public ngOnInit() {
-        const customerTemplateFn = (item: Customer | any): string => {
-            if (item && item.ID === 0) {
+        this.reinvoicingTableConfig = this.updateCustomerTableConfig(false);
+        this.itemsTableConfig = this.updateItemTableConfig(false);
+    }
+
+    public updateItemTableConfig(isTurnOver = false) {
+
+        const itemNumberColumn = new UniTableColumn('AccountNumber', 'Varenr', UniTableColumnType.Number);
+        const itemNameColumn = new UniTableColumn('AccountName', 'Varenavn', UniTableColumnType.Text);
+        const itemNetColumn = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money);
+        const itemVatCodeColumn = new UniTableColumn('VatCode', 'Mva-kode', UniTableColumnType.Text);
+        const itemGrossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money);
+
+
+        return new UniTableConfig('reinvoicingItems.table', false, false)
+            .setColumns([
+                itemNumberColumn,
+                itemNameColumn,
+                itemNetColumn,
+                itemVatCodeColumn,
+                itemGrossColumn
+            ])
+            .setEditable(false)
+            .setAutoAddNewRow(false)
+            .setDeleteButton(false)
+            .setColumnMenuVisible(false);
+
+    }
+
+    public updateCustomerTableConfig(isTurnOver = false) {
+        const customerTemplateFn = (item: any): string => {
+            if (item && item.Customer && item.Customer.ID === 0) {
                 return 'Egen kostnad';
             } else {
-                if (item && item.Info) {
-                    return item.CustomerNumber + ' - ' + item.Info.Name;
+                if (item && item.Customer && item.Customer.Info) {
+                    return item.Customer.CustomerNumber + ' - ' + item.Customer.Info.Name;
                 } else {
-                    return item ? item.CustomerNumber : '';
+                    return item && item.Customer ? item.Customer.CustomerNumber : '';
                 }
             }
             return '';
         };
-        const customerColumn = new UniTableColumn('CustomerID', 'Kunde', UniTableColumnType.Lookup, (rowModel) => rowModel.CustomerID !== 0);
+        const customerColumn = new UniTableColumn('Customer', 'Kunde', UniTableColumnType.Lookup, (rowModel) => rowModel.Customer.ID !== 0);
         customerColumn.setTemplate(customerTemplateFn)
+            .setDisplayField('Info.Name')
             .setOptions({
-                itemTemplate: customerTemplateFn,
+                itemTemplate: (item: Customer) => {
+                    if (item && item.Info) {
+                        return item.CustomerNumber + ' - ' + item.Info.Name;
+                    } else {
+                        return item ? item.CustomerNumber : '';
+                    }
+                    return '';
+                },
                 lookupFunction: (query) => {
                     return this.customerService.GetAll(`contains(Info.Name,${query}&top=50`, ['Info']);
                 },
             });
-        const shareColumn = new UniTableColumn('SharePercent', 'Andel', UniTableColumnType.Percent, (rowModel) => rowModel.CustomerID !== 0);
-        const netColumn = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money, (rowModel) => rowModel.CustomerID !== 0);
-        const surchargeColumn = new UniTableColumn('SurchargePercent', 'Påslag %', UniTableColumnType.Percent, (rowModel) => rowModel.CustomerID !== 0);
+        const shareColumn = new UniTableColumn('Share', 'Andel', UniTableColumnType.Percent, (rowModel) => rowModel.Customer.ID !== 0);
+        const netColumn = new UniTableColumn('NetAmount', isTurnOver ? 'Netto' : 'Beløp', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0)
+            .setIsSumColumn(true);
+
+        const surchargeColumn = new UniTableColumn('SurCharge', 'Påslag %', UniTableColumnType.Percent, (rowModel) => rowModel.Customer.ID !== 0)
+            .setVisible(isTurnOver);
+        const vatColumn = new UniTableColumn('Vat', 'Mva', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0)
+            .setVisible(isTurnOver);
+        const grossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0)
+            .setVisible(isTurnOver);
         const columns = [
             customerColumn,
             shareColumn,
             netColumn,
-            surchargeColumn
+            surchargeColumn,
+            vatColumn,
+            grossColumn
         ];
 
-        this.reinvoicingTableConfig = new UniTableConfig('reinvoicing.table', true, false);
-        this.reinvoicingTableConfig.setColumns(columns);
+        return new UniTableConfig('reinvoicing.table', true, false)
+            .setIsRowReadOnly((row => row.Customer && row.Customer.ID === 0))
+            .setColumns(columns)
+            .setColumnMenuVisible(false)
+            .setDeleteButton(true, true)
+            .setDefaultRowData({
+                Customer: {ID: null}
+            });
     }
 }
