@@ -20,7 +20,8 @@ import {
 } from '../../../framework/uni-modal';
 import {
     UniAutobankAgreementListModal,
-    MatchSubAccountManualModal
+    MatchSubAccountManualModal,
+    MatchMainAccountModal
 } from './modals';
 import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -723,8 +724,18 @@ export class BankComponent implements AfterViewInit {
     public setMainAccountForPayment(selectedRows: any) {
         return new Promise(() => {
             const row = selectedRows[0];
-            this.journalEntryService.PutAction(null, 'book-payment-against-main-account', 'paymentID=' + row.ID)
-            .subscribe(() => this.tickerContainer.mainTicker.reloadData());
+            const modal = this.modalService.open(MatchMainAccountModal, {
+                header: 'Velg hovedbokskonto manuelt',
+                data: { model: row }
+            });
+
+            modal.onClose.subscribe(result => {
+                if (result && result.accountID) {
+                    this.journalEntryService.PutAction(null, 'book-payment-against-main-account',
+                        'paymentID=' + row.ID + '&accountID=' + result.accountID)
+                        .subscribe(() => this.tickerContainer.mainTicker.reloadData());
+                }
+            });
         });
     }
 
