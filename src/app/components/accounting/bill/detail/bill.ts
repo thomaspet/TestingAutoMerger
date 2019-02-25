@@ -136,7 +136,6 @@ export class BillView implements OnInit {
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public hasStartupFileID: boolean = false;
     public ocrData: any;
     public ocrWords: Array<any>;
     public startUpFileID: Array<number> = [];
@@ -1657,7 +1656,8 @@ export class BillView implements OnInit {
                 model.DefaultDimensions.Department = null;
                 model.DefaultDimensions.DepartmentID = null;
                 this.current.next(model);
-                const linesWithDepartment = lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID && line.Dimensions.DepartmentID);
+                const linesWithDepartment = lines.filter(line =>
+                    line.Dimensions && line.Dimensions.DepartmentID && line.Dimensions.DepartmentID);
                 if (linesWithDepartment.length) {
                     this.modalService.open(UniConfirmModalV2, {
                         buttonLabels: {
@@ -1876,13 +1876,10 @@ export class BillView implements OnInit {
         this.startUpFileID = [];
         this.busy = false;
 
-        if (!isInitial) {
-            this.hasStartupFileID = false;
-        } else {
-            setTimeout(() => {
-                this.journalEntryManual.setJournalEntryData([]);
-            });
-        }
+        setTimeout(() => {
+            this.journalEntryManual.setJournalEntryData([]);
+        });
+
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
     }
 
@@ -2896,7 +2893,6 @@ export class BillView implements OnInit {
             this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0').subscribe((res) => {
                 if (res && res.length > 0) {
                     this.newInvoice(false);
-                    this.hasStartupFileID = true;
                     this.startUpFileID = [res[0].ID];
                     if (done) { done(lang.save_success); }
                 } else {
@@ -3008,7 +3004,6 @@ export class BillView implements OnInit {
                     if (this.unlinkedFiles.length > 0) {
                         this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
                             () => {
-                            this.hasStartupFileID = false;
                             this.resetDocuments();
                             reload();
                         });
@@ -3606,7 +3601,6 @@ export class BillView implements OnInit {
     }
 
     private loadFromFileID(fileID: number | string) {
-        this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
         this.numberOfDocuments++;
         this.hasUnsavedChanges = true;
