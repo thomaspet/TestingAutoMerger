@@ -8,9 +8,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {ReportsModule} from '../reports/reportsModule';
 
-import {DepartmentDetails} from './department/departmentDetails';
-import {DepartmentList} from './department/departmentList';
-
 import {Project} from './project/project';
 import {ProjectOverview} from './project/overview/overview';
 import {ProjectTasks} from './project/tasks/tasks';
@@ -18,9 +15,6 @@ import {ProjectEditmode} from './project/editmode/editmode';
 import {ProjectDocument} from './project/document/document';
 import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHourTotals} from './project/hours/hourtotals';
-
-import {ProjectLite} from './projectLite/projectLite';
-import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
 import {UniDimensionView} from './custom/dimension';
 
@@ -44,8 +38,6 @@ import {MatSelectModule} from '@angular/material';
         ReportsModule,
     ],
     declarations: [
-        DepartmentDetails,
-        DepartmentList,
         Project,
         ProjectOverview,
         ProjectTasks,
@@ -53,8 +45,6 @@ import {MatSelectModule} from '@angular/material';
         ProjectDocument,
         ProjectQueryList,
         ProjectHourTotals,
-        ProjectLite,
-        ProjectLiteDetails,
         UniDimensionView
     ]
 })
