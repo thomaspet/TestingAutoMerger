@@ -41,6 +41,7 @@ import {
     MatInputModule,
     MatMenuModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatStepperModule,
     MatListModule
 } from '@angular/material';
@@ -57,6 +58,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         MatInputModule,
         MatMenuModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
         MatStepperModule,
         MatListModule,
         ScrollingModule,
