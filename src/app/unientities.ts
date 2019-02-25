@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -889,10 +889,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -1780,6 +1780,7 @@ export class AmeldingData extends UniEntity {
     public mainFileID: number;
     public messageID: string;
     public OppgaveHash: string;
+    public PayrollRunID: number;
     public period: number;
     public receiptID: number;
     public replacesID: number;
@@ -2242,6 +2243,7 @@ export class CompanySalary extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public FreeAmount: number;
+    public HourFTEs: number;
     public HoursPerMonth: number;
     public ID: number;
     public InterrimRemitAccount: number;
@@ -5423,6 +5425,25 @@ export class BudgetEntry extends UniEntity {
 }
 
 
+export class CompanyAccountingSettings extends UniEntity {
+    public static RelativeUrl = 'companyaccountingsettings';
+    public static EntityType = 'CompanyAccountingSettings';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public ReInvoicingCostsharingProductID: number;
+    public ReInvoicingTurnoverProductID: number;
+    public ReInvoicingType: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class CompanyBankAccount extends UniEntity {
     public static RelativeUrl = 'companybankaccounts';
     public static EntityType = 'CompanyBankAccount';
@@ -5790,6 +5811,52 @@ export class Payment extends UniEntity {
 }
 
 
+export class ReInvoice extends UniEntity {
+    public static RelativeUrl = 'reinvoicing';
+    public static EntityType = 'ReInvoice';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public OwnCostAmount: number;
+    public OwnCostShare: number;
+    public ProductID: number;
+    public ReInvoicingType: number;
+    public StatusCode: number;
+    public SupplierInvoiceID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Items: Array<ReInvoiceItem>;
+    public CustomFields: any;
+}
+
+
+export class ReInvoiceItem extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ReInvoiceItem';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerID: number;
+    public Deleted: boolean;
+    public GrossAmount: number;
+    public ID: number;
+    public NetAmount: number;
+    public ReInvoiceID: number;
+    public Share: number;
+    public StatusCode: number;
+    public Surcharge: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Vat: number;
+    public CustomFields: any;
+}
+
+
 export class VatCodeGroup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroup';
@@ -6089,6 +6156,7 @@ export class SupplierInvoice extends UniEntity {
     public PaymentTermsID: number;
     public PrintStatus: number;
     public ProjectID: number;
+    public ReInvoiced: boolean;
     public Requisition: string;
     public RestAmount: number;
     public RestAmountCurrency: number;
@@ -6381,11 +6449,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
     public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -6691,9 +6759,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -8581,6 +8649,13 @@ export enum StatusCodeAccrualPeriod{
 export enum StatusCodeJournalEntryLineDraft{
     Journaled = 34001,
     Credited = 34002,
+}
+
+
+export enum StatusCodeReInvoice{
+    Marked = 30201,
+    Ready = 30202,
+    ReInvoiced = 30203,
 }
 
 
