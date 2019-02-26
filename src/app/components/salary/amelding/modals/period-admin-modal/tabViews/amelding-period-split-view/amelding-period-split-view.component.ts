@@ -19,7 +19,6 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
     public tableConfig: UniTableConfig;
     public selectedAmelding: AmeldingData;
     public loading: boolean;
-    public showFeedback: boolean = false;
 
     private statusType(): Array<any> {
         return [
@@ -63,12 +62,9 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
         const receiptCol = new UniTableColumn('', 'Tilbakemelding', UniTableColumnType.Link)
             .setTemplate(() => 'Vis/skjul')
             .setLinkClick(row => {
-                if (row.ID === this.selectedAmelding.ID) {
-                    this.showFeedback = !this.showFeedback;
-                } else {
-                    this.showFeedback = true;
-                    this.onRowSelected(row);
-                }
+                const amld = this.ameldingerInPeriod.find(x => x.ID === row.ID);
+                amld['_showFeedback'] = !amld['_showFeedback'];
+                this.onRowSelected(row);
             });
 
         this.tableConfig = new UniTableConfig('amelding.period.ameldinger.data', false, false)
@@ -140,6 +136,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                 .finally(() => this.loading = false)
                 .subscribe((response: AmeldingData) => {
                     this.selectedAmelding = response;
+                    response['_showFeedback'] = amelding['_showFeedback'];
                 });
         }
     }
