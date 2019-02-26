@@ -229,6 +229,12 @@
                 "FilterOperator": "startswith"
             },
             {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
+                "LinkNavigationProperty": "InvoiceNumber",
+                "FilterOperator": "startswith"
+            },
+            {
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
                 "FilterOperator": "contains",
