@@ -59,7 +59,6 @@ export class StatusService {
         return statusCodes;
     }
 
-
     public loadStatusCache(): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!this.statusDictionary) {
