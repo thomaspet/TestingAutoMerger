@@ -17,13 +17,14 @@ export class AmeldingReceiptView {
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
     @Input() public companySalary: CompanySalary;
-    private mottattLeveranserIPerioden: any[] = [];
+    @Input() showFeedbackInput: boolean;
+    public mottattLeveranserIPerioden: any[] = [];
     private alleAvvikNoder: any[] = [];
-    private allAvvikGroupedByPeriod: any[] = [];
-    private mottattLeveranserIPeriodenConfig: UniTableConfig;
-    public showFeedback: boolean;
+    public allAvvikGroupedByPeriod: any[] = [];
+    public mottattLeveranserIPeriodenConfig: UniTableConfig;
     private periods: any[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private identificationObject: any = {};
+    public showFeedback: boolean = false;
 
     constructor(
         private _ameldingService: AMeldingService
@@ -31,21 +32,18 @@ export class AmeldingReceiptView {
     }
 
     public ngOnChanges() {
-        this.showFeedback = false;
+        this.showFeedback = this.showFeedbackInput;
         this.setupMottakTable();
         if (this.currentAMelding) {
             if (this.currentAMelding.hasOwnProperty('feedBack')) {
                 const feedback = this.currentAMelding.feedBack;
                 if (feedback !== null) {
                     this.allAvvikGroupedByPeriod = [];
-                    this. alleAvvikNoder = this._ameldingService.getAvvikIAmeldingen(this.currentAMelding);
+                    this.alleAvvikNoder = this._ameldingService.getAvvikIAmeldingen(this.currentAMelding);
                     this._ameldingService
                         .attachMessageIDsToLeveranser(this._ameldingService.getLeveranserIAmeldingen(), this.aMeldingerInPeriod)
                         .subscribe(leveranser => this.mottattLeveranserIPerioden = leveranser);
                     this.groupAvvik();
-                    this.showFeedback = true;
-                } else {
-                    this.showFeedback = false;
                 }
             }
         }
