@@ -19,6 +19,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
     public tableConfig: UniTableConfig;
     public selectedAmelding: AmeldingData;
     public loading: boolean;
+    public showFeedback: boolean = false;
 
     private statusType(): Array<any> {
         return [
@@ -53,13 +54,22 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
 
     private setupTable() {
         const idCol = new UniTableColumn('ID', 'A-melding ID', UniTableColumnType.Number);
-        const statusCol = new UniTableColumn('altinnstatus', 'Altinn status', UniTableColumnType.Text);
+        const statusCol = new UniTableColumn('altinnStatus', 'Altinn status', UniTableColumnType.Text);
         const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text)
             .setTemplate(rowModel => {
                 return this.statusType().find(p => p.id === rowModel.type).name;
             });
         const sentCol = new UniTableColumn('sent', 'Dato sendt', UniTableColumnType.LocalDate);
-        const receiptCol = new UniTableColumn('', '', UniTableColumnType.Link);
+        const receiptCol = new UniTableColumn('', 'Tilbakemelding', UniTableColumnType.Link)
+            .setTemplate(() => 'Vis/skjul')
+            .setLinkClick(row => {
+                if (row.ID === this.selectedAmelding.ID) {
+                    this.showFeedback = !this.showFeedback;
+                } else {
+                    this.showFeedback = true;
+                    this.onRowSelected(row);
+                }
+            });
 
         this.tableConfig = new UniTableConfig('amelding.period.ameldinger.data', false, false)
             .setColumns([idCol, statusCol, typeCol, sentCol, receiptCol])
@@ -129,7 +139,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                 .getAMeldingWithFeedback(amelding.ID)
                 .finally(() => this.loading = false)
                 .subscribe((response: AmeldingData) => {
-                this.selectedAmelding = response;
+                    this.selectedAmelding = response;
                 });
         }
     }
