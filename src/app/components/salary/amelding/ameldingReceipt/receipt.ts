@@ -17,7 +17,6 @@ export class AmeldingReceiptView {
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
     @Input() public companySalary: CompanySalary;
-    @Input() showFeedbackInput: boolean;
     public mottattLeveranserIPerioden: any[] = [];
     private alleAvvikNoder: any[] = [];
     public allAvvikGroupedByPeriod: any[] = [];
@@ -32,7 +31,7 @@ export class AmeldingReceiptView {
     }
 
     public ngOnChanges() {
-        this.showFeedback = this.showFeedbackInput;
+        this.showFeedback = this.currentAMelding['_showFeedback'];
         this.setupMottakTable();
         if (this.currentAMelding) {
             if (this.currentAMelding.hasOwnProperty('feedBack')) {
