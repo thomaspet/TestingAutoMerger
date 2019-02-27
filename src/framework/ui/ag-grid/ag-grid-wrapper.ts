@@ -120,15 +120,11 @@ export class AgGridWrapper {
 
         this.gridSizeChangeDebouncer$
             .debounceTime(200)
-            .subscribe(event => {
-                this.onGridSizeChange(event);
-            });
+            .subscribe(() => this.agGridApi.sizeColumnsToFit());
 
         this.colResizeDebouncer$
             .debounceTime(200)
-            .subscribe(event => {
-                this.onColumnResize(event);
-            });
+            .subscribe(event => this.onColumnResize(event));
     }
 
     public ngOnDestroy() {
@@ -253,9 +249,6 @@ export class AgGridWrapper {
 
                     this.isInitialLoad = false;
                 }
-                // if (this.config.autofocus && !this.autofocusPerformed) {
-                //     this.focusRow(0);
-                // }
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
@@ -302,17 +295,6 @@ export class AgGridWrapper {
         }
     }
 
-    onGridSizeChange(event: GridSizeChangedEvent) {
-        try {
-            const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
-            if (body.clientWidth < event.clientWidth) {
-                this.agGridApi.sizeColumnsToFit();
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
     public expandCollapseAll() {
         if (this.allIsExpanded) {
             this.agGridApi.collapseAll();
@@ -348,14 +330,8 @@ export class AgGridWrapper {
                     this.columns[colIndex].width = event.column.getActualWidth();
                     this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
                 }
-            }
 
-            if (this.wrapperElement) {
-                const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
-                const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
-                if (body && viewport && body.clientWidth < viewport.clientWidth) {
-                    event.api.sizeColumnsToFit();
-                }
+                event.api.sizeColumnsToFit();
             }
         }
     }
