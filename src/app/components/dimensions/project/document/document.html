@@ -2,16 +2,16 @@
     <h2 *ngIf="!project">Ingen prosjekt valgt</h2>
     <article *ngIf="project">
         <uni-attachments
-            [entity]="'Project'" *ngIf="project"
+            [entity]="'Project'"
             [entityID]="project?.ID"
             [showFileList]="false"
             (fileUploaded)="onFileUploaded()">
         </uni-attachments>
 
-        <uni-table
+        <ag-grid-wrapper
             [config]="tableConfig"
-            [resource]="(documents$ | async)"
-            (rowDeleted)="onRowDeleted($event.rowModel)">
-        </uni-table>
+            [resource]="documents"
+            (rowDelete)="onRowDeleted($event)">
+        </ag-grid-wrapper>
     </article>
 </section>

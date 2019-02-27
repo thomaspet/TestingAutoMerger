@@ -1,13 +1,12 @@
 import {Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable';
 import {Observable} from 'rxjs';
-import {AltinnReceipt} from '../../../../../app/unientities';
-import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../../app/services/services';
+import {AltinnReceipt} from '@uni-entities';
+import {AltinnReceiptService, ErrorService} from '@app/services/services';
 import {TaxResponseModal} from './taxResponseModal';
 import {AltinnAuthenticationModal} from '../../../common/modals/AltinnAuthenticationModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {UniModalService} from '../../../../../framework/uni-modal';
-declare var _;
+import {UniModalService} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'read-tax-card',
@@ -17,14 +16,13 @@ export class ReadTaxCard implements OnInit {
     @Input() public changeEvent: EventEmitter<any>;
 
     public receiptTable: UniTableConfig;
-    public altinnReceipts$: Observable<AltinnReceipt>;
+    public altinnReceipts: AltinnReceipt[];
     public responseMessage: string = '';
 
     @Output() public updateTax: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
     constructor(
-        private _altinnReceiptService: AltinnReceiptService,
-        private _employeeService: EmployeeService,
+        private altinnReceiptService: AltinnReceiptService,
         private errorService: ErrorService,
         private modalService: UniModalService
     ) {
@@ -83,13 +81,10 @@ export class ReadTaxCard implements OnInit {
     }
 
     public getReceipts() {
-        this._altinnReceiptService.invalidateCache();
-        this.altinnReceipts$ = this._altinnReceiptService.GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-    }
-
-    public selectedRow(event) {
-        let altinnReceipt: AltinnReceipt = event.rowModel;
-        this.readTaxCard(altinnReceipt.ReceiptID);
+        this.altinnReceiptService.invalidateCache();
+        this.altinnReceiptService.GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`).subscribe(
+            res => this.altinnReceipts = res,
+            err => this.errorService.handle(err)
+        );
     }
 }

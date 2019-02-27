@@ -178,8 +178,13 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setWidth(width: number|string) {
+    public setWidth(width: number|string, resizeable?: boolean) {
         this.width = width;
+
+        if (typeof resizeable === 'boolean') {
+            this.resizeable = resizeable;
+        }
+
         return this;
     }
 

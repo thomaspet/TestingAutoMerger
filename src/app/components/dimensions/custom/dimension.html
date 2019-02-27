@@ -14,15 +14,19 @@
             </option>
         </select>
 
-        <uni-table
+        <ag-grid-wrapper
             [resource]="dimensionList"
             [config]="tableConfig"
-            (rowSelected)="onRowSelected($event)">
-        </uni-table>
+            (rowSelectionChange)="onDimensionSelected($event)">
+        </ag-grid-wrapper>
     </section>
 
     <section class="dimension-details uni-container">
-        <uni-tabs [tabs]="tabs" (activeIndexChange)="changeTab($event)"></uni-tabs>
+        <uni-tabs
+            [tabs]="tabs"
+            [activeIndex]="activeTabIndex"
+            (activeIndexChange)="changeTab($event)">
+        </uni-tabs>
 
         <uni-form
             *ngIf="activeTabIndex === 0"
@@ -31,12 +35,11 @@
             [model]="model$">
         </uni-form>
 
-        <uni-table
+        <ag-grid-wrapper
             *ngIf="activeTabIndex > 0"
             [resource]="lookupFunction"
-            [config]="TOFTableConfig"
-            (rowSelected)="onTOFRowSelected($event)">
-        </uni-table>
+            [config]="TOFTableConfig">
+        </ag-grid-wrapper>
     </section>
 
 </section>

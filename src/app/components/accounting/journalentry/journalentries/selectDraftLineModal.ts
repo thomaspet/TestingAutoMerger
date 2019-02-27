@@ -1,59 +1,48 @@
-import {Component, Input, Output, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
+import {Component, EventEmitter, OnInit} from '@angular/core';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
-    IContextMenuItem,
-} from '../../../../../framework/ui/unitable/index';
-import { JournalEntryService } from '@app/services/services';
+} from '@uni-framework/ui/unitable';
+import { JournalEntryService, ErrorService } from '@app/services/services';
 
 @Component({
     selector: 'select-draftline-modal',
     template: `
-        <section
-            role="dialog"
-            class="uni-modal"
-            style="width: 70vw"
-            (clickOutside)="close()"
-            (keydown.esc)="close()">
+        <section role="dialog" class="uni-modal uni-redesign medium">
+            <header>Velg bilagskladd</header>
 
-            <header><h1>Velg bilagskladd</h1></header>
-            <article class='modal-content' *ngIf="config">
-                <uni-table
-                    [resource]="config.draftLines"
+            <article class='modal-content'>
+                <ag-grid-wrapper
+                    [resource]="draftLines"
                     [config]="uniTableConfig"
-                    (rowSelected)="close($event)">
-                </uni-table>
+                    (rowSelectionChange)="onRowSelected($event)">
+                </ag-grid-wrapper>
             </article>
         </section>
     `
 })
 
 export class SelectDraftLineModal implements IUniModal, OnInit {
-    @ViewChild(UniTable)
-    public unitable: UniTable;
+    options: IModalOptions;
+    onClose: EventEmitter<any> = new EventEmitter();
 
-    @Input()
-    public options: IModalOptions;
+    uniTableConfig: UniTableConfig;
+    draftLines: any[];
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
-    public uniTableConfig: UniTableConfig;
-    public config: any = {};
-
-    constructor(private journalEntryService: JournalEntryService) {}
+    constructor(
+        private journalEntryService: JournalEntryService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
-        this.config = {
-            hasCancelButton: false,
-            draftLines: this.options.data.draftLines,
-            class: 'good'
-        };
-
+        this.draftLines = this.options.data || [];
         this.generateUniTableConfig();
+    }
+
+    onRowSelected(row) {
+        this.onClose.emit(row);
     }
 
     private generateUniTableConfig() {
@@ -63,32 +52,21 @@ export class SelectDraftLineModal implements IUniModal, OnInit {
             new UniTableColumn('JournalEntryDescription', 'Beskrivelse', UniTableColumnType.Text),
         ];
 
-        const contextMenuItem: IContextMenuItem[] = [
-            {
-                action: (item) => this.deleteLine(item),
-                label: 'Slett kladd'
-            }
-        ];
-
         const tableName = 'accounting.journalEntry.selectDraftLineModal';
-        this.uniTableConfig = new UniTableConfig(tableName, false, false, 100)
+        this.uniTableConfig = new UniTableConfig(tableName, false, true)
             .setColumns(columns)
-            .setContextMenu(contextMenuItem)
-            .setColumnMenuVisible(true);
+            .setContextMenu([{
+                label: 'Slett kladd',
+                action: line => this.deleteLine(line)
+            }]);
     }
 
     private deleteLine(line) {
-        this.unitable.removeRow(line._originalIndex);
-
-        this.journalEntryService.deleteJournalEntryDraftGroup(line.JournalEntryDraftGroup)
-            .subscribe(() => { });
-    }
-
-    close(data?: any) {
-        if (data) {
-            this.onClose.emit(data.rowModel);
-        } else {
-            this.onClose.emit(null);
-        }
+        this.journalEntryService.deleteJournalEntryDraftGroup(line.JournalEntryDraftGroup).subscribe(
+            () => {
+                this.draftLines = this.draftLines.filter(l => l.JournalEntryDraftGroup !== line.JournalEntryDraftGroup);
+            },
+            err => this.errorService.handle(err)
+        );
     }
 }

@@ -1,124 +1,70 @@
-import {Component, ViewChild} from '@angular/core';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {Component} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {PredefinedDescription} from '../../../unientities';
-import {Observable} from 'rxjs';
-import {UniModalService} from '../../../../framework/uni-modal';
-
-import {PredefinedDescriptionService, ErrorService} from '../../../services/services';
-
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {PredefinedDescription} from '@uni-entities';
+import {Observable, forkJoin} from 'rxjs';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {PredefinedDescriptionService, ErrorService} from '@app/services/services';
 
 @Component({
     selector: 'predefined-description-list',
     templateUrl: './predefinedDescriptionList.html'
 })
-
 export class PredefinedDescriptionList {
-    @ViewChild(UniTable)
-    private table: UniTable;
-
     private hasUnsavedChanges: boolean;
     public predefinedDescriptionTypes: Array<any> =  [ {ID: 1, Name: 'Bilagsføring'} ];
     public predefinedDescriptions: PredefinedDescription [] = [];
-    private selectedType: number = 0;
+    private selectedTypeID: number = 0;
     public predefinedDescriptionTypeTableConfig: UniTableConfig;
     public predefinedDescriptionsConfig: UniTableConfig;
 
     public toolbarConfig: IToolbarConfig;
     public saveActions: IUniSaveAction[];
-    private changedPreDefinedDescriptions: Array<PredefinedDescription> = [];
 
     constructor(
         private predefinedDescriptionService: PredefinedDescriptionService,
         private errorService: ErrorService,
         private tabService: TabService,
-        private toastService: ToastService,
         private modalService: UniModalService
     ) {
-
         this.tabService.addTab({
             name: 'Faste tekster',
-            url: '/predefinedDescriptions/predefineddescriptions',
+            url: 'predefined-descriptions',
             moduleID: UniModules.PredefinedDescription,
             active: true
         });
 
         this.initToolbar();
         this.initTableConfigs();
-        setTimeout(() => {
-            this.table.focusRow(0);
-            this.selectedType = 1;
-            this.loadData();
-
-        });
     }
 
-    public onRowSelectedType(event) {
-        if (!event.rowModel) {
+    public onDescriptionTypeSelected(type) {
+        if (!type) {
             return;
         }
 
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
-                this.selectedType = event.rowModel['ID'];
+                this.selectedTypeID = type.ID;
                 this.loadData();
             }
         });
     }
 
     public loadData() {
-        this.setHasUnsavedChangeds(false);
-        this.changedPreDefinedDescriptions = [];
-        this.predefinedDescriptionService.GetAll('filter=Type eq ' + this.selectedType).subscribe(
+        this.setHasUnsavedChanges(false);
+        this.predefinedDescriptionService.GetAll('filter=Type eq ' + this.selectedTypeID).subscribe(
                 res => this.predefinedDescriptions = res,
                 err => this.errorService.handle(err)
         );
     }
 
-
-    public onChangePreDefinedDescription(event) {
-        let row = event.rowModel;
-        row['Type'] = this.selectedType;
-
-        let index = this.changedPreDefinedDescriptions.findIndex(x => row['_guid'] === x['_guid']);
-        if (index >= 0) {
-            this.changedPreDefinedDescriptions[index] = row;
-        } else {
-            this.changedPreDefinedDescriptions.push(row);
-        }
-
-        this.setHasUnsavedChangeds(true);
-
-
-    }
-
-    private setHasUnsavedChangeds(hasUnsaved: boolean) {
+    setHasUnsavedChanges(hasUnsaved: boolean) {
         this.hasUnsavedChanges = hasUnsaved;
         this.initToolbar();
     }
-
-
-   public onPredefinedDescriptionDeleted(event) {
-        let row = event.rowModel;
-        row.Deleted = true;
-
-        let changesIndex = this.changedPreDefinedDescriptions.findIndex(x => x['_guid'] === row['_guid']);
-
-        if (row['ID']) {
-            if (changesIndex >= 0) {
-                this.changedPreDefinedDescriptions[changesIndex] = row;
-            } else {
-                this.changedPreDefinedDescriptions.push(row);
-            }
-        } else {
-            this.changedPreDefinedDescriptions.splice(changesIndex, 1);
-        }
-
-        this.setHasUnsavedChangeds(this.changedPreDefinedDescriptions.length > 0);
-   }
 
     public canDeactivate(): Observable<boolean> {
         if (!this.hasUnsavedChanges) {
@@ -130,34 +76,38 @@ export class PredefinedDescriptionList {
 
 
     private initToolbar() {
-        this.toolbarConfig = {
-            title: 'Faste tekster'
-        };
+        this.toolbarConfig = { title: 'Faste tekster' };
 
         this.saveActions = [{
             label: 'Lagre',
             main: true,
             disabled: !this.hasUnsavedChanges,
             action: (done) => {
+                const changedRows = this.predefinedDescriptions.filter(item => item['_isDirty']);
+                if (!changedRows.length) {
+                    done();
+                    this.setHasUnsavedChanges(false);
+                    return;
+                }
 
-                let requests = [];
-                this.changedPreDefinedDescriptions.forEach(x => {
-                    if (x['ID']) {
-                        requests.push(this.predefinedDescriptionService.Put(x['ID'], x));
-                    } else {
-                        requests.push(this.predefinedDescriptionService.Post(x));
-                    }
+                const requests = changedRows.map(row => {
+                    row.Type = this.selectedTypeID;
+                    return row.ID > 0
+                        ? this.predefinedDescriptionService.Put(row.ID, row)
+                        : this.predefinedDescriptionService.Post(row);
                 });
 
-                Observable.forkJoin(requests)
-                    .subscribe(resp => {
-                        this.toastService.addToast('Faste tekster ble lagret!', ToastType.good, 5);
-                        done('Faste tekster ble lagret');
+                forkJoin(requests).subscribe(
+                    () => {
+                        this.setHasUnsavedChanges(false);
                         this.loadData();
-                    }, (err) => {
-                        done('Feil ved lagring av faste tekster');
+                        done();
+                    },
+                    err => {
                         this.errorService.handle(err);
-                });
+                        done();
+                    }
+                );
             }
         }];
     }
@@ -167,20 +117,17 @@ export class PredefinedDescriptionList {
         const storageKey1 = 'common.predefinedDescriptions.types';
         this.predefinedDescriptionTypeTableConfig = new UniTableConfig(storageKey1, false, true, 15)
             .setSearchable(false)
+            .setAutofocus(true)
+            .setColumnMenuVisible(false)
             .setColumns([new UniTableColumn('Name')]);
 
         const storageKey2 = 'common.predefinedDescriptions.descriptions';
-        this.predefinedDescriptionsConfig = new UniTableConfig(storageKey2, true, true, 15)
-            .setSearchable(false)
+        this.predefinedDescriptionsConfig = new UniTableConfig(storageKey2, true)
             .setDeleteButton(true)
-            .setChangeCallback(event => { return event.rowModel; })
-            .setColumns(
-                [
-                    new UniTableColumn('Code', 'Kode', UniTableColumnType.Text)
-                        .setWidth('100px'),
-                    new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-                ]
-            );
+            .setColumns([
+                new UniTableColumn('Code', 'Kode', UniTableColumnType.Text).setWidth('100px'),
+                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+            ]);
 
     }
 }

@@ -188,7 +188,6 @@ export class UniModalService {
 
         if (options.closeOnClickOutside !== false) {
             const eventSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
-                event.stopPropagation();
                 const target = event.target || event.srcElement;
 
                 // Make sure we don't close on events that propagated from the modal,

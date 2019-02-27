@@ -5,10 +5,10 @@
 
 <section class="application">
     <section class="uni-container">
-        <uni-table
-            [resource]="overrides"
+        <ag-grid-wrapper
+            [(resource)]="overrides"
             [config]="overridesTable"
-            (rowChanged)="rowChanged($event)">
-        </uni-table>
+            (rowDelete)="onRowDeleted($event)">
+        </ag-grid-wrapper>
     </section>
 </section>

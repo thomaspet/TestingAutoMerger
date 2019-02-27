@@ -1,25 +1,24 @@
-<uni-toolbar [config]="toolbarConfig"
-             [saveactions]="saveActions">
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
 </uni-toolbar>
 
 <section class="application">
     <section class="splitview">
-        <nav class="splitview_list">
-            <uni-table
-                        [config]="predefinedDescriptionTypeTableConfig"
-                        [resource]="predefinedDescriptionTypes"
-                        (rowSelected)="onRowSelectedType($event)"
-                         >
-            </uni-table>
+        <nav class="splitview_list" style="width: 30rem">
+            <ag-grid-wrapper
+                [config]="predefinedDescriptionTypeTableConfig"
+                [resource]="predefinedDescriptionTypes"
+                (rowSelectionChange)="onDescriptionTypeSelected($event)">
+            </ag-grid-wrapper>
         </nav>
 
         <main class="splitview_detail">
-            <uni-table
+            <ag-grid-wrapper
                 [config]="predefinedDescriptionsConfig"
-                [resource]="predefinedDescriptions"
-                (rowChanged)="onChangePreDefinedDescription($event)"
-                (rowDeleted)="onPredefinedDescriptionDeleted($event)">
-            </uni-table>
+                [(resource)]="predefinedDescriptions"
+                (resourceChange)="setHasUnsavedChanges(true)">
+            </ag-grid-wrapper>
         </main>
     </section>
 </section>

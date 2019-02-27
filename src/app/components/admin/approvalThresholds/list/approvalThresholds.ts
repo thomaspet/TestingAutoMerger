@@ -1,37 +1,25 @@
-// angular
-import {Component, OnInit, ViewChild} from '@angular/core';
-// app
-import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniTable, UniTableColumn, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
-import {ErrorService, TransitionService} from '../../../../services/services';
+import {Component, OnInit} from '@angular/core';
+import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {UniTableColumn, UniTableConfig} from '@uni-framework/ui/unitable';
+import {ErrorService, TransitionService} from '@app/services/services';
 
 @Component({
     selector: 'approval-thresholds',
     templateUrl: './approvalThresholds.html'
 })
 export class ApprovalThresholds implements OnInit {
-    @ViewChild(UniTable)
-    @ViewChild(UniSelect)
+    toolbarConfig: IToolbarConfig;
+    transitionTableConfig: UniTableConfig;
 
-    public table: UniTable;
-
-    public toolbarConfig: IToolbarConfig;
-    public transitionTableConfig: UniTableConfig;
-
-    public fieldSelectConfig: ISelectConfig;
-
-    public transitions: any[] = [];
-
-    public selectedTransition: any;
+    transitions: any[] = [];
+    selectedTransition: any;
 
     constructor(
         private tabService: TabService,
         private errorService: ErrorService,
         private transitionService: TransitionService
-    ) {
-    }
+    ) {}
 
     public ngOnInit() {
         this.tabService.addTab({
@@ -48,10 +36,13 @@ export class ApprovalThresholds implements OnInit {
 
         this.initTableConfig();
 
-        this.transitionService.GetAll('').subscribe(
+        this.transitionService.GetAll().subscribe(
             transitions => {
-                this.transitions = transitions;
-                this.initTransitionLabels();
+                this.transitions = (transitions || []).map(transition => {
+                    transition.Label = `${transition.EntityType}: ${transition.MethodName}`;
+                    return transition;
+                });
+
                 this.selectedTransition = this.transitions[0];
             },
             err => this.errorService.handle(err)
@@ -61,20 +52,7 @@ export class ApprovalThresholds implements OnInit {
     private initTableConfig() {
         this.transitionTableConfig = new UniTableConfig('admin.approvalThreshholds', false, true, 15)
             .setSearchable(true)
+            .setColumnMenuVisible(false)
             .setColumns([new UniTableColumn('Label', 'Handling')]);
-    }
-
-    public onRowSelected(event) {
-        if (!event.rowModel) {
-            return;
-        }
-
-        this.selectedTransition = event.rowModel;
-    }
-
-    private initTransitionLabels() {
-        for (var i = 0; i < this.transitions.length; ++i) {
-            this.transitions[i].Label = this.transitions[i].EntityType + ': ' + this.transitions[i].MethodName;
-        }
     }
 }

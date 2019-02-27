@@ -23,7 +23,6 @@ import {UserManagement, UserDetails, UniRoleModal, InviteUsersModal} from './use
 import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
-import {UniBankSettings} from './bank/bankSettings';
 import {UniDistributionSettings} from './distribution/distribution';
 import {UniDimensionSettings} from './dimension/dimension';
 import {UniDimensionModal} from './dimension/dimensionModal';
@@ -90,7 +89,6 @@ import {SalaryModule} from '../salary/salary.module';
         Teams,
         NumberSeries,
         UniTerms,
-        UniBankSettings,
         UniDistributionSettings,
         UniDimensionSettings,
         GrantModal,
@@ -124,7 +122,6 @@ import {SalaryModule} from '../salary/salary.module';
         AltinnSettings,
         CompanySettingsComponent,
         UniTerms,
-        UniBankSettings,
         ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
         // FreeAmountModal,
