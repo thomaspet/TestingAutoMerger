@@ -6,7 +6,7 @@
       (rowSelectionChange)="onRowSelected($event)">
     </ag-grid-wrapper>
   </nav>
-  <main class="splitview_detail">
+  <main class="splitview_detail" *ngIf="showFeedback">
     <amelding-receipt-view
       *ngIf="selectedAmelding"
       [attr.aria-busy]="loading"

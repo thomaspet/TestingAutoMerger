@@ -1,5 +1,5 @@
 <section>
-    <table *ngIf="showFeedback && allAvvikGroupedByPeriod.length">
+    <table *ngIf="allAvvikGroupedByPeriod.length">
         <tr>
             <th>
                 <h1 style="color: red">Avvik</h1>
@@ -18,7 +18,7 @@
         </tr>
     </table>
 
-    <ul *ngIf="showFeedback && allAvvikGroupedByPeriod.length">
+    <ul>
         <section *ngFor="let avvik of allAvvikGroupedByPeriod">
             <h4>Periode {{avvik.periode}}</h4>
 
