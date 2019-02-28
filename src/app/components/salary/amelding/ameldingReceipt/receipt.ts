@@ -23,7 +23,6 @@ export class AmeldingReceiptView {
     public mottattLeveranserIPeriodenConfig: UniTableConfig;
     private periods: any[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private identificationObject: any = {};
-    public showFeedback: boolean = false;
 
     constructor(
         private _ameldingService: AMeldingService
@@ -31,7 +30,6 @@ export class AmeldingReceiptView {
     }
 
     public ngOnChanges() {
-        this.showFeedback = this.currentAMelding['_showFeedback'];
         this.setupMottakTable();
         if (this.currentAMelding) {
             if (this.currentAMelding.hasOwnProperty('feedBack')) {
