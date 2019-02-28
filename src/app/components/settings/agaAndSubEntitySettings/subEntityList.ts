@@ -10,7 +10,8 @@ import {SubEntitySettingsService} from './services/subEntitySettingsService';
 
 @Component({
     selector: 'sub-entity-list',
-    templateUrl: './subEntityList.html'
+    templateUrl: './subEntityList.html',
+    styleUrls: ['./subEntityList.sass']
 })
 export class SubEntityList implements OnInit {
 
