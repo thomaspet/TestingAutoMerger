@@ -53,6 +53,8 @@ export class UniSearchProductConfig {
     }
 
     public generateProductStatisticsQuery(searchTerm: string, all: boolean = false): string {
+      searchTerm = searchTerm.replace(/'/g,"\\'");
+
       const model = 'Product';
       const isEmptySearch = !searchTerm;
       const filter = `startswith(Product.PartName,'${searchTerm}') or startswith(Product.Name,'${searchTerm}')`
