@@ -198,7 +198,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             this.hasBudgetYear1 = false;
             this.hasBudgetYear2 = false;
 
-            if (this.budgets.length && this.accountIDs.length) {
+            if (this.budgets.length && this.accountIDs && this.accountIDs.length) {
                 if (this.budgets.filter(bud => bud.AccountingYear === parseInt(this.accountYear1, 10) && bud.StatusCode === 47002).length) {
                     const budget = this.budgets.filter(bud => bud.AccountingYear === parseInt(this.accountYear1, 10));
                     budgetquery1 = this.budgetService.getEntriesFromBudgetIDAndAccountID(
