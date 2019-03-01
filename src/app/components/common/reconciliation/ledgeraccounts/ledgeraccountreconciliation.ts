@@ -834,13 +834,6 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    public ResetJournalEntrylinesPostPostStatus(subaccountId: number): void {
-        this.postPostService.ResetJournalEntryLinesPostStatus(subaccountId).subscribe ( () => {
-            this.loadData();
-            this.isDirty = false;
-        });
-    }
-
     private getBusinessRelationDataFromCustomerSearch(customerData: Customer): BusinessRelation {
         const br = new BusinessRelation();
         br.ID = customerData.BusinessRelationID;
