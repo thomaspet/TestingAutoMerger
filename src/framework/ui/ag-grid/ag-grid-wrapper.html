@@ -90,21 +90,21 @@
         [context]="context"
         [frameworkComponents]="cellRendererComponents">
     </ag-grid-angular>
+</section>
 
-    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
-        <i class="material-icons" (click)="paginate('first')">first_page</i>
-        <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
+<section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
+    <i class="material-icons" (click)="paginate('first')">first_page</i>
+    <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 
-        <span class="pagination-info" *ngIf="paginationInfo">
-            Side
-            <input type="text" #pageInput
-                [value]="paginationInfo.currentPage"
-                (change)="paginationInputChange(pageInput.value)"
-            />
-            av {{paginationInfo.pageCount}}
-        </span>
+    <span class="pagination-info" *ngIf="paginationInfo">
+        Side
+        <input type="text" #pageInput
+            [value]="paginationInfo.currentPage"
+            (change)="paginationInputChange(pageInput.value)"
+        />
+        av {{paginationInfo.pageCount}}
+    </span>
 
-        <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
-        <i class="material-icons" (click)="paginate('last')">last_page</i>
-    </section>
+    <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
+    <i class="material-icons" (click)="paginate('last')">last_page</i>
 </section>
