@@ -49,6 +49,15 @@ export class PostPostService extends BizHttp<PostPost> {
             .map(response => response.json());
     }
 
+    public ResetJournalEntryLinesPostStatus(subaccountid: number) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid )
+            .send()
+            .map(response => response.json());
+    }
+
     public async automarkAccount(
         items: IEntryLine[],
         customerid?: number,

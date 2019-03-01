@@ -65,6 +65,7 @@ export class PostPost {
     searchControl: FormControl = new FormControl('');
     scrollbar: PerfectScrollbar;
     activeAccount: number = 0;
+    activeSubAccountID: number = 0;
     customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
     account$: BehaviorSubject<Account> = new BehaviorSubject(null);
@@ -256,6 +257,10 @@ export class PostPost {
                 action: this.autolock.bind(this),
                 disabled: false,
                 label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
+            }, {
+                action: this.cleanAndResetLinesWithWrongStatus.bind(this),
+                disabled: false,
+                label: 'Tilbakestill linjer uten motpost'
             }
         ];
     }
@@ -280,6 +285,8 @@ export class PostPost {
         });
     }
 
+
+
     public autoMarkAll(done: (message: string) => void = msg => {}) {
         this.modalService.open(UniAutomarkModal, {
             data: {
@@ -301,6 +308,30 @@ export class PostPost {
         done('Gjenåpnet');
     }
 
+
+    private cleanAndResetLinesWithWrongStatus (done: (message: string) => void) {
+
+        this.modalService.confirm({
+            header: 'Tilbakestille linjer',
+            message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost?',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            switch (response) {
+                case ConfirmActions.ACCEPT:
+                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID);
+                    done('Tilbakestilling ble kjørt.');
+                break;
+                default:
+                    done('Avbrutt');
+                break;
+            }
+        });
+
+    }
     private cancel(done: (message: string) => void, ask: boolean = true) {
         this.postpost.abortMarking(ask);
         done('Angret');
