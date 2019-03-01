@@ -285,6 +285,8 @@ export class PostPost {
         });
     }
 
+
+
     public autoMarkAll(done: (message: string) => void = msg => {}) {
         this.modalService.open(UniAutomarkModal, {
             data: {
