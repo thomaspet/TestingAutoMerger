@@ -5,12 +5,13 @@ import {
     OnChanges,
     EventEmitter,
     Pipe,
-    PipeTransform
+    PipeTransform,
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {INumberFormat} from '../../../../../framework/ui/unitable/index';
-import {ChartHelper} from '../chartHelper';
 import {
     StatisticsService,
     DimensionService,
@@ -21,6 +22,7 @@ import {
 import {UniModalService} from '@uni-framework/uni-modal';
 import {UniBudgetEntryEditModal} from '../../budget/budgetEntryEditModal';
 import * as moment from 'moment';
+import * as Chart from 'chart.js';
 
 export class DistributionPeriodData {
     public periodNo: number;
@@ -62,6 +64,8 @@ export class NumberAsMoneyPipe implements PipeTransform {
     templateUrl: './distributionPeriodReportPart.html',
 })
 export class DistributionPeriodReportPart implements OnChanges {
+    @ViewChild('chartElement') chartElement: ElementRef;
+
     @Input() public accountYear1: any;
     @Input() public accountYear2: any;
     @Input() private accountIDs: number[];
@@ -91,7 +95,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B', '#db9645', '#cb5d5e'];
-    public chartID: string;
+    chartRef: any;
     public initial: boolean = true;
     public budgets: any[];
     public budgetEntries1: any[];
@@ -99,16 +103,14 @@ export class DistributionPeriodReportPart implements OnChanges {
     public hasBudgetYear1: boolean = false;
     public hasBudgetYear2: boolean = false;
 
+
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private numberFormatService: NumberFormat,
         private budgetService: BudgetService,
         private modalService: UniModalService,
         private router: Router
     ) {
-        this.chartID = this.statisticsService.getNewGuid();
-
         document.onkeydown = (e) => {
             if (e.keyCode === 16) {
                 this.isShiftDown = true;
@@ -485,6 +487,21 @@ export class DistributionPeriodReportPart implements OnChanges {
             data: null
         };
 
-        ChartHelper.generateChart(this.chartID, chartConfig);
+        if (this.chartRef && this.chartRef.destroy) {
+            this.chartRef.destroy();
+        }
+
+        if (this.chartElement && this.chartElement.nativeElement) {
+            this.chartRef = Chart.Line(this.chartElement.nativeElement, {
+                data: {
+                    labels: chartConfig.labels,
+                    datasets: chartConfig.datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
     }
 }
