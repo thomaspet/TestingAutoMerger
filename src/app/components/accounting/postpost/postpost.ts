@@ -275,30 +275,6 @@ export class PostPost {
         this.postpost.reconciliateJournalEntries(done);
     }
 
-    private cleanAndResetLinesWithWrongStatus (done: (message: string) => void) {
-
-        this.modalService.confirm({
-            header: 'Tilbakestille linjer',
-            message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost?',
-            buttonLabels: {
-                accept: 'Ja',
-                reject: 'Nei',
-                cancel: 'Avbryt'
-            }
-        }).onClose.subscribe(response => {
-            switch (response) {
-                case ConfirmActions.ACCEPT:
-                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID);
-                    done('Tilbakestilling ble kjørt.');
-                break;
-                default:
-                    done('Avbrutt');
-                break;
-            }
-        });
-
-    }
-
     public autoMark(done: (message: string) => void = msg => {}) {
         this.modalService.open(UniAutomarkModal, {}).onClose.subscribe((automark) => {
             if (this.postpost.canAutoMark && automark) {
@@ -330,6 +306,30 @@ export class PostPost {
         done('Gjenåpnet');
     }
 
+
+    private cleanAndResetLinesWithWrongStatus (done: (message: string) => void) {
+
+        this.modalService.confirm({
+            header: 'Tilbakestille linjer',
+            message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost?',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            switch (response) {
+                case ConfirmActions.ACCEPT:
+                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID);
+                    done('Tilbakestilling ble kjørt.');
+                break;
+                default:
+                    done('Avbrutt');
+                break;
+            }
+        });
+
+    }
     private cancel(done: (message: string) => void, ask: boolean = true) {
         this.postpost.abortMarking(ask);
         done('Angret');
