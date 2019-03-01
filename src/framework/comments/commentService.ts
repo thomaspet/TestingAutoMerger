@@ -17,13 +17,7 @@ export class CommentService {
             .usingBusinessDomain()
             .withEndPoint(`${route}&expand=Author`)
             .send()
-            .map((res) => {
-                let comments = res.json();
-                return comments.map((comment: Comment) => {
-                    comment.Text = decodeURI(comment.Text);
-                    return comment;
-                });
-            });
+            .map(res => res.json() || []);
     }
 
     public loadComments(entity: string, entityID: number) {

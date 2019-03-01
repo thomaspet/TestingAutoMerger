@@ -305,6 +305,13 @@ export class LedgerAccountReconciliation {
 
     }
 
+    public ResetJournalEntrylinesPostPostStatus(subaccountId: number): void {
+        this.postPostService.ResetJournalEntryLinesPostStatus(subaccountId).subscribe ( () => {
+            this.loadData();
+            this.isDirty = false;
+        });
+    }
+
     private updateJournalEntryLinesOnTheFly(line) {
         if (line.RestAmount === 0) {
             line.Markings = [line];
