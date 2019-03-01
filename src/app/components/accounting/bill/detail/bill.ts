@@ -1877,7 +1877,7 @@ export class BillView implements OnInit {
         this.busy = false;
 
         setTimeout(() => {
-            this.journalEntryManual.setJournalEntryData([]);
+            if (this.journalEntryManual) { this.journalEntryManual.setJournalEntryData([]); }
         });
 
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
