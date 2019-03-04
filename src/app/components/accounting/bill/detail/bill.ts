@@ -2198,7 +2198,11 @@ export class BillView implements OnInit {
     }
 
     public openReinvoiceModal() {
-        this.modalService.open(UniReinvoiceModal).onClose.subscribe((result) => {
+        this.modalService.open(UniReinvoiceModal, {
+            data: {
+                supplierInvoice: this.current.getValue()
+            }
+        }).onClose.subscribe((result) => {
 
         });
     }
@@ -3543,7 +3547,7 @@ export class BillView implements OnInit {
             {
                 label: lang.reinvoice,
                 action: () => this.openReinvoiceModal(),
-                disabled: () => false,
+                disabled: () => this.current && this.current.getValue().StatusCode >= 30104,
             },
         ];
         this.toolbarConfig = {

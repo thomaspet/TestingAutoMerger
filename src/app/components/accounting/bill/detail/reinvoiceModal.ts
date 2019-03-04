@@ -14,8 +14,10 @@ import {
 import {UniTable} from '../../../../../framework/ui/unitable/index';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 import { IUniSaveAction } from '@uni-framework/save/save';
-import { Customer } from '@app/unientities';
+import { Customer, Product, ReInvoice, ReInvoiceItem, SupplierInvoice } from '@app/unientities';
 import { CustomerService } from '@app/services/sales/customerService';
+import { MatRadioChange } from '@angular/material';
+import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -23,7 +25,6 @@ import { CustomerService } from '@app/services/sales/customerService';
         `.reinvoiceContent { display: flex }`,
         `#reinvoiceFormData { flex-grow: 1; position: relative}`,
         `#reinvoiceFormData .totalsum { position: absolute; bottom: 4rem}`,
-        `label[for="forReinvoice"] { display: block; margin-bottom: 4rem; }`,
         `#reinvoiceTypeLabel { position: relative; display: block; width: 12rem; margin-bottom: 1rem; }`,
         `uni-tooltip { right: 0.0rem; top: -0.3rem; }`,
         `uni-information { width: 50%; height: 100%; font-weight: bold}`,
@@ -41,6 +42,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
 
+    public supplierInvoice: SupplierInvoice;
     public open = false;
     public saveactions: IUniSaveAction[] = [
         {
@@ -68,11 +70,10 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             disabled: false
         }
     ];
-    public reinvoicingCustomers = [
-        {Customer: { ID: 0 } }
-    ];
+    public reinvoicingCustomers = [];
     public items = [];
-    public reinvoicingTableConfig = null;
+    public customersTableConfig = null;
+    public customersTableConfigTurnOver = null;
     public itemsTableConfig = null;
     public invoiceSum: number = 4000;
     public forReinvoice: boolean = false;
@@ -90,18 +91,76 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     constructor(
         private customerService: CustomerService,
+        private reinvoiceService: ReInvoicingService,
         private errorService: ErrorService,
         private modalService: UniModalService) {}
 
     public ngOnInit() {
-        this.reinvoicingTableConfig = this.updateCustomerTableConfig(false);
-        this.itemsTableConfig = this.updateItemTableConfig(false);
+        this.customersTableConfig = this.updateCustomersTableConfig(false);
+        this.customersTableConfigTurnOver = this.updateCustomersTableConfig(true);
+        this.itemsTableConfig = this.updateItemsTableConfig(false);
+        this.supplierInvoice = this.options.data.supplierInvoice;
+
+        const supplierID = this.supplierInvoice.SupplierID;
+        const invoiceNumber = this.supplierInvoice.InvoiceNumber;
+        this.reinvoiceService.GetAll(`filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq ${invoiceNumber}&orderby=UpdatedAt desc`,
+            ['SupplierInvoice', 'Product', 'Product.VatType']).subscribe((result) => {
+            this.setInititalConfig(result.length > 0 ? result[0] : null);
+        });
     }
 
-    public updateItemTableConfig(isTurnOver = false) {
+    public setInititalConfig(lastReinvoicing: ReInvoice | null) {
+        this.reinvoiceType = lastReinvoicing === null ? 0 : lastReinvoicing.ReInvoicingType;
+        this.reinvoicingCustomers = this.setInitialCustomerData(
+            lastReinvoicing === null ? null : lastReinvoicing,
+            lastReinvoicing === null ? null : lastReinvoicing.Product,
+            this.supplierInvoice.TaxInclusiveAmount);
 
-        const itemNumberColumn = new UniTableColumn('AccountNumber', 'Varenr', UniTableColumnType.Number);
-        const itemNameColumn = new UniTableColumn('AccountName', 'Varenavn', UniTableColumnType.Text);
+        this.items = this.setInitialItemsData(lastReinvoicing === null ? null : lastReinvoicing.Product, this.reinvoicingCustomers);
+    }
+
+    public setInitialCustomerData(reinvoice: ReInvoice | null, product: Product, totalAmount: number) {
+        if (!reinvoice) {
+            const initialItem = new ReInvoiceItem();
+            initialItem.ID = 0;
+            initialItem.Customer = new Customer();
+            initialItem.Customer.ID = 0;
+            initialItem.NetAmount = totalAmount;
+            initialItem.Share = 100;
+            return [initialItem];
+        }
+
+        const copyOfItems = [new ReInvoiceItem()].concat(reinvoice.Items);
+        copyOfItems[0].ID = 0;
+        copyOfItems[0].Customer = new Customer();
+        copyOfItems[0].Customer.ID = 0;
+        copyOfItems[0].NetAmount = (1 + (reinvoice.OwnCostShare / 100)) * totalAmount;
+        copyOfItems[0].Share = 100 - copyOfItems.reduce((previous, current) => previous + current.Share, 0);
+        return copyOfItems.map(item => {
+            item.NetAmount = totalAmount * (item.Share / 100);
+            const priceWithoutTaxes = item.NetAmount * (1 + (item.Surcharge / 100));
+            item.GrossAmount = priceWithoutTaxes * (1 + (product.VatType.VatPercent / 100));
+            return item;
+        });
+    }
+
+    public setInitialItemsData(product: any, reinvoicingItems: ReInvoiceItem[]) {
+        if (product) {
+            return [{
+                Product: product,
+                NetAmount: 1,
+                VatCode: product.VatType,
+                GrossAmount: 1
+            }];
+        } else {
+            return [];
+        }
+    }
+
+    public updateItemsTableConfig(isTurnOver = false) {
+
+        const itemNumberColumn = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Text);
+        const itemNameColumn = new UniTableColumn('Product', 'Varenavn', UniTableColumnType.Lookup);
         const itemNetColumn = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money);
         const itemVatCodeColumn = new UniTableColumn('VatCode', 'Mva-kode', UniTableColumnType.Text);
         const itemGrossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money);
@@ -122,7 +181,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     }
 
-    public updateCustomerTableConfig(isTurnOver = false) {
+    public updateCustomersTableConfig(isTurnOver = false) {
         const customerTemplateFn = (item: any): string => {
             if (item && item.Customer && item.Customer.ID === 0) {
                 return 'Egen kostnad';
@@ -137,6 +196,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         };
         const customerColumn = new UniTableColumn('Customer', 'Kunde', UniTableColumnType.Lookup, (rowModel) => rowModel.Customer.ID !== 0);
         customerColumn.setTemplate(customerTemplateFn)
+            .setWidth('10rem')
             .setDisplayField('Info.Name')
             .setOptions({
                 itemTemplate: (item: Customer) => {
@@ -155,21 +215,21 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         const netColumn = new UniTableColumn('NetAmount', isTurnOver ? 'Netto' : 'Beløp', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0)
             .setIsSumColumn(true);
 
-        const surchargeColumn = new UniTableColumn('SurCharge', 'Påslag %', UniTableColumnType.Percent, (rowModel) => rowModel.Customer.ID !== 0)
-            .setVisible(isTurnOver);
-        const vatColumn = new UniTableColumn('Vat', 'Mva', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0)
-            .setVisible(isTurnOver);
-        const grossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0)
-            .setVisible(isTurnOver);
-        const columns = [
+        const surchargeColumn = new UniTableColumn('Surcharge', 'Påslag %', UniTableColumnType.Percent, (rowModel) => rowModel.Customer.ID !== 0);
+        const vatColumn = new UniTableColumn('Vat', 'Mva', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0);
+        const grossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money, (rowModel) => rowModel.Customer.ID !== 0);
+        let columns = [
             customerColumn,
             shareColumn,
-            netColumn,
-            surchargeColumn,
-            vatColumn,
-            grossColumn
+            netColumn
         ];
-
+        if (isTurnOver) {
+            columns = columns.concat([
+                surchargeColumn,
+                vatColumn,
+                grossColumn
+            ]);
+        }
         return new UniTableConfig('reinvoicing.table', true, false)
             .setIsRowReadOnly((row => row.Customer && row.Customer.ID === 0))
             .setColumns(columns)
@@ -178,5 +238,36 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             .setDefaultRowData({
                 Customer: {ID: null}
             });
+    }
+
+    onReinvoiceTypeChange(change: MatRadioChange) {
+        this.reinvoiceType = change.value;
+    }
+
+    onReinvoicingCustomerChange(change) {
+        const total = this.supplierInvoice.TaxInclusiveAmount;
+        const data = [].concat(this.reinvoicingCustomers);
+        let cumulativePercentage = 0;
+        switch (change.field) {
+            case 'Share':
+                for (let i = 1; i < data.length; i++) {
+                    data[i].NetAmount = total * (data[i].Share / 100);
+                    cumulativePercentage += data[i].Share || 0;
+                }
+                break;
+            case 'NetAmount':
+                for (let i = 1; i < data.length; i++) {
+                    data[i].Share = (data[i].NetAmount / total) * 100;
+                    cumulativePercentage += data[i].Share || 0;
+                }
+                break;
+            case 'Surcharge':
+                break;
+            case 'GrossAmount':
+                break;
+        }
+        data[0].Share = 100 - cumulativePercentage;
+        data[0].NetAmount = total * (data[0].Share / 100);
+        this.reinvoicingCustomers = data;
     }
 }

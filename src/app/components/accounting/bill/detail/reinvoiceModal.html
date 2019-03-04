@@ -2,16 +2,6 @@
     <header><h1>Viderefakturering</h1></header>
     <article class="reinvoiceContent">
         <form id="reinvoiceFormData">
-            <label for="forReinvoice">
-                Marker leverandørfaktura for viderefakturering
-                <mat-checkbox
-                    name="forReinvoice"
-                    tabindex="-1"
-                    [(ngModel)]="forReinvoice"
-                    [labelPosition]="'before'"
-                    [disableRipple]="true">
-                </mat-checkbox>
-            </label>
             <label id="reinvoiceTypeLabel">
                 <span>Type viderefakturering</span>
                 <uni-tooltip [type]="'info'"
@@ -19,15 +9,15 @@
                              [text]="infoText">
                 </uni-tooltip>
             </label>
-            <mat-radio-group [value]="reinvoiceType">
-                <mat-radio-button [value]="1">
+            <mat-radio-group [value]="reinvoiceType" (change)="onReinvoiceTypeChange($event)">
+                <mat-radio-button [value]="0">
                     Kostnadsdeling
                 </mat-radio-button>
-                <mat-radio-button [value]="2">
+                <mat-radio-button [value]="1">
                     Viderefakturering, omsetning
                 </mat-radio-button>
             </mat-radio-group>
-            <p class="totalsum">Totalsum leverandørfaktura: {{ invoiceSum | uninumberformat:'money' }} Kr</p>
+            <p class="totalsum">Totalsum leverandørfaktura: {{ supplierInvoice?.TaxInclusiveAmount | uninumberformat:'money' }} Kr</p>
         </form>
         <uni-information [config]="{ headline: 'Instillinger'}">
             <span>Kostandsdeling:</span>
@@ -53,9 +43,15 @@
     </article>
     <article>
         <p>Velge kunde(r) som skal viderefaktureres:</p>
-        <ag-grid-wrapper
-            [resource]="reinvoicingCustomers"
-            [config]="reinvoicingTableConfig"
+        <ag-grid-wrapper *ngIf="reinvoiceType === 0"
+            [(resource)]="reinvoicingCustomers"
+            [config]="customersTableConfig"
+            (rowChange)="onReinvoicingCustomerChange($event)"
+        ></ag-grid-wrapper>
+        <ag-grid-wrapper *ngIf="reinvoiceType === 1"
+             [(resource)]="reinvoicingCustomers"
+             [config]="customersTableConfigTurnOver"
+             (rowChange)="onReinvoicingCustomerChange($event)"
         ></ag-grid-wrapper>
         <p>Velg vare(r)</p>
         <ag-grid-wrapper

@@ -889,10 +889,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -5829,6 +5829,8 @@ export class ReInvoice extends UniEntity {
     public SupplierInvoiceID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public SupplierInvoice: SupplierInvoice;
+    public Product: Product;
     public Items: Array<ReInvoiceItem>;
     public CustomFields: any;
 }
@@ -5853,6 +5855,7 @@ export class ReInvoiceItem extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Vat: number;
+    public Customer: Customer;
     public CustomFields: any;
 }
 
@@ -6373,8 +6376,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6449,11 +6452,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
-    public VatTypePercentages: Array<VatTypePercentage>;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -8303,6 +8306,7 @@ export enum EventplanType{
     Webhook = 0,
     Custom = 1,
     Other = 2,
+    NATS = 3,
 }
 
 
