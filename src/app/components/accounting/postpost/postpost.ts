@@ -477,7 +477,7 @@ export class PostPost {
                 'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
                 'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,count(ID) as count,' +
                 'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
-                `&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id gt 0&top=` +
+                `,SubAccount.id as SubAccountID&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id gt 0&top=` +
                 '&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
                     this.setMainTabs((this.register === 'customer' ? 'kunder' : 'leverandører'),
                     !(res && res.Data && res.Data.length));
@@ -489,14 +489,14 @@ export class PostPost {
         const query = this.currentTab.value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
-                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
                 `filter=SubAccount.CustomerID gt 0 ` +
                 (this.currentTab.value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,count(ID) as count,` +
-                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 'expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&' +
                 `filter=SubAccountid gt 0 and subaccount.customerid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
@@ -516,14 +516,14 @@ export class PostPost {
         const query = this.currentTab.value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
-                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
                 `filter=SubAccount.SupplierID gt 0 ` +
                 (this.currentTab.value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,count(ID) as count,` +
-                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
                 `filter=SubAccountid gt 0 and subaccount.supplierid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
