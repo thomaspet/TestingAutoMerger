@@ -421,6 +421,7 @@ export class PostPost {
 
             if (allowed) {
                 this.activeAccount = event.ID;
+                this.activeSubAccountID = event.SubAccountID;
                 const account = event;
                 this.current$.next(account);
                 switch (this.register) {
