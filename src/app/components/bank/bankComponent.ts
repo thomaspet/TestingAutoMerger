@@ -733,7 +733,10 @@ export class BankComponent implements AfterViewInit {
                 if (result && result.accountID) {
                     this.journalEntryService.PutAction(null, 'book-payment-against-main-account',
                         'paymentID=' + row.ID + '&accountID=' + result.accountID)
-                        .subscribe(() => this.tickerContainer.mainTicker.reloadData());
+                        .subscribe(() => {
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                        });
                 }
             });
         });
