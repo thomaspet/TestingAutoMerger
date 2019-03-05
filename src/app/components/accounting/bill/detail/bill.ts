@@ -2972,12 +2972,13 @@ export class BillView implements OnInit {
                     // want to resave a booked journalentry
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                       current.JournalEntry = null;
+                    } else {
+                        current.JournalEntry.DraftLines.forEach(line => {
+                            if (!line.VatDeductionPercent) {
+                                line.VatDeductionPercent = 0;
+                            }
+                        });
                     }
-                    current.JournalEntry.DraftLines.forEach(line => {
-                        if (!line.VatDeductionPercent) {
-                            line.VatDeductionPercent = 0;
-                        }
-                    });
                     if (!current.SupplierID
                         && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
