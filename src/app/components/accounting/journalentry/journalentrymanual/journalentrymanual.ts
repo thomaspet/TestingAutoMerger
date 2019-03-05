@@ -589,6 +589,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 draftline.VatTypeID = newline.VatTypeID || (newline.DebitAccount ? newline.DebitAccount.VatTypeID : null);
                 newline.DebitVatType = this.vatTypes.find(vattype => vattype.ID == draftline.VatTypeID);
                 newline.DebitVatTypeID = draftline.VatTypeID;
+                newline.DimensionID = draftline.DimensionsID;
                 newline.Dimensions = dimensions.find(dimension => dimension.ID == draftline.DimensionsID);
                 newline.CostAllocation = costAllocation;
                 newline.SameOrNew = "1";
@@ -609,6 +610,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     currentLine.DebitVatType = newline.DebitVatType;
                     currentLine.DebitVatTypeID = newline.DebitVatTypeID;
                     currentLine.DimensionsID = newline.DimensionsID;
+                    currentLine.Dimensions = newline.Dimensions;
                     currentLine.Description = newline.Description;
                     currentLine.AmountCurrency = newline.AmountCurrency;
                     currentLine.Amount = newline.Amount;
