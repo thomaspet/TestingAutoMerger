@@ -53,7 +53,7 @@
                 "ExecuteWithoutSelection": true
             }
         ]
-    }, 
+    },
     {
         "Name": "Personer",
         "Code": "worker_main_list",
@@ -75,7 +75,8 @@
             {
                 "Header": "Navn",
                 "Field": "Worker.Info.Name",
-                "Width": 500
+                "Width": 500,
+                "FilterOperator": "contains"
             }
         ]
     },
