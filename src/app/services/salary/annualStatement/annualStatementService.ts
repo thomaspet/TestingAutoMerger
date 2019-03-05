@@ -5,6 +5,16 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {AnnualStatement, Employee} from '../../../unientities';
 import {Observable} from 'rxjs';
 
+export interface IAnnualStatementEmailInfo {
+    Subject?: string;
+    Message?: string;
+}
+
+export interface IAnnualStatementReportSetup {
+    EmpIDs: number[];
+    Mail: IAnnualStatementEmailInfo;
+}
+
 @Injectable()
 export class AnnualStatementService extends BizHttp<AnnualStatement> {
 
@@ -13,7 +23,7 @@ export class AnnualStatementService extends BizHttp<AnnualStatement> {
         this.relativeURL = 'annual-statement';
     }
 
-    public sendMail(emps: Employee[], year: number = 0): Observable<boolean> {
-        return super.ActionWithBody(null, emps, 'email', RequestMethod.Put, `year=${year}`);
+    public sendMail(setup: IAnnualStatementReportSetup, year: number = 0): Observable<boolean> {
+        return super.ActionWithBody(null, setup, 'email', RequestMethod.Put, `year=${year}`);
     }
 }
