@@ -1061,6 +1061,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         if (this.itemsSummaryData) {
             this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {
