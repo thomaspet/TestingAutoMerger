@@ -1,19 +1,29 @@
 <uni-toolbar 
-  [config]="toolbarConfig" 
+  [config]="toolbarConfig"
+  [contextmenu]="contextMenuItems"
   [saveactions]="saveActions">
 </uni-toolbar>
 
 <article class="application">
-  <uni-form 
-    [config]="formConfig$" 
-    [fields]="fields$" 
-    [model]="otpexportModel$" 
-    (changeEvent)="change($event)">
-  </uni-form>
-  
+  <section class="otpexport_Flexheader">
+      <uni-form 
+      [config]="formConfig$" 
+      [fields]="fields$" 
+      [model]="otpexportModel$" 
+      (changeEvent)="change($event)">
+    </uni-form>
+  </section>
+  <uni-information [config]="infoConfig" class="infoNote">
+    <p>
+        Data som vises her vil bli med i eksport i til otp når filen eksporteres.
+        Periodelønn er basert på utvalgte lønnsarter satt opp i Lønnsarter periodelønn i ...-menyen.
+        Eksportert fil lagres i nedlastninger og må overføres som avtalt med forsikringsselskapet
+    </p>
+  </uni-information>
   <ag-grid-wrapper 
     [config]="otpTableConfig" 
-    [resource]="otpData">
+    [resource]="otpData"
+    class="otpexport_Aggridwrapper">
   </ag-grid-wrapper>
 </article>
 

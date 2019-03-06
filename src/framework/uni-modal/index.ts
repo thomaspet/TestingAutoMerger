@@ -23,7 +23,9 @@ import {UniChooseReportModal} from './modals/choose-report-modal/chooseReportMod
 import {SubCompanyModal} from './modals/subCompanyModal';
 import {UniEditFieldModal} from './modals/editFieldModal';
 import {ProductPurchasesModal} from './modals/product-purchases-modal/product-purchases-modal';
+import {MissingPurchasePermissionModal} from './modals/missing-purchase-permission/missing-purchase-permission';
 import {UniAutobankAgreementModal} from './modals/autobankAgreementModal';
+import {UniFileUploadModal} from './modals/uploadFilesModal';
 import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
 
 export * from './modalService';
@@ -52,7 +54,9 @@ export * from './modals/bankModal';
 export * from './modals/choose-report-modal/chooseReportModal';
 export * from './modals/editFieldModal';
 export * from './modals/product-purchases-modal/product-purchases-modal';
+export * from './modals/missing-purchase-permission/missing-purchase-permission';
 export * from './modals/autobankAgreementModal';
+export * from './modals/uploadFilesModal';
 export * from './modals/company-actions-modal/company-actions-modal';
 
 export const MODALS = [
@@ -82,6 +86,8 @@ export const MODALS = [
     UniEditFieldModal,
     ProductPurchasesModal,
     UniAutobankAgreementModal,
+    UniFileUploadModal,
     CompanyActionsModal,
+    MissingPurchasePermissionModal
 ];
 

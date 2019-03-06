@@ -47,8 +47,10 @@ export class ActivateOCRModal {
         this.busy = true;
         this.companySettingsService.PostAction(1, 'accept-ocr-agreement').subscribe(
             () => this.onClose.emit(true),
-            err => this.errorService.handle(err),
-            () => this.busy = false
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 }

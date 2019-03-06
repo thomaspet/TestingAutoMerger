@@ -344,6 +344,14 @@ export class AgaAndSubEntitySettings implements OnInit {
         otpExportActive.Section = 2;
         otpExportActive.FieldSet = 2;
 
+        const hourFTEs = new UniFieldLayout();
+        hourFTEs.EntityType = 'CompanySalary';
+        hourFTEs.Label = 'Timer pr årsverk';
+        hourFTEs.Property = 'HourFTEs';
+        hourFTEs.FieldType = FieldType.TEXT;
+        hourFTEs.Section = 2;
+        hourFTEs.FieldSet = 2;
+
         const vacationSettingsBtn = new UniFieldLayout();
         vacationSettingsBtn.Label = 'Innstillinger feriepenger';
         vacationSettingsBtn.EntityType = 'CompanySalary';
@@ -513,7 +521,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             interrimRemit,
             paymentInterval,
             postTax,
-            // otpExportActive,
+            otpExportActive,
+            hourFTEs,
             vacationSettingsBtn,
             vacationPayBtn,
             calculateFinancial,

@@ -413,8 +413,8 @@ export class UniTableSearch implements OnChanges {
         // for those filters, add some options
         let column = this.columns.find(c => c.get('field') === filter.field);
 
-        if (column && column.get('selectConfig') && column.get('selectConfig').options) {
-            filter.selectConfig = column.get('selectConfig');
+        if (column && column.get('filterSelectConfig') && column.get('filterSelectConfig').options) {
+            filter.selectConfig = column.get('filterSelectConfig');
             filter.operator = 'eq';
         } else {
             filter.selectConfig = null;

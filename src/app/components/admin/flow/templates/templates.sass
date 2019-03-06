@@ -1,0 +1,57 @@
+@import '~src/styles/uni-redesign/_color.sass'
+
+\:host
+    font-family: 'Roboto', sans-serif !important
+    h1,h2,h3
+        font-family: 'Roboto', sans-serif !important
+
+.flow-template
+    background-color: #fff
+    border-radius: 3px
+    height: 100%
+    position: relative
+    transition: .25s ease-in-out
+
+    &:hover
+        box-shadow: 0 1px 14px 0px rgba(0, 0, 0, 0.14)
+
+    .icon-wrap
+        background-color: $redesign-scale4
+        height: 100px
+        width: 100%
+        display: flex
+        justify-content: center
+        align-items: center
+        flex-direction: row
+
+        .center-icon
+            color: $redesign-scale2
+            margin: 1rem
+        .not-center-icon
+            font-size: 3rem
+            padding: 0.8rem
+            background: white
+            color: $redesign-c2a
+            border-radius: 5px
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2)
+
+    .description
+        padding: 15px
+        margin-bottom: 3rem
+        h3
+            color: $redesign-scale2
+            font-weight: 700
+            margin-top: 0
+        p
+            color: $redesign-scale3
+            font-size: 0.875rem
+            line-height: 20px
+
+    button.c2a
+        position: absolute
+        bottom: 15px
+        right: 15px
+        min-width: 6rem
+        border-radius: 20px
+        margin: 0
+

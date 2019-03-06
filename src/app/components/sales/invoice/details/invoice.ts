@@ -417,6 +417,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     if (hasCopyParam) {
+                        if (!this.currentCustomer && invoice.Customer) {
+                            this.currentCustomer = invoice.Customer;
+                        }
                         this.refreshInvoice(this.copyInvoice(invoice));
                     } else {
                         this.refreshInvoice(invoice);
@@ -1241,7 +1244,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
                             this.invoice = <CustomerInvoice>invoice;
                             this.readonlyDraft = true;
-                            this.toastService.addToast('periodiseringen er oppdatert', ToastType.good, 3);
+                            this.toastService.addToast('Periodiseringen er oppdatert', ToastType.good, 3);
                         });
                     }
                 });
@@ -1552,6 +1555,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
             );
         }
+        if (invoice.PaymentInfoTypeID) {
+            if (this.paymentInfoTypes.findIndex(x => x.ID === invoice.PaymentInfoTypeID && x.StatusCode === 42000 && !x.Locked) === -1) {
+                invoice.PaymentInfoTypeID = null; //Kid innstilling fra original faktura er ikke lenger aktiv
+            }
+        }
         invoice.InvoiceReferenceID = null;
         invoice.Comment = null;
         delete invoice['_links'];
@@ -1568,6 +1576,38 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        return(this.refreshInfo(invoice));
+    }
+
+    public refreshInfo(invoice: CustomerInvoice): CustomerInvoice {
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            let info = this.currentCustomer.Info;
+            invoice.CustomerName = info.Name;
+            if (info.Addresses && info.Addresses.length > 0) {
+                var address = info.Addresses[0];
+                if (info.InvoiceAddressID) {
+                    address = info.Addresses.find(x => x.ID == info.InvoiceAddressID);
+                }
+                invoice.InvoiceAddressLine1 = address.AddressLine1;
+                invoice.InvoiceAddressLine2 = address.AddressLine2;
+                invoice.InvoiceAddressLine3 = address.AddressLine3;
+                invoice.InvoicePostalCode = address.PostalCode;
+                invoice.InvoiceCity = address.City;
+                invoice.InvoiceCountry = address.Country;
+                invoice.InvoiceCountryCode = address.CountryCode;
+
+                if (info.ShippingAddressID) {
+                    address = info.Addresses.find(x => x.ID == info.ShippingAddressID);
+                }
+                invoice.ShippingAddressLine1 = address.AddressLine1;
+                invoice.ShippingAddressLine2 = address.AddressLine2;
+                invoice.ShippingAddressLine3 = address.AddressLine3;
+                invoice.ShippingPostalCode = address.PostalCode;
+                invoice.ShippingCity = address.City;
+                invoice.ShippingCountry = address.Country;
+                invoice.ShippingCountryCode = address.CountryCode;
+            }
+        }
         return invoice;
     }
 
@@ -2214,6 +2254,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         if (this.itemsSummaryData) {
             this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {

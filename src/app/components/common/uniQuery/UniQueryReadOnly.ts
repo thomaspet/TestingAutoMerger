@@ -156,7 +156,7 @@ export class UniQueryReadOnly implements OnChanges {
                                 const statusCodes = this.statusService
                                     .getStatusCodesForEntity(this.queryDefinition.MainModelName);
                                 if (statusCodes && statusCodes.length > 0) {
-                                    f.selectConfig = {
+                                    f.filterSelectConfig = {
                                         options: statusCodes,
                                         displayField: 'name',
                                         valueField: 'statusCode'
@@ -275,7 +275,7 @@ export class UniQueryReadOnly implements OnChanges {
                 col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
             }
 
-            col.selectConfig = field.selectConfig;
+            col.filterSelectConfig = field.filterSelectConfig;
 
             columns.push(col);
 

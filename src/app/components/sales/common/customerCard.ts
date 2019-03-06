@@ -39,7 +39,7 @@ import * as _ from 'lodash';
                     <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                     <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">EFAKTURA</span>
                 </section>
-                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
+                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.CustomerName}}</strong></a>
                 <br><span *ngIf="entity?.InvoiceAddressLine1">
                     {{entity?.InvoiceAddressLine1}}
                 </span>

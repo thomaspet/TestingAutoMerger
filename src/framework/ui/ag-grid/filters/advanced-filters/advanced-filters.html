@@ -1,0 +1,99 @@
+<section role="dialog" class="uni-modal uni-redesign maybe-default">
+    <header>Avansert filtrering</header>
+
+    <article>
+        <section class="filters">
+            <section #filterRow class="filter" *ngFor="let filter of filters; let idx = index">
+
+                <select #columnPicker [(ngModel)]="filter.field" (change)="onColumnSelected(filter)">
+                    <option *ngFor="let column of columns" [value]="column.field">
+                        {{column.header}}
+                    </option>
+                </select>
+
+                <select class="operator-select" [(ngModel)]="filter.operator">
+                    <option *ngFor="let op of filter._availableOperators" [value]="op.operator">
+                        {{op.label}}
+                    </option>
+                </select>
+
+                <!-- If date filter -->
+                <section *ngIf="filter.isDate; else nonDateFilter" class="date-input">
+                    <input class="filter-value-input"
+                        [(ngModel)]="filter.value"
+                        type="text"
+                        [matDatepicker]="picker"
+                        #dateInput
+                        (keydown.enter)="dateInput.blur();dateInput.focus();"
+                    >
+
+                    <button class="icon-button calendar-toggle" (click)="picker.open()">
+                        <i class="material-icons">date_range</i>
+                    </button>
+
+                    <mat-datepicker #picker></mat-datepicker>
+                </section>
+
+                <!-- If not date filter -->
+                <ng-template #nonDateFilter>
+                    <input *ngIf="!filter.selectConfig?.options"
+                        type="text"
+                        class="filter-value-input"
+                        [(ngModel)]="filter.value"
+                    />
+
+                    <select *ngIf="filter.selectConfig?.options"
+                        class="value-select"
+                        [(ngModel)]="filter.value">
+
+                        <option
+                            *ngFor="let option of filter.selectConfig.options"
+                            [value]="option[filter.selectConfig.valueField]">
+
+                            {{
+                                option[filter.selectConfig.displayField]
+                                || option[filter.selectConfig.valueField]
+                            }}
+                        </option>
+                    </select>
+                </ng-template>
+
+                <button class="remove-filter icon-button" (click)="removeFilter(idx)">
+                    <i class="material-icons">remove_circle_outline</i>
+                </button>
+
+            </section>
+
+            <button class="add-button" (click)="addFilter()">
+                <i class="material-icons">add</i>
+                Legg til filter
+            </button>
+
+        </section>
+    </article>
+
+    <footer>
+        <button class="c2a" (click)="submitFilters()">Aktiver søk</button>
+        <button (click)="close(false)">Avbryt</button>
+
+        <!-- <button (click)="close(true)">Nullstill</button> -->
+
+        <section class="input-with-button align-right">
+            <input type="text"
+                placeholder="Lagre søk som"
+                [(ngModel)]="searchName"
+                (ngModelChange)="filterSavedSearches($event)"
+                [matAutocomplete]="auto"
+            />
+
+            <mat-autocomplete #auto="matAutocomplete" autoActiveFirstOption>
+                <mat-option *ngFor="let search of filteredSavedSearches" [value]="search.name">
+                    {{search.name}}
+                </mat-option>
+            </mat-autocomplete>
+
+            <button (click)="saveSearch()" [disabled]="!searchName">Lagre</button>
+        </section>
+
+    </footer>
+</section>

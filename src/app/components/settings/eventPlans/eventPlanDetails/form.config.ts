@@ -130,6 +130,10 @@ export default function createFormConfig(models, jobs) {
                     {
                         ID: 2,
                         Name: 'Other'
+                    },
+                    {
+                        ID: 3,
+                        Name: 'Function'
                     }
                 ]
             }

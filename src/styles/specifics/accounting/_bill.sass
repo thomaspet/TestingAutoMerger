@@ -17,10 +17,33 @@ uni-bill
 
 		.bill-right-side
 			max-height: calc(100vh - 14rem)
-			overflow: hidden
+			position: relative
+
+			.get-from-inbox
+				position: absolute
+				cursor: pointer
+				padding: 0
+				top: .45rem
+				right: 10rem
+				color: #60656a
+				i.material-icons
+					color: #0f4880
+					vertical-align: middle
+
 			uni-image
+				display: flex
+				flex-direction: column
 				max-height: 95%
-				overflow: auto
+				padding-right: 0
+
+				.upload-input
+					position: absolute
+					top: -2.25rem
+					right: 2rem
+
+				.uniImage
+					overflow: auto
+					padding-right: 1rem
 
 	// Remove margin/padding/shadow that is on journal entry by default
 	journal-entry-manual .uni-container

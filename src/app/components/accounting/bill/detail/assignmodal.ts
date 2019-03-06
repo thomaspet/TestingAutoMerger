@@ -219,7 +219,7 @@ export class UniAssignModal implements IUniModal {
             this.cleanupHandler = ownAddEventListener(document, 'mouseup', (e: any) => {
                 let doc = document.getElementById(element);
                 // Check if target is UL or child of UL
-                if (e.target !== doc && !doc.contains(e.target)) {
+                if (doc && e.target !== doc && !doc.contains(e.target)) {
                     this.hideShowUsers(element);
                 }
             }, false);

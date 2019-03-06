@@ -46,6 +46,20 @@ export class BudgetService extends BizHttp<Budget> {
             .map(res => res.json());
     }
 
+    public getEntriesFromBudgetIDAndAccountID(budgetID: number, accountID: number, departmentID?: number) {
+        let filter = `BudgetID eq ${budgetID} and accountID eq ${accountID}`;
+        if (departmentID) {
+            filter += ' and Dimensions.DepartmentID eq ' + departmentID;
+        }
+
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('budgetentries?filter=' + filter  + '&expand=account' + (departmentID ? ',dimensions' : ''))
+            .send()
+            .map(res => res.json());
+    }
+
     public getEntriesFromBudgetIDAndAccount(budgetID: number, accoutnNumber: number, departmentID?: number) {
         let filter = `BudgetID eq ${budgetID} and Account.AccountNumber eq ${accoutnNumber}`;
         if (departmentID) {

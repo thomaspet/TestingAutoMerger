@@ -1,6 +1,7 @@
-import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
+import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {StatisticsService, BudgetService} from '@app/services/services';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     UniTableColumn,
     UniTableConfig,
@@ -46,6 +47,9 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
+
     public posts: any[] = [
         this.getEmptyLine()
     ];
@@ -79,36 +83,39 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
 
     public save() {
 
-        if (!this.posts[0].Account) {
-            return;
-        }
-        // Create all budget entries and save them
-        const entries = [];
-
-        const depID = (
-            this.options &&
-            this.options.data &&
-            this.options.data.department &&
-            this.options.data.department.ID !== 'ALLDEPARTMENTSID')
-        ? this.options.data.department.ID
-        : 0;
-
-        this.entriesArray.forEach((entry) => {
-            if (entry._hasChanged) {
-                entry.Amount = this.posts[0]['Amount' + entry.PeriodNumber];
-                entry.Account = this.posts[0].Account;
-                entry.AccountID = this.posts[0].Account.ID,
-                entry.BudgetID = this.options.data.BudgetID;
-                if (!entry.DimensionsID && depID) {
-                    entry.Dimensions = {
-                        _createguid: this.statisticsService.getNewGuid(),
-                        DepartmentID: depID
-                    };
-                }
-                entries.push(entry);
+        // Close editor before saving
+        this.table.finishEdit().then(() => {
+            if (!this.posts[0].Account) {
+                return;
             }
+            // Create all budget entries and save them
+            const entries = [];
+
+            const depID = (
+                this.options &&
+                this.options.data &&
+                this.options.data.department &&
+                this.options.data.department.ID !== 'ALLDEPARTMENTSID')
+            ? this.options.data.department.ID
+            : 0;
+
+            this.entriesArray.forEach((entry) => {
+                if (entry._hasChanged) {
+                    entry.Amount = this.posts[0]['Amount' + entry.PeriodNumber];
+                    entry.Account = this.posts[0].Account;
+                    entry.AccountID = this.posts[0].Account.ID,
+                    entry.BudgetID = this.options.data.BudgetID;
+                    if (!entry.DimensionsID && depID) {
+                        entry.Dimensions = {
+                            _createguid: this.statisticsService.getNewGuid(),
+                            DepartmentID: depID
+                        };
+                    }
+                    entries.push(entry);
+                }
+            });
+            this.onClose.emit(entries);
         });
-        this.onClose.emit(entries);
     }
 
     public close() {
@@ -169,8 +176,10 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
                     if (event.newValue === 0) {
                         sumOnAll = 0;
                     } else {
-                        sumOnAll = Math.floor(event.newValue / 12);
+                        const flip = event.newValue > 0 ? 1 : -1;
+                        sumOnAll = Math.floor(Math.abs(event.newValue / 12)) * flip;
                     }
+
                     for (let i = 1; i <= 12; i++) {
                         this.posts[0]['Amount' + i] = sumOnAll * multiplier;
                         this.entriesArray[i - 1]['_hasChanged'] = true;
@@ -189,7 +198,7 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
                         : 1;
                     // Update sum when adding an period value..
                     this.posts[0][event.field] = event.newValue * multiplier;
-                    this.posts[0].Sum = this.sumAllAmounts(event.rowModel);
+                    this.posts[0].Sum = this.sumAllAmounts(this.posts[0]);
                     this.entriesArray[parseInt(event.field.substr(6, event.field.length), 10) - 1]['_hasChanged'] = true;
                     this.posts = [].concat(this.posts);
                 } else if (event.field === 'Account') {

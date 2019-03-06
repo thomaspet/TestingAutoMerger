@@ -1,18 +1,18 @@
-<table-search
+<table-filters
     *ngIf="config?.searchable"
     [tableConfig]="config"
     [columns]="columns"
-    [configFilters]="dataService?.advancedSearchFilters"
+    [filters]="dataService?.advancedSearchFilters"
     (filtersChange)="onFiltersChange($event)">
-</table-search>
-
-<section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
-    Antall rader: {{dataService?.totalRowCount$ | async}}
-</section>
+</table-filters>
 
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
-    [ngStyle]="{'height': tableHeight}">
+    [ngStyle]="{
+        'height': tableHeight,
+        'flex': config?.groupingIsOn ? '1' : 'unset',
+        'overflow': config?.editable ? 'unset' : 'hidden'
+    }">
 
     <span
         *ngIf="config?.groupingIsOn"
@@ -21,6 +21,10 @@
         (click)="expandCollapseAll()">
         Åpne/lukk alle grupper
     </span>
+
+    <section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
+        Antall rader: {{dataService?.totalRowCount$ | async}}
+    </section>
 
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"
@@ -34,8 +38,7 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.groupingIsOn,
-            'grouping-class': config?.groupingIsOn
+            'ag-theme-balham': config?.groupingIsOn
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -87,21 +90,21 @@
         [context]="context"
         [frameworkComponents]="cellRendererComponents">
     </ag-grid-angular>
+</section>
 
-    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
-        <i class="material-icons" (click)="paginate('first')">first_page</i>
-        <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
+<section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
+    <i class="material-icons" (click)="paginate('first')">first_page</i>
+    <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 
-        <span class="pagination-info" *ngIf="paginationInfo">
-            Side
-            <input type="text" #pageInput
-                [value]="paginationInfo.currentPage"
-                (change)="paginationInputChange(pageInput.value)"
-            />
-            av {{paginationInfo.pageCount}}
-        </span>
+    <span class="pagination-info" *ngIf="paginationInfo">
+        Side
+        <input type="text" #pageInput
+            [value]="paginationInfo.currentPage"
+            (change)="paginationInputChange(pageInput.value)"
+        />
+        av {{paginationInfo.pageCount}}
+    </span>
 
-        <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
-        <i class="material-icons" (click)="paginate('last')">last_page</i>
-    </section>
+    <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
+    <i class="material-icons" (click)="paginate('last')">last_page</i>
 </section>

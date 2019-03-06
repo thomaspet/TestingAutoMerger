@@ -33,6 +33,11 @@ export class SelectLicenseForBulkAccess {
     selectContract(contract: ElsaContract) {
         this.selectedContractID = contract.id;
 
+        const selectedCustomer = this.customers.find(customer => {
+            return customer.contracts && customer.contracts.some(c => c.id === contract.id);
+        });
+
+        this.data.customer = selectedCustomer;
         this.data.contract = contract;
         this.data.companies = undefined;
         this.data.products = undefined;

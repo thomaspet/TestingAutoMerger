@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {PostPost, LocalDate, StatusCodeJournalEntryLine} from '../../unientities';
+import {PostPost, LocalDate, StatusCodeJournalEntryLine, JournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -27,6 +27,24 @@ export class PostPostService extends BizHttp<PostPost> {
         this.DefaultOrderBy = null;
     }
 
+    public ResetJournalEntryLinePostStatus(journalentryLineid: number) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=reset-journalentryline-postpost-status-to-open&journalentrylineid=' + journalentryLineid)
+            .send()
+            .map(response => response.json());
+    }
+
+    public ResetJournalEntryLinesPostStatus(subaccountid: number) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid )
+            .send()
+            .map(response => response.json());
+    }
+
     public markPosts(journalEntryLineCouples: Array<any>): Observable<any> {
         super.invalidateCache();
         return this.http
@@ -45,15 +63,6 @@ export class PostPostService extends BizHttp<PostPost> {
             .usingBusinessDomain()
             .withBody(journalEntryLineIDs)
             .withEndPoint(this.relativeURL + '?action=revert-postpost')
-            .send()
-            .map(response => response.json());
-    }
-
-    public ResetJournalEntryLinesPostStatus(subaccountid: number) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid )
             .send()
             .map(response => response.json());
     }

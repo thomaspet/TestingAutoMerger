@@ -46,17 +46,17 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
 
     private createFormConfig() {
         const ameldTypeField = new UniFieldLayout();
+
         ameldTypeField.Label = 'Type melding';
         ameldTypeField.EntityType = 'ameldingModel';
         ameldTypeField.FieldType = FieldType.DROPDOWN;
         ameldTypeField.Property = 'type';
         ameldTypeField.Options = {
+            displayProperty: 'name',
             source: [
                 { id: 0, name: 'Full a-melding' },
                 { id: 1, name: 'Bare arbeidsforhold' },
-                { id: 2, name: 'Nullstille a-meldingen' }
             ],
-            displayProperty: 'name',
             valueProperty: 'id',
             events: {
                 enter: (event) => {
@@ -64,6 +64,11 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
                 }
             }
         };
+
+        // if amelding has status sent or recieved from altinn with full amelding remove 'Bare arbeidsforhold' option
+        if (this.options.data.anySentInAmeldingerWithStandardAmeldingType) {
+            ameldTypeField.Options.source.splice(1, 1);
+        }
 
         this.fields$.next([ameldTypeField]);
     }

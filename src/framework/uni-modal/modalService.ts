@@ -186,9 +186,8 @@ export class UniModalService {
         const backdrop = document.createElement('section');
         backdrop.classList.add('uni-modal-backdrop');
 
-        if (options.closeOnClickOutside) {
+        if (options.closeOnClickOutside !== false) {
             const eventSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
-                event.stopPropagation();
                 const target = event.target || event.srcElement;
 
                 // Make sure we don't close on events that propagated from the modal,

@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BizHttp } from '@uni-framework/core/http/BizHttp';
-import { Eventplan, EventSubscriber } from '@app/unientities';
+import { Eventplan } from '@app/unientities';
 import { UniHttp } from '@uni-framework/core/http/http';
 import { ErrorService } from '@app/services/common/errorService';
 import { GuidService } from '@app/services/common/guidService';
-import {HttpResponse} from '@angular/common/http';
-import {Observable, BehaviorSubject} from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { IUniSaveAction } from '@uni-framework/save/save';
 
 @Injectable()
 export class EventplanService extends BizHttp<Eventplan> {
-
-    public Notifier = new BehaviorSubject({ plans: undefined, changes: false })
+    saveActions$: BehaviorSubject<IUniSaveAction[]> = new BehaviorSubject([]);
 
     constructor(
         public http: UniHttp,
@@ -20,52 +19,14 @@ export class EventplanService extends BizHttp<Eventplan> {
         super(http);
         this.relativeURL = Eventplan.RelativeUrl;
         this.entityType = Eventplan.EntityType;
-        this.disableCache();
+        this.defaultExpand = ['Subscribers'];
     }
 
-    getData() {
-        return this.GetAll('', ['Subscribers']);
-    }
+    save(eventplan: Eventplan): Observable<Eventplan> {
+        const request = eventplan.ID > 0
+            ? this.Put(eventplan.ID, eventplan)
+            : this.Post(eventplan);
 
-    save(eventplan: Eventplan): Promise<any> {
-        return new Promise( (resolve, reject) => {
-            const ht = eventplan.ID ? this.http.asPUT() : this.http.asPOST();
-            const route = eventplan.ID ? 'eventplans/' + eventplan.ID : 'eventplans';
-
-            const subscribers = eventplan.Subscribers && eventplan.Subscribers
-                .filter(row => !row['_isEmpty'])
-                .map(s => {
-                    if (!s.ID) {
-                        s._createguid = this.guidService.guid();
-                    }
-                    if (!s.Active) {
-                        s.Active = false;
-                    }
-                    return s;
-                });
-            eventplan.Subscribers = subscribers;
-
-            ht.usingBusinessDomain()
-                .withBody(eventplan)
-                .withEndPoint(route)
-                .send().map(response => response.json())
-                .subscribe(
-                    result => { 
-                        this.Notifier.next({ plans: [result], changes: true });  
-                        resolve(<Eventplan>result); 
-                    },
-                    error => {
-                        resolve(false);
-                        this.errorService.handle(error);
-                    }
-                );
-        });
-    }
-
-    delete(eventplan: Eventplan): Observable<any> {
-        return this.http.usingBusinessDomain()
-            .asDELETE()
-            .withEndPoint(`eventplans/${eventplan.ID}`)
-            .send();
+        return request;
     }
 }

@@ -2,13 +2,18 @@ uni-ticker-wrapper uni-ticker
     .ticker-horizontal-menu
         display: inline-block
         position: absolute
-        top: .55rem
-        left: 25rem
+        top: 5px
+        right: 0
         z-index: map-get($zindex, toolbar)
 
         a
+            font-family: 'Roboto'
+            font-weight: 500
+            font-size: 14px
             margin-right: 1rem
             cursor: pointer
+            color: #1565c0
+
             &:hover, &:focus
                 text-decoration: underline
 
@@ -16,9 +21,8 @@ uni-ticker
     display: block
     position: relative
 
-    ag-grid-angular
-        &.grouping-class
-            height: calc(100vh - 17rem) !important
+    ag-grid-wrapper
+        height: calc(100vh - 15rem)
 
     // Only visible when inside uni-ticker-wrapper
     // Important actions should be in toolbar in overview.ts
@@ -26,7 +30,6 @@ uni-ticker
         display: none
 
     .uni-ag-wrapper
-        max-height: calc(100vh - 17.5rem) !important
         font-size: 14px
 
 uni-ticker-detail-view
@@ -127,6 +130,9 @@ uni-sub-ticker-container
         width: 100%
         overflow: visible
         margin-right: 0 !important
+
+        ag-grid-wrapper
+            height: unset
 
         .ticker-data
             border: none

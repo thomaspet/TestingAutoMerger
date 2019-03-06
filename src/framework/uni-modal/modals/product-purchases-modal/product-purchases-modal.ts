@@ -75,9 +75,12 @@ export class ProductPurchasesModal implements IUniModal {
                 this.roles = res[4];
 
                 this.buildProductMatrix();
+                this.busy = false;
             },
-            err => this.errorService.handle(err),
-            () => this.busy = false
+            err => {
+                this.busy = false;
+                this.errorService.handle(err);
+            },
         );
     }
 

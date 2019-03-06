@@ -211,6 +211,11 @@ export const SHORTCUT_LISTS = [
                     urlToNew: '/accounting/bills/0'
                 },
                 {
+                    label: 'Budsjett',
+                    link: '/accounting/budget',
+                    urlToNew: ''
+                },
+                {
                     label: 'Åpne poster',
                     link: '/accounting/postpost',
                     urlToNew: ''

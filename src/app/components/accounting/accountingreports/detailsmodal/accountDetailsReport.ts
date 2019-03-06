@@ -26,7 +26,10 @@ import {
     ErrorService,
     FinancialYearService,
     AccountService,
+    PageStateService
 } from '../../../../services/services';
+import {YearModal, IChangeYear} from '../../../layout/navbar/company-dropdown/yearModal';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -65,6 +68,19 @@ export class AccountDetailsReport {
     transactionsLookupFunction: (urlParams: URLSearchParams) => any;
     columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
     doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    accountNumber: number;
+    tabIndex: number = 0;
+    tabs: IUniTab[] = [
+        { name: 'Periodetall', value: 0 },
+        { name: 'Transaksjoner', value: 1 }
+    ];
+    selectYearConfig = {
+        template: (item) => typeof item === 'number' ? item.toString() : item,
+        searchable: false,
+        hideDeleteButton: true
+    };
+    selectYear: string[];
+    activeYear: number;
 
     private dimensionEntityName: string;
     private financialYears: Array<FinancialYear> = null;
@@ -81,7 +97,8 @@ export class AccountDetailsReport {
         private modalService: UniModalService,
         private periodFilterHelper: PeriodFilterHelper,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private pageStateService: PageStateService
     ) {
 
         this.config = {
@@ -97,15 +114,9 @@ export class AccountDetailsReport {
             periodFilter2: null
         };
 
-        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
         this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
-
-        this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
-            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-
-        this.columnSumResolver = (urlParams: URLSearchParams) =>
-            this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, null));
 
         this.setupTransactionsTable();
 
@@ -122,6 +133,28 @@ export class AccountDetailsReport {
         if (!this.config.modalMode) {
             this.route.queryParams.subscribe(params => {
                 const accountParam = +params['account'];
+                this.tabIndex = +params['tabIndex'] || 0;
+                this.accountNumber = accountParam;
+
+                const item = {
+                    year: +params['year'] || this.activeFinancialYear.Year,
+                    fromPeriodNo: +params['fromPeriodNo'] || 1,
+                    toPeriodNo: +params['toPeriodNo'] || 12,
+                    name: ''
+                };
+                this.activeYear = item.year;
+                this.selectYear = this.getYearComboSelection(this.activeYear);
+
+                item.name = this.periodFilterHelper.getFilterName(item);
+
+                this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
+                this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+                this.periodFilter3$.next(item);
+
+                this.config.periodFilter1 = item;
+                if (!this.config.periodFilter2) {
+                    this.config.periodFilter2 = item;
+                }
 
                 this.accountService.searchAccounts(accountParam ? 'AccountNumber eq ' + accountParam : 'Visible eq 1', 1)
                 .subscribe(data => {
@@ -133,7 +166,13 @@ export class AccountDetailsReport {
                     const account = data[0];
                     this.setAccountConfig(account);
                     this.updateToolbar();
-                    this.addTab(accountParam);
+                    this.addTab();
+
+                    this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
+                        this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
+                    this.columnSumResolver = (urlParams: URLSearchParams) =>
+                        this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
                     this.searchConfig.initialItem$.next(account);
                     if (this.searchElement) {
@@ -145,16 +184,27 @@ export class AccountDetailsReport {
 
             });
         } else {
+
+            this.activeYear = this.activeFinancialYear.Year;
+            this.selectYear = this.getYearComboSelection(this.activeYear);
+
+            this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
+                this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
+            this.columnSumResolver = (urlParams: URLSearchParams) =>
+                this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
             this.loadData();
         }
     }
 
-    public onFilterAccountChange(account) {
+    public onFilterAccountChange(account: Account) {
         if (account && account.ID) {
             this.setAccountConfig(account);
-            this.loadData();
+            this.loadData(false);
             this.setupLookupTransactions();
-            this.addTab(account.AccountNumber);
+            this.accountNumber = account.AccountNumber;
+            this.addTab();
             setTimeout(() => {
                 if (this.searchElement) {
                     this.searchElement.focus();
@@ -164,6 +214,10 @@ export class AccountDetailsReport {
     }
 
     public onPeriodFilterChanged(item) {
+        // Update the year drowdown when changing periode filter
+        this.activeYear = item.year;
+        this.selectYear = this.getYearComboSelection(this.activeYear);
+
         if (item.fromPeriodNo === item.toPeriodNo) {
             this.periodSelected({periodNo: item.toPeriodNo, year: item.year});
         } else {
@@ -181,12 +235,6 @@ export class AccountDetailsReport {
 
 
     public doTurnAndInclude() {
-        // "turn" amounts for accountgroup 2 and 3, because it will be confusing for the users when these amounts are
-        // displayed as negative numbers (which they will usually be)
-        this.doTurnDistributionAmounts$
-            .next(this.config.accountNumber.toString().substring(0, 1) === '2'
-                || this.config.accountNumber.toString().substring(0, 1) === '3');
-
         // include incoming balance for balance accounts
         this.includeIncomingBalanceInDistributionReport$
             .next(this.config.accountNumber.toString().substring(0, 1) === '1'
@@ -203,10 +251,21 @@ export class AccountDetailsReport {
         };
     }
 
-    public addTab(number?: number) {
+    public addTab() {
+        const f = this.periodFilter3$.getValue();
+
+        // Set page state service to make sure browser navigatio works
+        this.pageStateService.setPageState('tabIndex', this.tabIndex + '');
+        this.pageStateService.setPageState('fromPeriodNo', f.fromPeriodNo + '');
+        this.pageStateService.setPageState('toPeriodNo', f.toPeriodNo + '');
+        this.pageStateService.setPageState('year', f.year + '');
+        if (!!this.accountNumber) {
+            this.pageStateService.setPageState('account', this.accountNumber + '');
+        }
+
         this.tabService.addTab({
             name: 'Søk på konto',
-            url: `/accounting/accountquery${ !!number ? '?account=' + number : '' }`,
+            url: this.pageStateService.getUrl(),
             moduleID: UniModules.AccountQuery,
             active: true
         });
@@ -221,7 +280,7 @@ export class AccountDetailsReport {
                     this.setAccountConfig(account);
                     this.searchConfig.initialItem$.next(account);
 
-                    this.loadData();
+                    this.loadData(false);
                     this.setupLookupTransactions();
                 } else {
                     this.toastService.addToast('Første konto', ToastType.warn, 5, 'Du har nådd Første konto');
@@ -238,7 +297,7 @@ export class AccountDetailsReport {
                     this.setAccountConfig(account);
                     this.searchConfig.initialItem$.next(account);
 
-                    this.loadData();
+                    this.loadData(false);
                     this.setupLookupTransactions();
                 } else {
                     this.toastService.addToast('Siste konto', ToastType.warn, 5, 'Du har nådd siste konto');
@@ -248,16 +307,18 @@ export class AccountDetailsReport {
 
     // modal is reused if multiple accounts are viewed, and the
     // loadData will be called from the accountDetailsReportModal when opening the modal
-    public loadData() {
-        if (this.config.periodFilter1 !== null && this.config.periodFilter2 !== null) {
-            this.periodFilter1$.next(this.config.periodFilter1);
-            this.periodFilter2$.next(this.config.periodFilter2);
-            this.periodFilter3$.next(this.config.periodFilter1);
-        } else {
-            // get default period filters
-            this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
-            this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-            this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, null));
+    public loadData(shouldChangeFilters: boolean = true) {
+        if (shouldChangeFilters) {
+            if (this.config.periodFilter1 !== null && this.config.periodFilter2 !== null) {
+                this.periodFilter1$.next(this.config.periodFilter1);
+                this.periodFilter2$.next(this.config.periodFilter2);
+                this.periodFilter3$.next(this.config.periodFilter1);
+            } else {
+                // get default period filters
+                this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
+                this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+                this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, null));
+            }
         }
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
@@ -442,7 +503,7 @@ export class AccountDetailsReport {
         return cssClasses.trim();
     }
 
-    public periodSelected(row) {
+    public periodSelected(row, shouldGoToTransactions: boolean = false) {
         const filter = new PeriodFilter();
         if (row.periodNo === 0) {
             this.toastService.addToast(
@@ -475,9 +536,34 @@ export class AccountDetailsReport {
 
         filter.year = row.year;
         filter.name = this.periodFilterHelper.getFilterName(filter);
-        this.periodFilter3$.next(filter);
 
+        this.periodFilter3$.next(filter);
         this.setupLookupTransactions();
+        if (shouldGoToTransactions) {
+            this.tabIndex = 1;
+        }
+        this.addTab();
+    }
+
+    private getYearComboSelection(curYear): string[]     {
+        curYear = parseInt(curYear, 10);
+        return [
+            `${curYear - 1}`,
+            `${curYear + 1}`,
+            '...'];
+    }
+
+    public onYearDropdownChange(value) {
+        if (value === '...') {
+            this.openYearModal();
+        } else {
+            const filter = this.periodFilter3$.getValue();
+            filter.year = value;
+            this.activeYear = value;
+            this.selectYear = this.getYearComboSelection(value);
+            this.periodFilter1$.next(filter);
+            this.onPeriodFilterChanged(filter);
+        }
     }
 
     public onYearSelected(event) {
@@ -488,7 +574,16 @@ export class AccountDetailsReport {
         this.setupLookupTransactions();
     }
 
-    onResourceChange($event) {
-        console.log($event);
+    public openYearModal()  {
+        this.modalService.open(YearModal, { data: { year: this.activeYear }}).onClose
+            .subscribe((val: IChangeYear) => {
+            if (val && val.year && (typeof val.year === 'number')) {
+                this.onYearDropdownChange(val.year);
+            }
+            }, (err) => this.errorService.handle(err));
+    }
+
+    public tabChange(event) {
+        this.addTab();
     }
 }

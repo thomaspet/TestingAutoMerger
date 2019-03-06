@@ -16,11 +16,10 @@
                 <i *ngIf="module._isBought" class="material-icons purchase-indicator">check_circle</i>
             </section>
 
-            <section class="subscribe" [matTooltip]="cannotPurchaseProductsText">
+            <section class="subscribe">
                 <button
                     class="subscribe-button"
-                    (click)="manageUserPurchases(module)"
-                    [disabled]="!canPurchaseProducts">
+                    (click)="manageUserPurchases(module)">
                     {{module._isBought ? 'Velg brukere' : 'Abonner'}}
                 </button>
             </section>
@@ -46,13 +45,12 @@
                 </i>
             </section>
 
-            <section class="subscribe" [matTooltip]="cannotPurchaseProductsText">
+            <section class="subscribe">
                 <!-- Buy -->
                 <button
                     class="subscribe-button"
                     *ngIf="!extension._isBought"
-                    (click)="purchaseExtension(extension)"
-                    [disabled]="!canPurchaseProducts">
+                    (click)="purchaseExtension(extension)">
                     Kjøp
                 </button>
 
@@ -60,8 +58,7 @@
                 <button
                     class="subscribe-button"
                     *ngIf="extension._isBought && extension?._activationFunction"
-                    (click)="extension._activationFunction.click()"
-                    [disabled]="!canPurchaseProducts">
+                    (click)="extension._activationFunction.click()">
                     {{extension?._activationFunction?.label}}
                 </button>
             </section>

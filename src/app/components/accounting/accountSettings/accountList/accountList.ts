@@ -8,25 +8,25 @@ import {
     AfterViewInit
 } from '@angular/core';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
-} from '@uni-framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {URLSearchParams} from '@angular/http';
 import {Account} from '../../../../unientities';
 import {AccountService, ErrorService} from '../../../../services/services';
-
 
 @Component({
     selector: 'account-list',
     templateUrl: './accountList.html'
 })
 export class AccountList implements OnInit, AfterViewInit {
-    @Output() public uniAccountChange: EventEmitter<Account> = new EventEmitter<Account>();
-    @ViewChild(UniTable) private table: UniTable;
-    public accountTable: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @Output() uniAccountChange: EventEmitter<Account> = new EventEmitter();
+
+    accountTable: UniTableConfig;
+    lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(
         private accountService: AccountService,
@@ -39,12 +39,14 @@ export class AccountList implements OnInit, AfterViewInit {
     }
 
     public ngAfterViewInit() {
-        const input = this.elementRef.nativeElement.querySelector('input');
-        input.focus();
+        try {
+            const input = this.elementRef.nativeElement.querySelector('input');
+            input.focus();
+        } catch (e) {}
     }
 
-    public onRowSelected (event) {
-        this.uniAccountChange.emit(event.rowModel);
+    public onRowSelected(account) {
+        this.uniAccountChange.emit(account);
     }
 
     public refresh() {
@@ -124,20 +126,27 @@ export class AccountList implements OnInit, AfterViewInit {
                 }
             });
 
-        const doSynchronizeCol = new UniTableColumn('DoSynchronize', 'Synkronisér', UniTableColumnType.Boolean)    
+        const doSynchronizeCol = new UniTableColumn('DoSynchronize', 'Synkronisér', UniTableColumnType.Boolean)
             .setFilterable(true)
             .setWidth('5rem')
             .setAlignment('center')
             .setConditionalCls(rowModel => {
-                if(!rowModel.AccountSetupID) { 
+                if (!rowModel.AccountSetupID) {
                     return 'is-na';
                 }
             });
-            ;
 
         // Setup table
         this.accountTable = new UniTableConfig('accounting.accountSettings.accountList', false, true, 15)
             .setSearchable(true)
-            .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, visibilityCol, lockedCol, doSynchronizeCol]);
+            .setColumns([
+                accountNumberCol,
+                accountNameCol,
+                accountGroupNameCol,
+                vatTypeCol,
+                visibilityCol,
+                lockedCol,
+                doSynchronizeCol
+            ]);
     }
 }

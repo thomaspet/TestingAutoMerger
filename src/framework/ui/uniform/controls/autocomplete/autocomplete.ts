@@ -205,14 +205,19 @@ export class UniAutocompleteInput extends BaseControl {
         } catch (e) {}
     }
 
-    public onClickOutside() {
+    public onClickOutside(event) {
         if (this.isExpanded$.getValue()) {
             this.isExpanded$.next(false);
             this.selectedIndex = -1;
             this.selectedItem = null;
             this.preventSearch = true;
+
+            if (this.control.value === '') {
+                this.confirmSelection(null);
+            } else {
+                this.confirmSelection(this.currentValue);
+            }
         }
-        // this.control.setValue(this.initialDisplayValue, {onlySelf: true, emitEvent: false});
     }
 
     private template(obj: any) {

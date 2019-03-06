@@ -5,13 +5,45 @@ accrual-modal
         padding: 2rem
 
         .accrual-form
-            flex: 0 0 40rem
+            flex: 1
+            min-width: 300px
             margin-top: 1rem
+            margin-right: 1rem
 
         .accrual-periods
-            flex: 0 0 auto
+            flex: 0 0 10rem
             margin-right: 2rem
             input[type=checkbox]
                 height: pxToRem(15)
                 width: pxToRem(15)
                 position: relative
+
+    .yearbutton
+        cursor: pointer
+        display: inline-block
+        height: 2rem !important
+        width: 2.1rem
+        margin: 0 0 0 .5rem
+        font-size: 0
+        box-shadow: none
+        background-color: transparent
+        background-repeat: no-repeat
+        background-position: center
+        background-size: 1rem auto
+        position: relative
+        padding: 0
+        box-sizing: border-box
+        border-radius: 3px
+        border: 1px solid white
+        &:hover
+            border: 1px solid $uni-color-scale6
+            background-color: transparent
+        &:active
+            background-color: transparent
+
+    .previous
+        background-image: unicon-prev($uni-color-scale5)
+        background-size: auto .8rem
+    .next
+        background-image: unicon-next($uni-color-scale5)
+        background-size: auto .8rem

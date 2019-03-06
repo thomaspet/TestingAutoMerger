@@ -124,6 +124,14 @@ import {
 import { OTPExportComponent } from './otpexport/otpexport.component';
 import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter-modal.component';
 import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail-options/paycheck-mail-options.component';
+import { PeriodAdminModalComponent } from './amelding/modals/period-admin-modal/period-admin-modal.component';
+import {
+    AmeldingPeriodSplitViewComponent
+} from './amelding/modals/period-admin-modal/tabViews/amelding-period-split-view/amelding-period-split-view.component';
+import {
+    AmeldingPayrollsPeriodViewComponent
+} from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
+import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 
 @NgModule({
     imports: [
@@ -157,6 +165,8 @@ import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail
         AmeldingReceiptView,
         AmeldingSummaryView,
         AmeldingTypePickerModal,
+        AmeldingPeriodSplitViewComponent,
+        AmeldingPayrollsPeriodViewComponent,
 
         // Employee
         UniEmployee,
@@ -242,6 +252,8 @@ import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail
         OTPExportComponent,
         OtpFilterModalComponent,
         PaycheckMailOptionsComponent,
+        PeriodAdminModalComponent,
+        OtpPeriodWagetypeModalComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -259,6 +271,8 @@ import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail
         TimeTransferComponent,
         TravelRejectModal,
         OtpFilterModalComponent,
+        PeriodAdminModalComponent,
+        OtpPeriodWagetypeModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -284,6 +298,7 @@ import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail
         AmeldingReceiptView,
         AmeldingSummaryView,
         AmeldingTypePickerModal,
+        PeriodAdminModalComponent,
 
         // Employee
         UniEmployee,
@@ -354,7 +369,8 @@ import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail
         TravelRejectModal,
 
         // OTP
-        OTPExportComponent
+        OTPExportComponent,
+        OtpPeriodWagetypeModalComponent
     ]
 })
 export class SalaryModule {}

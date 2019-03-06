@@ -1,6 +1,6 @@
 import { Component, OnInit, SimpleChanges } from '@angular/core';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable/index';
+import { UniTableConfig, UniTableColumn, UniTableColumnType, IContextMenuItem } from '@uni-framework/ui/unitable/index';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -11,6 +11,8 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { ErrorService, CompanySalaryService, PayrollrunService } from '@app/services/services';
 import { CompanySalary, TypeOfPaymentOtp } from '@uni-entities';
 import { Router } from '@angular/router';
+import { OtpPeriodWagetypeModalComponent } from './otp-period-wagetype-modal/otp-period-wagetype-modal.component';
+import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
 
 @Component({
   selector: 'uni-otpexport',
@@ -23,12 +25,17 @@ export class OTPExportComponent implements OnInit {
     title: 'OTP-eksport'
   };
 
+  public infoConfig: IUniInfoConfig = {
+    headline: ''
+  };
+
   public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
   public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
   public otpexportModel$: BehaviorSubject<any> = new BehaviorSubject({runs: [], month: '', year: ''});
   public saveActions: IUniSaveAction[];
   public otpTableConfig: UniTableConfig;
   public otpData: any[] = [];
+  public contextMenuItems: IContextMenuItem[] = [];
   private companySalarySettings: CompanySalary;
   public showOTPNotActive: boolean = true;
   private runs: string;
@@ -81,6 +88,7 @@ export class OTPExportComponent implements OnInit {
       moduleID: UniModules.OTPExport,
       active: true
     });
+
     this.companySalaryService.getCompanySalary()
       .subscribe((compSalary: CompanySalary) => {
         this.companySalarySettings = compSalary;
@@ -91,6 +99,13 @@ export class OTPExportComponent implements OnInit {
           this.setupTableConfig();
         }
       });
+
+    this.contextMenuItems = [
+      {
+        label: 'Lønnsarter periodelønn',
+        action: () => this.openAmeldingPeriodWagetypeModal()
+      }
+    ];
   }
 
   public ngOnInit() {
@@ -110,7 +125,7 @@ export class OTPExportComponent implements OnInit {
       .open(OtpFilterModalComponent)
       .onClose
       .subscribe(filterModel => {
-        if (!!filterModel.otpPeriod) {
+        if (filterModel && !!filterModel.otpPeriod) {
           this.otpexportModel$
             .take(1)
             .subscribe(otpModel => {
@@ -122,6 +137,17 @@ export class OTPExportComponent implements OnInit {
               otpModel['year'] = filterModel.otpYear;
               this.otpexportModel$.next(otpModel);
             });
+          this.getData();
+        }
+      });
+  }
+
+  public openAmeldingPeriodWagetypeModal() {
+    this.modalService
+      .open(OtpPeriodWagetypeModalComponent)
+      .onClose
+      .subscribe(modalresponse => {
+        if (modalresponse && modalresponse.runupdate) {
           this.getData();
         }
       });
@@ -209,8 +235,8 @@ export class OTPExportComponent implements OnInit {
       decimalSeparator: ',',
       decimalLength: 2
     });
-    const periodsalarySumCol = new UniTableColumn('Periodelonn-belop', 'Periodelønn-beløp', UniTableColumnType.Money);
-    const periodsalaryAmountCol = new UniTableColumn('Periodelonn-antall', 'Periodelønn-antall', UniTableColumnType.Number);
+    const periodsalarySumCol = new UniTableColumn('Periodelonnbelop', 'Periodelønn-beløp', UniTableColumnType.Money);
+    const periodsalaryAmountCol = new UniTableColumn('Periodelonnantall', 'Periodelønn-antall', UniTableColumnType.Number);
     const statusPensionCol = new UniTableColumn('Status', 'Status pensjon', UniTableColumnType.Text)
     .setTemplate(rowModel => {
       return this.statuses().find(s => s.short === rowModel.Status).full;

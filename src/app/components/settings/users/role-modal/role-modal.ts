@@ -1,7 +1,7 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {Observable, forkJoin, of as observableOf} from 'rxjs';
-import {map, catchError} from 'rxjs/operators';
+import {map, catchError, finalize} from 'rxjs/operators';
 import {User, Role, UserRole} from '@uni-entities';
 import {
     ErrorService,
@@ -10,8 +10,8 @@ import {
     ElsaProductService,
     ElsaPurchaseService,
 } from '@app/services/services';
-import {AuthService} from '@app/authService';
 import {ElsaPurchase, ElsaProduct} from '@app/models';
+import {UniModalService, MissingPurchasePermissionModal} from '@uni-framework/uni-modal';
 
 interface IRoleGroup {
     label: string;
@@ -30,7 +30,6 @@ export class UniRoleModal implements IUniModal {
     options: IModalOptions = {};
     onClose: EventEmitter<boolean> = new EventEmitter();
 
-    canPurchaseProducts: boolean;
     user: User;
     elsaProducts: any[];
     elsaPurchases: ElsaPurchase[];
@@ -39,16 +38,13 @@ export class UniRoleModal implements IUniModal {
     busy: boolean;
 
     constructor(
-        private authService: AuthService,
+        private modalService: UniModalService,
         private errorService: ErrorService,
         private roleService: RoleService,
         private userRoleService: UserRoleService,
         private elsaProductService: ElsaProductService,
         private elsaPurchaseService: ElsaPurchaseService
-    ) {
-        const license: any = this.authService.currentUser.License || {};
-        this.canPurchaseProducts = license.CustomerAgreement && license.CustomerAgreement.CanAgreeToLicense;
-    }
+    ) {}
 
     public ngOnInit() {
         this.user = this.options.data.user;
@@ -57,6 +53,8 @@ export class UniRoleModal implements IUniModal {
         forkJoin(
             this.elsaProductService.GetAll(),
             this.elsaPurchaseService.getAll()
+        ).pipe(
+            finalize(() => this.busy = false)
         ).subscribe(
             res => {
                 this.elsaProducts = res[0];
@@ -65,7 +63,6 @@ export class UniRoleModal implements IUniModal {
                 this.getGroupedRoles().subscribe(groups => this.roleGroups = groups);
             },
             err => this.errorService.handle(err),
-            () => this.busy = false
         );
     }
 

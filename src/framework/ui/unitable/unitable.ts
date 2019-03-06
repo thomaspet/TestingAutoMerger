@@ -28,8 +28,8 @@ export interface ITableFilter {
     field: string;
     operator: string;
     value: string | number;
-    group: number;
-    selectConfig: {options: Array<any>, valueField: string, displayField: string};
+    group?: number;
+    selectConfig?: {options: Array<any>, valueField: string, displayField: string};
     isDate?: boolean;
 }
 

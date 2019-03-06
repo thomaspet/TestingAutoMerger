@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 
 import {Observable, forkJoin, of as observableOf} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
+import {switchMap, map, catchError} from 'rxjs/operators';
 
 import {UniHttp} from '@uni-framework/core/http/http';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
@@ -42,5 +42,16 @@ export class UserRoleService extends BizHttp<UserRole> {
         // Ideally we'd update everything in one request, but the api currently
         // does not support this
         return addRequest.pipe(switchMap(() => deleteRequest));
+    }
+
+    hasAdminRole(userID: number): Observable<boolean> {
+        return this.getRolesByUserID(userID).pipe(
+            catchError(() => []),
+            map(userRoles => {
+                return userRoles && userRoles.some(role => {
+                    return role.SharedRoleName === 'Administrator';
+                });
+            })
+        );
     }
 }

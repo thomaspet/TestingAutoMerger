@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, CompanySalary} from '../../../unientities';
+import {AmeldingData, CompanySalary, AmeldingType, InternalAmeldingStatus} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -26,6 +26,7 @@ import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticatio
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 
 @Component({
     selector: 'amelding-view',
@@ -143,6 +144,10 @@ export class AMeldingView implements OnInit {
             {
                 label: 'Avstemming',
                 action: () => this.openReconciliation()
+            },
+            {
+                label: 'Avansert periodebehandling',
+                action: () => this.openAdminModal()
             }
         ];
     }
@@ -757,11 +762,41 @@ export class AMeldingView implements OnInit {
     }
 
     private openAmeldingTypeModal(done) {
+        let anySentInAmeldingerWithStandardAmeldingType: boolean = false;
+
+        if ((this.aMeldingerInPeriod && this.aMeldingerInPeriod.filter(x => x.type === AmeldingType.Standard)[0])
+            && (this.currentSumUp && this.currentSumUp.status > InternalAmeldingStatus.GENERATED)
+        ) {
+            anySentInAmeldingerWithStandardAmeldingType = true;
+        }
+
         this.modalService
-            .open(AmeldingTypePickerModal, {modalConfig: {done: done}})
+            .open(AmeldingTypePickerModal, {
+                modalConfig: { done: done },
+                data: { anySentInAmeldingerWithStandardAmeldingType: anySentInAmeldingerWithStandardAmeldingType }
+            })
             .onClose
             .filter(event => event.type >= 0)
             .subscribe(event => this.createAMelding(event));
+    }
+
+    private openAdminModal() {
+        this.modalService
+            .open(PeriodAdminModalComponent,
+                {
+                    data: {
+                        period: this.currentPeriod,
+                        ameldingerInPeriod: this.aMeldingerInPeriod,
+                        companySalary: this.companySalary
+                    }
+                })
+            .onClose
+            .subscribe(hasChanges => {
+                if (!hasChanges) {
+                    return;
+                }
+                this.gotoPeriod(this.currentPeriod);
+            });
     }
 
     private clearAMelding() {

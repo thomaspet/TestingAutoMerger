@@ -397,8 +397,6 @@ export class TransqueryDetails implements OnInit {
                 field: 'Account.AccountNumber',
                 operator: 'eq',
                 value: routeParams['Account_AccountNumber'],
-                group: 0,
-                selectConfig: null
             });
 
             if (+routeParams['period'] === 0) {
@@ -407,8 +405,6 @@ export class TransqueryDetails implements OnInit {
                     operator: 'lt',
                     value: accountYear,
                     isDate: true,
-                    group: 0,
-                    selectConfig: null
                 });
             } else if (+routeParams['period'] === 13) {
                 if (routeParams['isIncomingBalance'] === 'true') {
@@ -417,8 +413,6 @@ export class TransqueryDetails implements OnInit {
                         operator: 'lt',
                         value: nextAccountYear,
                         isDate: true,
-                        group: 0,
-                        selectConfig: null
                     });
                 } else {
                     filter.push({
@@ -426,8 +420,6 @@ export class TransqueryDetails implements OnInit {
                         operator: 'ge',
                         value: accountYear,
                         isDate: true,
-                        group: 0,
-                        selectConfig: null
                     });
 
                     filter.push({
@@ -435,8 +427,6 @@ export class TransqueryDetails implements OnInit {
                         operator: 'lt',
                         value: nextAccountYear,
                         isDate: true,
-                        group: 0,
-                        selectConfig: null
                     });
                 }
             } else {
@@ -447,8 +437,6 @@ export class TransqueryDetails implements OnInit {
                     operator: 'ge',
                     value: periodDates.firstDayOfPeriod,
                     isDate: true,
-                    group: 0,
-                    selectConfig: null
                 });
 
                 filter.push({
@@ -456,7 +444,6 @@ export class TransqueryDetails implements OnInit {
                     operator: 'le',
                     value: periodDates.lastDayOfPeriod,
                     isDate: true,
-                    group: 0, selectConfig: null
                 });
             }
         } else if (routeParams['Account_AccountNumber']) {
@@ -520,8 +507,6 @@ export class TransqueryDetails implements OnInit {
                 field: 'JournalEntryNumber',
                 operator: 'eq',
                 value: routeParams['JournalEntryNumber'],
-                group: 0,
-                selectConfig: null
             });
 
             this.allowManualSearch = false;
@@ -537,8 +522,6 @@ export class TransqueryDetails implements OnInit {
                     field: field.replace('_', '.'),
                     operator: 'eq',
                     value: routeParams[field],
-                    group: 0,
-                    selectConfig: null
                 });
             }
         }

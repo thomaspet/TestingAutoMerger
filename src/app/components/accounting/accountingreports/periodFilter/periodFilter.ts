@@ -15,7 +15,7 @@ export class PeriodFilterHelper {
 
     constructor(
         private browserStorage: BrowserStorageService,
-    ){}
+    ) { }
 
     public getFilter(
         periodNumber: number,

@@ -74,7 +74,7 @@ export interface IUniTableColumn {
     width?: number|string;
     filterable: boolean;
     filterOperator?: string;
-    selectConfig?: {options: Array<any>, displayField: string, valueField: string};
+    filterSelectConfig?: {options: Array<any>, displayField: string, valueField: string};
     skipOnEnterKeyNavigation?: boolean;
     sortMode: UniTableColumnSortMode;
     jumpToColumn?: string;
@@ -118,7 +118,7 @@ export class UniTableColumn implements IUniTableColumn {
 
     public filterable: boolean;
     public filterOperator: string;
-    public selectConfig: {options: Array<any>, displayField: string, valueField: string};
+    public filterSelectConfig: {options: Array<any>, displayField: string, valueField: string};
 
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
@@ -155,6 +155,7 @@ export class UniTableColumn implements IUniTableColumn {
         this.setType(type || UniTableColumnType.Text);
 
         if (type === UniTableColumnType.Number || type === UniTableColumnType.Money || type === UniTableColumnType.Percent) {
+            this.filterOperator = 'eq';
             this.setAlignment('right');
             this.numberFormat = {
                 thousandSeparator: ' ',

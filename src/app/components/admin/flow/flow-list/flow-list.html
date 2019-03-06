@@ -1,0 +1,32 @@
+<span *ngIf="eventPlans?.length === 0">Ingen lagrede flyter</span>
+<table *ngIf="eventPlans?.length">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Navn</th>
+            <th style="width: 12rem;">Status</th>
+            <th style="width: 12rem;">Sist endret</th>
+            <th style="width: 20rem;">Endret av</th>
+            <th style="width: 3rem;"></th>
+        </tr>
+    </thead>
+    <tr *ngFor="let eventplan of eventPlans">
+        <td (click)="editPlan(eventplan)">
+            <section class="icon-wrap" *ngIf="eventplan._template" [style.color]="eventplan._template.Color">
+                <i class="material-icons">{{eventplan._template.MaterialIcon1}}</i>
+                <i class="material-icons">{{eventplan._template.MaterialIcon2}}</i>
+            </section>
+        </td>
+        <td (click)="editPlan(eventplan)">{{eventplan.Name}}</td>
+        <td>
+            <mat-slide-toggle [(ngModel)]="eventplan.Active" (ngModelChange)="activeStateChange(eventplan)">
+                {{eventplan.Active ? 'Aktiv' : 'Inaktiv'}}
+            </mat-slide-toggle>
+        </td>
+        <td (click)="editPlan(eventplan)">{{eventplan._updatedAt}}</td>
+        <td (click)="editPlan(eventplan)">{{eventplan._updatedBy}}</td>
+        <td (click)="deletePlan(eventplan)" class="delete-plan">
+            <i class="material-icons">close</i>
+        </td>
+    </tr>
+</table>

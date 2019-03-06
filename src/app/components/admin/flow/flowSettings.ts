@@ -1,73 +1,51 @@
 import {Component} from '@angular/core';
-import {UniModalService} from '@uni-framework/uni-modal';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {EventplanService} from '@app/services/common/eventplan.service';
-import {FlowModal} from '@app/components/admin/flow/flowModals/flowModal';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
-import {FlowPrefabricatedTab} from '@app/components/admin/flow/prefabricatedFlowsTab';
-import {FlowMyFlowTab} from '@app/components/admin/flow/tabMyFlows';
-import {Observable} from 'rxjs';
-import {ErrorService} from '@app/services/common/errorService';
+
+import { FlowTemplates } from './templates/templates';
+import { FlowList } from './flow-list/flow-list';
 
 export const FLOW_ROUTES = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'prefabricated',
+        redirectTo: 'templates',
     },
     {
-        path: 'prefabricated',
-        component: FlowPrefabricatedTab,
+        path: 'templates',
+        component: FlowTemplates
     },
     {
-        path: 'my-flows',
-        component: FlowMyFlowTab,
-    },
-];
-
-export const FLOW_SETTINGS_TABS = [
-    FlowPrefabricatedTab,
-    FlowMyFlowTab,
+        path: 'flows',
+        component: FlowList
+    }
 ];
 
 @Component({
     selector: 'flow-settings',
     template: `
-        <uni-toolbar [config]="toolbarConfig"></uni-toolbar>
-        <uni-tabs [useRouterLinkTabs]="true" [tabs]="tabs"></uni-tabs>
-        <router-outlet></router-outlet>
+        <uni-toolbar
+            [config]="toolbarConfig"
+            [saveactions]="eventPlanService.saveActions$ | async">
+        </uni-toolbar>
+
+        <section class="application">
+            <uni-tabs [useRouterLinkTabs]="true" [tabs]="tabs"></uni-tabs>
+            <router-outlet></router-outlet>
+        </section>
     `,
 })
 export class FlowSettings {
     tabs: IUniTab[] = [
-        {name: 'Maler', path: 'prefabricated'},
-        {name: 'Mine flyter', path: 'my-flows'},
+        {name: 'Maler', path: 'templates'},
+        {name: 'Lagrede flyter', path: 'flows'}
     ];
     toolbarConfig = <IToolbarConfig>{
         title: 'Flyt',
         hideBreadcrumbs: true,
-        saveactions: [{
-            label: 'Lag ny flyt',
-            action: (done) => this.createCustomEventplan(done),
-        }],
     };
 
-    constructor(
-        private modalService: UniModalService,
-        private eventPlanService: EventplanService,
-        private errorService: ErrorService,
-    ) {}
-
-    createCustomEventplan(done: () => string) {
-        return this.modalService.open(FlowModal).onClose
-            .filter(eventPlan => eventPlan && eventPlan.OperationFilter)
-            .map(eventPlan => Object.assign({Active:true}, eventPlan))
-            .switchMap(eventPlan => Observable.fromPromise(this.eventPlanService.save(eventPlan)))
-            .finally(() => done())
-            .subscribe(
-                eventPlan => {},
-                err => this.errorService.handle(err),
-            );
-    }
+    constructor(public eventPlanService: EventplanService) {}
 }
 

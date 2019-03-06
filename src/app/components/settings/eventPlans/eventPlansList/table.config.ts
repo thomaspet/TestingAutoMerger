@@ -11,6 +11,7 @@ export default new UniTableConfig('eventplans-list', false, false, 20)
                     case '0': return 'Webhook';
                     case '1': return 'Custom';
                     case '2': return 'Others';
+                    case '3': return 'Function';
                     default: return '(Not defined)';
                 }
             }),

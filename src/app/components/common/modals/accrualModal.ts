@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, SimpleChange, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../framework/ui/uniform/index';
 import {Accrual, AccrualPeriod, LocalDate, Period} from '../../../unientities';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {
     AccountService,
@@ -36,12 +36,13 @@ import { of } from 'rxjs/observable/of';
                 </section>
                 <section class="accrual-periods"
                     *ngIf="modalConfig && modalConfig.model && modalConfig?.model['_periodYears'] && currentFinancialYearPeriods">
-                    <table cols=4>
+                    <table>
                         <tr>
-                            <th></th>
+                            <th><button class="previous yearbutton" [disabled]="buttonsDisabled" (click)="showPreviousYear()"></button></th>
                             <th>{{modalConfig?.model['_periodYears'][0]}}</th>
                             <th>{{modalConfig?.model['_periodYears'][1]}}</th>
                             <th>{{modalConfig?.model['_periodYears'][2]}}</th>
+                            <th style="width: 25px"><button class="next yearbutton" [disabled]="buttonsDisabled" (click)="showNextYear()">></button></th>
                         </tr>
                         <tr *ngFor="let period of currentFinancialYearPeriods; let i = index">
                             <td>{{period.Name}}</td>
@@ -60,15 +61,16 @@ import { of } from 'rxjs/observable/of';
                                 [(ngModel)]="allCheckboxValues[i].period3"
                                 [disabled]="allCheckBoxEnabledValues[i].period3"/>
                             </td>
+                            <td></td>
                         </tr>
                     </table>
                 </section>
 
             </article>
             <footer>
-                <button (click)="close('ok')" [disabled]="lockedDateSelected" class="good">Ok</button>
+                <button (click)="close('ok')" [disabled]="lockedDateSelected || buttonsDisabled" class="good">Ok</button>
                 <button (click)="close('cancel')">Avbryt</button>
-                <button (click)="close('remove')" class="bad">Fjern</button>
+                <button (click)="close('remove')"  [disabled]="buttonsDisabled" class="bad">Fjern</button>
             </footer>
 
         </section>
@@ -90,9 +92,11 @@ export class AccrualModal implements IUniModal {
         disableQuestion: false,
     };
 
-    public model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
+    buttonsDisabled: boolean = false;
 
     private lockDate: any;
     public currentFinancialYear: number;
@@ -146,8 +150,7 @@ export class AccrualModal implements IUniModal {
     ) { }
 
     public close(action: string) {
-        if (action === 'ok') {
-            if (this.modalConfig.model['_validationMessage']
+        if (action === 'ok') {if (this.modalConfig.model['_validationMessage']
                 && this.modalConfig.model['_validationMessage'].length > 0) {
                 this.modalConfig.model['_validationMessage'].forEach(msg => {
                     this.toastService.addToast('Periodisering', ToastType.bad, 10, msg);
@@ -301,7 +304,7 @@ export class AccrualModal implements IUniModal {
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
                     accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
                 } else if (accrualStartDate) {
-                    const startYear: number = accrual.Periods[0].AccountYear;
+                    const startYear: number = Math.min(...accrual.Periods.map(x => x.AccountYear));
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
                     accrual['_financialDate'] = accrualStartDate;
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
@@ -429,6 +432,10 @@ export class AccrualModal implements IUniModal {
                 8,
                 'Denne periodiseringen er allerede periodisert, og kan ikke redigere ytterligere'
             );
+
+            this.buttonsDisabled = true;
+        } else {
+            this.buttonsDisabled = false;
         }
     }
 
@@ -466,19 +473,28 @@ export class AccrualModal implements IUniModal {
         ];
 
         const tempDate = this.journalEntryService.getAccountingLockedDate();
+
         if (tempDate) {
             const lockedDate = new LocalDate(tempDate.toString());
             const lockedMonth = lockedDate.month;
             const lockedYear = lockedDate.year;
-            const year = this.currentFinancialYear;
 
-            if (lockedYear === year) {
+            for (let i = 0; i < 3; i++) {
+                const year = this.modalConfig.model['_periodYears'][i];
 
-                for (let p: number = 0; p < lockedMonth; p++) {
-                    enablingValues[p].period1 = true;
+                if (lockedYear === year) {
+                    for (let p: number = 0; p <= lockedMonth; p++) {
+                        enablingValues[p]['period' + (i + 1)] = true;
+                    }
+                } else if (lockedYear > year) {
+                    for (let p: number = 0; p < 12; p++) {
+                        enablingValues[p]['period' + (i + 1)] = true;
+                    }
                 }
             }
+
         }
+
         this.allCheckBoxEnabledValues = enablingValues;
     }
 
@@ -568,7 +584,6 @@ export class AccrualModal implements IUniModal {
                 periodNo = this.modalConfig.model.Periods[0].PeriodNo;
                 periodYear = this.modalConfig.model.Periods[0].AccountYear;
 
-
                 if (this.modalConfig.model['_periodYears'][0] === periodYear) {
                     yearNumber = 1;
                 } else if (this.modalConfig.model['_periodYears'][1] === periodYear) {
@@ -655,8 +670,36 @@ export class AccrualModal implements IUniModal {
 
     }
 
-    private changeRecalculatePeriods(): void {
+    public showPreviousYear(): void {
+        this.modalConfig.model['_periodYears'] = [...this.modalConfig.model['_periodYears'].map(x => x - 1)];
 
+        setTimeout(() => {
+            this.setAccountingLockedPeriods();
+            this.reSelectCheckBoxes();
+            this.model$.next(this.modalConfig.model);
+            this.lockedDateSelected = false;
+        });
+    }
+
+    public showNextYear(): void {
+        // dont allow user to show year after current year (two years after is already showing)
+        if (this.modalConfig.model['_periodYears'][0] === new Date().getFullYear()) {
+            this.toastService.addToast('Kan ikke periodisere lenger frem', ToastType.warn, ToastTime.short);
+            return;
+        }
+
+        this.modalConfig.model['_periodYears'] = [...this.modalConfig.model['_periodYears'].map(x => x + 1)];
+
+        setTimeout(() => {
+            this.setAccountingLockedPeriods();
+            this.reSelectCheckBoxes();
+
+            this.model$.next(this.modalConfig.model);
+            this.lockedDateSelected = false;
+        });
+    }
+
+    private changeRecalculatePeriods(): void {
         const accrualPeriods: Array<AccrualPeriod> = new Array<AccrualPeriod>();
         let yearCounter: number = 1;
         let periodCounter: number = 0;
@@ -677,7 +720,6 @@ export class AccrualModal implements IUniModal {
             }
         }
 
-
         const newAccrualPeriods = accrualPeriods.filter(period => {
             return !this.modalConfig.model.Periods.find(x => {
                 return period.AccountYear === x.AccountYear
@@ -693,6 +735,7 @@ export class AccrualModal implements IUniModal {
             });
         });
         newAccrualPeriods.forEach(period => period['_createguid'] = createGuid());
+
         this.modalConfig.model.Periods = this.modalConfig.model.Periods.concat(newAccrualPeriods);
 
         this.modalConfig.model['_numberOfPeriods'] = accrualPeriods.length;
@@ -754,6 +797,10 @@ export class AccrualModal implements IUniModal {
                 Label: 'Balansekonto',
                 LineBreak: true,
                 Sectionheader: 'Periodiseringskonto',
+                Tooltip: {
+                    Text: 'Normalt brukes en konto i 17-serien for forskuddsbetalte kostnader og påløpte inntekter, ' +
+                        'og en konto i 29-serien brukes for påløpte kostnader og uopptjente inntekter'
+                },
                 Section: 1,
                 Options: {
                     uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),

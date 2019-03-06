@@ -304,7 +304,7 @@ export class PostPost {
     }
 
     private unlock(done: (message: string) => void) {
-        this.postpost.unlockJournalEntries();
+        this.postpost.unlockJournalEntries(this.activeAccount);
         done('Gjenåpnet');
     }
 

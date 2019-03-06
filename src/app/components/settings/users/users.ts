@@ -40,10 +40,8 @@ export class UserManagement {
         private uniHttp: UniHttp,
         private toastService: ToastService,
     ) {
-        this.authService.authentication$.take(1).subscribe(auth  => {
-            const license: any = (auth.user && auth.user.License) || {};
-            this.canPurchaseProducts = license.CustomerAgreement && license.CustomerAgreement.CanAgreeToLicense;
-        });
+        this.userRoleService.hasAdminRole(this.authService.currentUser.ID)
+            .subscribe(isAdmin => this.canPurchaseProducts = isAdmin);
 
         this.loadUsers();
         this.searchControl.valueChanges

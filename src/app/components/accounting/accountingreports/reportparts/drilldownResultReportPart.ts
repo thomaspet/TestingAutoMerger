@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges} from '@angular/core';
 import {Observable, of as observableOf} from 'rxjs';
-import {switchMap, map} from 'rxjs/operators';
+import {switchMap, map, finalize} from 'rxjs/operators';
 
 import {ChartHelper} from '../chartHelper';
 import {PeriodFilter} from '../periodFilter/periodFilter';
@@ -251,7 +251,8 @@ export class DrilldownResultReportPart implements OnChanges {
                     .usingBusinessDomain()
                     .withEndPoint('accounts?action=profit-and-loss-periodical' + filter)
                     .send();
-            })
+            }),
+            finalize(() => this.busy = false)
         ).subscribe(
             res => {
                 res = res.json();
@@ -263,7 +264,6 @@ export class DrilldownResultReportPart implements OnChanges {
                 this.setupChart();
             },
             err => this.errorService.handle(err),
-            () => this.busy = false
         );
     }
 

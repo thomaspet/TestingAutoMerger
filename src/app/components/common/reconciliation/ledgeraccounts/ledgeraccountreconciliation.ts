@@ -538,7 +538,7 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    public unlockJournalEntries() {
+    public unlockJournalEntries(subaccountID: number = 0) {
         // check if any of the rows that are selected are serverside markings
         const selectedRows = this.journalEntryLines.filter(row => row._rowSelected);
         if (selectedRows.length === 0) {
@@ -849,10 +849,13 @@ export class LedgerAccountReconciliation {
     }
 
     public getActions(item) {
-        const actions = [{
-            label: 'Rediger bilag',
-            name: 'EDIT'
-        }];
+        const actions = [
+            { label: 'Rediger bilag', name: 'EDIT' }
+        ];
+
+        if ( ( item.StatusCode === 31002 || item.StatusCode === 31003 ) && !item. Markings ) {
+            actions.push(  { label: 'Nullstill postpost status', name: 'RESETPP'});
+        }
 
         if (this.isOverpaid(item, this.customerID)) {
             actions.push({
@@ -866,6 +869,24 @@ export class LedgerAccountReconciliation {
     public actionClicked(action, item) {
         if (action.name === 'RECLAIM') {
             this.handleOverpayment(item);
+        } else if (action.name = 'RESETPP') {
+            this.modalService.confirm({
+                header: 'Tilbakestille linje',
+                message: 'Vil du tilbakestille status og restbeløp på denne linjen?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                    this.postPostService.ResetJournalEntryLinePostStatus(item.id).subscribe( () => {
+                        this.loadData();
+                    });
+                    break;
+                }
+            });
         } else {
             this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber);
         }

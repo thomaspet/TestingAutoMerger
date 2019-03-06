@@ -89,31 +89,6 @@ export class ReminderList {
 
     }
 
-    public defaultTableFilter(): ITableFilter[] {
-        const filters: ITableFilter[] = [];
-
-        // Minimum amount to remind
-        filters.push({
-            field: 'RestAmount',
-            operator: 'gt',
-            value: this.reminderSettings.MinimumAmountToRemind,
-            group: 0,
-            selectConfig: null
-        });
-
-        // Due date
-        filters.push({
-            field: 'PaymentDueDate',
-            operator: 'lt',
-            value: new LocalDate().toString(),
-            isDate: true,
-            group: 0,
-            selectConfig: null
-        });
-
-        return filters;
-    }
-
     private updateSaveActions() {
         this.saveActions = [];
 
@@ -370,7 +345,6 @@ export class ReminderList {
             .setDeleteButton(false)
             .setAutoAddNewRow(false)
             .setSearchListVisible(true)
-            // .setFilters(this.defaultTableFilter()) // TODO: later on
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,

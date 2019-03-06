@@ -67,6 +67,8 @@ import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
+import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
+import { ReportTypeService } from '@app/services/reports/reportTypeService';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -248,7 +250,8 @@ export class CustomerDetails implements OnInit {
         private journalEntryLineService: JournalEntryLineService,
         private authService: AuthService,
         private distributionPlanService: DistributionPlanService,
-        private navbarLinkService: NavbarLinkService
+        private navbarLinkService: NavbarLinkService,
+        private reportTypeService: ReportTypeService
     ) {}
 
     public ngOnInit() {
@@ -1499,6 +1502,48 @@ export class CustomerDetails implements OnInit {
                     FieldSet: 7,
                     Section: 0,
                     Hidden: false
+                },
+                {
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Standard blankett faktura',
+                    Property: 'DefaultCustomerInvoiceReportID',
+                    Options: {
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+                        valueProperty: 'ID',
+                        displayProperty: 'Description',
+                        hideDeleteButton: true,
+                        searchable: false,
+                    },
+                    Section: 0,
+                    FieldSet: 7,
+                },
+                {
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Standard blankett ordre',
+                    Property: 'DefaultCustomerOrderReportID',
+                    Options: {
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
+                        valueProperty: 'ID',
+                        displayProperty: 'Description',
+                        hideDeleteButton: true,
+                        searchable: false,
+                    },
+                    FieldSet: 7,
+                    Section: 0,
+                },
+                {
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Standard blankett tilbud',
+                    Property: 'DefaultCustomerQuoteReportID',
+                    Options: {
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
+                        valueProperty: 'ID',
+                        displayProperty: 'Description',
+                        hideDeleteButton: true,
+                        searchable: false,
+                    },
+                    Section: 0,
+                    FieldSet: 7,
                 },
                 {
                     EntityType: 'Customer',

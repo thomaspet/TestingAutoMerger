@@ -276,14 +276,6 @@ export class WageTypeService extends BizHttp<WageType> {
                         },
                         {
                             EntityType: 'wagetype',
-                            Property: 'ReportOtp',
-                            FieldType: FieldType.CHECKBOX,
-                            Label: 'OTP-rapportering',
-                            FieldSet: 3,
-                            Section: 0
-                        },
-                        {
-                            EntityType: 'wagetype',
                             Property: '_baseOptions',
                             FieldType: FieldType.CHECKBOXGROUP,
                             Label: 'Med i grunnlag for: ',

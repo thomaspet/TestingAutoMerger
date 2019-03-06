@@ -44,13 +44,13 @@ export class ResetAutobankPasswordModal implements IUniModal {
                         this.onClose.emit();
                     },
                     () => {
+                        this.busy = false;
                         this.toast.addToast(
                             'Kunne ikke tilbakestille passord',
                             ToastType.bad, 10,
                             'Vennligst påse at ditt autobank passord er fylt ut riktig'
                         );
                     },
-                    () => this.busy = false
                 );
         }
     }

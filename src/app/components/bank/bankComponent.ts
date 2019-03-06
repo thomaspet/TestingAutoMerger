@@ -17,10 +17,12 @@ import {
     UniConfirmModalV2,
     UniAutobankAgreementModal,
     ConfirmActions,
+    UniFileUploadModal
 } from '../../../framework/uni-modal';
 import {
     UniAutobankAgreementListModal,
-    MatchSubAccountManualModal
+    MatchSubAccountManualModal,
+    MatchMainAccountModal
 } from './modals';
 import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -154,6 +156,11 @@ export class BankComponent implements AfterViewInit {
         {
             Code: 'select_supplier',
             ExecuteActionHandler: (selectedRows) => this.selectAccountForPayment(selectedRows, true),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
+            Code: 'select_main_account',
+            ExecuteActionHandler: (selectedRows) => this.setMainAccountForPayment(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         },
         {
@@ -368,13 +375,12 @@ export class BankComponent implements AfterViewInit {
         } else if (selectedTickerCode === 'bank_list') {
             this.actions.push({
                 label: 'Hent og bokfør innbetalingsfil',
-                action: (done, file) => {
-                    done('Fil lastet opp');
-                    this.fileUploaded(file);
+                action: (done) => {
+                    this.fileUploaded(done);
                 },
                 disabled: false,
                 main: true,
-                isUpload: true
+                isUpload: false
             });
         }
     }
@@ -549,12 +555,14 @@ export class BankComponent implements AfterViewInit {
         Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br><br>`
         : '';
         this.isJournaled(row.ID).subscribe(res => {
+            const journalEntryLine = res[0] ? res[0] : null;
+            const invoiceNumber = journalEntryLine ? journalEntryLine.InvoiceNumber : null;
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Slett betaling',
-                message: `Vil du slette betaling ${row.Description ? ' ' + row.Description : ''}?`,
+                message: `Vil du slette betaling${invoiceNumber ? ' som tilhører fakturanr: ' + invoiceNumber : ''}?`,
                 warning: warningMessage,
                 buttonLabels: {
-                    accept: res[0].ID ? 'Slett og krediter faktura' : null,
+                    accept: journalEntryLine ? `Slett og krediter faktura` : null,
                     reject: 'Slett betaling',
                     cancel: 'Avbryt'
                 }
@@ -713,34 +721,76 @@ export class BankComponent implements AfterViewInit {
         });
     }
 
-    public fileUploaded(file: File) {
-        this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 5,
-            'Dette kan ta litt tid, vennligst vent...');
+    public setMainAccountForPayment(selectedRows: any) {
+        return new Promise(() => {
+            const row = selectedRows[0];
+            const modal = this.modalService.open(MatchMainAccountModal, {
+                header: 'Velg hovedbokskonto manuelt',
+                data: { model: row }
+            });
 
-        this.paymentBatchService.registerAndCompleteCustomerPayment(file.ID)
-            .subscribe(result => {
-                this.toastService.clear();
-                if (result && result.ProgressUrl) {
-                    this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
-                    'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
-                    this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(jobResponse => {
-                        if (jobResponse && !jobResponse.HasError) {
-                            this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
-                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
-                        } else {
-                            this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
-                        }
-                        this.tickerContainer.getFilterCounts();
-                        this.tickerContainer.mainTicker.reloadData();
-                    });
-                } else {
-                    this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
-                    this.tickerContainer.getFilterCounts();
-                    this.tickerContainer.mainTicker.reloadData();
+            modal.onClose.subscribe(result => {
+                if (result && result.accountID) {
+                    this.journalEntryService.PutAction(null, 'book-payment-against-main-account',
+                        'paymentID=' + row.ID + '&accountID=' + result.accountID)
+                        .subscribe(() => {
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                        });
                 }
-            },
-            err => this.errorService.handle(err)
-        );
+            });
+        });
+    }
+
+    public fileUploaded(done: any) {
+
+        this.modalService.open(
+            UniFileUploadModal,
+            { buttonLabels: { accept: 'Bokfør valgte innbetalingsfiler' }} )
+        .onClose.subscribe((fileIDs) => {
+
+            if (fileIDs && fileIDs.length) {
+                const queries = fileIDs.map(id => {
+                    return this.paymentBatchService.registerAndCompleteCustomerPayment(id);
+                });
+
+                Observable.forkJoin(queries)
+                    .subscribe((result: any) => {
+                        done();
+                        if (result && result.length) {
+                            result.forEach((res) => {
+                                if (res && res.ProgressUrl) {
+                                    this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
+                                    'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
+                                    this.paymentBatchService.waitUntilJobCompleted(res.ID).subscribe(jobResponse => {
+                                        if (jobResponse && !jobResponse.HasError) {
+                                            this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
+                                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                                        } else {
+                                            this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
+                                        }
+                                        this.tickerContainer.getFilterCounts();
+                                        this.tickerContainer.mainTicker.reloadData();
+                                    });
+                                } else {
+                                    this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
+                                    this.tickerContainer.getFilterCounts();
+                                    this.tickerContainer.mainTicker.reloadData();
+                                }
+                            });
+                        } else {
+                            done();
+                        }
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        done();
+                    }
+                );
+            } else {
+                done();
+            }
+        });
     }
 
     public recieptUploaded(file: File) {
@@ -1025,11 +1075,11 @@ export class BankComponent implements AfterViewInit {
 
     private isJournaled(paymentID: number): Observable<any> {
         return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
-        + `&select=JournalEntryLine.ID as ID`
+        + `&select=JournalEntryLine.ID as ID,JournalEntryLine.InvoiceNumber as InvoiceNumber`
         + `&filter=SourceEntityName eq 'SupplierInvoice' and `
-        + `DestinationEntityName eq 'Payment' and Payment.ID eq ${paymentID}`
+        + `DestinationEntityName eq 'Payment' and Payment.ID eq ${paymentID} and Account.UsePostPost eq 1`
         + `&join=Tracelink.DestinationInstanceID eq Payment.ID and Tracelink.SourceInstanceID eq SupplierInvoice.ID `
-        + `and SupplierInvoice.JournalEntryID eq JournalEntryLine.JournalEntryID`);
+        + `and SupplierInvoice.JournalEntryID eq JournalEntryLine.JournalEntryID and JournalEntryLine.AccountID eq Account.ID`);
     }
 
 }

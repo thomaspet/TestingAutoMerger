@@ -66,8 +66,9 @@ export class MarketplaceIntegrations implements OnInit {
 
     openSubscribeModal(integrationItem: ElsaProduct) {
         return this.modalService.open(SubscribeModal, {
-            data: integrationItem,
-            closeOnClickOutside: true
+            data: {
+                product: integrationItem
+            }
         });
     }
 }
