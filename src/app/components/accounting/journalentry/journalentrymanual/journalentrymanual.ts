@@ -21,7 +21,6 @@ import {JournalEntryAccountCalculationSummary} from '../../../../models/accounti
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {UniAddFileModal} from '../../bill/detail/addFileModal';
 import {Observable} from 'rxjs';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 import {
@@ -59,6 +58,7 @@ import {
     ConfirmActions
 } from '../../../../../framework/uni-modal';
 import * as _ from 'lodash';
+import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 
 @Component({
     selector: 'journal-entry-manual',
@@ -318,9 +318,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public openAddFileModal() {
-        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
-            if (element) {
-                this.currentJournalEntryImages = [element.ID];
+        this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
+            if (file) {
+                this.currentJournalEntryImages = [file.ID];
             }
         });
     }
@@ -589,6 +589,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 draftline.VatTypeID = newline.VatTypeID || (newline.DebitAccount ? newline.DebitAccount.VatTypeID : null);
                 newline.DebitVatType = this.vatTypes.find(vattype => vattype.ID == draftline.VatTypeID);
                 newline.DebitVatTypeID = draftline.VatTypeID;
+                newline.DimensionID = draftline.DimensionsID;
                 newline.Dimensions = dimensions.find(dimension => dimension.ID == draftline.DimensionsID);
                 newline.CostAllocation = costAllocation;
                 newline.SameOrNew = "1";
@@ -609,6 +610,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     currentLine.DebitVatType = newline.DebitVatType;
                     currentLine.DebitVatTypeID = newline.DebitVatTypeID;
                     currentLine.DimensionsID = newline.DimensionsID;
+                    currentLine.Dimensions = newline.Dimensions;
                     currentLine.Description = newline.Description;
                     currentLine.AmountCurrency = newline.AmountCurrency;
                     currentLine.Amount = newline.Amount;

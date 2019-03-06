@@ -421,15 +421,15 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     public editComments() {
-        this.uniModalService.open(UniReportComments,
-            {   data: <ReportCommentSetup>{ config: this.commentConfig, comments: this.comments },
-                header: `Rediger kommentarer` + (this.commentConfig.id ? ` for ${this.commentConfig.id}` : ''),
-                message: 'Kommentarer'
-            }).onClose.subscribe(modalResult => {
-                if (modalResult === ConfirmActions.ACCEPT) {
-
-                }
-            });
+        this.uniModalService.open(UniReportComments, {
+            data: <ReportCommentSetup> {
+                config: this.commentConfig, comments: this.comments
+            }
+        }).onClose.subscribe(commentsChanged => {
+            if (commentsChanged) {
+                this.loadComments();
+            }
+        });
     }
 
     public trySend() {

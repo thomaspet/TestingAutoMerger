@@ -362,6 +362,7 @@ export class AuthService {
         this.storage.removeOnUser('jwt');
         this.storage.removeOnUser('activeCompany');
         this.storage.removeOnUser('activeFinancialYear');
+        this.storage.removeOnUser('filesToken');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;

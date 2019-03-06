@@ -1,9 +1,15 @@
 <section class="dimension-result" *ngIf="dimensionType">
-    <h2>Resultat per {{dimensionDisplayName.toLowerCase()}} {{periodFilter1.name}}</h2> <button class="toggle-period-button" (click)="switchMainPeriod()">Vis tall for {{periodFilter2.name}}</button>
+    <section class="uni-redesign">
+        <h2>Resultat per {{dimensionDisplayName.toLowerCase()}} {{periodFilter1.name}}</h2>
+        <button (click)="switchMainPeriod()">
+            Vis tall for {{periodFilter2.name}}
+        </button>
+    </section>
 
-    <uni-table
+    <ag-grid-wrapper
+        class="small-text"
         [resource]="dimensionDataList"
         [config]="uniTableConfigDimension"
-        (rowSelected)="selectDimension($event.rowModel)"></uni-table>
-
+        (rowSelectionChange)="selectDimension($event)"
+    ></ag-grid-wrapper>
 </section>

@@ -275,6 +275,40 @@ export class PostPost {
         this.postpost.reconciliateJournalEntries(done);
     }
 
+    public autoMark(done: (message: string) => void = msg => {}) {
+        this.modalService.open(UniAutomarkModal, {}).onClose.subscribe((automark) => {
+            if (this.postpost.canAutoMark && automark) {
+                this.postpost.autoMarkJournalEntries(automark, done);
+            } else {
+                done('Automerking avbrutt');
+            }
+        });
+    }
+
+
+
+    public autoMarkAll(done: (message: string) => void = msg => {}) {
+        this.modalService.open(UniAutomarkModal, {
+            data: {
+                all: true,
+                ctrl: this.postpost
+            }, hideCloseButton: true }).onClose.subscribe((response) => {
+            if (response) {
+                done(response.doneMessage || 'Automerking ferdig');
+            } else {
+                done('Automerking avbrutt');
+            }
+
+            this.reloadRegister();
+        });
+    }
+
+    private unlock(done: (message: string) => void) {
+        this.postpost.unlockJournalEntries(this.activeAccount);
+        done('Gjenåpnet');
+    }
+
+
     private cleanAndResetLinesWithWrongStatus (done: (message: string) => void) {
 
         this.modalService.confirm({
@@ -298,38 +332,6 @@ export class PostPost {
         });
 
     }
-
-    public autoMark(done: (message: string) => void = msg => {}) {
-        this.modalService.open(UniAutomarkModal, {}).onClose.subscribe((automark) => {
-            if (this.postpost.canAutoMark && automark) {
-                this.postpost.autoMarkJournalEntries(automark, done);
-            } else {
-                done('Automerking avbrutt');
-            }
-        });
-    }
-
-    public autoMarkAll(done: (message: string) => void = msg => {}) {
-        this.modalService.open(UniAutomarkModal, {
-            data: {
-                all: true,
-                ctrl: this.postpost
-            }, hideCloseButton: true }).onClose.subscribe((response) => {
-            if (response) {
-                done(response.doneMessage || 'Automerking ferdig');
-            } else {
-                done('Automerking avbrutt');
-            }
-
-            this.reloadRegister();
-        });
-    }
-
-    private unlock(done: (message: string) => void) {
-        this.postpost.unlockJournalEntries(this.activeAccount);
-        done('Gjenåpnet');
-    }
-
     private cancel(done: (message: string) => void, ask: boolean = true) {
         this.postpost.abortMarking(ask);
         done('Angret');

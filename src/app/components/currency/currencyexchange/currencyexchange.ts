@@ -1,49 +1,35 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
+import * as moment from 'moment';
+
+import {LocalDate} from '@uni-entities';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType} from '@uni-framework/ui/uniform';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {CurrencyService, NumberFormat} from '@app/services/services';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
     INumberFormat
-} from '../../../../framework/ui/unitable/index';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {
-    LocalDate
-} from '../../../unientities';
-
-import {
-    CurrencyService,
-    CurrencyOverridesService,
-    CurrencyCodeService,
-    ErrorService,
-    NumberFormat
-} from '../../../services/services';
-
-import * as moment from 'moment';
-declare const _;
+} from '@uni-framework/ui/unitable';
 
 @Component({
     selector: 'currencyexchange',
     templateUrl: './currencyexchange.html'
 })
 export class CurrencyExchange {
-    @ViewChild(UniTable)
-    public table: UniTable;
-
     public isBusy: boolean = true;
     public exchangeTable: UniTableConfig;
     public exchangelist: any;
-    private inthefuturetoast: number;
 
-    public filter$: BehaviorSubject<any> = new BehaviorSubject({CurrencyDate: new LocalDate(), ShortCode: 'NOK'});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    filter = {CurrencyDate: new LocalDate()};
+    fields = [{
+        Property: 'CurrencyDate',
+        Label: 'Valutakursdato',
+        FieldType: FieldType.LOCAL_DATE_PICKER
+    }];
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Valutakurser',
@@ -73,10 +59,7 @@ export class CurrencyExchange {
     constructor(
         private router: Router,
         private currencyService: CurrencyService,
-        private currencyOverridesService: CurrencyOverridesService,
         private tabService: TabService,
-        private errorService: ErrorService,
-        private currencyCodeService: CurrencyCodeService,
         private numberFormat: NumberFormat,
         private toastService: ToastService
     ) {
@@ -87,22 +70,20 @@ export class CurrencyExchange {
             active: true
         });
 
-        this.setupForm();
         this.loadData();
         this.setupExchangeTable();
     }
 
     public updateToolbar() {
-        let filter = this.filter$.getValue();
-        let toolbarconfig: IToolbarConfig = {
+        this.toolbarconfig = {
             title: 'Valutakurser',
             subheads: [
-                {title: moment(filter.CurrencyDate).format('DD.MM.YYYY')},
-                {title: `(${filter.ShortCode})`}
+                {title: moment(this.filter.CurrencyDate).format('DD.MM.YYYY')},
+                {title: `(NOK)`}
             ],
             navigation: {
-                prev: this.previousDay.bind(this),
-                next: this.nextDay.bind(this)
+                prev: () => this.addDays(-1),
+                next: () => this.addDays(1)
             },
             contextmenu: [
                 {
@@ -111,11 +92,11 @@ export class CurrencyExchange {
                 },
                 {
                     label: 'Forrige uke',
-                    action: this.previousWeek.bind(this)
+                    action: () => this.addDays(-7)
                 },
                 {
                     label: 'Neste uke',
-                    action: this.nextWeek.bind(this)
+                    action: () => this.addDays(7)
                 },
                 {
                     label: 'Oppdater valutakurser nå',
@@ -123,135 +104,68 @@ export class CurrencyExchange {
                 }
             ]
         };
-
-        this.toolbarconfig = toolbarconfig;
-    }
-
-    public previousDay() {
-        this.addDays(-1);
-    }
-
-    public nextDay() {
-        this.addDays(1);
-    }
-
-    public previousWeek() {
-        this.addDays(-7);
-    }
-
-    public nextWeek() {
-        this.addDays(7);
     }
 
     public today() {
-        let filter = this.filter$.getValue();
-        filter.CurrencyDate = new LocalDate().toDate();
-        this.filter$.next(filter);
+        this.filter.CurrencyDate = new LocalDate();
         this.loadData();
     }
 
     private addDays(days) {
-        let filter = this.filter$.getValue();
-        filter.CurrencyDate = new LocalDate(moment(filter.CurrencyDate).add(days, 'days').toDate());
-        this.filter$.next(filter);
+        const date = moment(this.filter.CurrencyDate).add(days, 'days').toDate();
+        this.filter = { CurrencyDate: new LocalDate(date) };
         this.loadData();
     }
 
-    private loadData() {
-        let filter = this.filter$.getValue();
+    loadData() {
         this.updateToolbar();
-        if (filter.CurrencyDate > new LocalDate()) {
-            if (this.inthefuturetoast) { this.toastService.removeToast(this.inthefuturetoast); }
-            this.inthefuturetoast = this.toastService.addToast(
-                'Du har valgt en fremtidig dato', ToastType.warn,
-                5, 'Valutakurser som ikke er overstyrt vil være siste tilgjengelige kurs.'
+        this.toastService.clear();
+        if (this.filter.CurrencyDate > new LocalDate()) {
+            this.toastService.addToast(
+                'Du har valgt en fremtidig dato',
+                ToastType.warn, 5,
+                'Valutakurser som ikke er overstyrt vil være siste tilgjengelige kurs.'
             );
-        } else if (this.inthefuturetoast) {
-            this.toastService.removeToast(this.inthefuturetoast);
-            this.inthefuturetoast = null;
         }
-        this.spinner(this.currencyService.getAllExchangeRates(1, filter.CurrencyDate)).subscribe(list => {
-            this.exchangelist = list;
-        });
-    }
 
-    private spinner<T>(source: Observable<T>): Observable<T> {
-        this.isBusy = true;
-        return <Observable<T>>source.finally(() => this.isBusy = false);
-    }
-
-    public onFormFilterChange(event) {
-        this.loadData();
+        this.currencyService.getAllExchangeRates(1, this.filter.CurrencyDate)
+            .subscribe(list => this.exchangelist = list);
     }
 
     private downLoadCurrency(done) {
         this.currencyService.downloadCurrency().subscribe(res => {
-            this.onFormFilterChange(null);
+            this.loadData();
             this.toastService.addToast('Nedlasting av valuta er fullført!', ToastType.good, 5);
         }, err => err.handleError(err));
     }
 
-    private setupForm() {
-        let currencyDate = new UniFieldLayout();
-        currencyDate.EntityType = 'ExchangeRates';
-        currencyDate.Property = 'CurrencyDate';
-        currencyDate.FieldType = FieldType.LOCAL_DATE_PICKER;
-        currencyDate.Label = 'Valutakursdato';
-        currencyDate.LineBreak = false;
-
-        this.fields$.next([currencyDate]);
-    }
-
     private setupExchangeTable() {
-        // Define columns to use in the table
-        let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
-            .setWidth('100px').setFilterOperator('contains')
+        const exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setNumberFormat(this.exchangerateFormat)
-            .setTemplate(line => {
-                return `${line.ExchangeRate * line.Factor}`;
-            })
+            .setTemplate(line => `${line.ExchangeRate * line.Factor}`)
             .setConditionalCls(line => {
-                let filter = this.filter$.getValue();
-                return (filter.CurrencyDate > new LocalDate()) && !line.IsOverrideRate ? 'number-bad' : 'number-good';
+                return (this.filter.CurrencyDate > new LocalDate()) && !line.IsOverrideRate ? 'number-bad' : 'number-good';
             });
-        let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
-            .setEditable(false)
-            .setNumberFormat(this.factorFormat)
-            .setFilterOperator('contains')
-            .setWidth('50px');
-        let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Kode', UniTableColumnType.Lookup)
-            .setDisplayField('FromCurrencyCode.Code')
-            .setWidth('60px')
-            .setEditable(false);
-        let fromCurrencyShortCodeCol = new UniTableColumn(
+        const factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
+            .setNumberFormat(this.factorFormat);
+        const fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Kode', UniTableColumnType.Lookup)
+            .setDisplayField('FromCurrencyCode.Code');
+        const fromCurrencyShortCodeCol = new UniTableColumn(
             'FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup
-        )
-            .setDisplayField('FromCurrencyCode.ShortCode')
-            .setWidth('30px')
-            .setEditable(false);
-        let fromCurrencyNameCol = new UniTableColumn('FromCurrencyCode.Name', 'Valuta', UniTableColumnType.Lookup)
-            .setDisplayField('FromCurrencyCode.Name')
-            .setEditable(false)
-            .setWidth('10%');
-        let overridedCol = new UniTableColumn('IsOverrideRate', 'Overstyrt', UniTableColumnType.Text, false)
-            .setFilterOperator('contains')
-            .setTemplate(line => '')
+        );
+        const fromCurrencyNameCol = new UniTableColumn('FromCurrencyCode.Name', 'Valuta', UniTableColumnType.Lookup);
+        const overridedCol = new UniTableColumn('IsOverrideRate', 'Overstyrt', UniTableColumnType.Text)
+            .setTemplate(() => '')
             .setConditionalCls(line => {
                 return line.IsOverrideRate ? 'override-column' : '';
             })
-            .setWidth('20px')
-            .setFilterable(false)
-            .setEditable(false)
-            .setSkipOnEnterKeyNavigation(true);
-        let currenyDateDownloadedCol = new UniTableColumn('CurrencyDate', 'Nedlastet', UniTableColumnType.Text)
-            .setEditable(false)
-            .setFilterOperator('contains')
-            .setWidth('50px');
+            .setFilterable(false);
+        const currenyDateDownloadedCol = new UniTableColumn('CurrencyDate', 'Nedlastet', UniTableColumnType.Text);
 
-        let contextMenu = {
+        const contextMenu = {
             label: 'Overstyr',
             action: (line) => {
-                let exchangerate = this.numberFormat.asMoney(
+                const exchangerate = this.numberFormat.asMoney(
                     line.ExchangeRate * line.Factor, this.exchangerateUrlFormat
                 );
                 this.router.navigateByUrl(
@@ -261,12 +175,8 @@ export class CurrencyExchange {
             }
         };
 
-        // Setup table
-        this.exchangeTable = new UniTableConfig('currency.currencyexchange', false, true, 25)
+        this.exchangeTable = new UniTableConfig('currency.currencyexchange', false, true, 15)
             .setSearchable(true)
-            .setColumnMenuVisible(false)
-            .setMultiRowSelect(false)
-            .setAutoAddNewRow(false)
             .setContextMenu([contextMenu])
             .setColumns([
                 fromCurrencyCodeCol, fromCurrencyNameCol, fromCurrencyShortCodeCol,

@@ -1,41 +1,32 @@
-import {Component, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Component} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
+import {Observable, forkJoin, of as observableOf} from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
+import * as moment from 'moment';
+
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {CurrencyCode, CurrencyOverride, LocalDate, CurrencySourceEnum} from '@uni-entities';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {CurrencyOverridesService, CurrencyCodeService, ErrorService} from '@app/services/services';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
     INumberFormat
-} from '../../../../framework/ui/unitable/index';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {Observable} from 'rxjs';
-import {CurrencyCode} from '../../../unientities';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {CurrencyOverride, LocalDate, CurrencySourceEnum} from '../../../unientities';
-import {
-    NumberFormat,
-    CurrencyOverridesService,
-    CurrencyCodeService,
-    ErrorService
-} from '../../../services/services';
-
-import * as moment from 'moment';
-declare const _;
+} from '@uni-framework/ui/unitable';
 
 @Component({
     selector: 'currencyoverrides',
     templateUrl: './currencyoverrides.html'
 })
 export class CurrencyOverrides {
-    @ViewChild(UniTable)
-    private table: UniTable;
-
     public overridesTable: UniTableConfig;
     public saveActions: IUniSaveAction[] = [];
-    private currencycodes: any;
+    private currencycodes: CurrencyCode[];
     public overrides: any;
     public isBusy: boolean = true;
     private isDirty: boolean = false;
@@ -60,12 +51,10 @@ export class CurrencyOverrides {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router,
         private currencyOverridesService: CurrencyOverridesService,
         private tabService: TabService,
         private errorService: ErrorService,
         private currencyCodeService: CurrencyCodeService,
-        private numberFormat: NumberFormat,
         private modalService: UniModalService
     ) {
         this.addTab();
@@ -90,22 +79,26 @@ export class CurrencyOverrides {
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
-        return !this.isDirty
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal()
-                .onClose
-                .switchMap((result) => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        return this.save();
-                    }
+        if (this.isDirty) {
+            return this.modalService.openUnsavedChangesModal().onClose.switchMap(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    return this.save();
+                }
 
-                    return Observable.of(result !== ConfirmActions.CANCEL);
-                });
+                return Observable.of(result !== ConfirmActions.CANCEL);
+            });
+        }
+
+        return true;
     }
 
-    public rowChanged(event) {
-        this.isDirty = true;
+    public onRowDeleted(row) {
+        if (row.ID) {
+            this.currencyOverridesService.Remove(row.ID).subscribe(
+                () => {},
+                err => this.errorService.handle(err)
+            );
+        }
     }
 
     private updateSaveActions() {
@@ -114,148 +107,120 @@ export class CurrencyOverrides {
         this.saveActions.push({
             label: 'Lagre',
             action: (done) => {
-                if (!this.table.getTableData().find(x => x._isDirty)) {
-                    done('Ingen endringer');
-                } else {
-                    this.save().subscribe(savedOk => {
-                        if (savedOk) { this.loadData(); }
-                        done(savedOk ? 'Lagret endringer' : 'Lagring feilet');
+                if (this.isDirty) {
+                    this.save().subscribe(success => {
+                        done(success ? 'Endringer lagret' : 'Lagring feilet');
+                        if (success) {
+                            this.loadData();
+                        }
                     });
+                } else {
+                    done('Ingen endringer');
                 }
             },
             disabled: false
         });
     }
 
-    private spinner<T>(source: Observable<T>): Observable<T> {
-        this.isBusy = true;
-        return <Observable<T>>source.finally(() => this.isBusy = false);
-    }
-
     private save(): Observable<boolean> {
-        let tableData = this.table.getTableData();
-
-        // set up observables (requests)
-        let requests = tableData.filter(x => x._isDirty).map((currencyoverride: CurrencyOverride) => {
-            return currencyoverride.ID > 0
+        const changedRows = this.overrides.filter(row => row['_isDirty']);
+        if (changedRows.length) {
+            const requests = changedRows.map((currencyoverride: CurrencyOverride) => {
+                return currencyoverride.ID > 0
                     ? this.currencyOverridesService.Put(currencyoverride.ID, currencyoverride)
                     : this.currencyOverridesService.Post(currencyoverride);
-        });
+            });
 
-        return requests.length === 0
-            ? Observable.of(true)
-            : Observable
-                .forkJoin(requests)
-                .map(() => {
+            return forkJoin(requests).pipe(
+                map(() => {
                     this.isDirty = false;
                     return true;
-                }).catch(err => {
+                }),
+                catchError(err => {
                     this.errorService.handle(err);
-                    return Observable.of(false);
-                });
-    }
-
-    private isEmpty(obj) {
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                return false;
-            }
+                    return observableOf(false);
+                })
+            );
+        } else {
+            return observableOf(true);
         }
-        return true;
     }
 
     private loadData(routeparams = null) {
-            let params = new URLSearchParams();
-            params.set('orderby', 'FromDate asc');
-            params.set('expand', 'FromCurrencyCode,ToCurrencyCode');
+        const params = new URLSearchParams();
+        params.set('orderby', 'FromDate asc');
+        params.set('expand', 'FromCurrencyCode,ToCurrencyCode');
 
-            this.spinner(
-                this.currencyOverridesService.GetAllByUrlSearchParams(params).map(response => response.json()))
-                    .subscribe(data => {
-                        if (!this.isEmpty(routeparams)) {
-                            data.unshift({
-                                ID: 0,
-                                FromDate: new LocalDate(),
-                                FromCurrencyCode: this.currencycodes.find(
-                                    x => x.Code === routeparams['FromCurrencyCode']
-                                ),
-                                ToCurrencyCode: this.currencycodes.find(x => x.Code === 'NOK'),
-                                Factor: routeparams['Factor'],
-                                ExchangeRate: routeparams['ExchangeRate'],
-                                Source: CurrencySourceEnum.NORGESBANK
-                            });
-                        }
-
-                        this.overrides = data;
+        this.currencyOverridesService.GetAllByUrlSearchParams(params).subscribe(
+            res => {
+                const data = res.json();
+                const hasParams = Object.keys(routeparams).some(key => routeparams.hasOwnProperty(key));
+                if (hasParams) {
+                    data.push({
+                        ID: 0,
+                        FromDate: new LocalDate(),
+                        FromCurrencyCode: this.currencycodes.find(
+                            x => x.Code === routeparams['FromCurrencyCode']
+                        ),
+                        ToCurrencyCode: this.currencycodes.find(x => x.Code === 'NOK'),
+                        Factor: routeparams['Factor'],
+                        ExchangeRate: routeparams['ExchangeRate'],
+                        Source: CurrencySourceEnum.NORGESBANK
                     });
+                }
+
+                this.overrides = data;
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    currencyCodeLookup(query: string): CurrencyCode[] {
+        return (this.currencycodes || []).filter(currencyCode => {
+            const code = (currencyCode.Code || '').toLowerCase();
+            const name = (currencyCode.Name || '').toLowerCase();
+            const queryLowerCase = query.toLowerCase();
+
+            return code.includes(queryLowerCase) || name.includes(queryLowerCase);
+        });
     }
 
     private setupOverridesTable() {
-        // Define columns to use in the table
-        let fromDateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate)
-            .setWidth('8%').setFilterOperator('eq');
-        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate)
-            .setWidth('8%').setFilterOperator('eq');
-        let updatedAtCol = new UniTableColumn('UpdatedAt', 'Sist oppdatert', UniTableColumnType.Text)
-            .setWidth('8%').setFilterOperator('eq')
+        const fromDateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
+        const toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
+        const updatedAtCol = new UniTableColumn('UpdatedAt', 'Sist oppdatert', UniTableColumnType.Text)
             .setEditable(false)
             .setTemplate((row: CurrencyOverride) => {
                 return row.ID
                     ? moment(new LocalDate(!!row.UpdatedAt ? row.UpdatedAt : row.CreatedAt)).format('DD.MM.YYYY')
                     : 'ny';
             });
-        let exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
-            .setWidth('100px').setFilterOperator('contains')
+        const exchangeRateCol = new UniTableColumn('ExchangeRate', 'Kurs', UniTableColumnType.Money)
             .setNumberFormat(this.exchangerateFormat);
-        let factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
-            .setWidth('100px').setFilterOperator('contains')
+        const factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
             .setNumberFormat(this.factorFormat);
-        let fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Fra kode', UniTableColumnType.Lookup)
+        const fromCurrencyCodeCol = new UniTableColumn('FromCurrencyCode', 'Fra kode', UniTableColumnType.Lookup)
             .setDisplayField('FromCurrencyCode.Code')
-            .setWidth('60px')
             .setOptions({
-                itemTemplate: (currencycode: CurrencyCode) => {
-                    return `${currencycode.Code} - ${currencycode.Name}`;
-                },
-                lookupFunction: (query: string) => {
-                    return this.currencycodes;
-                }
+                itemTemplate: (currencycode) => `${currencycode.Code} - ${currencycode.Name}`,
+                lookupFunction: (query: string) => this.currencyCodeLookup(query)
             });
-        let toCurrencyCodeCol = new UniTableColumn('ToCurrencyCode', 'Til kode', UniTableColumnType.Lookup)
+        const toCurrencyCodeCol = new UniTableColumn('ToCurrencyCode', 'Til kode', UniTableColumnType.Lookup)
             .setDisplayField('ToCurrencyCode.Code')
-            .setWidth('60px')
             .setOptions({
-                itemTemplate: (currencycode: CurrencyCode) => {
-                    return `${currencycode.Code} - ${currencycode.Name}`;
-                },
-                lookupFunction: (query: string) => {
-                    return this.currencycodes;
-                }
+                itemTemplate: (currencycode) => `${currencycode.Code} - ${currencycode.Name}`,
+                lookupFunction: (query: string) => this.currencyCodeLookup(query)
             });
-        let fromCurrencyShortCodeCol = new UniTableColumn(
-            'FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup
-        )
-            .setDisplayField('FromCurrencyCode.ShortCode')
-            .setWidth('30px')
+        const fromCurrencyShortCodeCol = new UniTableColumn('FromCurrencyCode.ShortCode', '$', UniTableColumnType.Lookup)
             .setEditable(false);
 
-        let fromCurrencyNameCol = new UniTableColumn('FromCurrencyCode.Name', 'Valuta', UniTableColumnType.Lookup)
-            .setDisplayField('FromCurrencyCode.Name')
-            .setEditable(false)
-            .setWidth('10%');
+        const fromCurrencyNameCol = new UniTableColumn('FromCurrencyCode.Name', 'Valuta', UniTableColumnType.Lookup)
+            .setEditable(false);
 
         // Setup table
         this.overridesTable = new UniTableConfig('currency.currencyoverrides', true, true, 25)
-            .setSearchable(true)
             .setColumnMenuVisible(true)
-            .setMultiRowSelect(false)
-            .setAutoAddNewRow(true)
-            .setDeleteButton({
-                deleteHandler: (row) => {
-                    if (isNaN(row.ID) || row.ID === 0) { return true; }
-                    return this.currencyOverridesService.Remove(row.ID, 'CurrencyOverride');
-                }
-            })
+            .setDeleteButton(true)
             .setDefaultRowData({
                 ID: 0,
                 FromDate: new LocalDate(),
@@ -264,7 +229,8 @@ export class CurrencyOverrides {
                 Source: CurrencySourceEnum.NORGESBANK
             })
             .setChangeCallback((row) => {
-                let item = row.rowModel;
+                this.isDirty = true;
+                const item = row.rowModel;
                 item._isDirty = true;
 
                 if (item.FromCurrencyCode) { item.FromCurrencyCodeID = item.FromCurrencyCode.ID; }
@@ -272,8 +238,9 @@ export class CurrencyOverrides {
 
                 return item;
             })
-            .setColumns([updatedAtCol, fromDateCol, toDateCol, fromCurrencyCodeCol, fromCurrencyNameCol,
-                         fromCurrencyShortCodeCol, toCurrencyCodeCol,
-                         factorCol, exchangeRateCol]);
+            .setColumns([
+                updatedAtCol, fromDateCol, toDateCol, fromCurrencyCodeCol, fromCurrencyNameCol,
+                fromCurrencyShortCodeCol, toCurrencyCodeCol, factorCol, exchangeRateCol
+            ]);
     }
 }

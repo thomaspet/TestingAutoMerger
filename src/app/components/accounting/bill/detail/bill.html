@@ -72,6 +72,15 @@
 
     <section class="bill-right-side uni-container">
         <header>Dokument ({{this.files?.length || 0}})</header>
+
+        <span class="get-from-inbox" role="button"
+            *ngIf="!(current | async)?.ID"
+            (click)="openAddFileModal()">
+
+            <i class="material-icons">get_app</i>
+            Hent fra innboks
+        </span>
+
         <uni-image
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
@@ -86,7 +95,6 @@
             (imageUnlinked)="imageUnlinked($event)"
             (useWord)="onUseWord($event)">
         </uni-image>
-        <button *ngIf="!(current | async)?.ID" class="good document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </section>
 
 </section>

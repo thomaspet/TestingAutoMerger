@@ -3,6 +3,7 @@ $table-border-style: 1px solid $uni-color-scale9
 ag-grid-wrapper
     display: flex
     flex-direction: column
+    width: 100%
 
     table-filters
         flex: 0 0 auto
@@ -14,6 +15,9 @@ ag-grid-wrapper
         position: absolute
         bottom: 5px
         left: 5px
+
+    &.small-text .uni-ag-wrapper
+        font-size: 14px
 
 ag-grid-angular
     width: 100%
@@ -321,7 +325,8 @@ ag-grid-angular .disabled-row
         background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
     &.bad
         background: unicon-warning($uni-color-bad) no-repeat center
-        background-size: 1rem
+        background-size: 1.4rem
+        height: 1.9rem
 
     &.good, &.warn
         background-size: .4rem

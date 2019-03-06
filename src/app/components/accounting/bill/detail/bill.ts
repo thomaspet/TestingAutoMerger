@@ -34,7 +34,6 @@ import {BillHistoryView} from './history/history';
 import {UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
-import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
 import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
@@ -85,7 +84,7 @@ import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
 import { UniReinvoiceModal } from '@app/components/accounting/bill/detail/reinvoiceModal';
-declare var _;
+import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 
 interface ITab {
     name: string;
@@ -137,7 +136,6 @@ export class BillView implements OnInit {
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public hasStartupFileID: boolean = false;
     public ocrData: any;
     public ocrWords: Array<any>;
     public startUpFileID: Array<number> = [];
@@ -1658,7 +1656,8 @@ export class BillView implements OnInit {
                 model.DefaultDimensions.Department = null;
                 model.DefaultDimensions.DepartmentID = null;
                 this.current.next(model);
-                const linesWithDepartment = lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID && line.Dimensions.DepartmentID);
+                const linesWithDepartment = lines.filter(line =>
+                    line.Dimensions && line.Dimensions.DepartmentID && line.Dimensions.DepartmentID);
                 if (linesWithDepartment.length) {
                     this.modalService.open(UniConfirmModalV2, {
                         buttonLabels: {
@@ -1877,13 +1876,10 @@ export class BillView implements OnInit {
         this.startUpFileID = [];
         this.busy = false;
 
-        if (!isInitial) {
-            this.hasStartupFileID = false;
-        } else {
-            setTimeout(() => {
-                this.journalEntryManual.setJournalEntryData([]);
-            });
-        }
+        setTimeout(() => {
+            if (this.journalEntryManual) { this.journalEntryManual.setJournalEntryData([]); }
+        });
+
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
     }
 
@@ -2184,13 +2180,14 @@ export class BillView implements OnInit {
     }
 
     public openAddFileModal() {
-        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
-            if (element) {
-                if (this.files.length === 0) {
-                    this.startUpFileID = [safeInt(element.ID)];
+        this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
+            if (file) {
+                if (this.files.length) {
+                    this.uniImage.fetchDocumentWithID(safeInt(file.ID));
                 } else {
-                    this.uniImage.fetchDocumentWithID(safeInt(element.ID));
+                    this.startUpFileID = [safeInt(file.ID)];
                 }
+
                 this.numberOfDocuments++;
                 this.hasUnsavedChanges = true;
             }
@@ -2906,7 +2903,6 @@ export class BillView implements OnInit {
             this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0').subscribe((res) => {
                 if (res && res.length > 0) {
                     this.newInvoice(false);
-                    this.hasStartupFileID = true;
                     this.startUpFileID = [res[0].ID];
                     if (done) { done(lang.save_success); }
                 } else {
@@ -2986,12 +2982,13 @@ export class BillView implements OnInit {
                     // want to resave a booked journalentry
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                       current.JournalEntry = null;
+                    } else {
+                        current.JournalEntry.DraftLines.forEach(line => {
+                            if (!line.VatDeductionPercent) {
+                                line.VatDeductionPercent = 0;
+                            }
+                        });
                     }
-                    current.JournalEntry.DraftLines.forEach(line => {
-                        if (!line.VatDeductionPercent) {
-                            line.VatDeductionPercent = 0;
-                        }
-                    });
                     if (!current.SupplierID
                         && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
@@ -3018,7 +3015,6 @@ export class BillView implements OnInit {
                     if (this.unlinkedFiles.length > 0) {
                         this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
                             () => {
-                            this.hasStartupFileID = false;
                             this.resetDocuments();
                             reload();
                         });
@@ -3621,7 +3617,6 @@ export class BillView implements OnInit {
     }
 
     private loadFromFileID(fileID: number | string) {
-        this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
         this.numberOfDocuments++;
         this.hasUnsavedChanges = true;

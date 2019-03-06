@@ -958,7 +958,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public openPaycheckSendingModal() {
-        this.modalService.open(PaycheckSenderModal, {data: this.payrollrunID});
+        this.modalService.open(PaycheckSenderModal, {
+            closeOnClickOutside: true,
+            data: this.payrollrunID
+        });
     }
 
     public canPost(): boolean {

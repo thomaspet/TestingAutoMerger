@@ -176,8 +176,10 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
                     if (event.newValue === 0) {
                         sumOnAll = 0;
                     } else {
-                        sumOnAll = Math.floor(event.newValue / 12);
+                        const flip = event.newValue > 0 ? 1 : -1;
+                        sumOnAll = Math.floor(Math.abs(event.newValue / 12)) * flip;
                     }
+
                     for (let i = 1; i <= 12; i++) {
                         this.posts[0]['Amount' + i] = sumOnAll * multiplier;
                         this.entriesArray[i - 1]['_hasChanged'] = true;

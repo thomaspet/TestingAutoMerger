@@ -269,6 +269,7 @@ export class TableDataService {
 
         if (row.ID) {
             this.originalData[originalIndex].Deleted = true;
+            this.originalData[originalIndex]['_isDirty'] = true;
         } else {
             this.originalData.splice(originalIndex, 1);
             this.originalData.forEach((r, index) => r['_originalIndex'] = index);

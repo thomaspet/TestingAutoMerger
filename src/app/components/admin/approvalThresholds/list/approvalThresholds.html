@@ -1,15 +1,16 @@
-<uni-toolbar [config]="toolbarConfig">
-</uni-toolbar>
+<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
 
 <section class="application">
     <section class="splitview">
-        <nav class="splitview_list">
-            <uni-table *ngIf="transitions?.length" [config]="transitionTableConfig" [resource]="transitions" (rowSelected)="onRowSelected($event)">
-            </uni-table>
+        <nav class="splitview_list" style="width: 30rem">
+            <ag-grid-wrapper
+                [config]="transitionTableConfig"
+                [resource]="transitions"
+                (rowSelectionChange)="selectedTransition = $event">
+            </ag-grid-wrapper>
         </nav>
         <main class="splitview_detail">
-            <approval-threshold-rules [selectedTransition]="selectedTransition">
-            </approval-threshold-rules>
+            <approval-threshold-rules [selectedTransition]="selectedTransition"></approval-threshold-rules>
         </main>
     </section>
 </section>

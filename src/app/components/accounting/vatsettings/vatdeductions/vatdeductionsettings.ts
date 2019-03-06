@@ -1,25 +1,19 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Observable} from 'rxjs';
-import {VatDeduction, VatDeductionGroup} from '../../../../unientities';
-import {VatDeductionService, ErrorService, VatDeductionGroupService} from '../../../../services/services';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {
-    UniTable, UniTableColumn, UniTableConfig, UniTableColumnType
-} from '../../../../../framework/ui/unitable/index';
-
+import {VatDeduction, VatDeductionGroup} from '@uni-entities';
+import {VatDeductionService, ErrorService, VatDeductionGroupService} from '@app/services/services';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import {UniTableColumn, UniTableConfig, UniTableColumnType} from '@uni-framework/ui/unitable';
 
 @Component({
     selector: 'vat-deduction-settings',
     templateUrl: './vatdeductionsettings.html'
 })
 export class VatDeductionSettings {
-    @ViewChild(UniTable) public unitable: UniTable;
-    public uniTableConfig: UniTableConfig;
-
-    public vatdeductions: VatDeduction[] = [];
-    public vatDeductionGroups: VatDeductionGroup[] = [];
-
-    public isDirty: boolean = false;
+    uniTableConfig: UniTableConfig;
+    vatdeductions: VatDeduction[] = [];
+    vatDeductionGroups: VatDeductionGroup[] = [];
+    isDirty: boolean;
 
     constructor(
         private vatDeductionService: VatDeductionService,
@@ -27,13 +21,6 @@ export class VatDeductionSettings {
         private errorService: ErrorService,
         private toastService: ToastService
     ) {
-    }
-
-    public ngOnInit() {
-        this.setup();
-    }
-
-    private setup() {
         this.loadData();
     }
 
@@ -51,17 +38,14 @@ export class VatDeductionSettings {
     }
 
     public saveVatDeductions(completeEvent): void {
-        const data = this.unitable.getTableData();
-
         const dirtyRows = [];
-        data.forEach(x => {
-            if (x._isDirty) {
+        this.vatdeductions.forEach(x => {
+            if (x['_isDirty']) {
                 dirtyRows.push(x);
             }
         });
 
         const requests = [];
-
         dirtyRows.forEach(row => {
             if (row.ID > 0) {
                 requests.push(this.vatDeductionService.Put(row.ID, row));
@@ -74,7 +58,7 @@ export class VatDeductionSettings {
             Observable.forkJoin(requests)
                 .subscribe(res => {
                     this.toastService.addToast('Lagring vellykket', ToastType.good, ToastTime.short);
-                    this.setup();
+                    this.loadData();
                     completeEvent('Lagring vellykket');
                 },
                 err => {

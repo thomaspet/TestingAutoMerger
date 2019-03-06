@@ -17,10 +17,12 @@ import {
     UniConfirmModalV2,
     UniAutobankAgreementModal,
     ConfirmActions,
+    UniFileUploadModal
 } from '../../../framework/uni-modal';
 import {
     UniAutobankAgreementListModal,
-    MatchSubAccountManualModal
+    MatchSubAccountManualModal,
+    MatchMainAccountModal
 } from './modals';
 import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -373,13 +375,12 @@ export class BankComponent implements AfterViewInit {
         } else if (selectedTickerCode === 'bank_list') {
             this.actions.push({
                 label: 'Hent og bokfør innbetalingsfil',
-                action: (done, file) => {
-                    done('Fil lastet opp');
-                    this.fileUploaded(file);
+                action: (done) => {
+                    this.fileUploaded(done);
                 },
                 disabled: false,
                 main: true,
-                isUpload: true
+                isUpload: false
             });
         }
     }
@@ -723,39 +724,73 @@ export class BankComponent implements AfterViewInit {
     public setMainAccountForPayment(selectedRows: any) {
         return new Promise(() => {
             const row = selectedRows[0];
-            this.journalEntryService.PutAction(null, 'book-payment-against-main-account', 'paymentID=' + row.ID)
-            .subscribe(() => this.tickerContainer.mainTicker.reloadData());
+            const modal = this.modalService.open(MatchMainAccountModal, {
+                header: 'Velg hovedbokskonto manuelt',
+                data: { model: row }
+            });
+
+            modal.onClose.subscribe(result => {
+                if (result && result.accountID) {
+                    this.journalEntryService.PutAction(null, 'book-payment-against-main-account',
+                        'paymentID=' + row.ID + '&accountID=' + result.accountID)
+                        .subscribe(() => {
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                        });
+                }
+            });
         });
     }
 
-    public fileUploaded(file: File) {
-        this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 5,
-            'Dette kan ta litt tid, vennligst vent...');
+    public fileUploaded(done: any) {
 
-        this.paymentBatchService.registerAndCompleteCustomerPayment(file.ID)
-            .subscribe(result => {
-                this.toastService.clear();
-                if (result && result.ProgressUrl) {
-                    this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
-                    'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
-                    this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(jobResponse => {
-                        if (jobResponse && !jobResponse.HasError) {
-                            this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
-                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+        this.modalService.open(
+            UniFileUploadModal,
+            { buttonLabels: { accept: 'Bokfør valgte innbetalingsfiler' }} )
+        .onClose.subscribe((fileIDs) => {
+
+            if (fileIDs && fileIDs.length) {
+                const queries = fileIDs.map(id => {
+                    return this.paymentBatchService.registerAndCompleteCustomerPayment(id);
+                });
+
+                Observable.forkJoin(queries)
+                    .subscribe((result: any) => {
+                        done();
+                        if (result && result.length) {
+                            result.forEach((res) => {
+                                if (res && res.ProgressUrl) {
+                                    this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
+                                    'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
+                                    this.paymentBatchService.waitUntilJobCompleted(res.ID).subscribe(jobResponse => {
+                                        if (jobResponse && !jobResponse.HasError) {
+                                            this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
+                                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                                        } else {
+                                            this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
+                                        }
+                                        this.tickerContainer.getFilterCounts();
+                                        this.tickerContainer.mainTicker.reloadData();
+                                    });
+                                } else {
+                                    this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
+                                    this.tickerContainer.getFilterCounts();
+                                    this.tickerContainer.mainTicker.reloadData();
+                                }
+                            });
                         } else {
-                            this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
+                            done();
                         }
-                        this.tickerContainer.getFilterCounts();
-                        this.tickerContainer.mainTicker.reloadData();
-                    });
-                } else {
-                    this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
-                    this.tickerContainer.getFilterCounts();
-                    this.tickerContainer.mainTicker.reloadData();
-                }
-            },
-            err => this.errorService.handle(err)
-        );
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        done();
+                    }
+                );
+            } else {
+                done();
+            }
+        });
     }
 
     public recieptUploaded(file: File) {

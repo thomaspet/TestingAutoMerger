@@ -305,6 +305,13 @@ export class LedgerAccountReconciliation {
 
     }
 
+    public ResetJournalEntrylinesPostPostStatus(subaccountId: number): void {
+        this.postPostService.ResetJournalEntryLinesPostStatus(subaccountId).subscribe ( () => {
+            this.loadData();
+            this.isDirty = false;
+        });
+    }
+
     private updateJournalEntryLinesOnTheFly(line) {
         if (line.RestAmount === 0) {
             line.Markings = [line];
@@ -824,13 +831,6 @@ export class LedgerAccountReconciliation {
             payment.BusinessRelationID = customer.BusinessRelationID;
             payment.BusinessRelation = this.getBusinessRelationDataFromCustomerSearch(customer);
             return payment;
-        });
-    }
-
-    public ResetJournalEntrylinesPostPostStatus(subaccountId: number): void {
-        this.postPostService.ResetJournalEntryLinesPostStatus(subaccountId).subscribe ( () => {
-            this.loadData();
-            this.isDirty = false;
         });
     }
 

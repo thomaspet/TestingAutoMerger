@@ -932,27 +932,10 @@ export class SupplierDetails implements OnInit {
         ];
     }
 
-    public onContactChanged(contact: Contact) {
-        if (!contact) {
-            return;
-        }
-
-        if (!contact.ID) {
-            contact['_createguid'] = this.supplierService.getNewGuid();
-            contact.Info['_createguid'] = this.supplierService.getNewGuid();
-        }
-
+    public onContactsChange() {
+        // Main entity updated by reference
         this.isDirty = true;
         this.setupSaveActions();
-
-        // prepare for save
-        if (!contact.Info.DefaultEmail.ID) {
-            contact.Info.DefaultEmail['_createguid'] = this.supplierService.getNewGuid();
-        }
-
-        if (!contact.Info.DefaultPhone.ID) {
-            contact.Info.DefaultPhone['_createguid'] = this.supplierService.getNewGuid();
-        }
     }
 
     private getSupplierLookupOptions() {

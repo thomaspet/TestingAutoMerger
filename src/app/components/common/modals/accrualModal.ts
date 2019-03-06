@@ -96,6 +96,8 @@ export class AccrualModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
+    public originalAccrualPeriods: Array<AccrualPeriod>;
+
     buttonsDisabled: boolean = false;
 
     private lockDate: any;
@@ -150,12 +152,25 @@ export class AccrualModal implements IUniModal {
     ) { }
 
     public close(action: string) {
-        if (action === 'ok') {if (this.modalConfig.model['_validationMessage']
+        if (action === 'ok') {
+            if (this.modalConfig.model['_validationMessage']
                 && this.modalConfig.model['_validationMessage'].length > 0) {
                 this.modalConfig.model['_validationMessage'].forEach(msg => {
                     this.toastService.addToast('Periodisering', ToastType.bad, 10, msg);
                 });
             } else {
+                if (this.originalAccrualPeriods) {
+                    const deletedAccrualPeriods =
+                        this.originalAccrualPeriods.filter(x =>
+                            x.ID && x.ID !== 0
+                            && !this.modalConfig.model.Periods.find(y => x.AccountYear === y.AccountYear && x.PeriodNo === y.PeriodNo));
+
+                    deletedAccrualPeriods.forEach(deletedPeriod => {
+                        deletedPeriod.Deleted = true;
+                        this.modalConfig.model.Periods.push(deletedPeriod);
+                    });
+                }
+
                 this.modalConfig.model.Periods.forEach(item => {
                     item.Amount = 0;
                 });
@@ -282,6 +297,7 @@ export class AccrualModal implements IUniModal {
             }
         } else {
             accrual['_numberOfPeriods'] = accrual.Periods.length;
+            this.originalAccrualPeriods = JSON.parse(JSON.stringify(accrual.Periods));
 
             // just incase amount is changed recalculate period amounts
             accrual['_periodAmount'] =  (accrual.AccrualAmount / accrual.Periods.length).toFixed(2);
@@ -304,11 +320,21 @@ export class AccrualModal implements IUniModal {
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
                     accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
                 } else if (accrualStartDate) {
-                    const startYear: number = Math.min(...accrual.Periods.map(x => x.AccountYear));
+                    let startYear: number;
+                    if (accrual.Periods.length > 0) {
+                        startYear = Math.min(...accrual.Periods.map(x => x.AccountYear));
+                    } else {
+                        startYear = accrualStartDate.year;
+                    }
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
                     accrual['_financialDate'] = accrualStartDate;
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
                 } else {
+                    const currentYear = new Date().getFullYear();
+                    accrual['_periodYears'] = [currentYear, currentYear + 1, currentYear + 2];
+                    accrual['_financialDate'] = accrualStartDate;
+                    accrual['_numberOfPeriods'] = accrual.Periods.length;
+
                     if (accrual.ID) {
                         this.toastService.addToast('Periodisering',
                             ToastType.bad, 10, 'Denne periodiseringen mangler en bilagslinjekladd!');
@@ -342,6 +368,7 @@ export class AccrualModal implements IUniModal {
                     this.checkboxEnabledState = this.isAccrualAccrued();
                     this.setAccrualPeriodBasedOnAccrual();
                     this.changeRecalculatePeriods();
+                    this.setAccountingLockedPeriods();
                 }
             });
     }
@@ -355,23 +382,55 @@ export class AccrualModal implements IUniModal {
         if (!this.lockDate) {
             return;
         }
-        periodes.forEach((period, index) => {
-            this.allCheckBoxEnabledValues[index].period1 = new Date(this.lockDate) >= new Date(
-                    this.modalConfig.model._periodYears[0],
-                    new Date(period.FromDate).getMonth(),
-                    new Date(period.FromDate).getDate()
-                );
-            this.allCheckBoxEnabledValues[index].period2 = new Date(this.lockDate) >= new Date(
-                    this.modalConfig.model._periodYears[1],
-                    new Date(period.FromDate).getMonth(),
-                    new Date(period.FromDate).getDate()
-                );
-            this.allCheckBoxEnabledValues[index].period3 = new Date(this.lockDate) >= new Date(
-                    this.modalConfig.model._periodYears[2],
-                    new Date(period.FromDate).getMonth(),
-                    new Date(period.FromDate).getDate()
-                );
-        });
+
+        if (this.checkboxEnabledState) {
+            periodes.forEach((period, index) => {
+                this.allCheckBoxEnabledValues[index].period1 = true;
+                this.allCheckBoxEnabledValues[index].period2 = true;
+                this.allCheckBoxEnabledValues[index].period3 = true;
+            });
+        } else {
+            periodes.forEach((period, index) => {
+                this.allCheckBoxEnabledValues[index].period1 = new Date(this.lockDate) >= new Date(
+                        this.modalConfig.model._periodYears[0],
+                        new Date(period.FromDate).getMonth(),
+                        new Date(period.FromDate).getDate()
+                    );
+                this.allCheckBoxEnabledValues[index].period2 = new Date(this.lockDate) >= new Date(
+                        this.modalConfig.model._periodYears[1],
+                        new Date(period.FromDate).getMonth(),
+                        new Date(period.FromDate).getDate()
+                    );
+                this.allCheckBoxEnabledValues[index].period3 = new Date(this.lockDate) >= new Date(
+                        this.modalConfig.model._periodYears[2],
+                        new Date(period.FromDate).getMonth(),
+                        new Date(period.FromDate).getDate()
+                    );
+            });
+        }
+    }
+
+    public isLockedPeriod(periodYear, periodNumber): boolean {
+        const tempDate = this.journalEntryService.getAccountingLockedDate();
+
+        if (tempDate) {
+            const lockedDate = new LocalDate(tempDate.toString());
+            const lockedMonth = lockedDate.month;
+            const lockedYear = lockedDate.year;
+
+
+            if (periodYear < lockedYear) {
+                return true;
+            } else if (periodYear > lockedYear) {
+                return false;
+            } else if (periodNumber < lockedMonth) {
+                // periodYear = lockedYear, so check periodNumber vs lockedMonth
+                return true;
+            }
+        }
+
+        // no locked date set, so this period cant be locked
+        return false;
     }
 
     private setupForm() {
@@ -472,27 +531,34 @@ export class AccrualModal implements IUniModal {
             {period1: false, period2: false, period3: false}
         ];
 
-        const tempDate = this.journalEntryService.getAccountingLockedDate();
+        if (this.checkboxEnabledState) {
+            enablingValues.forEach((period, index) => {
+                enablingValues[index].period1 = true;
+                enablingValues[index].period2 = true;
+                enablingValues[index].period3 = true;
+            });
+        } else {
+            const tempDate = this.journalEntryService.getAccountingLockedDate();
 
-        if (tempDate) {
-            const lockedDate = new LocalDate(tempDate.toString());
-            const lockedMonth = lockedDate.month;
-            const lockedYear = lockedDate.year;
+            if (tempDate) {
+                const lockedDate = new LocalDate(tempDate.toString());
+                const lockedMonth = lockedDate.month;
+                const lockedYear = lockedDate.year;
 
-            for (let i = 0; i < 3; i++) {
-                const year = this.modalConfig.model['_periodYears'][i];
+                for (let i = 0; i < 3; i++) {
+                    const year = this.modalConfig.model['_periodYears'][i];
 
-                if (lockedYear === year) {
-                    for (let p: number = 0; p <= lockedMonth; p++) {
-                        enablingValues[p]['period' + (i + 1)] = true;
-                    }
-                } else if (lockedYear > year) {
-                    for (let p: number = 0; p < 12; p++) {
-                        enablingValues[p]['period' + (i + 1)] = true;
+                    if (lockedYear === year) {
+                        for (let p: number = 0; p <= lockedMonth; p++) {
+                            enablingValues[p]['period' + (i + 1)] = true;
+                        }
+                    } else if (lockedYear > year) {
+                        for (let p: number = 0; p < 12; p++) {
+                            enablingValues[p]['period' + (i + 1)] = true;
+                        }
                     }
                 }
             }
-
         }
 
         this.allCheckBoxEnabledValues = enablingValues;
@@ -565,7 +631,6 @@ export class AccrualModal implements IUniModal {
     }
 
     private reSelectCheckBoxes(): void {
-
         if (this.isAccrualAccrued()) {
             return;
         }
@@ -592,6 +657,7 @@ export class AccrualModal implements IUniModal {
                     yearNumber = 3;
                 }
             }
+
             this.resetAllChechBoxValues();
             this.setAccrualPeriods(periodNo, yearNumber);
         }
@@ -610,12 +676,14 @@ export class AccrualModal implements IUniModal {
                 } else {
                     yearNumber = 3;
                 }
-                // TODO: Logic to find new period if autoselect is locked
-                this.allCheckboxValues[item.PeriodNo - 1]['period' + yearNumber] = true;
-                if (this.allCheckBoxEnabledValues[item.PeriodNo - 1]['period' + yearNumber]) {
-                    this.lockedDateSelected = true;
-                    this.toastService.addToast('OBS: Låst regnskapsår', ToastType.bad, 10,
-                        'Periodisering ikke mulig med gitt dato. Sjekk bilagslinjen eller Regnskapslås.');
+
+                if (this.allCheckBoxEnabledValues[item.PeriodNo - 1]['period' + yearNumber]
+                    && !this.isAccrualAccrued()) {
+                    this.toastService.addToast('OBS: Låst regnskapsperiode', ToastType.bad, 10,
+                        'Periodisering ikke mulig med gitt dato. Velg perioder manuelt, eller sjekk dato ' +
+                        'på bilagslinjen eller Regnskapslås.');
+                } else {
+                    this.allCheckboxValues[item.PeriodNo - 1]['period' + yearNumber] = true;
                 }
             });
         }
@@ -671,13 +739,32 @@ export class AccrualModal implements IUniModal {
     }
 
     public showPreviousYear(): void {
-        this.modalConfig.model['_periodYears'] = [...this.modalConfig.model['_periodYears'].map(x => x - 1)];
+        // no point in showing previous year if all the periods that year is locked
+        if (this.isLockedPeriod(this.modalConfig.model['_periodYears'][0] - 1, 12)) {
+            this.toastService.addToast(
+                'Hele året er låst',
+                ToastType.warn,
+                ToastTime.medium,
+                'Det er ikke mulig å periodisere noe i ' + (this.modalConfig.model['_periodYears'][0] - 1) +
+                ', hele året er låst. Endre regnskap låst til under firmainnstillinger for å ' +
+                'periodisere noe på dette året');
+            return;
+        }
 
         setTimeout(() => {
+            this.modalConfig.model['_periodYears'] = [...this.modalConfig.model['_periodYears'].map(x => x - 1)];
+
             this.setAccountingLockedPeriods();
-            this.reSelectCheckBoxes();
-            this.model$.next(this.modalConfig.model);
+
+            this.resetAllChechBoxValues();
+
+            if (!this.isLockedPeriod(this.modalConfig.model['_periodYears'][0], 12)) {
+                // when navigating to previous year, select the last period in that year
+                this.setAccrualPeriods(12, 1);
+            }
+
             this.lockedDateSelected = false;
+            this.model$.next(this.modalConfig.model);
         });
     }
 
@@ -692,7 +779,8 @@ export class AccrualModal implements IUniModal {
 
         setTimeout(() => {
             this.setAccountingLockedPeriods();
-            this.reSelectCheckBoxes();
+
+            this.resetAllChechBoxValues();
 
             this.model$.next(this.modalConfig.model);
             this.lockedDateSelected = false;

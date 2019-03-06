@@ -55,10 +55,8 @@ import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
 import {UniAssignModal} from './bill/detail/assignmodal';
-import {UniAddFileModal} from './bill/detail/addFileModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
-import {DimensionList} from './accountSettings/dimensionList/dimensionList';
 import {AccountList} from './accountSettings/accountList/accountList';
 import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
 import {VatSettings} from './vatsettings/vatsettings';
@@ -73,6 +71,7 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
+import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {UniBudgetView} from './budget/budgetview';
@@ -84,7 +83,7 @@ import {
     MatIconModule,
     MatTooltipModule,
     MatProgressBarModule,
-    MatMenuModule
+    MatMenuModule,
 } from '@angular/material';
 import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
 import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
@@ -118,7 +117,6 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         UniAccounting,
 
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
 
@@ -138,6 +136,7 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
+        FileFromInboxModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -153,7 +152,7 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
-        UniAddFileModal, NumberAsMoneyPipe,
+        NumberAsMoneyPipe,
 
         // vatreport
         CheckListVat,
@@ -205,7 +204,6 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         EditSupplierInvoicePayments,
         NewAccountModal,
         UniAssignModal,
-        UniAddFileModal,
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
@@ -216,11 +214,11 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         UniCostAllocationList,
         UniCostAllocationDetails,
         UniReinvoiceModal,
-        UniCompanyAccountingSettingsModal
+        UniCompanyAccountingSettingsModal,
+        FileFromInboxModal
     ],
     exports: [
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
         NewAccountModal,

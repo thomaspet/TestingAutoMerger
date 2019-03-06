@@ -1,6 +1,6 @@
 <div *ngIf="vatType$ | async">
     <uni-form
-        [config]="config$"
+        [config]="{}"
         [fields]="fields$"
         [model]="vatType$"
         (change)="onChange($event)">
@@ -8,19 +8,18 @@
 
     <fieldset>
         <legend>Satser</legend>
-        <uni-table
+        <ag-grid-wrapper
             [resource]="(vatType$ | async).VatTypePercentages"
             [config]="uniTableConfigVatTypePercentage">
-        </uni-table>
+        </ag-grid-wrapper>
     </fieldset>
 
     <fieldset>
         <legend>Regnskap</legend>
-        <uni-table
+        <ag-grid-wrapper
             [resource]="(vatType$ | async).VatReportReferences"
-            [config]="uniTableConfigVatPostReference"
-            (rowDeleted)="onVatPostReferenceDelete($event.rowModel)">
-        </uni-table>
+            [config]="uniTableConfigVatPostReference">
+        </ag-grid-wrapper>
     </fieldset>
 
 </div>

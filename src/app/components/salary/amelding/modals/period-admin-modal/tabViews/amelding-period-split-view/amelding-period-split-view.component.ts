@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { CompanySalary, AmeldingData, AmeldingType } from '@uni-entities';
+import { CompanySalary, AmeldingData, AmeldingType, InternalAmeldingStatus } from '@uni-entities';
 import { AMeldingService, ErrorService } from '@app/services/services';
 import { of, pipe, Observable} from 'rxjs';
 import {tap, finalize, switchMap, catchError} from 'rxjs/operators';
@@ -19,6 +19,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
     public tableConfig: UniTableConfig;
     public selectedAmelding: AmeldingData;
     public loading: boolean;
+    public showFeedback: boolean = false;
 
     private statusType(): Array<any> {
         return [
@@ -45,6 +46,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
     }
 
     public onRowSelected(row) {
+        this.showFeedback = row['_showFeedback'];
         this.loading = true;
         const selectedindex = this.ameldingerInPeriod.findIndex(a => a.ID === row.ID);
         this.table.focusRow(selectedindex);
@@ -53,13 +55,18 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
 
     private setupTable() {
         const idCol = new UniTableColumn('ID', 'A-melding ID', UniTableColumnType.Number);
-        const statusCol = new UniTableColumn('altinnstatus', 'Altinn status', UniTableColumnType.Text);
+        const statusCol = new UniTableColumn('altinnStatus', 'Altinn status', UniTableColumnType.Text);
         const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text)
             .setTemplate(rowModel => {
                 return this.statusType().find(p => p.id === rowModel.type).name;
             });
         const sentCol = new UniTableColumn('sent', 'Dato sendt', UniTableColumnType.LocalDate);
-        const receiptCol = new UniTableColumn('', '', UniTableColumnType.Link);
+        const receiptCol = new UniTableColumn('', 'Tilbakemelding', UniTableColumnType.Link)
+            .setTemplate(() => 'Vis/skjul')
+            .setLinkClick(row => {
+                row['_showFeedback'] = !row['_showFeedback'];
+                this.onRowSelected(row);
+            });
 
         this.tableConfig = new UniTableConfig('amelding.period.ameldinger.data', false, false)
             .setColumns([idCol, statusCol, typeCol, sentCol, receiptCol])
@@ -76,7 +83,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                         .postAMelding(row.period, AmeldingType.Nullstilling, row.year)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => this.ameldingerInPeriod.some(a => a.replacesID === row.ID)
+                    disabled: (row: AmeldingData) => row.altinnStatus === 'erstattet'
                 },
                 {
                     label: 'Erstatt melding',
@@ -86,7 +93,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                 this.switchMapLoadAndClose(() => this.ameldingService.postAMelding(row.period, row.type, row.year)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => this.ameldingerInPeriod.some(a => a.replacesID === row.ID)
+                    disabled: (row: AmeldingData) => row.altinnStatus === 'erstattet'
                 },
                 {
                     label: 'Send a-melding på nytt',
@@ -96,7 +103,8 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                 this.switchMapLoadAndClose(() => this.ameldingService.sendAMelding(row.ID))
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => (row.receiptID && !!row.feedbackFileID) || !row.sent
+                    disabled: (row: AmeldingData) => (row.receiptID && !!row.feedbackFileID)
+                        || row.altinnStatus === 'erstattet'
                 }
             ]);
     }
@@ -129,7 +137,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                 .getAMeldingWithFeedback(amelding.ID)
                 .finally(() => this.loading = false)
                 .subscribe((response: AmeldingData) => {
-                this.selectedAmelding = response;
+                    this.selectedAmelding = response;
                 });
         }
     }

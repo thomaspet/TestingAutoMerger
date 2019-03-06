@@ -60,7 +60,9 @@ export class ResultReport implements OnInit {
         ShowPreviousAccountYear: true,
         ShowBudget: true,
         Decimals: 0,
-        ShowPercent: true
+        ShowPercent: true,
+        ShowPrecentOfLastYear: false,
+        ShowPercentOfBudget: false
     });
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -205,7 +207,7 @@ export class ResultReport implements OnInit {
         decimals.FieldType = FieldType.DROPDOWN;
         decimals.Label = 'Antall desimaler';
         decimals.Legend = 'Visning';
-        decimals.FieldSet = 2;
+        decimals.FieldSet = 1;
         decimals.Options = {
             source: [{Decimals: 0}, {Decimals: 2}],
             valueProperty: 'Decimals',
@@ -225,21 +227,38 @@ export class ResultReport implements OnInit {
         const showpercent = new UniFieldLayout();
         showpercent.Property = 'ShowPercent';
         showpercent.FieldType = FieldType.CHECKBOX;
-        showpercent.Label = 'Vis prosent av salg';
-        showpercent.Legend = 'Visning';
+        showpercent.Label = 'Vis % av fjoråret';
         showpercent.FieldSet = 2;
+
+        const showpercentofbudget = new UniFieldLayout();
+        showpercentofbudget.Property = 'ShowPercentOfBudget';
+        showpercentofbudget.FieldType = FieldType.CHECKBOX;
+        showpercentofbudget.Label = 'Vis % av budsjett';
+        showpercentofbudget.FieldSet = 2;
 
         const showBudget = <any>new UniFieldLayout();
         showBudget.Property = 'ShowBudget';
         showBudget.FieldType = FieldType.CHECKBOX;
         showBudget.Label = 'Vis budsjett';
-        showBudget.Legend = 'Filter';
-        showBudget.FieldSet = 1;
+        showBudget.FieldSet = 2;
 
-        this.fields$.next([project, department, showBudget, decimals, showprevyear, showpercent]);
+        this.fields$.next([project, department, showBudget, decimals, showprevyear, showpercent, showpercentofbudget]);
     }
 
     public onFilterChange(event) {
-        this.filter = _.cloneDeep(this.filter$.getValue());
+        // Make sure only one checkbox is checked at a time
+        const fil = this.filter$.getValue();
+
+        if (event['ShowPercentOfBudget']) {
+            if (event['ShowPercentOfBudget'].currentValue) {
+                fil.ShowPercent = false;
+            }
+        } else if (event['ShowPercent']) {
+            if (event['ShowPercent']) {
+                fil.ShowPercentOfBudget = false;
+            }
+        }
+        this.filter$.next(fil);
+        this.filter = _.cloneDeep(fil);
     }
 }

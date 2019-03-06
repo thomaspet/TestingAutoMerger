@@ -23,7 +23,7 @@
             circle
                 stroke: #1565c0
 
-    header
+    > header
         flex: 0 0 4rem
         display: flex
         background: #fff
@@ -44,12 +44,15 @@
             font-size: 24px
 
 
-    article
+    > article
         flex: 1
         overflow: auto
         padding: 1rem 3rem
 
-    footer
+        &.scrollable
+            max-height: calc(100vh - 15rem)
+
+    > footer
         flex: 0 0 5rem
         display: flex
         padding: 0 2rem

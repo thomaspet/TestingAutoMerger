@@ -1,154 +1,92 @@
-import {
-    Component,
-    Input,
-    Output,
-    ViewChild,
-    EventEmitter,
-} from '@angular/core';
-import {
-    UniTable,
-    UniTableColumn,
-    UniTableConfig,
-    UniTableColumnType
-} from '../../../../../framework/ui/unitable/index';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {VatDeductionGroup} from '../../../../../app/unientities';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {URLSearchParams} from '@angular/http';
+import {Component, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
+import {UniTableColumn, UniTableConfig} from '@uni-framework/ui/unitable';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
+import {VatDeductionGroup} from '@uni-entities';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {
     VatDeductionGroupService,
     VatDeductionService,
     ErrorService
-} from '../../../../services/services';
+} from '@app/services/services';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'vatdeductiongroup-setup-modal',
     template: `
-        <section role="dialog" class="uni-modal">
-            <header><h1>Oversikt over forholdsmessig MVA grupper</h1></header>
-            <article class='modal-content'>
+        <section role="dialog" class="uni-modal uni-redesign">
+            <header>Oversikt over forholdsmessig MVA grupper</header>
+
+            <article class="scrollable">
                 <p>
                     Rediger eller legg til grupper under hvis du ønsker å bruke forskjellige satser for
                     forholdsmessig fradrag av MVA. Disse satsene vil bli tilgjengelige inne i kontoplanen
                 </p>
-                <uni-table
-                    [resource]="lookupFunction"
-                    [config]="uniTableConfig">
-                </uni-table>
+
+                <ag-grid-wrapper
+                    [(resource)]="vatDeductionGroups"
+                    [config]="tableConfig">
+                </ag-grid-wrapper>
             </article>
-            <footer>
-                <button (click)="save()" class="good">Lagre endringer</button>
-                <button (click)="close()">Avbryt</button>
+
+            <footer class="center">
+                <button (click)="save()" class="c2a rounded">Lagre endringer</button>
+                <button (click)="onClose.emit()">Avbryt</button>
             </footer>
         </section>
     `
 })
 export class VatDeductionGroupSetupModal implements IUniModal {
+    @ViewChild(AgGridWrapper) table: AgGridWrapper;
 
-    @Input()
-    public options: IModalOptions;
+    options: IModalOptions;
+    onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter<any>();
-
-    @ViewChild(UniTable)
-    public unitable: UniTable;
-
-    public uniTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
-
-    public isDirty: boolean = false;
+    tableConfig: UniTableConfig;
+    vatDeductionGroups: VatDeductionGroup[];
 
     constructor(
         private toastService: ToastService,
         private vatDeductionGroupService: VatDeductionGroupService,
         private vatDeductionService: VatDeductionService,
         private errorService: ErrorService
-    ) {
-
-    }
+    ) {}
 
     public ngOnInit() {
-        this.uniTableConfig = this.generateUniTableConfig();
-        this.lookupFunction = (urlParams: URLSearchParams) =>
-            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-    }
+        this.vatDeductionGroupService.GetAll().subscribe(
+            res => this.vatDeductionGroups = res,
+            err => this.errorService.handle(err)
+        );
 
-    private getTableData(urlParams: URLSearchParams): Observable<VatDeductionGroup[]> {
-        urlParams = urlParams || new URLSearchParams();
-
-        if (!urlParams.get('orderby')) {
-            urlParams.set('orderby', 'Name');
-        }
-
-        return this.vatDeductionGroupService.GetAllByUrlSearchParams(urlParams);
-    }
-
-    private generateUniTableConfig(): UniTableConfig {
-        return new UniTableConfig('accounting.vatDeductionGroupSetup.vatDeductionGroups', true, false)
-            .setPageable(false)
-            .setSearchable(false)
+        this.tableConfig = new UniTableConfig('accounting.vatDeductionGroupSetup.vatDeductionGroups', true, false)
             .setColumnMenuVisible(false)
-            .setColumns([
-                new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
-            ])
-            .setChangeCallback((event) => {
-                this.isDirty = true;
-
-                const rowModel = event.rowModel;
-                rowModel._isDirty = true;
-
-                return rowModel;
-            });
+            .setColumns([new UniTableColumn('Name', 'Navn')]);
     }
 
     public save() {
-        // run a setTimeout first to get the last changes the user has done
-        // in case he/she has not exited from the editable table before clicking
-        // the button
+        this.table.finishEdit();
         setTimeout(() => {
-            const data = this.unitable.getTableData();
-
-            const dirtyRows = [];
-            data.forEach(x => {
-                if (x._isDirty) {
-                    dirtyRows.push(x);
-                }
-            });
-
-            const requests = [];
-
-            dirtyRows.forEach(row => {
-                if (row.Name && row.Name !== '') {
-                    if (row.ID > 0) {
-                        requests.push(this.vatDeductionGroupService.Put(row.ID, row));
-                    } else {
-                        requests.push(this.vatDeductionGroupService.Post(row));
-                    }
-                }
+            const dirtyRows = this.vatDeductionGroups.filter(group => group.Name && group['_isDirty']);
+            const requests = dirtyRows.map(row => {
+                return row.ID > 0
+                    ? this.vatDeductionGroupService.Put(row.ID, row)
+                    : this.vatDeductionGroupService.Post(row);
             });
 
             if (requests.length > 0) {
-                Observable.forkJoin(requests)
-                    .subscribe(res => {
+                Observable.forkJoin(requests).subscribe(
+                    () => {
                         this.toastService.addToast('Lagring vellykket', ToastType.good, ToastTime.short);
-
                         this.vatDeductionService.invalidateCache();
-
-                        this.onClose.emit({didSave: true});
+                        this.onClose.emit(true);
                     },
                     err => {
                         this.errorService.handle(err);
                     }
                 );
             } else {
-                this.toastService.addToast('Ingen endringer funnet', ToastType.warn, ToastTime.short);
+                this.onClose.emit();
             }
         });
-    }
-
-    public close() {
-        this.onClose.emit({didSave: false});
     }
 }

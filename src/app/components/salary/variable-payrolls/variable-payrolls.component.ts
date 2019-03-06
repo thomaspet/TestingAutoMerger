@@ -655,15 +655,16 @@ export class VariablePayrollsComponent {
 
         if (employment && employment.Dimensions) {
             const department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+            const project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
 
             rowModel['_Department'] = department || rowModel['_Department'];
-
-            const project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
             rowModel['_Project'] = project || rowModel['_Project'];
-
-            this.mapDepartmentToTrans(rowModel);
-            this.mapProjectToTrans(rowModel);
+        } else {
+            rowModel['_Department'] = null;
+            rowModel['_Project'] = null;
         }
+        this.mapDepartmentToTrans(rowModel);
+        this.mapProjectToTrans(rowModel);
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {

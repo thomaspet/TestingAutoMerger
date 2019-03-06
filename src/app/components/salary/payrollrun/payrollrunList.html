@@ -2,6 +2,10 @@
     [config]="{title: 'Lønnsavregninger'}"
     [saveactions]="toolbarActions">
 </uni-toolbar>
-<article [attr.aria-busy]="busy" class="application">
-    <uni-table [resource]="payrollRuns$ | async" [config]="payrollrunListConfig" (rowSelected)="rowSelected($event)"></uni-table>
+<article class="application">
+    <ag-grid-wrapper
+        [resource]="payrollRuns"
+        [config]="payrollrunListConfig"
+        (rowSelectionChange)="rowSelected($event)">
+    </ag-grid-wrapper>
 </article>

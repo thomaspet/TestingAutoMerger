@@ -320,7 +320,9 @@ export class EmploymentService extends BizHttp<Employment> {
                         FieldSet: 3,
                         Section: 0,
                         Options: {
-                            format: 'money'
+                            decimalLength: 2,
+                            decimalSeparator: ',',
+                            thousandSeparator: ' '
                         }
                     },
                     {
