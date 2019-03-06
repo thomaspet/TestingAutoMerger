@@ -31,9 +31,17 @@ export const numericOperators = [
         operator: 'lt',
     },
     {
+        label: 'mindre enn eller lik',
+        operator: 'le'
+    },
+    {
         label: 'større enn',
         operator: 'gt',
     },
+    {
+        label: 'større enn eller lik',
+        operator: 'ge'
+    }
 ];
 
 export const defaultOperators = [
@@ -56,5 +64,21 @@ export const defaultOperators = [
     {
         label: 'er ikke',
         operator: 'ne',
+    },
+    {
+        label: 'mindre enn',
+        operator: 'lt',
+    },
+    {
+        label: 'mindre enn eller lik',
+        operator: 'le'
+    },
+    {
+        label: 'større enn',
+        operator: 'gt',
+    },
+    {
+        label: 'større enn eller lik',
+        operator: 'ge'
     }
 ];
