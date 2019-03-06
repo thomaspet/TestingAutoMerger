@@ -332,7 +332,7 @@ export class TradeItemTable {
         // Columns
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
-            .setJumpToColumn('Unit')
+            .setJumpToColumn('NumberOfItems')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
@@ -396,6 +396,9 @@ export class TradeItemTable {
             .setMaxLength(255)
             .setWidth('20%');
 
+        const unitCol = new UniTableColumn('Unit', 'Enhet')
+            .setMaxLength(100);
+
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
             .setNumberFormat({
                 thousandSeparator: ' ',
@@ -403,9 +406,6 @@ export class TradeItemTable {
                 decimalLength: this.settings.ShowNumberOfDecimals,
                 postfix: undefined
             });
-
-        const unitCol = new UniTableColumn('Unit', 'Enhet')
-            .setMaxLength(100);
 
         const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris eks. mva', UniTableColumnType.Money)
             .setNumberFormat({
@@ -635,7 +635,7 @@ export class TradeItemTable {
         );
 
         const allCols = [
-            sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
+            sortIndexCol, productCol, itemTextCol, unitCol, numItemsCol,
             exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
             projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
         ].concat(dimensionCols);
