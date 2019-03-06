@@ -27,7 +27,7 @@ import {BankFileDownloadService} from './accounting/bankFileDownloadService';
 import {BudgetService} from './accounting/budgetService';
 import {CostAllocationService} from './accounting/costAllocationService';
 import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
-import { CompanyAccountingSettingsService } from '@app/services/accounting/CompanyAccountingSettingsService';
+import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
 
 export * from './accounting/accountGroupService';
 export * from './accounting/accountGroupSetService';
@@ -57,7 +57,7 @@ export * from './accounting/bankFileDownloadService';
 export * from './accounting/budgetService';
 export * from './accounting/costAllocationService';
 export * from './accounting/ReInvoicingService';
-export * from './accounting/CompanyAccountingSettingsService';
+export * from './accounting/companyAccountingSettingsService';
 
 @NgModule()
 export class AccountingServicesModule {

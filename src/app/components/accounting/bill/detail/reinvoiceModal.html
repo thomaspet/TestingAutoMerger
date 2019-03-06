@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesing maybe-default large">
+<section role="dialog" class="uni-modal large">
     <header><h1>Viderefakturering</h1></header>
     <article class="reinvoiceContent">
         <form id="reinvoiceFormData">
@@ -23,22 +23,26 @@
             <span>Kostandsdeling:</span>
             <dl>
                 <dt>Varenummer</dt>
-                <dd>5 - Kostnadsdeling</dd>
+                <dd>{{companyAccountSettings?.ReInvoicingCostsharingProductID}} - {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Name}}</dd>
             </dl>
             <dl>
                 <dt>Hovedbokskonto</dt>
-                <dd>1579 - Andre kortsiktige fordringer</dd>
+                <dd>{{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountNumber}} -
+                    {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountName}}
+                </dd>
             </dl>
             <span>Viderefakturering:</span>
             <dl>
                 <dt>Varenummer</dt>
-                <dd>6 - Omsetningsvaren</dd>
+                <dd>{{companyAccountSettings?.ReInvoicingTurnoverProductID}} - {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Name}}</dd>
             </dl>
             <dl>
                 <dt>Hovedbokskonto</dt>
-                <dd>3000 - Varesalg</dd>
+                <dd>{{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountNumber}} -
+                    {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountName}}
+                </dd>
             </dl>
-            <a>Endre instillinger</a>
+            <a (click)="openSettingsModal()">Endre instillinger</a>
         </uni-information>
     </article>
     <article>
@@ -57,17 +61,17 @@
         <ag-grid-wrapper
             [resource]="items"
             [config]="itemsTableConfig"
+            (rowChange)="onItemChange($event)"
         ></ag-grid-wrapper>
     </article>
     <footer>
-        <section role="group" class="comboButton">
-            <button class="comboButton_btn good" type="button" (click)="saveactions[0].action()" [attr.aria-busy]="busy" [disabled]="saveactions[0].disabled">{{saveactions[0].label}}</button>
+        <section role="group" class="comboButton" *ngIf="saveactions?.length">
+            <button class="comboButton_btn good" type="button" (click)="getMainAction().action()" [attr.aria-busy]="busy" [disabled]="getMainAction().disabled">{{getMainAction()?.label}}</button>
             <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open">More options</button>
             <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
                 <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
             </ul>
         </section>
-        <button (click)="this.onClose.emit(true)" class="good">Lagre</button>
         <button (click)="this.onClose.emit(false)" class="bad">Avbryt</button>
     </footer>
 </section>
