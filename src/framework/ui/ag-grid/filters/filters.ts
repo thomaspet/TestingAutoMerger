@@ -170,6 +170,7 @@ export class TableFilters {
             let header, operator, value;
 
             const column = this.columns && this.columns.find(col => col.field === filter.field);
+            const selectConfig = filter.selectConfig;
             header = column ? column.header : filter.field;
 
             operator = this.getOperatorTranslation(filter) || filter.operator;
@@ -177,7 +178,20 @@ export class TableFilters {
             if (filter.isDate) {
                 value = moment(filter.value).format('DD.MM.YYYY');
             } else {
-                value = isNaN(+filter.value) ? `"${filter.value}"` : filter.value;
+                if (selectConfig && selectConfig.options) {
+                    const item = selectConfig.options.find(option => {
+                        const optionValue = option[selectConfig.valueField];
+                        return optionValue.toString() === filter.value.toString();
+                    });
+
+                    if (item) {
+                        value = item[selectConfig.displayField];
+                    }
+                }
+
+                if (!value) {
+                    value = isNaN(+filter.value) ? `"${filter.value}"` : filter.value;
+                }
             }
 
             filter['_displayText'] = `${header} ${operator} ${value}`;

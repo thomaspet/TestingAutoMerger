@@ -807,10 +807,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
                 this.order = _.cloneDeep(order);
                 this.updateCurrency(order, true);
+                this.recalcItemSums(order.Items);
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
-                this.recalcDebouncer.next(res[0].Items);
 
                 resolve(true);
             });
@@ -1219,7 +1219,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private recalcItemSums(orderItems: any) {
+    private recalcItemSums(orderItems: CustomerOrderItem[] = null) {
         const items = orderItems && orderItems.filter(item => !item.Deleted);
         const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
 
@@ -1229,6 +1229,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         if (this.itemsSummaryData) {
             this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {

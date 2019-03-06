@@ -147,12 +147,6 @@ export class AdvancedFilters {
     }
 
     setFilterOperators(filter: ITableFilter) {
-        if (filter.selectConfig) {
-            filter['_availableOperators'] = [{label: 'er', operator: 'eq'}];
-            filter.operator = 'eq';
-            return;
-        }
-
         let operators = defaultOperators;
         const column = filter.field && this.columns.find(col => col.field === filter.field);
 
