@@ -94,7 +94,7 @@ export class AgGridWrapper {
 
     // Used for custom cell renderers
     public context: any;
-    public cellRendererComponents: any;
+    public cellRendererComponents: any = {rowMenu: RowMenuRenderer};
 
     isRowSelectable: (rowModel: any) => boolean;
 
@@ -627,7 +627,6 @@ export class AgGridWrapper {
         }
 
         this.context = { componentParent: this };
-        this.cellRendererComponents = {};
 
         const colDefs = columns.map(col => {
 
@@ -723,7 +722,6 @@ export class AgGridWrapper {
                 && this.config.contextMenu.items.length;
 
             if (hasDeleteButton || hasContextMenu) {
-                this.cellRendererComponents.rowMenu = RowMenuRenderer;
                 menuColumn.cellRenderer = 'rowMenu';
             }
 
