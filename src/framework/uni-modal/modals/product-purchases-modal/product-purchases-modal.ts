@@ -70,7 +70,11 @@ export class ProductPurchasesModal implements IUniModal {
             res => {
                 this.users = res[0];
                 this.purchases = res[1];
-                this.products = (res[2] || []).filter(product => product.isPerUser);
+                this.products = (res[2] || []).filter(product => {
+                    return product.productTypeName === 'Module'
+                        && product.isPerUser
+                        && product.name !== 'Complete';
+                });
                 this.userRoles = res[3];
                 this.roles = res[4];
 
