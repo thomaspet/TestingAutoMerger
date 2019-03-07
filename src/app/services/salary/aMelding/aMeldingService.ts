@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AmeldingData} from '../../../unientities';
+import {AmeldingData, PayrollRunInAmeldingPeriod} from '../../../unientities';
 import {Observable, of} from 'rxjs';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {map} from 'rxjs/operators';
@@ -110,6 +110,10 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             }
             return this.Get(id);
         }
+    }
+
+    public getPayrollrunsInAmeldingPeriod(period: number): Observable<PayrollRunInAmeldingPeriod[]> {
+        return super.GetAction(null, 'payrollruns-in-amelding-period', `period=${period}`);
     }
 
     public getAMeldingForPeriod(periode: number, currentYear: number): Observable<AmeldingData[]> {

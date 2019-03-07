@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { PayrollRun } from '@uni-entities';
-import { PayrollrunService } from '@app/services/services';
+import { PayrollRunInAmeldingPeriod } from '@uni-entities';
+import { AMeldingService } from '@app/services/services';
 
 @Component({
   selector: 'uni-amelding-payrolls-period-view',
@@ -11,28 +11,28 @@ import { PayrollrunService } from '@app/services/services';
 export class AmeldingPayrollsPeriodViewComponent implements OnInit {
   @Input() public period: Number;
   public tableConfig: UniTableConfig;
-  public tableData: PayrollRun[] = [];
+  public tableData: PayrollRunInAmeldingPeriod[] = [];
 
   constructor(
-    private payrollrunService: PayrollrunService
+    private ameldingService: AMeldingService
   ) {
     this.setupTable();
    }
 
   public ngOnInit() {
-    this.payrollrunService.getAll(`filter=month(PayDate) eq ${this.period}`)
-      .subscribe((payrolls: PayrollRun[]) => {
-        this.tableData = payrolls;
+    this.ameldingService.getPayrollrunsInAmeldingPeriod(this.period.valueOf())
+      .subscribe(payrunsInPeriod => {
+        this.tableData = payrunsInPeriod;
       });
   }
 
   private setupTable() {
-    const idCol = new UniTableColumn('ID', 'Lønnsavregning', UniTableColumnType.Number)
+    const idCol = new UniTableColumn('PayrollrunID', 'Lønnsavregning', UniTableColumnType.Number)
       .setTemplate(rowmodel => {
-        return `${rowmodel.ID} - ${rowmodel.Description}`;
+        return `${rowmodel.PayrollrunID} - ${rowmodel.PayrollrunDescription}`;
       });
-    const typeCol = new UniTableColumn('PayDate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
-    const sentCol = new UniTableColumn('UpdatedAt', 'Sendt a-melding', UniTableColumnType.LocalDate);
+    const typeCol = new UniTableColumn('PayrollrunPaydate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
+    const sentCol = new UniTableColumn('AmeldingSentdate', 'Sendt a-melding', UniTableColumnType.LocalDate);
     this.tableConfig = new UniTableConfig('amelding.period.payrolls.data', false, false)
       .setColumns([idCol, typeCol, sentCol])
       .setSearchable(false)
@@ -42,7 +42,8 @@ export class AmeldingPayrollsPeriodViewComponent implements OnInit {
             label: 'Generer tilleggsmelding',
             action: (row) => {
               console.log('generert tilleggsmelding');
-            }
+            },
+            disabled: (row: PayrollRunInAmeldingPeriod) => row.CanGenerateAddition
           }
         ]
       );
