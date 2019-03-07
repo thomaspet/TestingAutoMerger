@@ -100,6 +100,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public defaultRowData: JournalEntryData;
     @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
+    @Input() public orgNumber: string;
 
     @ViewChild(UniTable) private table: UniTable;
 
@@ -114,7 +115,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
-    @Output() public rowFieldChanged: EventEmitter<FieldAndJournalEntryData> = new EventEmitter<FieldAndJournalEntryData>(); 
+    @Output() public rowFieldChanged: EventEmitter<FieldAndJournalEntryData> = new EventEmitter<FieldAndJournalEntryData>();
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
@@ -467,6 +468,128 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         return rowModel;
+    }
+
+    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean ) {
+        let returnValue: any = {
+            type: ToastType.warn
+        };
+
+        return new Promise((resolve, reject) => {
+            // Dont do anything if user has more lines!
+            if (!orgNumber || (this.journalEntryLines && this.journalEntryLines.length > 1)) {
+                if (showToastIfNotRan) {
+                    returnValue.msg = orgNumber
+                    ? 'Mangler organisasjonsnummer for å finne kontofoslag'
+                    : 'Det er allerede manuelle konteringslinjer. Slett disse for å kjøre smart bokføring';
+                    // this.toastService.addToast('Kan ikke kjøre smart bokføring', ToastType.warn, 5, errorMessage);
+                }
+               resolve(returnValue);
+               return;
+            } else {
+                this.journalEntryService.getLedgerSuggestions(orgNumber).subscribe(res => {
+                    if (!res || !res.Suggestion) {
+                        this.journalEntryLines = [].concat([]);
+                        this.dataChanged.emit(this.journalEntryLines);
+                        returnValue.msg = 'Ingen bokføringsforslag funnet på denne leverandøren. Vi vil huske din neste bokføring.';
+                        resolve(returnValue);
+                        return;
+                    }
+
+                    // Check for account to suggest
+                    if (res.Suggestion.AccountNumber > 0) {
+                        const msg = '';
+
+                        // Minimum percentage criteria for using suggested account number.. Should/could be set in Company settings??
+                        const LIMIT_PERCENTAGE = 70;
+
+                        let percent = res.Suggestion.PercentWeight || 0;
+                        const counter = res.Suggestion.Counter;
+
+                        if ((counter < 15 && res.Source === 3) || (counter < 20 && res.Source === 2)) {
+                            percent = percent > 45 ? 45 : percent;
+                        }
+
+                        // If the suggestion does not meet limit criteria, dont do anything, just return..
+                        if (res.Source > 1 && percent < LIMIT_PERCENTAGE) {
+                            returnValue.msg = 'Fant ikke en konto som tilfredstiller kravet for smart bokføring på denne leverandøren. ' +
+                            '<br/>Vi vil huske din bokføring på neste faktura fra denne leverandøren.';
+                            resolve(returnValue);
+
+                            this.journalEntryLines = [].concat([]);
+                            this.dataChanged.emit(this.journalEntryLines);
+                            return;
+                        }
+
+                        this.journalEntryService.getAccountsFromSuggeestions(res.Suggestion.AccountNumber.toString().substr(0, 3))
+                        .subscribe((accounts) => {
+                            if (accounts.length) {
+                                let match = accounts.find(acc => acc.AccountNumber === res.Suggestion.AccountNumber);
+                                match = match ? match : accounts[0];
+
+                                let newLine;
+
+                                if (this.journalEntryLines && this.journalEntryLines.length === 1) {
+                                    this.journalEntryLines[0].DebitAccount = match;
+                                    this.journalEntryLines[0].DebitAccountID = match.ID;
+                                    this.journalEntryLines[0]['_updateDescription'] = true;
+                                    if (match.VatTypeID) {
+                                        this.journalEntryLines[0].DebitVatTypeID = match.VatTypeID;
+                                        this.journalEntryLines[0].DebitVatType = this.vattypes.find(x => x.ID === match.VatTypeID);
+                                    }
+                                } else {
+                                    newLine = {
+                                        Dimensions: {},
+                                        DebitAccount: match,
+                                        DebitAccountID: match.ID,
+                                        CreditAccount: null,
+                                        CreditAccountID: null,
+                                        Description: '',
+                                        FileIDs: []
+                                    };
+                                    if (match.VatTypeID) {
+                                        newLine.DebitVatTypeID = match.VatTypeID;
+                                        newLine.DebitVatType = this.vattypes.find(x => x.ID === match.VatTypeID);
+                                    }
+
+                                    this.journalEntryLines.push(newLine);
+                                }
+
+                                returnValue.msg = res.Source === 1
+                                    ? 'Kontoforslag på konteringslinje er lagt til basert på ditt firmas tidligere' +
+                                        ' bokføringer på faktura fra denne leverandøren.'
+                                    : res.Source === 2
+                                    ? 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort på' +
+                                        ' denne leverandøren i UniEconomy'
+                                    : 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort i UniEconomy' +
+                                        ' på levernadører i samme bransje som valgt leverandør på din faktura.';
+
+                                this.journalEntryLines = [].concat(this.journalEntryLines);
+                                this.dataChanged.emit(this.journalEntryLines);
+
+                                returnValue.type = ToastType.good;
+                                resolve(returnValue);
+                                return;
+                            } else {
+                                returnValue.msg = `Smart bokføring foreslo konto ${res.Suggestion.AccountNumber} men denne kontoen` +
+                                ` (og nærliggende kontoer) mangler i din kontoplan.`;
+                                resolve(returnValue);
+                            }
+                        }, err => {
+                            returnValue.msg = `Noe gikk galt da smart bokføring prøvde å hente konto ${res.Suggestion.AccountNumber}`;
+                            resolve(returnValue);
+                        });
+                    } else {
+                        returnValue.msg = `Noe gikk galt da smart bokføring prøvde å hente bokføringsforslag.`;
+                        resolve(returnValue);
+                    }
+                }, err => {
+                    returnValue.msg = `Noe gikk galt da smart bokføring prøvde å hente bokføringsforslag. ` +
+                    `Prøv å start den manuelt igjen i menyen oppe til høyre.`;
+                    resolve(returnValue);
+                });
+            }
+        });
     }
 
     private getExternalCurrencyExchangeRate(rowModel: JournalEntryData): Promise<JournalEntryData> {
@@ -2851,7 +2974,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         if (event.newValue && event.field) {
             this.rowFieldChanged.emit({
-                Field: event.field, 
+                Field: event.field,
                 JournalEntryData: event.rowModel
             });
         }
@@ -2865,7 +2988,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public focusLastRow() {
-        var rows = this.getTableData() || [];
+        const rows = this.getTableData() || [];
         this.currentRowIndex = rows.length;
         this.table.focusRow(this.currentRowIndex);
     }

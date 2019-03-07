@@ -115,6 +115,27 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return null;
     }
 
+    public getLedgerSuggestions(orgNumber: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`ledgersuggestions/${orgNumber}`)
+            .send()
+            .map(res => res.json());
+    }
+
+    public getAccountsFromSuggeestions(accountNumberStart) {
+        return this.http
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint('?model=Account' +
+            '&select=id as ID,AccountNumber as AccountNumber,AccountName as AccountName,VatTypeID as VatTypeID,Visible as Visible,' +
+            `UseVatDeductionGroupID&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
+            'isnull(customerid,0) eq 0 and isnull(supplierid,0) eq 0&expand=VatType&orderby=accountnumber&wrap=false')
+            .send()
+            .map(res => res.json());
+    }
+
     public getSessionNumberSeries() {
         const numberSeriesID = this.storageService.getSessionItemFromCompany('Numberseries_journalEntry');
 

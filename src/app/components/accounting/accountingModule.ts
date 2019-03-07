@@ -55,6 +55,7 @@ import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
 import {UniAssignModal} from './bill/detail/assignmodal';
+import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -151,6 +152,8 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
         NumberAsMoneyPipe,
+        UniSmartBookingSettingsModal,
+        NumberAsMoneyPipe,
 
         // vatreport
         CheckListVat,
@@ -204,6 +207,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         DraftLineDescriptionModal,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
+        UniSmartBookingSettingsModal,
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,

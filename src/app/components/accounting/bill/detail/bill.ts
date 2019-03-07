@@ -75,7 +75,8 @@ import {
     CustomDimensionService,
     FileService,
     VatDeductionService,
-    PaymentService
+    PaymentService,
+    BrowserStorageService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
@@ -83,6 +84,7 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 declare var _;
 
@@ -169,6 +171,7 @@ export class BillView implements OnInit {
     public loadingForm: boolean = false;
     public hasLoadedCustomDimensions: boolean = false;
     public isBlockedSupplier: boolean = false;
+    public orgNumber: string;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -212,7 +215,25 @@ export class BillView implements OnInit {
             main: false,
             disabled: false
         },
+        {
+            label: 'Kjør smart bokføring',
+            action: (done) => { this.runSmartBooking(this.orgNumber, true); done(); },
+            main: false,
+            disabled: false
+        },
+        {
+            label: 'Innstilliger for smart bokføring',
+            action: (done) => { this.openSmartBookingSettingsModal(); done(); },
+            main: false,
+            disabled: false
+        }
     ];
+
+    public smartBookingSettings = {
+        showNotification: true,
+        addNotifcationAsComment: false,
+        turnOnSmartBooking: true
+    };
 
     constructor(
         private tabService: TabService,
@@ -246,8 +267,15 @@ export class BillView implements OnInit {
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
         private paymentService: PaymentService,
+        private browserStorageService: BrowserStorageService
     ) {
         this.actions = this.rootActions;
+
+        // Get settings from localstorage or use default
+        const settings = this.browserStorageService.getSpecificViewSettings('SUPPLIERINVOICE');
+        console.log(settings);
+        this.smartBookingSettings = settings ? settings : this.smartBookingSettings;
+
         userService.getCurrentUser().subscribe( usr => {
             this.myUser = usr;
             this.userService.getRolesByUserId(this.myUser.ID).subscribe(roles => {
@@ -769,7 +797,8 @@ export class BillView implements OnInit {
                 });
 
             // Existing supplier and new bankaccount?
-        } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
+            } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
+                this.orgNumber = invoice.Supplier.OrgNumber;
                 const bbanoriban = invoice.BankAccount.AccountNumber
                     ? `${lang.create_bankaccount_bban} ${invoice.BankAccount.AccountNumber}`
                     : `${lang.create_bankaccount_iban} ${invoice.BankAccount.IBAN}`;
@@ -1243,7 +1272,6 @@ export class BillView implements OnInit {
                 if (this.validationService.isStringWithOnlyNumbers(value) && value.length === 9) {
                     const orgNo = filterInput(value);
                     const ocrData = new OcrValuables(this.ocrData);
-                    console.log('orgNo ' + orgNo + ', ocrData', ocrData);
                     this.setSupplierBasedOnOrgno(orgNo, ocrData);
                 } else {
                     isValid = false;
@@ -1769,9 +1797,12 @@ export class BillView implements OnInit {
             } else {
                 current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
+            this.orgNumber = result.OrgNumber;
 
-            if (current.TaxInclusiveAmountCurrency && this.journalEntryManual.isEmpty())
-            {
+            // Add orgnumber as params, not input
+            this.runSmartBooking(this.orgNumber);
+
+            if (current.TaxInclusiveAmountCurrency && this.journalEntryManual.isEmpty()) {
                 this.tryAddCostAllocation();
             }
         }
@@ -1780,6 +1811,39 @@ export class BillView implements OnInit {
         this.current.next(current);
 
         this.setupToolbar();
+    }
+
+    private runSmartBooking(orgNumber, showToastIfNotRan: boolean = false) {
+        if (!this.current.getValue().TaxInclusiveAmountCurrency || (!this.smartBookingSettings.turnOnSmartBooking && !showToastIfNotRan)) {
+            if (this.smartBookingSettings.showNotification && showToastIfNotRan) {
+                this.toast.addToast('Smart bokføring', ToastType.warn, 15,
+                'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten total eller leverandør med orgnr.');
+            }
+            return;
+        }
+
+        this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan).then((value: any) => {
+            if (value.msg) {
+                if (this.smartBookingSettings.showNotification) {
+                    this.toast.addToast('Smart bokføring', value.type, 15, value.msg);
+                }
+
+                if (this.smartBookingSettings.addNotifcationAsComment) {
+                    this.addComment(value.msg);
+                }
+            }
+        });
+
+    }
+
+    private openSmartBookingSettingsModal() {
+        const options = { data: { settings: this.smartBookingSettings } };
+        this.modalService.open(UniSmartBookingSettingsModal, options).onClose.subscribe((res) => {
+            if (res) {
+                this.smartBookingSettings = res;
+                this.browserStorageService.setSpecificViewSettings('SUPPLIERINVOICE', res);
+            }
+        });
     }
 
     private blockedSupplier(current) {
@@ -1836,6 +1900,7 @@ export class BillView implements OnInit {
 
     private newInvoice(isInitial: boolean, supplier?: Supplier) {
         const current = new SupplierInvoice();
+        this.orgNumber = null;
         current.StatusCode = 0;
         current.SupplierID = null;
         current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -2604,6 +2669,9 @@ export class BillView implements OnInit {
                 if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
 
                 this.current.next(invoice);
+                if (invoice.Supplier) {
+                    this.orgNumber = invoice.Supplier.OrgNumber;
+                }
                 this.setupToolbar();
                 this.addTab(+id);
                 this.flagActionBar(actionBar.delete, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
@@ -2668,7 +2736,7 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (!line.Description) {
+            if (!line.Description || line._updateDescription) {
                 line.Description = this.createLineDescription();
                 changes = line.Description !== '';
             }
@@ -3089,9 +3157,10 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (!current.Supplier && !current.InvoiceNumber) { return ''; }
 
-        const supplierDescription =
-            (current.Supplier ? current.Supplier.SupplierNumber : '') +
-            (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
+        const supplierDescription = (current.Supplier
+            ? current.Supplier.SupplierNumber : '') + (current.Supplier && current.Supplier.Info
+            ? ' - ' + current.Supplier.Info.Name
+            : '');
 
         return current.InvoiceNumber
             ? `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`

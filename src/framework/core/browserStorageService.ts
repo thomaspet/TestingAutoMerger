@@ -67,6 +67,15 @@ export class BrowserStorageService  {
         return this.removeFromCompanyGenericStorage(key, sessionStorage);
     }
 
+    public setSpecificViewSettings(view: string, settings: any) {
+        const itemKey = this.authService.getCompanyKey() + '_' + view;
+        localStorage.setItem(itemKey, JSON.stringify(settings));
+    }
+
+    public getSpecificViewSettings(view: string) {
+        return JSON.parse(localStorage.getItem(this.authService.getCompanyKey() + '_' + view));
+    }
+
     private saveOnCompanyGenericStorage(key: string, data: any, storage: Storage) {
         const companyKey = this.getCompanyKey();
         const companyJsonString = storage.getItem(companyKey);
