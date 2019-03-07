@@ -52,7 +52,7 @@ import { Observable, Subject } from 'rxjs';
                                 <i class="material-icons" (click)="file.selected = !file.selected" style="color: #0f4880">
                                     {{ file.selected ? 'check_box' : 'check_box_outline_blank' }}
                                 </i>
-                                <span> {{ file.Name }} </span>
+                                <span class="bank-file-name-span"> {{ file.Name }} </span>
                                 <span> {{ getStatusText(file) }} </span>
                                 <span> {{ getFileSizeFormatted(file.Size) }} </span>
                                 <i class="material-icons" title="Fjern fil" (click)="removeFile(i)">delete</i>
