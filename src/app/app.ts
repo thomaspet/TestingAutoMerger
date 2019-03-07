@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {Router} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init';
@@ -20,11 +21,10 @@ import {KeyCodes} from '@app/services/common/keyCodes';
 // Do not change this import! Since we don't use rx operators correctly
 // we depend on having at least one import getting EVERYTHING in rxjs
 import {Observable} from 'rxjs/Rx';
-import {Router} from '@angular/router';
 
-// import {LicenseManager} from 'ag-grid-enterprise';
-// LicenseManager.setLicenseKey
-// ('Evaluation_License-_Not_For_Production_Valid_Until_14_March_2019__MTU1MjUyMTYwMDAwMA==8917c155112df433b2b09086753e8903');
+import {LicenseManager} from 'ag-grid-enterprise';
+// tslint:disable-next-line
+LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
