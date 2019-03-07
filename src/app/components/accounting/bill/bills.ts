@@ -94,6 +94,9 @@ export class BillsView implements OnInit {
     public currentFiles: any;
 
     public previewVisible: boolean;
+    private inboxTagNames = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense'];
+    private inboxTagNamesFilter = '(' + this.inboxTagNames.map(tag => 'tagname eq \'' + tag + '\'').join(' or ') + ')';
+
 
     public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     public assigneeFilterField: any = {
@@ -123,7 +126,7 @@ export class BillsView implements OnInit {
         {
             label: 'Innboks',
             name: 'Inbox',
-            route: 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox',
+            route: 'filetags/' + this.inboxTagNames.join('|') + '/0?action=get-supplierInvoice-inbox',
             onDataReady: (data) => this.onInboxDataReady(data),
             hotCounter: true
         },
@@ -762,9 +765,7 @@ export class BillsView implements OnInit {
             return false;
         }
         this.hasQueriedInboxCount = true;
-        const route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' '
-            + 'or tagname eq \'IncomingEHF\' or tagname eq \'IncomingTravel\' '
-            + 'or tagname eq \'IncomingExpense\') and status eq 0 '
+        const route = '?model=filetag&select=count(id)&filter=' + this.inboxTagNamesFilter + ' and status eq 0 '
             + 'and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
             const filter = this.getInboxFilter();
@@ -792,8 +793,7 @@ export class BillsView implements OnInit {
     private fetchComments(dataset: Array<any>) {
 
         const route = `?model=filetag&select=fileid as FileID,comment.ID as CommentID`
-            + `,comment.Text as Comment,CreatedAt as CreatedAt&filter=`
-            + `(tagname eq 'IncomingMail' or tagname eq 'IncomingEHF' or tagname eq 'IncomingTravel' or tagname eq 'IncomingExpense')`
+            + `,comment.Text as Comment,CreatedAt as CreatedAt&filter=` + this.inboxTagNamesFilter
             + ` and (isnull(Status,0) eq 0 or (status eq 30 and datediff('hour',createdat,getdate()) gt 1 ))`
             + ` and comment.entitytype eq 'file'&join=filetag.fileid eq comment.entityid`;
 
@@ -992,7 +992,7 @@ export class BillsView implements OnInit {
                                     this.fileID = null;
                                 }
                                 // tslint:disable-next-line:max-line-length
-                                this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileId).subscribe(
+                                this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileId + ' and ' + this.inboxTagNamesFilter).subscribe(
                                     tags => {
                                         this.fileService.tag(fileId, tags.Data[0].tagname, StatusCode.Completed).subscribe(() => {
                                             this.toast.addToast('Filen er fjernet fra innboks', ToastType.good, 2);
