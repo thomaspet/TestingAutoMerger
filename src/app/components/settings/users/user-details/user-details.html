@@ -1,43 +1,47 @@
 <header *ngIf="user">
-    <section class="user-info">
-        <strong>{{user.DisplayName || user.Email}}</strong>
-        <small *ngIf="user._isActive">{{user._isAdmin ? 'Administrator' : 'Standard bruker'}}</small>
+    <section class="left-side">
+        <section class="user-info">
+            <strong>{{user.DisplayName || user.Email}}</strong>
+            <small *ngIf="user._isActive">{{user._isAdmin ? 'Administrator' : 'Standard bruker'}}</small>
+        </section>
+
+        <section class="info-bar">
+            <small *ngIf="user._statusText">
+                <i class="material-icons status-icon" [ngClass]="user._statusClass">
+                    {{user._statusIcon}}
+                </i>
+                {{user._statusText}}
+            </small>
+
+            <small>
+                <i class="material-icons">phone</i>
+                {{user.PhoneNumber || 'Ikke registrert'}}
+            </small>
+
+            <small>
+                <i class="material-icons">email</i>
+                {{user.Email || 'Ikke registrert'}}
+            </small>
+        </section>
     </section>
 
-    <section class="info-bar">
-        <small *ngIf="user._statusText">
-            <i class="material-icons status-icon" [ngClass]="user._statusClass">
-                {{user._statusIcon}}
-            </i>
-            {{user._statusText}}
-        </small>
+    <section class="right-side">
+        <button class="edit-roles-button" *ngIf="user" (click)="openRoleModal()">
+            Roller og tilganger
+        </button>
 
-        <small>
-            <i class="material-icons">phone</i>
-            {{user.PhoneNumber || 'Ikke registrert'}}
-        </small>
+        <section class="user-actions" *ngIf="userActions?.length">
+            <i class="material-icons" [matMenuTriggerFor]="menu">more_vert</i>
 
-        <small>
-            <i class="material-icons">email</i>
-            {{user.Email || 'Ikke registrert'}}
-        </small>
-    </section>
+            <mat-menu #menu="matMenu" [overlapTrigger]="false">
+                <button mat-menu-item
+                    *ngFor="let action of userActions"
+                    (click)="action.action()">
+                    {{action.label}}
+                </button>
+            </mat-menu>
 
-    <button class="edit-roles-button" *ngIf="user" (click)="openRoleModal()">
-        Roller og tilganger
-    </button>
-
-    <section class="user-actions" *ngIf="userActions?.length">
-        <i class="material-icons" [matMenuTriggerFor]="menu">more_vert</i>
-
-        <mat-menu #menu="matMenu" [overlapTrigger]="false">
-            <button mat-menu-item
-                *ngFor="let action of userActions"
-                (click)="action.action()">
-                {{action.label}}
-            </button>
-        </mat-menu>
-
+        </section>
     </section>
 </header>
 
