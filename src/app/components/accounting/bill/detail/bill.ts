@@ -343,6 +343,10 @@ export class BillView implements OnInit {
                 if (links.length > 0) {
                     if (links.length > 1) {
                         this.toast.addToast('Flere leverandørfaktura knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                    } else  {
+                        this.toast.addToast('Filen du vil bruke er knyttet til en leverandørfaktura. ' +
+                        'Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen ' +
+                        'og gå tilbake til innboksen og starte på nytt med riktig fil.', ToastType.warn, ToastTime.medium);
                     }
                     this.currentID = links[0].entityID;
                     this.router.navigateByUrl('/accounting/bills/' + this.currentID);
@@ -2988,10 +2992,11 @@ export class BillView implements OnInit {
 
     private saveAndGetNewDocument(done?) {
         return this.save(done).then(() => {
-            this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0').subscribe((res) => {
+            this.supplierInvoiceService.fetch(
+                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox')
+                .subscribe((res) => {
                 if (res && res.length > 0) {
-                    this.newInvoice(false);
-                    this.startUpFileID = [res[0].ID];
+                    this.router.navigateByUrl('/accounting/bills/0?fileid=' + res[0].ID);
                     if (done) { done(lang.save_success); }
                 } else {
                     this.toast.addToast('Ingen flere dokumenter i flyten', ToastType.good, 2);
