@@ -42,7 +42,7 @@
                 [config]="tableConfig"
                 (rowClick)="onRowClick($event)"
                 (rowSelectionChange)="onRowSelectionChange($event)"
-                (rowDeleted)="onRowDelete($event)">
+                (rowDelete)="onRowDelete($event)">
             </ag-grid-wrapper>
 
             <span title="Oppdater" class="refreshbutton" (click)="onRefreshClicked()" ><i class="material-icons vertical-middle">refresh</i></span>
