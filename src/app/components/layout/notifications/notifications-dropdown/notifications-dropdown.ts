@@ -176,7 +176,9 @@ export class NotificationsDropdown {
         } else if (commonRouteMap[entityType]) {
             route = commonRouteMap[entityType];
         } else if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
-            route = '/accounting/bills?filter=Inbox';
+            route = notification['_count'] == 1
+                ? '/accounting/bills/0?fileid=:id'
+                : '/accounting/bills?filter=Inbox';
         }
 
         if (!route) {
