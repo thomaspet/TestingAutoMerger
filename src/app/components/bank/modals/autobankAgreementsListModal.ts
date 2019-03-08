@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {
     UniModalService,
     IModalOptions,
@@ -9,46 +9,26 @@ import {
 } from '@uni-framework/uni-modal';
 import {BankService} from '@app/services/accounting/bankService';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
-
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 @Component({
     selector: 'uni-autobank-agreement-list-modal',
     styles: [`.material-icons { line-height: 2; cursor: pointer}`],
     template: `
-        <section role="dialog" class="uni-modal" style="width: 70vw;">
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
             <header><h1>Mine autobankavtaler</h1></header>
 
             <article>
-                <table class="agreement-table" *ngIf="agreements">
-                    <thead>
-                        <tr>
-                            <th>Bank & kontonr</th>
-                            <th>Epost</th>
-                            <th class="text-center-in-table">Manuel godkjenning</th>
-                            <th class="text-center-in-table">Utgående</th>
-                            <th class="text-center-in-table">Innkommende</th>
-                            <th class="text-right-in-table">Status</th>
-                            <th style="display: none"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let agreement of agreements">
-                            <td> {{ agreement.Name }} </td>
-                            <td> {{ agreement.Email }} </td>
-                            <td class="text-center-in-table"> {{ agreement.BankAcceptance ? 'Ja' : 'Nei' }} </td>
-                            <td class="text-center-in-table"> {{ agreement.IsOutgoing ? 'Ja' : 'Nei'  }} </td>
-                            <td class="text-center-in-table"> {{ agreement.IsInbound ? 'Ja' : 'Nei'  }} </td>
-                            <td class="text-right-in-table"> {{ getStatusText(agreement.StatusCode) }} </td>
-                            <td class="text-right-in-table" [attr.aria-busy]="busy">
-                                <i class="material-icons" (click)="refreshStatus(agreement)">refresh</i>
-                                <span class="agreement-delete" (click)="deleteAgreements(agreement)" title="Slett avtale"> </span> -->
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <ag-grid-wrapper
+                    class="transquery-grid-font-size"
+                    *ngIf="agreements"
+                    [config]="tableConfig"
+                    [resource]="agreements">
+                </ag-grid-wrapper>
             </article>
 
-            <footer>
-                <button (click)="close()" class="good">Lukk</button>
+            <footer class="center">
+                <button class="c2a rounded" (click)="close()"> Lukk </button>
             </footer>
         </section>
     `
@@ -62,8 +42,11 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
+
     public agreements: any[];
-    public busy = false;
+    tableConfig: UniTableConfig = this.getTableConfig();
 
     constructor(
         private modalService: UniModalService,
@@ -84,16 +67,16 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
         let statusText = '';
         switch (code) {
             case 700001:
-                statusText = 'Manuell registrering i bank';
+                statusText = 'Startet';
                 break;
             case 700002:
-                statusText = 'Venter på signering i bank';
+                statusText = 'Venter på signering';
                 break;
             case 700003:
-                statusText = 'Venter på godkjenning i bank';
+                statusText = 'Venter på godkjenning';
                 break;
             case 700004:
-                statusText = 'Venter på godkjenning hos meldingssentral';
+                statusText = 'Venter på meldingssentral';
                 break;
             case 700005:
                 statusText = 'Aktiv';
@@ -107,6 +90,27 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
         return statusText;
     }
 
+    private getTableConfig() {
+        const bankNameCol = new UniTableColumn('BankAccount.Bank.Name', 'Bank', UniTableColumnType.Text);
+        const emailCol = new UniTableColumn('Email', 'E-post', UniTableColumnType.Text);
+        const manualCol = new UniTableColumn('BankAcceptance', 'Manuell godkjenning', UniTableColumnType.Boolean)
+            .setAlignment('center');
+        const inCol = new UniTableColumn('IsInbound', 'Innbetalinger', UniTableColumnType.Boolean)
+            .setAlignment('center');
+        const outCol = new UniTableColumn('IsOutgoing', 'Utbetalinger', UniTableColumnType.Boolean)
+            .setAlignment('center');
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+            .setTemplate((row) => {
+                return this.getStatusText(row.StatusCode);
+            })
+            .setAlignment('right');
+
+        return new UniTableConfig('autobank_agreement_list_modal', false, true, 15)
+            .setColumns([ bankNameCol, emailCol, manualCol, inCol, outCol, statusCol ])
+            .setColumnMenuVisible(false);
+    }
+
+    // Not implemented yet in view
     public deleteAgreements(agreement) {
         const modalOptions: IModalOptions = {
             buttonLabels: {
@@ -129,15 +133,14 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
         this.onClose.emit();
     }
 
+    // Not implemented yet in view
     public refreshStatus(agreement) {
         this.modalService.open(UniBankUserPasswordModal).onClose.subscribe(password => {
             if (!password) {
                 return;
             } else {
-                this.busy = true;
                 this.bankService.updateAutobankAgreement(agreement.ID, password)
                     .finally(() => {
-                        this.busy = false;
                         this.onClose.emit();
                     })
                     .subscribe(x => {

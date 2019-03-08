@@ -6,11 +6,9 @@ import {
     UserService,
     ErrorService,
     CompanySettingsService,
-    BankAccountService,
     BankService
 } from '@app/services/services';
 import {Observable} from 'rxjs';
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
 
 export interface IAutoBankAgreementDetails {
     Orgnr: string;
@@ -36,101 +34,189 @@ export interface IAutoBankAgreementDetails {
             width: 100% !important;
             min-height: 35vw;
         }
-        #step1 {
+        #step2 {
             text-align: center;
         }`
     ],
     template: `
-        <section role="dialog" class="uni-modal uni-autobank-agreement-modal" [class.step2]="steps === 1">
-            <header><h1>{{ header }}</h1></header>
+        <section role="dialog" class="uni-modal uni-autobank-agreement-modal uni-redesign" [class.step2]="steps === 2">
+            <i class="material-icons close-bankagreement-button" (click)="close()"> close </i>
+            <div style="width: 20vw; flex: 1" class="progressbar_container">
+                <p> Veiviser for ny autobank avtale </p>
+                <ul class="autobank_progressbar">
+                    <li>
+                        <span [class.is-active-step]="steps === 0">  </span>
+                        <div [class.is-active-step]="steps === 0"> Intro </div>
+                    </li>
+                    <li>
+                        <span [class.is-active-step]="steps === 1">  </span>
+                        <div [class.is-active-step]="steps === 1"> Firmavalg </div>
+                    </li>
+                    <li>
+                        <span [class.is-active-step]="steps === 2">  </span>
+                        <div [class.is-active-step]="steps === 2"> Avtalevilkår </div>
+                    </li>
+                    <li>
+                        <span [class.is-active-step]="steps === 3">  </span>
+                        <div [class.is-active-step]="steps === 3"> Bankoppsett </div>
+                    </li>
+                    <li>
+                        <span [class.is-active-step]="steps === 4">  </span>
+                        <div [class.is-active-step]="steps === 4"> Sikkerhet </div>
+                    </li>
+                    <li>
+                        <span [class.is-active-step]="steps === 5">  </span>
+                        <div [class.is-active-step]="steps === 5"> Ferdigstilling </div>
+                    </li>
+                </ul>
+            </div>
 
-            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0">
-                <p>Velkommen til veiviser for ny autobankavtale.</p>
-                <p>
-                For å komme i gang med autobank trenger vi informasjon fra dere for å koble opp mot deres bank.
-                </p>
-                <p>
-                    Oppsettet mot de ulike bankene er ulikt, og for å sikre best mulig automasjon vil vi kunne trenge ekstra informasjon.
-                    I slike tilfeller vil dere bli kontaktet av Uni Micro AS eller Zdata for å innhente nødvendig informasjon.
-                </p>
-            </article>
-            <article *ngIf="steps === 1" class="uni-autobank-agreement-modal-body checkbox_step" id="step1">
-                <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf" type="application/pdf">
-                    <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
-                </object>
-                <br>
-                <label class="checkbox-label" for="agreementCheckbox">
-                    <input type="checkbox"
-                           [(ngModel)]="haveReadAgreement"
-                            id="agreementCheckbox"/>
-                    Godta vilkår og avtaler
-                </label>
-            </article>
-            <article class="uni-autobank-agreement-modal-body checkbox_step" *ngIf="steps === 2" id="step2">
-                <p>Kryss av for om du ønsker autobankavtale for utbetalinger, innbetallinger, eller begge: </p>
-                <label class="checkbox-label" for="isIncommingCheckbox">
-                    <input type="checkbox"
-                        [(ngModel)]="agreementDetails.IsInbound"
-                        (change)="onCheckboxChange()"
-                        id="isIncommingCheckbox" />
-                    Innbetalinger
-                </label>
-                <br>
-                <label class="checkbox-label" for="isOutgoingCheckbox">
-                    <input type="checkbox"
-                        [(ngModel)]="agreementDetails.IsOutgoing"
-                        (change)="onCheckboxChange()"
-                        id="isOutgoingCheckbox" />
-                    Utbetalinger
-                </label>
-            </article>
-            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
-                <p *ngIf="!editmode">Vennligst full ut feltene under. Alle felt må være fylt ut for å fullføre oppsettet mot autobank</p>
-                <uni-form
-                    [config]="formConfig$"
-                    [fields]="formFields$"
-                    [model]="formModel$"
-                    (changeEvent)="onFormChange($event)">
-                </uni-form>
-                <span *ngIf="errorText" style="font-size: .75rem; color: red; margin-left: 0.5rem;"> {{ errorText }}</span>
-            </article>
-            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4" [attr.aria-busy]="busy">
-                <p> Se over og sjekk at all informasjon stemmer føre dere velger fortsett
-                    <strong>(NB! Informasjon sendes automatisk til din bank)</strong>
-                </p>
+            <div style="width: 40vw; flex: 2; display: flex; flex-direction: column; justify-content: center;">
 
-                <h3> <strong>Orgnr: </strong> {{ agreementDetails.Orgnr }} </h3>
-                <h3> <strong>Bankkonto: </strong> {{ agreementDetails.BankAccountNumber }} - {{ agreementDetails.Bank }} </h3>
-                <h3> <strong>Manuell godkjenning i nettbank:  </strong> {{ agreementDetails.BankAcceptance ? 'Ja' : 'Nei' }} </h3>
-                <h3> <strong>Avtale for innkommende betaling:  </strong> {{ agreementDetails.IsInbound ? 'Ja' : 'Nei' }} </h3>
-                <h3> <strong>Avtale for utgående betaling:  </strong> {{ agreementDetails.IsOutgoing ? 'Ja' : 'Nei' }} </h3>
-                <h3> <strong>E-post: </strong> {{ agreementDetails.Email }} </h3>
-            </article>
-            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5">
-                <p>Du har nå fullført din del av opprettelse av autobankavtale. Nå setter vi opp alt med banken.</p>
-                <p>Status kan du sjekke forløpende ved å trykke på linken over knappen "Ny autobankavtale" i bankbilde,
-                eller du kan gå inn under Innstillinger - Bankinstillinger.</p>
-            </article>
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0"
+                    style="width: 65%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+                    <h3>Oppsett for ny autobankavtale</h3>
+                    <p>
+                        For å komme i gang med autobank trenger vi informasjon fra dere for å koble opp mot deres bank.
+                        Du trenger bare en avtale per bank, selv om du har flere bankkontoer.
+                        Banker som kan velges mellom hentes fra bankkontoer satt opp i firmainnstillinger.
+                    </p>
+                    <p>
+                        Oppsettet mot de ulike bankene varierer, og for å sikre best mulig automasjon kan vi kunne trenge ekstra
+                        informasjon. I slike tilfeller vil dere bli kontaktet av <strong>Uni Micro AS</strong> eller <strong>Zdata</strong>.
+                    </p>
+                    <span *ngIf="agreements.length">
+                        Du har allerede aktive avtaler med følgende bank{{ usedBanks.length > 1 ? 'er' : '' }}: <br/>
+                        <strong *ngFor="let bank of usedBanks; let i = index;">
+                            {{ bank }}{{ i < usedBanks.length - 1 ? ', ' : '' }}
+                        </strong>
+                    </span>
+                </article>
 
-            <footer *ngIf="!editmode">
-                <button (click)="move(-1)" [disabled]="busy" *ngIf="steps > 0 && steps !== 5">
-                    Tilbake
-                </button>
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1"
+                    style="width: 65%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+                    <!-- ADD COMPANY SELECTION HERE WHEN THAT IS AVAILABLE! -->
+                    <h3>Firma</h3>
 
-                <button (click)="move(1)" *ngIf="steps < 4" [disabled]="busy || !canMoveForward">
-                    Fortsett
-                </button>
+                    <p> Ny autobankavtale for klienten du står på: <br/><strong>{{ companySettings?.CompanyName }}</strong> </p>
+                </article>
 
-                <button (click)="sendStartDataToZData()" *ngIf="steps === 4" class="good" [disabled]="busy">
-                    Fullfør
-                </button>
+                <article *ngIf="steps === 2" class="uni-autobank-agreement-modal-body checkbox_step" id="step2">
+                    <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf#zoom=100" type="application/pdf">
+                        <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
+                    </object>
+                    <br>
+                    <label class="checkbox-label" for="agreementCheckbox">
+                        <input type="checkbox" [(ngModel)]="haveReadAgreement" id="agreementCheckbox"/>
+                        Godta vilkår og avtaler
+                    </label>
+                </article>
 
-                <button (click)="close('cancel')" class="bad">Lukk</button>
-            </footer>
-            <footer *ngIf="editmode">
-                <button (click)="saveAfterEdit()" class="good">Lagre</button>
-                <button (click)="close('cancel')" class="bad">Avbryt</button>
-            </footer>
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3"
+                    style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+                    <span style="color: #9198aa; margin: 0 0 1.8rem 9.5rem;"> Fyll ut feltene under </span>
+                    <uni-form
+                        style="font-size: .9rem; width: 80%"
+                        [config]="formConfig$"
+                        [fields]="formFields$"
+                        [model]="formModel$"
+                        (changeEvent)="onFormChange($event)">
+                    </uni-form>
+                    <span style="font-weight: 400; margin: 1rem 0 1rem 9.5rem;">
+                        <span style="color: #9198aa;">Marker for ta med i avtale:</span>
+                        <div class="payments-checkboxes">
+                            <div>
+                                <i class="material-icons" (click)="agreementDetails.IsInbound = !agreementDetails.IsInbound">
+                                    {{ agreementDetails.IsInbound ? 'check_box' : 'check_box_outline_blank' }}
+                                </i>
+                                <span>Innbetalinger</span>
+                            </div>
+                            <div>
+                                <i class="material-icons" (click)="agreementDetails.IsOutgoing = !agreementDetails.IsOutgoing">
+                                    {{ agreementDetails.IsOutgoing ? 'check_box' : 'check_box_outline_blank' }}
+                                </i>
+                                <span>Utbetalinger</span>
+                            </div>
+                        </div>
+                    </span>
+                </article>
+
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4"
+                    style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+                    <h3>Sikkerhetsinnstillinger</h3>
+                    <p>
+                        Velg et passord for autobank. Dette passordet brukes for å sende betalinger.
+                        <!-- Velg 2-faktor autentisering for å øke sikkerheten. Vi vil da også trenge et mobilnummer. -->
+                    </p>
+                    <span style="color: #9198aa; margin: 0 0 .8rem 9.5rem;">
+                        Opprett passord for autobank
+                        <i class="material-icons two-factor-tooltip" matTooltip="{{ passwordCriteriaMsg }}">
+                            info
+                        </i>
+                    </span>
+
+
+                    <section class="uni-html-form bank-agreement-password-form">
+                        <label>
+                            <span>Passord</span>
+                            <input type="text" class="password" [(ngModel)]="agreementDetails.Password">
+                        </label>
+
+                        <label>
+                            <span>Bekreft passord</span>
+                            <input type="text" class="password" [(ngModel)]="agreementDetails._confirmPassword">
+                        </label>
+                    </section>
+
+                    <!-- HIDE THIS UNTIL 2-FACTOR IS READY FOR PROD -->
+                    <span style="font-weight: 400; margin: 1rem 0 1rem 9.5rem;" *ngIf="false">
+                        <span style="color: #9198aa;">
+                            2-faktor autentisering
+                            <i class="material-icons two-factor-tooltip" matTooltip="{{ twoFactorMsg }}">
+                                info
+                            </i>
+
+                            <div class="payments-checkboxes">
+                                <div>
+                                    <i class="material-icons" (click)="useTwoFactor = !useTwoFactor">
+                                        {{ useTwoFactor ? 'check_box' : 'check_box_outline_blank' }}
+                                    </i>
+                                    <span>Slå på 2-faktor</span>
+                                </div>
+                            </div>
+                        </span>
+                    </span>
+                    <section class="uni-html-form bank-agreement-password-form" *ngIf="useTwoFactor">
+                        <label>
+                            <span>Telefonr</span>
+                            <input type="text" [(ngModel)]="agreementDetails.Phone">
+                        </label>
+                    </section>
+                </article>
+
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5"
+                    style="width: 65%; display: flex; justify-content: center; text-align: center; flex-direction: column; margin: 0 auto;">
+                    <i class="material-icons" style="color: #7bcb45; font-size: 5rem; text-align: center;">check_circle</i>
+                    <h3>Avtale opprettet </h3>
+                    <p>
+                        Du har nå fullført din del av opprettelse av autobankavtale. Nå setter vi opp alt med banken.
+                        Status på avtalen kan du sjekke forløpende ved å trykke på linken "Mine avtaler" over knappen
+                        "Ny autobankavtale" i bankbilde.
+                    </p>
+                </article>
+
+                <footer>
+                    <span *ngIf="errorText"> {{ errorText }}</span>
+                    <div>
+                        <button *ngIf="steps > 0 && steps !== 5" (click)="move(-1)" class="bank-agreement-button back-button">
+                            Tilbake
+                        </button>
+                        <button (click)="move(1)" class="bank-agreement-button forward-button">
+                            {{ steps === 4 ? 'Opprett avtale' : steps === 5 || noAccounts ? 'Lukk' : 'Fortsett' }}
+                        </button>
+                    </div>
+                </footer>
+            </div>
         </section>
     `
 })
@@ -144,12 +230,18 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     private accounts: any[] = [];
+    private agreements: any[] = [];
+    public usedBanks: string[] = [];
 
     public steps: number = 0;
-    public canMoveForward: boolean = false;
+    public useTwoFactor: boolean = false;
+    public noAccounts: boolean = false;
+    public companySettings;
     public errorText: string;
-    public busy: boolean = false;
     public header = 'Veiviser for ny autobankavtale';
+    public twoFactorMsg: string = '2-faktor bekreftelse (autentisering) er et ekstra sikkerhetsnivå for betaling. ' +
+    'Med 2-faktor bekreftelse logger du inn med noe du vet (ditt passord) i tillegg til noe du får en kode på SMS.';
+    public passwordCriteriaMsg = 'Passordet må ha minst 3 av disse 4 kriteriene: Stor bokstav, liten bokstav, tall og tegn';
 
     public agreementDetails: IAutoBankAgreementDetails = {
         Phone: '',
@@ -158,9 +250,10 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         Orgnr: '',
         BankAccountID: 0,
         BankAcceptance: true,
-        IsInbound: false,
-        IsOutgoing: false,
+        IsInbound: true,
+        IsOutgoing: true,
         Password: '',
+        _confirmPassword: '',
         BankAccountNumber: 0
     };
 
@@ -170,45 +263,60 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     public haveReadAgreement = false;
 
-    public editmode: boolean = false;
-
     constructor(
         private userService: UserService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private bankAccountService: BankAccountService,
-        private bankService: BankService,
-        private modalService: UniModalService
+        private bankService: BankService
     ) { }
 
     public ngOnInit() {
-        if (this.options && this.options.data) {
-            this.agreementDetails = this.options.data;
-            this.editmode = true;
-            this.steps = 2;
-            this.header = 'Rediger avtale';
+        if (this.options && this.options.data && this.options.data.agreements) {
+            this.agreements = this.options.data.agreements;
         }
-        this.canMoveForward = false;
+
         Observable.forkJoin(
-            this.companySettingsService.Get(1),
-            this.userService.getCurrentUser(),
-            this.bankAccountService.GetAll(`filter=(BankAccountType ne 'Customer' and BankAccountType ne 'Supplier')`, ['Bank'])
+            this.companySettingsService.Get(1, ['BankAccounts.Bank', 'BankAccounts.Account']),
+            this.userService.getCurrentUser()
         ).subscribe((res) => {
-            this.accounts = res[2];
-            // If not agreement is passed in as Input
-            if (!this.editmode) {
-                this.agreementDetails.Orgnr = res[0].OrganizationNumber;
-                this.agreementDetails.Phone = res[1].PhoneNumber;
-                this.agreementDetails.Email = res[1].Email;
-                this.steps = 0;
+
+            this.companySettings = res[0];
+            this.accounts = [];
+
+            // Filter out the accounts of banks already in use
+            this.usedBanks = [];
+            if (this.agreements.length) {
+                this.agreements.forEach(agr => {
+                    if (this.usedBanks.findIndex(name => name === agr.BankAccount.Bank.Name) < 0 ) {
+                        this.usedBanks.push(agr.BankAccount.Bank.Name);
+                    }
+                });
             }
+
+            this.companySettings.BankAccounts.forEach(acc => {
+                if (!this.usedBanks.filter(name => acc.Bank && name === acc.Bank.Name).length) {
+                    if (acc.Bank) {
+                        this.accounts.push(acc);
+                    }
+                }
+            });
+
+            if (!this.accounts.length) {
+                this.errorText = 'Det ser ut som at du har autobankavtale for alle bankene registrert i firmaoppsettet. ' +
+                'Om du har en konto i ny bank, registrer konto i firmaoppsettet først.';
+                this.noAccounts = true;
+            }
+
+            this.agreementDetails.Orgnr = res[0].OrganizationNumber;
+            this.agreementDetails.Phone = res[1].PhoneNumber;
+            this.agreementDetails.Email = res[1].Email;
+            this.steps = 0;
+
             this.formModel$.next(this.agreementDetails);
             this.formFields$.next(this.getFormFields());
-            this.canMoveForward = true;
         }, (err) => {
             this.formModel$.next(this.agreementDetails);
             this.formFields$.next(this.getFormFields());
-            this.canMoveForward = true;
         });
     }
 
@@ -235,8 +343,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             <any> {
                 Property: 'Orgnr',
                 FieldType: FieldType.TEXT,
-                Label: 'Orgnr.',
-                Hidden: this.editmode
+                Label: 'Orgnr.'
             },
             <any> {
                 Property: 'Bank',
@@ -246,72 +353,61 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             },
             bankAccountField,
             <any> {
-                Property: 'IsInbound',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Innkommende',
-                Hidden: !this.editmode
-            },
-            <any> {
-                Property: 'IsOutgoing',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Utgående',
-                Hidden: !this.editmode
-            },
-            <any> {
-                Property: 'Phone',
-                FieldType: FieldType.TEXT,
-                Label: 'Telefon',
-            },
-            <any> {
                 Property: 'Email',
                 FieldType: FieldType.TEXT,
                 Label: 'E-post',
-            },
-            <any> {
-                Property: 'Password',
-                FieldType: FieldType.PASSWORD,
-                Label: 'Passord',
-                Hidden: this.editmode
-            },
-            <any> {
-                Property: '_confirmPassword',
-                FieldType: FieldType.PASSWORD,
-                Label: 'Bekreft passord',
-                Hidden: this.editmode
             }
         ];
     }
 
     public move(direction: number) {
-        if (this.steps === 1 && !this.haveReadAgreement) {
+        // Go backwards
+        if (direction < 0) {
+            this.steps--;
+            this.errorText = '';
             return;
         }
 
-        this.steps += direction;
-        if (this.steps === 1) {
-            this.canMoveForward = true;
+        if (this.steps === 5 || this.noAccounts) {
+            this.close();
         }
-        this.canMoveForward = this.steps !== 2 ;
 
-        // Form step
-        if (this.steps === 2) {
-
-            this.canMoveForward = this.agreementDetails.IsInbound || this.agreementDetails.IsOutgoing;
-        } else if (this.steps === 3) {
-            this.canMoveForward = this.validateForm();
-        } else if (this.steps === 4) {
-            this.canMoveForward = false;
+        // Bank agreement step
+        if (this.steps === 2 && !this.haveReadAgreement) {
+            return;
         }
+
+        // Full form step
+        if (this.steps === 3) {
+            if (!this.validateForm()) {
+                return;
+            }
+        }
+
+        // Password step
+        if (this.steps === 4) {
+            if (!this.isValidPassword(this.agreementDetails)) {
+                return;
+            }
+
+            // Has activated 2-factor, check phonenumber
+            if (this.useTwoFactor && !this.agreementDetails.Phone) {
+                this.errorText = 'Mangler telefonnr. Du må fylle inn et gyldig telefonnr når du har valgt 2-faktor autentisering.';
+                return;
+            } else {
+                this.errorText = '';
+            }
+            this.sendStartDataToZData();
+            return;
+        }
+
+        this.steps++;
     }
 
     public sendStartDataToZData() {
-        this.busy = true;
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
-            this.busy = false;
             this.steps++;
         }, (err) => {
-            this.canMoveForward = true;
-            this.busy = false;
             this.errorService.handle(err);
         });
     }
@@ -340,17 +436,13 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         }
 
         this.agreementDetails = this.formModel$.getValue();
-        this.canMoveForward = this.validateForm();
-    }
-
-    public onCheckboxChange() {
-        this.canMoveForward = this.agreementDetails.IsInbound || this.agreementDetails.IsOutgoing;
     }
 
     private validateForm(): boolean {
         this.errorText = '';
 
         if (!this.agreementDetails.Bank) {
+            this.errorText = 'Mangler bank.';
             return false;
         }
 
@@ -367,10 +459,6 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             return false;
         }
 
-        if (!this.agreementDetails.Phone) {
-            return false;
-        }
-
         if (!this.agreementDetails.Email || !this.agreementDetails.Email.includes('@')) {
             if (this.agreementDetails.Email) {
                 this.errorText = 'Ugyldig e-post';
@@ -378,8 +466,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             return false;
         }
 
-        if (!this.isValidPassword(this.agreementDetails)) {
-            // Validate function sets error message
+        if (!this.agreementDetails.IsInbound && !this.agreementDetails.IsOutgoing) {
+            this.errorText = 'Du må krysse av for innbetalinger, utbetalinger eller begge.';
             return false;
         }
 
@@ -391,7 +479,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         const confirmPassword = agreementDetails._confirmPassword;
 
         if (password.length < 10) {
-            this.errorText = password ? 'Ugyldig passord! Passordet må inneholde minst 10 tegn' : '';
+            this.errorText = 'Ugyldig passord! Passordet må inneholde minst 10 tegn';
             return false;
         }
 
@@ -416,7 +504,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 passwordConfirmed = false;
             }
         } else {
-            this.errorText = 'Ugyldig passord! Passordet må ha minst 3 av 4 av kriteriene: Stor bokstav, liten bokstav, tall og tegn';
+            this.errorText = 'Ugyldig passord! Passordet må ha minst 3 av disse 4 kriteriene: Stor bokstav, liten bokstav, tall og tegn';
         }
 
         return passwordValid && passwordConfirmed;

@@ -2,18 +2,149 @@
     width: 100%
 
 .uni-autobank-agreement-modal
-    width: 40vw
+    width: 60vw
+    display: flex
+    flex-direction: row !important
+    padding: 0 !important
+
+    uni-field
+        label
+            span
+                width: 9rem
+                font-weight: 500
+                &:first-of-type
+                    text-align: right
+                    padding-right: 1rem
+
+            uni-text-input, uni-select-input, uni-password-input
+                width: calc(100% - 9rem)
+
+    .bank-agreement-password-form
+        label
+            span
+                flex: 0 0 9.5rem !important
+                text-align: right
+                padding-right: 1rem
+                font-weight: 500
+
+    .bank-agreement-button
+        width: 150px !important
+        border-radius: 18px !important
+        background-color: #2c5dbe !important
+        color: white !important
+        margin: 0 auto
+        &.back-button
+            background-color: #d2d8e1 !important
+            color: #2c5dbe !important
+            margin-right: 2rem
+
+    .payments-checkboxes
+        display: flex
+        flex-direction: column
+        margin-left: -3px
+        div
+            display: flex
+            margin-top: .8rem
+            i
+                color: #4b90fa
+                cursor: pointer
+            span
+                margin-left: 1rem
+                font-size: .9rem
+
+
+    .close-button
+        font-size: 18px
+        color: #8c93a7
+        margin: 18px -18px 0 0 !important
+
+    .progressbar_container
+        background-color: #f2f2f2
+        padding: 4rem 0
+
+        p
+            margin: 0 0 2rem 0
+            font-weight: 600
+            font-size: 1.05rem
+            text-align: center
+
+        .autobank_progressbar
+            list-style: none
+            position: relative
+            padding: 0
+            width: fit-content
+            margin: 0 auto
+            &:before
+                content: ''
+                position: absolute
+                width: 2px
+                height: 100%
+                top: 0
+                left: 0
+                background: #ddd
+
+            li
+                padding: 40px
+                &:first-of-type
+                    padding-top: 0
+                &:last-of-type
+                    padding-bottom: 0
+                    span
+                        bottom: 0
+
+                span
+                    position: absolute
+                    width: 16px
+                    height: 16px
+                    border: 2px solid #d2d8e1
+                    border-radius: 8px
+                    left: -7px
+                    background-color: #8c93a7
+                    &.is-active-step
+                        border: 2px solid #4b90fa
+                        background-color: #f2f2f2
+
+                div
+                    color: #9ba2b3
+                    &.is-active-step
+                        color: #4b90fa
 
     .uni-autobank-agreement-modal-body
         width: 100%
-        min-height: 250px
 
         h3
-            font-weight: 400
-            letter-spacing: 1px
+            font-weight: 600
+            font-size: 1.2rem
+            margin-bottom: 0
+
             strong
                 letter-spacing: 0px
                 margin-right: 10px
+
+    footer
+        border: none !important
+        text-align: center !important
+
+        span
+            font-size: .75rem
+            color: red
+            margin-left: 0.5rem
+
+        div
+            text-align: center
+            margin: 2rem 0
+
+    .two-factor-tooltip
+        font-size: 18px
+        color: #58658d
+        vertical-align: middle
+
+    .close-bankagreement-button
+        position: absolute
+        top: 1rem
+        right: 1rem
+        font-size: 1.3rem
+        cursor: pointer
 
 .agreement-table
     width: 95%
@@ -112,3 +243,11 @@
 
             p
                 flex: 12
+
+.new-autobank-agreement-button
+    width: 150px
+    height: 36px
+    border-radius: 18px
+    background-color: #2c5dbe !important
+    font-size: .9rem
+    padding: 0 0 .1rem 0
