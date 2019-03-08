@@ -369,7 +369,7 @@ export class BillView implements OnInit {
 
                 this.sumOfPayments = res[7][0];
 
-                // this.extendFormConfig();
+                this.extendFormConfig();
             }, err => this.errorService.handle(err));
 
             this.commentsConfig = {
