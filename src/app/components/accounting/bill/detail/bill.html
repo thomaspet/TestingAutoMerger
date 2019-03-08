@@ -10,8 +10,9 @@
     <section class="bill-left-side">
 
         <section class="uni-container">
-            <header>Detaljer</header>
+            <uni-tabs [tabs]="detailsTabs" [(activeIndex)]="detailsTabIndex" (activeIndexChange)="onDetailsTabClick($event)"></uni-tabs>
             <uni-form
+                *ngIf="detailsTabIndex === 0"
                 [config]="formConfig$"
                 [fields]="fields$"
                 [model]="current"
@@ -20,6 +21,10 @@
                 (inputEvent)="onFormInput($event)"
                 (focusEvent)="onFocusEvent($event)">
             </uni-form>
+            <section *ngIf="detailsTabIndex === 1" class="freetext-tab-view">
+                <span>Fritekst</span>
+                <textarea [(ngModel)]="currentFreeTxt" (keyup)="flagUnsavedChanged()" [attr.maxLength]="500"> </textarea>
+            </section>
         </section>
 
         <section class="uni-container" style="margin-bottom: 0">

@@ -716,6 +716,7 @@ export class BillsView implements OnInit {
         if (filter.route) {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
         }
+        debugger
         const obs = filter.route
             ?  this.supplierInvoiceService.fetch(filter.route)
             : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
@@ -919,6 +920,7 @@ export class BillsView implements OnInit {
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro').setWidth('10%'),
             new UniTableColumn('PaymentID', 'KID/Melding').setWidth('10%')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
+            new UniTableColumn('FreeTxt', 'Fritekst').setWidth('15%').setVisible(true),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.')
                 .setWidth('8%')
                 .setVisible(!!filter.showJournalID)

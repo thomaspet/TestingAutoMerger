@@ -170,7 +170,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
 
         const flds = this.selectBuilder('ID', 'StatusCode',
-            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
+            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate', 'FreeTxt',
             'InvoiceNumber', 'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber', 'PaymentInformation',
             'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
             'PaymentID', 'JournalEntry.JournalEntryNumber',

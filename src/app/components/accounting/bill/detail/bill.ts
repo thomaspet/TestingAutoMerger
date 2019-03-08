@@ -187,6 +187,14 @@ export class BillView implements OnInit {
         {name: 'Leverandørhistorikk'}
     ];
 
+    currentFreeTxt: string = '';
+
+    public detailsTabIndex: number = 0;
+    public detailsTabs: IUniTab[] = [
+        {name: 'Detaljer', value: 0},
+        {name: 'Fritekst', tooltip: '', value: 1 }
+    ];
+
     public actions: IUniSaveAction[];
     public contextMenuItems: IContextMenuItem[] = [];
 
@@ -357,7 +365,7 @@ export class BillView implements OnInit {
 
                 this.sumOfPayments = res[7][0];
 
-                this.extendFormConfig();
+                // this.extendFormConfig();
             }, err => this.errorService.handle(err));
 
             this.commentsConfig = {
@@ -1497,13 +1505,19 @@ export class BillView implements OnInit {
                         res => {
                             if (res === ConfirmActions.ACCEPT) {
                                 this.fetchNewSupplier(supplier.ID);
-                                return this.uniForm.field('InvoiceDate').focus();
+                                if (this.detailsTabIndex === 0) {
+                                    this.uniForm.field('InvoiceDate').focus();
+                                    return;
+                                }
                             }
                             const current = this.current.value;
                             current.SupplierID = null;
                             current.Supplier = null;
                             this.current.next(current);
-                            return this.uniForm.field('Supplier').focus();
+                            if (this.detailsTabIndex === 0) {
+                                this.uniForm.field('Supplier').focus();
+                                return;
+                            }
                         }
                     );
                 }
@@ -1949,7 +1963,10 @@ export class BillView implements OnInit {
     }
 
     private flagUnsavedChanged(reset = false) {
+
         this.flagActionBar(actionBar.save, !reset);
+        this.detailsTabs[1].tooltip = this.currentFreeTxt;
+
         if (!reset && !this.isBlockedSupplier) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
@@ -2669,6 +2686,9 @@ export class BillView implements OnInit {
                 if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
 
                 this.current.next(invoice);
+                this.currentFreeTxt = invoice.FreeTxt;
+                this.detailsTabs[1].tooltip = this.currentFreeTxt;
+
                 if (invoice.Supplier) {
                     this.orgNumber = invoice.Supplier.OrgNumber;
                 }
@@ -2677,8 +2697,8 @@ export class BillView implements OnInit {
                 this.flagActionBar(actionBar.delete, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.loadActionsFromEntity();
-                this.checkLockStatus();
                 this.lookupHistory();
+                this.checkLockStatus();
 
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
 
@@ -2833,8 +2853,17 @@ export class BillView implements OnInit {
         }
     }
 
+    public onDetailsTabClick(index: number) {
+        // Check lock status when activating the details tab to avoid
+        if (index === 0) {
+            setTimeout(() => {
+                this.checkLockStatus();
+            });
+        }
+    }
+
     private checkLockStatus() {
-        if (!this.formReady) {
+        if (!this.formReady || this.detailsTabIndex === 1) {
             return;
         }
 
@@ -2875,10 +2904,11 @@ export class BillView implements OnInit {
                     this.uniForm.field('DefaultDimensions.DepartmentID').editMode();
                     return;
             }
+        } else {
+            this.uniForm.editMode();
         }
 
-        this.uniForm.editMode();
-        if (this.hasLoadedCustomDimensions) {
+        if (this.hasLoadedCustomDimensions && false) {
             this.customDimensions.forEach((dim) => {
                 if (this.uniForm.field(`DefaultDimensions.Dimension${dim.Dimension}ID`)) {
                     if (dim.IsActive) {
@@ -3172,6 +3202,7 @@ export class BillView implements OnInit {
         let changesMade = false;
         const current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
+        current.FreeTxt = this.currentFreeTxt;
 
         if (!current.JournalEntry) {
             current.JournalEntry = new JournalEntry();

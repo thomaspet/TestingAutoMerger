@@ -1561,6 +1561,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             projectCol.setVisible(false);
             departmentCol.setVisible(false);
             netAmountCol.setVisible(false);
+            costAllocationCol.setVisible(false);
+            debitAccountCol.setWidth('20%');
 
             columns = [
                 debitAccountCol,
