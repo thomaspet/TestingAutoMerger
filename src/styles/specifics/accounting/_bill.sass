@@ -140,6 +140,7 @@ supplier-invoice-table-minus
 	display: flex
 	flex-wrap: wrap
 	margin: 0
+	min-height: 20rem
 
 	.bill-list
 		flex: 1
@@ -149,20 +150,26 @@ supplier-invoice-table-minus
 			display: inline-block
 			width: 15rem
 			position: absolute
-			top: .4rem
-			left: 20rem
+			top: 2px
+			left: 22rem
 			z-index: 300
 
 		.refreshbutton
 			cursor: pointer
-			color: $uni-color-scale6
+			color: $uni-color-scale2
 			position: absolute
-			top: .45rem
-			left: 17.8rem
+			top: 4px
+			left: 18rem
 			z-index: #{map-get($zindex, toolbar) - 2}
 
 		.hascomments
 			color: $uni-color-warn
+
+		.bill-list-sum
+			position: absolute
+			top: 1.25rem
+			right: 1rem
+			padding: 0
 
 	.bill-preview
 		flex: 1

@@ -54,6 +54,7 @@ import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
+import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {UniAssignModal} from './bill/detail/assignmodal';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
@@ -147,6 +148,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         BillView,
         BillHistoryView,
         BillPreviousView,
+        BillTransitionModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
@@ -211,7 +213,8 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,
-        FileFromInboxModal
+        FileFromInboxModal,
+        BillTransitionModal
     ],
     exports: [
         AccountSettings,

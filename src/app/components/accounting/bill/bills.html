@@ -22,7 +22,6 @@
     <section class="bill-container">
         <!-- List -->
         <section class="uni-container bill-list">
-
             <uni-autocomplete-input
                 *ngIf="activeFilterIndex > 1 && activeFilterIndex < 5"
                 class="assignee-filter"
@@ -31,23 +30,22 @@
                 (changeEvent)="onFormFilterChange($event)">
             </uni-autocomplete-input>
 
-
-            <uni-table
-                [resource]="listOfInvoices"
-                [config]="tableConfig"
-                (rowSelected)="onRowSelected($event)"
-                (rowDeleted)="onRowDeleted($event.rowModel)"
-                (pageChange)="onPageChange($event)"
-                (rowSelectionChanged)="onRowSelectionChanged()">
-            </uni-table>
-            <span title="Oppdater" class="refreshbutton" (click)="onRefreshClicked()" ><i class="material-icons vertical-middle">refresh</i></span>
-
-            <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">
+            <div class="bill-list-sum" *ngIf="this.currentFilter.name === 'Inbox'">
                 {{currentFilter.label}} ({{currentFilter.count}} stk.)
             </div>
-            <div class="right total" *ngIf="this.currentFilter.name !== 'Inbox'">
+            <div class="bill-list-sum" *ngIf="this.currentFilter.name !== 'Inbox'">
                 Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
             </div>
+
+            <ag-grid-wrapper
+                [resource]="listOfInvoices"
+                [config]="tableConfig"
+                (rowClick)="onRowClick($event)"
+                (rowSelectionChange)="onRowSelectionChange($event)"
+                (rowDeleted)="onRowDelete($event)">
+            </ag-grid-wrapper>
+
+            <span title="Oppdater" class="refreshbutton" (click)="onRefreshClicked()" ><i class="material-icons vertical-middle">refresh</i></span>
         </section>
 
         <!-- Detail -->
@@ -63,7 +61,6 @@
                 [uploadWithoutEntity]="true"
                 [readonly]="true"
                 [fileIDs]="fileID"
-                (fileListReady)="onFileListReady($event)"
                 (fileSplitCompleted)="onFileSplitCompleted()">
             </uni-image>
         </section>
