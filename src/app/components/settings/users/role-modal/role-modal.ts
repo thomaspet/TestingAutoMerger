@@ -11,13 +11,13 @@ import {
     ElsaPurchaseService,
 } from '@app/services/services';
 import {ElsaPurchase, ElsaProduct} from '@app/models';
-import {UniModalService, MissingPurchasePermissionModal} from '@uni-framework/uni-modal';
 
 interface IRoleGroup {
     label: string;
     roles: Role[];
     product?: ElsaProduct;
     productPurchased?: boolean;
+    purchase?: ElsaPurchase;
 }
 
 @Component({
@@ -39,7 +39,6 @@ export class UniRoleModal implements IUniModal {
     hasPurchasedProduct: boolean;
 
     constructor(
-        private modalService: UniModalService,
         private errorService: ErrorService,
         private roleService: RoleService,
         private userRoleService: UserRoleService,
@@ -141,8 +140,15 @@ export class UniRoleModal implements IUniModal {
         // Loop roles and figure out what changed (new roles added, existing roles removed)
         const addRoles: Partial<UserRole>[] = [];
         const removeRoles: Partial<UserRole>[] = [];
+        const removePurchases: ElsaPurchase[] = [];
 
         this.roleGroups.forEach(group => {
+            // Remove purchase if none of the roles in it is active
+            if (group.purchase && !group.roles.some(role => role['_checked'])) {
+                group.purchase.Deleted = true;
+                removePurchases.push(group.purchase);
+            }
+
             if (!group.product || group.productPurchased) {
                 group.roles.forEach(role => {
                     if (role['_checked'] && !role['_userRole']) {
@@ -158,10 +164,18 @@ export class UniRoleModal implements IUniModal {
             }
         });
 
+        const updateRequests = [];
+        if (removePurchases.length) {
+            updateRequests.push(this.elsaPurchaseService.massUpdate(removePurchases));
+        }
         if (addRoles.length || removeRoles.length) {
+            updateRequests.push(this.userRoleService.bulkUpdate(addRoles, removeRoles));
+        }
+
+        if (updateRequests.length) {
             this.busy = true;
-            this.userRoleService.bulkUpdate(addRoles, removeRoles).subscribe(
-                () => this.onClose.emit(true),
+            forkJoin(updateRequests).subscribe(
+                () => this.onClose.emit(),
                 err => {
                     this.errorService.handle(err);
                     this.getGroupedRoles().subscribe(groups => {
@@ -171,7 +185,7 @@ export class UniRoleModal implements IUniModal {
                 }
             );
         } else {
-            this.onClose.emit(this.hasPurchasedProduct);
+            this.onClose.emit();
         }
     }
 
@@ -182,30 +196,11 @@ export class UniRoleModal implements IUniModal {
                 && product.name !== 'Complete';
         });
 
-        // This can be removed when Complete is gone as a product in prod
-        const completeProduct = products.find(product => product.name === 'Complete');
-        const userHasComplete = !!completeProduct && this.elsaPurchases.some(purchase => {
-            return purchase.GlobalIdentity === this.user.GlobalIdentity
-                && purchase.ProductID === completeProduct.id;
-        });
-        // end of removable block
-
         const groups: IRoleGroup[] = filteredProducts.map(product => {
-            let isPurchased = this.elsaPurchases.some(purchase => {
-                return purchase.ProductID === product.id
-                    && purchase.GlobalIdentity === this.user.GlobalIdentity;
+            const purchase = this.elsaPurchases.find(p => {
+                return p.ProductID === product.id
+                    && p.GlobalIdentity === this.user.GlobalIdentity;
             });
-
-            // This can be removed when Complete is gone as a product in prod
-            if (!isPurchased) {
-                isPurchased = userHasComplete && (
-                    product.name === 'Accounting'
-                    || product.name === 'Sales'
-                    || product.name === 'Payroll'
-                    || product.name === 'Timetracking'
-                );
-            }
-            // end of removable block
 
             // Allow assigning roles to unregistrered users (invited)
             // so they dont get full access to the system by default
@@ -215,7 +210,8 @@ export class UniRoleModal implements IUniModal {
                 label: product.label,
                 roles: [],
                 product: product,
-                productPurchased: isPurchased || userStatusInvited
+                productPurchased: !!purchase || userStatusInvited,
+                purchase: purchase
             };
         });
 
