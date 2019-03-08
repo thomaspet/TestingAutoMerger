@@ -21,6 +21,8 @@ import { ProductService } from '@app/services/common/productService';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
 import * as moment from 'moment';
 import { UniMath } from '@uni-framework/core/uniMath';
+import { createGuid } from '@app/services/common/dimensionService';
+import { RequestMethod } from '@angular/http';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -46,6 +48,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
 
+    public isReinvoiceValid = true;
+    public currentReInvoice: ReInvoice;
     public supplierInvoice: SupplierInvoice;
     public open = false;
     public saveactions: IUniSaveAction[] = [];
@@ -87,7 +91,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         const invoiceNumber = this.supplierInvoice.InvoiceNumber;
         this.reinvoiceService.GetAll(`filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq ${invoiceNumber}&orderby=UpdatedAt desc`,
             ['SupplierInvoice', 'Product', 'Product.VatType', 'Product.VatType.VatTypePercentages']).subscribe((result) => {
-            this.setInititalConfig(result.length > 0 ? result[0] : null);
+            this.currentReInvoice = result.length > 0 ? result[0] : null;
+            this.setInititalConfig(this.currentReInvoice);
         });
         this.companyAccountSettingsService.GetAll('',
             [
@@ -122,29 +127,65 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.saveactions = [
             {
                 label: 'Lag faktura (Fakturert)',
-                action: (done) => {
-                    console.log(done);
+                action: () => {
+                    this.saveReinvoiceAs('create-invoices');
                 },
                 main: type === 0,
-                disabled: false
+                disabled: !this.isReinvoiceValid
             },
             {
                 label: 'Lag faktura (Kladd)',
-                action: (done) => {
-                    console.log(done);
+                action: () => {
+                    this.saveReinvoiceAs('create-invoices-draft');
                 },
                 main: type === 1,
-                disabled: false
+                disabled: !this.isReinvoiceValid
             },
             {
                 label: 'Lag ordre (Registrert)',
-                action: (done) => {
-                    console.log(done);
+                action: () => {
+                    this.saveReinvoiceAs('create-orders');
                 },
                 main: type === 2,
-                disabled: false
+                disabled: !this.isReinvoiceValid
             }
         ];
+    }
+
+    public saveReinvoiceAs(type: string) {
+        let saveAction;
+        if (!this.currentReInvoice) {
+            this.currentReInvoice = new ReInvoice();
+            this.currentReInvoice._createguid = createGuid();
+        }
+        this.currentReInvoice.OwnCostShare = this.reinvoicingCustomers[0].Share;
+        this.currentReInvoice.OwnCostAmount = this.reinvoicingCustomers[0].NetAmount;
+        this.currentReInvoice.ProductID = this.items[0].Product.ID;
+        this.currentReInvoice.Items = this.reinvoicingCustomers.reduce((prev: ReInvoiceItem[], current: ReInvoiceItem) => {
+            if (current.Customer && current.Customer.ID > 0) {
+                prev.push(current);
+            }
+        }, []);
+        this.currentReInvoice.Amount = this.calcReinvoicingAmount();
+        this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
+        this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
+        this.currentReInvoice.SupplierInvoice = this.supplierInvoice;
+        if (this.currentReInvoice.ID) {
+            saveAction = this.reinvoiceService.Post(this.currentReInvoice);
+        } else {
+            saveAction = this.reinvoiceService.Put(this.currentReInvoice.ID, this.currentReInvoice);
+        }
+        saveAction.subscribe(reinvoice => {
+            const actionName = type;
+            this.reinvoiceService.ActionWithBody(this.currentReInvoice.ID || 0, this.currentReInvoice, 'valid', RequestMethod.Get)
+                .subscribe(valid => {
+                    if (valid) {
+                        this.reinvoiceService.Action(reinvoice.ID, actionName). subscribe(result => {
+                                this.onClose.emit(result);
+                        });
+                    }
+                });
+        });
     }
 
     public setInititalConfig(lastReinvoicing: ReInvoice | null) {
@@ -154,7 +195,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             lastReinvoicing === null ? null : lastReinvoicing.Product,
             this.supplierInvoice.TaxInclusiveAmount);
 
-        this.items = this.setInitialItemsData(lastReinvoicing === null ? null : lastReinvoicing.Product, this.reinvoicingCustomers);
+        this.items = this.setInitialItemsData(lastReinvoicing === null ? null : lastReinvoicing.Product);
     }
 
     public setInitialCustomerData(reinvoice: ReInvoice | null, product: Product, totalAmount: number) {
@@ -182,7 +223,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         });
     }
 
-    public setInitialItemsData(product: any, reinvoicingItems: ReInvoiceItem[]) {
+    public setInitialItemsData(product: any) {
         if (product) {
             return [{
                 Product: product,
@@ -218,6 +259,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }
         line.GrossAmount = this.calcItemGrossAmount(line);
         this.items = [line];
+    }
+
+    public calcReinvoicingAmount() {
+        return UniMath.round(this.reinvoicingCustomers.reduce((previous, current) => {
+            return previous + (current.NetAmount || 0);
+        }, 0));
     }
 
     public calcItemNetAmount() {
@@ -352,6 +399,24 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.items[0].NetAmount = this.calcItemNetAmount()
         this.items[0].GrossAmount = this.calcItemGrossAmount(this.items[0]);
         this.items = [].concat(this.items);
+        this.isReinvoiceValid = this.validate(this.reinvoicingCustomers);
+        const mainActionIndex = this.saveactions.findIndex(item => item === this.getMainAction());
+        this.updateActions(mainActionIndex);
+    }
+
+    validate(items: ReInvoiceItem[]) {
+        let totalShare = 0;
+        const checkedCustomers: ReInvoiceItem[] = [];
+        let customerRepeated = false;
+        for (let i = 0; i < items.length; i++) {
+            totalShare += (items[i].Share || 0);
+            if (checkedCustomers.findIndex(item => item.Customer && item.Customer.ID === items[i].Customer.ID && items[i].Customer.ID !== null) >= 0) {
+                customerRepeated = true;
+            }
+            checkedCustomers.push(items[i]);
+        }
+        const amount = this.calcReinvoicingAmount();
+        return (totalShare === 100 && items[0].Share >= 0 && !customerRepeated && this.supplierInvoice.TaxInclusiveAmount === amount);
     }
 
     openSettingsModal() {

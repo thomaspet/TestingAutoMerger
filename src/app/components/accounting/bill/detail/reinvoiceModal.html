@@ -47,7 +47,7 @@
     </article>
     <article>
         <p>Velge kunde(r) som skal viderefaktureres:</p>
-        <ag-grid-wrapper *ngIf="reinvoiceType === 0"
+        <ag-grid-wrapper *ngIf="reinvoiceType === 0" [class.bad]="!isReinvoiceValid"
             [(resource)]="reinvoicingCustomers"
             [config]="customersTableConfig"
             (rowChange)="onReinvoicingCustomerChange($event)"
@@ -66,8 +66,11 @@
     </article>
     <footer>
         <section role="group" class="comboButton" *ngIf="saveactions?.length">
-            <button class="comboButton_btn good" type="button" (click)="getMainAction().action()" [attr.aria-busy]="busy" [disabled]="getMainAction().disabled">{{getMainAction()?.label}}</button>
-            <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open">More options</button>
+            <button class="comboButton_btn good" type="button"
+                    (click)="getMainAction().action()" [attr.aria-busy]="busy"
+                    [disabled]="getMainAction().disabled"
+            >{{getMainAction()?.label}}</button>
+            <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open" [disabled]="!isReinvoiceValid">More options</button>
             <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
                 <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
             </ul>
