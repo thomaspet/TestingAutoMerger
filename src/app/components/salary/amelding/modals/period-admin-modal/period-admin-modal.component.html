@@ -13,7 +13,8 @@
       </uni-amelding-period-split-view>
       <uni-amelding-payrolls-period-view
         *ngSwitchCase="1"
-        [period]="options.data.period">
+        [period]="options.data.period"
+        [activeYear]="options.data.activeYear">
       </uni-amelding-payrolls-period-view>
     </section>
   </article>

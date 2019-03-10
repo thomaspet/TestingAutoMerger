@@ -787,7 +787,8 @@ export class AMeldingView implements OnInit {
                     data: {
                         period: this.currentPeriod,
                         ameldingerInPeriod: this.aMeldingerInPeriod,
-                        companySalary: this.companySalary
+                        companySalary: this.companySalary,
+                        activeYear: this.activeYear
                     }
                 })
             .onClose

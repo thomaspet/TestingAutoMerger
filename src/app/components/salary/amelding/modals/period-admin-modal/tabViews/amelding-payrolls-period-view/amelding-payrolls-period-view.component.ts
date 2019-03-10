@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { PayrollRunInAmeldingPeriod } from '@uni-entities';
+import { PayrollRunInAmeldingPeriod, AmeldingType } from '@uni-entities';
 import { AMeldingService } from '@app/services/services';
 
 @Component({
@@ -9,9 +9,11 @@ import { AMeldingService } from '@app/services/services';
   styleUrls: ['./amelding-payrolls-period-view.component.sass']
 })
 export class AmeldingPayrollsPeriodViewComponent implements OnInit {
-  @Input() public period: Number;
+  @Input() public period: number;
+  @Input() public activeYear: number;
   public tableConfig: UniTableConfig;
   public tableData: PayrollRunInAmeldingPeriod[] = [];
+  public busy: boolean;
 
   constructor(
     private ameldingService: AMeldingService
@@ -20,7 +22,11 @@ export class AmeldingPayrollsPeriodViewComponent implements OnInit {
    }
 
   public ngOnInit() {
-    this.ameldingService.getPayrollrunsInAmeldingPeriod(this.period.valueOf())
+    this.getData();
+  }
+
+  private getData() {
+    this.ameldingService.getPayrollrunsInAmeldingPeriod(this.period)
       .subscribe(payrunsInPeriod => {
         this.tableData = payrunsInPeriod;
       });
@@ -41,9 +47,14 @@ export class AmeldingPayrollsPeriodViewComponent implements OnInit {
           {
             label: 'Generer tilleggsmelding',
             action: (row) => {
-              console.log('generert tilleggsmelding');
+              this.busy = true;
+              this.ameldingService.postAMelding(this.period, AmeldingType.Addition, this.activeYear, row.PayrollrunID)
+                .finally(() => this.busy = false)
+                .subscribe((response) => {
+                  this.getData();
+                });
             },
-            disabled: (row: PayrollRunInAmeldingPeriod) => row.CanGenerateAddition
+            disabled: (row: PayrollRunInAmeldingPeriod) => !row.CanGenerateAddition
           }
         ]
       );
