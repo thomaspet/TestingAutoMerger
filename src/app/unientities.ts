@@ -1905,6 +1905,7 @@ export class PostingSummaryDraft extends UniEntity {
 
     public draftBasic: string;
     public draftWithDims: string;
+    public draftWithDimsOnBalance: string;
     public ID: number;
     public PayrollID: number;
     public status: SummaryJobStatus;
