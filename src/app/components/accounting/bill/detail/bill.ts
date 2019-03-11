@@ -323,6 +323,7 @@ export class BillView implements OnInit {
             const id = safeInt(params.id);
             const projectID = safeInt(params['projectID']);
             const pageParams = this.pageStateService.getPageState();
+            this.currentFreeTxt = '';
 
             if (id === this.currentID) { return; } // no-reload-required
             Observable.forkJoin(
@@ -1924,6 +1925,7 @@ export class BillView implements OnInit {
         current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
         current.CurrencyExchangeRate = 1;
         current.DefaultDimensions = new Dimensions();
+        this.currentFreeTxt = '';
 
         if (supplier) {
             current.SupplierID = supplier.ID;
