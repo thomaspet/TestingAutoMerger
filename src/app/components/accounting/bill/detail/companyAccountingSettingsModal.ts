@@ -46,7 +46,7 @@ export class UniCompanyAccountingSettingsModal implements OnInit, IUniModal {
                 ID: this.model.ID,
                 ReInvoicingCostsharingProductID: this.model.ReInvoicingCostsharingProductID,
                 ReInvoicingTurnoverProductID: this.model.ReInvoicingTurnoverProductID,
-                ReInvoicingType: this.model.ReInvoicingType
+                ReInvoicingMethod: this.model.ReInvoicingMethod
             }).subscribe(result => {
                 this.onClose.emit(Object.assign(result, returnedValue));
             });
@@ -108,7 +108,7 @@ export class UniCompanyAccountingSettingsModal implements OnInit, IUniModal {
                 }
             },
             {
-                Property: 'ReInvoicingType',
+                Property: 'ReInvoicingMethod',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Viderefakturere som',
                 Options: {

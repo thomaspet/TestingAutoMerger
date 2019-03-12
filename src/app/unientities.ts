@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomFields: any;
 }
 
@@ -1900,16 +1900,14 @@ export class OtpExportWagetype extends UniEntity {
 
 
 export class PostingSummaryDraft extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'PostingSummaryDraft';
-
     public draftBasic: string;
     public draftWithDims: string;
+    public draftWithDimsOnBalance: string;
     public ID: number;
+    public JobInfoID: number;
     public PayrollID: number;
     public status: SummaryJobStatus;
     public statusTime: Date;
-    public CustomFields: any;
 }
 
 
@@ -1997,9 +1995,9 @@ export class TravelLine extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatTypeID: number;
-    public travelType: TravelType;
     public Travel: Travel;
     public VatType: VatType;
+    public travelType: TravelType;
     public CustomFields: any;
 }
 
@@ -2390,9 +2388,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
+    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
-    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -3851,23 +3849,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultEmail: Email;
-    public DefaultPhone: Phone;
     public DefaultAddress: Address;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -5435,8 +5433,8 @@ export class CompanyAccountingSettings extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public ReInvoicingCostsharingProductID: number;
+    public ReInvoicingMethod: number;
     public ReInvoicingTurnoverProductID: number;
-    public ReInvoicingType: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -6192,6 +6190,7 @@ export class SupplierInvoice extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
+    public ReInvoice: ReInvoice;
     public CustomFields: any;
 }
 
@@ -6885,6 +6884,15 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
 }
 
 
+export class PayrollRunInAmeldingPeriod extends UniEntity {
+    public AmeldingSentdate: Date;
+    public CanGenerateAddition: boolean;
+    public PayrollrunDescription: string;
+    public PayrollrunID: number;
+    public PayrollrunPaydate: Date;
+}
+
+
 export class AmeldingSumUp extends UniEntity {
     public entities: Array<AmeldingEntity>;
     public agadetails: Array<AGADetails>;
@@ -6984,6 +6992,18 @@ export class SupplementInfo extends UniEntity {
     public ValueString: string;
     public ValueType: Valuetype;
     public WageTypeSupplementID: number;
+}
+
+
+export class AnnualStatementReportSetup extends UniEntity {
+    public EmpIDs: string;
+    public Mail: AnnualStatementEmailInfo;
+}
+
+
+export class AnnualStatementEmailInfo extends UniEntity {
+    public Message: string;
+    public Subject: string;
 }
 
 
@@ -7264,19 +7284,19 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
-    public License: LicenseInfo;
+    public License: ElsaUserLicenseInfo;
     public CustomFields: any;
 }
 
 
-export class LicenseInfo extends UniEntity {
+export class ElsaUserLicenseInfo extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
     public CustomerAgreement: CustomerLicenseAgreement;
     public UserType: UserLicenseType;
-    public Company: CompanyLicenseInfo;
+    public Company: ElsaCompanyLicenseInfo;
     public ContractType: ContractLicenseType;
     public UserLicenseAgreement: LicenseAgreement;
 }
@@ -7296,7 +7316,7 @@ export class UserLicenseType extends UniEntity {
 }
 
 
-export class CompanyLicenseInfo extends UniEntity {
+export class ElsaCompanyLicenseInfo extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
     public ContractID: number;
@@ -7587,6 +7607,12 @@ export class AutobankUserDTO extends UniEntity {
     public Password: string;
     public Phone: string;
     public UserID: number;
+}
+
+
+export class UpdateServiceStatusDTO extends UniEntity {
+    public ServiceID: string;
+    public StatusCode: StatusCodeBankIntegrationAgreement;
 }
 
 
@@ -8508,6 +8534,16 @@ export enum ReportType{
     regnearkOdsV1 = 1,
     xmlFormatV2 = 2,
     maskinlesbartFormatXmlV1 = 3,
+}
+
+
+export enum StatusCodeBankIntegrationAgreement{
+    Pending = 700001,
+    WaitForSigning = 700002,
+    WaitForBankApprove = 700003,
+    WaitForZDataApprove = 700004,
+    Active = 700005,
+    Canceled = 700006,
 }
 
 

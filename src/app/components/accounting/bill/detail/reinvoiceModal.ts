@@ -21,8 +21,11 @@ import { ProductService } from '@app/services/common/productService';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
 import * as moment from 'moment';
 import { UniMath } from '@uni-framework/core/uniMath';
-import { createGuid } from '@app/services/common/dimensionService';
 import { RequestMethod } from '@angular/http';
+import { getNewGuid } from '@app/components/common/utils/utils';
+import { Observable } from 'rxjs';
+import { ToastService } from '@uni-framework/uniToast/toastService';
+import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -77,7 +80,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         private reinvoiceService: ReInvoicingService,
         private productService: ProductService,
         private vatTypeService: VatTypeService,
+        private supplierInvoiceService: SupplierInvoiceService,
         private companyAccountSettingsService: CompanyAccountingSettingsService,
+        private toastr: ToastService,
         private errorService: ErrorService,
         private modalService: UniModalService) {}
 
@@ -105,7 +110,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             if (result && result[0] && result[0].ReInvoicingCostsharingProductID && result[0].ReInvoicingTurnoverProductID) {
                 this.companyAccountSettings = result[0];
                 this.updateItemsData();
-                this.updateActions(this.companyAccountSettings.ReInvoicingType);
+                this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
             } else {
                 this.modalService.open(UniCompanyAccountingSettingsModal, {
                     data: {
@@ -114,7 +119,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 }).onClose.subscribe(settings => {
                     if (settings) {
                         this.companyAccountSettings = settings;
-                        this.updateActions(this.companyAccountSettings.ReInvoicingType);
+                        this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
                     }
                 });
             }
@@ -126,17 +131,17 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     public updateActions(type: number) {
         this.saveactions = [
             {
-                label: 'Lag faktura (Fakturert)',
+                label: 'Lag faktura (Kladd)',
                 action: () => {
-                    this.saveReinvoiceAs('create-invoices');
+                    this.saveReinvoiceAs('create-invoices-draft');
                 },
                 main: type === 0,
                 disabled: !this.isReinvoiceValid
             },
             {
-                label: 'Lag faktura (Kladd)',
+                label: 'Lag faktura (Fakturert)',
                 action: () => {
-                    this.saveReinvoiceAs('create-invoices-draft');
+                    this.saveReinvoiceAs('create-invoices');
                 },
                 main: type === 1,
                 disabled: !this.isReinvoiceValid
@@ -153,10 +158,10 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     public saveReinvoiceAs(type: string) {
-        let saveAction;
+        let saveRequest, saveSupplierInvoiceRequest;
         if (!this.currentReInvoice) {
             this.currentReInvoice = new ReInvoice();
-            this.currentReInvoice._createguid = createGuid();
+            this.currentReInvoice._createguid = getNewGuid();
         }
         this.currentReInvoice.OwnCostShare = this.reinvoicingCustomers[0].Share;
         this.currentReInvoice.OwnCostAmount = this.reinvoicingCustomers[0].NetAmount;
@@ -170,21 +175,42 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
         this.currentReInvoice.SupplierInvoice = this.supplierInvoice;
-        if (this.currentReInvoice.ID) {
-            saveAction = this.reinvoiceService.Post(this.currentReInvoice);
+        if (!this.supplierInvoice.ID) {
+            this.supplierInvoice._createguid = getNewGuid();
+            saveSupplierInvoiceRequest = this.supplierInvoiceService.Post(this.supplierInvoice);
         } else {
-            saveAction = this.reinvoiceService.Put(this.currentReInvoice.ID, this.currentReInvoice);
+            saveSupplierInvoiceRequest = Observable.of(this.supplierInvoice);
         }
-        saveAction.subscribe(reinvoice => {
-            const actionName = type;
-            this.reinvoiceService.ActionWithBody(this.currentReInvoice.ID || 0, this.currentReInvoice, 'valid', RequestMethod.Get)
-                .subscribe(valid => {
-                    if (valid) {
-                        this.reinvoiceService.Action(reinvoice.ID, actionName). subscribe(result => {
-                                this.onClose.emit(result);
-                        });
-                    }
-                });
+        if (!this.currentReInvoice.ID) {
+            saveRequest = this.reinvoiceService.Action(null, 'mark-create', null, RequestMethod.Post);
+        } else {
+            saveRequest = this.reinvoiceService.Put(this.currentReInvoice.ID, this.currentReInvoice);
+        }
+        saveSupplierInvoiceRequest.subscribe(supplierInvoice => {
+            saveRequest.subscribe(reinvoice => {
+                const actionName = type;
+                this.currentReInvoice = reinvoice;
+                this.reinvoiceService.ActionWithBody(this.currentReInvoice.ID || 0, this.currentReInvoice, 'valid', RequestMethod.Get)
+                    .subscribe(valid => {
+                        if (valid) {
+                            if (type !== '') {
+                                this.reinvoiceService.Action(reinvoice.ID, actionName).subscribe(result => {
+                                    this.onClose.emit({
+                                        supplierInvoice: supplierInvoice,
+                                        reinvoice: reinvoice
+                                    });
+                                });
+                            } else {
+                                this.onClose.emit({
+                                    supplierInvoice: supplierInvoice,
+                                    reinvoice: reinvoice
+                                });
+                            }
+                        } else {
+                            this.toastr.addToast('Viderefakturere er ugyldig');
+                        }
+                    });
+            });
         });
     }
 
@@ -427,7 +453,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }).onClose.subscribe(result => {
             if (result) {
                 this.companyAccountSettings = result;
-                this.updateActions(this.companyAccountSettings.ReInvoicingType);
+                this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
                 this.updateItemsData();
             }
         });
