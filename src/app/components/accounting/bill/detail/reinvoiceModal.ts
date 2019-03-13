@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {UniModalService} from '../../../../../framework/uni-modal';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {
     UniTableColumn,
     UniTableColumnType,
@@ -10,7 +10,7 @@ import { ErrorService } from '../../../../services/services';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     CompanyAccountingSettings, Customer, Product, ReInvoice, ReInvoiceItem,
-    SupplierInvoice, VatType
+    SupplierInvoice, VatType, StatusCodeReInvoice
 } from '@app/unientities';
 import { CustomerService } from '@app/services/sales/customerService';
 import { MatRadioChange } from '@angular/material';
@@ -169,8 +169,38 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 },
                 main: type === 2,
                 disabled: !this.isReinvoiceValid
+            },
+            {
+                label: 'Slett viderefakturering',
+                action: () => {
+                    this.deleteReinvoice();
+                },
+                disabled: (!this.currentReInvoice || 
+                            this.currentReInvoice.ID === 0 || 
+                            this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced)
             }
         ];
+    }
+
+    public deleteReinvoice() {
+        this.modalService.confirm({
+            header: 'Bekreft sletting',
+            message: 'Er du sikker på at du vil slette viderefakturering?',
+            buttonLabels: {
+                accept: 'Slett',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(modalResponse => {
+            if (modalResponse === ConfirmActions.ACCEPT) {
+                this.reinvoiceService.Remove(this.currentReInvoice.ID).subscribe(
+                    () => {
+                        this.currentReInvoice = null;
+                        this.onClose.emit(false);
+                    },
+                    error => this.errorService.handle(error)
+                )
+            }
+        });
     }
 
     public saveReinvoiceAs(type: string) {
