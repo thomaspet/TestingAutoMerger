@@ -822,6 +822,32 @@ export class AgGridWrapper {
         }
     }
 
+    selectNext() {
+        if (!this.config.multiRowSelect) {
+            const selectedNodes = this.agGridApi.getSelectedNodes();
+            const index = (selectedNodes && selectedNodes[0].rowIndex) || 0;
+
+            const nextRow = this.agGridApi.getDisplayedRowAtIndex(index + 1);
+            if (nextRow) {
+                nextRow.setSelected(true);
+                this.agGridApi.ensureNodeVisible(nextRow);
+            }
+        }
+    }
+
+    selectPrevious() {
+        if (!this.config.multiRowSelect) {
+            const selectedNodes = this.agGridApi.getSelectedNodes();
+            const index = (selectedNodes && selectedNodes[0].rowIndex) || 0;
+
+            const prevRow = this.agGridApi.getDisplayedRowAtIndex(index - 1);
+            if (prevRow) {
+                prevRow.setSelected(true);
+                this.agGridApi.ensureNodeVisible(prevRow);
+            }
+        }
+    }
+
     public focusRow(index: number) {
         setTimeout(() => {
             if (!this.agGridApi) {

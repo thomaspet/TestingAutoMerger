@@ -1,8 +1,10 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, HostListener, ViewChild } from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 import { SupplierInvoiceService, ErrorService } from '@app/services/services';
 import { UniTableColumn, UniTableConfig } from '@uni-framework/ui/unitable';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { File } from '@uni-entities';
+import { UP_ARROW, DOWN_ARROW, ENTER } from '@angular/cdk/keycodes';
 
 @Component({
     selector: 'file-from-inbox-modal',
@@ -11,6 +13,8 @@ import { File } from '@uni-entities';
     host: {class: 'uni-redesign'}
 })
 export class FileFromInboxModal implements IUniModal {
+    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+
     options: IModalOptions = {};
     onClose: EventEmitter<File> = new EventEmitter();
 
@@ -35,6 +39,20 @@ export class FileFromInboxModal implements IUniModal {
 
     onFileSelected(file: File) {
         this.selectedFile = file;
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    onKeyDown(event) {
+        const key = event.which || event.keyCode;
+        if (key === UP_ARROW && this.table) {
+            this.table.selectPrevious();
+        } else if (key === DOWN_ARROW && this.table) {
+            this.table.selectNext();
+        } else if (key === ENTER) {
+            setTimeout(() => {
+                this.onClose.emit(this.selectedFile);
+            });
+        }
     }
 
     private getTableConfig() {
