@@ -1536,6 +1536,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         invoice.InvoiceNumber = null;
         invoice.InvoiceNumberSeriesID = null;
         invoice.CollectorStatusCode = null;
+        invoice.CustomerInvoiceReminders = null;
         invoice.StatusCode = null;
         invoice.PrintStatus = null;
         invoice.DontSendReminders = false;
