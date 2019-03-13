@@ -54,7 +54,9 @@ import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
+import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {UniAssignModal} from './bill/detail/assignmodal';
+import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -148,10 +150,13 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         BillView,
         BillHistoryView,
         BillPreviousView,
+        BillTransitionModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
+        NumberAsMoneyPipe,
+        UniSmartBookingSettingsModal,
         NumberAsMoneyPipe,
 
         // vatreport
@@ -210,12 +215,14 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         DraftLineDescriptionModal,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
+        UniSmartBookingSettingsModal,
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,
         UniReinvoiceModal,
         UniCompanyAccountingSettingsModal,
-        FileFromInboxModal
+        FileFromInboxModal,
+        BillTransitionModal
     ],
     exports: [
         AccountSettings,

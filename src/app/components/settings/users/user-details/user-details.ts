@@ -6,15 +6,23 @@ import * as moment from 'moment';
 import {User, Role, UserRole} from '@uni-entities';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniRoleModal} from '../role-modal/role-modal';
+import {AuthService} from '@app/authService';
+import {ActivateAutobankModal} from '../activate-autobank-modal/activate-autobank-modal';
+import {ResetAutobankPasswordModal} from '../reset-autobank-password-modal/reset-autobank-password-modal';
+import {ElsaProduct, ElsaPurchase} from '@app/models';
 import {
     RoleService,
     UserRoleService,
     ElsaPurchaseService,
+    ElsaProductService,
 } from '@app/services/services';
-import {AuthService} from '@app/authService';
-import {ActivateAutobankModal} from '../activate-autobank-modal/activate-autobank-modal';
-import {ResetAutobankPasswordModal} from '../reset-autobank-password-modal/reset-autobank-password-modal';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+
+interface UserRoleGroup {
+    label: string;
+    userRoles: UserRole[];
+    product?: ElsaProduct;
+    productPurchased?: boolean;
+}
 
 enum UserStatus {
     Draft = 110000,
@@ -40,7 +48,11 @@ export class UserDetails {
     scrollbar: PerfectScrollbar;
     roles: Role[];
     userRoles: UserRole[];
+    userRoleGroups: UserRoleGroup[];
+
     roleGroups: {label: string, roles: UserRole[]}[];
+    products: ElsaProduct[];
+    purchases: ElsaPurchase[];
 
     companyHasAutobank: boolean;
     userActions: {label: string, action: () => void}[];
@@ -51,7 +63,8 @@ export class UserDetails {
         private userRoleService: UserRoleService,
         private modalService: UniModalService,
         private elsaPurchaseService: ElsaPurchaseService,
-        private toastService: ToastService,
+        private productService: ElsaProductService,
+        private purchaseService: ElsaPurchaseService
     ) {}
 
     ngAfterViewInit() {
@@ -73,10 +86,8 @@ export class UserDetails {
 
     openRoleModal() {
         this.modalService.open(UniRoleModal, {
-            data: {
-                user: this.user
-            }
-        }).onClose.subscribe((rolesChanged) => {
+            data: { user: this.user }
+        }).onClose.subscribe(rolesChanged => {
             if (rolesChanged) {
                 this.loadRoles();
             }
@@ -134,13 +145,17 @@ export class UserDetails {
     private loadRoles() {
         forkJoin(
             this.roleService.GetAll(),
-            this.userRoleService.getRolesByUserID(this.user.ID)
+            this.userRoleService.getRolesByUserID(this.user.ID),
+            this.productService.GetAll(),
+            this.purchaseService.getAll()
         ).subscribe(
             res => {
                 this.roles = res[0] || [];
                 this.userRoles = this.setAssignmentMetadata(res[1] || []);
+                this.products = res[2];
+                this.purchases = res[3];
 
-                this.groupRoles(this.userRoles);
+                this.userRoleGroups = this.getGroupedUserRoles(this.userRoles);
             },
             err => console.error(err)
         );
@@ -156,47 +171,77 @@ export class UserDetails {
         });
     }
 
-    private groupRoles(roles: UserRole[]) {
-        if (!roles || !roles.length) {
-            this.roleGroups = [];
-            return;
+    private getGroupedUserRoles(userRoles: UserRole[]): UserRoleGroup[] {
+        if (!userRoles || !userRoles.length) {
+            return [];
         }
 
-        const roleGroups = roles.reduce((groups, role) => {
-            const name = role.SharedRoleName || '';
+        const filteredProducts = this.products.filter(product => {
+            return product.productTypeName === 'Module' && product.name !== 'Complete';
+        });
 
-            switch (name.split('.')[0]) {
-                case 'Accounting':
-                    groups[0].roles.push(role);
-                break;
-                case 'Sales':
-                    groups[1].roles.push(role);
-                break;
-                case 'Payroll':
-                    groups[2].roles.push(role);
-                break;
-                case 'Timetracking':
-                    groups[3].roles.push(role);
-                break;
-                case 'Bank':
-                    groups[4].roles.push(role);
-                break;
-                default:
-                    groups[5].roles.push(role);
-                break;
+        // This can be removed when Complete is gone as a product in prod
+        const completeProduct = this.products.find(product => product.name === 'Complete');
+        const userHasComplete = !!completeProduct && this.purchases.some(purchase => {
+            return purchase.GlobalIdentity === this.user.GlobalIdentity
+                && purchase.ProductID === completeProduct.id;
+        });
+        // end of removable block
+
+        const groups: UserRoleGroup[] = filteredProducts.map(product => {
+            let isPurchased = this.purchases.some(purchase => {
+                return purchase.ProductID === product.id
+                    && purchase.GlobalIdentity === this.user.GlobalIdentity;
+            });
+
+            // This can be removed when Complete is gone as a product in prod
+            if (!isPurchased) {
+                isPurchased = userHasComplete && (
+                    product.name === 'Accounting'
+                    || product.name === 'Sales'
+                    || product.name === 'Payroll'
+                    || product.name === 'Timetracking'
+                );
             }
+            // end of removable block
 
-            return groups;
-        }, [
-            { label: 'Regnskap', roles: [] },
-            { label: 'Salg', roles: [] },
-            { label: 'Lønn', roles: [] },
-            { label: 'Timeføring', roles: [] },
-            { label: 'Bank', roles: [] },
-            { label: 'Diverse', roles: [] },
-        ]);
+            return {
+                label: product.label,
+                userRoles: [],
+                product: product,
+                productPurchased: isPurchased
+            };
+        });
 
-        this.roleGroups = roleGroups.filter(group => group.roles.length > 0);
+        // Add a group for roles that are not connected to a product
+        const otherGroup = {
+            label: 'Annet',
+            userRoles: []
+        };
+
+        // Fill the groups with userRoles
+        userRoles.forEach(userRole => {
+            const roleNameLowerCase = (userRole.SharedRoleName || '').toLowerCase();
+            const groupsThatShouldHaveUserRole = groups.filter(group => {
+                const listOfRoles = group.product && group.product.listOfRoles;
+                if (listOfRoles) {
+                    return listOfRoles.split(',').some(roleName => {
+                        return roleName && roleName.toLowerCase() === roleNameLowerCase;
+                    });
+                }
+            });
+
+            if (groupsThatShouldHaveUserRole.length) {
+                groupsThatShouldHaveUserRole.forEach(group => group.userRoles.push(userRole));
+            } else {
+                otherGroup.userRoles.push(userRole);
+            }
+        });
+
+        groups.push(otherGroup);
+        return groups.filter(group => {
+            return (!group.product || group.productPurchased) && group.userRoles && group.userRoles.length;
+        });
     }
 
     private registerBankUser() {

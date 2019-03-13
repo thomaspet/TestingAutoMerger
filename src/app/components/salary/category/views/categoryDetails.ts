@@ -4,7 +4,7 @@ import {EmployeeCategoryService, EmployeeService, FinancialYearService} from '..
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {EmployeeCategory, PayrollRun, Employee, EmployeeCategoryLink} from '../../../../unientities';
 import {Subject, BehaviorSubject} from 'rxjs';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTableColumnSortMode} from '../../../../../framework/ui/unitable/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniCacheService, ErrorService} from '../../../../services/services';
@@ -103,12 +103,7 @@ export class CategoryDetail extends UniView implements OnDestroy {
 
     private setupEmployeesInCategoryConfig() {
         const numberCol = new UniTableColumn('Employee', 'Ansattnr', UniTableColumnType.Lookup, (row) => !row.ID)
-            .setTemplate((rowModel: EmployeeCategoryLink) => {
-                if (!rowModel || rowModel['_isEmpty'] || !rowModel.Employee || !rowModel.Employee.BusinessRelationInfo) {
-                    return '';
-                }
-                return `${rowModel.Employee.EmployeeNumber}`;
-            })
+            .setDisplayField('Employee.EmployeeNumber')
             .setOptions({
                 itemTemplate: (selectedItem: Employee) => !!selectedItem
                     ? `${selectedItem.EmployeeNumber} - ${selectedItem.BusinessRelationInfo.Name}`
@@ -126,6 +121,7 @@ export class CategoryDetail extends UniView implements OnDestroy {
         const configStoreKey = 'salary.category.details.employees';
         this.categoriesUsedInEmployeesConfig = new UniTableConfig(configStoreKey, true, false)
             .setColumns([numberCol, nameCol])
+            .setSearchable(true)
             .setDeleteButton(true);
     }
 

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AmeldingData} from '../../../unientities';
+import {AmeldingData, PayrollRunInAmeldingPeriod} from '../../../unientities';
 import {Observable, of} from 'rxjs';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {map} from 'rxjs/operators';
@@ -112,6 +112,10 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         }
     }
 
+    public getPayrollrunsInAmeldingPeriod(period: number): Observable<PayrollRunInAmeldingPeriod[]> {
+        return super.GetAction(null, 'payrollruns-in-amelding-period', `period=${period}`);
+    }
+
     public getAMeldingForPeriod(periode: number, currentYear: number): Observable<AmeldingData[]> {
         return this.http
             .asGET()
@@ -149,7 +153,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.json());
     }
 
-    public postAMelding(period: number, amldType: number, currYear: number) {
+    public postAMelding(period: number, amldType: number, currYear: number, runID: number = null) {
         super.invalidateCache();
         return this.http
             .asPOST()
@@ -158,6 +162,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
                 'period': period,
                 'year': currYear,
                 'type': amldType,
+                'PayrollRunID': runID,
                 'replacesID': 0
             })
             .withEndPoint(this.relativeURL)

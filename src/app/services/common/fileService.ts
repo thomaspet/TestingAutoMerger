@@ -40,10 +40,9 @@ export class FileService extends BizHttp<File> {
             .withEndPoint(`files/${fileID}?action=download`)
             .send()
             .switchMap((urlResponse: Response) => {
-                let url = urlResponse['_body'].replace(/\"/g, '');
+                const url = urlResponse['_body'].replace(/\"/g, '');
                 return this.http.http.get(url);
-            })
-            
+            });
     }
 
     public getDownloadUrl(fileID: number) {
@@ -64,23 +63,23 @@ export class FileService extends BizHttp<File> {
             .withEndPoint(`files/${fileID}?action=download`)
             .send()
             .switchMap((urlResponse: Response) => {
-                let url = urlResponse['_body'].replace(/\"/g, '');
+                const url = urlResponse['_body'].replace(/\"/g, '');
                 return this.http.http.get(url);
             })
-            .map(res => new Blob([res['_body']],{ type: contentType}));
+            .map(res => new Blob([res['_body']], { type: contentType }));
     }
 
     private  getQueryParams(qs) {
         qs = qs.split('+').join(' ');
-    
+
         var params = {},
             tokens,
             re = /[?&]?([^=]+)=([^&]*)/g;
-    
+
         while (tokens = re.exec(qs)) {
             params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
         }
-    
+
         return params;
     }
 

@@ -26,7 +26,7 @@ export class FileFromInboxModal implements IUniModal {
     ngOnInit() {
         this.tableConfig = this.getTableConfig();
 
-        const url = 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0';
+        const url = 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox';
         this.supplierInvoiceService.fetch(url).subscribe(
             files => this.files = files || [],
             err => this.errorService.handle(err)

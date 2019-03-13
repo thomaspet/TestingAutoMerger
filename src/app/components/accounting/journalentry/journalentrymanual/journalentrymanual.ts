@@ -76,6 +76,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public doValidateBalance: boolean = true;
     @Input() public defaultRowData: JournalEntryData;
     @Input() public selectedNumberSeries: NumberSeries;
+    @Input() public orgNumber: string;
     @Input() public costAllocationData: CostAllocationData = new CostAllocationData();
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
@@ -86,7 +87,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @ViewChild(UniTable) private openPostsTable: UniTable;
     @ViewChild(JournalEntryProfessional)
 
-    private journalEntryProfessional: JournalEntryProfessional;
+    public journalEntryProfessional: JournalEntryProfessional;
 
     private hasLoadedData: boolean = false;
     private showImagesForJournalEntryNo: string = '';
@@ -424,7 +425,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             case 'AmountCurrency':
                 if (!rowfield.JournalEntryData['_costAllocationTime']) {
                     var useAccount = rowfield.JournalEntryData.CreditAccount &&
-                                     rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup && 
+                                     rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup &&
                                      rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup.GroupNumber == "3"
                                      ? rowfield.JournalEntryData.CreditAccountID
                                      : rowfield.JournalEntryData.DebitAccountID;
@@ -443,7 +444,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.currentJournalEntryData = rowfield.JournalEntryData;
 
                 var useAccount = rowfield.JournalEntryData.CreditAccount &&
-                                 rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup && 
+                                 rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup &&
                                  rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup.GroupNumber == "3"
                                  ? rowfield.JournalEntryData.CreditAccountID
                                  : rowfield.JournalEntryData.DebitAccountID;
@@ -495,11 +496,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.setJournalEntryData(lines);
                 } else {
                     this.addCostAllocationForAccount(
-                        rowfield.JournalEntryData.CreditAccountID, 
-                        rowfield.JournalEntryData.AmountCurrency || (this.costAllocationData ? this.costAllocationData.CurrencyAmount : null), 
-                        this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null, 
-                        this.costAllocationData ? this.costAllocationData.ExchangeRate : null, 
-                        this.costAllocationData ? this.costAllocationData.FinancialDate : null, 
+                        rowfield.JournalEntryData.CreditAccountID,
+                        rowfield.JournalEntryData.AmountCurrency || (this.costAllocationData ? this.costAllocationData.CurrencyAmount : null),
+                        this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
+                        this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
+                        this.costAllocationData ? this.costAllocationData.FinancialDate : null,
                         this.costAllocationData ? this.costAllocationData.VatDate : null,
                         true,
                         true);
@@ -667,7 +668,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             line.DebitVatTypeID = null;
         } else {
             line.CreditAccount = null;
-            line.CreditAccountID = null;    
+            line.CreditAccountID = null;
             line.CreditVatType = null;
             line.CreditVatTypeID = null;
         }

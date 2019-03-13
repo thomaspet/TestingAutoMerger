@@ -52,7 +52,7 @@ import { Observable, Subject } from 'rxjs';
                                 <i class="material-icons" (click)="file.selected = !file.selected" style="color: #0f4880">
                                     {{ file.selected ? 'check_box' : 'check_box_outline_blank' }}
                                 </i>
-                                <span> {{ file.Name }} </span>
+                                <span class="bank-file-name-span"> {{ file.Name }} </span>
                                 <span> {{ getStatusText(file) }} </span>
                                 <span> {{ getFileSizeFormatted(file.Size) }} </span>
                                 <i class="material-icons" title="Fjern fil" (click)="removeFile(i)">delete</i>
@@ -96,7 +96,6 @@ export class UniFileUploadModal implements IUniModal {
     uploadedFileIds: any[];
     hasErrors: boolean = false;
     message: string = '';
-    didTryReAuthenticate: boolean = false;
     token: any;
     activeCompany: any;
     allFilesSelected: boolean = false;
@@ -111,9 +110,8 @@ export class UniFileUploadModal implements IUniModal {
     ) {
         authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
+            this.token = authDetails.token;
         });
-
-        authService.filesToken$.subscribe(token => this.token = token);
      }
 
     public uploadFile(event) {
@@ -181,18 +179,8 @@ export class UniFileUploadModal implements IUniModal {
                 this.loading$.next(false);
             });
         }, err => {
-            // If an error occurs, try to reauthenticate to unifiles - typically
-            // this happens if unifiles is deployed while the user is logged in
-            if (!this.didTryReAuthenticate) {
-                // Run reauthentication and try to upload the file once more
-                // so the user doesnt have to
-                this.reauthenticate(() => {
-                    this.uploadAllFiles(uploadedFiles);
-                });
-            } else {
-                this.loading$.next(false);
-                this.errorService.handle(err);
-            }
+            this.loading$.next(false);
+            this.errorService.handle(err);
         });
     }
 
@@ -302,29 +290,6 @@ export class UniFileUploadModal implements IUniModal {
             } else {
                 this.onClose.emit(this.files.filter(f => f.selected).map(f => f.ID));
             }
-        }
-    }
-
-    public reauthenticate(runAfterReauth) {
-        if (!this.didTryReAuthenticate) {
-            // Set flag to avoid "authentication loop" if the new authentication
-            // also throws an error
-            this.didTryReAuthenticate = true;
-
-            this.uniFilesService.checkAuthentication()
-                .then(res => {
-                    // Authentication is ok - something else caused the problem
-                }).catch(err => {
-                    // Authentication failed, try to reauthenticated
-                    this.authService.authenticateUniFiles()
-                        .then(res => {
-                            if (runAfterReauth) {
-                                runAfterReauth();
-                            }
-                        }).catch((errAuth) => {
-                            this.errorService.handle(err);
-                        });
-                });
         }
     }
 }

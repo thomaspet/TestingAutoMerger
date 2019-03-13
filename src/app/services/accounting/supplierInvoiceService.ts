@@ -94,16 +94,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.json());
     }
 
-    public sendForPayment(supplierInvoiceId: number) {
-        super.invalidateCache();
-        return this.http
-            .asPOST()
-            .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=sendForPayment`)
-            .send()
-            .map(response => response.json());
-    }
-
     public sendForPaymentWithData(supplierInvoiceId: number, invoicePaymentData?: InvoicePaymentData) {
         super.invalidateCache();
         return this.http
@@ -170,7 +160,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
 
         const flds = this.selectBuilder('ID', 'StatusCode',
-            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
+            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate', 'FreeTxt',
             'InvoiceNumber', 'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber', 'PaymentInformation',
             'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
             'PaymentID', 'JournalEntry.JournalEntryNumber',

@@ -305,7 +305,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
     }
 
     public open() {
-        if (this.readonly) {
+        if (this.readonly || this.expanded) {
             return;
         }
         this.searchControl.setValue('');

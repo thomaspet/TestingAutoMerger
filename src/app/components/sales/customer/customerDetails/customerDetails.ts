@@ -1043,6 +1043,7 @@ export class CustomerDetails implements OnInit {
 
                 // Reload if customer already existed, navigate if not
                 if (this.customerID) {
+                    this.setupSaveActions();
                     this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
                         this.setMainContact(updatedCustomer);
                         this.customer$.next(updatedCustomer);

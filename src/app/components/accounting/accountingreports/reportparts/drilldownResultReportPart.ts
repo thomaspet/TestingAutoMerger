@@ -445,9 +445,15 @@ export class DrilldownResultReportPart implements OnChanges {
         const other = this.flattenedTreeSummaryList.find(x => x.number === 6);
         const result = this.flattenedTreeSummaryList.find(x => x.number === 9);
 
-        const budget = parseInt(this.periodFilter1.year.toString(), 10) === new Date().getFullYear()
-            ? this.budgetSoFar * -1
-            : (sales.budget || 0) + (purchase.budget || 0) + (salary.budget || 0) + (other.budget || 0);
+        let budget, budgetString;
+
+        if (parseInt(this.periodFilter1.year.toString(), 10) === new Date().getFullYear()) {
+            budget = this.budgetSoFar * -1;
+            budgetString = 'Budsjett hittil';
+        } else {
+            budget = (sales.budget || 0) + (purchase.budget || 0) + (salary.budget || 0) + (other.budget || 0);
+            budgetString = 'Budsjett';
+        }
 
         if (this.myChart) {
             this.myChart.destroy();
@@ -516,7 +522,7 @@ export class DrilldownResultReportPart implements OnChanges {
                     stack: 2
                 },
                 {
-                    label: 'Budsjett',
+                    label: budgetString,
                     backgroundColor: this.CUSTOM_COLORS[7],
                     data: [
                         Math.round(budget), 0

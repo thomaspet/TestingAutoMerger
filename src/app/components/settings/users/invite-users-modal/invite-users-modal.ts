@@ -1,11 +1,20 @@
 import {Component, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
-import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {ErrorService, RoleService, ElsaProductService, UserService, UserRoleService} from '@app/services/services';
 import {forkJoin, Observable} from 'rxjs';
-import { ElsaProduct } from '@app/models';
-import { Role } from '@uni-entities';
-import { switchMap, finalize } from 'rxjs/operators';
+import {switchMap, finalize} from 'rxjs/operators';
+
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
+import {ElsaProduct} from '@app/models';
+import {Role} from '@uni-entities';
+import {
+    ErrorService,
+    RoleService,
+    ElsaProductService,
+    ElsaPurchaseService,
+    UserService,
+    UserRoleService
+} from '@app/services/services';
+
 
 interface RoleGroup {
     label: string;
@@ -32,13 +41,15 @@ export class InviteUsersModal implements IUniModal {
 
     emailControl: FormControl = new FormControl('', Validators.email);
     roleGroups: RoleGroup[];
+    adminRole: Role;
 
     constructor(
         private errorService: ErrorService,
         private userService: UserService,
         private roleService: RoleService,
         private userRoleService: UserRoleService,
-        private productService: ElsaProductService
+        private productService: ElsaProductService,
+        private elsaPurchaseService: ElsaPurchaseService
     ) {
         this.busy = true;
 
@@ -85,6 +96,8 @@ export class InviteUsersModal implements IUniModal {
     groupRolesByProduct(roles: Role[], products: ElsaProduct[]): RoleGroup[] {
         roles = roles || [];
         products = products || [];
+
+        this.adminRole = roles.find(role => role.Name === 'Administrator');
 
         const filteredProducts = products.filter(product => {
             return product.productTypeName === 'Module' && product.name !== 'Complete';
@@ -142,10 +155,19 @@ export class InviteUsersModal implements IUniModal {
         if (!this.missingRoles && !this.invalidInput) {
             this.busy = true;
 
+            if (this.adminRole && this.adminRole['_checked']) {
+                roles.push(this.adminRole);
+            }
+
             this.userService.inviteUser(this.emailControl.value).pipe(
                 switchMap(user => this.addUserRoles(user, roles))
             ).subscribe(
-                () => this.onClose.emit(true),
+                () => {
+                    // Invalidate purchase cache since backend will
+                    // add purchases on the user when activating
+                    this.elsaPurchaseService.invalidateCache();
+                    this.onClose.emit(true);
+                },
                 err => {
                     this.errorService.handle(err);
                     this.busy = false;

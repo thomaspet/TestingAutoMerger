@@ -38,6 +38,7 @@ import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 import {
     MatCheckboxModule,
     MatRadioModule,
+    MatTooltipModule,
     MatInputModule,
     MatMenuModule,
     MatProgressSpinnerModule,
@@ -55,6 +56,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         ReactiveFormsModule,
         MatCheckboxModule,
         MatRadioModule,
+        MatTooltipModule,
         MatInputModule,
         MatMenuModule,
         MatProgressSpinnerModule,

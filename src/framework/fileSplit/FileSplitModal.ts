@@ -2,10 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrate
 import {IModalOptions, IUniModal} from '../uni-modal';
 import {File} from '../../app/unientities';
 import {environment} from 'src/environments/environment';
-import {Http} from '@angular/http';
-import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
-import {Observable} from 'rxjs';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 import {KeyCodes} from '../../app/services/common/keyCodes';
@@ -150,21 +147,13 @@ export class FileSplitModal implements IUniModal {
         private toastService: ToastService,
         private errorService: ErrorService,
         private modalService: UniModalService
-    ) {
-        this.authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.loadFile();
-        });
-
-        this.authService.filesToken$.subscribe(token => {
-            this.token = token;
-            this.loadFile();
-        });
-    }
+    ) {}
 
     public ngOnInit() {
         this.file = this.options.data;
         if (this.file) {
+            this.activeCompany = this.authService.activeCompany;
+            this.token = this.authService.filesToken;
             this.loadFile();
         }
     }
@@ -254,19 +243,6 @@ export class FileSplitModal implements IUniModal {
                     if (element && element.length > 0) {
                         element[0].focus();
                         this.hasFocusedOnFirstThumbnail = true;
-                    }
-                }
-            });
-        }
-    }
-
-    private focusOnCurrentThumbnail () {
-        if(this.currentThumbnailIndex) {
-            setTimeout(() => {
-                if (this.thumbnailContainer && this.thumbnailContainer.nativeElement) {
-                    let element = this.thumbnailContainer.nativeElement.getElementsByTagName("li");
-                    if (element && element.length >= this.currentThumbnailIndex) {
-                        element[this.currentThumbnailIndex].focus();
                     }
                 }
             });
@@ -644,18 +620,20 @@ export class FileSplitModal implements IUniModal {
             }
         });
 
-        this.uniFilesService.splitFileMultiple(this.file.StorageReference, this.parts, rotations, true)
-            .subscribe(res => {
+        this.uniFilesService.splitFileMultiple(
+            this.file.StorageReference, this.parts, rotations
+        ).subscribe(
+            res => {
                 // get the UE ids based on the result from UniFiles
-                let ueFileIds = [];
+                const ueFileIds = [];
                 if (res && res.Parts) {
                     res.Parts.forEach(part => {
                         ueFileIds.push(part.ExternalId);
-                    })
+                    });
                 }
 
-                this.fileService.splitFileMultiple(this.file.ID, ueFileIds)
-                    .subscribe(ueRes => {
+                this.fileService.splitFileMultiple(this.file.ID, ueFileIds).subscribe(
+                    ueRes => {
                         this.toastService.addToast(
                             'Oppdeling ferdig',
                             ToastType.good,
@@ -665,14 +643,18 @@ export class FileSplitModal implements IUniModal {
                         this.isSplitting = false;
 
                         this.onClose.emit('ok');
-                    }, err => {
+                    },
+                    err => {
                         this.errorService.handle(err);
                         this.isSplitting = false;
-                    });
-            }, err => {
+                    }
+                );
+            },
+            err => {
                 this.errorService.handle(err);
                 this.isSplitting = false;
-            });
+            }
+        );
     }
 
     public close() {

@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary
+    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary, PostingSummaryDraft
 } from '../../../unientities';
 import {Observable} from 'rxjs';
 import {ErrorService} from '../../common/errorService';
@@ -17,6 +17,7 @@ import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {RequestMethod} from '@angular/http';
+import {map} from 'rxjs/operators';
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, // Note: NOT in Use yet
@@ -31,6 +32,12 @@ export enum PayrollRunPaymentStatus {
     SentToPayment = 1,
     PartlyPaid = 2,
     Paid = 3
+}
+
+export enum SalaryBookingType {
+    Dimensions = 0,
+    DimensionsAndBalance = 1,
+    NoDimensions = 2,
 }
 
 export interface IPaycheckEmailInfo {
@@ -199,15 +206,36 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.PostAction(payrollrunID, 'sendpaymentlist');
     }
 
-    public getPostingsummary(ID: number, hasGrouping: boolean = true): Observable<PostingSummary> {
-        return super.GetAction(ID, 'postingsummary', `dimensionGrouping=${hasGrouping}`);
+    public generateDraft(ID: number, bookingType: SalaryBookingType) {
+        return super.PutAction(ID, 'rebuildpostings', `bookingType=${bookingType}`);
     }
 
-    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: number = null, hasGrouping: boolean = true) {
+    public getPostingSummaryDraft(ID: number): Observable<PostingSummaryDraft> {
+        return super.GetAction(ID, 'postingsummarydraft');
+    }
+
+    public getPostingSummary(ID: number, bookingType: SalaryBookingType) {
+        return super.GetAction(ID, 'postingsummary', `bookingType=${bookingType}`);
+    }
+
+    public getBookingTypeFromDraft(draft: PostingSummaryDraft): SalaryBookingType {
+        if (!draft) {
+            return SalaryBookingType.Dimensions;
+        }
+        if (draft.draftBasic) {
+            return SalaryBookingType.NoDimensions;
+        }
+        if (draft.draftWithDimsOnBalance) {
+            return SalaryBookingType.DimensionsAndBalance;
+        }
+        return SalaryBookingType.Dimensions;
+    }
+
+    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: number = null) {
         return super.PutAction(
             ID,
             'book',
-            `accountingDate=${date}&numberseriesID=${numberseriesID}&dimensionGrouping=${hasGrouping}`);
+            `accountingDate=${date}&numberseriesID=${numberseriesID}`);
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {

@@ -61,16 +61,20 @@ export class StatusService {
 
     public loadStatusCache(): Promise<any> {
         return new Promise((resolve, reject) => {
-            if (!this.statusDictionary) {
-                // get statuses from API and add it to the cache
-                this.statisticsService.GetAll('model=Status&select=StatusCode,Description,EntityType')
-                    .subscribe(data => {
+            if (this.statusDictionary) {
+                resolve(true);
+            } else {
+                this.statisticsService.GetAll(
+                    'model=Status&select=StatusCode,Description,EntityType'
+                ).subscribe(
+                    data => {
                         if (data.Data) {
                             this.statusDictionary = {};
                             data.Data.forEach(item => {
-                                let name: string = item.StatusDescription;
+                                let name;
                                 switch (item.StatusEntityType) {
                                     case 'CustomerInvoice':
+                                        console.log(item);
                                         name = this.customerInvoiceService.getStatusText(item.StatusStatusCode, 0);
                                         break;
                                     case 'CustomerOrder':
@@ -105,6 +109,10 @@ export class StatusService {
                                     //     break;
                                 }
 
+                                if (!name) {
+                                    name = item.StatusDescription;
+                                }
+
                                 this.statusDictionary[item.StatusStatusCode] = {
                                     name: name,
                                     entityType: item.StatusEntityType
@@ -115,10 +123,10 @@ export class StatusService {
                         } else {
                             reject('Could not get statuses from API');
                         }
-                    }, err => this.errorService.handle(err));
+                    },
+                    err => this.errorService.handle(err)
+                );
             }
-
-            resolve(true);
         });
     }
 

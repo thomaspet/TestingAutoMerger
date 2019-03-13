@@ -67,7 +67,10 @@ import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCus
 
             <section class="autobank-section" *ngIf="hasAccessToAutobank">
                 <a (click)="openAgreementsModal()" *ngIf="agreements?.length > 0">Mine avtaler</a>
-                <button class="good" (click)="openAutobankAgreementModal()"> Ny autobankavtale </button>
+                <button class="new-autobank-agreement-button"
+                    (click)="openAutobankAgreementModal()">
+                    Ny autobankavtale
+                </button>
             </section>
 
             <section class="overview-ticker-section">
@@ -829,7 +832,7 @@ export class BankComponent implements AfterViewInit {
     }
 
     public openAutobankAgreementModal() {
-        this.modalService.open(UniAutobankAgreementModal);
+        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements } });
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {

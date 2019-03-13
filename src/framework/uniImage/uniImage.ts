@@ -112,6 +112,7 @@ export class UniImage {
     private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
+    private uniEconomyToken: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
     private lastUrlFailed: string = null;
@@ -159,6 +160,7 @@ export class UniImage {
             takeUntil(this.onDestroy$)
         ).subscribe(token => {
             this.token = token;
+            this.uniEconomyToken = this.authService.jwt;
             this.refreshFiles();
         });
     }
@@ -438,6 +440,8 @@ export class UniImage {
     }
 
     public splitFile() {
+        const fileIndex = this.currentFileIndex;
+
         this.modalService.confirm({
             header: 'Bekreft oppdeling av fil',
             message: 'Vennligst bekreft at du vil dele filen i to fra og med denne siden. ' +
@@ -448,26 +452,33 @@ export class UniImage {
             }
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                this.uniFilesService.splitFile(this.files[this.currentFileIndex].StorageReference, this.currentPage, true)
-                    .then(splitFileResult => {
+                this.uniFilesService.splitFile(
+                    this.files[fileIndex].StorageReference,
+                    this.currentPage,
+                ).subscribe(
+                    splitFileResult => {
                         this.fileService.splitFile(
-                            this.files[this.currentFileIndex].ID,
+                            this.files[fileIndex].ID,
                             splitFileResult.FirstPart.ExternalId,
                             splitFileResult.SecondPart.ExternalId
-                        ).subscribe(splitResultUE => {
-                            // replace the current file, and make uniimage reload the split file
-                            this.files[this.currentFileIndex] = splitResultUE.FirstPart;
+                        ).subscribe(
+                            splitResultUE => {
+                                this.files[fileIndex] = splitResultUE.FirstPart;
 
-                            // because the file was split, go back one page, or the request will
-                            // fail because the page does not exist
-                            this.currentPage--;
+                                if (this.currentPage > 1) {
+                                    this.currentPage--;
+                                }
 
-                            // check filestatus and load file/image when Uni Files is done
-                            // processing it
-                            this.checkFileStatusAndLoadImage(splitFileResult.FirstPart.StorageReference);
-                        }, err => this.errorService.handle(err));
-                    }).catch(err => this.errorService.handle(err));
-                }
+                                this.checkFileStatusAndLoadImage(
+                                    splitFileResult.FirstPart.StorageReference
+                                );
+                            },
+                            err => this.errorService.handle(err)
+                        );
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
         });
     }
 
@@ -713,7 +724,7 @@ export class UniImage {
 
     private uploadFile(file) {
         const data = new FormData();
-        data.append('Token', this.token);
+        data.append('Token', this.uniEconomyToken);
         data.append('Key', this.activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);
