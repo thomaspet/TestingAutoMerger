@@ -18,9 +18,9 @@
                     class="account_query_table_rows"
                     [attr.aria-selected]="row._isSelected">
                     <td (click)="onCellClick(row, accountYear2, i)"> {{ row.periodName}} </td>
-                    <td (click)="onCellClick(row, accountYear2, i)" [className]="(row.amountPeriodYear2 < 0 ? 'negative' : 'positive')" >{{ row.amountPeriodYear2 | numberAsMoney:numberFormat }} </td>
+                    <td (click)="onCellClick(row, accountYear2, i)" [className]="(row.amountPeriodYear2 < 0 ? 'negative' : 'positive')" title="Saldo ved slutten av mnd: {{ row.balance2 || '-' }} ">{{ row.amountPeriodYear2 | numberAsMoney:numberFormat }} </td>
                     <td (click)="onBudgetCellClick(2)" *ngIf="hasBudgetYear2" [className]="(row.budgetPeriodYear2 < 0 ? 'negative' : 'positive')">{{ row.budgetPeriodYear2 | numberAsMoney:numberFormat }} </td>
-                    <td (click)="onCellClick(row, accountYear1, i)" [className]="(row.amountPeriodYear1 < 0 ? 'negative' : 'positive')"> {{ row.amountPeriodYear1 | numberAsMoney:numberFormat }} </td>
+                    <td (click)="onCellClick(row, accountYear1, i)" [className]="(row.amountPeriodYear1 < 0 ? 'negative' : 'positive')" title="Saldo ved slutten av mnd: {{ row.balance1 || '-' }} "> {{ row.amountPeriodYear1 | numberAsMoney:numberFormat }} </td>
                     <td (click)="onBudgetCellClick(1)" *ngIf="hasBudgetYear1" [className]="(row.budgetPeriodYear1 < 0 ? 'negative' : 'positive')">{{ row.budgetPeriodYear1 | numberAsMoney:numberFormat }} </td>
                 </tr>
             </tbody>
