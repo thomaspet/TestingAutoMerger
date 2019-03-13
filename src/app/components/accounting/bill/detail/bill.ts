@@ -2289,7 +2289,7 @@ export class BillView implements OnInit {
             }
         }).onClose.subscribe((result) => {
             if (result) {
-                this.toast.addToast('Viderefakturere lagret', ToastType.good);
+                this.toast.addToast('Viderefakturering lagret', ToastType.good);
                 setTimeout(() => {
                     this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
                 }, 500);
