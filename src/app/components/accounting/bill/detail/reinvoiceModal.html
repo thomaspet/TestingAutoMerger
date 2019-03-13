@@ -55,7 +55,7 @@
         <ag-grid-wrapper *ngIf="reinvoiceType === 1"
              [(resource)]="reinvoicingCustomers"
              [config]="customersTableConfigTurnOver"
-             (rowChange)="onReinvoicingCustomerChange($event)"
+             (rowChange)="onReinvoicingCustomerChange()"
         ></ag-grid-wrapper>
         <p>Velg vare(r)</p>
         <ag-grid-wrapper
@@ -75,7 +75,7 @@
                 <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
             </ul>
         </section>
-        <button (click)="saveReinvoiceAs('')" class="bad">Lagre</button>
+        <button (click)="saveReinvoiceAs('')" class="good">Lagre</button>
         <button (click)="this.onClose.emit(false)" class="bad">Avbryt</button>
     </footer>
 </section>

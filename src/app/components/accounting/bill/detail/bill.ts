@@ -2200,10 +2200,12 @@ export class BillView implements OnInit {
                 supplierInvoice: this.current.getValue()
             }
         }).onClose.subscribe((result) => {
-            this.toast.addToast('Viderefakturere lagret');
-            setTimeout(() => {
-                this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
-            }, 500);
+            if (result) {
+                this.toast.addToast('Viderefakturere lagret', ToastType.good);
+                setTimeout(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
+                }, 500);
+            }
         });
     }
 

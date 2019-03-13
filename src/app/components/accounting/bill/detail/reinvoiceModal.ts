@@ -26,6 +26,7 @@ import { getNewGuid } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
 import { ToastService } from '@uni-framework/uniToast/toastService';
 import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -95,8 +96,23 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         const supplierID = this.supplierInvoice.SupplierID;
         const invoiceNumber = this.supplierInvoice.InvoiceNumber;
         this.reinvoiceService.GetAll(`filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq ${invoiceNumber}&orderby=UpdatedAt desc`,
-            ['SupplierInvoice', 'Product', 'Product.VatType', 'Product.VatType.VatTypePercentages']).subscribe((result) => {
-            this.currentReInvoice = result.length > 0 ? result[0] : null;
+            ['Items', 'Items.Customer', 'Items.SupplierInvoice', 'SupplierInvoice', 'Product', 'Product.VatType', 'Product.VatType.VatTypePercentages']).subscribe((result: ReInvoice[]) => {
+            if (result && result.length && result[0] && result[0].SupplierInvoiceID === this.supplierInvoice.ID) {
+                this.currentReInvoice = result[0];
+            } else if (result && result.length && result[0] && result[0].SupplierInvoiceID !== this.supplierInvoice.ID) {
+                this.currentReInvoice = new ReInvoice();
+                this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
+                this.currentReInvoice.SupplierInvoice = this.supplierInvoice;
+                this.currentReInvoice.Product = _.cloneDeep(result[0].Product);
+                this.currentReInvoice.ProductID = result[0].ProductID;
+                this.currentReInvoice.ReInvoicingType = result[0].ReInvoicingType;
+                this.currentReInvoice.OwnCostAmount = result[0].OwnCostAmount;
+                this.currentReInvoice.OwnCostShare = result[0].OwnCostShare;
+                this.currentReInvoice.Amount = result[0].Amount;
+                this.currentReInvoice.Items = _.cloneDeep(result[0].Items);
+            } else {
+                this.currentReInvoice = null;
+            }
             this.setInititalConfig(this.currentReInvoice);
         });
         this.companyAccountSettingsService.GetAll('',
@@ -169,20 +185,22 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.Items = this.reinvoicingCustomers.reduce((prev: ReInvoiceItem[], current: ReInvoiceItem) => {
             if (current.Customer && current.Customer.ID > 0) {
                 prev.push(current);
+                return prev;
             }
+            return prev;
         }, []);
         this.currentReInvoice.Amount = this.calcReinvoicingAmount();
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
-        this.currentReInvoice.SupplierInvoice = this.supplierInvoice;
         if (!this.supplierInvoice.ID) {
+            this.currentReInvoice.SupplierInvoice = this.supplierInvoice;
             this.supplierInvoice._createguid = getNewGuid();
             saveSupplierInvoiceRequest = this.supplierInvoiceService.Post(this.supplierInvoice);
         } else {
             saveSupplierInvoiceRequest = Observable.of(this.supplierInvoice);
         }
         if (!this.currentReInvoice.ID) {
-            saveRequest = this.reinvoiceService.Action(null, 'mark-create', null, RequestMethod.Post);
+            saveRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'mark-create', RequestMethod.Post, 'supplierInvoiceID=' + this.supplierInvoice.ID);
         } else {
             saveRequest = this.reinvoiceService.Put(this.currentReInvoice.ID, this.currentReInvoice);
         }
@@ -190,7 +208,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             saveRequest.subscribe(reinvoice => {
                 const actionName = type;
                 this.currentReInvoice = reinvoice;
-                this.reinvoiceService.ActionWithBody(this.currentReInvoice.ID || 0, this.currentReInvoice, 'valid', RequestMethod.Get)
+                this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid', RequestMethod.Get)
                     .subscribe(valid => {
                         if (valid) {
                             if (type !== '') {
@@ -240,10 +258,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         copyOfItems[0].Customer = new Customer();
         copyOfItems[0].Customer.ID = 0;
         copyOfItems[0].NetAmount = (1 + ((reinvoice.OwnCostShare || 0) / 100)) * totalAmount;
-        copyOfItems[0].Share = 100 - copyOfItems.reduce((previous, current) => previous + (current.Share || 0), 0);
+        copyOfItems[0].Share = 100 - copyOfItems.reduce((previous, current) => previous + (current && current.Share || 0), 0);
         return copyOfItems.map(item => {
-            item.NetAmount = totalAmount * ((item.Share || 0) / 100);
-            const priceWithoutTaxes = item.NetAmount * (1 + ((item.Surcharge || 0) / 100));
+            if (!item) {
+                item = new ReInvoiceItem();
+            }
+            item.NetAmount = totalAmount * ((item && item.Share || 0) / 100);
+            const priceWithoutTaxes = (item && item.NetAmount || 0) * (1 + ((item && item.Surcharge || 0) / 100));
             item.GrossAmount = priceWithoutTaxes * (1 + ((product.VatType.VatPercent || 0) / 100));
             return item;
         });
@@ -402,27 +423,43 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     onReinvoiceTypeChange(change: MatRadioChange) {
         this.reinvoiceType = change.value;
+        if (this.reinvoiceType === 0) {
+            this.removeSurchargeAndVat();
+            this.onReinvoicingCustomerChange();
+            this.updateItemsData(this.items[0] && this.items[0].Product);
+        }
     }
 
     onItemChange(change) {
         this.updateItemsData(change.newValue);
     }
 
-    onReinvoicingCustomerChange(change) {
+    removeSurchargeAndVat() {
+        this.reinvoicingCustomers = this.reinvoicingCustomers.map((item: ReInvoiceItem, index: number) => {
+            if (index === 0) {
+                return item;
+            }
+            item.Surcharge = 0;
+            item.Vat = 0;
+            return item;
+        });
+    }
+
+    onReinvoicingCustomerChange() {
         const total = this.supplierInvoice.TaxInclusiveAmount;
         const data = [].concat(this.reinvoicingCustomers);
         let cumulativePercentage = 0;
         for (let i = 1; i < data.length; i++) {
-            data[i].NetAmount = UniMath.round(total * (data[i].Share / 100));
-            data[i].Share = UniMath.round((data[i].NetAmount / total) * 100);
-            data[i].Vat = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) * this.items[0].VatType.VatPercent / 100);
+            data[i].NetAmount = UniMath.round(total * ((data[i].Share || 0) / 100));
+            data[i].Share = UniMath.round(((data[i].NetAmount || 0) / total) * 100);
+            data[i].Vat = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) * (this.items[0].VatType.VatPercent || 0) / 100);
             data[i].GrossAmount = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) + data[i].Vat);
             cumulativePercentage += UniMath.round(data[i].Share || 0);
         }
         data[0].Share = 100 - cumulativePercentage;
-        data[0].NetAmount = UniMath.round(total * (data[0].Share / 100));
+        data[0].NetAmount = UniMath.round(total * ((data[0].Share || 0) / 100));
         this.reinvoicingCustomers = data;
-        this.items[0].NetAmount = this.calcItemNetAmount()
+        this.items[0].NetAmount = this.calcItemNetAmount();
         this.items[0].GrossAmount = this.calcItemGrossAmount(this.items[0]);
         this.items = [].concat(this.items);
         this.isReinvoiceValid = this.validate(this.reinvoicingCustomers);
