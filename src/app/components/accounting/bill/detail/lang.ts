@@ -67,6 +67,7 @@ export const billViewLanguage = {
 
     converter: 'Kjør tolk (OCR/EHF)',
     clearpostings: 'Tøm konteringslisten',
+    reinvoice: 'Viderefakturer',
 
     ocr_running: 'Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..',
     org_not_found: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)',

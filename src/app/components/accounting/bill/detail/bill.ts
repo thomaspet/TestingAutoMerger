@@ -84,9 +84,9 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import { UniReinvoiceModal } from '@app/components/accounting/bill/detail/reinvoiceModal';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-declare var _;
 
 interface ITab {
     name: string;
@@ -2282,6 +2282,21 @@ export class BillView implements OnInit {
         });
     }
 
+    public openReinvoiceModal() {
+        this.modalService.open(UniReinvoiceModal, {
+            data: {
+                supplierInvoice: this.current.getValue()
+            }
+        }).onClose.subscribe((result) => {
+            if (result) {
+                this.toast.addToast('Viderefakturering lagret', ToastType.good);
+                setTimeout(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
+                }, 500);
+            }
+        });
+    }
+
     private handleActionAfterCheckSave(key: string, label: string, href: string, done: any): boolean {
         const current = this.current.getValue();
         switch (key) {
@@ -3636,6 +3651,11 @@ export class BillView implements OnInit {
                 label: lang.clearpostings,
                 action: () => this.journalEntryManual.removeJournalEntryData(),
                 disabled: () => false,
+            },
+            {
+                label: lang.reinvoice,
+                action: () => this.openReinvoiceModal(),
+                disabled: () => this.current && this.current.getValue().StatusCode >= 30104,
             },
         ];
         this.toolbarConfig = {

@@ -1900,17 +1900,14 @@ export class OtpExportWagetype extends UniEntity {
 
 
 export class PostingSummaryDraft extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'PostingSummaryDraft';
-
     public draftBasic: string;
     public draftWithDims: string;
     public draftWithDimsOnBalance: string;
     public ID: number;
+    public JobInfoID: number;
     public PayrollID: number;
     public status: SummaryJobStatus;
     public statusTime: Date;
-    public CustomFields: any;
 }
 
 
@@ -5436,8 +5433,8 @@ export class CompanyAccountingSettings extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public ReInvoicingCostsharingProductID: number;
+    public ReInvoicingMethod: number;
     public ReInvoicingTurnoverProductID: number;
-    public ReInvoicingType: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -6193,6 +6190,7 @@ export class SupplierInvoice extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
+    public ReInvoice: ReInvoice;
     public CustomFields: any;
 }
 
@@ -6765,9 +6763,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6994,6 +6992,18 @@ export class SupplementInfo extends UniEntity {
     public ValueString: string;
     public ValueType: Valuetype;
     public WageTypeSupplementID: number;
+}
+
+
+export class AnnualStatementReportSetup extends UniEntity {
+    public EmpIDs: string;
+    public Mail: AnnualStatementEmailInfo;
+}
+
+
+export class AnnualStatementEmailInfo extends UniEntity {
+    public Message: string;
+    public Subject: string;
 }
 
 
@@ -7274,25 +7284,25 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
-    public License: LicenseInfo;
+    public License: ElsaUserLicenseInfo;
     public CustomFields: any;
 }
 
 
-export class LicenseInfo extends UniEntity {
+export class ElsaUserLicenseInfo extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
-    public CustomerAgreement: CustomerLicenseAgreement;
+    public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
-    public Company: CompanyLicenseInfo;
+    public Company: ElsaCompanyLicenseInfo;
     public ContractType: ContractLicenseType;
-    public UserLicenseAgreement: LicenseAgreement;
+    public UserLicenseAgreement: LicenseAgreementInfo;
 }
 
 
-export class CustomerLicenseAgreement extends UniEntity {
+export class CustomerLicenseAgreementInfo extends UniEntity {
     public AgreementId: number;
     public CanAgreeToLicense: boolean;
     public HasAgreedToLicense: boolean;
@@ -7306,7 +7316,7 @@ export class UserLicenseType extends UniEntity {
 }
 
 
-export class CompanyLicenseInfo extends UniEntity {
+export class ElsaCompanyLicenseInfo extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
     public ContractID: number;
@@ -7325,13 +7335,14 @@ export class Agency extends UniEntity {
 
 
 export class ContractLicenseType extends UniEntity {
+    public StartDate: Date;
     public TrialExpiration: Date;
     public TypeID: number;
     public TypeName: string;
 }
 
 
-export class LicenseAgreement extends UniEntity {
+export class LicenseAgreementInfo extends UniEntity {
     public AgreementId: number;
     public HasAgreedToLicense: boolean;
 }
@@ -7597,6 +7608,12 @@ export class AutobankUserDTO extends UniEntity {
     public Password: string;
     public Phone: string;
     public UserID: number;
+}
+
+
+export class UpdateServiceStatusDTO extends UniEntity {
+    public ServiceID: string;
+    public StatusCode: StatusCodeBankIntegrationAgreement;
 }
 
 
@@ -8518,6 +8535,16 @@ export enum ReportType{
     regnearkOdsV1 = 1,
     xmlFormatV2 = 2,
     maskinlesbartFormatXmlV1 = 3,
+}
+
+
+export enum StatusCodeBankIntegrationAgreement{
+    Pending = 700001,
+    WaitForSigning = 700002,
+    WaitForBankApprove = 700003,
+    WaitForZDataApprove = 700004,
+    Active = 700005,
+    Canceled = 700006,
 }
 
 

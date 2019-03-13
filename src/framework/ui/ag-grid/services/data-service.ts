@@ -649,7 +649,7 @@ export class TableDataService {
         sumColumns.forEach((col, index) => {
             // TODO: filteredData
             sumRow[col.alias || col.field] = data.reduce((sum, row) => {
-                return sum += parseInt(get(row, col.alias || col.field, 0), 10);
+                return sum += parseInt(get(row, col.alias || col.field, 0), 10) || 0;
             }, 0);
         });
 
