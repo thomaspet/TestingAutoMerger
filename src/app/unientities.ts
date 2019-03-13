@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomFields: any;
 }
 
@@ -2388,9 +2388,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
-    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -7294,15 +7294,15 @@ export class ElsaUserLicenseInfo extends UniEntity {
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
-    public CustomerAgreement: CustomerLicenseAgreement;
+    public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
     public Company: ElsaCompanyLicenseInfo;
     public ContractType: ContractLicenseType;
-    public UserLicenseAgreement: LicenseAgreement;
+    public UserLicenseAgreement: LicenseAgreementInfo;
 }
 
 
-export class CustomerLicenseAgreement extends UniEntity {
+export class CustomerLicenseAgreementInfo extends UniEntity {
     public AgreementId: number;
     public CanAgreeToLicense: boolean;
     public HasAgreedToLicense: boolean;
@@ -7335,13 +7335,14 @@ export class Agency extends UniEntity {
 
 
 export class ContractLicenseType extends UniEntity {
+    public StartDate: Date;
     public TrialExpiration: Date;
     public TypeID: number;
     public TypeName: string;
 }
 
 
-export class LicenseAgreement extends UniEntity {
+export class LicenseAgreementInfo extends UniEntity {
     public AgreementId: number;
     public HasAgreedToLicense: boolean;
 }
