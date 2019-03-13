@@ -115,7 +115,7 @@ export class UniCompanyAccountingSettingsModal implements OnInit, IUniModal {
                     source: [
                         { ID: 0, Name: 'Faktura (Kladd)' },
                         { ID: 1, Name: 'Faktura (Fakturert)' },
-                        { ID: 2, Name: 'Ordre (Registret)' }
+                        { ID: 2, Name: 'Ordre (Registrert)' }
                     ],
                     valueProperty: 'ID',
                     displayProperty: 'Name',
