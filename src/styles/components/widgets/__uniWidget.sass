@@ -1,3 +1,11 @@
+@mixin button-coloring($color)
+    background-color: $color
+    &:hover, &:focus
+        background-color: lighten($color, 10%) !important
+
+    &[disabled]
+        background-color: desaturate(mix($color, #fafafa, 50%), 10%) !important
+
 uni-widget-canvas
     display: block
     width: 100%
@@ -479,15 +487,91 @@ uni-info-shortcut
 
 
 uni-top-ten-widget
+    .state-icon
+        color: $uni-color-positive
+        position: absolute
+        right: 2.4rem
+        top: .6rem
+        font-size: 1.2rem
+        cursor: pointer
+
+    .top-ten-single-view
+        margin-top: 1rem
+        .top-ten-customername
+            color: #2b66c3
+            font-size: 1.2rem
+            display: flex
+            align-items: center
+            span
+                text-decoration: underline
+                cursor: pointer
+                flex: 1
+            i
+                vertical-align: middle
+                float: left
+                margin-left: 1rem
+                cursor: pointer
+                &:last-of-type
+                    float: right
+                    margin-right: 1rem
+                &:after
+                    clear: both
+
+        .top-ten-new-buttons
+            display: flex
+            flex-direction: row
+            justify-content: center
+            align-items: center
+            margin: 1rem 0
+            button
+                height: 32px
+                border-radius: 18px
+                color: #ffffff
+                line-height: 0
+                @include button-coloring(#1565c0)
+                font-size: .8rem
+                width: 6rem
+                margin: .25rem
+
+        .top-ten-info-container
+            display: flex
+            flex-direction: column
+            color: $uni-color-positive
+            padding: 0 3rem
+
+            div
+                box-sizing: border-box
+                padding: .5rem
+                border-radius: 3px
+                border: 1px solid $uni-color-positive
+                flex: 1
+                margin-top: 1rem
+                position: relative
+                &:first-of-type
+                    margin-top: 0
+                span
+                    font-size: .9rem
+                    color: $uni-color-c2a
+                    &:first-of-type
+                        font-size: .8rem
+                        margin-right: 1.5rem
+                        position: absolute
+                        left: 1rem
+                        color: $uni-color-positive
+                        font-weight: bold
+
+
+
     .topten-table-container
-        padding: 0 0 20px 20px
+        padding: 0
         overflow: auto
 
     .topten-table
         color: $uni-color-positive
-        width: 100%
+        width: 95%
         table-layout: fixed
         font-size: .8rem
+        margin-left: 1rem
 
         tbody
             tr
@@ -503,14 +587,14 @@ uni-top-ten-widget
 
 
     .twenty-width-right
-        width: 20%
+        width: 15%
         text-align: right
 
     .five-width-end
         width: 5%
 
     .thirtyfive-width-start
-        width: 35%
+        width: 25%
 
 .customer-name-col
     width: 35%
@@ -528,13 +612,14 @@ uni-top-ten-widget
 
 .topten-context-menu
     position: absolute
-    width: 10rem
+    width: 15rem
     list-style: none
     margin: 0
     background-color: #fff
     text-align: left
     border: 1px solid $uni-color-scale9
     border-radius: .25rem
+    right: 0rem
 
     li
         height: 2rem
