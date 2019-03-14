@@ -16,6 +16,8 @@
 
     .license
         flex: 0 0 auto
+        min-width: 12rem
+        margin-bottom: 1rem
         padding: 1rem
         cursor: pointer
         border: 1px dashed $uni-color-scale8
@@ -68,59 +70,3 @@ footer
 
     button.cancel
         margin-left: auto
-
-
-.selection-list
-    margin: -30px 2px
-    span.selection-item
-        margin: 5px 5px 0 0
-        border: 1px solid $uni-color-scale8
-        border-radius: 3px
-        padding: 2px 5px
-        box-sizing: border-box
-        white-space: nowrap
-        float: left
-        background: #fff
-
-        &:hover
-            background: darken(#fff, 5%)
-
-        .remove
-            font-weight: bold
-            margin-left: 2px
-            font-size: 12px
-            color: $uni-color-bad
-            cursor: pointer
-            padding: 5px 2px
-
-.uni-statustrack
-    margin: 1rem auto 0
-
-    & .future, & .active
-        cursor: not-allowed
-
-article h1
-    margin: 0
-
-.list-of-contracts
-    button
-        float: right
-
-.list-of-companies, .list-of-users, .list-of-teams
-    list-style: none
-    label
-        white-space: nowrap
-    input[type='checkbox']
-        width: 1rem
-
-.license-tag
-    display: block
-    color: $uni-color-scale5
-
-// button.good
-//     margin-left: 0
-//     width: 15rem
-
-button.refresh
-    display: inline-flex
-    vertical-align: middle

@@ -3,6 +3,7 @@ import {ElsaContractService} from '@app/services/elsa/elsaContractService';
 import {ElsaCompanyLicense} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
+import * as moment from 'moment';
 
 @Component({
     selector: 'select-companies-for-bulk-access',
@@ -29,6 +30,14 @@ export class SelectCompaniesForBulkAccess {
     private initData() {
         this.elsaContractService.GetCompanyLicenses(this.data.contract.id).subscribe(
             companyLicenses => {
+                companyLicenses = companyLicenses.filter(companyLicense => {
+                    if (companyLicense.endDate && moment(companyLicense.endDate).isValid()) {
+                        return moment(companyLicense.endDate).isAfter(moment());
+                    } else {
+                        return true;
+                    }
+                });
+
                 if (this.data.companies && this.data.companies.length) {
                     companyLicenses.forEach(license => {
                         if (this.data.companies.some(c => c.companyKey === license.companyKey)) {
