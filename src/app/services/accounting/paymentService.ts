@@ -26,40 +26,32 @@ export class PaymentService extends BizHttp<Payment> {
     }
 
     public getStatusText(statusCode: number): string {
-        if (!statusCode) {
-            return '';
-        } else if (statusCode === 44001) {
-            return 'Opprettet';
-        } else if (statusCode === 44002) {
-            return 'Overført til Bank';
-        } else if (statusCode === 44003) {
-            return 'Feilet';
-        } else if (statusCode === 44004) {
-            return 'Fullført';
-        } else if (statusCode === 44005) {
-            return 'Klar for overføring';
-        } else if (statusCode === 44006) {
-            return 'Betalt';
-        } else if (statusCode === 44007) {
-            return 'Overført til meldingssentral';
-        } else if (statusCode === 44008) {
-            return 'I betalingskø ';
-        } else if (statusCode === 44009) {
-            return 'Venter på status fra bank ';
-        } else if (statusCode === 44010) {
-            return 'Avvist av meldingssentral';
-        } else if (statusCode === 44011) {
-            return 'Manuell overføring';
-        } else if (statusCode === 44012) {
-            return 'Avvist';
-        } else if (statusCode === 44013) {
-            return 'Overføring til meldingssentral feilet';
-        } else if (statusCode === 44014) {
-            return 'Kansellert av bruker';
-        } else if (statusCode === 44018) {
-            return 'Ingen match';
+        switch (statusCode) {
+            case 44001:
+                return 'Opprettet';
+            case 44002:
+            case 44005:
+            case 44007:
+            case 44008:
+                return 'Overført bank';
+            case 44009:
+                return 'Overført bank avventer godkjenning';
+            case 44011:
+                return 'Manuelt overført bank';
+            case 44006:
+                return 'Betalt';
+            case 44004:
+                return 'Fullført';
+            case 44003:
+            case 44010:
+            case 44012:
+            case 44013:
+            case 44014:
+                return 'Feilet';
+            case 44018:
+                return 'Ingen match';
+            default:
+                return '';
         }
-
-        return 'Ukjent status: ' + statusCode;
     }
 }
