@@ -29,6 +29,12 @@ export class SelectProductsForBulkAccess {
     initData() {
         this.elsaProductService.GetAll().subscribe(
             products => {
+                products = products.filter(product => {
+                    return product.productTypeName === 'Module'
+                        && product.isPerUser
+                        && product.name !== 'Complete';
+                });
+
                 if (this.data.products && this.data.products.length) {
                     products.forEach(product => {
                         if (this.data.products.some(p => p.id === product.id)) {

@@ -6,13 +6,13 @@
     [(ngModel)]="checkAll"
     (change)="onCheckAllChange()">
 
-    Velg alle
+    Velg alle <strong>({{filteredItems?.length}})</strong>
 </mat-checkbox>
 
-<ul>
-    <li *ngFor="let item of filteredItems">
+<cdk-virtual-scroll-viewport itemSize="35" class="scrolling-viewport">
+    <section *cdkVirtualFor="let item of filteredItems" class="selection-list-item">
         <mat-checkbox [(ngModel)]="item['_selected']" (change)="onItemSelectionChange(item)">
             {{item[labelProperty]}}
         </mat-checkbox>
-    </li>
-</ul>
+    </section>
+</cdk-virtual-scroll-viewport>
