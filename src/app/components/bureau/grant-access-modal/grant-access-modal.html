@@ -1,8 +1,4 @@
 <section role="dialog" class="uni-modal">
-    <!-- <header>
-        <h1>Gi tilgang</h1>
-    </header> -->
-
     <article>
         <mat-horizontal-stepper *ngIf="!showReceipt" [linear]="true" (selectionChange)="onStepChange($event)" #stepper [@.disabled]="true">
             <mat-step label="Lisens" [completed]="licenseSelected">
