@@ -187,9 +187,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 action: () => {
                     this.deleteReinvoice();
                 },
-                disabled: (!this.currentReInvoice ||
-                            this.currentReInvoice.ID === 0 ||
-                            this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced)
+                disabled: (!this.currentReInvoice || this.currentReInvoice.ID === 0)
             }
         ];
     }
