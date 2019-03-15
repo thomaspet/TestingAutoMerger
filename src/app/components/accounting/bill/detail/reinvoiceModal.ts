@@ -280,7 +280,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.reinvoicingCustomers = this.setInitialCustomerData(
             lastReinvoicing === null ? null : lastReinvoicing,
             lastReinvoicing === null ? null : lastReinvoicing.Product,
-            this.supplierInvoice.TaxInclusiveAmount || this.supplierInvoice.TaxInclusiveAmountCurrency);
+            this.supplierInvoice.TaxInclusiveAmountCurrency);
 
         this.items = this.setInitialItemsData(lastReinvoicing === null ? null : lastReinvoicing.Product);
     }
@@ -491,7 +491,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     onReinvoicingCustomerChange() {
-        const total = this.supplierInvoice.TaxInclusiveAmount || this.supplierInvoice.TaxInclusiveAmountCurrency;
+        const total = this.supplierInvoice.TaxInclusiveAmountCurrency;
         const data = [].concat(this.reinvoicingCustomers);
         let cumulativePercentage = 0;
         for (let i = 1; i < data.length; i++) {
@@ -525,7 +525,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             checkedCustomers.push(items[i]);
         }
         const amount = this.calcReinvoicingAmount();
-        const total = this.supplierInvoice.TaxInclusiveAmount || this.supplierInvoice.TaxInclusiveAmountCurrency;
+        const total = this.supplierInvoice.TaxInclusiveAmountCurrency;
         return (totalShare === 100 && items[0].Share >= 0 && !customerRepeated && total === amount);
     }
 
