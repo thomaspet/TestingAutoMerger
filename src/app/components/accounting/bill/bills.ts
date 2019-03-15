@@ -1,6 +1,6 @@
 import {ViewChild, Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
@@ -12,7 +12,7 @@ import {
 } from '../../../unientities';
 import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
+import {UniModalService, UniConfirmModalV2, ConfirmActions, UniReinvoiceModal} from '../../../../framework/uni-modal';
 import {
     ApprovalService,
     SupplierInvoiceService,
@@ -857,14 +857,36 @@ export class BillsView implements OnInit {
                 .setAlignment('center')
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
-                })
+                }),
+            new UniTableColumn('ReInvoiced', 'Viderefakturering', UniTableColumnType.Boolean).setVisible(false)
+
         ];
+
+        let contextMenuItems: IContextMenuItem[] = [
+            {
+                action: (row) => this.reInvoice(row),
+                disabled: (row) => !row || !row.ReInvoiced,
+                label: 'Viderefakturer'
+            }
+        ];
+
         return new UniTableConfig('accounting.bills.mainTable', false, true)
             .setSearchable(true)
             .setMultiRowSelect(true, false, true)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
-            .setColumnMenuVisible(true);
+            .setColumnMenuVisible(true)
+            .setContextMenu(contextMenuItems);
+    }
+
+    public reInvoice(row) {
+        this.supplierInvoiceService.Get(row.ID).subscribe(invoice => {
+            this.modalService.open(UniReinvoiceModal, {
+                data: {
+                    supplierInvoice: invoice
+                }
+            });
+        });
     }
 
     public onAddNew() {
