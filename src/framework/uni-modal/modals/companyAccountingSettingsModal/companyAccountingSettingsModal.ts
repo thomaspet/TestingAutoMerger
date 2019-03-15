@@ -1,4 +1,6 @@
-import {Component, Input, Output, EventEmitter, OnInit, ViewChild, HostListener} from '@angular/core';
+import {
+    Component, Input, Output, EventEmitter, OnInit
+} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import { ErrorService } from '@app/services/services';
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
