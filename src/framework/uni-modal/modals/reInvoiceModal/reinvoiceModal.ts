@@ -187,13 +187,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 action: () => {
                     this.deleteReinvoice();
                 },
-<<<<<<< HEAD:src/app/components/accounting/bill/detail/reinvoiceModal.ts
                 disabled: (!this.currentReInvoice ||
                             this.currentReInvoice.ID === 0 ||
                             this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced)
-=======
-                disabled: (!this.currentReInvoice || this.currentReInvoice.ID === 0)
->>>>>>> develop:src/framework/uni-modal/modals/reInvoiceModal/reinvoiceModal.ts
             }
         ];
     }
