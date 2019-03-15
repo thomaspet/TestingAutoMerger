@@ -14,7 +14,7 @@ import {Observable, of, forkJoin} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
-import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';
+import {IUniInfoConfig} from '@uni-framework/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {filter, tap, switchMap, map, finalize} from 'rxjs/operators';

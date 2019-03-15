@@ -48,7 +48,8 @@ import {
     ConfirmActions,
     UniApproveModal,
     ApprovalDetails,
-    IModalOptions
+    IModalOptions,
+    UniReinvoiceModal
 } from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
@@ -84,7 +85,6 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
-import { UniReinvoiceModal } from '@app/components/accounting/bill/detail/reinvoiceModal';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 
@@ -100,7 +100,8 @@ enum actionBar {
     save = 0,
     saveWithNewDocument = 1,
     delete = 2,
-    ocr = 3
+    ocr = 3,
+    runSmartBooking = 4
 }
 
 interface ILocalValidation {
@@ -1954,6 +1955,7 @@ export class BillView implements OnInit {
         this.flagUnsavedChanged(true);
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
+        this.flagActionBar(actionBar.runSmartBooking, true);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
         this.resetDocuments();
@@ -2717,9 +2719,11 @@ export class BillView implements OnInit {
                 this.addTab(+id);
                 this.flagActionBar(actionBar.delete, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled)
                 this.loadActionsFromEntity();
                 this.lookupHistory();
                 this.checkLockStatus();
+
 
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
 
@@ -3650,12 +3654,12 @@ export class BillView implements OnInit {
             {
                 label: lang.clearpostings,
                 action: () => this.journalEntryManual.removeJournalEntryData(),
-                disabled: () => false,
+                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
             },
             {
                 label: lang.reinvoice,
                 action: () => this.openReinvoiceModal(),
-                disabled: () => this.current && this.current.getValue().StatusCode >= 30104,
+                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
             },
         ];
         this.toolbarConfig = {

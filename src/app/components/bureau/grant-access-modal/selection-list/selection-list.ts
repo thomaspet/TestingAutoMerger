@@ -4,7 +4,6 @@ import {
     Output,
     EventEmitter,
     ChangeDetectionStrategy,
-    ChangeDetectorRef
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 

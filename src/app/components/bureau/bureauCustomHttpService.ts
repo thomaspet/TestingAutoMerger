@@ -65,11 +65,4 @@ export class BureauCustomHttpService {
         }
         throw new Error('No elements found, can not return the first element');
     }
-
-    public hasAccessToCompany(companyKey: string): Observable<boolean> {
-        return this.getWithoutUnAuthenticatedHandling('/api/biz', companyKey)
-            .map(() => true)
-            .catch(err => Observable.of(false));
-
-    }
 }
