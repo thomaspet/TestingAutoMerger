@@ -17,7 +17,7 @@
                     Viderefakturering, omsetning
                 </mat-radio-button>
             </mat-radio-group>
-            <p class="totalsum">Totalsum leverandørfaktura: {{ supplierInvoice?.TaxInclusiveAmount | uninumberformat:'money' }} Kr</p>
+            <p class="totalsum">Totalsum leverandørfaktura: {{ supplierInvoice?.TaxInclusiveAmountCurrency | uninumberformat:'money' }} Kr</p>
         </form>
         <uni-information [config]="{ headline: 'Instillinger'}">
             <span>Kostandsdeling:</span>

@@ -95,8 +95,20 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
         const supplierID = this.supplierInvoice.SupplierID;
         const invoiceNumber = this.supplierInvoice.InvoiceNumber;
-        this.reinvoiceService.GetAll(`filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq ${invoiceNumber}&orderby=UpdatedAt desc`,
-            ['Items', 'Items.Customer', 'Items.SupplierInvoice', 'SupplierInvoice', 'Product', 'Product.VatType', 'Product.VatType.VatTypePercentages']).subscribe((result: ReInvoice[]) => {
+        let reinvoiceRequest;
+        if (supplierID && invoiceNumber) {
+            reinvoiceRequest = this.reinvoiceService.GetAll(
+                `filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq ${invoiceNumber}`
+                + `&orderby=UpdatedAt desc`,
+                [
+                    'Items', 'Items.Customer', 'Items.SupplierInvoice', 'SupplierInvoice', 'Product', 'Product.VatType',
+                    'Product.VatType.VatTypePercentages'
+                ]
+            );
+        } else {
+            reinvoiceRequest = Observable.of([]);
+        }
+        reinvoiceRequest.subscribe((result: ReInvoice[]) => {
             if (result && result.length && result[0] && result[0].SupplierInvoiceID === this.supplierInvoice.ID) {
                 this.currentReInvoice = result[0];
             } else if (result && result.length && result[0] && result[0].SupplierInvoiceID !== this.supplierInvoice.ID) {
@@ -212,6 +224,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.ProductID = this.items[0].Product.ID;
         this.currentReInvoice.Items = this.reinvoicingCustomers.reduce((prev: ReInvoiceItem[], current: ReInvoiceItem) => {
             if (current.Customer && current.Customer.ID > 0) {
+                if (!current.ID) {
+                    current._createguid = getNewGuid();
+                }
                 prev.push(current);
                 return prev;
             }
@@ -232,15 +247,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         } else {
             saveRequest = this.reinvoiceService.Put(this.currentReInvoice.ID, this.currentReInvoice);
         }
-        saveSupplierInvoiceRequest.subscribe(supplierInvoice => {
-            saveRequest.subscribe(reinvoice => {
-                const actionName = type;
-                this.currentReInvoice = reinvoice;
-                this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid', RequestMethod.Get)
-                    .subscribe(valid => {
-                        if (valid) {
+        this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid', RequestMethod.Put)
+            .subscribe(valid => {
+                if (valid) {
+                    saveSupplierInvoiceRequest.subscribe(supplierInvoice => {
+                        saveRequest.subscribe(reinvoice => {
                             if (type !== '') {
-                                this.reinvoiceService.Action(reinvoice.ID, actionName).subscribe(result => {
+                                this.reinvoiceService.Action(reinvoice.ID, type).subscribe(() => {
                                     this.onClose.emit({
                                         supplierInvoice: supplierInvoice,
                                         reinvoice: reinvoice
@@ -252,12 +265,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                                     reinvoice: reinvoice
                                 });
                             }
-                        } else {
-                            this.toastr.addToast('Viderefakturere er ugyldig');
-                        }
+                        });
                     });
+                } else {
+                    this.toastr.addToast('Viderefakturere er ugyldig');
+                }
             });
-        });
     }
 
     public setInititalConfig(lastReinvoicing: ReInvoice | null) {
@@ -265,7 +278,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.reinvoicingCustomers = this.setInitialCustomerData(
             lastReinvoicing === null ? null : lastReinvoicing,
             lastReinvoicing === null ? null : lastReinvoicing.Product,
-            this.supplierInvoice.TaxInclusiveAmount);
+            this.supplierInvoice.TaxInclusiveAmountCurrency);
 
         this.items = this.setInitialItemsData(lastReinvoicing === null ? null : lastReinvoicing.Product);
     }
@@ -293,7 +306,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
             item.NetAmount = totalAmount * ((item && item.Share || 0) / 100);
             const priceWithoutTaxes = (item && item.NetAmount || 0) * (1 + ((item && item.Surcharge || 0) / 100));
-            item.GrossAmount = priceWithoutTaxes * (1 + ((product.VatType.VatPercent || 0) / 100));
+            const vatPercent = (product && product.VatType && product.VatType.VatPercent) || 0;
+            item.GrossAmount = priceWithoutTaxes * (1 + (vatPercent / 100));
             return item;
         });
     }
@@ -349,7 +363,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     public calcItemGrossAmount(line) {
-        return UniMath.round((line.NetAmount || 0) * (1 + ((line.VatType.VatPercent / 100) || 0)));
+        const vatPercent = line && line.VatType && line.VatType.VatPercent || 0;
+        return UniMath.round((line.NetAmount || 0) * (1 + ((vatPercent / 100) || 0)));
     }
 
     public updateItemsTableConfig(isTurnOver = false) {
@@ -372,7 +387,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         });
         const itemNetColumn = new UniTableColumn('NetAmount', 'Netto', UniTableColumnType.Money, false);
         const itemVatCodeColumn = new UniTableColumn('VatCode', 'Mva-kode', UniTableColumnType.Text, false);
-        itemVatCodeColumn.setTemplate((row) => row.VatType ? row.VatType.VatCode + ': ' + row.VatType.VatPercent || 0 + '%' : '');
+        itemVatCodeColumn.setTemplate((row) => row.VatType ? (row.VatType.VatCode || '-') + ': ' + row.VatType.VatPercent || 0 + '%' : '');
         const itemGrossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money, false);
 
 
@@ -474,13 +489,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     onReinvoicingCustomerChange() {
-        const total = this.supplierInvoice.TaxInclusiveAmount;
+        const total = this.supplierInvoice.TaxInclusiveAmountCurrency;
         const data = [].concat(this.reinvoicingCustomers);
         let cumulativePercentage = 0;
         for (let i = 1; i < data.length; i++) {
             data[i].NetAmount = UniMath.round(total * ((data[i].Share || 0) / 100));
             data[i].Share = UniMath.round(((data[i].NetAmount || 0) / total) * 100);
-            data[i].Vat = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) * (this.items[0].VatType.VatPercent || 0) / 100);
+            const vatPercent = (this.items[0] && this.items[0].VatType && this.items[0].VatType.VatPercent) || 0;
+            data[i].Vat = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) * vatPercent / 100);
             data[i].GrossAmount = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) + data[i].Vat);
             cumulativePercentage += UniMath.round(data[i].Share || 0);
         }
@@ -507,7 +523,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             checkedCustomers.push(items[i]);
         }
         const amount = this.calcReinvoicingAmount();
-        return (totalShare === 100 && items[0].Share >= 0 && !customerRepeated && this.supplierInvoice.TaxInclusiveAmount === amount);
+        const total = this.supplierInvoice.TaxInclusiveAmountCurrency;
+        return (totalShare === 100 && items[0].Share >= 0 && !customerRepeated && total === amount);
     }
 
     openSettingsModal() {
