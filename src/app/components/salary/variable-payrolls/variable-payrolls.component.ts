@@ -174,6 +174,8 @@ export class VariablePayrollsComponent {
         this.loading = true;
         this.selectedPayrollrun.transactions = [...createguidOnDimensionsAndSupplements, ...this.deletedLines];
 
+        this.selectedPayrollrun.transactions.forEach(trans => trans.EmploymentID = trans.EmploymentID || 0);
+
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
 
