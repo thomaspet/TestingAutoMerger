@@ -32,7 +32,7 @@ import {UniTickerDetailView} from './components/tickerDetailView';
 
         AppCommonModule,
         AppPipesModule,
-        ReportsModule
+        ReportsModule,
     ],
     declarations: [
         UniTickerOverview,
@@ -43,7 +43,6 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         UniTickerDetailView
     ],
     entryComponents: [
-
     ],
     exports: [
         UniTickerOverview,

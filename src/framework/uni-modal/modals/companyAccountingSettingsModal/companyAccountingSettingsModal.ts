@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild, HostListener} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import { ErrorService } from '../../../../services/services';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
+import { ErrorService } from '@app/services/services';
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { CompanyAccountingSettings, Product } from '@app/unientities';

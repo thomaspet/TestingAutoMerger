@@ -26,7 +26,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
-    constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         super.disableCache();
 

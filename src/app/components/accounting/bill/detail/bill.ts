@@ -48,7 +48,8 @@ import {
     ConfirmActions,
     UniApproveModal,
     ApprovalDetails,
-    IModalOptions
+    IModalOptions,
+    UniReinvoiceModal
 } from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
@@ -84,7 +85,6 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
-import { UniReinvoiceModal } from '@app/components/accounting/bill/detail/reinvoiceModal';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 

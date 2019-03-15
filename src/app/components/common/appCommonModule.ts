@@ -36,7 +36,6 @@ import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
-import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
@@ -110,7 +109,6 @@ import {
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-        UniInfo,
         BrowserWarning,
         BookPaymentManualModal,
         VacationPaySettingsModal,
@@ -175,7 +173,6 @@ import {
 
         LinkMenu,
 
-        UniInfo,
         BrowserWarning,
 
         ApiKeyComponent,

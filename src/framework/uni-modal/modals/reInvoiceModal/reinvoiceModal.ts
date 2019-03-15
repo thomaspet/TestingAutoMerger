@@ -1,12 +1,13 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
+import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {UniModalService} from '../../modalService';
+import {UniCompanyAccountingSettingsModal} from '../companyAccountingSettingsModal/companyAccountingSettingsModal';
 import {
     UniTableColumn,
     UniTableColumnType,
-    UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
-import { ErrorService } from '../../../../services/services';
+} from '@uni-framework/ui/unitable/config/unitableColumn';
+import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
+import { ErrorService } from '@app/services/services';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     CompanyAccountingSettings, Customer, Product, ReInvoice, ReInvoiceItem,
@@ -16,7 +17,6 @@ import { CustomerService } from '@app/services/sales/customerService';
 import { MatRadioChange } from '@angular/material';
 import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
-import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bill/detail/companyAccountingSettingsModal';
 import { ProductService } from '@app/services/common/productService';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
 import * as moment from 'moment';

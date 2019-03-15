@@ -27,6 +27,8 @@ import {MissingPurchasePermissionModal} from './modals/missing-purchase-permissi
 import {UniAutobankAgreementModal} from './modals/autobankAgreementModal';
 import {UniFileUploadModal} from './modals/uploadFilesModal';
 import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
+import {UniReinvoiceModal} from './modals/reInvoiceModal/reinvoiceModal';
+import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -58,6 +60,8 @@ export * from './modals/missing-purchase-permission/missing-purchase-permission'
 export * from './modals/autobankAgreementModal';
 export * from './modals/uploadFilesModal';
 export * from './modals/company-actions-modal/company-actions-modal';
+export * from './modals/reInvoiceModal/reinvoiceModal';
+export * from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -88,6 +92,8 @@ export const MODALS = [
     UniAutobankAgreementModal,
     UniFileUploadModal,
     CompanyActionsModal,
-    MissingPurchasePermissionModal
+    MissingPurchasePermissionModal,
+    UniReinvoiceModal,
+    UniCompanyAccountingSettingsModal
 ];
 

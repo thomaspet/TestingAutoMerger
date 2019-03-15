@@ -19,6 +19,7 @@ import {UniMultiLevelSelect} from './controls/multiLevelSelect';
 import {UniAvatar} from './avatar/uniAvatar';
 import {UniCommentInput} from './comments/commentInput';
 import {UniCommentList} from './comments/commentList';
+import {UniInfo} from './uniInfo/uniInfo';
 
 import {ClickOutsideModule} from './click-outside/click-outside.module';
 import {UniSearchModule} from './ui/unisearch/UniSearch.module';
@@ -88,6 +89,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniCommentInput,
         UniCommentList,
         UniAvatar,
+        UniInfo,
         ...MODALS
     ],
     entryComponents: [
@@ -124,6 +126,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniCommentInput,
         UniCommentList,
         UniAvatar,
+        UniInfo,
 
         UniComponentLoader,
 

@@ -25,7 +25,7 @@ import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
-import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
+import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 import { switchMap } from 'rxjs/operators';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip

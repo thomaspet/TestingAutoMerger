@@ -90,8 +90,6 @@ import {
 import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
 import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 import { UniCostAllocationDetails } from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
-import { UniReinvoiceModal } from '@app/components/accounting/bill/detail/reinvoiceModal';
-import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bill/detail/companyAccountingSettingsModal';
 
 @NgModule({
     imports: [
@@ -194,10 +192,6 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,
-
-        // Reinvoice
-        UniReinvoiceModal,
-        UniCompanyAccountingSettingsModal
     ],
     entryComponents: [
         HistoricVatReportModal,
@@ -219,8 +213,6 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,
-        UniReinvoiceModal,
-        UniCompanyAccountingSettingsModal,
         FileFromInboxModal,
         BillTransitionModal
     ],
@@ -279,10 +271,6 @@ import { UniCompanyAccountingSettingsModal } from '@app/components/accounting/bi
         // CostAllocation
         UniCostAllocation,
         UniCostAllocationList,
-
-        // Reinvoice
-        UniReinvoiceModal,
-        UniCompanyAccountingSettingsModal
     ],
     providers: [
         PeriodFilterHelper,

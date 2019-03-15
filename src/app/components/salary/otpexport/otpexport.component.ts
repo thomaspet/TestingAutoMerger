@@ -12,7 +12,7 @@ import { ErrorService, CompanySalaryService, PayrollrunService } from '@app/serv
 import { CompanySalary, TypeOfPaymentOtp } from '@uni-entities';
 import { Router } from '@angular/router';
 import { OtpPeriodWagetypeModalComponent } from './otp-period-wagetype-modal/otp-period-wagetype-modal.component';
-import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
+import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 
 @Component({
   selector: 'uni-otpexport',

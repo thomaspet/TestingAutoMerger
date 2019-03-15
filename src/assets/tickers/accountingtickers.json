@@ -565,6 +565,12 @@
             {
                 "Header": "Status",
                 "Field": "StatusCode"
+            },
+            {
+                "Header": "Viderefakturering",
+                "Field": "ReInvoiced",
+                "DefaultHidden": true,
+                "SelectRequired": true
             }
         ],
         "ParentFilter": {
@@ -627,6 +633,13 @@
                 "Options": {
                     "Transition": "sendForPayment"
                 }
+            },
+            {
+                "Name": "Viderefakturer",
+                "Code": "supplierinvoice_reinvoice",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "SubTickersCodes": ["supplierinvoice_details", "journalentryline_list"],
