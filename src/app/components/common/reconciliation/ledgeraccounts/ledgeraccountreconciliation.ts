@@ -1,5 +1,6 @@
 import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
+import {FormControl} from '@angular/forms';
 import {
     StatusCodeJournalEntryLine,
     LocalDate,
@@ -40,6 +41,7 @@ import {RequestMethod} from '@angular/http';
 import {JournalEntryLineCouple} from '@app/services/accounting/postPostService';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Observable, Subject} from 'rxjs';
+import {UniMarkingDetailsModal} from './markingDetails';
 import * as moment from 'moment';
 declare var _;
 
@@ -85,11 +87,20 @@ export class LedgerAccountReconciliation {
     @Input()
     public customerBankAccounts: any;
 
+    @Input()
+    public searchValue: any = '';
+
     @Output()
     public selectionChanged: EventEmitter<any> = new EventEmitter();
 
     @Output()
+    public searchUpdated: EventEmitter<any> = new EventEmitter();
+
+    @Output()
     public automarkChecked: EventEmitter<any> = new EventEmitter();
+
+    @Output()
+    public saveComplete: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(AgGridWrapper)
     private table: AgGridWrapper;
@@ -107,6 +118,7 @@ export class LedgerAccountReconciliation {
     selectedNotOpen: any[] = [];
     allMarkingSessions: Array<JournalEntryLineCouple> = [];
     currentSelectedRows: Array<any> = [];
+    filteredJournalEntryLines: any[] = [];
     journalEntryLinesDisplayed: any[] = [];
     currentLead: any;
     allSelected: boolean = false;
@@ -116,6 +128,8 @@ export class LedgerAccountReconciliation {
     readyForManualMarkings: boolean = false;
     displayPostsOption: string = 'OPEN';
     canAutoMark = this.displayPostsOption === 'OPEN';
+
+    searchControl: FormControl = new FormControl('');
 
     public summaryData: any = {
         SumOpen: 0,
@@ -142,6 +156,16 @@ export class LedgerAccountReconciliation {
         this.setupUniTable();
     }
 
+    public ngOnInit() {
+        this.searchControl.valueChanges
+            .debounceTime(350)
+            .subscribe(query => {
+                this.page = 1;
+                this.searchUpdated.emit(this.searchValue);
+                this.setDisplayArray();
+            });
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['autoLocking'] && changes['autoLocking'].currentValue) {
             if (this.currentMarkingSession.length >= 2) {
@@ -152,11 +176,12 @@ export class LedgerAccountReconciliation {
             }
         }
 
-        if (!changes['autoLocking']) {
+        if (!changes['autoLocking'] && !changes['searchValue']) {
             this.journalEntryLines.map(row => {
                 row._rowSelected = false;
                 return row;
             });
+
             this.loadData();
         }
     }
@@ -594,6 +619,7 @@ export class LedgerAccountReconciliation {
                                     this.toastService.addToast('Rader låst opp', ToastType.good, ToastTime.short);
                                     this.isDirty = false;
                                     this.loadData();
+                                    this.saveComplete.emit();
                                 },
                                 err => {
                                     this.errorService.handle(err);
@@ -656,6 +682,7 @@ export class LedgerAccountReconciliation {
                 this.isDirty = false;
                 this.toastService.addToast('Merking lagret', ToastType.good, ToastTime.short);
                 this.loadData();
+                this.saveComplete.emit();
                 done('Merking lagret');
             }, err => {
                 this.errorService.handle(err);
@@ -666,7 +693,24 @@ export class LedgerAccountReconciliation {
     }
 
     public sortJournalEntryLines(col) {
-        this.journalEntryLines = this.journalEntryLines.sort(this.compare(col.field, col._reverseMultiplier));
+        if (col.field === 'JournalEntryNumber') {
+            this.journalEntryLines.sort((item1, item2) => {
+                const [item1Number, item1Year] = item1.JournalEntryNumber.split('-');
+                const [item2Number, item2Year] = item2.JournalEntryNumber.split('-');
+                if (item1Year === item2Year) {
+                    return parseInt(item1Number, 10) > parseInt(item2Number, 10)
+                        ? (1 * col._reverseMultiplier)
+                        : (-1 * col._reverseMultiplier);
+                } else {
+                    return parseInt(item1Year, 10) > parseInt(item2Year, 10)
+                        ? (1 * col._reverseMultiplier)
+                        : (-1 * col._reverseMultiplier);
+                }
+            });
+        } else {
+            this.journalEntryLines = this.journalEntryLines.sort(this.compare(col.field, col._reverseMultiplier));
+        }
+
         this.setDisplayArray();
         col._reverseMultiplier *= -1;
     }
@@ -863,13 +907,28 @@ export class LedgerAccountReconciliation {
                 name: 'RECLAIM'
             });
         }
+        if (item.Markings) {
+            actions.push({
+                label: 'Vis avmerkingsdetaljer',
+                name: 'SHOW_DETAILS'
+            });
+        }
         return actions;
     }
 
     public actionClicked(action, item) {
         if (action.name === 'RECLAIM') {
             this.handleOverpayment(item);
-        } else if (action.name = 'RESETPP') {
+        } else if (action.name === 'SHOW_DETAILS') {
+            const IDs = item.Markings.map(mark => mark.ID);
+            IDs.push(item.ID);
+
+            this.modalService.open(UniMarkingDetailsModal, { data: { ids: IDs } }).onClose.subscribe((hasOpened: boolean) => {
+                if (hasOpened) {
+                    this.loadData();
+                }
+            });
+        } else if (action.name === 'RESETPP') {
             this.modalService.confirm({
                 header: 'Tilbakestille linje',
                 message: 'Vil du tilbakestille status og restbeløp på denne linjen?',
@@ -995,7 +1054,8 @@ export class LedgerAccountReconciliation {
             this.pointInTime)
             .subscribe(data => {
                 this.journalEntryLines = [...data];
-                this.setDisplayArray();
+                // Sort by ID frontend now by default.
+                this.sortJournalEntryLines({ field: 'ID', _reverseMultiplier: -1 });
                 this.loading$.next(false);
                 this.canAutoMark = this.displayPostsOption === 'OPEN';
                 this.selectionChanged.emit(LedgerTableEmitValues.InitialValue);
@@ -1050,8 +1110,26 @@ export class LedgerAccountReconciliation {
     }
 
     public setDisplayArray() {
-        this.journalEntryLinesDisplayed =
-            this.journalEntryLines.slice((this.page - 1)  * this.uniTableConfig.pageSize, this.page * this.uniTableConfig.pageSize);
+        this.filteredJournalEntryLines =
+            this.journalEntryLines.filter(line => {
+                if (!this.searchValue || this.searchValue === '') {
+                    return line;
+                }
+                if (line.JournalEntryNumber.toLowerCase().includes(this.searchValue.toLowerCase())
+                    || (line.InvoiceNumber && line.InvoiceNumber.toString().includes(this.searchValue.toLowerCase()))
+                    || (line.Amount && line.Amount.toString().includes(this.searchValue.toLowerCase()))
+                    || (line.RestAmount && line.RestAmount.toString().includes(this.searchValue.toLowerCase()))
+                    || (line.PaymentID && line.PaymentID.toString().includes(this.searchValue.toLowerCase()))
+                    || (line.FinancialDate &&
+                        moment(line.FinancialDate).format('DD.MM.YYYY').toString().includes(this.searchValue.toLowerCase()))
+                    || (line.Description && line.Description.toString().includes(this.searchValue.toLowerCase()))
+                    || (line.Markings && this.getMarkingsText(line).includes(this.searchValue.toLowerCase()))
+                    ) {
+                    return line;
+                }
+            });
+            this.journalEntryLinesDisplayed = this.filteredJournalEntryLines
+                .slice((this.page - 1)  * this.uniTableConfig.pageSize, this.page * this.uniTableConfig.pageSize);
     }
 
     public onPostpostRowSelect(row, index) {
@@ -1082,7 +1160,7 @@ export class LedgerAccountReconciliation {
     }
 
     public getNumberOfPages() {
-        return Math.ceil(this.journalEntryLines.length / this.uniTableConfig.pageSize);
+        return Math.ceil(this.filteredJournalEntryLines.length / this.uniTableConfig.pageSize);
     }
 
     private isOverpaid(item, customerID): boolean {

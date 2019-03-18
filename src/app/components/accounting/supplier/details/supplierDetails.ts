@@ -327,7 +327,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public goToPostpost() {
-        this.router.navigateByUrl('/accounting/postpost?name=' + this.supplier$.value.Info.Name + '&mode=leverandør');
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.supplier$.value.Info.Name + '&register=supplier');
     }
 
     public nextSupplier() {

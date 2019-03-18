@@ -22,6 +22,7 @@ import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {UniAutomarkModal} from './reconciliation/ledgeraccounts/uniAutomarkModal';
+import {UniMarkingDetailsModal} from './reconciliation/ledgeraccounts/markingDetails';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
@@ -94,6 +95,7 @@ import {
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
         UniAutomarkModal,
+        UniMarkingDetailsModal,
 
         ReminderSettings,
         UniReminderSettingsModal,
@@ -137,6 +139,7 @@ import {
         ApikeyLineModal,
         UniAutomarkModal,
         UniTimeModal,
+        UniMarkingDetailsModal,
         WorkitemTransferWizard
     ],
     exports: [

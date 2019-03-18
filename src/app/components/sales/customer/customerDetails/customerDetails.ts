@@ -646,7 +646,7 @@ export class CustomerDetails implements OnInit {
     }
 
     public goToPostpost() {
-        this.router.navigateByUrl('/accounting/postpost?name=' + this.customer$.value.Info.Name + '&mode=kunder');
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.customer$.value.Info.Name + '&register=customer');
     }
 
     public numberSeriesChange(selectedSerie) {
