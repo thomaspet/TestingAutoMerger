@@ -1,0 +1,21 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{headerText}}</header>
+    <article class="scrollable">
+        <ul>
+            <li *ngFor="let update of updates">
+                <i class="material-icons spinner" *ngIf="update.state === 'working'">autorenew</i>
+                <i class="material-icons good" *ngIf="update.state === 'success'">check</i>
+                <i class="material-icons bad" *ngIf="update.state === 'error'">error</i>
+
+                <section>
+                    <span>Faktura {{update.invoice.InvoiceNumber}} - {{update.invoice.InfoName}}</span>
+                    <small *ngFor="let message of update.errorMessages">{{message}}</small>
+                </section>
+            </li>
+        </ul>
+    </article>
+
+    <footer>
+        <button class="c2a" [disabled]="busy" (click)="onClose.emit()">Lukk</button>
+    </footer>
+</section>

@@ -30,13 +30,6 @@ import { Observable } from 'rxjs';
                     Regnskap er låst til dato: {{accountingLockedDateReformatted}}
                 </p>
                 <p>{{message}}</p>
-                <br/>
-                <uni-form
-                    [config]="config$"
-                    [fields]="fields$"
-                    [model]="creditingData$">
-                </uni-form>
-                <br/>
                 <p *ngIf="relatedJournalEntriesMessage">{{relatedJournalEntriesMessage}}</p>
             </article>
 
@@ -163,45 +156,40 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             if (minVatDate && minFinancialDate && companySettings.VatLockedDate && companySettings.AccountingLockedDate
                 && moment(minVatDate) <= moment(companySettings.VatLockedDate)
                 && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
-                message = 'Bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ' +
-                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+                message = 'Bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ';
+                    // 'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
 
                 this.showAccountingLockedInfo = true;
                 this.showVatLockedDateInfo = true;
             } else if (minFinancialDate && companySettings.AccountingLockedDate
                 && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
-                message = 'Bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ' +
-                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+                message = 'Bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ';
+                    // 'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
 
                 this.showAccountingLockedInfo = true;
             } else if (minVatDate && companySettings.VatLockedDate
                 && moment(minVatDate) <= moment(companySettings.VatLockedDate)) {
-                message = 'Bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ' +
-                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+                message = 'Bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ';
 
                 this.showVatLockedDateInfo = true;
             } else if (!minVatDate && !minFinancialDate && companySettings.AccountingLockedDate && companySettings.VatLockedDate) {
-                message = 'Eventuelle bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ' +
-                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+                message = 'Eventuelle bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ';
 
                 this.showAccountingLockedInfo = true;
                 this.showVatLockedDateInfo = true;
             } else if (!minFinancialDate && companySettings.AccountingLockedDate) {
-                message = 'Eventuelle bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ' +
-                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+                message = 'Eventuelle bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ';
 
                 this.showAccountingLockedInfo = true;
             } else if (!minVatDate && companySettings.VatLockedDate) {
-                message = 'Eventuelle bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ' +
-                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+                message = 'Eventuelle bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ';
 
                 this.showVatLockedDateInfo = true;
             }
 
             if (!message) {
                 // set todays date if no date is set already
-                message = 'Bilaget vil bli kreditert på samme dato som bilagsdatoen. ' +
-                    'Du kan overstyre denne ved å velge en dato under.';
+                message = 'Bilaget vil bli kreditert på samme dato som bilagsdatoen. ';
             }
 
             this.message = message;
@@ -213,7 +201,6 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             this.formReady = true;
 
             this.creditingData$.next(data);
-            this.fields$.next(this.getLayout().Fields);
         });
     }
 

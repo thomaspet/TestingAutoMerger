@@ -13,6 +13,10 @@
             placeholder="Epost adresse"
         />
 
+        <mat-checkbox *ngIf="adminRole" [(ngModel)]="adminRole['_checked']" class="admin-checkbox">
+            Administrator
+        </mat-checkbox>
+
         <small class="validation-error" *ngIf="invalidInput">Ugyldig e-post adresse</small>
         <small class="validation-error" *ngIf="missingRoles">Brukeren må ha minimum en rolle aktivert</small>
 

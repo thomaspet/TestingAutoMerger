@@ -294,31 +294,32 @@ export class JournalEntries {
             'isnull(JournalEntry.JournalEntryDraftGroup,\'00000000-0000-0000-0000-000000000000\') ne' +
             ' \'00000000-0000-0000-0000-000000000000\'&' +
             'join=JournalEntry.CreatedBy eq User.GlobalIdentity and JournalEntry.Id eq SupplierInvoice.JournalEntryId'
-        )
-            .subscribe(journalEntries => {
-                this.modalService.open(SelectDraftLineModal, {data: {draftLines: journalEntries.Data}})
-                    .onClose
-                    .subscribe(selectedLine => {
-                        if (!selectedLine) {
-                            return;
-                        }
+        ).subscribe(
+            (journalEntries) => {
+                this.modalService.open(SelectDraftLineModal, {
+                    data: journalEntries.Data
+                }).onClose.subscribe(selectedLine => {
+                    if (!selectedLine) {
+                        return;
+                    }
 
-                        // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
-                        this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
-                            .subscribe(journalEntryData => {
-                                this.editmode = false;
-                                this.journalEntryManual.currentJournalEntryID = null;
-                                this.currentJournalEntryID = 0;
+                    // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
+                    this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
+                        .subscribe(journalEntryData => {
+                            this.editmode = false;
+                            this.journalEntryManual.currentJournalEntryID = null;
+                            this.currentJournalEntryID = 0;
 
-                                setTimeout(() => {
-                                    this.journalEntryManual.setJournalEntryData(journalEntryData);
-                                    this.journalEntryManual.isDirty = true;
-                                });
-                            }, err => this.errorService.handle(err)
-                        );
-                    });
+                            setTimeout(() => {
+                                this.journalEntryManual.setJournalEntryData(journalEntryData);
+                                this.journalEntryManual.isDirty = true;
+                            });
+                        }, err => this.errorService.handle(err)
+                    );
+                });
             },
-            err => this.errorService.handle(err));
+            err => this.errorService.handle(err)
+        );
     }
 
     private showNext() {

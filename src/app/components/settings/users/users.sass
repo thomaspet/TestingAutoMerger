@@ -20,17 +20,26 @@ $yellow: #ffdd59
 
     .user-list-container
         flex: 0 0 28rem
+        display: flex
+        flex-direction: column
         margin-right: 20px
 
         .list-actions
             display: flex
+            flex-wrap: wrap
             justify-content: space-between
-            margin: 1rem
+            margin: 1rem 1rem 0
 
             button
                 background-color: #fff
                 border: 1px solid rgba(0, 0, 0, 0.12)
                 height: 2.5rem
+                margin-bottom: 1rem
+
+                &:first-of-type
+                    margin-right: 10px
+                & + button
+                    margin-left: 0
 
                 i.material-icons
                     color: $darkblue
@@ -45,8 +54,8 @@ $yellow: #ffdd59
             border: 1px solid rgba(0,0,0,.12)
 
         ul#user-list
+            flex: 1
             position: relative // required for scroll to work properly
-            max-height: calc(100% - 9rem)
             margin-bottom: 0
             list-style: none
             max-width: 28rem

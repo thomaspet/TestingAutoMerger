@@ -41,6 +41,7 @@ export class InviteUsersModal implements IUniModal {
 
     emailControl: FormControl = new FormControl('', Validators.email);
     roleGroups: RoleGroup[];
+    adminRole: Role;
 
     constructor(
         private errorService: ErrorService,
@@ -95,6 +96,8 @@ export class InviteUsersModal implements IUniModal {
     groupRolesByProduct(roles: Role[], products: ElsaProduct[]): RoleGroup[] {
         roles = roles || [];
         products = products || [];
+
+        this.adminRole = roles.find(role => role.Name === 'Administrator');
 
         const filteredProducts = products.filter(product => {
             return product.productTypeName === 'Module' && product.name !== 'Complete';
@@ -151,6 +154,10 @@ export class InviteUsersModal implements IUniModal {
 
         if (!this.missingRoles && !this.invalidInput) {
             this.busy = true;
+
+            if (this.adminRole && this.adminRole['_checked']) {
+                roles.push(this.adminRole);
+            }
 
             this.userService.inviteUser(this.emailControl.value).pipe(
                 switchMap(user => this.addUserRoles(user, roles))

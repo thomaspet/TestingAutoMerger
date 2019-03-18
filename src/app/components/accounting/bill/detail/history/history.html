@@ -1,12 +1,10 @@
 <article>
-
-    <uni-table
+    <ag-grid-wrapper
         [resource]="listOfInvoices"
         [config]="tableConfig">
-    </uni-table>
+    </ag-grid-wrapper>
 
     <div class="right total">
         Totalsum {{totals.grandTotal | unicurrency:0 }}
     </div>
-
 </article>

@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig, UniTable} from '@uni-framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig} from '@uni-framework/ui/unitable/index';
 import {UniModules, TabService} from '@app/components/layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import { StatisticsService, ErrorService } from '@app/services/services';
@@ -12,6 +12,7 @@ import { filterInput, safeInt } from '@app/components/common/utils/utils';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { WorkitemTransferWizard } from './transfer-wizard';
 import { Observable } from 'rxjs';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'invoice-hours',
@@ -23,7 +24,8 @@ import { Observable } from 'rxjs';
     ]
 })
 export class InvoiceHours implements OnInit {
-    @ViewChild(UniTable) private uniTable: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+
     private textFilter: string;
     public searchControl: FormControl = new FormControl('');
     public dataSource: (value: any) => {};
@@ -42,10 +44,7 @@ export class InvoiceHours implements OnInit {
     public tableConfig: IUniTableConfig;
     public busy = true;
     public working = false;
-    public filters: Array<{ label: string, name: string, isActive: boolean}> = [
-        { label: 'Sist overføringer', name: 'orders', isActive: true },
-        // { label: 'Siste faktura', name: 'invoices', isActive: false }
-    ];
+
 
     private orderStatusCodes = {
         status_0: '0',
@@ -86,31 +85,23 @@ export class InvoiceHours implements OnInit {
                 this.textFilter = `contains(customername,'${textValue}')`;
             }
             this.limitRows = this.pageSize;
-            this.uniTable.refreshTableData();
+            this.table.refreshTableData();
         });
     }
 
     private createTableConfig(): UniTableConfig {
         const cols = [
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setVisible(false),
-            new UniTableColumn('OrderNumber', 'Ordrenr.').setWidth('10%'),
-            new UniTableColumn('CustomerName', 'Kunde').setWidth('30%').setFilterOperator('startswith'),
-            new UniTableColumn('OrderDate', 'Dato', UniTableColumnType.DateTime).setWidth('15%'),
-            new UniTableColumn('OurReference', 'Vår referanse').setWidth('15%'),
-            new UniTableColumn('StatusCode', 'Status').setWidth('15%'),
-            new UniTableColumn('TaxExclusiveAmount', 'Nettosum', UniTableColumnType.Money).setWidth('15%').setAlignment('right'),
+            new UniTableColumn('OrderNumber', 'Ordrenr.'),
+            new UniTableColumn('CustomerName', 'Kunde'),
+            new UniTableColumn('OrderDate', 'Dato', UniTableColumnType.DateTime),
+            new UniTableColumn('OurReference', 'Vår referanse'),
+            new UniTableColumn('StatusCode', 'Status')
+                .setTemplate(order => order.StatusCode = this.orderStatusCodes['status_' + order.StatusCode]),
+            new UniTableColumn('TaxExclusiveAmount', 'Nettosum', UniTableColumnType.Money),
         ];
         return new UniTableConfig('timetracking.invoice-hours', false, false)
-            .setColumns(cols)
-            .setDataMapper((data) => {
-                this.busy = false;
-                const rows = (data && data.Success && data.Data) ? data.Data : [];
-                this.rowCount = rows.length;
-                rows.forEach(order => {
-                    order.StatusCode = this.orderStatusCodes['status_' + order.StatusCode];
-                });
-                return rows;
-            });
+            .setColumns(cols);
     }
 
     public createNew(done: () => {}) {
@@ -121,15 +112,15 @@ export class InvoiceHours implements OnInit {
             }).onClose.subscribe(modalResult => {
                 done();
                 if (modalResult === ConfirmActions.ACCEPT) {
-                    this.uniTable.refreshTableData();
+                    this.table.refreshTableData();
                 }
             });
     }
 
-    public onRowSelected(event) {
-        if (event.rowModel && event.rowModel.ID) {
+    public onRowSelected(row) {
+        if (row.ID) {
             this.working = true;
-            this.navigator.navigateByUrl(`/sales/orders/${event.rowModel.ID}`);
+            this.navigator.navigateByUrl(`/sales/orders/${row.ID}`);
         }
     }
 
@@ -139,7 +130,7 @@ export class InvoiceHours implements OnInit {
 
     public onShowAllClick(on = true) {
         this.limitRows = on ? 0 : this.pageSize;
-        this.uniTable.refreshTableData();
+        this.table.refreshTableData();
     }
 
     public queryInvoiceOrders(query: URLSearchParams) {

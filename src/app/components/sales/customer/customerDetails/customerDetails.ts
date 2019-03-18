@@ -1043,6 +1043,7 @@ export class CustomerDetails implements OnInit {
 
                 // Reload if customer already existed, navigate if not
                 if (this.customerID) {
+                    this.setupSaveActions();
                     this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
                         this.setMainContact(updatedCustomer);
                         this.customer$.next(updatedCustomer);
@@ -1060,28 +1061,10 @@ export class CustomerDetails implements OnInit {
         );
     }
 
-    public onContactChanged(contact: Contact) {
-
+    onContactsChange() {
+        // Main entity updated by reference
         this.isDirty = true;
         this.setupSaveActions();
-
-        if (!contact) {
-            return;
-        }
-
-        // prepare for save
-        if (!contact.ID) {
-            contact['_createguid'] = this.customerService.getNewGuid();
-            contact.Info['_createguid'] = this.customerService.getNewGuid();
-        }
-
-        if (!contact.Info.DefaultEmail.ID) {
-            contact.Info.DefaultEmail['_createguid'] = this.customerService.getNewGuid();
-        }
-
-        if (!contact.Info.DefaultPhone.ID) {
-            contact.Info.DefaultPhone['_createguid'] = this.customerService.getNewGuid();
-        }
     }
 
     private getCustomerLookupOptions() {

@@ -54,10 +54,11 @@ import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
+import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {UniAssignModal} from './bill/detail/assignmodal';
+import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
-import {DimensionList} from './accountSettings/dimensionList/dimensionList';
 import {AccountList} from './accountSettings/accountList/accountList';
 import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
 import {VatSettings} from './vatsettings/vatsettings';
@@ -116,7 +117,6 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         UniAccounting,
 
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
 
@@ -148,10 +148,13 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         BillView,
         BillHistoryView,
         BillPreviousView,
+        BillTransitionModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
+        NumberAsMoneyPipe,
+        UniSmartBookingSettingsModal,
         NumberAsMoneyPipe,
 
         // vatreport
@@ -206,14 +209,15 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         DraftLineDescriptionModal,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
+        UniSmartBookingSettingsModal,
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,
-        FileFromInboxModal
+        FileFromInboxModal,
+        BillTransitionModal
     ],
     exports: [
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
         NewAccountModal,

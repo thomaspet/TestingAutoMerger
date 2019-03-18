@@ -1,43 +1,34 @@
-import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
-
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-
-import {VatReportReference} from '../../../../unientities';
-import {FieldType, UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {Component, Input, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
+import {Observable, BehaviorSubject} from 'rxjs';
+import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform';
+import {VatType, VatCodeGroup, Account, VatPost, LocalDate} from '@uni-entities';
+import {
+    VatTypeService,
+    VatCodeGroupService,
+    AccountService,
+    VatPostService,
+    ErrorService
+} from '@app/services/services';
+import {UniTableColumn, UniTableConfig, UniTableColumnType} from '@uni-framework/ui/unitable';
 import * as moment from 'moment';
-import {VatType, VatCodeGroup, Account, VatPost, LocalDate} from '../../../../unientities';
-import {
-    VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService
-} from '../../../../services/services';
-
-import {
-    UniTable, UniTableColumn, UniTableConfig, UniTableColumnType
-} from '../../../../../framework/ui/unitable/index';
-import { isNullOrUndefined } from 'util';
-
 
 @Component({
     selector: 'vattype-details',
     templateUrl: './vattypedetails.html'
 })
 export class VatTypeDetails implements OnChanges, OnInit {
-    @Input() public vatType: VatType;
-    @Output() public vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
-    @Output() public change: EventEmitter<VatType> = new EventEmitter<VatType>();
+    @Input() vatType: VatType;
+    @Output() vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
+    @Output() change: EventEmitter<VatType> = new EventEmitter<VatType>();
 
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(UniTable) public unitable: UniTable;
+    vatType$: BehaviorSubject<VatType> = new BehaviorSubject(null);
+    fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    public vatType$: BehaviorSubject<VatType> = new BehaviorSubject(null);
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    uniTableConfigVatPostReference: UniTableConfig;
+    uniTableConfigVatTypePercentage: UniTableConfig;
 
     private accounts: Account[];
     private vatcodegroups: VatCodeGroup[];
-    public uniTableConfigVatPostReference: UniTableConfig;
-    public uniTableConfigVatTypePercentage: UniTableConfig;
-    private deletedVatReportReferences: VatReportReference[] = [];
     private vatPostsWithPercentage: VatPost[] = [];
 
     constructor(
@@ -58,8 +49,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
 
     public ngOnChanges() {
         this.vatType$.next(this.vatType);
-        this.deletedVatReportReferences = [];
-        if (!isNullOrUndefined(this.vatType)) {
+        if (this.vatType && this.vatType.VatReportReferences) {
             this.vatType.VatReportReferences.forEach(ref => {
                 const newName = this.vatPostsWithPercentage.find(f => f.ID === ref.VatPostID);
                 if (newName) {
@@ -69,7 +59,12 @@ export class VatTypeDetails implements OnChanges, OnInit {
         }
     }
 
-    public onChange(event) {
+    ngOnDestroy() {
+        this.vatType$.complete();
+        this.fields$.complete();
+    }
+
+    public onChange() {
         this.change.emit(this.vatType$.getValue());
     }
 
@@ -173,83 +168,25 @@ export class VatTypeDetails implements OnChanges, OnInit {
     private generateUniTableConfigVatPostReference(): UniTableConfig {
         return new UniTableConfig('accounting.vatsettings.vattypeDetails.vatpostreference', false, false)
             .setColumnMenuVisible(false)
-            .setDeleteButton(false)
             .setColumns([
                 new UniTableColumn('Account', 'Konto ', UniTableColumnType.Lookup)
                     .setDisplayField('Account.AccountNumber')
-                    .setWidth('5rem')
-                    .setOptions({
-                        itemTemplate: (account: Account) => {
-                            return account.AccountNumber + ' ' + account.AccountName;
-                        },
-                        lookupFunction: (searchValue) => {
-                            return this.accountService.GetAll(
-                                `filter=AccountNumber ge 2700 and AccountNumber lt 2800 and (contains(AccountNumber, `
-                                    + `'${searchValue}') or contains(AccountName, '${searchValue}'))`
-                            );
-                        }
-                    }),
+                    .setWidth('5rem'),
                 new UniTableColumn('VatPost', 'Oppgavepost ', UniTableColumnType.Lookup)
-                    .setDisplayField('VatPost.Name')
                     .setTemplate(rowModel => {
                         return rowModel.VatPost ? rowModel.VatPost.No + ' ' + rowModel.VatPost.Name : '';
                     })
-                    .setOptions({
-                        itemTemplate: (vatPost: VatPost) => {
-                            return vatPost.No + ' ' + vatPost.Name;
-                        },
-                        lookupFunction: (searchValue) => {
-                            return this.vatPostService.GetAll(
-                                `filter=contains(No,'${searchValue}') or contains(Name,'${searchValue}')`
-                            );
-                        }
-                    })
-            ])
-            .setDefaultRowData({
-                VatPostID: null,
-                AccountID: null,
-            })
-            .setChangeCallback((event) => {
-                const newRow = event.rowModel;
-
-                if (!newRow.ID) {
-                    newRow._createguid = this.vatTypeService.getNewGuid();
-                }
-
-                newRow.VatTypeID = this.vatType.ID;
-                newRow.VatPostID = newRow.VatPost ? newRow.VatPost.ID : null;
-                newRow.AccountID = newRow.Account ? newRow.Account.ID : null;
-                return newRow;
-            });
-    }
-
-    public onVatPostReferenceDelete(vatPostReference) {
-        vatPostReference.Deleted = true;
-        this.deletedVatReportReferences.push(vatPostReference);
+            ]);
     }
 
     private generateUniTableConfigVatTypePercentage(): UniTableConfig {
         return new UniTableConfig('accounting.vatsettings.vattypeDetails.vattypepercentage', false, false)
             .setColumnMenuVisible(false)
-            .setDeleteButton(false)
             .setColumns([
                 new UniTableColumn('ValidFrom', 'Fra', UniTableColumnType.LocalDate),
                 new UniTableColumn('ValidTo', 'Til', UniTableColumnType.LocalDate),
                 new UniTableColumn('VatPercent', 'Sats (%)', UniTableColumnType.Percent)
-            ])
-            .setChangeCallback((event) => {
-                var newRow = event.rowModel;
-
-                if (!newRow.ID) {
-                    newRow._createguid = this.vatTypeService.getNewGuid();
-                }
-
-                newRow.VatTypeID = this.vatType.ID;
-
-                // TODO: Probably needs to "close" any existing open rows
-
-                return newRow;
-            });
+            ]);
     }
 
     private getComponentLayout(): any {

@@ -21,7 +21,7 @@ export const COUNTERS = [
                 },
                 {
                     label: 'Tildelt',
-                    url: '/accounting/bills?filter=ForApproval&page=1',
+                    url: '/accounting/bills?filter=ForApproval',
                     dataEndpoint: '/api/statistics/?model=SupplierInvoice&select=count(ID) as '
                         + 'count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )',
                     valueKey: 'Data[0].count'

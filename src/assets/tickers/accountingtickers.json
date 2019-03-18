@@ -510,6 +510,11 @@
                 "FilterOperator": "contains"
             },
             {
+                "Header": "Fritekst",
+                "Field": "FreeTxt",
+                "FilterOperator": "contains"
+            },
+            {
                 "Header": "Bilagsnr.",
                 "Field": "JournalEntry.JournalEntryNumber",
                 "Type": "link",
@@ -783,6 +788,10 @@
             {
                 "Header": "KID/Melding",
                 "Field": "PaymentID"
+            },
+            {
+                "Header": "Fritekst",
+                "Field": "FreeTxt"
             },
             {
                 "Header": "Bnr.",

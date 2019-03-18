@@ -1,12 +1,15 @@
 import {ICellRendererParams} from 'ag-grid-community';
 import {UniTableColumn} from '../../unitable/config/unitableColumn';
 
+let config;
+
 export class CellRenderer {
     static getColMenu() {
         return HeaderMenuRenderer;
     }
 
-    static getHeaderCheckbox() {
+    static getHeaderCheckbox(tableConfig) {
+        config = tableConfig;
         return HeaderCheckbox;
     }
 
@@ -80,14 +83,21 @@ export class HeaderMenuRenderer {
 }
 
 export class HeaderCheckbox {
-
     element: HTMLElement;
+    selectOnlyVisible: boolean;
+
     init(params: ICellRendererParams) {
+        this.selectOnlyVisible = config && config.selectOnlyVisible;
+
         const el = document.createElement('label');
         el.classList.add('header-checkbox');
 
         let numberOfRows = 0;
-        params.api.forEachNode(() => numberOfRows++);
+        if (this.selectOnlyVisible) {
+            numberOfRows = params.api.getRenderedNodes().length;
+        } else {
+            params.api.forEachNode(() => numberOfRows++);
+        }
 
         const selectedRows = params.api.getSelectedNodes();
         const allRowsSelected = selectedRows && numberOfRows && selectedRows.length >= numberOfRows;
@@ -101,14 +111,14 @@ export class HeaderCheckbox {
 
             if (checked) {
                 el.classList.add('checked');
-                params.api.forEachNode((node) => {
-                    node.setSelected(true);
-                });
+                if (this.selectOnlyVisible) {
+                    params.api.getRenderedNodes().forEach(row => row.setSelected(true));
+                } else {
+                    params.api.forEachNode(row => row.setSelected(true));
+                }
             } else {
                 el.classList.remove('checked');
-                params.api.forEachNode((node) => {
-                    node.setSelected(false);
-                });
+                params.api.forEachNode(row => row.setSelected(false));
             }
         };
 

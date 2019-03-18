@@ -42,7 +42,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('/bank-agreements')
+            .withEndPoint('bank-agreements?expand=BankAccount.Bank')
             .send()
             .map(response => response.json());
     }

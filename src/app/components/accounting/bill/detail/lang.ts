@@ -89,8 +89,8 @@ export const billViewLanguage = {
     task_approve: 'Godkjenn',
     task_reject: 'Avvis',
     task_approve_and_journal: 'Godkjenn og bokfør',
-    task_approve_and_journal_and_topayment: 'Godkjenn, Bokfør og Til betaling',
-    task_journal_and_topayment: 'Bokfør og Til betaling',
+    task_approve_and_journal_and_topayment: 'Godkjenn, bokfør og til betaling',
+    task_journal_and_topayment: 'Bokfør og til betaling',
 
     err_missing_comment: 'Du må skrive en kommentar som forklarer avvisningen.'
 

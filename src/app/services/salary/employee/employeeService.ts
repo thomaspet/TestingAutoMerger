@@ -232,6 +232,10 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(resultSet => resultSet[0]);
     }
 
+    public getEmpsUsedThisYear(runStatus: number, expand: string[]): Observable<Employee[]> {
+        return super.GetAction(null, 'emps-on-transes', `status=${runStatus}&expand=${expand.join(',')}`);
+    }
+
     private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
         return (value: any, field: UniFieldLayout) => {
             if (!!value) {

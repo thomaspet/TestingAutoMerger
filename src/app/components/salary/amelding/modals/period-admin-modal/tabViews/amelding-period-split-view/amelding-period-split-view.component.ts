@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { CompanySalary, AmeldingData, AmeldingType } from '@uni-entities';
+import { CompanySalary, AmeldingData, AmeldingType, InternalAmeldingStatus } from '@uni-entities';
 import { AMeldingService, ErrorService } from '@app/services/services';
 import { of, pipe, Observable} from 'rxjs';
 import {tap, finalize, switchMap, catchError} from 'rxjs/operators';
@@ -83,7 +83,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                         .postAMelding(row.period, AmeldingType.Nullstilling, row.year)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => this.ameldingerInPeriod.some(a => a.replacesID === row.ID)
+                    disabled: (row: AmeldingData) => row.altinnStatus === 'erstattet'
                 },
                 {
                     label: 'Erstatt melding',
@@ -93,7 +93,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                 this.switchMapLoadAndClose(() => this.ameldingService.postAMelding(row.period, row.type, row.year)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => this.ameldingerInPeriod.some(a => a.replacesID === row.ID)
+                    disabled: (row: AmeldingData) => row.altinnStatus === 'erstattet'
                 },
                 {
                     label: 'Send a-melding på nytt',
@@ -103,7 +103,8 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                 this.switchMapLoadAndClose(() => this.ameldingService.sendAMelding(row.ID))
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => (row.receiptID && !!row.feedbackFileID) || !row.sent
+                    disabled: (row: AmeldingData) => (row.receiptID && !!row.feedbackFileID)
+                        || row.altinnStatus === 'erstattet'
                 }
             ]);
     }

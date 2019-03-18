@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges} from '@angular/core';
+import {Component, Input, OnChanges, ViewChild, ElementRef} from '@angular/core';
 import {Observable, of as observableOf} from 'rxjs';
 import {switchMap, map, finalize} from 'rxjs/operators';
 
@@ -20,6 +20,7 @@ import {
     DimensionService,
     NumberFormat
 } from '@app/services/services';
+import * as Chart from 'chart.js';
 
 interface IReportRow {
     ID: number;
@@ -46,6 +47,10 @@ export class ResultSummaryData {
     public rowCount: number = 0;
     public percentagePeriod1: number = 0;
     public percentagePeriod2: number = 0;
+    public percantageOfLastYear1: number = 0;
+    public percantageOfLastYear2: number = 0;
+    public percentageOfBudget1: number = 0;
+    public percentageOfBudget2: number = 0;
     public children: ResultSummaryData[] = [];
     public parent: ResultSummaryData;
     public expanded: boolean = false;
@@ -64,6 +69,9 @@ export class DrilldownResultReportPart implements OnChanges {
     @Input() private dimensionId: number;
     @Input() private filter: any;
 
+    @ViewChild('chartElement1')
+    private chartElement1: ElementRef;
+
     private dimensionEntityName: string;
     private treeSummaryList: ResultSummaryData[] = [];
     private flattenedTreeSummaryList: ResultSummaryData[] = [];
@@ -71,17 +79,21 @@ export class DrilldownResultReportPart implements OnChanges {
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
     private showBudget = true;
+    public showPercentOfBudget: boolean = false;
     private hideBudget = false;
     private showall: boolean = false;
+    private budgetSoFar: number = 0;
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: ',',
         decimalLength: 0
     };
     public busy = true;
-    private colors: Array<string> = ['#7293CB', '#84BA5B', '#ff0000', '#00ff00', '#f0f000'];
+    public CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
+        '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
     private percentagePeriod1: number = 0;
-
+    private myChart: any;
+    private chart: any = {};
     constructor(
         private statisticsService: StatisticsService,
         private accountGroupService: AccountGroupService,
@@ -90,7 +102,7 @@ export class DrilldownResultReportPart implements OnChanges {
         private modalService: UniModalService,
         private http: UniHttp
     ) {
-
+        this.prepChartType();
     }
 
     public ngOnChanges() {
@@ -99,6 +111,7 @@ export class DrilldownResultReportPart implements OnChanges {
             this.showPercent = this.filter.ShowPercent;
             this.showPreviousAccountYear = this.filter.ShowPreviousAccountYear;
             this.showBudget = this.filter.ShowBudget;
+            this.showPercentOfBudget = this.filter.ShowPercentOfBudget;
             this.hideBudget = !this.filter.ShowBudget;
         }
 
@@ -257,6 +270,7 @@ export class DrilldownResultReportPart implements OnChanges {
             res => {
                 res = res.json();
                 const list = this.extractGroups(res);
+                this.getBudgetToCurrentMonth(res);
                 this.flattenedTreeSummaryList = list;
                 this.calculateTreePercentages(list, null, null);
                 this.percentagePeriod1 = list.find(x => x.number === 9).percentagePeriod1;
@@ -279,6 +293,18 @@ export class DrilldownResultReportPart implements OnChanges {
         ret.level = level;
         ret.turned = presign < 0;
         return ret;
+    }
+
+    private getBudgetToCurrentMonth(data) {
+
+        this.budgetSoFar = 0;
+        const currentMonth = new Date().getMonth() + 1;
+
+        data.forEach(d => {
+            for (let i = 1; i <= currentMonth; i++) {
+                this.budgetSoFar += d['BudPeriod' + i];
+            }
+        });
     }
 
     private extractGroups(rows: IReportRow[]): ResultSummaryData[] {
@@ -346,13 +372,20 @@ export class DrilldownResultReportPart implements OnChanges {
             totalAmountPeriod1 = totalIncomeNode.amountPeriod1;
             totalAmountPeriod2 = totalIncomeNode.amountPeriod2;
         }
-
         treeList.forEach(treeNode => {
             treeNode.percentagePeriod1 = totalAmountPeriod1 && treeNode.amountPeriod1
                 ? Math.round((treeNode.amountPeriod1 * 100) / totalAmountPeriod1)
                 : 0;
             treeNode.percentagePeriod2 = totalAmountPeriod2 && treeNode.amountPeriod2
                 ? Math.round((treeNode.amountPeriod2 * 100) / totalAmountPeriod2)
+                : 0;
+
+            treeNode.percantageOfLastYear1 = treeNode.amountPeriod2 && treeNode.amountPeriod1
+                ? Math.round(treeNode.amountPeriod1 / (treeNode.amountPeriod2 / 100) )
+                : 0;
+
+            treeNode.percentageOfBudget1 = treeNode.budget && treeNode.amountPeriod1
+                ? Math.round((treeNode.amountPeriod1 * 100) / treeNode.budget)
                 : 0;
 
             if (treeNode.children && treeNode.children.length > 0) {
@@ -406,81 +439,207 @@ export class DrilldownResultReportPart implements OnChanges {
     }
 
     private setupChart() {
-        const dataSets = [];
-
         const sales = this.flattenedTreeSummaryList.find(x => x.number === 3);
         const purchase = this.flattenedTreeSummaryList.find(x => x.number === 4);
         const salary = this.flattenedTreeSummaryList.find(x => x.number === 5);
         const other = this.flattenedTreeSummaryList.find(x => x.number === 6);
         const result = this.flattenedTreeSummaryList.find(x => x.number === 9);
 
-        dataSets.push({
-            label: this.periodFilter1.year,
-            data: [],
-            backgroundColor: this.colors[1],
-            borderColor: this.colors[1],
-            fill: true,
-            borderWidth: 2
-        });
+        let budget, budgetString;
 
-        dataSets[0].data.push(
-            sales.amountPeriod1,
-            salary.amountPeriod1,
-            other.amountPeriod1 + purchase.amountPeriod1,
-            result.amountPeriod1
-        );
-
-        // create datasets
-        if (this.showPreviousAccountYear) {
-            dataSets.push({
-                label: this.periodFilter2.year,
-                data: [],
-                backgroundColor: this.colors[0],
-                borderColor: this.colors[0],
-                fill: true,
-                borderWidth: 2
-            });
-
-            // amountPeriod2
-            dataSets[1].data.push(
-                sales.amountPeriod2,
-                salary.amountPeriod2,
-                other.amountPeriod2 + purchase.amountPeriod2,
-                result.amountPeriod2
-            );
+        if (parseInt(this.periodFilter1.year.toString(), 10) === new Date().getFullYear()) {
+            budget = this.budgetSoFar * -1;
+            budgetString = 'Budsjett hittil';
+        } else {
+            budget = (sales.budget || 0) + (purchase.budget || 0) + (salary.budget || 0) + (other.budget || 0);
+            budgetString = 'Budsjett';
         }
 
-        // Result
-        const resulttext = result.amountPeriod1 > 0
-            ? 'Overskudd'
-            : (result.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat');
+        if (this.myChart) {
+            this.myChart.destroy();
+        }
 
-        const chartConfig = {
-            label: '',
-            labels: ['Salg', 'Lønn', 'Andre kostnader', resulttext],
-            chartType: 'bar',
-            borderColor: null,
-            backgroundColor: null,
-            datasets: dataSets,
-            data: null
+        const cost1 = other.amountPeriod1 + purchase.amountPeriod1 + salary.amountPeriod1;
+        const cost2 = other.amountPeriod2 + purchase.amountPeriod2 + salary.amountPeriod2;
+
+        const labels = [this.periodFilter1.year, this.periodFilter2.year];
+        const element = this.chartElement1.nativeElement;
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Driftsinntekter',
+                    backgroundColor: '#2850a0',
+                    data: [
+                        Math.round(sales.amountPeriod1),
+                        Math.round(sales.amountPeriod2)
+                    ],
+                    stack: 1
+                },
+                {
+                    label: 'Underskudd',
+                    backgroundColor: 'rgba(67, 105, 210, .2)',
+                    data: [
+                        cost1 > sales.amountPeriod1 ? Math.round(cost1 - sales.amountPeriod1) : 0,
+                        cost2 > sales.amountPeriod2 ? Math.round(cost2 - sales.amountPeriod2) : 0,
+                    ],
+                    stack: 1
+                },
+                {
+                    label: 'Varekostnader',
+                    backgroundColor: 'rgba(67, 105, 210, 1)',
+                    data: [
+                        Math.round(purchase.amountPeriod1),
+                        Math.round(purchase.amountPeriod2)
+                    ],
+                    stack: 2
+                },
+                {
+                    label: 'Personalkostnader',
+                    backgroundColor: 'rgba(67, 105, 210, .8)',
+                    data: [
+                        Math.round(salary.amountPeriod1),
+                        Math.round(salary.amountPeriod2)
+                    ],
+                    stack: 2
+                },
+                {
+                    label: 'Driftskostnader',
+                    backgroundColor: 'rgba(67, 105, 210, .6)',
+                    data: [
+                        Math.round(other.amountPeriod1),
+                        Math.round(other.amountPeriod2)
+                    ],
+                    stack: 2
+                },
+                {
+                    label: 'Overskudd',
+                    backgroundColor: 'rgba(67, 105, 210, .3)',
+                    data: [
+                        cost1 < sales.amountPeriod1 ? Math.round(sales.amountPeriod1 - cost1) : 0,
+                        cost2 < sales.amountPeriod2 ? Math.round(sales.amountPeriod2 - cost2) : 0,
+                    ],
+                    stack: 2
+                },
+                {
+                    label: budgetString,
+                    backgroundColor: this.CUSTOM_COLORS[7],
+                    data: [
+                        Math.round(budget), 0
+                    ],
+                    stack: 3
+                }
+            ]
         };
 
-        ChartHelper.generateChart('accountingReportDrilldownChart', chartConfig);
+        if (!this.showPreviousAccountYear) {
+            data.labels.pop();
+            data.datasets.forEach(d => d.data.pop());
+        }
+
+        if (!this.showBudget) {
+            data.datasets.pop();
+        }
+
+        this.myChart = new Chart(element, {
+            type: 'groupableBar',
+            data: data,
+            options: {
+                tooltips: {
+                    callbacks: {
+                        label: this.labelFormat.bind(this)
+                    }
+                },
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    yAxes: [{
+                        stacked: true,
+                    }]
+                },
+                legend: {
+                    position: 'left',
+                    display: true
+                }
+            }
+        });
     }
 
-    public profitMarginText() {
-        // feks 20% og oppover gir visning av prosent og kommentaren:
-        // Best, 10-20%: Svært godt, 5-10% Godt, 0-5% Bra, og under: Svak
-        if (this.percentagePeriod1 >= 20) {
-            return this.percentagePeriod1  + '% - svært godt';
-        } else if (this.percentagePeriod1 > 10) {
-            return this.percentagePeriod1  + '% - svært godt';
-        } else if (this.percentagePeriod1 > 5) {
-            return this.percentagePeriod1 + '% - godt';
-        } else if (this.percentagePeriod1 >= 0) {
-            return this.percentagePeriod1 + '% - bra';
-        } else {
-            return this.percentagePeriod1 + '% - svak';
-        }
+    private prepChartType() {
+        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
+
+        const helpers = Chart.helpers;
+        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
+            calculateBarX: function (index, datasetIndex) {
+                // position the bars based on the stack index
+                const stackIndex = this.getMeta().stackIndex;
+                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
+            },
+
+            hideOtherStacks: function (datasetIndex) {
+                const meta = this.getMeta();
+                const stackIndex = meta.stackIndex;
+
+                this.hiddens = [];
+                for (let i = 0; i < datasetIndex; i++) {
+                    const dsMeta = this.chart.getDatasetMeta(i);
+                    if (dsMeta.stackIndex !== stackIndex) {
+                        this.hiddens.push(dsMeta.hidden);
+                        dsMeta.hidden = true;
+                    }
+                }
+            },
+
+            unhideOtherStacks: function (datasetIndex) {
+                const meta = this.getMeta();
+                const stackIndex = meta.stackIndex;
+
+                for (let i = 0; i < datasetIndex; i++) {
+                        const dsMeta = this.chart.getDatasetMeta(i);
+                    if (dsMeta.stackIndex !== stackIndex) {
+                        dsMeta.hidden = this.hiddens.unshift();
+                    }
+                }
+            },
+
+            calculateBarY: function (index, datasetIndex) {
+                this.hideOtherStacks(datasetIndex);
+                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
+                this.unhideOtherStacks(datasetIndex);
+                return barY;
+            },
+
+            calculateBarBase: function (datasetIndex, index) {
+                this.hideOtherStacks(datasetIndex);
+                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
+                this.unhideOtherStacks(datasetIndex);
+                return barBase;
+            },
+
+            getBarCount: function () {
+                const stacks = [];
+
+                // put the stack index in the dataset meta
+                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
+                    const meta = this.chart.getDatasetMeta(datasetIndex);
+                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
+                    let stackIndex = stacks.indexOf(dataset.stack);
+                    if (stackIndex === -1) {
+                    stackIndex = stacks.length;
+                    stacks.push(dataset.stack);
+                    }
+                    meta.stackIndex = stackIndex;
+                }
+                }, this);
+
+                this.getMeta().stacks = stacks;
+                return stacks.length;
+            },
+        });
+    }
+
+    private labelFormat (tooltipItem, array) {
+        const datasetLabel = array.datasets[tooltipItem.datasetIndex].label || 'Other';
+        return datasetLabel + ': ' + this.numberFormatService.asMoney(tooltipItem.yLabel);
     }
 }

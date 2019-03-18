@@ -38,8 +38,7 @@
 
     <section class="ticker-data">
         <section class="data-container">
-            <!-- && !groupingIsOn -->
-            <ag-grid-wrapper *ngIf="ticker.Type === 'table'"
+            <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"
@@ -48,14 +47,14 @@
                 (rowClick)="onRowClick($event)">
             </ag-grid-wrapper>
 
-            <!-- <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
+            <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
                 [resource]="resource"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"
                 (rowSelectionChange)="onRowSelectionChange($event)"
                 (filtersChangeWhileGroup)="filtersChangeWhileGroup($event)"
                 (rowClick)="onRowClick($event)">
-            </ag-grid-wrapper> -->
+            </ag-grid-wrapper>
 
             <div *ngIf="ticker.Type !== 'table'">
                 <uni-ticker-detail-view

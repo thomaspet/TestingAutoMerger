@@ -399,7 +399,11 @@ export class AgGridWrapper {
             if (this.rowModelType === 'infinite') {
                 this.agGridApi.forEachNode(row => row.setSelected(true));
             } else {
-                this.agGridApi.selectAll();
+                if (this.config.selectOnlyVisible) {
+                    this.agGridApi.getRenderedNodes().forEach(row => row.setSelected(true));
+                } else {
+                    this.agGridApi.selectAll();
+                }
             }
         }
     }
@@ -648,9 +652,9 @@ export class AgGridWrapper {
                 headerClass: col.headerCls,
                 cellClass: cellClass,
                 headerTooltip: col.header,
-                // rowGroup: col.rowGroup,
-                // aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
-                // enableRowGroup: col.enableRowGroup,
+                rowGroup: col.rowGroup,
+                aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
+                enableRowGroup: col.enableRowGroup,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
             };
@@ -690,7 +694,7 @@ export class AgGridWrapper {
         if (this.config.multiRowSelect) {
             colDefs.unshift({
                 // headerCheckboxSelection: true,
-                headerComponent: CellRenderer.getHeaderCheckbox(),
+                headerComponent: CellRenderer.getHeaderCheckbox(this.config),
                 checkboxSelection: true,
                 width: 38,
                 suppressSizeToFit: true,

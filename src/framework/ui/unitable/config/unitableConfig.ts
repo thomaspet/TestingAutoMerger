@@ -1,6 +1,5 @@
 import {UniTableColumn, IUniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './unitableColumn';
 import {IContextMenuItem, ITableFilter, IExpressionFilterValue} from '../unitable';
-import {Observable} from 'rxjs';
 
 export interface IDeleteButton {
     deleteHandler: (rowModel?: any) => any;
@@ -32,6 +31,7 @@ export interface IUniTableConfig {
     pageSize?: number;
     multiRowSelect?: boolean;
     multiRowSelectDefaultValue?: boolean;
+    selectOnlyVisible?: boolean;
     columnMenuVisible?: boolean;
     advancedColumnMenu?: boolean;
     changeCallback?: (event: IRowChangeEvent) => any | Promise<any>;
@@ -87,6 +87,7 @@ export class UniTableConfig implements IUniTableConfig {
     public rowDraggable: boolean;
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
+    public selectOnlyVisible: boolean;
     public columnMenuVisible: boolean;
     public advancedColumnMenu: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
@@ -295,9 +296,14 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setMultiRowSelect(multirowSelect: boolean, multiRowSelectDefaultValue?: boolean) {
+    public setMultiRowSelect(
+        multirowSelect: boolean,
+        multiRowSelectDefaultValue?: boolean,
+        selectOnlyVisible?: boolean
+    ) {
         this.multiRowSelect = multirowSelect;
         this.multiRowSelectDefaultValue = multiRowSelectDefaultValue || false;
+        this.selectOnlyVisible = selectOnlyVisible || false;
         return this;
     }
 

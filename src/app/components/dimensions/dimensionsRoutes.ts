@@ -1,6 +1,3 @@
-import {DepartmentDetails} from './department/departmentDetails';
-import {DepartmentList} from './department/departmentList';
-
 import {Project} from './project/project';
 import {ProjectOverview} from './project/overview/overview';
 import {ProjectTasks} from './project/tasks/tasks';
@@ -8,9 +5,6 @@ import {ProjectEditmode} from './project/editmode/editmode';
 import {ProjectDocument} from './project/document/document';
 import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHourTotals} from './project/hours/hourtotals';
-
-import {ProjectLite} from './projectLite/projectLite';
-import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
 import {UniDimensionView} from './custom/dimension';
 
@@ -22,14 +16,6 @@ export const dimensionsRoutes = [
                 path: '',
                 pathMatch: 'full',
                 redirectTo: 'projects'
-            },
-            {
-                path: 'departments',
-                component: DepartmentList
-            },
-            {
-                path: 'departments/:id',
-                component: DepartmentDetails
             },
             {
                 path: 'overview/:id',
@@ -81,14 +67,6 @@ export const dimensionsRoutes = [
                         component: ProjectQueryList
                     }
                 ]
-            },
-            {
-                path: 'projectslite',
-                component: ProjectLite
-            },
-            {
-                path: 'projectslite/:id',
-                component: ProjectLiteDetails
             }
         ]
     }
