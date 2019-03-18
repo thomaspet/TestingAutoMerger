@@ -355,11 +355,11 @@ export class BankComponent implements AfterViewInit {
             this.actions.push({
                 label: 'Hent bankfiler og bokfør',
                 action: (done, file) => {
-                    done('Fil lastet opp');
-                    this.recieptUploaded(file);
+                    done();
+                    this.recieptUploaded();
                 },
                 disabled: false,
-                isUpload: true
+                isUpload: false
             });
 
             this.actions.push({
@@ -768,11 +768,10 @@ export class BankComponent implements AfterViewInit {
         });
     }
 
-    public fileUploaded(done: any) {
-
+    public fileUploaded(done) {
         this.modalService.open(
             UniFileUploadModal,
-            { buttonLabels: { accept: 'Bokfør valgte innbetalingsfiler' }} )
+            { closeOnClickOutside: false, buttonLabels: { accept: 'Bokfør valgte innbetalingsfiler' }} )
         .onClose.subscribe((fileIDs) => {
 
             if (fileIDs && fileIDs.length) {
@@ -782,7 +781,6 @@ export class BankComponent implements AfterViewInit {
 
                 Observable.forkJoin(queries)
                     .subscribe((result: any) => {
-                        done();
                         if (result && result.length) {
                             result.forEach((res) => {
                                 if (res && res.ProgressUrl) {
@@ -819,20 +817,27 @@ export class BankComponent implements AfterViewInit {
         });
     }
 
-    public recieptUploaded(file: File) {
-        this.toastService.addToast('Laster opp kvitteringsfil..', ToastType.good, 10,
-        'Dette kan ta litt tid, vennligst vent...');
+    public recieptUploaded() {
+        this.modalService.open(
+            UniFileUploadModal,
+            {closeOnClickOutside: false, buttonLabels: { accept: 'Bokfør valgte bankfiler' }} )
+        .onClose.subscribe((fileIDs) => {
+            if (fileIDs && fileIDs.length) {
+                const queries = fileIDs.map(id => {
+                    return this.paymentBatchService.registerReceiptFile(id);
+                });
 
-        this.paymentBatchService.registerReceiptFile(file)
-            .subscribe(paymentBatch => {
-                this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
+                Observable.forkJoin(queries).subscribe(result => {
+                    this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
 
-                this.tickerContainer.getFilterCounts();
-                this.tickerContainer.mainTicker.reloadData();
-            },
-            err => this.errorService.handle(err)
-            );
+                    this.tickerContainer.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
+                }, err => {
+                    this.errorService.handle(err);
+                });
+            }
+        });
     }
 
     private openSendToPaymentModal(row): Promise<any> {
