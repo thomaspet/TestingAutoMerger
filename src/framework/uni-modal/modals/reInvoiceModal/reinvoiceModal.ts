@@ -125,32 +125,33 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             } else {
                 this.currentReInvoice = null;
             }
-            this.setInititalConfig(this.currentReInvoice);
-        });
-        this.companyAccountSettingsService.GetAll('',
-            [
-                'ReInvoicingCostsharingProduct', 'ReInvoicingTurnoverProduct',
-                'ReInvoicingCostsharingProduct.Account', 'ReInvoicingTurnoverProduct.Account',
-                'ReInvoicingCostsharingProduct.VatType', 'ReInvoicingTurnoverProduct.VatType',
-                'ReInvoicingCostsharingProduct.VatType.VatTypePercentages', 'ReInvoicingTurnoverProduct.VatType.VatTypePercentages'
-            ]
-        ).subscribe((result: CompanyAccountingSettings[]) => {
-            if (result && result[0] && result[0].ReInvoicingCostsharingProductID && result[0].ReInvoicingTurnoverProductID) {
-                this.companyAccountSettings = result[0];
-                this.updateItemsData();
-                this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
-            } else {
-                this.modalService.open(UniCompanyAccountingSettingsModal, {
-                    data: {
-                        model: (result && result[0]) || null
-                    }
-                }).onClose.subscribe(settings => {
-                    if (settings) {
-                        this.companyAccountSettings = settings;
-                        this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
-                    }
-                });
-            }
+            this.setInititalConfig(this.currentReInvoice);            
+
+            this.companyAccountSettingsService.GetAll('',
+                [
+                    'ReInvoicingCostsharingProduct', 'ReInvoicingTurnoverProduct',
+                    'ReInvoicingCostsharingProduct.Account', 'ReInvoicingTurnoverProduct.Account',
+                    'ReInvoicingCostsharingProduct.VatType', 'ReInvoicingTurnoverProduct.VatType',
+                    'ReInvoicingCostsharingProduct.VatType.VatTypePercentages', 'ReInvoicingTurnoverProduct.VatType.VatTypePercentages'
+                ]
+            ).subscribe((result: CompanyAccountingSettings[]) => {
+                if (result && result[0] && result[0].ReInvoicingCostsharingProductID && result[0].ReInvoicingTurnoverProductID) {
+                    this.companyAccountSettings = result[0];
+                    this.updateItemsData();
+                    this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
+                } else {
+                    this.modalService.open(UniCompanyAccountingSettingsModal, {
+                        data: {
+                            model: (result && result[0]) || null
+                        }
+                    }).onClose.subscribe(settings => {
+                        if (settings) {
+                            this.companyAccountSettings = settings;
+                            this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
+                        }
+                    });
+                }
+            });
         });
     }
     public getMainAction() {
