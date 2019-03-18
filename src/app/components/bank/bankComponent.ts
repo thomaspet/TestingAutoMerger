@@ -17,10 +17,11 @@ import {
     UniConfirmModalV2,
     UniAutobankAgreementModal,
     ConfirmActions,
-    UniFileUploadModal
+    UniFileUploadModal,
+    IModalOptions
 } from '../../../framework/uni-modal';
 import {
-    UniAutobankAgreementListModal,
+    UniBankListModal,
     MatchSubAccountManualModal,
     MatchMainAccountModal
 } from './modals';
@@ -90,22 +91,22 @@ export class BankComponent implements AfterViewInit {
     @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
 
     private tickers: Ticker[];
-    public tickerGroups: TickerGroup[];
-    public selectedTicker: Ticker;
-    public actions: IUniSaveAction[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[];
     private companySettings: CompanySettings;
-    public hasAccessToAutobank: boolean;
-
-    public toolbarconfig: IToolbarConfig = {
+    hasAccessToAutobank: boolean;
+    failedFiles: any[] = [];
+    tickerGroups: TickerGroup[];
+    selectedTicker: Ticker;
+    actions: IUniSaveAction[];
+    toolbarconfig: IToolbarConfig = {
         title: '',
         subheads: [],
         navigation: {}
     };
 
-    public actionOverrides: Array<ITickerActionOverride> = [
+    actionOverrides: Array<ITickerActionOverride> = [
         {
             Code: 'to_payment',
             ExecuteActionHandler: (selectedRows) => this.openSendToPaymentModal(selectedRows)
@@ -173,7 +174,7 @@ export class BankComponent implements AfterViewInit {
         }
     ];
 
-    public columnOverrides: ITickerColumnOverride[] = [
+    columnOverrides: ITickerColumnOverride[] = [
         {
             Field: 'FromBankAccount.AccountNumber',
             Template: (row) => {
@@ -234,10 +235,13 @@ export class BankComponent implements AfterViewInit {
     ) {
         this.updateTab();
 
-        this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe(
-            res => this.hasAccessToAutobank = !!res,
-            err => console.error(err)
-        );
+        Observable.forkJoin(
+            this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
+            this.elsaPurchasesService.getPurchaseByProductName('Autobank')
+        ).subscribe(result => {
+            this.failedFiles = result[0];
+            this.hasAccessToAutobank = !!result[1];
+        }, err => this.errorService.handle(err) );
     }
 
     public ngAfterViewInit() {
@@ -375,6 +379,15 @@ export class BankComponent implements AfterViewInit {
                 },
                 disabled: this.rows.length === 0
             });
+
+            this.actions.push({
+                label: 'Se feilede filer',
+                action: (done) => {
+                    done();
+                    this.openFailedFilesModal();
+                },
+                disabled: !this.failedFiles.length
+            });
         } else if (selectedTickerCode === 'bank_list') {
             this.actions.push({
                 label: 'Hent og bokfør innbetalingsfil',
@@ -440,6 +453,16 @@ export class BankComponent implements AfterViewInit {
                 }
             });
         });
+    }
+
+    public openFailedFilesModal() {
+        const options: IModalOptions = {
+            header: 'Feilede bankfiler',
+            list: this.failedFiles,
+            listkey: 'FILE'
+        };
+        this.modalService.open(UniBankListModal, options);
+        return Promise.resolve();
     }
 
     public editPayment(selectedRows: any): Promise<any> {
@@ -828,7 +851,12 @@ export class BankComponent implements AfterViewInit {
     }
 
     public openAgreementsModal() {
-        this.modalService.open(UniAutobankAgreementListModal, { data: { agreements: this.agreements } });
+        const options: IModalOptions = {
+            header: 'Mine autobankavtaler',
+            list: this.agreements,
+            listkey: 'AGREEMENT'
+        };
+        this.modalService.open(UniBankListModal, options);
     }
 
     public openAutobankAgreementModal() {

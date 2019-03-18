@@ -441,8 +441,6 @@ export class AgGridWrapper {
     }
 
     public onFiltersChange(event) {
-        console.log(event);
-
         if (this.config.multiRowSelect) {
             this.rowSelectionChange.next([]);
         }
