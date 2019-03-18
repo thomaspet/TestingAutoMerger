@@ -864,7 +864,7 @@ export class BillsView implements OnInit {
             .setMultiRowSelect(true, false, true)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
-            .setColumnMenuVisible(true);
+            .setColumnMenuVisible(true, false);
     }
 
     public onAddNew() {
