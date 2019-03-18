@@ -1,4 +1,5 @@
-[{
+[
+    {
         "Name": "Ansatt",
         "Code": "employee_list",
         "RequiredUIPermissions": ["ui_salary"],
@@ -231,6 +232,41 @@
                 "Field": "LastWorkPercentChangeDate",
                 "DefaultHidden": true,
                 "Alignment": "right"
+            },
+            {
+                "Header": "SkipsType",
+                "Field": "ShipType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "SkipsRegister",
+                "Field": "ShipReg",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fartsområde",
+                "Field": "TradeArea",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjektnr",
+                "Field": "Dimensions.Project.ProjectNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdelingsnr",
+                "Field": "Dimensions.Department.DepartmentNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
             },
             {
                 "Field": "EmployeeID",
@@ -482,6 +518,10 @@
             {
                 "Header": "Kommentar",
                 "Field": "Description"
+            },
+            {
+                "Header": "Påvirker OTP",
+                "Field": "AffectsOtp"
             }
         ],
         "ParentFilter": {
@@ -545,6 +585,31 @@
                 "Type": "text",
                 "Width": "5rem",
                 "Alignment": "right"
+            },
+            {
+                "Header": "Feriepenger",
+                "Field": "Base_Vacation",
+                "Type": "boolean"
+            },
+            {
+                "Header": "aga",
+                "Field": "Base_EmploymentTax"
+            },
+            {
+                "Header": "Skatt",
+                "Field": "taxtype"
+            },
+            {
+                "Header": "Skatte- og avgiftsregel",
+                "Field": "SpecialTaxAndContributionsRule"
+            },
+            {
+                "Header": "Systemets lønnsart",
+                "Field": "StandardWageTypeFor"
+            },
+            {
+                "Header": "Skjul på lønnslipp",
+                "Field": "HideFromPaycheck"
             },
             {
                 "Header": "Motkonto kredit",
@@ -643,10 +708,6 @@
             {
                 "Header": "Med i grunnlag for aga",
                 "Field": "Base_EmploymentTax"
-            },
-            {
-                "Header": "Med i grunnlag for pensjon",
-                "Field": "Base_div1"
             },
             {
                 "Header": "Utbetales",
@@ -908,11 +969,13 @@
             {
                 "Header": "Ansatt",
                 "Field": "Employee.BusinessRelationInfo.Name",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Tekst",
-                "Field": "Text"
+                "Field": "Text",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Arbeidsforhold",
@@ -942,6 +1005,11 @@
                 "Type": "text",
                 "Alignment": "right",
                 "Width": "5rem"
+            },
+            {
+                "Header": "Antall",
+                "Field": "Amount",
+                "Type": "money"
             },
             {
                 "Header": "Sats",
@@ -988,8 +1056,18 @@
                 "DefaultHidden": true
             },
             {
+                "Header": "Prosjektnr",
+                "Field": "Dimensions.Project.ProjectNumber",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Prosjekt",
                 "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdelingsnr",
+                "Field": "Dimensions.Department.DepartmentNumber",
                 "DefaultHidden": true
             },
             {
@@ -1020,67 +1098,116 @@
         "Expand": "",
         "Joins": "SalaryTransaction.ID eq FileEntityLink.EntityID",
         "Columns": [{
-                "Header": "Lønnsart",
-                "Field": "WageTypeNumber",
-                "Type": "text"
-            },
-            {
-                "Header": "Lønnsavregning",
-                "Field": "PayrollRunID",
-                "Type": "text"
-            },
-            {
-                "Header": "Ansattnr.",
-                "Field": "EmployeeNumber",
-                "Type": "text"
-            },
-            {
-                "Header": "Tekst",
-                "Field": "Text"
-            },
-            {
-                "Header": "Arbeidsforhold",
-                "Field": "Employment.ID",
-                "Type": "text",
-                "SubFields": [{
-                    "Field": "Employment.JobName"
-                }]
-            },
-            {
-                "Header": "Fra dato",
-                "Field": "FromDate"
-            },
-            {
-                "Header": "Til dato",
-                "Field": "ToDate"
-            },
-            {
-                "Header": "Konto",
-                "Field": "Account",
-                "Width": "5rem"
-            },
-            {
-                "Header": "Sats",
-                "Field": "Rate",
-                "Type": "money"
-            },
-            {
-                "Header": "Sum",
-                "Field": "Sum",
-                "Type": "money"
-            },
-            {
-                "Header": "Utbetales",
-                "Field": "Wagetype.Base_Payment"
-            },
-            {
-                "Header": "Prosjekt",
-                "Field": "Dimensions.Project.Name"
-            },
-            {
-                "Header": "Avdeling",
-                "Field": "Dimensions.Department.Name"
-            }
+            "Header": "Lønnsart",
+            "Field": "WageTypeNumber"
+        },
+        {
+            "Header": "Lønnsavregning",
+            "Field": "PayrollRunID"
+        },
+        {
+            "Header": "Ansattnr.",
+            "Field": "EmployeeNumber"
+        },
+        {
+            "Header": "Ansatt",
+            "Field": "Employee.BusinessRelationInfo.Name",
+            "Type": "text"
+        },
+        {
+            "Header": "Tekst",
+            "Field": "Text"
+        },
+        {
+            "Header": "Arbeidsforhold",
+            "Field": "Employment.ID",
+            "Type": "text",
+            "SubFields": [{
+                "Field": "Employment.JobName"
+            }]
+        },
+        {
+            "Header": "Fra dato",
+            "Field": "FromDate",
+            "Type": "date"
+        },
+        {
+            "Header": "Til dato",
+            "Field": "ToDate",
+            "Type": "date"
+        },
+        {
+            "Header": "Konto",
+            "Field": "Account",
+            "Type": "text"
+        },
+        {
+            "Header": "Antall",
+            "Field": "Amount",
+            "Type": "money"
+        },
+        {
+            "Header": "Sats",
+            "Field": "Rate",
+            "Type": "money"
+        },
+        {
+            "Header": "Sum",
+            "Field": "Sum",
+            "Type": "money"
+        },
+        {
+            "Header": "Inntektstype",
+            "Field": "Wagetype.IncomeType"
+        },
+        {
+            "Header": "Fordel",
+            "Field": "Wagetype.Benefit"
+        },
+        {
+            "Header": "Beskrivelse",
+            "Field": "Wagetype.Description"
+        },
+        {
+            "Header": "Trekk for ferie",
+            "Field": "HolidayPayDeduction",
+            "Type": "boolean"
+        },
+        {
+            "Header": "Aga",
+            "Field": "Wagetype.Base_EmploymentTax",
+            "Type": "boolean"
+        },
+        {
+            "Header": "Utbetalingsmåned",
+            "Field": "Payrollrun.PayDate",
+            "Format": "DateMonth"
+        },
+        {
+            "Header": "Utbetales",
+            "Field": "Wagetype.Base_Payment",
+            "Type": "boolean"
+        },
+        {
+            "Header": "Prosjektnr",
+            "Field": "Dimensions.Project.ProjectNumber",
+            "Type": "number"
+        },
+        {
+            "Header": "Prosjekt",
+            "Field": "Dimensions.Project.Name",
+            "Type": "text"
+        },
+        {
+            "Header": "Avdelingsnr",
+            "Field": "Dimensions.Department.DepartmentNumber",
+            "Type": "number"
+        },
+        {
+            "Header": "Avdeling",
+            "Field": "Dimensions.Department.Name",
+            "Type": "text"
+        }
         ],
         "Actions": [],
         "ParentFilter": {
