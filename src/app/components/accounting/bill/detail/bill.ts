@@ -282,7 +282,6 @@ export class BillView implements OnInit {
 
         // Get settings from localstorage or use default
         const settings = this.browserStorageService.getSpecificViewSettings('SUPPLIERINVOICE');
-        console.log(settings);
         this.smartBookingSettings = settings ? settings : this.smartBookingSettings;
 
         userService.getCurrentUser().subscribe( usr => {
@@ -1608,6 +1607,10 @@ export class BillView implements OnInit {
             this.updateJournalEntryAmountsWhenCurrencyChanges(model);
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
+            }
+
+            if (this.orgNumber && !change['TaxInclusiveAmountCurrency'].previousValue) {
+                this.runSmartBooking(this.orgNumber);
             }
         }
 
