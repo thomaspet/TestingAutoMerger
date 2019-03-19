@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/config/unitableColumn';
+import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '@uni-framework/ui/unitable/config/unitableColumn';
 import {UniTableConfig} from '@uni-framework/ui/unitable/config/unitableConfig';
 import {ISavedSearch, ITableFilter} from '../interfaces';
 
@@ -31,6 +31,29 @@ export class TableUtils {
             console.error(e);
             this.columnSetupMap = {};
             this.savedSearchMap = {};
+        }
+    }
+
+    // Local sorting functions
+    dateComparator(rowNode1, rowNode2, column: UniTableColumn) {
+        const field = column.alias || column.field;
+        const value1 = _.get(rowNode1.data, field, '');
+        const value2 = _.get(rowNode2.data, field, '');
+
+        const unix1 = moment(value1).isValid() ? moment(value1).unix() : 0;
+        const unix2 = moment(value2).isValid() ? moment(value2).unix() : 0;
+        return unix1 - unix2;
+    }
+
+    numberComparator(rowNode1, rowNode2, column: UniTableColumn) {
+        const mode = column.sortMode;
+        const field = column.alias || column.field;
+        const value1 = _.get(rowNode1.data, field, 0);
+        const value2 = _.get(rowNode2.data, field, 0);
+        if (mode === UniTableColumnSortMode.Absolute) {
+            return Math.abs(value1) - Math.abs(value2);
+        } else {
+            return value1 - value2;
         }
     }
 
