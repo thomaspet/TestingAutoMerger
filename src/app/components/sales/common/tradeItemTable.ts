@@ -220,9 +220,11 @@ export class TradeItemTable {
 
         if (updateTableData) {
             this.items = this.items.map(item => {
-                item.Dimensions = item.Dimensions || new Dimensions();
-                item.Dimensions.ProjectID = projectID;
-                item.Dimensions.Project = this.defaultProject;
+                if (item.Product) {
+                    item.Dimensions = item.Dimensions || new Dimensions();
+                    item.Dimensions.ProjectID = projectID;
+                    item.Dimensions.Project = this.defaultProject;
+                }
                 return item;
             });
         }
@@ -697,17 +699,11 @@ export class TradeItemTable {
         const updatedIndex = event.originalIndex;
         let triggerChangeDetection = false;
 
-        //TODO kan brukeren velge/endre Dimensions? Hvis ja, skal denne fortsatt overskrives ved endring av Product/ItemText?
         if (event.field == 'Product') {
             updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
+            updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
             triggerChangeDetection = true;
-            /*TODO vis endring i grid (lagres ok, men vises først etter refresh)
-            Dersom jeg endrer varenr på en linje bør dimensjoner lastes inn på nytt.
-            Dersom jeg taster inn varenr på en fritekstlinje (dvs overskriver linjen) må vi passe på å laste inn igjen alle relevante data. 
-            Vi laster ikke inn dimensjoner fra heading bl.a.
-            */
         } else if (event.field == 'ItemText') {
-            //kun tekst-kolonnen skal ha verdi dersom varenr er tomt (dvs dette er en fritekst linje)
             if (!updatedRow.Product) {
                 updatedRow.Dimensions = null;
                 triggerChangeDetection = true;
