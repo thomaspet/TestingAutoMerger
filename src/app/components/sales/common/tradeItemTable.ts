@@ -702,10 +702,17 @@ export class TradeItemTable {
         let triggerChangeDetection = false;
 
         if (event.field == 'Product') {
-            //TODO bruk product.Dimensions om det er satt
-            updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
-            updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
-            triggerChangeDetection = true;
+            //Nå funker det, men ikke optimal måte å løse det på. Sikkert bedre å løse det før man kommer hit
+            //updatedRow.Dimensions har rett verdi når man kommer hit i de fleste tilfeller, utenom når setter Produkt i Item som tidligere ikke har hatt produkt
+            if (updatedRow.Product && updatedRow.Product.Dimensions) {
+                updatedRow.Dimensions = updatedRow.Product.Dimensions;
+                updatedRow.Dimensions.ProjectID = updatedRow.Product.Dimensions.ProjectID;
+                triggerChangeDetection = true;
+            } else {
+                updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
+                updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
+                triggerChangeDetection = true;
+            }
         } else if (event.field == 'ItemText') {
             if (!updatedRow.Product) {
                 updatedRow.Dimensions = null;
