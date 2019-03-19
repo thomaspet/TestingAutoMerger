@@ -530,7 +530,7 @@ export class VariablePayrollsComponent {
                     this.checkDates(row);
                 }
 
-                if ((event.field === 'Wagetype' || event.field === 'employment')) {
+                if ((event.field === 'Wagetype' || event.field === 'employment') || (event.field === '_employee' && row.Wagetype)) {
                     obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
                 }
 
