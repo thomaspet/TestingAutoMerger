@@ -90,6 +90,9 @@ export class LedgerAccountReconciliation {
     @Input()
     public searchValue: any = '';
 
+    @Input()
+    public displayPostsOption: any = 'OPEN';
+
     @Output()
     public selectionChanged: EventEmitter<any> = new EventEmitter();
 
@@ -126,7 +129,6 @@ export class LedgerAccountReconciliation {
     isDirty: boolean = false;
     busy: boolean = false;
     readyForManualMarkings: boolean = false;
-    displayPostsOption: string = 'OPEN';
     canAutoMark = this.displayPostsOption === 'OPEN';
 
     searchControl: FormControl = new FormControl('');
@@ -176,7 +178,7 @@ export class LedgerAccountReconciliation {
             }
         }
 
-        if (!changes['autoLocking'] && !changes['searchValue']) {
+        if (!changes['autoLocking'] && !changes['searchValue'] && !changes['displayPostsOption']) {
             this.journalEntryLines.map(row => {
                 row._rowSelected = false;
                 return row;
