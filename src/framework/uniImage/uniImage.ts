@@ -385,7 +385,8 @@ export class UniImage {
         const currentFile = this.files[this.currentFileIndex];
 
         // If not pdf, just print the image
-        if (!currentFile.Name || !currentFile.Name.includes('.pdf')) {
+        const fileName = (currentFile.Name || '').toLowerCase();
+        if (!fileName.includes('.pdf')) {
             this.printImage(this.imgUrl);
             return;
         }
