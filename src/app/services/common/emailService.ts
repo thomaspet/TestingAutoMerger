@@ -12,6 +12,7 @@ import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index'
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniSendEmailModal} from '@uni-framework/uni-modal/modals/sendEmailModal';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
+import {ReportService} from '@app/services/reports/reportService';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -22,6 +23,7 @@ export class EmailService extends BizHttp<Email> {
         private toastService: ToastService,
         private errorService: ErrorService,
         private modalService: UniModalService,
+        private reportService: ReportService,
     ) {
         super(http);
 
@@ -71,23 +73,17 @@ export class EmailService extends BizHttp<Email> {
                 EntityID: sendemail.EntityID
             };
 
-            this.ActionWithBody(null, email, 'send', RequestMethod.Post).subscribe((success) => {
-                this.toastService.removeToast(this.emailtoast);
-                if (success) {
-                    this.toastService.addToast('E-post sendt', ToastType.good, ToastTime.short);
-                    if (doneHandler) { doneHandler('E-post sendt'); }
-                } else {
-                    this.toastService.addToast('E-post ikke sendt',
-                        ToastType.bad,
+            this.reportService.distributeWithTypeAndBody(sendemail.EntityID, sendemail.EntityType, 'Email', email).subscribe(
+                () => {
+                    this.toastService.removeToast(this.emailtoast);
+                    this.toastService.addToast(
+                        'E-post lagt i kø for distribusjon',
+                        ToastType.good,
                         ToastTime.medium,
-                        'Feilet i oppretting av jobb'
-                    );
-                    if (doneHandler) { doneHandler(''); }
-                }
-            }, err => {
-                if (doneHandler) { doneHandler('Feil oppstod ved sending av e-post'); }
-                this.errorService.handle(err);
-            });
+                        'Status på sendingen oppdateres løpende under Nøkkeltall \\ Distribusjon');
+                },
+                (err) => this.errorService.handle(err)
+            );
         }
     }
 

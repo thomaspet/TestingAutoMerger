@@ -203,6 +203,16 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.json());
     }
 
+    public distributeWithTypeAndBody(id, type, disttype, body) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=distribute-with-type&id=${id}&distributiontype=${disttype}&entityType=${type}`)
+            .withBody(body)
+            .send()
+            .map(res => res.json());
+    }
+
     private renderHtml(report) {
         return new Promise((resolve, reject) => {
             if (!report) {
