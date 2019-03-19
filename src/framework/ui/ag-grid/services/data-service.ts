@@ -445,53 +445,6 @@ export class TableDataService {
         }
     }
 
-    public sortLocalData(data: any[], column: UniTableColumn, direction: 'asc'|'desc'): any[] {
-        const directionNumeric = direction === 'asc' ? 1 : -1;
-        const type = column.type;
-        const mode = column.sortMode;
-        const field = column.alias || column.field;
-
-        const sorted = data.sort((a, b) => {
-            // REVISIT: Might want to run template functions here?
-            // How big of a performance hit would that be on large datasets?
-            let first = get(a, field) || '';
-            let second = get(b, field) || '';
-
-            // Different sorting for different data types
-            switch (type) {
-                case UniTableColumnType.LocalDate:
-                case UniTableColumnType.DateTime:
-                    first = (first ? moment(first) : moment()).unix();
-                    second = (second ? moment(second) : moment()).unix();
-                    break;
-                case UniTableColumnType.Money:
-                case UniTableColumnType.Number:
-                case UniTableColumnType.Percent:
-                    if (mode === UniTableColumnSortMode.Absolute) {
-                        first = Math.abs(first);
-                        second = Math.abs(second);
-                    }
-                    break;
-                default:
-                    first = first.toString().toLowerCase();
-                    second = second.toString().toLowerCase();
-                    break;
-            }
-
-            if (first === second) {
-                return 0;
-            } else if (first > second) {
-                return 1 * directionNumeric;
-            } else if (first < second) {
-                return -1 * directionNumeric;
-            }
-
-            return 1;
-        });
-
-        return sorted;
-    }
-
     public setFilters(
         advancedSearchFilters: ITableFilter[] = [],
         basicSearchFilters: ITableFilter[] = [],

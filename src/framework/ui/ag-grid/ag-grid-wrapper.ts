@@ -11,7 +11,7 @@ import {
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTableConfig} from '../unitable/config/unitableConfig';
-import {UniTableColumn} from '../unitable/config/unitableColumn';
+import {UniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
@@ -666,6 +666,23 @@ export class AgGridWrapper {
                 agCol.suppressResize = true;
                 agCol.suppressSizeToFit = true;
                 agCol.suppressAutoSize = true;
+            }
+
+            if (col.type === UniTableColumnType.LocalDate
+                || col.type === UniTableColumnType.DateTime
+            ) {
+                agCol.comparator = (value1, value2, node1, node2) => {
+                    return this.tableUtils.dateComparator(node1, node2, col);
+                };
+            }
+
+            if (col.type === UniTableColumnType.Number
+                || col.type === UniTableColumnType.Money
+                || col.type === UniTableColumnType.Percent
+            ) {
+                agCol.comparator = (value1, value2, node1, node2) => {
+                    return this.tableUtils.numberComparator(node1, node2, col);
+                };
             }
 
             if (col.linkResolver || col.linkClick) {
