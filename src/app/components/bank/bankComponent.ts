@@ -256,10 +256,12 @@ export class BankComponent implements AfterViewInit {
                     return group.Name === 'Bank';
                 });
 
-            // Get autobank agreements to see if options should be shown in the toolbar
-            this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
-                this.agreements = agreements;
-            });
+            if (this.hasAccessToAutobank) {
+                // Get autobank agreements to see if options should be shown in the toolbar
+                this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
+                    this.agreements = agreements;
+                });
+            }
 
             this.route.queryParams.subscribe(params => {
                 const tickerCode = params && params['code'];
@@ -380,14 +382,16 @@ export class BankComponent implements AfterViewInit {
                 disabled: this.rows.length === 0
             });
 
-            this.actions.push({
-                label: 'Se feilede filer',
-                action: (done) => {
-                    done();
-                    this.openFailedFilesModal();
-                },
-                disabled: !this.failedFiles.length
-            });
+            if (this.failedFiles.length && this.hasAccessToAutobank) {
+                this.actions.push({
+                    label: 'Se feilede filer',
+                    action: (done) => {
+                        done();
+                        this.openFailedFilesModal();
+                    },
+                    disabled: false
+                });
+            }
         } else if (selectedTickerCode === 'bank_list') {
             this.actions.push({
                 label: 'Hent og bokfør innbetalingsfil',
