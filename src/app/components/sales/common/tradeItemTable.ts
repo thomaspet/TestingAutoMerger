@@ -256,9 +256,11 @@ export class TradeItemTable {
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
-                item.Dimensions = item.Dimensions || new Dimensions();
-                item.Dimensions[entity] = id;
-                item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                if (item.Product) {
+                    item.Dimensions = item.Dimensions || new Dimensions();
+                    item.Dimensions[entity] = id;
+                    item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                }
                 return item;
             });
         };
@@ -700,6 +702,7 @@ export class TradeItemTable {
         let triggerChangeDetection = false;
 
         if (event.field == 'Product') {
+            //TODO bruk product.Dimensions om det er satt
             updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
             updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
             triggerChangeDetection = true;
