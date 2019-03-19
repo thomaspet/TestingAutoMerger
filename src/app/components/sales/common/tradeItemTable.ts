@@ -695,6 +695,24 @@ export class TradeItemTable {
     public onRowChange(event: IRowChangeEvent) {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
+        let triggerChangeDetection = false;
+
+        //TODO kan brukeren velge/endre Dimensions? Hvis ja, skal denne fortsatt overskrives ved endring av Product/ItemText?
+        if (event.field == 'Product') {
+            updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
+            triggerChangeDetection = true;
+            /*TODO vis endring i grid (lagres ok, men vises først etter refresh)
+            Dersom jeg endrer varenr på en linje bør dimensjoner lastes inn på nytt.
+            Dersom jeg taster inn varenr på en fritekstlinje (dvs overskriver linjen) må vi passe på å laste inn igjen alle relevante data. 
+            Vi laster ikke inn dimensjoner fra heading bl.a.
+            */
+        } else if (event.field == 'ItemText') {
+            //kun tekst-kolonnen skal ha verdi dersom varenr er tomt (dvs dette er en fritekst linje)
+            if (!updatedRow.Product) {
+                updatedRow.Dimensions = null;
+                triggerChangeDetection = true;
+            }
+        }
 
         // If freetext on row is more than 250 characters we need
         // to split it into multiple rows
@@ -713,6 +731,9 @@ export class TradeItemTable {
                 this.items.splice(insertIndex, 0, newRow);
             });
 
+            triggerChangeDetection = true;
+        }
+        if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
             this.items = _.cloneDeep(this.items); // trigger change detection
         }
