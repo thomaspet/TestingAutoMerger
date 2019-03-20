@@ -337,7 +337,7 @@ export class AgGridWrapper {
     }
 
     public onColumnMove(event: ColumnMovedEvent) {
-        if (!this.config || !this.config.configStoreKey || this.config.groupingIsOn) {
+        if (!event.column || !this.config || !this.config.configStoreKey || this.config.groupingIsOn) {
             return;
         }
 
