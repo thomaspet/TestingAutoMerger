@@ -298,10 +298,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                                 data: {model: model, reportType: ReportTypeEnum.INVOICE, entity: invoice, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(
-                                        email.model.selectedForm.Name,
+                                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerInvoice',
+                                        email.model.selectedForm.ID,
                                         email.model.sendEmail,
-                                        email.parameters
+                                        email.parameters || parameters
                                     );
                                 }
                                 resolve();

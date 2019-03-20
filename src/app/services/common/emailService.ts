@@ -30,7 +30,7 @@ export class EmailService extends BizHttp<Email> {
         this.DefaultOrderBy = null;
     }
 
-    public sendEmailWithReportAttachment(name: string, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
+    public sendEmailWithReportAttachment(fullEntityType: string, reportID: number, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
         if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
             this.toastService.addToast(
                 'Sending feilet',
@@ -48,30 +48,19 @@ export class EmailService extends BizHttp<Email> {
                 sendemail.Subject
             );
 
-            if (!parameters) {
-                parameters = [];
-                parameters.push({ Name: 'Id', value: sendemail.EntityID });
-            }
-
-            parameters.push({
-                Name: 'LogoUrl',
-                value: environment.BASE_URL_FILES
-                    + '/api/image/?key='
-                    + this.http.authService.getCompanyKey() + '&id=logo'
-            });
-
             const email = {
                 ToAddresses: [sendemail.EmailAddress],
                 CopyAddress: sendemail.SendCopy ? sendemail.CopyAddress : '',
                 Subject: sendemail.Subject,
                 Message: sendemail.Message,
-                ReportName: name,
-                Parameters: parameters,
+                ReportID: reportID,
                 EntityType: sendemail.EntityType,
-                EntityID: sendemail.EntityID
+                EntityID: sendemail.EntityID,
+                Format: sendemail.Format,
+                Parameters: parameters
             };
 
-            this.distributeWithTypeAndBody(sendemail.EntityID, sendemail.EntityType, 'Email', email).subscribe(
+            this.distributeWithTypeAndBody(sendemail.EntityID, fullEntityType, 'Email', email).subscribe(
                 () => {
                     this.toastService.removeToast(this.emailtoast);
                     this.toastService.addToast(
@@ -119,10 +108,9 @@ export class EmailService extends BizHttp<Email> {
             }
         }).onClose.map(email => {
             if (email) {
-                this.sendEmailWithReportAttachment(
-                    email.model.selectedForm.Name,
-                    email.model.sendEmail,
-                    email.parameters
+                this.sendEmailWithReportAttachment(`Models.Sales.${model.EntityType}`,
+                    email.model.selectedForm.ID,
+                    email.model.sendEmail
                 );
             }
         });
