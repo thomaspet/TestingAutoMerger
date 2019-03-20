@@ -253,7 +253,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public loadData() {
 
-
         this.clearJournalEntryInfo();
         this.hasLoadedData = true;
 
@@ -376,6 +375,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 }
 
                 didFindJournalEntry = true;
+            } else if (entry.FileIDs.length) {
+                // Dont add duplicate lines
+                if (JSON.stringify(entry.FileIDs) === JSON.stringify(fileIds)) {
+                    didFindJournalEntry = true;
+                }
             }
         });
 
