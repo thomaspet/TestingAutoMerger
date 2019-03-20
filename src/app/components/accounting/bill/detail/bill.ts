@@ -178,7 +178,8 @@ export class BillView implements OnInit {
         'Info',
         'Info.BankAccounts',
         'Info.DefaultBankAccount',
-        'CurrencyCode'
+        'CurrencyCode',
+        'CostAllocation'
     ];
 
     public activeTabIndex: number = 0;
@@ -355,7 +356,7 @@ export class BillView implements OnInit {
                     this.fetchInvoice(id, true);
                 } else {
                     const getSupplier = +params['supplierID']
-                        ? this.supplierService.Get(+params['supplierID'], ['Info.BankAccounts'])
+                        ? this.supplierService.Get(+params['supplierID'], this.supplierExpandOptions)
                         : Observable.of(null);
 
                     getSupplier.subscribe(supplier => {
@@ -733,7 +734,6 @@ export class BillView implements OnInit {
                 this.toast.clear();
                 this.handleEHFResult(invoice);
                 this.flagUnsavedChanged();
-                this.tryAddCostAllocation();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -833,6 +833,12 @@ export class BillView implements OnInit {
             } else {
                 this.current.next(invoice);
             }
+
+            if (invoice.Supplier) {
+                this.orgNumber = invoice.Supplier.OrgNumber;
+            }
+
+            this.tryAddCostAllocation('EHF');
 
             // CHECK IF CUSTOMER IS BLOCKED!!
             // Should check here for customer status, and suggest to reject when status is BLOCKED!
@@ -974,7 +980,7 @@ export class BillView implements OnInit {
     }
 
     private setSupplierBasedOnOrgno(orgNo: string, ocr) {
-        this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts'])
+        this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, this.supplierExpandOptions)
             .subscribe((result: Supplier[]) => {
                 if (!result || !result.length) {
                     this.findSupplierViaPhonebook(
@@ -1609,7 +1615,7 @@ export class BillView implements OnInit {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
             }
 
-            if (this.orgNumber && !change['TaxInclusiveAmountCurrency'].previousValue) {
+            if (this.orgNumber && !change['TaxInclusiveAmountCurrency'].previousValue && !model.Supplier.CostAllocation) {
                 this.runSmartBooking(this.orgNumber);
             }
         }
@@ -1822,8 +1828,10 @@ export class BillView implements OnInit {
             }
             this.orgNumber = result.OrgNumber;
 
-            // Add orgnumber as params, not input
-            this.runSmartBooking(this.orgNumber);
+            if (!current.Supplier.CostAllocation) {
+                // Add orgnumber as params, not input.. Only run if not costallocation
+                this.runSmartBooking(this.orgNumber);
+            }
 
             if (current.TaxInclusiveAmountCurrency && this.journalEntryManual.isEmpty()) {
                 this.tryAddCostAllocation();
@@ -3232,6 +3240,7 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
         current.FreeTxt = this.currentFreeTxt;
+        current.Supplier.CostAllocation = null;
 
         if (!current.JournalEntry) {
             current.JournalEntry = new JournalEntry();
@@ -3810,12 +3819,12 @@ export class BillView implements OnInit {
     }
 
     private tryUpdateCostAllocationData(invoice) {
-        var currentCostAllocationData = this.costAllocationData$.getValue();
-        if (invoice.TaxInclusiveAmountCurrency != currentCostAllocationData.CurrencyAmount ||
-            invoice.CurrencyExchangeRate != currentCostAllocationData.ExchangeRate ||
-            invoice.CurrencyCodeID != currentCostAllocationData.CurrencyCodeID ||
-            invoice.DeliveryDate != currentCostAllocationData.FinancialDate ||
-            invoice.InvoiceDate != currentCostAllocationData.VatDate) {
+        const currentCostAllocationData = this.costAllocationData$.getValue();
+        if (invoice.TaxInclusiveAmountCurrency !== currentCostAllocationData.CurrencyAmount ||
+            invoice.CurrencyExchangeRate !== currentCostAllocationData.ExchangeRate ||
+            invoice.CurrencyCodeID !== currentCostAllocationData.CurrencyCodeID ||
+            invoice.DeliveryDate !== currentCostAllocationData.FinancialDate ||
+            invoice.InvoiceDate !== currentCostAllocationData.VatDate) {
 
             currentCostAllocationData.CurrencyAmount = invoice.TaxInclusiveAmountCurrency;
             currentCostAllocationData.CurrencyCodeID = invoice.CurrencyCodeID;
@@ -3826,10 +3835,22 @@ export class BillView implements OnInit {
         }
     }
 
-    private tryAddCostAllocation() {
+    private tryAddCostAllocation(mode: string = '') {
         const current = this.current.getValue();
-        if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency != 0) {
-            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, current.DeliveryDate, current.InvoiceDate, false);
+        if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency !== 0) {
+            this.journalEntryManual.addCostAllocationForSupplier(
+                current.SupplierID,
+                current.TaxInclusiveAmountCurrency,
+                current.CurrencyCodeID,
+                current.CurrencyExchangeRate,
+                current.DeliveryDate,
+                current.InvoiceDate,
+                false
+            ).then((result: boolean) => {
+                if (!result && mode === 'EHF') {
+                    this.runSmartBooking(this.orgNumber);
+                }
+            });
         }
     }
 

@@ -525,19 +525,44 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
-        if (!supplierID) return;
-        this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
-            if (supplier.CostAllocationID) {
-                this.toastService.addToast(
-                    `Fordeler basert på fordelingsnøkkel for leverandør`,
-                    ToastType.good,
-                    ToastTime.short,
-                    `Leverandør ${supplier.SupplierNumber} tilknyttet fordelingsnøkkel ${supplier.CostAllocation.ID} - ${supplier.CostAllocation.Name}`
-                );
-                this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
-                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
-                });
+    public addCostAllocationForSupplier(
+        supplierID: number,
+        currencyAmount: number,
+        currencyCodeID: number,
+        currencyExchangeRate: number,
+        financialDate: LocalDate,
+        vatDate: LocalDate,
+        keepCurrentLine: boolean = false
+    ) {
+        return new Promise((resolve, reject) => {
+            if (!supplierID) {
+                resolve(false);
+            } else {
+                this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
+                    if (supplier.CostAllocationID) {
+                        this.toastService.addToast(
+                            `Fordeler basert på fordelingsnøkkel for leverandør`,
+                            ToastType.good,
+                            ToastTime.short,
+                            `Leverandør ${supplier.SupplierNumber} tilknyttet fordelingsnøkkel ` +
+                            `${supplier.CostAllocation.ID} - ${supplier.CostAllocation.Name}`
+                        );
+                        this.costAllocationService.getDraftLinesBySupplierID(
+                            supplierID,
+                            null,
+                            currencyAmount,
+                            currencyCodeID,
+                            currencyExchangeRate,
+                            financialDate,
+                            vatDate
+                        ).subscribe(draftlines => {
+                            this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
+                            resolve(true);
+                        }, err => resolve(false));
+                    } else {
+                        resolve(false);
+                    }
+                }, err => resolve(false) );
             }
         });
     }
