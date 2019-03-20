@@ -696,9 +696,7 @@ export class TradeItemTable {
             });
     }
 
-    public onRowChange(event: IRowChangeEvent) {
-        const updatedRow = event.rowModel;
-        const updatedIndex = event.originalIndex;
+    private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
         let triggerChangeDetection = false;
         let noProduct = false;
 
@@ -720,6 +718,14 @@ export class TradeItemTable {
             updatedRow.Dimensions = null;
             triggerChangeDetection = true;
         }
+        return triggerChangeDetection;
+    }
+
+    public onRowChange(event: IRowChangeEvent) {
+        const updatedRow = event.rowModel;
+        const updatedIndex = event.originalIndex;
+
+        let triggerChangeDetection = this.updateDimensions(event, updatedRow);
 
         // If freetext on row is more than 250 characters we need
         // to split it into multiple rows
