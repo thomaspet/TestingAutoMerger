@@ -93,7 +93,7 @@ export class BankComponent implements AfterViewInit {
     private tickers: Ticker[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
-    private agreements: any[];
+    private agreements: any[] = [];
     private companySettings: CompanySettings;
     hasAccessToAutobank: boolean;
     failedFiles: any[] = [];
