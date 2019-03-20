@@ -12,7 +12,6 @@ import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index'
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniSendEmailModal} from '@uni-framework/uni-modal/modals/sendEmailModal';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {ReportService} from '@app/services/reports/reportService';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -23,7 +22,6 @@ export class EmailService extends BizHttp<Email> {
         private toastService: ToastService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private reportService: ReportService,
     ) {
         super(http);
 
@@ -73,7 +71,7 @@ export class EmailService extends BizHttp<Email> {
                 EntityID: sendemail.EntityID
             };
 
-            this.reportService.distributeWithTypeAndBody(sendemail.EntityID, sendemail.EntityType, 'Email', email).subscribe(
+            this.distributeWithTypeAndBody(sendemail.EntityID, sendemail.EntityType, 'Email', email).subscribe(
                 () => {
                     this.toastService.removeToast(this.emailtoast);
                     this.toastService.addToast(
@@ -87,38 +85,47 @@ export class EmailService extends BizHttp<Email> {
         }
     }
 
+    private distributeWithTypeAndBody(id, type, disttype, body) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=distribute-with-type&id=${id}&distributiontype=${disttype}&entityType=${type}`)
+            .withBody(body)
+            .send()
+            .map(res => res.json());
+    }
 
-     public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {
-            const model = new SendEmail();
-            model.EntityType = `Customer${entityTypeName}`;
-            model.EntityID = entity.ID;
-            model.CustomerID = entity.CustomerID;
-            model.EmailAddress = entity.EmailAddress;
+    public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {
+        const model = new SendEmail();
+        model.EntityType = `Customer${entityTypeName}`;
+        model.EntityID = entity.ID;
+        model.CustomerID = entity.CustomerID;
+        model.EmailAddress = entity.EmailAddress;
 
-            const entityNumber = entity[`${entityTypeName}Number`]
-                ? ` nr. ` + entity[`${entityTypeName}Number`]
-                : 'kladd';
+        const entityNumber = entity[`${entityTypeName}Number`]
+            ? ` nr. ` + entity[`${entityTypeName}Number`]
+            : 'kladd';
 
-            model.Subject = `${name} ${entityNumber}`;
-            model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
+        model.Subject = `${name} ${entityNumber}`;
+        model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
 
-            return this.modalService.open(UniSendEmailModal, {
-                data: {
-                    model: model,
-                    reportType: ReportTypeEnum[entityTypeName.toUpperCase()],
-                    entity,
-                    parameters: reportForm.parameters,
-                    form: reportForm
-                }
-            }).onClose.map(email => {
-                if (email) {
-                    this.sendEmailWithReportAttachment(
-                        email.model.selectedForm.Name,
-                        email.model.sendEmail,
-                        email.parameters
-                    );
-                }
-            });
+        return this.modalService.open(UniSendEmailModal, {
+            data: {
+                model: model,
+                reportType: ReportTypeEnum[entityTypeName.toUpperCase()],
+                entity,
+                parameters: reportForm.parameters,
+                form: reportForm
+            }
+        }).onClose.map(email => {
+            if (email) {
+                this.sendEmailWithReportAttachment(
+                    email.model.selectedForm.Name,
+                    email.model.sendEmail,
+                    email.parameters
+                );
+            }
+        });
     }
 
     public isValidEmailAddress(email: string): boolean {
