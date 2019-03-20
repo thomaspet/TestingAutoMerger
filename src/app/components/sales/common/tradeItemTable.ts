@@ -700,24 +700,26 @@ export class TradeItemTable {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
         let triggerChangeDetection = false;
+        let noProduct = false;
 
         if (event.field == 'Product') {
-            //Nå funker det, men ikke optimal måte å løse det på. Sikkert bedre å løse det før man kommer hit
-            //updatedRow.Dimensions har rett verdi når man kommer hit i de fleste tilfeller, utenom når setter Produkt i Item som tidligere ikke har hatt produkt
-            if (updatedRow.Product && updatedRow.Product.Dimensions) {
-                updatedRow.Dimensions = updatedRow.Product.Dimensions;
-                updatedRow.Dimensions.ProjectID = updatedRow.Product.Dimensions.ProjectID;
-                triggerChangeDetection = true;
-            } else {
+            if (!event.newValue) {
+                noProduct = true;
+            }
+            //TODO sett Dimensions fra header når Product ikke har dimensjon, ved endring fra fritekst til produkt
+            else if (updatedRow.Product && !updatedRow.Product.Dimensions) { //Product.Dimensions har verdi selv om det ikke er tilknyttet dimensjon på produktet
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
                 triggerChangeDetection = true;
             }
         } else if (event.field == 'ItemText') {
             if (!updatedRow.Product) {
-                updatedRow.Dimensions = null;
-                triggerChangeDetection = true;
+                noProduct = true;
             }
+        }
+        if (noProduct) {
+            updatedRow.Dimensions = null;
+            triggerChangeDetection = true;
         }
 
         // If freetext on row is more than 250 characters we need
