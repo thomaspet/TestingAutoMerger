@@ -58,6 +58,7 @@ export class TradeItemHelper  {
                     item.SumVatCurrency = 0;
                     item.Unit = null;
                     item.VatTypeID = null;
+                    item.Dimensions = null;
                 }
 
                 return item;

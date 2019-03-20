@@ -706,8 +706,7 @@ export class TradeItemTable {
             if (!event.newValue) {
                 noProduct = true;
             }
-            //TODO sett Dimensions fra header når Product ikke har dimensjon, ved endring fra fritekst til produkt
-            else if (updatedRow.Product && !updatedRow.Product.Dimensions) { //Product.Dimensions har verdi selv om det ikke er tilknyttet dimensjon på produktet
+            else if (updatedRow.Product && !updatedRow.Product.Dimensions) { 
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
                 triggerChangeDetection = true;
