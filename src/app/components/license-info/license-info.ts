@@ -32,7 +32,7 @@ export class LicenseInfo {
         });
 
         const contractID = this.authService.currentUser.License.Company.ContractID;
-        this.elsaCustomerService.getByContractID(contractID).subscribe(
+        this.elsaCustomerService.getByContractID(contractID, 'Managers').subscribe(
             res => this.licenseOwner = res,
             err => this.errorService.handle(err)
         );

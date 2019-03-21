@@ -7,10 +7,14 @@ import {ElsaCustomer} from '@app/models';
 export class ElsaCustomersService {
     constructor(private uniHttp: UniHttp) {}
 
-    getByContractID(contractID: number): Observable<ElsaCustomer> {
+    getByContractID(contractID: number, expand?: string): Observable<ElsaCustomer> {
+        let endpoint = `/api/elsa/contracts/${contractID}/customers`;
+        if (expand) {
+            endpoint += '?expand=' + expand;
+        }
         return this.uniHttp.asGET()
             .usingEmptyDomain()
-            .withEndPoint(`/api/elsa/contracts/${contractID}/customers`)
+            .withEndPoint(endpoint)
             .send()
             .map(res => res.json());
     }
@@ -24,20 +28,16 @@ export class ElsaCustomersService {
             .map(res => res.json());
     }
 
-    getAll(): Observable<ElsaCustomer[]> {
+    getAll(expand?: string): Observable<ElsaCustomer[]> {
+        let endpoint = '/api/elsa/customers';
+        if (expand) {
+            endpoint += '?expand=' + expand;
+        }
+
         return this.uniHttp.asGET()
             .usingEmptyDomain()
-            .withEndPoint('/api/elsa/customers')
+            .withEndPoint(endpoint)
             .send()
             .map(res => res.json());
-    }
-
-    public GetAll(): Observable<ElsaCustomer[]> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint('/api/customers')
-            .send()
-            .map(req => req.json());
     }
 }

@@ -11,8 +11,8 @@ export class ElsaContractService {
     public get(id: number): Observable<ElsaContract> {
         return this.uniHttp
             .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/contracts/${id}`)
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${id}`)
             .send()
             .map(req => req.json());
     }
@@ -20,8 +20,8 @@ export class ElsaContractService {
     public getAll(): Observable<ElsaContract[]> {
         return this.uniHttp
             .asGET()
-            .usingElsaDomain()
-            .withEndPoint('/api/contracts')
+            .usingEmptyDomain()
+            .withEndPoint('/api/elsa/contracts')
             .send()
             .map(req => req.json());
     }

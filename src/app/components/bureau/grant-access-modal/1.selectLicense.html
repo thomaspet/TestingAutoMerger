@@ -2,11 +2,11 @@
 
 <section class="license-container" *ngFor="let customer of customers">
     <section class="license"
-        *ngFor="let contract of customer.contracts"
-        [ngClass]="{'selected': selectedContractID === contract.id}"
+        *ngFor="let contract of customer.Contracts"
+        [ngClass]="{'selected': selectedContractID === contract.ID}"
         (click)="selectContract(contract)">
 
-        <strong>{{customer.name}}</strong>
-        <span>Lisens: {{contractTypeToText(contract.contractType)}}</span>
+        <strong>{{customer.Name}}</strong>
+        <span>Lisens: {{contractTypeToText(contract.ContractType)}}</span>
     </section>
 </section>

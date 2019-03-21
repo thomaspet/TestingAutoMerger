@@ -1,13 +1,13 @@
 export interface ElsaCustomer {
-    id: number;
-    name: string;
-    orgNumber: string;
-    contactPerson: string;
-    contactEmail: string;
-    contactPhone: string;
-    contracts: ElsaContract[];
-    managers?: any;
-    companyKey: string;
+    ID: number;
+    Name: string;
+    OrgNumber: string;
+    CompanyKey: string;
+    ContactPerson: string;
+    ContactEmail: string;
+    ContactPhone: string;
+    Managers?: any[];
+    Contracts?: ElsaContract[];
 }
 
 export interface ElsaCompanyLicense {
@@ -27,19 +27,15 @@ export interface ElsaPurchase {
 }
 
 export interface ElsaContract {
-    id: number;
-    customer?: ElsaCustomer;
-    customerID: number;
-    contractType: ElsaContractType;
-    statusCode: number;
-    startDate: Date;
-    endDate?: Date;
-    settledUntil?: Date;
-    note?: any;
-    limit: number;
-    key: string;
-    purchases: any[];
-    companyLicenses?: ElsaPurchaseForLicense[];
+    ID: number;
+    CustomerID: number;
+    ContractType: ElsaContractType;
+    StatusCode: number;
+    StartDate: Date;
+    EndDate?: Date;
+    SettledUntil?: Date;
+    Note?: any;
+    Limit: number;
 }
 
 export enum ElsaContractType {
