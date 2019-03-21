@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {WageType, Account, LimitType, SpecialTaxAndContributionsRule, CompanySalary, SpecialAgaRule, TaxType, StdWageType} from '../../../unientities';
+import {WageType, Account, LimitType, SpecialTaxAndContributionsRule, CompanySalary, TaxType, StdWageType} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
 import {AccountService} from '../../accounting/accountService';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
