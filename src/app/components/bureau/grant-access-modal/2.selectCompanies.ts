@@ -28,7 +28,7 @@ export class SelectCompaniesForBulkAccess {
     }
 
     private initData() {
-        this.elsaContractService.GetCompanyLicenses(this.data.contract.id).subscribe(
+        this.elsaContractService.getCompanyLicenses(this.data.contract.id).subscribe(
             companyLicenses => {
                 companyLicenses = companyLicenses.filter(companyLicense => {
                     if (companyLicense.endDate && moment(companyLicense.endDate).isValid()) {
@@ -40,7 +40,7 @@ export class SelectCompaniesForBulkAccess {
 
                 if (this.data.companies && this.data.companies.length) {
                     companyLicenses.forEach(license => {
-                        if (this.data.companies.some(c => c.companyKey === license.companyKey)) {
+                        if (this.data.companies.some(c => c.CompanyKey === license.CompanyKey)) {
                             license['_selected'] = true;
                         }
                     });

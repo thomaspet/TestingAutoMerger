@@ -2,19 +2,58 @@
     display: block
     width: 95%
     max-width: 1200px
-    margin: -3rem auto 0
-    padding-bottom: 2rem
+    margin: -4rem auto 0
+    padding-bottom: 1rem
 
-h1
-    font: 500 20px 'Roboto'
-    margin-left: 1rem
+    h1
+        font: 500 22px 'Roboto'
+        margin-left: 1rem
 
-.info-card
-    background: #fff
-    margin: 0 1rem
-    padding: 1.5rem 2rem
-    border-radius: 3px
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065)
+    .info-card
+        background: #fff
+        margin: 0 1rem
+        padding: 1.5rem 2rem
+        border-radius: 3px
+        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065)
+
+    uni-tabs
+        width: calc(100% - 2rem)
+        margin: 1rem
+
+    license-info-company-list,
+    license-info-admin-list
+        display: block
+        margin: 0 1rem
+
+    ::ng-deep input[type=search]
+        width: 20rem
+        height: 2.75rem
+        margin: 0 0 1rem
+        border: 1px solid rgba(0, 0, 0, .12)
+        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065)
+
+    ::ng-deep .list-container
+        height: calc(100vh - 29rem)
+        min-height: 20rem
+        border-radius: 2px
+        font-size: 15px
+
+        .list-row
+            display: flex
+            height: 3.5rem
+            align-items: center
+            background: #fff
+            padding-left: 10px
+            border-bottom: 1px solid rgba(0, 0, 0, .12)
+
+            > span
+                flex: 1
+                padding: 0 10px
+
+            // .menu-toggle
+            //     flex: 0 0 4rem
+            //     padding: 10px 0
+            //     text-align: center
 
 .license-owner
     display: flex
@@ -37,28 +76,3 @@ h1
             text-align: right
             a
                 display: block
-
-.administrators
-    margin-top: 2rem
-
-    .info-card
-        padding: 1rem 1.5rem 3rem
-
-    table
-        width: 100%
-        border-collapse: collapse
-
-        tr
-            height: 3rem
-
-        th, td
-            padding: 0 10px
-
-        thead th
-            color: #97A0B1
-            font-size: 15px
-            font-weight: 500
-            text-align: left
-
-        tbody tr
-            border-top: 1px solid rgba(0,0,0,.12)

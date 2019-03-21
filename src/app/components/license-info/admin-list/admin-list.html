@@ -1,0 +1,9 @@
+<input type="search" placeholder="Søk" [(ngModel)]="filterValue" (ngModelChange)="filterManagers()">
+
+<cdk-virtual-scroll-viewport itemSize="56" class="list-container">
+    <section class="list-row" *cdkVirtualFor="let manager of filteredManagers">
+        <span>{{manager.User?.Name}}</span>
+        <span>{{manager.User?.Email}}</span>
+        <span>{{manager.User?.PhoneNumber}}</span>
+    </section>
+</cdk-virtual-scroll-viewport>

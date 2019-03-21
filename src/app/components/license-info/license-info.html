@@ -24,25 +24,11 @@
     </section>
 </section>
 
-<section class="administrators">
-    <h1>Administratorer</h1>
-    <section class="info-card">
-        <table>
-            <thead>
-                <tr>
-                    <th>Navn</th>
-                    <th>Epost</th>
-                    <th>Telefon</th>
-                </tr>
-            </thead>
+<uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
-            <tbody>
-                <tr *ngFor="let manager of licenseOwner?.Managers">
-                    <td>{{manager.User?.Name}}</td>
-                    <td><a href="mailto:{{manager.User?.Email}}">{{manager.User?.Email}}</a></td>
-                    <td><a href="tel:{{manager.User?.PhoneNumber}}">{{manager.User?.PhoneNumber}}</a></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-</section>
+<license-info-admin-list
+    *ngIf="activeTabIndex === 0"
+    [managers]="licenseOwner?.Managers">
+</license-info-admin-list>
+
+<license-info-company-list *ngIf="activeTabIndex === 1"></license-info-company-list>

@@ -24,6 +24,7 @@ export enum UniModules {
     Assignments     = 106,
     Marketplace     = 107,
     Sharings        = 108,
+    LicenseInfo     = 109,
 
     Sales            = 200,
     Customers        = 201,

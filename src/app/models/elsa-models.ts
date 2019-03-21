@@ -11,18 +11,12 @@ export interface ElsaCustomer {
 }
 
 export interface ElsaCompanyLicense {
-    id: number;
-    contract?: ElsaContract;
-    contractID: number;
-    startDate: Date;
-    endDate?: Date;
-    licenseKey: string;
-    companyName: string;
-    companyKey: string;
-    statusCode: number;
-    orgNumber?: string;
-    companyPurchases?: any[];
-    userLicenses?: ElsaUserLicense[];
+    ID: number;
+    ContractID: number;
+    CompanyName: string;
+    CompanyKey: string;
+    OrgNumber: string;
+    StatusCode: ElsaCompanyLicenseStatus;
 }
 
 export interface ElsaPurchase {
@@ -99,6 +93,12 @@ export interface ElsaProduct {
     subProducts?: ElsaProduct[];
 }
 
+export enum ElsaCompanyLicenseStatus {
+    Draft = 0,
+    Active = 5,
+    Paused = 10,
+    Canceled = 11
+}
 
 export enum ElsaProductStatusCode {
     Live = 0,

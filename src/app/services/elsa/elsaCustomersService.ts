@@ -3,27 +3,33 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaCustomer} from '@app/models';
 
-
 @Injectable()
 export class ElsaCustomersService {
     constructor(private uniHttp: UniHttp) {}
 
-    getLicenseOwner() {
+    getByContractID(contractID: number): Observable<ElsaCustomer> {
+        return this.uniHttp.asGET()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${contractID}/customers`)
+            .send()
+            .map(res => res.json());
+    }
+
+    get(id: number): Observable<ElsaCustomer> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
-            .withEndPoint('/api/elsa/customers')
+            .withEndPoint(`/api/elsa/customers/${id}`)
             .send()
-            .map(req => req.json());
+            .map(res => res.json());
     }
 
-    public Get(id: number): Observable<ElsaCustomer> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/customers/${id}`)
+    getAll(): Observable<ElsaCustomer[]> {
+        return this.uniHttp.asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/elsa/customers')
             .send()
-            .map(req => req.json());
+            .map(res => res.json());
     }
 
     public GetAll(): Observable<ElsaCustomer[]> {
