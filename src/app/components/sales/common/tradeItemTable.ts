@@ -220,9 +220,11 @@ export class TradeItemTable {
 
         if (updateTableData) {
             this.items = this.items.map(item => {
-                item.Dimensions = item.Dimensions || new Dimensions();
-                item.Dimensions.ProjectID = projectID;
-                item.Dimensions.Project = this.defaultProject;
+                if (item.Product) {
+                    item.Dimensions = item.Dimensions || new Dimensions();
+                    item.Dimensions.ProjectID = projectID;
+                    item.Dimensions.Project = this.defaultProject;
+                }
                 return item;
             });
         }
@@ -254,9 +256,11 @@ export class TradeItemTable {
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
-                item.Dimensions = item.Dimensions || new Dimensions();
-                item.Dimensions[entity] = id;
-                item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                if (item.Product) {
+                    item.Dimensions = item.Dimensions || new Dimensions();
+                    item.Dimensions[entity] = id;
+                    item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                }
                 return item;
             });
         };
@@ -692,9 +696,36 @@ export class TradeItemTable {
             });
     }
 
+    private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
+        let triggerChangeDetection = false;
+        let noProduct = false;
+
+        if (event.field == 'Product') {
+            if (!event.newValue) {
+                noProduct = true;
+            }
+            else if (updatedRow.Product && !updatedRow.Product.Dimensions) { 
+                updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
+                updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
+                triggerChangeDetection = true;
+            }
+        } else if (event.field == 'ItemText') {
+            if (!updatedRow.Product) {
+                noProduct = true;
+            }
+        }
+        if (noProduct) {
+            updatedRow.Dimensions = null;
+            triggerChangeDetection = true;
+        }
+        return triggerChangeDetection;
+    }
+
     public onRowChange(event: IRowChangeEvent) {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
+
+        let triggerChangeDetection = this.updateDimensions(event, updatedRow);
 
         // If freetext on row is more than 250 characters we need
         // to split it into multiple rows
@@ -713,6 +744,9 @@ export class TradeItemTable {
                 this.items.splice(insertIndex, 0, newRow);
             });
 
+            triggerChangeDetection = true;
+        }
+        if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
             this.items = _.cloneDeep(this.items); // trigger change detection
         }
