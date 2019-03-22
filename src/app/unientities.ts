@@ -2192,6 +2192,7 @@ export class WageTypeSupplement extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public GetValueFromTrans: boolean;
     public ID: number;
     public Name: string;
     public StatusCode: number;
@@ -2230,6 +2231,7 @@ export class CompanySalary extends UniEntity {
     public static EntityType = 'CompanySalary';
 
     public _createguid: string;
+    public AllowOver6G: boolean;
     public Base_JanMayenAndBiCountries: boolean;
     public Base_NettoPayment: boolean;
     public Base_NettoPaymentForMaritim: boolean;
@@ -7496,6 +7498,17 @@ export class CurrencyRateData extends UniEntity {
     public Factor: number;
     public IsOverrideRate: boolean;
     public FromCurrencyCode: CurrencyCode;
+}
+
+
+export class EmailDTO extends UniEntity {
+    public CopyAddress: string;
+    public Format: string;
+    public FromAddress: string;
+    public Message: string;
+    public ReportID: number;
+    public Subject: string;
+    public Parameters: Array<ReportParameter>;
 }
 
 
