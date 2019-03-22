@@ -55,7 +55,7 @@
         <ag-grid-wrapper *ngIf="reinvoiceType === 1"
              [(resource)]="reinvoicingCustomers"
              [config]="customersTableConfigTurnOver"
-             (rowChange)="onReinvoicingCustomerChange()"
+             (rowChange)="onReinvoicingCustomerChange($event)"
         ></ag-grid-wrapper>
         <p>Velg vare(r)</p>
         <ag-grid-wrapper

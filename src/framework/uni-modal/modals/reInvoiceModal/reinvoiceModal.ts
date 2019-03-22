@@ -97,14 +97,16 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         const supplierID = this.supplierInvoice.SupplierID;
         const invoiceNumber = this.supplierInvoice.InvoiceNumber;
         let reinvoiceRequest;
-        if (supplierID && invoiceNumber) {
+        const expand = [
+            'Items', 'Items.Customer', 'Items.Customer.Info', 'Items.SupplierInvoice', 'SupplierInvoice',
+            'Product', 'Product.VatType', 'Product.VatType.VatTypePercentages'
+        ];
+        if (this.supplierInvoice.ID) {
+            reinvoiceRequest = this.reinvoiceService.GetAll(`filter=SupplierInvoice.ID eq ${this.supplierInvoice.ID}`, expand);
+        } else if (supplierID && invoiceNumber) {
             reinvoiceRequest = this.reinvoiceService.GetAll(
-                `filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq ${invoiceNumber}`
-                + `&orderby=UpdatedAt desc`,
-                [
-                    'Items', 'Items.Customer', 'Items.Customer.Info', 'Items.SupplierInvoice', 'SupplierInvoice',
-                    'Product', 'Product.VatType', 'Product.VatType.VatTypePercentages'
-                ]
+                `filter=SupplierInvoice.SupplierID eq ${supplierID} and SupplierInvoice.InvoiceNumber eq '${invoiceNumber}'`
+                + `&orderby=UpdatedAt desc`, expand
             );
         } else {
             reinvoiceRequest = Observable.of([]);
@@ -496,13 +498,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.reinvoiceType = change.value;
         if (this.reinvoiceType === 0) {
             this.removeSurchargeAndVat();
-            this.onReinvoicingCustomerChange();
             this.updateItemsData(this.items[0] && this.items[0].Product);
+            this.onReinvoicingCustomerChange(null);
         }
     }
 
     onItemChange(change) {
         this.updateItemsData(change.newValue);
+        this.onReinvoicingCustomerChange(null);
     }
 
     removeSurchargeAndVat() {
@@ -516,7 +519,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         });
     }
 
-    onReinvoicingCustomerChange() {
+    onReinvoicingCustomerChange(change) {
         const total = this.supplierInvoice.TaxInclusiveAmountCurrency;
         const data = [].concat(this.reinvoicingCustomers);
         let cumulativePercentage = 0;
@@ -524,8 +527,16 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             if (data[i].Customer && data[i].Customer.ID === 0) {
                 data[i].Customer = null;
             }
-            data[i].NetAmount = UniMath.round(total * ((data[i].Share || 0) / 100));
-            data[i].Share = UniMath.round(((data[i].NetAmount || 0) / total) * 100);
+            if (change) {
+                switch (change.field) {
+                    case 'NetAmount':
+                        data[i].Share = UniMath.round(((data[i].NetAmount || 0) / total) * 100);
+                        break;
+                    case 'Share':
+                        data[i].NetAmount = UniMath.round(total * ((data[i].Share || 0) / 100));
+                        break;
+                }
+            }
             const vatPercent = (this.items[0] && this.items[0].VatType && this.items[0].VatType.VatPercent) || 0;
             data[i].Vat = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) * vatPercent / 100);
             data[i].GrossAmount = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge || 0) / 100)) + data[i].Vat);
