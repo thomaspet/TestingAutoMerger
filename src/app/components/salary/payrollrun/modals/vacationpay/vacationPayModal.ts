@@ -8,7 +8,7 @@ import {
 import {
     BasicAmountService, VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService, CompanyVacationRateService,
 } from '../../../../../../app/services/services';
-import {VacationPaySettingsModal} from '../../modals/vacationpay/vacationPaySettingsModal';
+import {VacationPaySettingsModal, IVacationPaySettingsReturn} from '../../modals/vacationpay/vacationPaySettingsModal';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {Observable, of, forkJoin} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
@@ -17,7 +17,7 @@ import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '@uni-framework/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {filter, tap, switchMap, map, finalize} from 'rxjs/operators';
+import {filter, tap, switchMap, map, finalize, take} from 'rxjs/operators';
 
 interface IVacationPayHeader {
     VacationpayYear?: number;
@@ -214,9 +214,14 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive, this.runID);
     }
 
-    public recalc(event) {
-        this.options.cancelValue = event;
-        this.setUpRates(this.vacationBaseYear);
+    public recalc(event: IVacationPaySettingsReturn) {
+        this.options.cancelValue = event.dueToHolidayChanged;
+        if (!event.needVacationPayRefresh) {
+            this.vacationpaylineService.invalidateCache();
+            this.refreshVacationPay();
+        } else {
+            this.setUpRates(this.vacationBaseYear);
+        }
     }
 
     private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
@@ -272,6 +277,18 @@ export class VacationPayModal implements OnInit, IUniModal {
                 this.totalPayout += vacationpayLine.Withdrawal;
             });
         }
+    }
+
+    private refreshVacationPay() {
+        this.busy = true;
+        this.companysalaryService
+            .getCompanySalary()
+            .pipe(
+                tap(compSal => this.companysalary = compSal),
+                switchMap(() => this.vacationHeaderModel$),
+                take(1)
+            )
+            .subscribe(model => this.setCurrentBasicAmountAndYear(model));
     }
 
     private setCurrentBasicAmountAndYear(headerModel: IVacationPayHeader): IVacationPayHeader {
@@ -508,7 +525,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.updateAndSetRate(row, model, setmanually);
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
-            if (vacBase > limitBasicAmount) {
+            if (vacBase > limitBasicAmount && !this.companysalary.AllowOver6G) {
                 row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate'] / 100
                 + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
             } else {
