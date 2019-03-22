@@ -70,14 +70,14 @@
                     (click)="getMainAction().action()" [attr.aria-busy]="busy"
                     [disabled]="getMainAction().disabled"
                     [attr.aria-busy]="isSaving"
-                    [disabled]="!isReinvoiceValid"
+                    [disabled]="!isReinvoiceValid || isSaving"
             >{{getMainAction()?.label}}</button>
-            <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open" [disabled]="!isReinvoiceValid">More options</button>
+            <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open" [disabled]="!isReinvoiceValid || isSaving">More options</button>
             <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
                 <li *ngFor="let action of saveactions" (click)="open = !open; action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
             </ul>
         </section>
-        <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving">Lagre</button>
-        <button (click)="this.onClose.emit(false)" class="bad">Avbryt</button>
+        <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving">Lagre</button>
+        <button (click)="this.onClose.emit(false)" class="bad" [disabled]="isSaving">Avbryt</button>
     </footer>
 </section>
