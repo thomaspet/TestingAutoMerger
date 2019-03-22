@@ -40,4 +40,12 @@ export class ElsaCustomersService {
             .send()
             .map(res => res.json());
     }
+
+    put(customer: ElsaCustomer) {
+        return this.uniHttp.asPUT()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/customers/${customer.ID}`)
+            .withBody(customer)
+            .send();
+    }
 }

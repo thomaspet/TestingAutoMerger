@@ -4,19 +4,16 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
-
-// import {CanDeactivateGuard} from '@app/canDeactivateGuard';
 import {ContractActivation} from './contract-activation';
 
-import {
-    MatCheckboxModule, MatStepperModule
-} from '@angular/material';
+import {MatCheckboxModule} from '@angular/material';
+import {CanDeactivateGuard} from '@app/canDeactivateGuard';
 
 const routes = [{
     path: '',
     pathMatch: 'full',
     component: ContractActivation,
-    // canDeactivate: [CanDeactivateGuard]
+    canDeactivate: [CanDeactivateGuard]
 }];
 
 @NgModule({
@@ -28,13 +25,8 @@ const routes = [{
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         UniFrameworkModule,
-
         MatCheckboxModule,
-        MatStepperModule
     ],
-    declarations: [
-        ContractActivation,
-    ],
-    entryComponents: []
+    declarations: [ContractActivation],
 })
 export class ContractActivationModule {}

@@ -17,7 +17,7 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
                 <img class="ue-logo"
                     src="../../../../../assets/ue-logo-small.png"
                     alt="Uni Economy logo"
-                    [routerLink]="'/'"
+                    routerLink="/"
                 />
 
                 <i *ngIf="hasActiveContract"
@@ -40,7 +40,6 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
                 </i>
 
                 <uni-company-dropdown></uni-company-dropdown>
-                <!--<uni-notifications *ngIf="hasActiveContract"></uni-notifications>-->
                 <notifications></notifications>
 
                 <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length)">
@@ -81,7 +80,7 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
 
         </section>
 
-        <section class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
+        <section *ngIf="hasActiveContract" class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
             <uni-tabstrip></uni-tabstrip>
             <uni-tabstrip-help></uni-tabstrip-help>
         </section>
@@ -104,10 +103,11 @@ export class UniNavbar {
         public navbarService: NavbarLinkService,
         public tabService: TabService,
         public cdr: ChangeDetectorRef,
-        private smartSearchService: SmartSearchService
+        private smartSearchService: SmartSearchService,
     ) {
         this.authService.authentication$.subscribe(auth => {
             this.hasActiveContract = auth.hasActiveContract;
+            this.cdr.markForCheck();
         });
     }
 

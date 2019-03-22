@@ -1,10 +1,10 @@
 import {Injectable, EventEmitter} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto} from './unientities';
-import {ReplaySubject, BehaviorSubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import 'rxjs/add/operator/map';
 
@@ -43,7 +43,6 @@ export class AuthService {
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
-    // public trialExpired$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public filesToken$: ReplaySubject<string> = new ReplaySubject(1);
     public jwt: string;
     public jwtDecoded: any;
@@ -90,7 +89,6 @@ export class AuthService {
             this.setLoadIndicatorVisibility(true);
             this.loadCurrentSession().subscribe(
                 res => {
-                    this.authentication$.next(res);
                     this.filesToken$.next(this.filesToken);
 
                     if (!res.hasActiveContract) {
@@ -277,23 +275,20 @@ export class AuthService {
             const user = res.json();
             this.currentUser = user;
 
-            // Just set this to true for now, since the endpoint
-            // is not ready in time for release..
-            const hasActiveContract = user && true; // !this.isTrialExpired(user);
+            const hasActiveContract = user && !this.isTrialExpired(user);
 
-            return {
+            const authDetails = {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
                 hasActiveContract: hasActiveContract
             };
+
+            this.authentication$.next(authDetails);
+            return authDetails;
         });
     }
 
-    /**
-     * Returns web token or redirects to /login if user is not authenticated
-     * @returns {String}
-     */
     public getToken(): string {
         return this.jwt;
     }
@@ -482,46 +477,41 @@ export class AuthService {
         return 'ui_' + urlParts.join('_');
     }
 
-    /*
-        Dont remove this!
-        Will be "turned on" as soon as the backend endpoint
-        is in a working state.
-    */
+    private isTrialExpired(user): boolean {
+        const contract = (user.License && user.License.ContractType) || {};
+        if (contract.TypeName === 'Demo' && contract.TrialExpiration) {
+            const daysRemaining = moment(contract.TrialExpiration).diff(moment(), 'days');
+            if (daysRemaining > 0) {
+                const daysWording = daysRemaining === 1 ? 'dag' : 'dager';
+                // Timeout so app init doesnt clear the toast immediately
+                setTimeout(() => {
+                    this.toastService.toast({
+                        title: `Prøveperiode slutter om ${daysRemaining} ${daysWording}`,
+                        type: ToastType.good,
+                        centered: true,
+                        duration: 10,
+                        action: {
+                            label: 'Aktiver nå',
+                            click: () => this.router.navigateByUrl('contract-activation'),
+                            displayInHeader: true
+                        }
+                    });
+                });
+            } else {
+                // Timeout so app init doesnt clear the toast immediately
+                setTimeout(() => {
+                    this.toastService.toast({
+                        title: `Din prøveperiode på UniEconomy er over`,
+                        type: ToastType.warn,
+                        duration: 0,
+                        centered: true,
+                    });
+                });
 
-    // isTrialExpired(user): boolean {
-    //     const contract = (user.License && user.License.ContractType) || {};
-    //     if (contract.TypeName === 'Demo' && contract.TrialExpiration) {
-    //         const daysRemaining = moment(contract.TrialExpiration).diff(moment(), 'days');
-    //         if (daysRemaining > 0) {
-    //             const daysWording = daysRemaining === 1 ? 'dag' : 'dager';
-    //             // Timeout so app init doesnt clear the toast immediately
-    //             setTimeout(() => {
-    //                 this.toastService.toast({
-    //                     title: `Prøveperiode slutter om ${daysRemaining} ${daysWording}`,
-    //                     type: ToastType.good,
-    //                     centered: true,
-    //                     duration: 10,
-    //                     action: {
-    //                         label: 'Aktiver nå',
-    //                         click: () => this.router.navigateByUrl('contract-activation'),
-    //                         displayInHeader: true
-    //                     }
-    //                 });
-    //             });
-    //         } else {
-    //             // Timeout so app init doesnt clear the toast immediately
-    //             setTimeout(() => {
-    //                 this.toastService.toast({
-    //                     title: `Din prøveperiode på UniEconomy er over`,
-    //                     type: ToastType.bad,
-    //                     centered: true,
-    //                 });
-    //             });
+                return true;
+            }
+        }
 
-    //             return true;
-    //         }
-    //     }
-
-    //     return false;
-    // }
+        return false;
+    }
 }

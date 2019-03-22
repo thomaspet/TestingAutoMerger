@@ -1,4 +1,5 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
+import {MatMenuTrigger} from '@angular/material';
 import {UserDto} from '@app/unientities';
 import {AuthService} from '@app/authService';
 import {UniModalService} from '@uni-framework/uni-modal';
@@ -10,8 +11,10 @@ import {UserSettingsModal} from './user-settings-modal';
     styleUrls: ['./user-dropdown.sass']
 })
 export class NavbarUserDropdown {
-    public user: UserDto;
-    public licenseRole: string;
+    @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+
+    user: UserDto;
+    licenseRole: string;
 
     constructor(
         private modalSerice: UniModalService,
@@ -45,6 +48,7 @@ export class NavbarUserDropdown {
     }
 
     public openUserSettingsModal() {
+        this.trigger.closeMenu();
         this.modalSerice.open(UserSettingsModal, {
             data: this.user
         });
