@@ -63,9 +63,9 @@ export class FreeAmountModal implements OnInit, IUniModal {
 
     private setTableConfig() {
         const subentityCol = new UniTableColumn('_name', 'Virksomhet', UniTableColumnType.Text);
-        const maxCol = new UniTableColumn('MaxFreeAmount', 'Maks fribeløp', UniTableColumnType.Money);
-        const usedCol = new UniTableColumn('UsedFreeAmount', 'Brukt fribeløp', UniTableColumnType.Money);
-        const grantCol = new UniTableColumn('GrantSum', 'Tilskudd', UniTableColumnType.Money);
+        const maxCol = new UniTableColumn('MaxFreeAmount', 'Maks fribeløp', UniTableColumnType.Number);
+        const usedCol = new UniTableColumn('UsedFreeAmount', 'Brukt fribeløp', UniTableColumnType.Number);
+        const grantCol = new UniTableColumn('GrantSum', 'Tilskudd', UniTableColumnType.Number);
 
         const configStoreKey = 'settings.agaAndSubEntitySettings.freeAmountModal';
         this.freeamountTableConfig = new UniTableConfig(configStoreKey, false, true, 10)
