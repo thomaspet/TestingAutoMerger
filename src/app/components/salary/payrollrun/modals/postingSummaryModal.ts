@@ -17,7 +17,7 @@ import {
 import * as moment from 'moment';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {Router} from '@angular/router';
-import {switchMap, map, repeatWhen, skipWhile, take, tap, catchError, takeUntil, finalize} from 'rxjs/operators';
+import {switchMap, map, repeatWhen, skipWhile, take, tap, catchError, takeUntil, finalize, filter} from 'rxjs/operators';
 const NUMBER_SERIES_KEY = 'numberSeriesID_salaryBooking';
 interface IBookingModel {
     date: LocalDate;
@@ -48,6 +48,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     public accountTableConfig: UniTableConfig;
     private payrollrunID: number;
     public summary: PostingSummary;
+    public draft: PostingSummaryDraft;
     private journalNumber: string;
     private journalDate: string;
     public headerString: string = 'Konteringssammendrag';
@@ -172,15 +173,26 @@ export class PostingSummaryModal implements OnInit, IUniModal {
                 repeatWhen(draft => draft.debounceTime(2000)),
                 tap(draft => this.state = draft.status),
                 takeUntil(this.destroy$),
-                skipWhile(draft => draft.status === SummaryJobStatus.running),
+                skipWhile(draft => draft && draft.status === SummaryJobStatus.running),
+                tap(draft => this.draft = draft),
                 finalize(() => {
                     this.busy = false;
                     this.jobBusy = false;
                 }),
                 take(1),
                 tap(draft => this.setDefaultBookingType(draft)),
-                map(draft => draft.draftBasic || draft.draftWithDims || draft.draftWithDimsOnBalance),
+                map(draft => this.getDraft(draft)),
                 map(draft => JSON.parse(draft)),
+                tap(postingSummary => this.valid = !postingSummary || !postingSummary.PostList.some(line => !line.Account)),
+                tap(response => this.updateSum(response)),
+                filter(postingSummary => !!postingSummary),
+                map((postingSummary: PostingSummary) => {
+                    postingSummary.PostList = postingSummary
+                        .PostList
+                        .sort((a, b) => this.GetNumberFromBool(!!a.Account) - this.GetNumberFromBool(!!b.Account));
+
+                    return postingSummary;
+                }),
                 map((postingSummary: PostingSummary) => {
                     postingSummary.PostList
                         .filter(x => x.DimensionsID)
@@ -199,17 +211,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
 
                     return postingSummary;
                 }),
-                tap(postingSummary => this.valid = !postingSummary.PostList.some(line => !line.Account)),
-                map((postingSummary: PostingSummary) => {
-
-                    postingSummary.PostList = postingSummary
-                        .PostList
-                        .sort((a, b) => this.GetNumberFromBool(!!a.Account) - this.GetNumberFromBool(!!b.Account));
-
-                    return postingSummary;
-                }),
                 catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
-                tap(response => this.updateSum(response))
             )
             .subscribe((response: PostingSummary) => {
                 this.summary = response;
@@ -241,6 +243,10 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             return SalaryBookingType.DimensionsAndBalance;
         }
         return SalaryBookingType.Dimensions;
+    }
+
+    private getDraft(draft: PostingSummaryDraft) {
+        return draft && (draft.draftBasic || draft.draftWithDims || draft.draftWithDimsOnBalance);
     }
 
     private GetNumberFromBool(bool: boolean): number {
