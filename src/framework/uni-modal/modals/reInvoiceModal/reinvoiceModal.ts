@@ -251,7 +251,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }
         validationRequest.subscribe(valid => {
                 if (valid) {
-                    saveSupplierInvoiceRequest.subscribe(supplierInvoice => {
+                    saveSupplierInvoiceRequest
+                        .finally(() => this.isSaving = false)
+                        .subscribe(supplierInvoice => {
                         this.currentReInvoice.SupplierInvoiceID = supplierInvoice.ID;
                         this.currentReInvoice.SupplierInvoice = supplierInvoice;
                         let saveRequest = this.reinvoiceService.Put(this.currentReInvoice.ID, this.currentReInvoice);
@@ -262,7 +264,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                                     'supplierInvoiceID=' + supplierInvoice.ID
                                 );
                         }
-                        saveRequest.subscribe(reinvoice => {
+                        saveRequest
+                            .finally(() => this.isSaving = false)
+                            .subscribe(reinvoice => {
                             if (type !== '') {
                                 this.reinvoiceService.Action(reinvoice.ID, type).subscribe(() => {
                                     this.onClose.emit({
