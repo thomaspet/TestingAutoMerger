@@ -49,17 +49,6 @@ export enum ElsaContractType {
     NonProfit = 12,
 }
 
-export interface ElsaPurchasesForUserLicenseByCompany {
-    productName: string;
-    productID: number;
-    username: string;
-    userIdentity: string;
-    userLicenseID: number;
-    purchaseForCompanyID: number;
-    contractID: number;
-    isAssigned: boolean;
-}
-
 export interface ElsaProduct {
     bundles: ElsaBundle[];
     buttonLabel: string;
@@ -107,21 +96,6 @@ export enum ElsaProductType {
     Bundle = 1,
     Integration = 2,
     Extension = 3
-}
-
-export interface ElsaPurchaseForLicense {
-    id: number;
-    contractID: number;
-    startDate: Date;
-    endDate?: Date;
-    licenseKey: string;
-    companyName: string;
-    companyKey: string;
-    statusCode: number;
-    orgNumber?: string;
-    customerID: number;
-    customerName: string;
-    contractType: number;
 }
 
 export interface ElsaUserLicense {
