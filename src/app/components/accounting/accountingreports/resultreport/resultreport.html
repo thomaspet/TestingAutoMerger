@@ -6,7 +6,7 @@
             (valueChange)="onYearSelect($event)">
         </uni-select>
 
-        Viser perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
+        Viser perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> <period-picker style="display: none" [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
         <button (click)="toggleFilter()" class="leftpadding iconbutton"><i class="material-icons vertical-middle">settings</i> filter </button>
         <uni-form
             *ngIf="filterVisible"
@@ -28,7 +28,7 @@
         [subaccountIDs]=""
         [accountYear1]="periodFilter1.year - 1"
         [accountYear2]="periodFilter1.year"
-        [doTurnAmounts]="true"
+        [doTurnAmounts]="false"
         [showHeader]="true"
         [activeDistributionElement]="activeDistributionElement"
         [includeIncomingBalance]="false"

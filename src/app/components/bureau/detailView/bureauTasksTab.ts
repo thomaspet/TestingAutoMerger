@@ -9,7 +9,7 @@ import {
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
-import {YearService} from '../../../services/common/yearService';
+import {FinancialYearService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
@@ -73,9 +73,9 @@ export class BureauTaskTab implements AfterViewInit, OnDestroy {
         private errorService: ErrorService,
         private userService: UserService,
         public currentCompanyService: BureauCurrentCompanyService,
-        yearService: YearService,
+        financialYearService: FinancialYearService,
     ) {
-        this.accountingYear = yearService.selectedYear$.getValue();
+        this.accountingYear = financialYearService.getActiveYear();
     }
 
     public ngAfterViewInit() {

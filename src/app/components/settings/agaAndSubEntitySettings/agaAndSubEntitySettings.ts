@@ -27,6 +27,7 @@ import {
 import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 import { ToastService } from '@uni-framework/uniToast/toastService';
+import {VacationPayModal} from '@app/components/salary/payrollrun/modals/vacationpay/vacationPayModal';
 declare var _;
 
 @Component({
@@ -41,7 +42,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;
 
-    private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
+    private agaSoneOversiktUrl: string = 'https://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
@@ -220,8 +221,6 @@ export class AgaAndSubEntitySettings implements OnInit {
             }
         };
 
-
-
         const mainAccountAlocatedAga = new UniFieldLayout();
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
         mainAccountAlocatedAga.EntityType = 'CompanySalary';
@@ -337,16 +336,47 @@ export class AgaAndSubEntitySettings implements OnInit {
             displayProperty: 'name'
         };
 
+        const otpExportActive = new UniFieldLayout();
+        otpExportActive.EntityType = 'CompanySalary';
+        otpExportActive.Label = 'Benytte OTP-eksport';
+        otpExportActive.Property = 'OtpExportActive';
+        otpExportActive.FieldType = FieldType.CHECKBOX;
+        otpExportActive.Section = 2;
+        otpExportActive.FieldSet = 2;
+
+        const hourFTEs = new UniFieldLayout();
+        hourFTEs.EntityType = 'CompanySalary';
+        hourFTEs.Label = 'Timer pr årsverk';
+        hourFTEs.Property = 'HourFTEs';
+        hourFTEs.FieldType = FieldType.TEXT;
+        hourFTEs.Section = 2;
+        hourFTEs.FieldSet = 2;
+
         const vacationSettingsBtn = new UniFieldLayout();
         vacationSettingsBtn.Label = 'Innstillinger feriepenger';
-        vacationSettingsBtn.EntityType = 'mainOrganization';
+        vacationSettingsBtn.EntityType = 'CompanySalary';
         vacationSettingsBtn.Property = '_VacationSettingsBtn';
         vacationSettingsBtn.FieldType = FieldType.BUTTON;
         vacationSettingsBtn.Section = 2;
         vacationSettingsBtn.FieldSet = 2;
         vacationSettingsBtn.Options = {
+            class: 'vacationSettingsButton',
             click: (event) => {
                 this.openVacationSettingsModal();
+            }
+        };
+
+        const vacationPayBtn = new UniFieldLayout();
+        vacationPayBtn.Label = 'Registrer feriepengegrunnlag';
+        vacationPayBtn.EntityType = 'CompanySalary';
+        vacationPayBtn.Property = '_VacationPayBtn';
+        vacationPayBtn.FieldType = FieldType.BUTTON;
+        vacationPayBtn.Section = 2;
+        vacationPayBtn.FieldSet = 2;
+        vacationPayBtn.Options = {
+            class: 'vacationSettingsButton',
+            click: (event) => {
+                this.openVacationPayModal();
             }
         };
 
@@ -456,6 +486,17 @@ export class AgaAndSubEntitySettings implements OnInit {
                     ID: CompanySalaryBaseOptions.SpesialDeductionForMaritim,
                     Name: 'Særskilt fradrag for sjøfolk'
                 },
+                {
+                    ID: CompanySalaryBaseOptions.NettoPayment,
+                    Name: 'Netto lønn',
+                },
+                {   ID: CompanySalaryBaseOptions.PayAsYouEarnTaxOnPensions,
+                    Name: 'Kildeskatt for pensjonister',
+                },
+                {
+                    ID: CompanySalaryBaseOptions.NettoPaymentForMaritim,
+                    Name: 'Netto lønn for sjøfolk',
+                }
             ],
             valueProperty: 'ID',
             labelProperty: 'Name',
@@ -480,7 +521,10 @@ export class AgaAndSubEntitySettings implements OnInit {
             interrimRemit,
             paymentInterval,
             postTax,
+            otpExportActive,
+            hourFTEs,
             vacationSettingsBtn,
+            vacationPayBtn,
             calculateFinancial,
             rateFinancialTax,
             financial,
@@ -500,7 +544,11 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public openVacationSettingsModal() {
-        this.modalService.open(VacationPaySettingsModal);
+        this.modalService.open(VacationPaySettingsModal, {data: {}});
+    }
+
+    public openVacationPayModal() {
+        this.modalService.open(VacationPayModal);
     }
 
     public saveButtonIsDisabled(isDisabled: boolean) {
@@ -546,10 +594,12 @@ export class AgaAndSubEntitySettings implements OnInit {
                 this.settingsService.setSaveActions([this.saveaction]);
             })
             .subscribe((response: any) => {
-                this.companySalary$.next(response[0]);
+                const companySal = response[0];
+                companySal['_baseOptions'] = this.companySalaryService.getBaseOptions(companySal);
+                this.companySalary$.next(companySal);
                 this.mainOrganization$.next(response[2]);
                 this.isDirty = false;
-                done('Sist lagret: ');
+                done('Lagret');
             },
             err => {
                 this.errorService.handle(err);
@@ -559,18 +609,6 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public toggleShowSubEntities() {
         this.showSubEntities = !this.showSubEntities;
-    }
-
-    public log(title: string, err) {
-        if (!title) {
-            title = '';
-        }
-        if (err._body) {
-            alert(title + ' ' + err._body);
-        } else {
-            alert(title + ' ' + JSON.stringify(err));
-        }
-
     }
 
     public companySalarychange(event: SimpleChanges) {
@@ -588,6 +626,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         }
 
         value['_isDirty'] = true;
+        this.isDirty = true;
         this.companySalary$.next(value);
     }
 

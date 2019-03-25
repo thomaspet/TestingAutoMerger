@@ -22,6 +22,10 @@ export class StatisticsService extends BizHttp<string> {
         this.DefaultOrderBy = null;
     }
 
+    public GetWrappedDataByUrlSearchParams<T>(params: URLSearchParams): Observable<Response> {
+        return this.GetAllByUrlSearchParams(params);
+    }
+
     public GetDataByUrlSearchParams<T>(params: URLSearchParams): Observable<StatisticsResponse> {
         return this.GetAllByUrlSearchParams(params).map(response => response.json());
     }
@@ -93,7 +97,7 @@ export class StatisticsService extends BizHttp<string> {
             });
     }
 
-    public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string): Observable<any> {
+    public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string, distinct: boolean): Observable<any> {
 
         const params: URLSearchParams = new URLSearchParams();
 
@@ -101,6 +105,7 @@ export class StatisticsService extends BizHttp<string> {
         params.set('select', selects);
         params.set('expand', expands);
         params.set('headings', headings);
+        params.set('distinct', (distinct || false).toString());
 
         // remove empty filters, causes problem on backend
         if (filters && filters !== '') {

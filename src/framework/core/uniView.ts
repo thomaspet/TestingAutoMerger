@@ -1,6 +1,13 @@
 import {UniCacheService} from '../../app/services/services';
 import {ReplaySubject} from 'rxjs';
 import {Observable} from 'rxjs';
+import * as _ from 'lodash';
+
+export interface ISaveObject {
+    state: any;
+    key: string;
+    dirty: boolean;
+}
 
 export class UniView {
     protected cacheService: UniCacheService;
@@ -12,7 +19,7 @@ export class UniView {
     }
 
     protected getStateSubject(key: string): ReplaySubject<any> {
-        let pageCache = this.cacheService.getPageCache(this.cacheKey);
+        const pageCache = this.cacheService.getPageCache(this.cacheKey);
 
         if (!pageCache.state[key]) {
             pageCache.state[key] = {
@@ -25,13 +32,13 @@ export class UniView {
     }
 
     protected updateCacheKey(routerUrl: string) {
-        let rootRoute = this.findRootRoute(routerUrl.split('/'));
+        const rootRoute = this.findRootRoute(routerUrl.split('/'));
         this.cacheKey = rootRoute || routerUrl;
     }
 
     protected updateState(key: string, data: any, isDirty: boolean = false): void {
-        let pageCache = this.cacheService.getPageCache(this.cacheKey);
-        let stateVariable = pageCache.state[key];
+        const pageCache = this.cacheService.getPageCache(this.cacheKey);
+        const stateVariable = pageCache.state[key];
 
         if (stateVariable) {
             stateVariable.isDirty = isDirty;
@@ -42,6 +49,18 @@ export class UniView {
         this.cacheService.updatePageCache(this.cacheKey, pageCache);
     }
 
+    protected getSaveObject(key: string): Observable<ISaveObject> {
+        if (!this.exist(key)) {
+            return Observable.of({
+                state: null,
+                key: key,
+                dirty: false
+            });
+        }
+
+        return this.getStateSubject(key).take(1).map(state => ({state: _.cloneDeep(state), key: key, dirty: this.isDirty(key)}));
+    }
+
     protected exist(key: string) {
         const pageCache = this.cacheService.getPageCache(this.cacheKey);
         const stateVariable = pageCache.state[key];
@@ -49,12 +68,12 @@ export class UniView {
     }
 
     protected isDirty(key?: string): boolean {
-        let pageCache = this.cacheService.getPageCache(this.cacheKey);
+        const pageCache = this.cacheService.getPageCache(this.cacheKey);
 
         if (key && key.length) {
             return pageCache.state[key] && pageCache.state[key].isDirty;
         } else {
-            let dirty = Object.keys(pageCache.state).find(stateKey => pageCache.state[stateKey].isDirty);
+            const dirty = Object.keys(pageCache.state).find(stateKey => pageCache.state[stateKey].isDirty);
             return (dirty && dirty.length > 0);
         }
     }
@@ -77,8 +96,8 @@ export class UniView {
 
     public canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
         // Update from cache
-        let cache = this.cacheService.getPageCache(this.cacheKey);
-        let canDeactivate = !cache.isDirty || this.getUserPermission();
+        const cache = this.cacheService.getPageCache(this.cacheKey);
+        const canDeactivate = !cache.isDirty || this.getUserPermission();
 
         if (canDeactivate) {
             this.cacheService.clearPageCache(this.cacheKey);

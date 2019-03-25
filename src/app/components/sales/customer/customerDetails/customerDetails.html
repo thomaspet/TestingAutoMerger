@@ -1,5 +1,4 @@
 <uni-toolbar
-    *ngIf="!modalMode"
     [config]="toolbarconfig"
     [saveactions]="saveactions"
     [subheads]="toolbarSubheads"
@@ -39,7 +38,7 @@
                 <div class="collapsable-content">
                     <contacts
                         [parentBusinessRelation]="(customer$ | async)?.Info"
-                        (contactChanged)="onContactChanged($event)">
+                        (parentBusinessRelationChange)="onContactsChange()">
                     </contacts>
                 </div>
             </article>
@@ -58,12 +57,15 @@
 
     <!-- Reconciliation tab -->
     <section *ngIf="activeTabIndex === 1" class="uni-container customer-post-post-view">
-        <uni-tabs
-            [tabs]="postposttabs"
-            (tabClick)="onPostpostFilterClick($event)">
-        </uni-tabs>
-        <button class="good" (click)="goToPostpost()">Rediger</button>
-        <ledger-account-reconciliation
+        <div style="display: flex;">
+            <uni-tabs
+                [tabs]="postposttabs"
+                (tabClick)="onPostpostFilterClick($event)">
+            </uni-tabs>
+            <button class="good" (click)="goToPostpost()">Rediger</button>
+        </div>
+
+        <ledger-account-reconciliation style="font-size: .9rem"
             [customerBankAccounts]="(customer$ | async)?.Info?.BankAccounts"
             [disablePaymentToField]="true"
             [accountNumber]="(customer$ | async)?.CustomerNumber"
@@ -105,5 +107,3 @@
     </section>
 
 </section>
-
-<uni-save *ngIf="modalMode" [actions]="saveactions" class="fixed-position uni_save_modal_mode"></uni-save>

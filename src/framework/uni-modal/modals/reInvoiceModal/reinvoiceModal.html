@@ -1,0 +1,83 @@
+<section role="dialog" class="uni-modal large">
+    <header><h1>Viderefakturering</h1></header>
+    <article class="reinvoiceContent">
+        <form id="reinvoiceFormData">
+            <label id="reinvoiceTypeLabel">
+                <span>Type viderefakturering</span>
+                <uni-tooltip [type]="'info'"
+                             [alignment]="'top'"
+                             [text]="infoText">
+                </uni-tooltip>
+            </label>
+            <mat-radio-group [value]="reinvoiceType" (change)="onReinvoiceTypeChange($event)">
+                <mat-radio-button [value]="0">
+                    Kostnadsdeling
+                </mat-radio-button>
+                <mat-radio-button [value]="1">
+                    Viderefakturering, omsetning
+                </mat-radio-button>
+            </mat-radio-group>
+            <p class="totalsum">Totalsum leverandørfaktura: {{ supplierInvoice?.TaxInclusiveAmountCurrency | uninumberformat:'money' }} Kr</p>
+        </form>
+        <uni-information [config]="{ headline: 'Instillinger'}">
+            <span>Kostandsdeling:</span>
+            <dl>
+                <dt>Varenummer</dt>
+                <dd>{{companyAccountSettings?.ReInvoicingCostsharingProductID}} - {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Name}}</dd>
+            </dl>
+            <dl>
+                <dt>Hovedbokskonto</dt>
+                <dd>{{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountNumber}} -
+                    {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountName}}
+                </dd>
+            </dl>
+            <span>Viderefakturering:</span>
+            <dl>
+                <dt>Varenummer</dt>
+                <dd>{{companyAccountSettings?.ReInvoicingTurnoverProductID}} - {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Name}}</dd>
+            </dl>
+            <dl>
+                <dt>Hovedbokskonto</dt>
+                <dd>{{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountNumber}} -
+                    {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountName}}
+                </dd>
+            </dl>
+            <a (click)="openSettingsModal()">Endre instillinger</a>
+        </uni-information>
+    </article>
+    <article>
+        <p>Velge kunde(r) som skal viderefaktureres:</p>
+        <ag-grid-wrapper *ngIf="reinvoiceType === 0" [class.bad]="!isReinvoiceValid"
+            [(resource)]="reinvoicingCustomers"
+            [config]="customersTableConfig"
+            (rowChange)="onReinvoicingCustomerChange($event)"
+        ></ag-grid-wrapper>
+        <ag-grid-wrapper *ngIf="reinvoiceType === 1"
+             [(resource)]="reinvoicingCustomers"
+             [config]="customersTableConfigTurnOver"
+             (rowChange)="onReinvoicingCustomerChange($event)"
+        ></ag-grid-wrapper>
+        <p>Velg vare(r)</p>
+        <ag-grid-wrapper
+            [resource]="items"
+            [config]="itemsTableConfig"
+            (rowChange)="onItemChange($event)"
+        ></ag-grid-wrapper>
+    </article>
+    <footer>
+        <section role="group" class="comboButton" *ngIf="saveactions?.length">
+            <button class="comboButton_btn good" type="button"
+                    (click)="getMainAction().action()" [attr.aria-busy]="busy"
+                    [disabled]="getMainAction().disabled"
+                    [attr.aria-busy]="isSaving"
+                    [disabled]="!isReinvoiceValid || isSaving"
+            >{{getMainAction()?.label}}</button>
+            <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open" [disabled]="!isReinvoiceValid || isSaving">More options</button>
+            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
+                <li *ngFor="let action of saveactions" (click)="open = !open; action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
+            </ul>
+        </section>
+        <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving">Lagre</button>
+        <button (click)="this.onClose.emit(false)" class="bad" [disabled]="isSaving">Avbryt</button>
+    </footer>
+</section>

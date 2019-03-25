@@ -1,8 +1,12 @@
-import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, ViewChild } from '@angular/core';
-import { ErrorService, StatisticsService } from '@app/services/services';
-import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
-import { Observable } from 'rxjs';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Observable, forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { cloneDeep } from 'lodash';
+
+import { ErrorService } from '@app/services/services';
+import { UniHttp } from '@uni-framework/core/http/http';
+import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
+import { UniTableConfig, UniTableColumn } from '@uni-framework/ui/unitable';
 
 export interface ReportComment {
     ID?: number;
@@ -26,118 +30,72 @@ export interface ReportCommentSetup {
     selector: 'uni-report-comments',
     template: `
         <section role="dialog" class="uni-modal" style="width: 50vw">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+            <header><h1>Rediger kommentarer</h1></header>
 
-            <article [attr.aria-busy]="busy" class="modal-content">
-                <uni-table
-                    [resource]="data?.comments"
-                    [config]="tableConfig"
-                    (rowDeleted)="onRowDeleted($event)">
-                </uni-table>
+            <article class="scrollable">
+                <ag-grid-wrapper [(resource)]="comments" [config]="tableConfig"></ag-grid-wrapper>
             </article>
 
             <footer>
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                    {{options.buttonLabels.accept}}
-                </button>
-
-                <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
-                    {{options.buttonLabels.reject}}
-                </button>
-
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                    {{options.buttonLabels.cancel}}
-                </button>
+                <button class="good" (click)="save()">Lagre</button>
+                <button class="warning" (click)="onClose.emit()">Avbryt</button>
             </footer>
         </section>
     `
 })
-export class UniReportComments implements IUniModal, OnInit {
+export class UniReportComments implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
-    @ViewChild(UniTable) private uniTable: UniTable;
-    busy: boolean = false;
+
     data: ReportCommentSetup;
     tableConfig: UniTableConfig;
-    deleteList: ReportComment[] = [];
+    comments: ReportComment[];
 
-    constructor(
-        private statisticsService: StatisticsService,
-        private errorService: ErrorService,
-    ) { }
-
+    constructor(private http: UniHttp, private errorService: ErrorService) {}
 
     ngOnInit() {
         this.tableConfig = this.createTableConfig();
         this.data = this.options.data;
-
-        this.data.comments.forEach( x => x._state = undefined );
-        this.deleteList = [];
-
-        if (!this.options.buttonLabels) {
-            this.options.buttonLabels = {
-                accept: 'Ok',
-                cancel: 'Avbryt'
-            };
-        }
+        this.comments = cloneDeep(this.data.comments);
     }
 
-    accept() {
-        this.commitChanges().then( () => this.onClose.emit(ConfirmActions.ACCEPT) );
-    }
+    save() {
+        // Allow blur from submit click to trigger change event in table before saving
+        setTimeout(() => {
+            const changedComments = this.comments.filter(comment => comment['_isDirty']);
 
-    commitChanges(): Promise<boolean> {
-
-        this.uniTable.blur();
-
-        return new Promise( (resolve, reject) => {
-            let todo = 0;
-            let completed = 0;
-
-            for (let i = 0; i < this.data.comments.length; i++) {
-                const comment = this.data.comments[i];
-                if (comment._state) {
-                    todo++;
-                    if (comment._state === 'new') {
-                        this.postComment(comment).subscribe( x =>
-                            this.putComment( { ID: x.ID, Text: comment.Text }).subscribe( y => {
-                                    this.data.comments[i] = y;
-                                    completed++;
-                                    if (completed >= todo) { resolve(true); }
-                                }));
-                    } else {
-                        this.putComment(comment).subscribe( x => {
-                            this.data.comments[i] = x;
-                            completed++;
-                            if (completed >= todo) { resolve(true); }
-                        });
-                    }
-                }
+            if (!changedComments.length) {
+                this.onClose.emit(false);
+                return;
             }
 
-            this.deleteList.forEach( x => {
-                todo++;
-                this.deleteComment(x).subscribe( () => {
-                    completed++;
-                    if (completed >= todo) { resolve(true); }
-                });
+            const requests = changedComments.map(comment => {
+                const request = comment.ID > 0
+                    ? this.putComment(comment)
+                    : this.postComment(comment);
+
+                // Update ID and dirty state on success. So that if another request errors the
+                // forkJoin the already saved comments wont be saved again on next submit.
+                return request.pipe(tap(res => {
+                    comment['_isDirty'] = false;
+                    if (res.ID && !comment.ID) {
+                        comment.ID = res.ID;
+                    }
+                }));
             });
 
-            if (todo === 0) {
-                resolve(true);
-            }
-
+            forkJoin(requests).subscribe(
+                () => this.onClose.emit(true),
+                err => this.errorService.handle(err)
+            );
         });
     }
 
     private postComment(comment: ReportComment): Observable<ReportComment> {
-        const http = this.statisticsService.GetHttp();
         const companyKey = this.data.config.companyKey;
         const route = `comments/${this.data.config.entity}/${this.data.config.id}`;
-        if (companyKey) { http.appendHeaders({ CompanyKey: companyKey}); }
-        return http
+        if (companyKey) { this.http.appendHeaders({ CompanyKey: companyKey}); }
+        return this.http
             .usingBusinessDomain()
             .asPOST()
             .withEndPoint(route)
@@ -147,11 +105,10 @@ export class UniReportComments implements IUniModal, OnInit {
     }
 
     private putComment(comment: ReportComment): Observable<ReportComment> {
-        const http = this.statisticsService.GetHttp();
         const companyKey = this.data.config.companyKey;
         const route = `comments/${comment.ID}`;
-        if (companyKey) { http.appendHeaders({ CompanyKey: companyKey}); }
-        return http
+        if (companyKey) { this.http.appendHeaders({ CompanyKey: companyKey}); }
+        return this.http
             .usingBusinessDomain()
             .asPUT()
             .withEndPoint(route)
@@ -160,67 +117,15 @@ export class UniReportComments implements IUniModal, OnInit {
             .map(response => response.json());
     }
 
-    private deleteComment(comment: ReportComment): Observable<ReportComment> {
-        const http = this.statisticsService.GetHttp();
-        const companyKey = this.data.config.companyKey;
-        const route = `comments/${comment.ID}`;
-        if (companyKey) { http.appendHeaders({ CompanyKey: companyKey}); }
-        return http
-            .usingBusinessDomain()
-            .asDELETE()
-            .withEndPoint(route)
-            .send({}, undefined, !companyKey)
-            .map(response => comment);
-    }
-
-    cancel() {
-        this.onClose.emit(ConfirmActions.CANCEL);
-    }
-
     private createTableConfig(): UniTableConfig {
-        const cfg = new UniTableConfig('reportparams.commenteditor', true, true, 10);
-        cfg.columns = [
-            new UniTableColumn('ID', 'ID', UniTableColumnType.Number)
-                .setVisible(false)
-                .setWidth('3rem')
-                .setEditable(false),
-
-            new UniTableColumn('Text', 'Kommentar', UniTableColumnType.Text)
-                .setWidth('80%')
-                .setMaxLength(8000)
-
-        ];
-        cfg.deleteButton = true;
-        cfg.autoAddNewRow = true;
-        cfg.columnMenuVisible = true;
-        cfg.setChangeCallback( x => this.onEditChange(x) );
-        cfg.autoScrollIfNewCellCloseToBottom = true;
-
-        return cfg;
-    }
-
-    public onEditChange(event) {
-        const row: ReportComment = event.rowModel;
-        if (event.originalIndex >= this.data.comments.length) {
-            row._state = 'new';
-            row['ID'] = undefined;
-            this.data.comments.push(row);
-        } else {
-            row._state = row.ID ? 'updated' : row._state;
-            this.data.comments[event.originalIndex] = row;
-        }
-        return row;
-    }
-
-    public onRowDeleted(event) {
-        const rowIndex = event.rowModel ? event.rowModel._originalIndex : -1;
-        if (rowIndex < 0 || rowIndex >= this.data.comments.length) {
-            return;
-        }
-        const row: ReportComment = event.rowModel;
-        if (row.ID) {
-            this.deleteList.push(row);
-        }
-        this.data.comments.splice(rowIndex, 1);
+        return new UniTableConfig('reportparams.commenteditor', true)
+            .setDeleteButton(true)
+            .setColumns([
+                new UniTableColumn('ID', 'ID')
+                    .setEditable(false)
+                    .setWidth('5rem', false)
+                    .setVisible(false),
+                new UniTableColumn('Text', 'Kommentar')
+            ]);
     }
 }

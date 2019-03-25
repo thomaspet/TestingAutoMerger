@@ -6,6 +6,7 @@ import {EmployeeSalarybalance} from './employeeSalarybalances/employeeSalarybala
 import {CanDeactivateGuard} from '../../../canDeactivateGuard';
 import {EmployeeTax} from './employeeTax/employeeTax';
 import {EmployeeTransTickerComponent} from '@app/components/salary/employee/employee-trans-ticker/employee-trans-ticker.component';
+import { EmployeeOTP } from './employeeOTP/employeeOTP';
 
 export const routes = [
     {
@@ -40,5 +41,9 @@ export const routes = [
     {
         path: 'employee-trans-ticker',
         component: EmployeeTransTickerComponent
+    },
+    {
+        path: 'employee-otp',
+        component: EmployeeOTP
     }
 ];

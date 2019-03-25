@@ -16,7 +16,7 @@
                 <button class="subscribe-button">{{product.buttonLabel || 'Aktiver produkt'}}</button>
             </a>
 
-            <div [matTooltip]="cannotPurchaseProductsText">
+            <div [matTooltip]="missingPermissionText">
                 <button *ngIf="action"
                     class="per-user"
                     (click)="action.click()"

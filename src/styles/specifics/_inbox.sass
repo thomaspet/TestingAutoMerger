@@ -2,30 +2,9 @@
 // (For instance, if code needs to be pushed before we've had time for a proper code review, the Sass changes should stay here.)
 
 // It should be emptied out regularly by an experienced Sass developer.
-kitchensink label
-  @include unigrid-flush(5)
 
 .column-align-right
   text-align: right
-
-.full-footer
-  width: 100%
-  height: pxToRem(45)
-  position: fixed
-  bottom: 0
-  left: 0
-  border-top: 1px solid $uni-color-scale9
-  background-color: transparentize($uni-color-scale9, .2)
-
-.full-footer button
-  float: right
-
-.auto_save_info
-  color: $uni-color-scale5
-  float: right
-  font-style: italic
-  margin-top: pxToRem(8)
-  margin-left: pxToRem(15)
 
 .hidden
   display: none
@@ -58,24 +37,6 @@ uni-form
   &:focus,
   &:active
     text-decoration: underline
-
-button.good.salary-new
-  margin-left: 0
-
-// Manual testing of half-size fields
-// Unless you know why it's here, just ignore it and pretend you never saw it.
-body.half .employee-personal-details form
-  & > uni-field:nth-of-type(2),
-  & > uni-field:nth-of-type(3),
-  & > uni-section:nth-of-type(2) uni-field:nth-of-type(1),
-  & > uni-section:nth-of-type(2) uni-field:nth-of-type(2),
-  & > uni-section:nth-of-type(2) uni-field:nth-of-type(4),
-  & > uni-section:nth-of-type(2) uni-field:nth-of-type(5),
-  & > uni-section:nth-of-type(2) uni-field:nth-of-type(6),
-    width: calc(12.5% - 2rem)
-
-  & > uni-section:nth-of-type(3)
-    display: none
 
 %popover
   display: none

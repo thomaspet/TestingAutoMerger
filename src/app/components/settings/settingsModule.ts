@@ -19,31 +19,39 @@ import {CompanySettingsComponent} from './companySettings/companySettings';
 import {CompanySettingsViewService} from './companySettings/services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCompanyPeriodSeriesModal';
 
-import {Users} from './users/users';
+import {UserManagement, UserDetails, UniRoleModal, InviteUsersModal} from './users';
 import {Teams} from './teams/teams';
-import {UniChangePasswordModal} from './users/changePasswordModal';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
-import {UniBankSettings} from './bank/bankSettings';
 import {UniDistributionSettings} from './distribution/distribution';
 import {UniDimensionSettings} from './dimension/dimension';
 import {UniDimensionModal} from './dimension/dimensionModal';
 
 import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
 import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeamountModal';
-import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
-import {RoleSelector} from './users/roleSelector';
-import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
-import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
+import {ActivateAutobankModal} from './users/activate-autobank-modal/activate-autobank-modal';
+import {ResetAutobankPasswordModal} from './users/reset-autobank-password-modal/reset-autobank-password-modal';
+
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
 import {EventPlans} from '@app/components/settings/eventPlans/event-plans';
 import {EventPlansList} from '@app/components/settings/eventPlans/eventPlansList/event-plans-list';
 import {EventPlanDetails} from '@app/components/settings/eventPlans/eventPlanDetails/event-plan-details';
-import { EventplanService } from '@app/components/settings/eventPlans/eventplan.service';
 
-import {MatSlideToggleModule} from '@angular/material';
+
+import {
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatExpansionModule,
+    MatCheckboxModule,
+    MatListModule,
+    MatProgressSpinnerModule,
+    MatMenuModule,
+    MatTooltipModule
+} from '@angular/material';
+import {SalaryModule} from '../salary/salary.module';
 
 @NgModule({
     imports: [
@@ -56,7 +64,16 @@ import {MatSlideToggleModule} from '@angular/material';
         CommonServicesModule,
         LayoutModule,
         AppCommonModule,
-        MatSlideToggleModule
+        MatSlideToggleModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatExpansionModule,
+        MatCheckboxModule,
+        MatListModule,
+        MatProgressSpinnerModule,
+        MatMenuModule,
+        MatTooltipModule,
+        SalaryModule,
     ],
     declarations: [
         Settings,
@@ -65,35 +82,35 @@ import {MatSlideToggleModule} from '@angular/material';
         SubEntityList,
         AltinnSettings,
         CompanySettingsComponent,
-        Users,
+        UserManagement,
+        UniRoleModal,
+        InviteUsersModal,
+        UserDetails,
         Teams,
         NumberSeries,
         UniTerms,
-        UniBankSettings,
         UniDistributionSettings,
         UniDimensionSettings,
         GrantModal,
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
-        WebHookSettings,
-        RoleSelector,
-        UniRegisterBankUserModal,
-        UniAdminPasswordModal,
+        ActivateAutobankModal,
+        ResetAutobankPasswordModal,
         UniDimensionModal,
-        UniChangePasswordModal,
         IntegrationSettings,
         EventPlans,
         EventPlansList,
-        EventPlanDetails
+        EventPlanDetails,
     ],
     entryComponents: [
         GrantModal,
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
-        UniRegisterBankUserModal,
-        UniAdminPasswordModal,
+        ActivateAutobankModal,
+        ResetAutobankPasswordModal,
         UniDimensionModal,
-        UniChangePasswordModal
+        UniRoleModal,
+        InviteUsersModal,
     ],
     exports: [
         RouterModule,
@@ -104,20 +121,16 @@ import {MatSlideToggleModule} from '@angular/material';
         SubEntityList,
         AltinnSettings,
         CompanySettingsComponent,
-        Users,
         UniTerms,
-        UniBankSettings,
         ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
         // FreeAmountModal,
-        RoleSelector,
-        EventPlans
+        EventPlans,
     ],
     providers: [
         SubEntitySettingsService,
         CompanySettingsViewService,
         SettingsService,
-        EventplanService
     ]
 })
 export class SettingsModule {

@@ -73,6 +73,12 @@ export class CustomerList implements OnInit {
 
     public tickercode: string = 'customer_list';
 
+    public toolbarActions = [{
+        label: 'Ny kunde',
+        action: this.createCustomer.bind(this),
+        main: true,
+        disabled: false
+    }];
 
     constructor(
         private uniHttpService: UniHttp,

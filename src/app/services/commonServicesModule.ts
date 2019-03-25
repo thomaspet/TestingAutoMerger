@@ -7,7 +7,6 @@ import {CompanyTypeService} from './common/companyTypeService';
 import {CurrencyService} from './common/currencyService';
 import {ContactService} from './common/contactService';
 import {CurrencyCodeService} from './common/currencyCodeService';
-import {DebtCollectionAutomationService} from './common/debtCollectionAutomationService';
 import {DepartmentService} from './common/departmentService';
 import {GuidService} from './common/guidService';
 import {IntegrationServerCaller} from './common/integrationServerCaller';
@@ -29,12 +28,12 @@ import {ErrorService} from './common/errorService';
 import {PageStateService} from './common/pageStateService';
 import {FileService} from './common/fileService';
 import {EHFService} from './common/EHFService';
+import {VIPPSService} from './common/VippsService';
 import {AgaZoneService} from './common/agaZoneService';
 import {AgaSumService} from './common/agaSumService';
 import {MunicipalService} from './common/municipalsService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniCacheService} from './common/cacheService';
-import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
 import {EmailService} from './common/emailService';
 import {UmhService} from './common/UmhService';
@@ -46,7 +45,6 @@ import {UniSearchEmployeeConfig} from './common/uniSearchConfig/uniSearchEmploye
 import {UniSearchProductConfig} from './common/uniSearchConfig/uniSearchProductConfig';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
-import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
 import {AgreementService} from './common/agreementService';
 import {ModulusService} from './common/modulusService';
@@ -65,6 +63,9 @@ import {DimensionSettingsService} from './common/dimensionSettingsService';
 import {CustomDimensionService} from './common/customDimensionService';
 import {ApiKeyService} from './common/apikeyService';
 import {DistributionPlanService} from './common/distributionService';
+import {AccrualService} from './common/accrualService';
+import {UserRoleService} from './common/userRoleService';
+import {EventplanService} from './common/eventplan.service';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -74,7 +75,6 @@ export * from './common/companyTypeService';
 export * from './common/contactService';
 export * from './common/currencyCodeService';
 export * from './common/currencyService';
-export * from './common/debtCollectionAutomationService';
 export * from './common/departmentService';
 export * from './common/guidService';
 export * from './common/integrationServerCaller';
@@ -96,17 +96,16 @@ export * from './common/errorService';
 export * from './common/pageStateService';
 export * from './common/fileService';
 export * from './common/EHFService';
+export * from './common/VippsService';
 export * from './common/agaZoneService';
 export * from './common/agaSumService';
 export * from './common/municipalsService';
 export * from '../../framework/core/browserStorageService';
 export * from './common/cacheService';
-export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/emailService';
 export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
-export * from './common/yearService';
 export * from './common/lookupService';
 export * from './common/agreementService';
 export * from './common/modulusService';
@@ -131,6 +130,8 @@ export * from './common/dimensionSettingsService';
 export * from './common/customDimensionService';
 export * from './common/apikeyService';
 export * from './common/distributionService';
+export * from './common/userRoleService';
+export * from './common/eventplan.service';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -146,7 +147,6 @@ export class CommonServicesModule {
                 CompanyTypeService,
                 ContactService,
                 CurrencyService,
-                DebtCollectionAutomationService,
                 DepartmentService,
                 GuidService,
                 IntegrationServerCaller,
@@ -166,12 +166,12 @@ export class CommonServicesModule {
                 PageStateService,
                 FileService,
                 EHFService,
+                VIPPSService,
                 AgaZoneService,
                 AgaSumService,
                 MunicipalService,
                 BrowserStorageService,
                 UniCacheService,
-                StaticRegisterService,
                 DimensionService,
                 EmailService,
                 UmhService,
@@ -185,7 +185,6 @@ export class CommonServicesModule {
                 CurrencyCodeService,
                 UniTickerService,
                 ApiModelService,
-                YearService,
                 Lookupservice,
                 AgreementService,
                 ModulusService,
@@ -204,6 +203,9 @@ export class CommonServicesModule {
                 CustomDimensionService,
                 ApiKeyService,
                 DistributionPlanService,
+                AccrualService,
+                UserRoleService,
+                EventplanService,
             ]
         };
     }

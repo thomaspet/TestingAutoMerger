@@ -16,7 +16,7 @@ import {
     ErrorService,
     GuidService,
     StatisticsService,
-    YearService,
+    FinancialYearService,
     NumberSeriesService,
     NumberSeriesTypeService,
     NumberSeriesTaskService,
@@ -65,7 +65,7 @@ export class NumberSeries {
         private errorService: ErrorService,
         private guidService: GuidService,
         private statisticsService: StatisticsService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private toastService: ToastService,
         private numberSeriesService: NumberSeriesService,
         private numberSeriesTypeService: NumberSeriesTypeService,
@@ -78,9 +78,9 @@ export class NumberSeries {
         this.initAccountingTableConfig();
         this.updateSaveActions();
 
-        this.yearService.selectedYear$.subscribe(year => {
-            this.currentYear = year;
-            this.checkSave(true).then( ok => { if (ok) {
+        this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
+            this.currentYear = year.Year;
+            this.checkSave(true).then(ok => { if (ok) {
                this.requestNumberSerie();
             }});
         });
@@ -136,15 +136,16 @@ export class NumberSeries {
                 this.busy = true;
                 this.numberSeriesService.findAndSetNextNumber(null).subscribe(
                     () => {
+                        this.busy = false;
                         this.toastService.addToast('Neste nummer er oppdatert på nummerserier', ToastType.good, 5);
                         done('Neste nummer er oppdatert på nummerserier');
                         this.requestNumberSerie();
                     },
                     err => {
+                        this.busy = false;
                         this.errorService.handle(err);
                         done('En feil oppstod ved oppdatering av neste nummer');
-                    },
-                    () => this.busy = false
+                    }
                 );
             } else {
                 done('');
@@ -164,15 +165,16 @@ export class NumberSeries {
                 this.busy = true;
                 this.numberSeriesService.findAndSetNextNumber(seriesID).subscribe(
                     () => {
+                        this.busy = false;
                         this.toastService.addToast('Neste nummer er oppdatert på nummerserien', ToastType.good, 5);
                         done('Neste nummer er oppdatert på nummerserier');
                         this.requestNumberSerie();
                     },
                     err => {
+                        this.busy = false;
                         this.errorService.handle(err);
                         done('En feil oppstod ved oppdatering av neste nummer');
-                    },
-                    () => this.busy = false
+                    }
                 );
             } else {
                 done('');

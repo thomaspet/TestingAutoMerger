@@ -9,8 +9,7 @@ import {
     ChangeDetectionStrategy
 } from '@angular/core';
 import {URLSearchParams, Http} from '@angular/http';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Router} from '@angular/router';
 import {
     Ticker,
     TickerAction,
@@ -32,29 +31,30 @@ import {
     StatisticsService,
     StatusService,
     EmployeeLeaveService,
-    YearService,
+    FinancialYearService,
     CompanySettingsService,
     ReportDefinitionParameterService,
-    CustomDimensionService
+    CustomDimensionService,
+    WageTypeService
 } from '../../../services/services';
-import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
 import {Observable} from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';
-import {SharingType, StatusCodeSharing, ReportDefinition} from '../../../unientities';
+import {SharingType, StatusCodeSharing} from '../../../unientities';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
+declare const _;
 
 export const SharingTypeText = [
+    {ID: 0, Title: 'Bruk distribusjonsplan'},
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
@@ -95,6 +95,7 @@ export class UniTicker {
     private defaultExpand: string;
     public tableConfig: UniTableConfig;
     public prefetchDataLoaded: boolean = false;
+    public resource: any;
     public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
 
@@ -106,14 +107,14 @@ export class UniTicker {
     public newWithEntityAction: TickerAction;
 
     public unitableFilter: string;
+    public publicParams: URLSearchParams;
+    public groupingIsOn: boolean = false;
+    public groupFilter: string = '';
 
     public busy: boolean = false;
 
     constructor(
-        private uniHttpService: UniHttp,
         private router: Router,
-        private route: ActivatedRoute,
-        private tabService: TabService,
         private statisticsService: StatisticsService,
         private toastService: ToastService,
         private statusService: StatusService,
@@ -122,17 +123,18 @@ export class UniTicker {
         private modelService: ApiModelService,
         private http: Http,
         private reportDefinitionService: ReportDefinitionService,
-        private storageService: BrowserStorageService,
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
         private tableUtils: TableUtils,
         private employeeLeaveService: EmployeeLeaveService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private companySettingsService: CompanySettingsService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private wageTypeService: WageTypeService,
     ) {
         this.lookupFunction = (urlParams: URLSearchParams) => {
+            this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
@@ -185,6 +187,52 @@ export class UniTicker {
                 .map(res => res.json())
                 .map(res => (res.Data && res.Data[0]) || []);
         };
+    }
+
+    public turnGroupingOnOff() {
+        this.groupingIsOn = !this.groupingIsOn;
+        this.tableConfig = this.buildTableConfig();
+        if (this.groupingIsOn) {
+            this.getGroupingData();
+        }
+
+        this.cdr.markForCheck();
+    }
+
+    public getGroupingData() {
+        let searchParams = this.publicParams || new URLSearchParams();
+        const TOP: number = 5000;
+
+        searchParams.set('top', TOP.toString());
+        searchParams.delete('hateoas');
+        if (this.groupFilter) {
+            searchParams.set('filter', this.groupFilter);
+        } else {
+            searchParams.delete('filter');
+        }
+
+        searchParams = this.getSearchParams(searchParams);
+
+        const countSearchParams = new URLSearchParams();
+        countSearchParams.set('select', 'count(ID) as count');
+        countSearchParams.set('filter', searchParams.get('filter'));
+        countSearchParams.set('model', searchParams.get('model'));
+        countSearchParams.set('expand', searchParams.get('expand'));
+
+        Observable.forkJoin(
+            this.statisticsService.GetAllByUrlSearchParams(searchParams),
+            this.statisticsService.GetAllByUrlSearchParams(countSearchParams)
+        ).subscribe((res: any) => {
+            const result = res[0].json();
+            const counter = res[1].json();
+            if (counter && counter.Data && counter.Data[0].count > TOP) {
+                this.toastService.addToast('For mye data', ToastType.warn, 8,
+                `Du har prøvd å hente ut for mye data. Vi har returnert de ${TOP} første linjene. ` +
+                `Tilpass søket ditt for å bedre datasettet`);
+            }
+            this.resource = result.Data;
+            this.cdr.markForCheck();
+        });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -257,7 +305,10 @@ export class UniTicker {
                                 });
                             }
                         }
-                        // let uni-table get its own data
+                        if (this.groupingIsOn) {
+                            this.getGroupingData();
+                        }
+                        // else let uni-table get its own data
                     } else {
                         // get detaildata using the same lookupfunction as uni-table, but no point in
                         // retrieving more than one row
@@ -339,7 +390,7 @@ export class UniTicker {
     private getSearchParams(urlParams: URLSearchParams): URLSearchParams {
         let params = urlParams;
 
-        if (params === null) {
+        if (!params) {
             params = new URLSearchParams();
         }
 
@@ -386,19 +437,19 @@ export class UniTicker {
 
         if (this.selectedFilter) {
             const uniTableFilter = urlParams.get('filter');
-            let newFilter = '';
+            let tickerFilter = '';
 
-            if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
-                newFilter = this.selectedFilter.Filter;
+            if (this.selectedFilter.Filter) {
+                tickerFilter = this.selectedFilter.Filter;
 
-                if (newFilter.indexOf(':currentuserid') >= 0) {
+                if (tickerFilter.indexOf(':currentuserid') >= 0) {
                     const expressionFilterValue = this.expressionFilters.find(x => x.Expression === ':currentuserid');
                     if (expressionFilterValue) {
-                        newFilter = newFilter.replace(':currentuserid', `'${expressionFilterValue}'`);
+                        tickerFilter = tickerFilter.replace(':currentuserid', `'${expressionFilterValue}'`);
                     }
                 }
             } else if (this.selectedFilter.FilterGroups && this.selectedFilter.FilterGroups.length > 0) {
-                newFilter =
+                tickerFilter =
                     this.uniTickerService.getFilterString(
                         this.selectedFilter.FilterGroups,
                         this.expressionFilters,
@@ -408,14 +459,16 @@ export class UniTicker {
             }
 
             let filter = null;
-
-            if (newFilter && newFilter !== '' && uniTableFilter && uniTableFilter !== '') {
-                filter = '(' + uniTableFilter + ' ) and (' + newFilter + ' )';
-            } else if (newFilter && newFilter !== '') {
-                filter = newFilter;
-            } else if (uniTableFilter && uniTableFilter !== '') {
-                filter = uniTableFilter;
+            if (uniTableFilter) {
+                if (tickerFilter && !uniTableFilter.includes(tickerFilter)) {
+                    filter = `(${uniTableFilter} ) and (${tickerFilter} )`;
+                } else {
+                    filter = uniTableFilter;
+                }
+            } else if (tickerFilter) {
+                filter = tickerFilter;
             }
+
             params.set('filter', filter);
         }
 
@@ -457,15 +510,13 @@ export class UniTicker {
             filter = filter.replace(':currentaccountingyear', `${expFilterVal.Value}`);
             params.set('filter', filter);
         } else {
-            this.yearService.getActiveYear().subscribe(activeyear => {
-                const currentAccountingYear = activeyear.toString();
-                this.expressionFilters.push({
-                    Expression: 'currentaccountingyear',
-                    Value: currentAccountingYear
-                });
-                filter = filter.replace(':currentaccountingyear', currentAccountingYear);
-                params.set('filter', filter);
+            const currentAccountingYear = this.financialYearService.getActiveYear().toString();
+            this.expressionFilters.push({
+                Expression: 'currentaccountingyear',
+                Value: currentAccountingYear
             });
+            filter = filter.replace(':currentaccountingyear', currentAccountingYear);
+            params.set('filter', filter);
         }
     }
 
@@ -504,6 +555,11 @@ export class UniTicker {
 
     public onFilterChange(filterChangeEvent) {
         this.unitableFilter = filterChangeEvent.filter;
+    }
+
+    public filtersChangeWhileGroup(event) {
+        this.groupFilter = event;
+        this.getGroupingData();
     }
 
     public editModeChanged(event) {
@@ -738,7 +794,14 @@ export class UniTicker {
                 getDimensionColumns.subscribe(res => {
                     if (res && res.length) {
                         res.forEach(customDimension => {
-                            const dimField = `Dimension${customDimension.Dimension}`;
+                            const dimFieldNo = `Dimension${customDimension.Dimension}.Number`;
+                            const colNoIndex = this.ticker.Columns.findIndex(col => col.Field.includes(dimFieldNo));
+                            if (colNoIndex >= 0) {
+                                this.ticker.Columns[colNoIndex].Header = customDimension.Label + "nr.";
+                                this.ticker.Columns[colNoIndex].DefaultHidden = !customDimension.IsActive;
+                            }
+
+                            const dimField = `Dimension${customDimension.Dimension}.Name`;
                             const colIndex = this.ticker.Columns.findIndex(col => col.Field.includes(dimField));
                             if (colIndex >= 0) {
                                 this.ticker.Columns[colIndex].Header = customDimension.Label;
@@ -753,6 +816,8 @@ export class UniTicker {
             });
         });
     }
+
+
 
     private buildTableConfig() {
         // Define configStoreKey
@@ -825,6 +890,7 @@ export class UniTicker {
                 col.width = column.Width;
                 col.isSumColumn = column.SumColumn;
                 col.sumFunction = column.SumFunction;
+                col.enableRowGroup = this.groupingIsOn;
 
                 if (column.Resizeable === false) {
                     col.resizeable = false;
@@ -854,7 +920,8 @@ export class UniTicker {
                     // set up templates based on rules for e.g. fieldname
                     if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')
                         || column.SelectableFieldName.toLowerCase().endsWith('tostatus')
-                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')) {
+                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')
+                        || (column.Alias && column.Alias.toLocaleLowerCase().endsWith('statuscode'))) {
                         col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
                     }
 
@@ -862,7 +929,8 @@ export class UniTicker {
                         col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
                     }
 
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')
+                        || (column.Alias && column.Alias.toLocaleLowerCase() === 'sharingtype')) {
                         col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
                     }
 
@@ -878,8 +946,32 @@ export class UniTicker {
                         col.template = (rowModel) => EmploymentStatuses.workingHoursSchemeToText(rowModel[column.Alias]);
                     }
 
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.shiptype')) {
+                        col.template = (rowModel) => EmploymentStatuses.shipTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.shipreg')) {
+                        col.template = (rowModel) => EmploymentStatuses.shipRegToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.tradearea')) {
+                        col.template = (rowModel) => EmploymentStatuses.tradeAreaToText(rowModel[column.Alias]);
+                    }
+
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employeeleave.leavetype')) {
                         col.template = (rowModel) => this.employeeLeaveService.leaveTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.taxtype')) {
+                        col.template = (rowModel) => this.wageTypeService.getNameForTaxType(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.specialtaxandcontributionsrule')) {
+                        col.template = (rowModel) => this.wageTypeService.getNameForSpecialTaxAndContributionRule(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.standardwagetypefor')) {
+                        col.template = (rowModel) => this.wageTypeService.GetNameForStandardWageTypeFor(rowModel[column.Alias]);
                     }
                 }
 
@@ -927,9 +1019,18 @@ export class UniTicker {
                             col.setAlignment('right');
                             break;
                         case 'NumberPositiveNegative':
-                            col.setConditionalCls(row => +row[column.Alias || column.Field] >= 0 ?
+                            col.setType(UniTableColumnType.Number);
+                            col.setConditionalCls(row => {
+                                let value = +row[column.Alias || column.Field];
+
+                                if (!!row.value) {
+                                    value = parseInt(row.value.toString().replace('\u2009', '').replace(' ', ''), 10);
+                                }
+                                return  value >= 0 ?
                                 'number-good'
-                                : 'number-bad'
+                                : 'number-bad';
+                            }
+
                             );
                             break;
                         case 'DatePassed':
@@ -975,7 +1076,7 @@ export class UniTicker {
                 if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
                     const statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
                     if (statusCodes && statusCodes.length > 0) {
-                        col.selectConfig = {
+                        col.filterSelectConfig = {
                             options: statusCodes,
                             displayField: 'name',
                             valueField: 'statusCode'
@@ -1114,7 +1215,7 @@ export class UniTicker {
             });
         }
 
-        return new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 19)
+        const config = new UniTableConfig(configStoreKey, false, true, this.groupingIsOn ? 100 : (this.ticker.Pagesize || 19))
             .setColumns(columns)
             .setEntityType(this.ticker.Model)
             .setAllowGroupFilter(true)
@@ -1124,6 +1225,8 @@ export class UniTicker {
             .setSearchListVisible(true)
             .setAllowEditToggle(this.ticker.EditToggle)
             .setContextMenu(contextMenuItems, true, false)
+            .setShowTotalRowCount(true)
+            .setSearchable(true)
             .setDataMapper((data) => {
                 if (this.ticker.Model) {
                     const tmp = data !== null ? data.Data : [];
@@ -1149,6 +1252,19 @@ export class UniTicker {
                 return this.ticker.ReadOnlyCases
                     .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
             });
+
+        if (this.groupingIsOn && this.ticker.IsTopLevelTicker) {
+            config.setRowGroupPanelShow('always')
+                .setSuppressMakeColumnVisibleAfterUnGroup(true)
+                .setSuppressDragLeaveHidesColumns(true)
+                .setAutoGroupColumnDef({
+                    headerName: 'Gruppering'
+                });
+        }
+
+        config.groupingIsOn = this.groupingIsOn;
+
+        return config;
     }
 
     private isMultiRowSelect(): boolean {
@@ -1237,6 +1353,14 @@ export class UniTicker {
     // this function assumes that the unitablesetup has already been run, so that all needed
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
+
+        // If grouping is on, use AG-Grids own export!
+        if (this.groupingIsOn) {
+            this.table.exportFromGrid();
+            completeEvent('Eksport kjørt');
+            return;
+        }
+
         // Remove ID and CustomerID from select if they exist, so it doesn't create columns for them
         // Remove code from here after test!!
         const selectSplit = this.selects.split(',');
@@ -1273,6 +1397,15 @@ export class UniTicker {
             });
         }
 
+        // add "dontdisplay" columns to query as well, needed to make some of the
+        // lists distinct if sum is used
+        this.ticker.Columns.forEach((col)  => {
+            if (col.Type === 'dontdisplay') {
+                stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                headers.push(col.Header);
+            }
+        });
+
         const selectedFieldString = stringSelect.join(',');
 
         // Remove code after test!
@@ -1280,7 +1413,7 @@ export class UniTicker {
             || this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
 
         // use both predefined filters and additional unitable filters if applicable
-        let params = new URLSearchParams();
+        let params = this.publicParams;
         if (this.unitableFilter) {
             params.set('filter', this.unitableFilter);
         }
@@ -1289,7 +1422,7 @@ export class UniTicker {
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
-                this.ticker.Expand, headers.join(','), this.ticker.Joins)
+                this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
                     .subscribe((blob) => {
                         // download file so the user can open it
                         saveAs(blob, 'export.xlsx');

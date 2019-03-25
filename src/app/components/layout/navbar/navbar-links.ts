@@ -51,7 +51,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.BureauDashboard
                     },
                     {
-                        name: 'Mine oppgaver',
+                        name: 'Godkjenninger',
                         url: '/assignments',
                         moduleID: UniModules.Assignments
                     },
@@ -163,6 +163,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/sales/kidsettings',
                         moduleID: UniModules.KIDSettings,
                     },
+                    {
+                        name: 'Repeterende faktura',
+                        url: '/sales/recurringinvoice',
+                        moduleID: UniModules.RecurringInvoice,
+                    },
                 ]
             },
             {
@@ -233,13 +238,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Accounting
                     },
                     {
-                        name: 'Fakturamottak',
+                        name: 'Leverandørfaktura',
                         url: '/accounting/bills',
                         moduleID: UniModules.Bills,
                         isSuperSearchComponent: true,
                         moduleName: 'SupplierInvoice',
-                        shortcutName: 'Nytt fakturamottak',
-                        prefix: ['fakturamottak'],
+                        shortcutName: 'Ny leverandørfaktura',
+                        prefix: ['lf', 'leverandørfaktura'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'InvoiceNumber', isNumeric: true},
@@ -247,6 +252,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         ],
                         joins: ['Supplier.BusinessRelationid eq BusinessRelation.id'],
                         expands: ['Supplier']
+                    },
+                    {
+                        name: 'Budsjett',
+                        url: '/accounting/budget',
+                        moduleID: UniModules.Budget
                     },
                     {
                         name: 'Åpne poster',
@@ -309,10 +319,10 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.CurrencyExchange
                     },
                     {
-                        name: 'Betaling',
-                        url: '/accounting/journalentry/payments',
-                        moduleID: UniModules.Payments
-                    },
+                        name: 'Fordelingsnøkler',
+                        url: '/accounting/costallocation',
+                        moduleID: UniModules.CostAllocation
+                    }
                 ]
             }
         ]
@@ -362,7 +372,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Payrollrun
                     },
                     {
-                        name: 'A-Melding',
+                        name: 'A-melding',
                         url: '/salary/amelding',
                         moduleID: UniModules.Amelding
                     },
@@ -380,6 +390,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Årsoppgave til inntektsmottaker',
                         url: '/salary/annualstatements',
                         moduleID: UniModules.AnnualStatements
+                    },
+                    {
+                        name: 'OTP-eksport',
+                        url: '/salary/otpexport',
+                        moduleID: UniModules.OTPExport
+                    },
+                    {
+                        name: 'Variable lønnsposter',
+                        url: '/salary/variablepayrolls',
+                        moduleID: UniModules.VariablePayrolls
                     }
                 ]
             },
@@ -502,23 +522,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         }]
     },
 
-    // DIMENSJONER
-    {
-        name: 'Dimensjoner',
-        url: '',
-        icon: 'dimension',
-        mdIcon: 'developer_board',
-        linkGroups: [{
-            name: '',
-            links: [
-                {
-                    name: '',
-                    url: ''
-                }
-            ]
-        }]
-    },
-
     // INNSTILLINGER
     {
         name: 'Innstillinger',
@@ -556,19 +559,14 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Jobs
                     },
                     {
-                        name: 'Modeller',
-                        url: '/admin/models',
-                        moduleID: UniModules.Models
-                    },
-                    {
-                        name: 'Roller',
-                        url: '/admin/roles',
-                        moduleID: UniModules.Roles
-                    },
-                    {
                         name: 'GDPR',
                         url: '/admin/gdpr',
                         moduleID: UniModules.GDPRList
+                    },
+                    {
+                        name: 'Flyt',
+                        url: '/admin/flow',
+                        moduleID: UniModules.Flow
                     },
                 ]
             }
@@ -590,11 +588,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/marketplace/modules',
                         moduleID: UniModules.Marketplace,
                     },
-/*                     {
+                    {
                         name: 'Integrasjoner',
                         url: '/marketplace/integrations',
                         moduleID: UniModules.Marketplace,
-                    }, */
+                    },
                 ]
             },
         ]

@@ -93,8 +93,10 @@ export class LocalDatePickerInput extends BaseControl implements OnChanges, Afte
     }
 
     public close() {
-        this.calendarOpen = false;
-        this.cd.markForCheck();
+        if (this.calendarOpen) {
+            this.calendarOpen = false;
+            this.cd.markForCheck();
+        }
     }
 
     public toggle() {
@@ -118,11 +120,16 @@ export class LocalDatePickerInput extends BaseControl implements OnChanges, Afte
         const value = this.control.value;
         let date;
 
+        const useLastMonthsPreviousYearUntilMonth =
+            this.options ?
+            this.options.useLastMonthsPreviousYearUntilMonth
+                : null;
+
         if ((value && value.length) || this.options.autocompleteEmptyValue) {
             if (value === '*') {
                 date = new Date();
             } else {
-                date = autocompleteDate(value, !!this.options.denyYearInFuture) || null;
+                date = autocompleteDate(value, !!this.options.denyYearInFuture, useLastMonthsPreviousYearUntilMonth) || null;
             }
         } else {
             date = null;

@@ -3,9 +3,9 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {
     ReportDefinitionParameterService,
-    YearService,
     ErrorService,
-    PayrollrunService
+    PayrollrunService,
+    FinancialYearService
 } from '../../../../services/services';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniPreviewModal} from '../preview/previewModal';
@@ -38,7 +38,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     new BehaviorSubject({FromPeriod: 1, ToPeriod: 2, Year: new Date().getFullYear()});
     constructor(
         private payrollRunService: PayrollrunService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) {}
 
     public ngOnInit() {

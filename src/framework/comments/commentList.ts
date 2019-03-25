@@ -13,7 +13,7 @@ import * as moment from 'moment';
                         <strong>{{comment.Author?.DisplayName}}</strong>
                         <small>{{getTimeFromNow(comment.CreatedAt)}}</small>
                     </header>
-                    <blockquote [innerHTML]="comment.Text"></blockquote>
+                    <section [innerHTML]="comment.Text"></section>
                 </main>
             </li>
         </ol>

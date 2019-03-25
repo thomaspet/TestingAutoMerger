@@ -10,12 +10,4 @@ export class GrantService extends BizHttp<Grant> {
         this.relativeURL = Grant.RelativeUrl;
         this.entityType = Grant.EntityType;
     }
-
-    public delete(ID: number) {
-        return this.http
-            .asDELETE()
-            .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${ID}`)
-            .send();
-    }
 }

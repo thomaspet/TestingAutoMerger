@@ -128,8 +128,10 @@ export class UniApproveTaskModal {
             this.busy = true;
             this.post(`approvals/${this.myApproval.ID}?action=approve`).subscribe(
                 () => this.onClose.emit(true),
-                err => this.errorService.handle(err),
-                () => this.busy = false
+                err => {
+                    this.busy = false;
+                    this.errorService.handle(err);
+                }
             );
         }
     }
@@ -146,8 +148,10 @@ export class UniApproveTaskModal {
                     this.post(`approvals/${this.myApproval.ID}?action=reject`)
                 ).subscribe(
                     () => this.onClose.emit(true),
-                    err => this.errorService.handle(err),
-                    () => this.busy = false
+                    err => {
+                        this.busy = false;
+                        this.errorService.handle(err);
+                    }
                 );
             }
         }

@@ -68,7 +68,7 @@ export class ReminderRules implements OnInit, OnChanges {
         this.customerInvoiceReminderRuleService.GetNewEntity(null, CustomerInvoiceReminderRule.EntityType)
             .subscribe((rule) => {
                 rule['_createguid'] = this.customerInvoiceReminderRuleService.getNewGuid();
-                this.table.addRow(rule);
+                this.settings.CustomerInvoiceReminderRules.push(rule);
                 this.setReminderNumber();
                 this.table.focusRow(this.settings.CustomerInvoiceReminderRules.length - 1);
             });
@@ -105,7 +105,7 @@ export class ReminderRules implements OnInit, OnChanges {
     }
 
     private setupTable() {
-        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number)
+        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Text)
             .setEditable(false)
             .setWidth(45);
         const titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text)

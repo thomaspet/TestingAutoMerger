@@ -1,6 +1,6 @@
 <section role="dialog" class="uni-modal">
     <header> <h1>{{description$ | async}}</h1> </header>
-    <article [attr.aria-busy]="busy">
+    <article [attr.aria-busy]="busy" class="scrollable">
         <section class="payrollControl_header">
             <h3>Hovedtall for lønnsavregningen: </h3>
             <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>

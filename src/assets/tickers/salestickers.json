@@ -67,12 +67,6 @@
         ],
         "Actions": [
             {
-                "Name": "Ny kunde",
-                "Code": "new_customer",
-                "ExecuteWithoutSelection": true,
-                "Type": "new"
-            },
-            {
                 "Name": "Åpne Kunde",
                 "Code": "open_customer",
                 "DisplayInContextMenu": true,
@@ -397,13 +391,6 @@
         },
         "Actions": [
             {
-                "Name": "Ny faktura",
-                "Code": "new_customer_invoice",
-                "ExecuteWithoutSelection": true,
-                "Route": "/sales/invoices/0;customerID=",
-                "Type": "newWithEntityAction"
-            },
-            {
                 "Name": "Registrer betaling",
                 "Code": "invoice_registerpayment",
                 "Type": "action",
@@ -576,13 +563,6 @@
         },
         "Actions": [
             {
-                "Name": "Ny ordre",
-                "Code": "new_customer_order",
-                "ExecuteWithoutSelection": true,
-                "Route": "/sales/orders/0;customerID=",
-                "Type": "newWithEntityAction"
-            },
-            {
                 "Name": "Send på e-post",
                 "Code": "customer_order_sendemail",
                 "Type": "details",
@@ -731,13 +711,6 @@
             "Value": "ID"
         },
         "Actions": [
-            {
-                "Name": "Nytt tilbud",
-                "Code": "new_customer_quote",
-                "ExecuteWithoutSelection": true,
-                "Route": "/sales/quotes/0;customerID=",
-                "Type": "newWithEntityAction"
-            },
             {
                 "Name": "Skriv ut/Eksporter",
                 "Code": "quote_print",

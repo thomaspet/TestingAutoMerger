@@ -108,7 +108,8 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
         field.FieldType = type;
         field.Property = property;
         field.LineBreak = true;
-        field.ReadOnly = (field.Label.toLowerCase().trim().startsWith('antall')) || config && config.readOnly;
+        field.ReadOnly = (supplement.WageTypeSupplement && supplement.WageTypeSupplement.GetValueFromTrans)
+            || config && config.readOnly;
         return field;
     }
 }

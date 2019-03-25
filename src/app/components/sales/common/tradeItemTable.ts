@@ -64,6 +64,15 @@ export class TradeItemTable {
     public tableConfig: UniTableConfig;
     public settings: CompanySettings;
     private defaultProject: Project;
+    pricingSourceLabels = ['Fast', 'Produkt'];
+    priceFactor = [
+        { value: 0, label: 'Fast' },
+        // { value: 1, label: 'Pr. dag' },
+        // { value: 2, label: 'Pr. uke' },
+        { value: 3, label: 'Pr måned' },
+        { value: 4, label: 'Pr. kvartal' },
+        { value: 5, label: 'Pr. år' }
+    ];
 
     constructor(
         private productService: ProductService,
@@ -211,9 +220,11 @@ export class TradeItemTable {
 
         if (updateTableData) {
             this.items = this.items.map(item => {
-                item.Dimensions = item.Dimensions || new Dimensions();
-                item.Dimensions.ProjectID = projectID;
-                item.Dimensions.Project = this.defaultProject;
+                if (item.Product) {
+                    item.Dimensions = item.Dimensions || new Dimensions();
+                    item.Dimensions.ProjectID = projectID;
+                    item.Dimensions.Project = this.defaultProject;
+                }
                 return item;
             });
         }
@@ -245,9 +256,11 @@ export class TradeItemTable {
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
-                item.Dimensions = item.Dimensions || new Dimensions();
-                item.Dimensions[entity] = id;
-                item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                if (item.Product) {
+                    item.Dimensions = item.Dimensions || new Dimensions();
+                    item.Dimensions[entity] = id;
+                    item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                }
                 return item;
             });
         };
@@ -323,7 +336,7 @@ export class TradeItemTable {
         // Columns
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
-            .setJumpToColumn('Unit')
+            .setJumpToColumn('NumberOfItems')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
@@ -387,6 +400,9 @@ export class TradeItemTable {
             .setMaxLength(255)
             .setWidth('20%');
 
+        const unitCol = new UniTableColumn('Unit', 'Enhet')
+            .setMaxLength(100);
+
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
             .setNumberFormat({
                 thousandSeparator: ' ',
@@ -394,9 +410,6 @@ export class TradeItemTable {
                 decimalLength: this.settings.ShowNumberOfDecimals,
                 postfix: undefined
             });
-
-        const unitCol = new UniTableColumn('Unit', 'Enhet')
-            .setMaxLength(100);
 
         const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris eks. mva', UniTableColumnType.Money)
             .setNumberFormat({
@@ -413,6 +426,40 @@ export class TradeItemTable {
                 decimalLength: this.settings.ShowNumberOfDecimals,
                 postfix: undefined
             });
+
+        const pricingSourceCol = new UniTableColumn('PricingSource', 'Priskilde.')
+            .setType(UniTableColumnType.Select)
+            .setWidth('15%')
+            .setTemplate((row) => {
+                if (row && (row.PricingSource || row.PricingSource === 0)) {
+                    return this.pricingSourceLabels[row.PricingSource];
+                } else {
+                    return '';
+                }
+            })
+            .setOptions({
+                itemTemplate: rowModel => rowModel,
+                resource: this.pricingSourceLabels
+            });
+
+        // const reduceCol = new UniTableColumn('ReduceIncompletePeriod', 'Reduser ufullstendig periode', UniTableColumnType.Boolean);
+
+        const timefactorCol = new UniTableColumn('TimeFactor', 'Prisfaktor')
+            .setType(UniTableColumnType.Select)
+            .setWidth('15%')
+            .setTemplate((row) => {
+                if (row && (row.TimeFactor || row.TimeFactor === 0)) {
+                    // Find factor in array and display label. Make sure factor exists just in case
+                    const factor = this.priceFactor.find(fac => fac.value === row.TimeFactor);
+                    return factor ? factor.label : '';
+                } else {
+                    return '';
+                }
+            })
+            .setOptions({
+                itemTemplate: rowModel => rowModel.label,
+                resource: this.priceFactor
+           });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
@@ -571,9 +618,9 @@ export class TradeItemTable {
                 searchPlaceholder: 'Velg avdeling',
                 lookupFunction: (query) => {
 
-                    return this.customDimensionService.getCustomDimensionListWithFilter(
+                    return this.customDimensionService.getCustomDimensionList(
                         type.Dimension,
-                        `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                        `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
                     ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
@@ -591,16 +638,21 @@ export class TradeItemTable {
             'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, true
         );
 
+        const allCols = [
+            sortIndexCol, productCol, itemTextCol, unitCol, numItemsCol,
+            exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
+            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
+        ].concat(dimensionCols);
+
+        if (this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
+            allCols.splice(6, 0, pricingSourceCol, timefactorCol);
+        }
+
         this.tableConfig = new UniTableConfig(this.configStoreKey, !this.readonly)
-            .setColumns([
-                sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
-                exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
-                projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
-            ].concat(dimensionCols))
+            .setColumns(allCols)
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
-            .setCopyFromCellAbove(false)
             .setIsRowReadOnly(row => row.StatusCode === 41103)
             .setChangeCallback((event) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
@@ -610,7 +662,9 @@ export class TradeItemTable {
                     this.settings,
                     this.vatTypes,
                     this.foreignVatType,
-                    this.vatDate
+                    this.vatDate,
+                    this.pricingSourceLabels,
+                    this.priceFactor
                 );
 
                 updatedRow['_isDirty'] = true;
@@ -642,9 +696,36 @@ export class TradeItemTable {
             });
     }
 
+    private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
+        let triggerChangeDetection = false;
+        let noProduct = false;
+
+        if (event.field == 'Product') {
+            if (!event.newValue) {
+                noProduct = true;
+            }
+            else if (updatedRow.Product && !updatedRow.Product.Dimensions) { 
+                updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
+                updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
+                triggerChangeDetection = true;
+            }
+        } else if (event.field == 'ItemText') {
+            if (!updatedRow.Product) {
+                noProduct = true;
+            }
+        }
+        if (noProduct) {
+            updatedRow.Dimensions = null;
+            triggerChangeDetection = true;
+        }
+        return triggerChangeDetection;
+    }
+
     public onRowChange(event: IRowChangeEvent) {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
+
+        let triggerChangeDetection = this.updateDimensions(event, updatedRow);
 
         // If freetext on row is more than 250 characters we need
         // to split it into multiple rows
@@ -663,6 +744,9 @@ export class TradeItemTable {
                 this.items.splice(insertIndex, 0, newRow);
             });
 
+            triggerChangeDetection = true;
+        }
+        if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
             this.items = _.cloneDeep(this.items); // trigger change detection
         }

@@ -1,0 +1,125 @@
+<section role="dialog" class="uni-modal maybe-default">
+    <header>{{header}}</header>
+
+    <article class="scrollable" *ngIf="eventPlan">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="setup-step">
+            <label>
+                <span>Navn på flyt</span>
+                <input type="text" spellcheck="false"
+                    [(ngModel)]="eventPlan.Name"
+                    autofocus
+                />
+            </label>
+
+            <label>
+                <span>Entitet</span>
+
+                <input type="search" spellcheck="false"
+                    [matAutocomplete]="modelAutocomplete"
+                    [(ngModel)]="eventPlan.ModelFilter"
+                    (ngModelChange)="filterModels($event)"
+                    (keydown.esc)="$event.stopPropagation()"
+                />
+                <mat-autocomplete #modelAutocomplete="matAutocomplete">
+                    <mat-option *ngFor="let model of filteredModels" [value]="model">
+                        {{model}}
+                    </mat-option>
+                </mat-autocomplete>
+            </label>
+        </section>
+
+        <section class="setup-step">
+            <section class="header">
+                <i class="material-icons">notifications_active</i>
+                Lytt på hendelse
+            </section>
+
+            <section class="content">
+                <section class="operation-filters">
+                    <li *ngFor="let filter of operationFilters"
+                        (click)="filter.selected = !filter.selected"
+                        [ngClass]="{'selected': filter.selected}">
+
+                        <mat-checkbox
+                            [(ngModel)]="filter.selected"
+                            (click)="$event.stopPropagation()">
+                        </mat-checkbox>
+
+                        <span>{{filter.label}}</span>
+                    </li>
+                </section>
+            </section>
+        </section>
+
+        <section class="setup-step action-setup">
+            <section class="header">
+                <i class="material-icons">build</i>
+                Jobb
+
+                <mat-radio-group [(ngModel)]="eventPlan.PlanType" (ngModelChange)="onPlanTypeChange()">
+                    <mat-radio-button [value]="planTypeEnum.Webhook">Webhook</mat-radio-button>
+                    <mat-radio-button [value]="planTypeEnum.Custom">Egendefinert</mat-radio-button>
+                </mat-radio-group>
+            </section>
+
+            <section class="content">
+                <input type="search" spellcheck="false"
+                    *ngIf="eventPlan.PlanType === planTypeEnum.Custom"
+                    placeholder="Velg jobb"
+                    [(ngModel)]="eventPlan.JobNames"
+                    (ngModelChange)="filterJobs($event)"
+                    [matAutocomplete]="jobAutocomplete"
+                    (keydown.esc)="$event.stopPropagation()"
+                />
+                <mat-autocomplete #jobAutocomplete="matAutocomplete">
+                    <mat-option *ngFor="let job of filteredJobs" [value]="job">
+                        {{job}}
+                    </mat-option>
+                </mat-autocomplete>
+
+                <section class="job-params">
+                    <small>
+                        {{
+                            eventPlan.PlanType === planTypeEnum.Custom
+                                ? 'Parametere til jobben'
+                                : 'Webhook endepunkter'
+                        }}
+                    </small>
+
+                    <section *ngFor="let subscriber of eventPlan.Subscribers; let idx = index" class="param">
+                        <input
+                            type="text"
+                            class="name"
+                            placeholder="Navn"
+                            [(ngModel)]="subscriber.Name"
+                        />
+
+                        <input
+                            type="text"
+                            [(ngModel)]="subscriber.Endpoint"
+                            [placeholder]="eventPlan.PlanType === planTypeEnum.Custom ? 'Verdi' : 'URL'"
+                        />
+
+                        <button class="icon-button">
+                            <i (click)="removeSubscriber(idx)" class="material-icons">close</i>
+                        </button>
+                    </section>
+
+                    <button (click)="eventPlan.Subscribers.push({})">
+                        <i class="material-icons" style="margin-bottom: 3px">add</i>
+                        Legg til {{eventPlan.PlanType === planTypeEnum.Custom ? 'parameter' : 'endepunkt'}}
+                    </button>
+                </section>
+            </section>
+        </section>
+    </article>
+
+    <footer>
+        <button (click)="savePlan()" class="c2a">Lagre</button>
+        <button (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</section>

@@ -189,6 +189,8 @@ export class UniSearchCustomerConfig {
     }
 
     private generateCustomerStatisticsQuery(searchTerm: string): string {
+        searchTerm = searchTerm.replace(/'/g,"\\'");
+
         const model = 'Customer';
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones,Info.DefaultBankAccount';
         const startNumber = this.getNumberFromStartOfString(searchTerm);

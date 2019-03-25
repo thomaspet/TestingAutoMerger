@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, HostListener} from '@angular/core';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions, UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../../framework/uni-modal';
 import {
@@ -24,12 +24,17 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
                     [config]="uniTableConfig">
                 </uni-table>
 
-                <div *ngIf="all">
+                <div>
                     <h3 style="margin-bottom: 0;">Merk!</h3>
                     <h4 style="margin-top: .3rem; font-weight: 400;">
-                        Du ønsker å automarke alle kontoer.
-                        Dette kan ta litt tid, og vil låse UniEconomy mens prossessen pågår,
-                        men du kan avbryte når som helst. Vil du fortsette?
+                        <span *ngIf="all">
+                            Du ønsker å automerke alle kontoer.
+                            Dette kan ta litt tid, og vil låse UniEconomy mens prossessen pågår,
+                            men du kan avbryte når som helst. Vil du fortsette?
+                        </span>
+                        <span *ngIf="!all">
+                            Automerking vil overskrive alle manuelle markeringer du har gjort.
+                        </span>
                     </h4>
                 </div>
             </article>
@@ -63,7 +68,10 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
                 <button (click)="close('cancel')" class="bad" *ngIf="!onCompleteBoolean">Avbryt</button>
             </footer>
         </section>
-`
+    `,
+    host: {
+        '(document:keydown)': 'keyDownHandler($event)'
+}
 })
 
 export class UniAutomarkModal implements IUniModal {
@@ -146,6 +154,17 @@ export class UniAutomarkModal implements IUniModal {
         });
         this.setupUniTable();
      }
+
+    public keyDownHandler(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.close('mark');
+        }
+        if (event.keyCode === 27) {
+            event.preventDefault();
+            this.close('cancel');
+        }
+    }
 
     public close(buttonClicked: string) {
         if (buttonClicked === 'mark') {

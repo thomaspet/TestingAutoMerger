@@ -45,8 +45,7 @@ interface IUniFormTabEvent {
     templateUrl: './wagetypeDetails.html'
 })
 export class WagetypeDetail extends UniView {
-    private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell'
-        + '/index.html#!Documents/lnnsinntekterrapportering.htm';
+    private aMeldingHelp: string = 'https://www.skatteetaten.no/bedrift-og-organisasjon/arbeidsgiver/a-meldingen/veiledning/';
     public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
     private incomeTypeDatasource: IIncomeType[] = [];
@@ -135,17 +134,12 @@ export class WagetypeDetail extends UniView {
             baseOptions.push(WageTypeBaseOptions.AGA);
         }
 
-        if (wageType.Base_div1) {
-            baseOptions.push(WageTypeBaseOptions.Pension);
-        }
-
         return baseOptions;
     }
 
     private setBaseOptionsOnWagetype(wageType: WageType, baseOptions: WageTypeBaseOptions[]): void {
         wageType.Base_Vacation = baseOptions.some(x => x === WageTypeBaseOptions.VacationPay);
         wageType.Base_EmploymentTax = baseOptions.some(x => x === WageTypeBaseOptions.AGA);
-        wageType.Base_div1 = baseOptions.some(x => x === WageTypeBaseOptions.Pension);
     }
 
     private getSetupSources(wageType: WageType) {
@@ -585,8 +579,8 @@ export class WagetypeDetail extends UniView {
 
         this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)
             .setFilters([
-                { field: '_setDelete', operator: 'ne', value: 'true', group: 0, selectConfig: null },
-                { field: 'Deleted', operator: 'ne', value: 'true', group: 0, selectConfig: null }
+                { field: '_setDelete', operator: 'ne', value: 'true', group: 0 },
+                { field: 'Deleted', operator: 'ne', value: 'true', group: 0 }
             ])
             .setColumns([tilleggsopplysning, suggestedValue])
             .setAutoAddNewRow(false)

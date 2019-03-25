@@ -1,8 +1,8 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Employment, EmployeeLeave, Leavetype, LocalDate} from '../../../../unientities';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, UniTable} from '../../../../../framework/ui/unitable/index';
-import {UniCacheService, ErrorService, EmployeeLeaveService} from '../../../../services/services';
+import {Employment, EmployeeLeave, Leavetype, CompanySalary} from '../../../../unientities';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent} from '../../../../../framework/ui/unitable/index';
+import {UniCacheService, ErrorService, EmployeeLeaveService, CompanySalaryService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs';
 const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
@@ -18,15 +18,23 @@ export class EmployeeLeaves extends UniView {
     public employeeleaveItems: EmployeeLeave[] = [];
     public tableConfig: UniTableConfig;
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    private companysalarySettings: CompanySalary;
 
     constructor(
         router: Router,
         route: ActivatedRoute,
         cacheService: UniCacheService,
         private errorService: ErrorService,
-        private employeeLeaveService: EmployeeLeaveService
+        private employeeLeaveService: EmployeeLeaveService,
+        private companysalaryService: CompanySalaryService
     ) {
         super(router.url, cacheService);
+
+        this.companysalaryService.getCompanySalary()
+            .subscribe(compsalsetting => {
+                this.companysalarySettings = compsalsetting;
+                this.buildTableConfig();
+            });
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
         route.parent.params.subscribe((paramsChange) => {
@@ -48,7 +56,6 @@ export class EmployeeLeaves extends UniView {
                 })
                 .subscribe((employments: Employment[]) => {
                     this.employments = (employments || []).filter(emp => emp.ID > 0);
-                    this.buildTableConfig();
                 }, err => this.errorService.handle(err));
         });
     }
@@ -91,13 +98,31 @@ export class EmployeeLeaves extends UniView {
                 },
                 lookupFunction: (searchValue) => this.lookupEmployment(searchValue)
             });
+        const affectsOTPCol = new UniTableColumn('_AffectsOtp', 'Påvirker OTP', UniTableColumnType.Select)
+            .setWidth('15%')
+            .setTemplate((row: EmployeeLeave) => {
+                if (row['_isEmpty']) {
+                    return '';
+                }
+                if (row && row.AffectsOtp) {
+                    return 'Ja';
+                } else {
+                    return 'Nei';
+                }
+            })
+            .setOptions({
+                resource: ['Ja', 'Nei'],
+                itemTemplate: rowModel => rowModel
+            });
+
+        const columns = [fromDateCol, toDateCol, leavePercentCol, leaveTypeCol, employmentIDCol, commentCol];
+        if (this.companysalarySettings && this.companysalarySettings.OtpExportActive) {
+            columns.push(affectsOTPCol);
+        }
 
         this.tableConfig = new UniTableConfig('salary.employee.employeeLeave', this.employeeID ? true : false)
             .setDeleteButton(true)
-            .setColumns([
-                fromDateCol, toDateCol, leavePercentCol,
-                leaveTypeCol, employmentIDCol, commentCol
-            ])
+            .setColumns(columns)
             .setChangeCallback((event) => {
                 const row: EmployeeLeave = event.rowModel;
                 if (event.field === '_Employment') {
@@ -110,6 +135,14 @@ export class EmployeeLeaves extends UniView {
 
                 if (event.field === 'LeaveType') {
                     this.mapLeavetypeToPermision(row);
+                }
+
+                if (event.field === '_AffectsOtp') {
+                    if (row['_AffectsOtp'] === 'Ja') {
+                        row.AffectsOtp = true;
+                    } else {
+                        row.AffectsOtp = false;
+                    }
                 }
 
                 // Update local array and cache
@@ -130,6 +163,7 @@ export class EmployeeLeaves extends UniView {
 
     private mapEmploymentToPermision(rowModel) {
         const employment = rowModel['_Employment'];
+        rowModel['Employment'] = employment;
         rowModel['EmploymentID'] = employment ? employment.ID : 0;
     }
 

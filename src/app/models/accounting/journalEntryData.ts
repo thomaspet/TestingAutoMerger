@@ -1,6 +1,6 @@
 import {
     JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, JournalEntryLine, LocalDate,
-    CurrencyCode, CustomerInvoice
+    CurrencyCode, CustomerInvoice, CostAllocation
 } from '../../unientities';
 
 export class JournalEntryData {
@@ -75,6 +75,8 @@ export class JournalEntryData {
 
     PostPostJournalEntryLineID: number;
     PostPostJournalEntryLine: JournalEntryLine;
+
+    CostAllocation: CostAllocation
 }
 
 export enum NumberSeriesTaskIds {
@@ -94,4 +96,9 @@ export class JournalEntryPaymentData {
 export class JournalEntryExtended extends JournalEntry {
     FileIDs: number[];
     Payments: Payment[];
+}
+
+export class FieldAndJournalEntryData {
+    Field: string;
+    JournalEntryData: JournalEntryData;
 }

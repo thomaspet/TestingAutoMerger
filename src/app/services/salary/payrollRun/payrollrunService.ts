@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Tracelink, Payment, LocalDate, WorkItemToSalary, PostingSummary
+    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary, PostingSummaryDraft
 } from '../../../unientities';
 import {Observable} from 'rxjs';
 import {ErrorService} from '../../common/errorService';
@@ -13,10 +13,11 @@ import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionSe
 import {SalarybalanceService} from '../salarybalance/salarybalanceService';
 import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineService';
 import {StatisticsService} from '../../common/statisticsService';
-import {YearService} from '../../common/yearService';
+import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {RequestMethod} from '@angular/http';
+import {map} from 'rxjs/operators';
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, // Note: NOT in Use yet
@@ -31,6 +32,24 @@ export enum PayrollRunPaymentStatus {
     SentToPayment = 1,
     PartlyPaid = 2,
     Paid = 3
+}
+
+export enum SalaryBookingType {
+    Dimensions = 0,
+    DimensionsAndBalance = 1,
+    NoDimensions = 2,
+}
+
+export interface IPaycheckEmailInfo {
+    ReportID?: number;
+    Subject?: string;
+    Message?: string;
+    GroupByWageType?: boolean;
+}
+
+export interface IPaycheckReportSetup {
+    EmpIDs: number[];
+    Mail: IPaycheckEmailInfo;
 }
 
 @Injectable()
@@ -55,7 +74,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService,
         private statisticsService: StatisticsService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private salaryBalanceService: SalarybalanceService,
         private salaryBalanceLineService: SalaryBalanceLineService,
         private browserStorage: BrowserStorageService,
@@ -120,33 +139,28 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getEarliestOpenRun(setYear?: number): Observable<PayrollRun> {
-        return Observable
-            .of(setYear)
-            .switchMap(year => year
-                ? Observable.of(year)
-                : this.yearService.getActiveYear())
-            .switchMap(year => super.GetAll(
+
+        const year = setYear ? setYear : this.financialYearService.getActiveYear();
+
+        return super.GetAll(
                 `filter=(StatusCode eq null or StatusCode le 1) and year(PayDate) eq ${year}`
                 + `&top=1`
-                + `&orderby=PayDate ASC`))
+                + `&orderby=PayDate ASC`)
             .map(result => result[0]);
     }
 
     public getLatestSettledRun(year?: number): Observable<PayrollRun> {
-        return super.GetAll(`filter=StatusCode ge 1 ${year
-            ? 'and year(PayDate) eq ' + year
-            : ''}&top=1&orderby=PayDate DESC`)
+        return super.GetAll(`filter=StatusCode ge 1 ${
+            year ? 'and year(PayDate) eq ' + year
+            : ''
+            }&top=1&orderby=PayDate DESC`)
             .map(resultSet => resultSet[0]);
     }
 
     public getEarliestOpenRunOrLatestSettled(setYear?: number): Observable<PayrollRun> {
-        let currYear = setYear;
-        return Observable
-            .of(setYear)
-            .switchMap(year => year
-                ? Observable.of(year)
-                : this.yearService.getActiveYear())
-            .do((year) => currYear = year)
+        const currYear = setYear ? setYear : this.financialYearService.getActiveYear();
+
+        return Observable.of(currYear)
             .switchMap(year => this.getEarliestOpenRun(year))
             .switchMap(run => run
                 ? Observable.of(run)
@@ -192,15 +206,36 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.PostAction(payrollrunID, 'sendpaymentlist');
     }
 
-    public getPostingsummary(ID: number, hasGrouping: boolean = true): Observable<PostingSummary> {
-        return super.GetAction(ID, 'postingsummary', `dimensionGrouping=${hasGrouping}`);
+    public generateDraft(ID: number, bookingType: SalaryBookingType) {
+        return super.PutAction(ID, 'rebuildpostings', `bookingType=${bookingType}`);
     }
 
-    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: number = null, hasGrouping: boolean = true) {
+    public getPostingSummaryDraft(ID: number): Observable<PostingSummaryDraft> {
+        return super.GetAction(ID, 'postingsummarydraft');
+    }
+
+    public getPostingSummary(ID: number, bookingType: SalaryBookingType) {
+        return super.GetAction(ID, 'postingsummary', `bookingType=${bookingType}`);
+    }
+
+    public getBookingTypeFromDraft(draft: PostingSummaryDraft): SalaryBookingType {
+        if (!draft) {
+            return SalaryBookingType.Dimensions;
+        }
+        if (draft.draftBasic) {
+            return SalaryBookingType.NoDimensions;
+        }
+        if (draft.draftWithDimsOnBalance) {
+            return SalaryBookingType.DimensionsAndBalance;
+        }
+        return SalaryBookingType.Dimensions;
+    }
+
+    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: number = null) {
         return super.PutAction(
             ID,
             'book',
-            `accountingDate=${date}&numberseriesID=${numberseriesID}&dimensionGrouping=${hasGrouping}`);
+            `accountingDate=${date}&numberseriesID=${numberseriesID}`);
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
@@ -245,13 +280,17 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
-    public emailPaychecks(emps: Employee[], runID: number, grouping: boolean = false) {
-        return super.ActionWithBody(runID, emps, 'email-paychecks', RequestMethod.Put, `grouped=${grouping}`);
+    public emailPaychecks(runID: number, setup: IPaycheckReportSetup) {
+        return super.ActionWithBody(runID, setup, 'email-paychecks', RequestMethod.Put);
     }
 
 
     public getPaymentsOnPayrollRun(id: number): Observable<Payment[]> {
         return super.GetAction(id, 'payments-on-runs');
+    }
+
+    public getOTPExportData(payrollIDs: string, otpPeriode: number, otpYear: number, asXml: boolean = false) {
+        return super.GetAction(null, 'otp-export', `runs=${payrollIDs}&month=${otpPeriode}&year=${otpYear}&&asXml=${asXml}`);
     }
 
     public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null): boolean {
@@ -271,6 +310,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         if (validates) {
             for (let i = 0; i < transes.length; i++) {
                 const trans = transes[i];
+                if (!trans.Sum) {
+                    continue;
+                }
                 if (!trans.Account) {
                     this.toastService
                         .addToast('Konto mangler',
@@ -297,28 +339,24 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getAll(queryString: string, includePayments: boolean = false): Observable<PayrollRun[]> {
-        return this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .take(1)
-            .switchMap(year => {
-                let queryList = queryString.split('&');
-                let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
-                filter = filter.toLowerCase();
-                queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
-                if (!filter.toLowerCase().includes('year(paydate)')) {
-                    filter = 'filter='
-                        + (filter ? `(${filter.replace('filter=', '')}) and ` : '')
-                        + `(year(PayDate) eq ${year})`;
-                }
+        const year = this.financialYearService.getActiveYear();
 
-                queryList.push(filter);
-                if (includePayments) {
-                    queryList.push('includePayments=true');
-                }
-                return this.GetAll(queryList.join('&'));
-            })
+        let queryList = queryString.split('&');
+        let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
+        filter = filter.toLowerCase();
+        queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
+        if (!filter.toLowerCase().includes('year(paydate)')) {
+            filter = 'filter='
+                + (filter ? `(${filter.replace('filter=', '')}) and ` : '')
+                + `(year(PayDate) eq ${year})`;
+        }
+
+        queryList.push(filter);
+        if (includePayments) {
+            queryList.push('includePayments=true');
+        }
+
+        return this.GetAll(queryList.join('&'))
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
 

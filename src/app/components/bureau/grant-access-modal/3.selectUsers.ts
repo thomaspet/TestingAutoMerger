@@ -1,8 +1,7 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
-import {AuthService, IAuthDetails} from '@app/authService';
-import {ElsaUserLicense} from '@app/services/elsa/elsaModels';
+import {ElsaUserLicense} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 
 @Component({
@@ -19,7 +18,6 @@ export class SelectUsersForBulkAccess {
     constructor(
         private elsaCompanyLicenseService: ElsaCompanyLicenseService,
         private errorService: ErrorService,
-        private authService: AuthService,
     ) {}
 
     ngOnChanges() {
@@ -29,28 +27,24 @@ export class SelectUsersForBulkAccess {
     }
 
     private initData() {
-        this.authService.authentication$
-            .take(1)
-            .subscribe((authentication: IAuthDetails) => {
-                this.elsaCompanyLicenseService.GetAllUsers(
-                    authentication.user.License.Company.Agency.CompanyKey
-                ).subscribe(
-                    users => {
-                        if (this.data.users && this.data.users.length) {
-                            users.forEach(user => {
-                                if (this.data.users.some(u => u.userIdentity === user.userIdentity)) {
-                                    user['_selected'] = true;
-                                }
-                            });
-                        }
+        if (this.data.customer) {
+            this.elsaCompanyLicenseService.GetAllUsers(
+                this.data.customer.CompanyKey
+            ).subscribe(
+                users => {
+                    if (this.data.users && this.data.users.length) {
+                        users.forEach(user => {
+                            if (this.data.users.some(u => u.userIdentity === user.userIdentity)) {
+                                user['_selected'] = true;
+                            }
+                        });
+                    }
 
-                        this.users = users;
-
-                    },
-                    err => this.errorService.handle(err),
-                );
-            }
-        );
+                    this.users = users;
+                },
+                err => this.errorService.handle(err)
+            );
+        }
     }
 
     onSelectionChange() {

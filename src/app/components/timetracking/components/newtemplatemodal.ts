@@ -26,7 +26,7 @@ export enum TemplateCloseOptions {
 @Component({
     selector: 'uni-template-modal',
     template: `
-        <section role="dialog" class="uni-modal template_modal_size">
+        <section role="dialog" class="uni-modal medium">
             <header><h1>Opprett ny mal</h1></header>
 
             <article>

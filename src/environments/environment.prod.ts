@@ -28,6 +28,7 @@ export const environment = {
     },
 
     RAYGUN_API_KEY: '2iYzARArU22aNutdEnvtWw==',
+    APP_INSIGHTS_KEY: '',
 
     SITE_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
 

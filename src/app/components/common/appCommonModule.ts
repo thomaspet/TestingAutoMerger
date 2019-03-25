@@ -22,6 +22,7 @@ import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {UniAutomarkModal} from './reconciliation/ledgeraccounts/uniAutomarkModal';
+import {UniMarkingDetailsModal} from './reconciliation/ledgeraccounts/markingDetails';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
@@ -31,13 +32,11 @@ import {Contacts} from './contact/contacts';
 import {AddPaymentModal} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
-import {Editable} from './utils/editable/editable';
 import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
-import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
@@ -56,7 +55,9 @@ import {
 } from './timetrackingCommon';
 
 import {
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatMenuModule,
+    MatCheckboxModule
 } from '@angular/material';
 
 @NgModule({
@@ -67,8 +68,11 @@ import {
         HttpModule,
         RouterModule,
         UniFrameworkModule,
+        AppPipesModule,
+
         MatProgressBarModule,
-        AppPipesModule
+        MatMenuModule,
+        MatCheckboxModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -91,6 +95,7 @@ import {
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
         UniAutomarkModal,
+        UniMarkingDetailsModal,
 
         ReminderSettings,
         UniReminderSettingsModal,
@@ -99,7 +104,6 @@ import {
         ContactDetails,
         Contacts,
 
-        Editable,
         IsoTimePipe,
         HoursPipe,
         NumberPipe,
@@ -107,7 +111,6 @@ import {
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-        UniInfo,
         BrowserWarning,
         BookPaymentManualModal,
         VacationPaySettingsModal,
@@ -136,6 +139,7 @@ import {
         ApikeyLineModal,
         UniAutomarkModal,
         UniTimeModal,
+        UniMarkingDetailsModal,
         WorkitemTransferWizard
     ],
     exports: [
@@ -164,7 +168,6 @@ import {
         ContactDetails,
         Contacts,
 
-        Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
         HoursPipe,
@@ -173,7 +176,6 @@ import {
 
         LinkMenu,
 
-        UniInfo,
         BrowserWarning,
 
         ApiKeyComponent,

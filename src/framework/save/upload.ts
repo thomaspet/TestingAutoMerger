@@ -35,10 +35,9 @@ export class UniUploadFileSaveAction {
     @Input()
     public uploadConfig: IUploadConfig;
 
-    private didTryReAuthenticate: boolean = false;
-
     private baseUrl: string = environment.BASE_URL_FILES;
     private token: any;
+    private uniEconomyToken: any;
     private activeCompany: any;
     private uploading: boolean;
     public textOnButton: string = 'Last opp';
@@ -53,6 +52,7 @@ export class UniUploadFileSaveAction {
     ) {
         authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
+            this.uniEconomyToken = authDetails.token;
         });
 
         authService.filesToken$.subscribe(token => this.token = token);
@@ -75,8 +75,8 @@ export class UniUploadFileSaveAction {
     }
 
     private uploadFile(file: File) {
-        let data = new FormData();
-        data.append('Token', this.token);
+        const data = new FormData();
+        data.append('Token', this.uniEconomyToken);
         data.append('Key', this.activeCompany.Key);
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
@@ -95,40 +95,7 @@ export class UniUploadFileSaveAction {
                         this.fileUploaded.emit(newFile);
                     }, err => this.errorService.handle(err));
             }, err => {
-                // If an error occurs, try to reauthenticate to unifiles - typically
-                // this happens if unifiles is deployed while the user is logged in
-                if (!this.didTryReAuthenticate) {
-                    // Run reauthentication and try to upload the file once more
-                    // so the user doesnt have to
-                    this.reauthenticate(() => {
-                        this.uploadFile(file);
-                    });
-                } else {
-                    this.errorService.handle(err);
-                }
+                this.errorService.handle(err);
             });
-    }
-
-    public reauthenticate(runAfterReauth) {
-        if (!this.didTryReAuthenticate) {
-            // Set flag to avoid "authentication loop" if the new authentication
-            // also throws an error
-            this.didTryReAuthenticate = true;
-
-            this.uniFilesService.checkAuthentication()
-                .then(res => {
-                    // Authentication is ok - something else caused the problem
-                }).catch(err => {
-                    // Authentication failed, try to reauthenticated
-                    this.authService.authenticateUniFiles()
-                        .then(res => {
-                            if (runAfterReauth) {
-                                runAfterReauth();
-                            }
-                        }).catch((errAuth) => {
-                            this.errorService.handle(err);
-                        });
-                });
-        }
     }
 }

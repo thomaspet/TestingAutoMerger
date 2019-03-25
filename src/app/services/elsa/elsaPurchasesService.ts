@@ -1,93 +1,74 @@
 import {Injectable} from '@angular/core';
+import {Response} from '@angular/http';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {
-    ElsaPurchase,
-    ElsaPurchaseForUserLicense,
-    ElsaPurchaseForCompany,
-} from '@app/services/elsa/elsaModels';
-
+import {ElsaPurchase} from '@app/models';
 
 @Injectable()
 export class ElsaPurchaseService {
-    constructor(private uniHttp: UniHttp) {}
+    private cache: {[endpoint: string]: Observable<Response>} = {};
 
-    public Get(id: number): Observable<ElsaPurchase> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/purchases/${id}`)
-            .send()
-            .map(response => response.json());
+    constructor(private uniHttp: UniHttp) {
+        this.uniHttp.authService.authentication$.subscribe(() => {
+            this.invalidateCache();
+        });
     }
 
-    public GetAll(): Observable<ElsaPurchase[]> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint('/api/purchases')
-            .send()
-            .map(response => response.json());
+    invalidateCache() {
+        this.cache = {};
     }
 
-    public GetAllByCompanyKey(companyKey: string): Observable<ElsaPurchase[]> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/CompanyLicenses/${companyKey}/purchases`)
-            .send()
-            .map(response => response.json());
+    getPurchaseByProductName(productName: string): Observable<ElsaPurchase> {
+        return this.getAll(`ProductName=${productName}`).map(res => {
+            return (res && res[0]) || null;
+        });
     }
 
-    public PurchaseProductForContract(productId: number, contractId: number): Observable<ElsaPurchase> {
-        return this.uniHttp
-            .asPOST()
-            .withBody({
-                "contractID": contractId,
-                "productID": productId,
-            })
-            .usingElsaDomain()
-            .withEndPoint(`/api/purchases`)
-            .send()
-            .map(req => req.json());
-    }
+    getAll(filter?: string, companyKeyOverride?: string): Observable<ElsaPurchase[]> {
+        let endpoint = 'api/elsa/purchases';
+        if (filter) {
+            endpoint += '?' + filter;
+        }
 
-    public PurchaseProductForCompany(purchaseID:number, companyLicenseID: number): Observable<ElsaPurchaseForCompany> {
-            return this.uniHttp
-                .asPOST()
-                .withBody({
-                    purchaseID: purchaseID,
-                    companyLicenseID: companyLicenseID,
-                })
-                .usingElsaDomain()
-                .withEndPoint(`/api/PurchaseForCompanies`)
+        const cacheKey = endpoint + (companyKeyOverride || '');
+        let cachedRequest = this.cache[cacheKey];
+
+        if (!cachedRequest) {
+            if (companyKeyOverride) {
+                this.uniHttp.withHeader('CompanyKey', companyKeyOverride);
+            } else {
+                this.uniHttp.withDefaultHeaders();
+            }
+
+            cachedRequest = this.uniHttp
+                .asGET()
+                .usingEmptyDomain()
+                .withEndPoint(endpoint)
                 .send()
-                .map(response => response.json());
+                .publishReplay(1)
+                .refCount();
+
+            this.cache[cacheKey] = cachedRequest;
+        }
+
+        return cachedRequest.map(res => res.json());
     }
 
-    public PurchaseProductForUser(companyID: number, userLicenseID: number): Observable<ElsaPurchaseForUserLicense> {
-        return this.uniHttp
-            .asPOST()
-            .withBody({
-                PurchaseForCompanyID: companyID,
-                UserLicenseID: userLicenseID,
-            })
-            .usingElsaDomain()
-            .withEndPoint('/api/PurchaseForUserLicenses')
-            .send()
-            .map(response => response.json());
-    }
+    massUpdate(updates: ElsaPurchase[], companyKeyOverride?: string) {
+        this.invalidateCache();
 
-    public RemoveProductForUser(companyID: number, userLicenseID: number): Observable<ElsaPurchaseForUserLicense> {
+        if (companyKeyOverride) {
+            this.uniHttp.withHeader('CompanyKey', companyKeyOverride);
+        } else {
+            this.uniHttp.withDefaultHeaders();
+        }
+
         return this.uniHttp
-            .asDELETE()
-            .withBody({
-                PurchaseForCompanyID: companyID,
-                UserLicenseID: userLicenseID,
-            })
-            .usingElsaDomain()
-            .withEndPoint('/api/PurchaseForUserLicenses')
+            .asPUT()
+            .usingEmptyDomain()
+            .withEndPoint('api/elsa/purchases')
+            .withBody(updates)
             .send()
-            .map(response => response.json());
+            .map(res => res.status === 200);
     }
 }

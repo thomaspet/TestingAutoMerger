@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, CompanySalary} from '../../../unientities';
+import {AmeldingData, CompanySalary, AmeldingType, InternalAmeldingStatus} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -14,7 +14,7 @@ import {
     ErrorService,
     NumberFormat,
     SalarySumsService,
-    YearService,
+    FinancialYearService,
     ReportDefinitionService,
     CompanySalaryService
 } from '../../../services/services';
@@ -26,6 +26,7 @@ import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticatio
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 
 @Component({
     selector: 'amelding-view',
@@ -66,6 +67,7 @@ export class AMeldingView implements OnInit {
     public toolbarConfig: IToolbarConfig;
     public toolbarSearchConfig: IToolbarSearchConfig;
     public periodStatus: string;
+    public ameldingStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
     private companySalary: CompanySalary;
@@ -80,7 +82,7 @@ export class AMeldingView implements OnInit {
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
         private _salarySumsService: SalarySumsService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private numberformat: NumberFormat,
         private router: Router,
         private errorService: ErrorService,
@@ -95,7 +97,7 @@ export class AMeldingView implements OnInit {
             });
 
         this._tabService.addTab({
-            name: 'A-Melding',
+            name: 'A-melding',
             url: 'salary/amelding',
             moduleID: UniModules.Amelding,
             active: true
@@ -142,13 +144,16 @@ export class AMeldingView implements OnInit {
             {
                 label: 'Avstemming',
                 action: () => this.openReconciliation()
+            },
+            {
+                label: 'Avansert periodebehandling',
+                action: () => this.openAdminModal()
             }
         ];
     }
 
     public ngOnInit() {
-        this.loadYearData();
-        this.yearService.selectedYear$.subscribe(year => {
+        this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
             this.clearAMelding();
             this.loadYearData();
         });
@@ -186,13 +191,9 @@ export class AMeldingView implements OnInit {
     }
 
     private loadYearData() {
-        this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .take(1)
-            .do(year => this.activeYear = year)
-            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
+        this.activeYear = this.financialYearService.getActiveYear();
+
+        this._payrollService.getLatestSettledPeriod(1, this.activeYear)
             .subscribe(
                 (period) => {
                     this.currentPeriod = period;
@@ -303,9 +304,9 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    public getAmldWithFeedback(amldID: number) {
+    public getAmldWithFeedback(amldID: number, validate: boolean = false) {
         this._ameldingService
-            .getAMeldingWithFeedback(amldID)
+            .getAMeldingWithFeedback(amldID, validate)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((amldWithFeedback: AmeldingData) => {
                 this.refresh(amldWithFeedback);
@@ -345,7 +346,38 @@ export class AMeldingView implements OnInit {
                 this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
                 this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
                 this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, {decimalLength: 0});
-                this.getDataFromFeedback(this.currentAMelding, 0);
+                if (!!this.currentAMelding) {
+                    if (this.currentAMelding.hasOwnProperty('feedBack')) {
+                        if (this.currentAMelding.feedBack !== null) {
+                            const alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+                            if (alleMottak instanceof Array) {
+                                alleMottak.forEach(mottak => {
+                                    const pr = mottak.kalendermaaned;
+                                    const period = parseInt(pr.split('-').pop(), 10);
+                                    if ((period === this.currentAMelding.period)
+                                        && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
+                                            if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
+                                                const periode = mottak.mottattPeriode;
+                                                this.getTotalAGAAndFtrekk(periode);
+                                            }
+                                    }
+                                });
+                            } else {
+                                if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                                    const pr = alleMottak.kalendermaaned;
+                                    const period = parseInt(pr.split('-').pop(), 10);
+                                    if ((period === this.currentAMelding.period)
+                                        && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
+                                            if (alleMottak && alleMottak.hasOwnProperty('mottattPeriode')) {
+                                                const periode = alleMottak.mottattPeriode;
+                                                this.getTotalAGAAndFtrekk(periode);
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 this.totalAGASystem = 0;
                 this.totalFtrekkSystem = 0;
@@ -458,6 +490,13 @@ export class AMeldingView implements OnInit {
         }
     }
 
+    private replaceAmeldingInPeriod(melding) {
+        const ind = this.aMeldingerInPeriod.findIndex(x => x.ID === melding.ID);
+        if (ind >= 0) {
+            this.aMeldingerInPeriod[ind] = melding;
+        }
+    }
+
     private getSumUpForAmelding() {
         if (!!this.currentAMelding && this.currentAMelding.ID === 0) {
             return;
@@ -465,79 +504,11 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-            if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-                const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
-                if (statusTextObject) {
-                    this.currentSumUp._sumupStatusText = statusTextObject.statusText;
-                } else {
-                    this.currentSumUp._sumupStatusText = 'Status altinn';
-                }
-            } else {
-                this.currentSumUp._sumupStatusText = this.periodStatus;
+            if (this.currentSumUp.status === 3) {
+                this.currentSumUp._sumupStatusText = this.currentAMelding.altinnStatus; //  getAmeldingStatus();
             }
-
             this.legalEntityNo = response.LegalEntityNo;
         }, err => this.errorService.handle(err));
-    }
-
-    private getDataFromFeedback(amelding, typeData): any {
-        let mottakObject: any;
-        if (amelding && amelding.hasOwnProperty('feedBack')) {
-            if (amelding.feedBack !== null) {
-                const alleMottak = amelding.feedBack.melding.Mottak;
-                if (alleMottak instanceof Array) {
-                    alleMottak.forEach(mottak => {
-                        const pr = mottak.kalendermaaned;
-                        const period = parseInt(pr.split('-').pop(), 10);
-                        if ((period === amelding.period)
-                            && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
-                                mottakObject = this.checkMottattPeriode(mottak, typeData);
-                        }
-                    });
-                } else {
-                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
-                        const pr = alleMottak.kalendermaaned;
-                        const period = parseInt(pr.split('-').pop(), 10);
-                        if ((period === amelding.period)
-                            && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
-                                mottakObject = this.checkMottattPeriode(alleMottak, typeData);
-                        }
-                    } else {
-                        // mangler kalendermaaned i mottaket, sett som avvist
-                        mottakObject = {statusText: 'Avvist'};
-                    }
-                }
-            }
-        }
-        return mottakObject;
-    }
-
-    private checkMottattPeriode(mottak, typeData): any {
-        let anyObject: any = {};
-        if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
-            switch (typeData) {
-                case 0:
-                    this.getTotalAGAAndFtrekk(mottak.mottattPeriode);
-                    break;
-                case 1:
-                    this.periodStatus = '';
-                    this.alleAvvikStatuser = [];
-                    this.getAvvikRec(mottak.mottattPeriode);
-                    if (mottak.hasOwnProperty('mottattLeveranse')) {
-                        this.getAvvikRec(mottak.mottattLeveranse);
-                    }
-                    this.setStatusFromAvvik();
-                    anyObject = {statusText: this.periodStatus};
-                    break;
-
-                default:
-                    break;
-            }
-        } else {
-            anyObject = {statusText: 'Avvist'};
-        }
-
-        return anyObject;
     }
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
@@ -553,9 +524,10 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    private setStatusFromAvvik() {
+    private setStatusFromAvvik(avvikIamld: any[] = null) {
         let statusSet: boolean = false;
-        this.alleAvvikStatuser.forEach(avvik => {
+        const alleAvvik = avvikIamld != null ? avvikIamld : this.alleAvvikStatuser;
+        alleAvvik.forEach(avvik => {
             if (!statusSet) {
                 switch (avvik.alvorlighetsgrad) {
                     case 'oeyeblikkelig':
@@ -588,7 +560,8 @@ export class AMeldingView implements OnInit {
                 .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
                 .finally(() => {
                     if (this.aMeldingerInPeriod.length > 0) {
-                        this.getAmldWithFeedback(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID);
+                        const current = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1];
+                        this.getAmldWithFeedback(current.ID, current.status  > 1 ? false : true);
                     } else {
                         this.initialized = true;
                         this.updateToolbar();
@@ -610,7 +583,6 @@ export class AMeldingView implements OnInit {
     }
 
     private getLastSentAmeldingWithFeedback() {
-        // 1. if any with status 'sent' set status to 'Tilbakemelding må hentes'
         // 2. if any with altinnstatus 'mottatt' set period-status from feedback
         let ameld: AmeldingData = new AmeldingData();
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
@@ -664,39 +636,13 @@ export class AMeldingView implements OnInit {
 
             case 3:
                 this.periodStatus = '';
-                const statusTextObject: any = this.getDataFromFeedback(amelding, 1);
-                if (!!statusTextObject) {
-                    this.periodStatus = this.periodStatus === '' ? 'Avvist' : statusTextObject.statusText;
-                }
+                const avvik = this._ameldingService.getAvvikIAmeldingen(amelding);
+                this.setStatusFromAvvik(avvik);
+                this.periodStatus = this.periodStatus === '' ? 'Avvist' : this.periodStatus;
                 break;
 
             default:
                 break;
-        }
-    }
-
-    private getAvvikRec(obj) {
-        for (const propname in obj) {
-            if (propname === 'avvik') {
-                if (obj[propname] instanceof Array) {
-                    obj[propname].forEach(avvik => {
-                        if (obj.hasOwnProperty('alvorlighetsgrad')) {
-                            avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
-                        }
-                        this.alleAvvikStatuser.push(avvik);
-                    });
-                } else {
-                    const avvik = obj[propname];
-                    if (obj.hasOwnProperty('alvorlighetsgrad')) {
-                        avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
-                    }
-                    this.alleAvvikStatuser.push(avvik);
-                }
-            } else {
-                if (typeof obj[propname] === 'object' && obj[propname] !== null) {
-                    this.getAvvikRec(obj[propname]);
-                }
-            }
         }
     }
 
@@ -766,6 +712,7 @@ export class AMeldingView implements OnInit {
             .catch((err, obs) => this.handleError(err, obs, done))
             .subscribe((response: AmeldingData) => {
                 if (response) {
+                    this.replaceAmeldingInPeriod(response);
                     this.refresh(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
@@ -815,11 +762,42 @@ export class AMeldingView implements OnInit {
     }
 
     private openAmeldingTypeModal(done) {
+        let anySentInAmeldingerWithStandardAmeldingType: boolean = false;
+
+        if ((this.aMeldingerInPeriod && this.aMeldingerInPeriod.filter(x => x.type === AmeldingType.Standard)[0])
+            && (this.currentSumUp && this.currentSumUp.status > InternalAmeldingStatus.GENERATED)
+        ) {
+            anySentInAmeldingerWithStandardAmeldingType = true;
+        }
+
         this.modalService
-            .open(AmeldingTypePickerModal, {modalConfig: {done: done}})
+            .open(AmeldingTypePickerModal, {
+                modalConfig: { done: done },
+                data: { anySentInAmeldingerWithStandardAmeldingType: anySentInAmeldingerWithStandardAmeldingType }
+            })
             .onClose
             .filter(event => event.type >= 0)
             .subscribe(event => this.createAMelding(event));
+    }
+
+    private openAdminModal() {
+        this.modalService
+            .open(PeriodAdminModalComponent,
+                {
+                    data: {
+                        period: this.currentPeriod,
+                        ameldingerInPeriod: this.aMeldingerInPeriod,
+                        companySalary: this.companySalary,
+                        activeYear: this.activeYear
+                    }
+                })
+            .onClose
+            .subscribe(hasChanges => {
+                if (!hasChanges) {
+                    return;
+                }
+                this.gotoPeriod(this.currentPeriod);
+            });
     }
 
     private clearAMelding() {

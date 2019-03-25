@@ -5,14 +5,13 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {
     JournalEntryService,
     ErrorService,
-    JournalEntryLineService,
     NumberSeriesService,
     StatisticsService,
 } from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {NumberSeriesTask, NumberSeries, JournalEntry, JournalEntryLineDraft, LocalDate} from '../../../../unientities';
+import {NumberSeries, JournalEntry, LocalDate} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
@@ -21,7 +20,6 @@ import {
 import {Observable} from 'rxjs';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
-import { JournalEntryData } from '@app/models/models';
 
 @Component({
     selector: 'journalentries',
@@ -32,7 +30,7 @@ export class JournalEntries {
     public contextMenuItems: IContextMenuItem[] = [];
 
     public toolbarConfig: IToolbarConfig = {
-        title: 'Bilagsregistrering',
+        title: 'Bilagsføring',
         omitFinalCrumb: true,
         navigation: {
             prev: () => this.showPrevious(),
@@ -46,10 +44,15 @@ export class JournalEntries {
     public currentJournalEntryID: number;
     public editmode: boolean = false;
     public creditDate: LocalDate = null;
+    public numberSeriesIDFromParam = null;
     public selectedNumberSeries: NumberSeries;
-    private selectedNumberSeriesID: number;
-    private selectedNumberSeriesTaskID: number;
     public selectConfig: any;
+    private tab = {
+        name: 'Bilagsføring',
+        url: '',
+        moduleID: UniModules.Accounting,
+        active: true
+    };
 
     constructor(
         private route: ActivatedRoute,
@@ -58,35 +61,22 @@ export class JournalEntries {
         private toastService: ToastService,
         private errorService: ErrorService,
         private journalEntryService: JournalEntryService,
-        private journalEntryLineService: JournalEntryLineService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
         private statisticsService: StatisticsService
     ) {
-        this.tabService.addTab({
-            name: 'Bilagsregistrering',
-            url: '/accounting/journalentry/manual',
-            moduleID: UniModules.Accounting,
-            active: true
-        });
-
         this.route.params.subscribe(params => {
             const journalEntryID = +params['journalEntryID'];
             const journalEntryNumber = params['journalEntryNumber'];
+            this.numberSeriesIDFromParam = +params['numberseriesID'];
+            this.tab.url = this.router.url;
 
             if (journalEntryID) {
                 this.currentJournalEntryID = journalEntryID;
-                let tabUrl = `/accounting/journalentry/manual;journalEntryID=${journalEntryID}`;
 
                 if (journalEntryNumber) {
                     this.currentJournalEntryNumber = journalEntryNumber;
-                    tabUrl += `;journalEntryNumber=${journalEntryNumber}`;
-                    this.tabService.addTab({
-                        name: 'Bilagsregistrering',
-                        url: tabUrl,
-                        moduleID: UniModules.Accounting,
-                        active: true
-                    });
+                    this.tabService.addTab(this.tab);
                 }
 
                 this.editmode = false;
@@ -94,13 +84,7 @@ export class JournalEntries {
                     this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
                         .subscribe(journalEntry => {
                             this.currentJournalEntryNumber = journalEntry.JournalEntryNumber;
-                            tabUrl += `;journalEntryNumber=${journalEntry.JournalEntryNumber}`;
-                            this.tabService.addTab({
-                                name: 'Bilagsregistrering',
-                                url: tabUrl,
-                                moduleID: UniModules.Accounting,
-                                active: true
-                            });
+                            this.tabService.addTab(this.tab);
 
                             if (params['editmode']) {
                                 this.editJournalEntry(journalEntry);
@@ -111,94 +95,51 @@ export class JournalEntries {
                 this.editmode = false;
                 this.currentJournalEntryNumber = null;
                 this.currentJournalEntryID = 0;
+                this.tabService.addTab(this.tab);
             }
-
-
-            // if (params['journalEntryNumber'] && params['journalEntryID']) {
-            //     this.tabService.addTab({
-            //         name: 'Bilagsregistrering',
-            //         url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};`
-            //             + `journalEntryID=${params['journalEntryID']}`,
-            //         moduleID: UniModules.Accounting,
-            //         active: true
-            //     });
-
-            //     this.editmode = false;
-            //     if (params['editmode']) {
-            //         this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
-            //             .subscribe(journalEntry => {
-            //                 this.editmode = params['editmode'];
-            //                 this.editJournalEntry(journalEntry);
-            //             }
-            //         );
-            //     }
-
-            //     this.currentJournalEntryNumber = params['journalEntryNumber'];
-            //     this.currentJournalEntryID = params['journalEntryID'];
-            // } else if (params['journalEntryID'] && params['journalEntryID'] !== '0') {
-            //     this.currentJournalEntryID = params['journalEntryID'];
-            //     this.journalEntryService.Get(params['journalEntryID'])
-            //         .subscribe(journalEntry => {
-            //             const journalEntryNumber = journalEntry.JournalEntryNumber;
-            //             this.tabService.addTab({
-            //                 name: 'Bilagsregistrering',
-            //                 url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
-            //                     + `journalEntryID=${params['journalEntryID']}`,
-            //                 moduleID: UniModules.Accounting,
-            //                 active: true
-            //             });
-
-            //             this.editmode = false;
-            //             if (params['editmode']) {
-            //                 this.editmode = params['editmode'];
-            //                 setTimeout(() => this.editJournalEntry(journalEntry));
-            //             }
-
-            //             this.currentJournalEntryNumber = journalEntryNumber;
-
-            //         });
-            // }
-            // } else if (params['journalEntryLineID'] && params['journalEntryLineID'] !== '0') {
-            //     this.journalEntryLineService.Get(params['journalEntryLineID'])
-            //         .subscribe(journalEntryLine => {
-            //             const journalEntryNumber = journalEntryLine.JournalEntryNumber;
-            //             this.tabService.addTab({
-            //                 name: 'Bilagsregistrering',
-            //                 url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
-            //                     + `journalEntryID=${params['journalEntryLineID']}`,
-            //                 moduleID: UniModules.Accounting,
-            //                 active: true
-            //             });
-
-            //             this.editmode = false;
-            //             if (params['editmode']) {
-            //                 this.editmode = params['editmode'];
-            //                 setTimeout(() => this.editJournalEntry());
-            //             }
-
-            //             this.currentJournalEntryNumber = journalEntryNumber;
-            //             this.currentJournalEntryID = journalEntryLine.JournalEntryID;
-            //         });
-            // } else {
-            //     this.tabService.addTab({
-            //         name: 'Bilagsregistrering',
-            //         url: '/accounting/journalentry/manual',
-            //         moduleID: UniModules.Accounting,
-            //         active: true
-            //     });
-
-            //     this.editmode = false;
-            //     this.currentJournalEntryNumber = null;
-            //     this.currentJournalEntryID = 0;
-            // }
             this.setupToolBarconfig();
         });
     }
 
     public journalEntryManualInitialized() {
-        this.selectedNumberSeries = this.journalEntryManual.numberSeries[0];
-        this.selectedNumberSeriesID =  this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
-        this.selectedNumberSeriesTaskID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.NumberSeriesTaskID : 0;
+        const id = this.numberSeriesIDFromParam || this.journalEntryService.getSessionNumberSeries();
+
+        this.selectedNumberSeries = id
+            ? this.journalEntryManual.numberSeries.find(serie => serie.ID === id)
+            : this.journalEntryManual.numberSeries[0];
+
+        if (!this.selectedNumberSeries) {
+            // the numberseries that was used is not found - this indicates that the user
+            // has changed year, so the previsous used numberseries is not valid anymore.
+            // Set the first available numberseries - this will ask the user to update
+            // existing journalentries if any
+            if (id) {
+                // get the numberseries based on the id, and find the corresponding
+                // numberseries for this year
+                this.numberSeriesService.Get(id)
+                    .subscribe(currentNumberSeries => {
+                        if (currentNumberSeries) {
+                            // try to find a valid numberseries based on the type and taskid
+                            const validNumberSeries =
+                                this.journalEntryManual.numberSeries
+                                    .find(x => x.NumberSeriesTypeID === currentNumberSeries.NumberSeriesTypeID
+                                        && x.NumberSeriesTaskID === currentNumberSeries.NumberSeriesTaskID);
+
+                            if (validNumberSeries) {
+                                // we found one with the same type/task, use that one
+                                this.numberSeriesChanged(validNumberSeries, false);
+                            } else {
+                                // no valid found, just use the first in the list then..
+                                this.numberSeriesChanged(this.journalEntryManual.numberSeries[0], false);
+                            }
+                        }
+                    }, err => {
+                        // we couldnt find any numberseries based on the set id, it has probably
+                        // been deleted, so just set the first one we have..
+                        this.numberSeriesChanged(this.journalEntryManual.numberSeries[0], false);
+                    });
+            }
+        }
 
         this.setupToolBarconfig();
     }
@@ -234,7 +175,7 @@ export class JournalEntries {
         ];
 
         const toolbarConfig: IToolbarConfig = {
-            title: 'Bilagsregistrering',
+            title: 'Bilagsføring',
             omitFinalCrumb: true,
             navigation: {
                 prev: () => this.showPrevious(),
@@ -258,12 +199,12 @@ export class JournalEntries {
         this.toolbarConfig = toolbarConfig;
     }
 
-    public numberSeriesChanged(selectedNumberSerie) {
+    public numberSeriesChanged(selectedNumberSerie, askBeforeChanging: boolean) {
         if (this.journalEntryManual) {
-            if (selectedNumberSerie && selectedNumberSerie.ID !== this.selectedNumberSeriesID) {
+            if (selectedNumberSerie && (!this.selectedNumberSeries || selectedNumberSerie.ID !== this.selectedNumberSeries.ID)) {
                 const currentData = this.journalEntryManual.getJournalEntryData();
 
-                if (currentData.length > 0) {
+                if (askBeforeChanging && currentData && currentData.length > 0) {
                     this.modalService.open(UniConfirmModalV2, {
                         header: 'Bekreft endring',
                         message: 'Du har allerede lagt til bilag - '
@@ -274,26 +215,25 @@ export class JournalEntries {
                         }
                     }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            // set the selectedNumberSeriesID based on the selected numberseries,
-                            // this will be databound to the journalentrymanual and journalentryprofessional
-                            this.selectedNumberSeriesID = selectedNumberSerie.ID;
-                            currentData.forEach(data => { data.NumberSeriesID = this.selectedNumberSeriesID; });
-                        } else {
-                            // reset the selected task object to the previous task because
-                            // the user doesnt want to change it anyway
-                            this.selectedNumberSeries = this.journalEntryManual.numberSeries
-                                .find(ns => ns.ID === this.selectedNumberSeriesID);
+                            // Update current selected numberseries. Set to data, tab and sessionstorage
+                            this.selectedNumberSeries = selectedNumberSerie;
 
-                            this.setupToolBarconfig();
+                            currentData.forEach(data => { data.NumberSeriesID = selectedNumberSerie.ID; });
+                            const url = this.router.url;
+                            this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
+                            this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
                         }
+                        this.setupToolBarconfig();
                     });
                 } else {
-                    this.selectedNumberSeriesID = selectedNumberSerie.ID;
+                    // Update current selected numberseries. Set to tab and sessionstorage
+                    this.selectedNumberSeries = selectedNumberSerie;
+                    const url = this.router.url;
+                    this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
+                    this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
+                    this.setupToolBarconfig();
                 }
             }
-
-            this.selectedNumberSeries = selectedNumberSerie;
-            this.selectedNumberSeriesTaskID = selectedNumberSerie.NumberSeriesTaskID;
         }
     }
 
@@ -321,14 +261,11 @@ export class JournalEntries {
             if (this.currentJournalEntryNumber) {
                 const split = this.currentJournalEntryNumber.split('-');
                 journalEntryNumber = split[0];
-                year = split[1];
             }
 
-            if (!year) {
-                year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
-                    ? this.journalEntryManual.currentFinancialYear.Year.toString()
-                    : '';
-            }
+            year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
+                ? this.journalEntryManual.currentFinancialYear.Year.toString()
+                : '';
 
             this.journalEntryService.getPreviousJournalEntry(year, journalEntryNumber || null).subscribe(
                 res => {
@@ -351,34 +288,38 @@ export class JournalEntries {
         this.statisticsService.GetAll(
             'model=JournalEntry&' +
             'distinct=true&' +
-            'select=min(JournalEntry.CreatedAt,) as MinJournalEntryCreatedAt,JournalEntry.JournalEntryDraftGroup as JournalEntryDraftGroup,JournalEntry.Description,user.DisplayName&' +
-            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0 and isnull(JournalEntry.JournalEntryDraftGroup,\'00000000-0000-0000-0000-000000000000\') ne \'00000000-0000-0000-0000-000000000000\'&' +
+            'select=min(JournalEntry.CreatedAt,) as MinJournalEntryCreatedAt,JournalEntry.JournalEntryDraftGroup' +
+            ' as JournalEntryDraftGroup,JournalEntry.Description,user.DisplayName&' +
+            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0 and ' +
+            'isnull(JournalEntry.JournalEntryDraftGroup,\'00000000-0000-0000-0000-000000000000\') ne' +
+            ' \'00000000-0000-0000-0000-000000000000\'&' +
             'join=JournalEntry.CreatedBy eq User.GlobalIdentity and JournalEntry.Id eq SupplierInvoice.JournalEntryId'
-        )
-            .subscribe(journalEntries => {
-                this.modalService.open(SelectDraftLineModal, {data: {draftLines: journalEntries.Data}})
-                    .onClose
-                    .subscribe(selectedLine => {
-                        if (!selectedLine) {
-                            return;
-                        }
+        ).subscribe(
+            (journalEntries) => {
+                this.modalService.open(SelectDraftLineModal, {
+                    data: journalEntries.Data
+                }).onClose.subscribe(selectedLine => {
+                    if (!selectedLine) {
+                        return;
+                    }
 
-                        // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
-                        this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
-                            .subscribe(journalEntryData => {
-                                this.editmode = false;
-                                this.journalEntryManual.currentJournalEntryID = null;
-                                this.currentJournalEntryID = 0;
+                    // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
+                    this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
+                        .subscribe(journalEntryData => {
+                            this.editmode = false;
+                            this.journalEntryManual.currentJournalEntryID = null;
+                            this.currentJournalEntryID = 0;
 
-                                setTimeout(() => {
-                                    this.journalEntryManual.setJournalEntryData(journalEntryData);
-                                    this.journalEntryManual.isDirty = true;
-                                });
-                            }, err => this.errorService.handle(err)
-                        );
-                    });
+                            setTimeout(() => {
+                                this.journalEntryManual.setJournalEntryData(journalEntryData);
+                                this.journalEntryManual.isDirty = true;
+                            });
+                        }, err => this.errorService.handle(err)
+                    );
+                });
             },
-            err => this.errorService.handle(err));
+            err => this.errorService.handle(err)
+        );
     }
 
     private showNext() {
@@ -391,14 +332,11 @@ export class JournalEntries {
             if (this.currentJournalEntryNumber) {
                 const split = this.currentJournalEntryNumber.split('-');
                 journalEntryNumber = split[0];
-                year = split[1];
             }
 
-            if (!year) {
-                year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
-                    ? this.journalEntryManual.currentFinancialYear.Year.toString()
-                    : '';
-            }
+            year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
+                ? this.journalEntryManual.currentFinancialYear.Year.toString()
+                : '';
 
             this.journalEntryService.getNextJournalEntry(year, journalEntryNumber || null).subscribe(
                 res => {

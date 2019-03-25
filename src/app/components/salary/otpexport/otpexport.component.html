@@ -1,0 +1,33 @@
+<uni-toolbar 
+  [config]="toolbarConfig"
+  [contextmenu]="contextMenuItems"
+  [saveactions]="saveActions">
+</uni-toolbar>
+
+<article class="application">
+  <section class="otpexport_Flexheader">
+      <uni-form 
+      [config]="formConfig$" 
+      [fields]="fields$" 
+      [model]="otpexportModel$" 
+      (changeEvent)="change($event)">
+    </uni-form>
+  </section>
+  <uni-information [config]="infoConfig" class="infoNote">
+    <p>
+        Data som vises her vil bli med i eksport i til otp når filen eksporteres.
+        Periodelønn er basert på utvalgte lønnsarter satt opp i Lønnsarter periodelønn i ...-menyen.
+        Eksportert fil lagres i nedlastninger og må overføres som avtalt med forsikringsselskapet
+    </p>
+  </uni-information>
+  <ag-grid-wrapper 
+    [config]="otpTableConfig" 
+    [resource]="otpData"
+    class="otpexport_Aggridwrapper">
+  </ag-grid-wrapper>
+</article>
+
+<section class="application" *ngIf="showOTPNotActive">
+  <h2>For å bruke OTP-eksport må dette slås på under Innstillinger - Lønn - Lønnsoppsett - Andre innstillinger - Benytte OTP-eksport</h2>
+  <button (click)="gotoSettings($event)">Innstillinger</button>
+</section>

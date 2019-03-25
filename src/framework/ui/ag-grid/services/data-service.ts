@@ -1,17 +1,15 @@
 import {Injectable} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
+import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
+import {Observable, BehaviorSubject, Subject} from 'rxjs';
+import {cloneDeep, get} from 'lodash';
+import * as moment from 'moment';
+
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../unitable/config/unitableColumn';
 import {UniTableConfig} from '../../unitable/config/unitableConfig';
-import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
-import {TableUtils} from './table-utils';
 import {StatisticsService} from '@app/services/common/statisticsService';
-
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-import {Subject} from 'rxjs';
-import * as moment from 'moment';
-import * as _ from 'lodash';
+import {TableUtils} from './table-utils';
 
 @Injectable()
 export class TableDataService {
@@ -20,6 +18,7 @@ export class TableDataService {
     private hasRemoteLookup: boolean;
 
     public sumRow$: BehaviorSubject<any[]> = new BehaviorSubject(undefined);
+    public totalRowCount$: BehaviorSubject<number> = new BehaviorSubject(0);
     public loadedRowCount: number;
 
     public basicSearchFilters: ITableFilter[];
@@ -42,17 +41,29 @@ export class TableDataService {
         private utils: TableUtils
     ) {}
 
-    public initialize(gridApi: GridApi, config: UniTableConfig, resource) {
+    public initialize(gridApi: GridApi, newConfig: UniTableConfig, resource) {
         this.gridApi = gridApi;
-        this.config = config;
 
-        this.filterString = undefined;
-        this.setFilters(config.filters, [], false);
+        const configFiltersChanged = this.didConfigFiltersChange(newConfig);
+        const configChanged = !this.config || this.config.configStoreKey !== newConfig.configStoreKey;
+
+        this.config = newConfig;
+
+        if (configChanged) {
+            this.filterString = undefined;
+            const lastUsedFilters = this.utils.getLastUsedFilter(newConfig.configStoreKey);
+            this.setFilters(lastUsedFilters || newConfig.filters, [], false);
+        } else if (configFiltersChanged) {
+            this.filterString = undefined;
+            this.setFilters(newConfig.filters, [], false);
+        }
 
         if (Array.isArray(resource)) {
             this.originalData = this.setMetadata(resource);
-            const filteredData = this.filterLocalData(this.originalData);
+            // Don't filter locally when grouping is on!
+            const filteredData = this.config.groupingIsOn ? this.originalData  : this.filterLocalData(this.originalData);
             this.loadedRowCount = filteredData.length;
+            this.totalRowCount$.next(this.loadedRowCount);
 
             this.gridApi.setRowData(filteredData);
             this.gridApi.forEachNode(node => {
@@ -80,6 +91,27 @@ export class TableDataService {
                 this.getLocalDataColumnSums(sumColumns, resource);
             }
         }
+    }
+
+    private didConfigFiltersChange(newConfig) {
+        let configFiltersChanged = false;
+        const oldFilters = (this.config && this.config.filters) || [];
+        const newFilters = (newConfig && newConfig.filters) || [];
+
+        if (oldFilters.length !== newFilters.length) {
+            configFiltersChanged = true;
+        } else {
+            // Check if there exists a filter in the new config that didn't exist  in the old.
+            configFiltersChanged = newFilters.some(filter => {
+                return !oldFilters.some(oldFilter => {
+                    return oldFilter.field === filter.field
+                        && oldFilter.operator === filter.operator
+                        && oldFilter.value === filter.value;
+                });
+            });
+        }
+
+        return configFiltersChanged;
     }
 
     private setMetadata(data: any[], startIndex: number = 0): any[] {
@@ -125,6 +157,8 @@ export class TableDataService {
                         if (res.json) {
                             data = res.json();
                             totalRowCount = res.headers && res.headers.get('count');
+                            this.totalRowCount$.next(totalRowCount);
+
                             if (data.Data) {
                                 data.Data.forEach(item => {
                                     if (item.ID === 3223) {
@@ -159,6 +193,7 @@ export class TableDataService {
 
                 if (params.startRow === 0) {
                     this.sumRow$.next(undefined);
+
                     if (this.columnSumResolver) {
                         this.columnSumResolver(urlParams)
                             .catch(err => {
@@ -234,6 +269,7 @@ export class TableDataService {
 
         if (row.ID) {
             this.originalData[originalIndex].Deleted = true;
+            this.originalData[originalIndex]['_isDirty'] = true;
         } else {
             this.originalData.splice(originalIndex, 1);
             this.originalData.forEach((r, index) => r['_originalIndex'] = index);
@@ -275,7 +311,7 @@ export class TableDataService {
             newRow['_isEmpty'] = true;
         }
 
-        newRow = _.cloneDeep(newRow); // avoid multiple new rows having the same reference
+        newRow = cloneDeep(newRow); // avoid multiple new rows having the same reference
         newRow['Deleted'] = false;
         newRow['_originalIndex'] = this.originalData.length;
         newRow['_guid'] = this.getGuid();
@@ -289,7 +325,7 @@ export class TableDataService {
             return [];
         }
 
-        let data = _.cloneDeep(originalData).filter(row => !row.Deleted);
+        let data = cloneDeep(originalData).filter(row => !row.Deleted);
 
         // Advanced filters (separator = and)
         if (this.advancedSearchFilters && this.advancedSearchFilters.length) {
@@ -333,7 +369,7 @@ export class TableDataService {
 
     public checkFilter(filter: ITableFilter, item): boolean {
         const query = this.getFilterValueFromFilter(filter, this.config.expressionFilterValues).toLowerCase();
-        const value = (_.get(item, filter.field) || '').toString().toLowerCase();
+        const value = (get(item, filter.field) || '').toString().toLowerCase();
 
         if (!query || !query.length) {
             return true;
@@ -409,58 +445,11 @@ export class TableDataService {
         }
     }
 
-    public sortLocalData(data: any[], column: UniTableColumn, direction: 'asc'|'desc'): any[] {
-        const directionNumeric = direction === 'asc' ? 1 : -1;
-        const type = column.type;
-        const mode = column.sortMode;
-        const field = column.alias || column.field;
-
-        const sorted = data.sort((a, b) => {
-            // REVISIT: Might want to run template functions here?
-            // How big of a performance hit would that be on large datasets?
-            let first = _.get(a, field) || '';
-            let second = _.get(b, field) || '';
-
-            // Different sorting for different data types
-            switch (type) {
-                case UniTableColumnType.LocalDate:
-                case UniTableColumnType.DateTime:
-                    first = (first ? moment(first) : moment()).unix();
-                    second = (second ? moment(second) : moment()).unix();
-                    break;
-                case UniTableColumnType.Money:
-                case UniTableColumnType.Number:
-                case UniTableColumnType.Percent:
-                    if (mode === UniTableColumnSortMode.Absolute) {
-                        first = Math.abs(first);
-                        second = Math.abs(second);
-                    }
-                    break;
-                default:
-                    first = first.toString().toLowerCase();
-                    second = second.toString().toLowerCase();
-                    break;
-            }
-
-            if (first === second) {
-                return 0;
-            } else if (first > second) {
-                return 1 * directionNumeric;
-            } else if (first < second) {
-                return -1 * directionNumeric;
-            }
-
-            return 1;
-        });
-
-        return sorted;
-    }
-
     public setFilters(
         advancedSearchFilters: ITableFilter[] = [],
         basicSearchFilters: ITableFilter[] = [],
         refreshTableData: boolean = true
-    ): void {
+    ): any {
         // Dont use filters that are missing field or operator.
         // This generally means the user is not done creating them yet
         advancedSearchFilters = advancedSearchFilters.filter(f => !!f.field && !!f.operator);
@@ -500,6 +489,8 @@ export class TableDataService {
 
         if (refreshTableData) {
             this.refreshData();
+        } else {
+            return this.filterString;
         }
     }
 
@@ -525,7 +516,7 @@ export class TableDataService {
             const filterValue = this.getFilterValueFromFilter(filter, expressionFilterValues);
             if (filterValue) {
                 // close last filtergroup (if any)
-                if (lastFilterGroup.toString() !== filter.group.toString() && lastFilterGroup > 0) {
+                if (lastFilterGroup.toString() !== (filter.group || 0).toString() && lastFilterGroup > 0) {
                     filterString += ' )';
                     isInGroup = false;
                 }
@@ -540,7 +531,7 @@ export class TableDataService {
                 // open new filter group with parenthesis
                 if (!isInGroup && filter.group > 0) {
                     filterString += '(';
-                    lastFilterGroup = filter.group;
+                    lastFilterGroup = filter.group || 0;
                     isInGroup = true;
                 }
 
@@ -569,36 +560,24 @@ export class TableDataService {
     private getFilterValueFromFilter(filter: ITableFilter, expressionFilterValues: IExpressionFilterValue[]): string {
         let filterValue = filter.value.toString() || '';
 
-        // If filter is date and operator requires complete date string
-        // we need to autocomplete the filter input
-        if (filter.isDate && (
-            filter.operator === 'eq'
-            || filter.operator === 'ne'
-            || filter.operator === 'lt'
-            || filter.operator === 'le'
-            || filter.operator === 'gt'
-            || filter.operator === 'ge'
-        )) {
-            let dateString = '';
+        if (filter.isDate) {
+            let filterMoment;
 
-            // Split on space, dot, dash or slash
-            let dateSplit = filterValue.split(/[ .\-\/]/);
-
-            // Remove non-numeric characters
-            dateSplit = dateSplit.map(part => part.replace(/\D/g, ''));
-
-            if (dateSplit[0]) {
-                const day = dateSplit[0];
-                const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
-                const year = dateSplit[2] || new Date().getFullYear().toString();
-
-                const momentDate = moment(`${month}-${day}-${year}`);
-                if (momentDate.isValid()) {
-                    dateString = momentDate.format('YYYY-MM-DD');
-                }
+            // Try parsing date strings with norwegian format first
+            if (typeof filter.value === 'string') {
+                filterMoment = moment(filter.value, 'DD.MM.YYYY');
             }
 
-            filterValue = dateString;
+            // If the above failed, or the filter value is a date object
+            // try parsing it without a specified format
+            if (!filterMoment || !filterMoment.isValid()) {
+                filterMoment = moment(filter.value);
+            }
+
+            // If the result is a valid date, format for use in http filter
+            if (filterMoment.isValid()) {
+                filterValue = filterMoment.format('YYYY-MM-DD');
+            }
         }
 
         // If expressionfiltervalues are defined, e.g. ":currentuserid",
@@ -623,7 +602,7 @@ export class TableDataService {
         sumColumns.forEach((col, index) => {
             // TODO: filteredData
             sumRow[col.alias || col.field] = data.reduce((sum, row) => {
-                return sum += parseInt(_.get(row, col.alias || col.field, 0), 10);
+                return sum += parseFloat(get(row, col.alias || col.field, 0)) || 0;
             }, 0);
         });
 

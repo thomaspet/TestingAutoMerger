@@ -1,24 +1,23 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
-import {BasicAmount, VacationPayLine, CompanySalary, EmployeeCategory} from '../../../../../unientities';
+import {BasicAmount, VacationPayLine, CompanySalary, } from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
     UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
 } from '../../../../../../framework/ui/unitable/index';
 import {
-    SalaryTransactionService, BasicAmountService, PayrollrunService,
-    VacationpayLineService, YearService, ErrorService, CompanySalaryService,
-    CompanyVacationRateService, NumberFormat, VacationRateEmployeeService
+    BasicAmountService, VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService, CompanyVacationRateService,
 } from '../../../../../../app/services/services';
-import {VacationPaySettingsModal} from '../../modals/vacationpay/vacationPaySettingsModal';
+import {VacationPaySettingsModal, IVacationPaySettingsReturn} from '../../modals/vacationpay/vacationPaySettingsModal';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs';
+import {Observable, of, forkJoin} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
-import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';
+import {IUniInfoConfig} from '@uni-framework/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {filter, tap, switchMap, map, finalize, take} from 'rxjs/operators';
 
 interface IVacationPayHeader {
     VacationpayYear?: number;
@@ -29,7 +28,7 @@ interface IVacationPayHeader {
 
 @Component({
     selector: 'vacation-pay-modal',
-    templateUrl: './vacationPayModal.html'
+    templateUrl: './vacationPayModal.html',
 })
 
 export class VacationPayModal implements OnInit, IUniModal {
@@ -64,12 +63,13 @@ export class VacationPayModal implements OnInit, IUniModal {
     public mainAction: IUniSaveAction;
     private saveIsActive: boolean;
     private createTransesIsActive: boolean;
+    private runID: number;
     constructor(
         private basicamountService: BasicAmountService,
         private vacationpaylineService: VacationpayLineService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private companysalaryService: CompanySalaryService,
         private companyVacationrateService: CompanyVacationRateService,
         private modalService: UniModalService,
@@ -78,22 +78,23 @@ export class VacationPayModal implements OnInit, IUniModal {
     public ngOnInit() {
         this.busy = true;
         this.totalPayout = 0;
-        this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
+        this.runID = this.options && this.options.data && this.options.data.ID;
+        this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive, this.runID);
+
+        this.currentYear = this.financialYearService.getActiveYear();
 
         Observable
             .forkJoin(
             this.companysalaryService.getCompanySalary(),
-            this.basicamountService.getBasicAmounts(),
-            this.yearService.getActiveYear())
+            this.basicamountService.getBasicAmounts())
             .finally(() => this.busy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do((response: any) => {
-                const [comp, basics, financial] = response;
+                const [comp, basics] = response;
                 this.basicamounts = basics;
                 this.basicamounts.sort((a, b) => {
                     return  new Date(a.FromDate).getFullYear() - new Date(b.FromDate).getFullYear();
                 });
-                this.currentYear = financial;
                 this.companysalary = comp;
                 this.companysalary['_wagedeductionText'] = this.vacationpaylineService
                     .WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
@@ -127,7 +128,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             .do(() => {
                 this.saveIsActive = false;
                 this.createTransesIsActive = false;
-                this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
+                this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive, this.runID);
             })
             .do(() => this.toastService.addToast('Feriepengelinjer lagret', ToastType.good, 4))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -138,7 +139,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             .confirm({
                 header: 'Opprett feriepengeposter',
                 message: 'Vennligst bekreft overføring av feriepengeposter til lønnsavregning '
-                + this.options.data.ID
+                + this.runID
                 + ` - Totalsum kr ${UniMath.useFirstTwoDecimals(this.totalPayout)}`,
                 buttonLabels: {
                     accept: 'Overfør',
@@ -152,7 +153,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 return this.vacationpaylineService
                     .createVacationPay(
                     this.vacationBaseYear,
-                    this.options.data.ID,
+                    this.runID,
                     this.table.getSelectedRows(),
                     this.vacationHeaderModel$.getValue().SixthWeek
                     ).do(() => this.closeModal(true));
@@ -204,25 +205,30 @@ export class VacationPayModal implements OnInit, IUniModal {
             this.saveIsActive = true;
         }
         this.updatetotalPay();
-        this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
+        this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive, this.runID);
     }
 
     public onRowSelectionChange(event) {
         this.updatetotalPay();
         this.createTransesIsActive = !!this.table.getSelectedRows().length;
-        this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
+        this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive, this.runID);
     }
 
-    public recalc(event) {
-        this.options.cancelValue = event;
-        this.setUpRates(this.vacationBaseYear);
+    public recalc(event: IVacationPaySettingsReturn) {
+        this.options.cancelValue = event.dueToHolidayChanged;
+        if (!event.needVacationPayRefresh) {
+            this.vacationpaylineService.invalidateCache();
+            this.refreshVacationPay();
+        } else {
+            this.setUpRates(this.vacationBaseYear);
+        }
     }
 
     private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
         this.basicamountBusy = true;
         this.saveIsActive = false;
         this.vacationpaylineService
-            .getVacationpayBasis(this.vacationBaseYear, this.options.data.ID)
+            .getVacationpayBasis(this.vacationBaseYear, this.runID)
             .finally(() => this.basicamountBusy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((vpBasis) => {
@@ -273,6 +279,18 @@ export class VacationPayModal implements OnInit, IUniModal {
         }
     }
 
+    private refreshVacationPay() {
+        this.busy = true;
+        this.companysalaryService
+            .getCompanySalary()
+            .pipe(
+                tap(compSal => this.companysalary = compSal),
+                switchMap(() => this.vacationHeaderModel$),
+                take(1)
+            )
+            .subscribe(model => this.setCurrentBasicAmountAndYear(model));
+    }
+
     private setCurrentBasicAmountAndYear(headerModel: IVacationPayHeader): IVacationPayHeader {
         switch (headerModel.VacationpayYear) {
             case 1:
@@ -284,47 +302,55 @@ export class VacationPayModal implements OnInit, IUniModal {
             default:
                 break;
         }
+
+        this.busy = true;
+        forkJoin(
+            this.promptUserIfNeededAndGetDataObs(headerModel),
+            this.setUpRatesObs(this.vacationBaseYear)
+        )
+        .pipe(finalize(() => this.busy = false))
+        .subscribe();
+
         this.setProperBasicAmount(headerModel);
-        this.promptUserIfNeededAndGetData(headerModel);
-        this.setUpRates(this.vacationBaseYear);
         return headerModel;
     }
 
-    private promptUserIfNeededAndGetData(headerModel: IVacationPayHeader) {
-        Observable
-            .of(this.saveIsActive)
-            .do(activeSave => {
-                if (!activeSave) {return; }
-                this.fields$.next(this.fields$.getValue().map(field => {
-                    field.ReadOnly = true;
-                    return field;
-                }));
-            })
-            .switchMap(activeSave =>
-                activeSave
-                    ? this.modalService.confirm(
-                        {
-                            header: 'Lagre',
-                            message: 'Du har ulagrede endringer, vil du lagre?',
-                            buttonLabels: {accept: 'Lagre', reject: 'Forkast'}
-                        })
-                        .onClose
-                    : Observable.of(ConfirmActions.REJECT))
-            .map(result => result === ConfirmActions.ACCEPT)
-            .switchMap(save => {
-                if (!save) {
-                    return Observable.of(null);
-                }
-                return this.saveVacationpayLinesObs();
-            })
-            .subscribe(() => {
-                const fields = this.fields$.getValue();
-                if (fields.some(field => field.ReadOnly)) {
-                    fields.forEach(field => field.ReadOnly = false);
-                    this.fields$.next(fields);
-                }
-                this.getVacationpayData(headerModel);
-            });
+    private promptUserIfNeededAndGetDataObs(headerModel: IVacationPayHeader) {
+        return of(this.saveIsActive)
+            .pipe(
+                tap(activeSave => {
+                    if (!activeSave) {return; }
+                    this.fields$.next(this.fields$.getValue().map(field => {
+                        field.ReadOnly = true;
+                        return field;
+                    }));
+                }),
+                switchMap(activeSave =>
+                    activeSave
+                        ? this.modalService.confirm(
+                            {
+                                header: 'Lagre',
+                                message: 'Du har ulagrede endringer, vil du lagre?',
+                                buttonLabels: {accept: 'Lagre', reject: 'Forkast'}
+                            })
+                            .onClose
+                        : of(ConfirmActions.REJECT)),
+                map(result => result === ConfirmActions.ACCEPT),
+                switchMap(save => {
+                    if (!save) {
+                        return of(null);
+                    }
+                    return this.saveVacationpayLinesObs();
+                }),
+                tap(() => {
+                    const fields = this.fields$.getValue();
+                    if (fields.some(field => field.ReadOnly)) {
+                        fields.forEach(field => field.ReadOnly = false);
+                        this.fields$.next(fields);
+                    }
+                    this.getVacationpayData(headerModel);
+                })
+            );
     }
 
     private setProperBasicAmount(headerModel: IVacationPayHeader) {
@@ -340,13 +366,20 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private setUpRates(year: number) {
-        this.companyVacationrateService
+        this.setUpRatesObs(year)
+            .subscribe();
+    }
+
+    private setUpRatesObs(year: number) {
+        return this.companyVacationrateService
             .getCurrentRates(year)
-            .filter(res => !!res)
-            .subscribe(res => {
-                this.companysalary['_Rate'] = res.Rate;
-                this.companysalary['_Rate60'] = res.Rate60;
-            });
+            .pipe(
+                filter(res => !!res),
+                tap(res => {
+                    this.companysalary['_Rate'] = res.Rate;
+                    this.companysalary['_Rate60'] = res.Rate60;
+                }),
+            );
     }
 
     private createFormConfig() {
@@ -357,7 +390,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         vpRadioField.FieldType = FieldType.RADIOGROUP;
         vpRadioField.EntityType = 'vacationHeaderModel';
         vpRadioField.Property = 'VacationpayYear';
-        vpRadioField.Label = 'Generer';
+        vpRadioField.Label = this.runID ? 'Generer' : 'Vis';
         vpRadioField.Options = {
             source: [
                 {id: 1, name: 'Feriepenger for i fjor'},
@@ -402,7 +435,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         percentField.Classes = 'vacationpay_percentPayout';
         percentField.LineBreak = true;
 
-        this.fields$.next([vpRadioField, sixthWeekField, percentField]);
+        this.fields$.next([vpRadioField, sixthWeekField, percentField].filter(f => this.runID || f.Property === 'VacationpayYear'));
     }
 
     private createTableConfig() {
@@ -492,7 +525,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.updateAndSetRate(row, model, setmanually);
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
-            if (vacBase > limitBasicAmount) {
+            if (vacBase > limitBasicAmount && !this.companysalary.AllowOver6G) {
                 row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate'] / 100
                 + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
             } else {
@@ -528,20 +561,30 @@ export class VacationPayModal implements OnInit, IUniModal {
         return row;
     }
 
-    private getSaveactions(saveIsActive: boolean, createPaymentsActive: boolean): IUniSaveAction[] {
-        const ret = [
-            {
-                label: 'Lag feriepengeposter',
-                action: this.createVacationPayments.bind(this),
-                disabled: !createPaymentsActive
-            },
-            {
-                label: 'Lagre',
-                action: this.saveVacationpayLines.bind(this),
-                disabled: !saveIsActive
-            }
-        ];
-        this.mainAction = saveIsActive ? ret[1] : ret[0];
+    private getSaveactions(saveIsActive: boolean, createPaymentsActive: boolean, runID: number): IUniSaveAction[] {
+        const createVacationTranses = {
+            label: 'Lag feriepengeposter',
+            action: this.createVacationPayments.bind(this),
+            disabled: !createPaymentsActive
+        };
+        const saveVacation = {
+            label: 'Lagre',
+            action: this.saveVacationpayLines.bind(this),
+            disabled: !saveIsActive
+        };
+        const ret = [];
+
+        if (runID) {
+            ret.push(createVacationTranses);
+        }
+        ret.push(saveVacation);
+
+        if (runID) {
+            this.mainAction = saveIsActive ? ret[1] : ret[0];
+        } else {
+            this.mainAction = saveVacation;
+        }
+
         return ret;
     }
 }

@@ -1,0 +1,198 @@
+<uni-toolbar [config]="toolbarConfig" [saveactions]="saveActions"></uni-toolbar>
+
+<div class="budget-side-list" *ngIf="showSideMenu">
+    <div class="shade-side" (click)="showSideMenu = false">
+
+    </div>
+    <div class="list-side">
+        <div class="list-header">
+            <h4> Alle budsjetter </h4>
+            <i class="material-icons" (click)="showSideMenu = false" title="Lukk"> close </i>
+        </div>
+        <input type="search" placeholder="Søk.." [(ngModel)]="filterString" [formControl]="searchControl">
+        <ul id="role-info" style="height: 100%">
+            <li style="display: flex">
+                <div>År</div>
+                <div style="flex: 1; text-align: left;">Navn</div>
+                <div>Standard</div>
+                <div></div>
+            </li>
+            <li *ngFor="let budget of filteredBudgets" style="display: flex">
+                <div> {{ budget.AccountingYear }} </div>
+                <div (click)="onBudgetSelect(budget)" class="budget-name-link"  style="flex: 1"> {{ budget.Name }} </div>
+                <div> <i class="material-icons is-standard-budget-icon" *ngIf="budget.StatusCode === 47002">check_circle_outline</i></div>
+                <div  [matMenuTriggerFor]="contextMenu">
+                    <ng-container>
+                        <i class="material-icons">
+                            more_horiz
+                        </i>
+                        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                            <ul class="menu-list">
+                                <li *ngFor="let item of listActions" (click)="onActionClick($event, item, budget)">
+                                    {{item.label}}
+                                </li>
+                            </ul>
+                        </mat-menu>
+                    </ng-container>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<!-- SHOW THIS IF USER HAS ONE OR MORE BUDGETS -->
+<div class="budget-container" *ngIf="allBudgets.length">
+    <div class="budget-standard-container">
+
+        <div class="header-container" *ngIf="currentBudget">
+            <h4>
+                {{ currentBudget.Name }}
+            </h4>
+            <a (click)="showHideSideMenu()">
+                <i class="material-icons">list</i>
+                Vis alle budsjett
+            </a>
+
+            <div style="flex: 1"></div>
+
+            <button (click)="showHideChart()">
+                {{ hideChart ? 'Vis' :  'Skjul' }} graf
+                <i class="material-icons"> {{ !hideChart ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }} </i>
+            </button>
+        </div>
+
+        <div class="budget-chart-container" [ngClass]="hideChart ? 'hide-chart' : ''">
+            <canvas #chart></canvas>
+        </div>
+
+        <div class="budget-table-container" *ngIf="displayData">
+            <div class="buttons-container">
+                <div *ngIf="currentDepartment">
+                    <mat-form-field>
+                        <mat-select [value]="currentDepartment"
+                            (valueChange)="onDepartmentFilterChange($event)"
+                            placeholder="Filter på avdeling">
+                            <mat-option *ngFor="let department of departments" [value]="department">
+                                {{ department.Name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div style="flex: 1"></div>
+                <div>
+                    <button (click)="openEntryEditModal()">
+                        Ny budsjettspost
+                    </button>
+                    <button (click)="openBudgetReport()">
+                        Vis budsjettsrapport
+                    </button>
+                </div>
+            </div>
+            <div class="div-table">
+                <div class="table-header-container">
+                    <div class="table-header row-container" style="display: flex;">
+                        <div> </div>
+                        <div> Jan </div>
+                        <div> Feb </div>
+                        <div> Mar </div>
+                        <div> Apr </div>
+                        <div> Mai </div>
+                        <div> Jun </div>
+                        <div> Jul </div>
+                        <div> Aug </div>
+                        <div> Sep </div>
+                        <div> Okt </div>
+                        <div> Nov </div>
+                        <div> Des </div>
+                        <div> Sum </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="table-row" *ngFor="let group of displayData">
+                        <div class="row-container table-account-names" style="display: flex" [ngClass]="group.showSubGroup || group.isSumCol ? 'subgroup-open' : ''">
+                            <div (click)="showHideSubgroup(group)">
+                                <i class="material-icons" *ngIf="!group.isSumCol"> {{ group.showSubGroup ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }} </i>
+                                <span [ngClass]="group.isSumCol ? 'sum-col-line' : ''">
+                                        {{ group.GroupName }}
+                                </span>
+                            </div>
+                            <div [ngClass]="group.cls1"> {{ budgetNumberFormat(group.BudPeriod1) }} </div>
+                            <div [ngClass]="group.cls2"> {{ budgetNumberFormat(group.BudPeriod2) }} </div>
+                            <div [ngClass]="group.cls3"> {{ budgetNumberFormat(group.BudPeriod3) }} </div>
+                            <div [ngClass]="group.cls4"> {{ budgetNumberFormat(group.BudPeriod4) }} </div>
+                            <div [ngClass]="group.cls5"> {{ budgetNumberFormat(group.BudPeriod5) }} </div>
+                            <div [ngClass]="group.cls6"> {{ budgetNumberFormat(group.BudPeriod6) }} </div>
+                            <div [ngClass]="group.cls7"> {{ budgetNumberFormat(group.BudPeriod7) }} </div>
+                            <div [ngClass]="group.cls8"> {{ budgetNumberFormat(group.BudPeriod8) }} </div>
+                            <div [ngClass]="group.cls9"> {{ budgetNumberFormat(group.BudPeriod9) }} </div>
+                            <div [ngClass]="group.cls10"> {{ budgetNumberFormat(group.BudPeriod10) }} </div>
+                            <div [ngClass]="group.cls11"> {{ budgetNumberFormat(group.BudPeriod11) }} </div>
+                            <div [ngClass]="group.cls12"> {{ budgetNumberFormat(group.BudPeriod12) }} </div>
+                            <div [ngClass]="group.cls13"> {{ budgetNumberFormat(group.BudgetSum) }} </div>
+                        </div>
+                        <div *ngIf="group.showSubGroup">
+                            <div *ngFor="let child of group.children">
+                                <div class="row-container" style="display: flex" [ngClass]="child.showData ? 'subgroup-open' : ''">
+                                    <div (click)="child.showData = !child.showData">
+                                        <i style="margin-left: 1rem" class="material-icons"> {{ child.showData ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }} </i>
+                                        <span>
+                                            {{ child.SubGroupName }}
+                                        </span>
+                                    </div>
+                                    <div [ngClass]="child.cls1"> {{ budgetNumberFormat(child.BudPeriod1) }} </div>
+                                    <div [ngClass]="child.cls2"> {{ budgetNumberFormat(child.BudPeriod2) }} </div>
+                                    <div [ngClass]="child.cls3"> {{ budgetNumberFormat(child.BudPeriod3) }} </div>
+                                    <div [ngClass]="child.cls4"> {{ budgetNumberFormat(child.BudPeriod4) }} </div>
+                                    <div [ngClass]="child.cls5"> {{ budgetNumberFormat(child.BudPeriod5) }} </div>
+                                    <div [ngClass]="child.cls6"> {{ budgetNumberFormat(child.BudPeriod6) }} </div>
+                                    <div [ngClass]="child.cls7"> {{ budgetNumberFormat(child.BudPeriod7) }} </div>
+                                    <div [ngClass]="child.cls8"> {{ budgetNumberFormat(child.BudPeriod8) }} </div>
+                                    <div [ngClass]="child.cls9"> {{ budgetNumberFormat(child.BudPeriod9) }} </div>
+                                    <div [ngClass]="child.cls10"> {{ budgetNumberFormat(child.BudPeriod10) }} </div>
+                                    <div [ngClass]="child.cls11"> {{ budgetNumberFormat(child.BudPeriod11) }} </div>
+                                    <div [ngClass]="child.cls12"> {{ budgetNumberFormat(child.BudPeriod12) }} </div>
+                                    <div [ngClass]="child.cls13"> {{ budgetNumberFormat(child.BudgetSum) }} </div>
+                                </div>
+                                <div *ngIf="child.showData">
+                                    <div *ngFor="let item of child.data">
+                                        <div class="row-container" style="display: flex" [ngClass]="item.cls">
+                                            <div>
+                                                <span style="margin-left: 3rem" (click)="onAccountSelect(item)">
+                                                    {{ item.AccountNumber }} - {{ item.AccountName }}
+                                                </span>
+                                            </div>
+                                            <div [ngClass]="item.cls1"> {{ budgetNumberFormat(item.BudPeriod1) }} </div>
+                                            <div [ngClass]="item.cls2"> {{ budgetNumberFormat(item.BudPeriod2) }} </div>
+                                            <div [ngClass]="item.cls3"> {{ budgetNumberFormat(item.BudPeriod3) }} </div>
+                                            <div [ngClass]="item.cls4"> {{ budgetNumberFormat(item.BudPeriod4) }} </div>
+                                            <div [ngClass]="item.cls5"> {{ budgetNumberFormat(item.BudPeriod5) }} </div>
+                                            <div [ngClass]="item.cls6"> {{ budgetNumberFormat(item.BudPeriod6) }} </div>
+                                            <div [ngClass]="item.cls7"> {{ budgetNumberFormat(item.BudPeriod7) }} </div>
+                                            <div [ngClass]="item.cls8"> {{ budgetNumberFormat(item.BudPeriod8) }} </div>
+                                            <div [ngClass]="item.cls9"> {{ budgetNumberFormat(item.BudPeriod9) }} </div>
+                                            <div [ngClass]="item.cls10"> {{ budgetNumberFormat(item.BudPeriod10) }} </div>
+                                            <div [ngClass]="item.cls11"> {{ budgetNumberFormat(item.BudPeriod11) }} </div>
+                                            <div [ngClass]="item.cls12"> {{ budgetNumberFormat(item.BudPeriod12) }} </div>
+                                            <div [ngClass]="item.cls13"> {{ budgetNumberFormat(item.BudgetSum) }} </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SHOW THIS IF THE USER HAS 0 BUDGETS -->
+<div class="empty-budget-container" *ngIf="!allBudgets.length && showEmptyBudgetView">
+    <div class="empty-budget-box">
+        <i class="material-icons">folder_open</i>
+        <h4>Du har ikke satt opp noen budsjett enda</h4>
+        <button (click)="openEditModal()">Importer budsjett</button>
+        <button (click)="downloadTemplate()">Last ned mal</button>
+    </div>
+</div>

@@ -97,7 +97,7 @@ export class TravelComponent implements OnInit {
                 disabled: true,
             },
             {
-                label: 'Overfør til fakturamottak',
+                label: 'Overfør til leverandørfaktura',
                 action: done => this.transferToSupplierInvoice(done),
                 main: false,
                 disabled: true,
@@ -131,7 +131,7 @@ export class TravelComponent implements OnInit {
         }
 
         if (this.travelSelection.filter(t => t.TravelLines.some(l => l.CostType === costtype.Expense)).length) {
-            const action = saveActions.find(act => act.label === 'Overfør til fakturamottak');
+            const action = saveActions.find(act => act.label === 'Overfør til leverandørfaktura');
             if (action) {
                 action.disabled = false;
             }
@@ -286,11 +286,11 @@ export class TravelComponent implements OnInit {
             .filter(proceed => proceed)
             .switchMap(() => this.travelService.createSupplierInvoices(travels))
             .catch((err, obs) => {
-                done('Overføring til fakturamottak feilet');
+                done('Overføring til leverandørfaktura feilet');
                 return this.errorService.handleRxCatch(err, obs);
             })
             .do(() => this.getTravels())
-            .subscribe(() => done('Overføring til fakturamottak fullført'));
+            .subscribe(() => done('Overføring til leverandørfaktura fullført'));
     }
 
     private promptUserIfNeeded(travels: Travel[], done: (msg) => void): Observable<boolean> {
@@ -303,7 +303,7 @@ export class TravelComponent implements OnInit {
             return this.modalService.confirm({
                 header: 'Bekreft overføring',
                 message: 'Denne rapporten inneholder godtgjørelse som skal innrapporteres.' +
-                ' Vi anbefaler derfor å importere denne via lønn. Ønsker du å overføre reisen/utlegget via fakturamottak?',
+                ' Vi anbefaler derfor å importere denne via lønn. Ønsker du å overføre reisen/utlegget via leverandørfaktura?',
                 buttonLabels: {
                     accept: 'OK',
                     cancel: 'Avbryt'
@@ -312,7 +312,7 @@ export class TravelComponent implements OnInit {
             .onClose
             .do(result => {
                 if (result !== ConfirmActions.ACCEPT) {
-                    done('Overføring til fakturamottak avbrutt');
+                    done('Overføring til leverandørfaktura avbrutt');
                 }
             })
             .map(result => result === ConfirmActions.ACCEPT);

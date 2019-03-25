@@ -320,9 +320,13 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private setupCompanySettingsData(companySettings: CompanySettings) {
-        companySettings['Addresses'] = companySettings.DefaultAddress ? [companySettings.DefaultAddress] : [];
-        companySettings['Phones'] = companySettings.DefaultPhone ? [companySettings.DefaultPhone] : [];
-        companySettings['Emails'] = companySettings.DefaultEmail ? [companySettings.DefaultEmail] : [];
+        companySettings.DefaultAddress = companySettings.DefaultAddress
+        ? companySettings.DefaultAddress : this.emptyAddress;
+        companySettings['Addresses'] = [companySettings.DefaultAddress];
+        companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
+        companySettings['Phones'] = [companySettings.DefaultPhone];
+        companySettings.DefaultEmail = companySettings.DefaultEmail ? companySettings.DefaultEmail : this.emptyEmail;
+        companySettings['Emails'] = [companySettings.DefaultEmail];
         companySettings.FactoringEmail = companySettings.FactoringEmail ? companySettings.FactoringEmail : this.emptyEmail;
         companySettings['FactoringEmails'] = [companySettings.FactoringEmail];
         return companySettings;
@@ -671,13 +675,6 @@ export class CompanySettingsComponent implements OnInit {
                         // fails, so the service will fail silently if the updated settings
                         // cant be synced
                         this.uniFilesService.syncUniEconomyCompanySettings();
-
-                        const currentFinancialYear = new FinancialYear();
-                        currentFinancialYear.Year = response.CurrentAccountingYear;
-                        // setting currentAccountingYear in dropdown as well, this triggers route change to '/'
-                        if (company.CurrentAccountingYear !== this.currentYear) {
-                            this.financialYearService.setActiveYear(currentFinancialYear);
-                        }
                     }).catch((err) => {
                         this.errorService.handle(err);
                         complete('Purreinnstillinger feilet i lagring');
@@ -753,7 +750,7 @@ export class CompanySettingsComponent implements OnInit {
 
         const defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
-            allowAddValue: !this.companySettings$.getValue().DefaultAddress,
+            allowAddValue: false,
             allowDeleteValue: true,
             entity: Address,
             listProperty: 'Addresses',
@@ -777,7 +774,7 @@ export class CompanySettingsComponent implements OnInit {
         const phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
 
         phones.Options = {
-            allowAddValue: !this.companySettings$.getValue().DefaultPhone,
+            allowAddValue: false,
             allowDeleteValue: true,
             entity: Phone,
             listProperty: 'Phones',
@@ -798,7 +795,7 @@ export class CompanySettingsComponent implements OnInit {
         const emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
 
         emails.Options = {
-            allowAddValue: !this.companySettings$.getValue().DefaultEmail,
+            allowAddValue: false,
             allowDeleteValue: true,
             entity: Email,
             listProperty: 'Emails',
@@ -907,14 +904,6 @@ export class CompanySettingsComponent implements OnInit {
             valueProperty: 'ID',
             displayProperty: 'Code',
             template: (obj: CurrencyCode) => obj ? `${obj.Code} - ${obj.Name}` : '',
-            debounceTime: 200
-        };
-
-        const currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
-        currentAccountYear.Options = {
-            source: this.accountYears,
-            valueProperty: 'Year',
-            displayProperty: 'YearString',
             debounceTime: 200
         };
 
@@ -1191,15 +1180,6 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'PeriodSeriesVatID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Mva perioder',
-                FieldSet: 1,
-                Section: 1,
-                Sectionheader: 'Selskapsoppsett'
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'CurrentAccountingYear',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Aktivt regnskapsår',
                 FieldSet: 1,
                 Section: 1,
                 Sectionheader: 'Selskapsoppsett'
@@ -1816,7 +1796,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.quoteFormList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },
@@ -1840,7 +1820,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.orderFormList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },
@@ -1864,7 +1844,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.invoiceFormList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },
@@ -1913,38 +1893,19 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private isProductBought(name: string): Observable<boolean> {
-        return this.elsaProductService.FindProductByName(name)
-            .switchMap(product => {
-                return !product
-                    ? Observable.of(false)
-                    : this.elsaPurchasesService.GetAll()
-                        .map(purchases => {
-                            return purchases.some(purchase => purchase.productID === product.id);
-                        });
-        });
+        return this.elsaPurchasesService.getPurchaseByProductName(name).map(res => !!res);
     }
 
-    private activateProduct(name: string, activationModal: () => void) {
-        this.elsaProductService.FindProductByName(name).subscribe(product => {
-            if (product) {
-                this.elsaPurchasesService.GetAll()
-                .map(purchases => purchases.some(purchase => purchase.productID === product.id))
-                .subscribe(hasBought => {
-                    if (hasBought) {
-                        activationModal();
-                    } else {
-                        const marketplaceUrl = `/marketplace/modules?productName=${product.name}`;
-                        console.log('navigating to: ' + marketplaceUrl);
-                        this.router.navigateByUrl(marketplaceUrl);
-                    }
-                });
+    private activateProduct(productName: string, activationModal: () => void) {
+        this.elsaPurchasesService.getPurchaseByProductName(productName).subscribe(purchase => {
+            if (purchase) {
+                activationModal();
             } else {
-                this.toastService.addToast(`Produkt ${name} ikke tilgjengelig`, ToastType.bad, ToastTime.short);
+                const marketplaceUrl = `/marketplace/modules?productName=${productName}`;
+                this.router.navigateByUrl(marketplaceUrl);
             }
         });
     }
-
-
 
     private openActivateAPModal() {
         this.modalService.open(UniActivateAPModal).onClose.subscribe(

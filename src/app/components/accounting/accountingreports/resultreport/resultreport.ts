@@ -58,8 +58,11 @@ export class ResultReport implements OnInit {
 
     public filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: true,
+        ShowBudget: true,
         Decimals: 0,
-        ShowPercent: true
+        ShowPercent: true,
+        ShowPrecentOfLastYear: false,
+        ShowPercentOfBudget: false
     });
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -85,8 +88,8 @@ export class ResultReport implements OnInit {
     }
 
     public ngOnInit() {
-        let financialYear;
-        this.financialYearService.getActiveYear().subscribe(year => financialYear = year);
+        const financialYear = this.financialYearService.getActiveYear();
+
         // get default period filters
         this.periodFilter1 = this.periodFilterHelper.getFilter(1, null, financialYear);
         this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
@@ -167,31 +170,31 @@ export class ResultReport implements OnInit {
 
     private setupFilterForm() {
         // Dimension filters
-        const project = new UniFieldLayout();
-        project.Property = 'ProjectID';
+        const project = <any>new UniFieldLayout();
+        project.Property = 'ProjectNumber';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
         project.Legend = 'Filter';
         project.FieldSet = 1;
-        project.Placeholder = 'Projekt';
+        project.Placeholder = 'Prosjekt';
         project.Options = {
             source: this.projects,
-            valueProperty: 'ID',
+            valueProperty: 'ProjectNumber',
             template: (item) => {
                 return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
             },
             debounceTime: 200
         };
 
-        const department = new UniFieldLayout();
-        department.Property = 'DepartmentID';
+        const department = <any>new UniFieldLayout();
+        department.Property = 'DepartmentNumber';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
         department.Legend = 'Filter';
         department.FieldSet = 1;
         department.Options = {
             source: this.departments,
-            valueProperty: 'ID',
+            valueProperty: 'DepartmentNumber',
             template: (item) => {
                 return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
             },
@@ -204,7 +207,7 @@ export class ResultReport implements OnInit {
         decimals.FieldType = FieldType.DROPDOWN;
         decimals.Label = 'Antall desimaler';
         decimals.Legend = 'Visning';
-        decimals.FieldSet = 2;
+        decimals.FieldSet = 1;
         decimals.Options = {
             source: [{Decimals: 0}, {Decimals: 2}],
             valueProperty: 'Decimals',
@@ -224,14 +227,38 @@ export class ResultReport implements OnInit {
         const showpercent = new UniFieldLayout();
         showpercent.Property = 'ShowPercent';
         showpercent.FieldType = FieldType.CHECKBOX;
-        showpercent.Label = 'Vis prosent';
-        showpercent.Legend = 'Visning';
+        showpercent.Label = 'Vis % av fjoråret';
         showpercent.FieldSet = 2;
 
-        this.fields$.next([project, department, decimals, showprevyear, showpercent]);
+        const showpercentofbudget = new UniFieldLayout();
+        showpercentofbudget.Property = 'ShowPercentOfBudget';
+        showpercentofbudget.FieldType = FieldType.CHECKBOX;
+        showpercentofbudget.Label = 'Vis % av budsjett';
+        showpercentofbudget.FieldSet = 2;
+
+        const showBudget = <any>new UniFieldLayout();
+        showBudget.Property = 'ShowBudget';
+        showBudget.FieldType = FieldType.CHECKBOX;
+        showBudget.Label = 'Vis budsjett';
+        showBudget.FieldSet = 2;
+
+        this.fields$.next([project, department, showBudget, decimals, showprevyear, showpercent, showpercentofbudget]);
     }
 
     public onFilterChange(event) {
-        this.filter = _.cloneDeep(this.filter$.getValue());
+        // Make sure only one checkbox is checked at a time
+        const fil = this.filter$.getValue();
+
+        if (event['ShowPercentOfBudget']) {
+            if (event['ShowPercentOfBudget'].currentValue) {
+                fil.ShowPercent = false;
+            }
+        } else if (event['ShowPercent']) {
+            if (event['ShowPercent']) {
+                fil.ShowPercentOfBudget = false;
+            }
+        }
+        this.filter$.next(fil);
+        this.filter = _.cloneDeep(fil);
     }
 }

@@ -75,7 +75,8 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
             errors.push('lønnsart');
         }
 
-        if (!template.Supplier) {
+        template.SupplierID = template.SupplierID || 0;
+        if (!template.SupplierID && template.InstalmentType !== SalBalType.Other) {
             errors.push('leverandør');
         }
 
@@ -89,12 +90,15 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
         }
 
         template.SalaryBalances = this.prepareSalBalsForTemplate(salBals.filter(x => x.EmployeeID), template);
-        return this.uniModalService
+        const obs = template.ID
+            ? (this.uniModalService
             .confirm({
                 header: 'Lagre trekkmal',
                 message: 'Alle trekkene tilknyttet denne malen blir oppdatert',
             })
-            .onClose
+            .onClose)
+            : Observable.of(ConfirmActions.ACCEPT);
+        return obs
             .do((res: ConfirmActions) => {
                 if (res === ConfirmActions.ACCEPT || !done) { return; }
                 done('Lagring avbrutt');

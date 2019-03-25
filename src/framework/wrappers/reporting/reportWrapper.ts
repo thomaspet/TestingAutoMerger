@@ -87,7 +87,7 @@ export class StimulsoftReportWrapper {
         report.load(template);
 
         // remove connections specified in the template file
-        report.dictionary.databases.clear();
+        // report.dictionary.databases.clear();
         // add variables based on parameters
         if (parameters) {
             for (let i = 0; i < parameters.length; i++) {
@@ -125,6 +125,11 @@ export class StimulsoftReportWrapper {
         this.viewer.showProcessIndicator();
         this.viewer.renderHtml('reportContainer');
 
+        const printMenu = this.viewer.jsObject.controls.menus.printMenu.firstChild;
+        const printWithPreviewOption = printMenu.children[1];
+        const printWithoutPreviewOption = printMenu.children[2];
+        printMenu.removeChild(printWithPreviewOption);
+        printMenu.removeChild(printWithoutPreviewOption);
     }
 
     public showReport(template: string, reportData: Object, parameters: Array<any>, localization: string, caller: any) {
@@ -192,6 +197,7 @@ export class StimulsoftReportWrapper {
                                     mimetype = 'application/pdf';
                                     settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
                                     service = new Stimulsoft.Report.Export.StiPdfExportService();
+                                    service.useUnicode = true;
                                     break;
                             }
 

@@ -11,20 +11,8 @@ export class ProductService extends BizHttp<Product> {
         super(http);
 
         this.relativeURL = Product.RelativeUrl;
-
         this.entityType = Product.EntityType;
-
         this.DefaultOrderBy = 'PartName';
-    }
-
-    public calculatePrice(product: Product): Observable<any> {
-        return this.http
-            .usingBusinessDomain()
-            .asPOST()
-            .withBody(product)
-            .withEndPoint(this.relativeURL + '?action=calculateprice')
-            .send()
-            .map(response => response.json());
     }
 
     public calculatePriceLocal(product: Product): Product {
@@ -47,26 +35,5 @@ export class ProductService extends BizHttp<Product> {
 
     public getNewPartname(): Observable<string> {
         return super.GetAction(null, 'getnewpartname');
-    }
-
-    public getStatusText(statusCode: number): string {
-        let statusText = '';
-        if (!statusCode) {
-            statusText = 'Registrert';
-        } else {
-            statusText = 'Aktiv';
-        }
-
-        return statusText;
-    }
-
-    public next(currentID: number): Observable<Product>
-    {
-        return super.GetAction(currentID, 'next');
-    }
-
-    public previous(currentID: number): Observable<Product>
-    {
-        return super.GetAction(currentID, 'previous');
     }
 }

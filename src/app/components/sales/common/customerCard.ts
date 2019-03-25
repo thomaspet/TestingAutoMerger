@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer, SellerLink, SharingType, StatusCodeSharing, Address} from '../../../unientities';
 import {UniAddressModal} from '../../../../framework/uni-modal/modals/addressModal';
@@ -39,7 +39,7 @@ import * as _ from 'lodash';
                     <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                     <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">EFAKTURA</span>
                 </section>
-                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
+                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.CustomerName}}</strong></a>
                 <br><span *ngIf="entity?.InvoiceAddressLine1">
                     {{entity?.InvoiceAddressLine1}}
                 </span>
@@ -63,7 +63,7 @@ import * as _ from 'lodash';
         </label>
     `
 })
-export class TofCustomerCard implements AfterViewInit, OnChanges {
+export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
     private searchInput: HTMLElement;
 
     @Input() readonly: boolean;
@@ -122,8 +122,16 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
         private statusService: StatusService
-    ) {
-        this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
+    ) { }
+
+    ngOnInit() {
+        // Recurring invoice does not have functionality for creating customers when saving
+        // so we create them when selecting from 1880
+        if (this.entityType === 'RecurringInvoice') {
+            this.uniSearchConfig = this.uniSearchCustomerConfig.generate(this.customerExpands);
+        } else {
+            this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
+        }
     }
 
     ngAfterViewInit() {
@@ -342,22 +350,32 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                     }
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
+                        const newaddress = {
+                            AddressLine1: updatedInvoiceAddress.AddressLine1,
+                            AddressLine2: updatedInvoiceAddress.AddressLine2,
+                            AddressLine3: updatedInvoiceAddress.AddressLine3,
+                            PostalCode: updatedInvoiceAddress.PostalCode,
+                            City: updatedInvoiceAddress.City,
+                            Country: updatedInvoiceAddress.Country
+                        }
+
+                        if (this.entity.Customer.Info.InvoiceAddressID) {
+                            newaddress['ID'] = this.entity.Customer.Info.InvoiceAddressID;
+                        } else {
+                            newaddress['_createguid'] = this.addressService.getNewGuid();
+                        }
+
                         const customer = <Customer>{
                             ID: this.entity.CustomerID,
                             Info: {
                                 ID: this.entity.Customer.BusinessRelationID,
-                                InvoiceAddress: {
-                                    ID: this.entity.Customer.Info.InvoiceAddressID,
-                                    AddressLine1: updatedInvoiceAddress.AddressLine1,
-                                    AddressLine2: updatedInvoiceAddress.AddressLine2,
-                                    AddressLine3: updatedInvoiceAddress.AddressLine3,
-                                    PostalCode: updatedInvoiceAddress.PostalCode,
-                                    City: updatedInvoiceAddress.City,
-                                    Country: updatedInvoiceAddress.Country
-                                }
+                                InvoiceAddress: newaddress
                             }
                         };
-                        this.customerService.Put(this.entity.CustomerID, customer).subscribe();
+                        this.customerService.Put(this.entity.CustomerID, customer).subscribe(updatedcustomer => {
+                            this.entity.Customer = updatedcustomer;
+                            this.entityChange.emit(this.entity);
+                        });
                     }
                 });
                 this.entityChange.emit(this.entity);

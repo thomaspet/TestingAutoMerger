@@ -24,6 +24,77 @@
     input:focus + .uni-multivalue-moreBtn
         border-color: $uni-color-c2a
 
+.multivalue-section-container
+  position: absolute
+  top: 2rem
+  width: 100%
+  background-color: white
+  border: 1px solid #d9d9d9
+  border-top: 0
+  border-radius: 3px
+  padding-top: 1rem
+  z-index: 999
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
+
+  input
+    width: 92%
+    margin: 0 auto
+    display: block
+    border-radius: 3px
+    height: 2.25rem
+
+  ul
+    list-style: none
+    margin-bottom: 0
+
+    li
+      height: 3rem
+      border-bottom: 1px solid #e2e6f0
+      cursor: pointer
+      &:last-of-type
+        border-bottom: none
+        i
+          &.multivalue-add-new-icon
+            color: #1565c0
+          &.tab-tooltip
+            color: #b9b9b9
+
+      &:hover,
+      &:focus
+        background-color: #f0f0f0
+        cursor: pointer
+
+      &[aria-selected]:not([aria-selected=false])
+        background-color: #f0f0f0
+
+      div
+        height: 3rem
+        padding: 0 .8rem 0 1rem
+        align-items: center
+        display: flex
+
+        &.mutlivalue-deleted-undo
+          background-color: $uni-color-bad
+          color: white
+          i
+            color: white !important
+
+        span
+          text-overflow: ellipsis
+          white-space: nowrap
+          overflow-x: hidden
+          flex: 1
+
+        i
+          font-size: 20px
+          margin-top: 1px
+          color: rgba(0,0,0,.5)
+          margin-right: .3rem
+          cursor: pointer
+
+.multivalue-shortcut-tooltip
+  white-space: pre-line
+
 // THE VALUE LIST
 .uni-multivalue-values
   position: absolute

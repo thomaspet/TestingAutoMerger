@@ -24,6 +24,7 @@ export enum UniModules {
     Assignments     = 106,
     Marketplace     = 107,
     Sharings        = 108,
+    LicenseInfo     = 109,
 
     Sales            = 200,
     Customers        = 201,
@@ -38,6 +39,7 @@ export enum UniModules {
     Projects         = 210,
     CustomDimensions = 211,
     KIDSettings      = 212,
+    RecurringInvoice = 213,
 
     Accounting      = 300,
     Transquery      = 301,
@@ -55,6 +57,8 @@ export enum UniModules {
     Departments     = 313,
     CurrencyExchange = 314,
     CurrencyOverride = 315,
+    Budget          = 316,
+    CostAllocation  = 317,
 
     Bank            = 450,
     Payment         = 451,
@@ -73,7 +77,8 @@ export enum UniModules {
     Travel = 510,
     TravelType = 511,
     SalarybalanceTemplates = 512,
-
+    OTPExport       = 513,
+    VariablePayrolls = 514,
     WorkProfiles    = 600,
     Workers         = 601,
     WorkTypes       = 602,
@@ -82,13 +87,12 @@ export enum UniModules {
 
     Jobs            = 700,
     Translations    = 701,
-    Models          = 702,
-    Roles           = 703,
     Thresholds      = 704,
     Dimensions      = 705,
     About           = 706,
     Versions        = 707,
-    GDPRList        = 708
+    GDPRList        = 708,
+    Flow            = 709,
 }
 
 @Injectable()

@@ -5,18 +5,28 @@
 </uni-toolbar>
 
 <article [ngClass]="{'modal-content': config.modalMode, 'application': !config.modalMode}">
-    <section *ngIf="config && !config.modalMode && searchConfig">
+    <section *ngIf="config && !config.modalMode && searchConfig" style="display: flex;">
         <uni-search
             class="account-search"
             [config]="searchConfig"
             (changeEvent)="onFilterAccountChange($event)">
         </uni-search>
+
+        <uni-select
+            class="uni-account-report-details-year-select"
+            [config]="selectYearConfig"
+            [items]="selectYear"
+            [value]="activeYear"
+            (valueChange)="onYearDropdownChange($event)">
+        </uni-select>
     </section>
 
-    <section class="uni-container">
-        <h2 class="account-details-report-header">
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="tabIndex" (activeIndexChange)="tabChange($event)"></uni-tabs>
+
+    <section class="uni-container" *ngIf="tabIndex === 0">
+        <!-- <h2 class="account-details-report-header">
             Detaljer for konto {{config.accountNumber}} - {{config.accountName}}
-        </h2>
+        </h2> -->
 
         <distribution-period-report-part
             [accountIDs]="accountIDs"
@@ -28,12 +38,12 @@
             [includeIncomingBalance]="includeIncomingBalanceInDistributionReport$ | async"
             [dimensionType]="config.dimensionType"
             [dimensionId]="config.dimensionId"
-            (periodSelected)="periodSelected($event)"
+            (periodSelected)="periodSelected($event, true)"
             (yearChange)="onYearSelected($event)">
         </distribution-period-report-part>
     </section>
 
-    <section class="uni-container">
+    <section class="uni-container" *ngIf="tabIndex === 1">
         <h2 class="account-details-report-header">
             Transaksjoner i perioden
             <period-picker class="accountquery_selector"
@@ -45,7 +55,6 @@
         <ag-grid-wrapper
             class="transquery-grid-font-size"
             [resource]="transactionsLookupFunction"
-            (resourceChange)="onResourceChange($event)"
             [columnSumResolver]="columnSumResolver"
             [config]="uniTableConfigTransactions$ | async"
             (cellClick)="onCellClick($event)">

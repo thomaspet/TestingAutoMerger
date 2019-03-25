@@ -2,7 +2,7 @@
 
         <span class="navbar-company-info" (click)="companyDropdownActive = !companyDropdownActive">
             <span class="company-name">{{activeCompany.Name}}</span>
-            <span class="active-year">{{activeYear}}</span>
+            <span class="active-year" >{{isCreatingNewYear ? 'Oppretter nytt år...' : activeYear}}</span>
             <i class="material-icons">keyboard_arrow_down</i>
         </span>
 

@@ -1,4 +1,4 @@
-<div class="autocomplete" (clickOutside)="onClickOutside()">
+<div class="autocomplete" (clickOutside)="onClickOutside($event)">
     <input #query
            [attr.aria-describedby]="asideGuid"
            class="autocomplete_input"

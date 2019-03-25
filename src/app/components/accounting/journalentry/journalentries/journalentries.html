@@ -1,7 +1,7 @@
 <uni-toolbar [config]="toolbarConfig"
              [selectConfig]="selectConfig"
              [saveactions]="journalEntryManual.saveactions"
-             (selectValueChanged)="numberSeriesChanged($event)">
+             (selectValueChanged)="numberSeriesChanged($event, true)">
 </uni-toolbar>
 
 <journal-entry-manual

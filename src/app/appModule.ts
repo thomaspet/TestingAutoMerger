@@ -18,7 +18,8 @@ import {ToastService} from '../framework/uniToast/toastService';
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AuthService} from './authService';
 import {AuthGuard} from './authGuard';
-import {UniMicroAngularInternalErrorHandlerOverride} from './UniErrorHandler';
+import {UniAngularErrorHandler} from './angularErrorHandler';
+import {CompanyKeyRouteGuard} from './companyKeyRouteGuard';
 import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
@@ -109,12 +110,13 @@ moment.locale('nb');
     providers: [
         AuthService,
         AuthGuard,
+        CompanyKeyRouteGuard,
         RoutePermissionGuard,
         CanDeactivateGuard,
         TabService,
         ToastService,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
-        {provide: ErrorHandler, useClass: UniMicroAngularInternalErrorHandlerOverride}
+        {provide: ErrorHandler, useClass: UniAngularErrorHandler}
     ],
 })
 export class AppModule {}

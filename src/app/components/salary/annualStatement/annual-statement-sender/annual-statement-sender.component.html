@@ -1,1 +1,2 @@
+<uni-form [model]="formModel$" [fields]="fields$" [config]="config$" (changeEvent)="formChange()"></uni-form>
 <uni-employee-report-picker-list [employees]="employees$ | async" (selectedEmps)="onSelect($event)"></uni-employee-report-picker-list>

@@ -9,10 +9,10 @@ export const billViewLanguage = {
     tab_items: 'Varelinjer',
     tab_history: 'Historikk',
 
-    title_new: 'Fakturamottak (nytt)',
-    title_with_id: 'Fakturamottak #',
+    title_new: 'Leverandørfaktura (ny)',
+    title_with_id: 'Leverandørfaktura #',
 
-    headliner_new: 'Nytt fakturamottak',
+    headliner_new: 'Ny leverandørfaktura',
     headliner_invoice: 'Fakturanr.',
     headliner_supplier: 'Lev.nr.',
     headliner_journal: 'Bilagsnr.',
@@ -28,7 +28,7 @@ export const billViewLanguage = {
     col_currency_code: 'Valuta',
 
     tool_save: 'Lagre endringer',
-    tool_save_and_new: 'Lagre og start ny',
+    tool_save_and_new: 'Lagre og start ny fra innboks',
     tool_delete: 'Slett',
     tool_save_and_reject: 'Lagre og avvis',
     save_error: 'Feil ved lagring',
@@ -45,7 +45,6 @@ export const billViewLanguage = {
 
     journaled_ok: 'Bokføring fullført',
     payment_ok: 'Betaling registrert',
-    ask_register_payment: 'Registrere betaling for leverandør-faktura: ',
     ready_for_payment: 'Status endret til "Klar for betaling"',
 
     err_missing_journalEntries: 'Kontering mangler!',
@@ -54,17 +53,21 @@ export const billViewLanguage = {
     err_journal: 'Bokføring feilet',
 
     ask_archive: 'Arkivere faktura ',
-    ask_journal_msg: 'Bokføre fakturamottak med beløp ',
-    ask_journal_title: 'Bokføre fakturamottak fra ',
-    ask_approve_and_journal_title: 'Godkjenne og bokføre fakturamottak fra ',
-    ask_approve_and_journal_and_topayment_title: 'Godkjenne, bokføre og til betaling av fakturamottak fra ',
-    ask_journal_and_topayment_title: 'Bokføre og til betaling av fakturamottak fra ',
+    ask_journal_msg: 'Bokføre leverandørfaktura med beløp ',
+    ask_journal_title: 'Bokføre leverandørfaktura fra ',
+    ask_approve_and_journal_title: 'Godkjenne og bokføre leverandørfaktura fra ',
+    ask_approve_and_journal_and_topayment_title: 'Godkjenne, bokføre og til betaling av leverandørfaktura fra ',
+    ask_journal_and_topayment_title: 'Bokføre og til betaling av leverandørfaktura fra ',
+    ask_register_payment: 'Registrere betaling for leverandør-faktura: ',
+    ask_register_payment_for_outgoing_payment: 'Legg til i betalingsliste for leverandør-faktura: ',
     warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
 
     ask_delete: 'Vil du virkelig slette faktura ',
     delete_canceled: 'Sletting avbrutt',
 
     converter: 'Kjør tolk (OCR/EHF)',
+    clearpostings: 'Tøm konteringslisten',
+    reinvoice: 'Viderefakturer',
 
     ocr_running: 'Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..',
     org_not_found: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)',
@@ -87,8 +90,8 @@ export const billViewLanguage = {
     task_approve: 'Godkjenn',
     task_reject: 'Avvis',
     task_approve_and_journal: 'Godkjenn og bokfør',
-    task_approve_and_journal_and_topayment: 'Godkjenn, Bokfør og Til betaling',
-    task_journal_and_topayment: 'Bokfør og Til betaling',
+    task_approve_and_journal_and_topayment: 'Godkjenn, bokfør og til betaling',
+    task_journal_and_topayment: 'Bokfør og til betaling',
 
     err_missing_comment: 'Du må skrive en kommentar som forklarer avvisningen.'
 
@@ -104,9 +107,9 @@ export const billStatusflowLabels = {
     'smartbooking': 'Foreslå kontering',
     'journal': 'Bokfør',
 
-    'payInvoice': 'Registrere betaling',
+    'payInvoice': 'Sett betalt beløp',
     'sendForPayment': 'Til betalingsliste',
-    'pay': 'Registrere betaling',
+    'pay': 'Sett til betalt',
 
     'assign': 'Tildel',
     'cancelApprovement': 'Tilbakestill',

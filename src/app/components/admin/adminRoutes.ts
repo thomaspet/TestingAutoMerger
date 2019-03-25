@@ -2,10 +2,9 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
-import {UniModels} from './models/models';
-import {UniRoles} from './roles/roles';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.component';
+import {FlowSettings, FLOW_ROUTES} from '@app/components/admin/flow/flowSettings';
 
 export const adminRoutes = [
     {
@@ -26,23 +25,19 @@ export const adminRoutes = [
                 canDeactivate: [CanDeactivateGuard]
             },
             {
-                path: 'models',
-                component: UniModels,
-                canDeactivate: [CanDeactivateGuard]
-            },
-            {
-                path: 'roles',
-                component: UniRoles,
-                canDeactivate: [CanDeactivateGuard]
-            },
-            {
                 path: 'thresholds',
                 component: ApprovalThresholds
             },
             {
                 path: 'gdpr',
                 component: UniGdprPeopleList
-            }
+            },
+            {
+                path: 'flow',
+                component: FlowSettings,
+                canDeactivate: [CanDeactivateGuard],
+                children: FLOW_ROUTES,
+            },
         ]
     }
 ];

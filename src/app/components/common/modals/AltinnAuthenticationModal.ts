@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ElementRef, OnInit, ViewChild, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
@@ -17,7 +17,7 @@ enum LoginState {
 @Component({
     selector: 'altinn-authentication-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal" (keydown)="onKeyDown($event)">
             <header>
                 <h1>Resultat</h1>
             </header>
@@ -90,20 +90,20 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
-        private elementRef: ElementRef,
         private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
-        this.elementRef.nativeElement.addEventListener('keypress', event => {
-            if (
-                event.which === KeyCodes.ENTER
-            ) {
-                setTimeout(() => this.submit(this.formState));
-            }
-        });
         this.handleAuthentication()
             .then(auth => this.onClose.next(auth));
+    }
+
+    onKeyDown(event: KeyboardEvent) {
+        if (
+            event.which === KeyCodes.ENTER
+        ) {
+            setTimeout(() => this.submit(this.formState));
+        }
     }
 
     public onInputEvent(changes: SimpleChanges) {

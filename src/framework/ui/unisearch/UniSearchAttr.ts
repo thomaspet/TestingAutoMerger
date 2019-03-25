@@ -9,7 +9,8 @@ import {
     OnChanges,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    SimpleChanges
+    SimpleChanges,
+    HostListener
 } from '@angular/core';
 // import html from './UniSearchAttrHtml';
 // import css from './UniSearchAttrCss';
@@ -64,6 +65,9 @@ export class UniSearchAttr implements OnInit, OnChanges {
     public hasExternalSearch: boolean = false;
     public hasCreateNewButton: boolean = false;
 
+    private keyEventHandler;
+    private inputSubscription;
+
     constructor(private componentElement: ElementRef, private changeDetector: ChangeDetectorRef) { }
 
     public ngOnInit() {
@@ -82,7 +86,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         // Move template outside <input> element, because it won't show if it's inside
         el.parentNode.appendChild(el.firstElementChild);
 
-        Observable.fromEvent(el, 'input')
+        this.inputSubscription = Observable.fromEvent(el, 'input')
             .do(() => this.busy = true)
             .debounceTime(INPUT_DEBOUNCE_TIME)
             .do(() => this.openSearchResult())
@@ -100,23 +104,20 @@ export class UniSearchAttr implements OnInit, OnChanges {
             this.changeDetector.markForCheck();
         });
 
-        // Adding here instead of with @HostListener because that resulted in 404 error on <host>/traceur
-        document.addEventListener('click', event => {
-            if (!event.target) {
-                return;
-            }
+        // Avoid memory leaks (cleanup in ngOnDestroy).
+        // Key logic should be in UniSearch.ts since thats where it actually happens, not here..
+        // This whole component is weird. Should probably rewrite it all.
+        this.keyEventHandler = (event) => this.onKeyDown(event);
+        el.addEventListener('keydown', this.keyEventHandler);
+    }
 
-            const clickedInside = el.parentNode && el.parentNode.contains(event.target);
-            if (!clickedInside) {
-                this.handleUnfinishedValue(this.componentElement.nativeElement.value);
-                this.closeSearchResult();
-            }
-        });
+    ngOnDestroy() {
+        try {
+            const el = this.componentElement.nativeElement;
+            el.removeEventListener('keydown', this.keyEventHandler);
 
-        // Select all text on click
-        el.addEventListener('click', event => event.target.setSelectionRange(0, event.target.value.length));
-
-        el.addEventListener('keydown', event => this.onKeydown(event));
+            this.inputSubscription.unsubscribe();
+        } catch (e) {}
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -205,19 +206,28 @@ export class UniSearchAttr implements OnInit, OnChanges {
         );
     }
 
-    private toggleSearchType() {
+    private toggleSearchType(event?) {
+        if (event) {
+            event.stopPropagation();
+        }
         this.currentSearchType = this.currentSearchType === SearchType.INTERNAL
             ? SearchType.EXTERNAL
             : SearchType.INTERNAL;
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
-    public toggleSearchCompanies() {
+    public toggleSearchCompanies(event?) {
+        if (event) {
+            event.stopPropagation();
+        }
         this.searchCompanies = !this.searchCompanies;
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
-    public toggleSearchPersons() {
+    public toggleSearchPersons(event?) {
+        if (event) {
+            event.stopPropagation();
+        }
         this.searchPersons = !this.searchPersons;
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
@@ -246,7 +256,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }, err => console.error('Uncaught error in UniSearch! Add a .catch() in the lookup function!'));
     }
 
-    public onKeydown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
 
         if (!this.lookupResults && key !== KeyCodes.F4) {
@@ -270,7 +280,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                 }
                 break;
             case KeyCodes.TAB:
-                this.handleUnfinishedValue(this.componentElement.nativeElement.value);
+                this.handleUnfinishedValue();
                 this.closeSearchResult();
                 break;
             case KeyCodes.ENTER:
@@ -371,7 +381,8 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }
     }
 
-    private handleUnfinishedValue(val: string) {
+    private handleUnfinishedValue() {
+        const val = this.componentElement.nativeElement.value;
         if (val && this.config.unfinishedValueFn && this.expanded) {
             this.config
                 .unfinishedValueFn(val)
@@ -379,8 +390,9 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }
     }
 
-    private closeSearchResult() {
+    public closeSearchResult() {
         if (this.expanded) {
+            this.handleUnfinishedValue();
             this.currentSearchType = SearchType.INTERNAL;
             this.expanded = false;
             this.container.nativeElement.scrollTop = 0;

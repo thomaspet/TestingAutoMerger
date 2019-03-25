@@ -1,6 +1,8 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatMenuModule, MatDatepickerModule, MatNativeDateModule, DateAdapter, MatAutocompleteModule} from '@angular/material';
+
 import {AppPipesModule} from '../../../app/pipes/appPipesModule';
 
 import {AgGridModule} from 'ag-grid-angular';
@@ -8,13 +10,13 @@ import {AgGridWrapper} from './ag-grid-wrapper';
 import {ColumnMenuNew} from './column-menu-modal';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
-import {TableSearch} from './search/table-search';
 import {TableEditor} from './editor/editor';
+import {TableFilters} from './filters/filters';
+import {AdvancedFilters} from './filters/advanced-filters/advanced-filters';
 
 import {RowMenuRenderer} from './cell-renderer/row-menu';
-
 import {TABLE_CONTROLS} from '../unitable/controls';
-import {MatMenuModule} from '@angular/material';
+import {UniDateAdapter} from '@app/date-adapter';
 
 @NgModule({
     imports: [
@@ -22,6 +24,9 @@ import {MatMenuModule} from '@angular/material';
         FormsModule,
         ReactiveFormsModule,
         MatMenuModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatAutocompleteModule,
         AppPipesModule,
         AgGridModule.withComponents([
             RowMenuRenderer
@@ -29,18 +34,22 @@ import {MatMenuModule} from '@angular/material';
     ],
     declarations: [
         AgGridWrapper,
-        TableSearch,
         ColumnMenuNew,
         TableEditor,
-        RowMenuRenderer
+        RowMenuRenderer,
+        TableFilters,
+        AdvancedFilters
     ],
     entryComponents: [
         ColumnMenuNew,
+        AdvancedFilters,
         ...TABLE_CONTROLS
     ],
     providers: [
         TableUtils,
-        TableDataService
+        TableDataService,
+
+        { provide: DateAdapter, useClass: UniDateAdapter },
     ],
     exports: [
         AgGridWrapper

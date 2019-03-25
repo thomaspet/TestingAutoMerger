@@ -1,0 +1,35 @@
+@keyframes spinner
+	to
+		transform: rotate(360deg)
+
+.uni-modal
+    width: 35rem
+    font-size: 15px
+
+ul
+    list-style: none
+    li
+        display: flex
+        margin-bottom: 15px
+        padding: 10px
+        background: #f9f9f9
+        border: 1px solid #d2dae2
+        border-radius: 3px
+
+        i.material-icons
+            flex: 0 0 auto
+            margin-right: 10px
+            &.spinner
+                color: #1D2B33
+                animation: spinner 1000ms linear infinite
+            &.good
+                color: #01A901
+            &.bad
+                color: #F53B57
+
+        > section
+            flex: 1
+            small
+                display: block
+                color: #F53B57
+                margin-top: 5px

@@ -26,7 +26,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
-    constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         super.disableCache();
 
@@ -94,12 +94,13 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.json());
     }
 
-    public sendForPayment(supplierInvoiceId: number) {
+    public sendForPaymentWithData(supplierInvoiceId: number, invoicePaymentData?: InvoicePaymentData) {
         super.invalidateCache();
         return this.http
             .asPOST()
+            .withBody(invoicePaymentData)
             .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=sendForPayment`)
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=sendForPaymentWithPaymentData`)
             .send()
             .map(response => response.json());
     }
@@ -159,13 +160,14 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
 
         const flds = this.selectBuilder('ID', 'StatusCode',
-            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
+            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate', 'FreeTxt',
             'InvoiceNumber', 'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber', 'PaymentInformation',
             'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
             'PaymentID', 'JournalEntry.JournalEntryNumber',
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber',
-            'CurrencyCodeID', 'CurrencyCode.Code');
+            'CurrencyCodeID', 'CurrencyCode.Code',
+            'ReInvoiced');
         let route = '?model=SupplierInvoice' +
             '&select=' + flds +
             '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +

@@ -4,7 +4,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index
 import {UniView} from '../../../../../framework/core/uniView';
 import {
     Employee, Email, Phone,
-    Address, SubEntity, BankAccount, User
+    Address, SubEntity, BankAccount, User, Country, Municipal
 } from '../../../../unientities';
 import {
     UniModalService,
@@ -21,7 +21,8 @@ import {
     ErrorService,
     UniCacheService,
     UniSearchEmployeeConfig,
-    UserService
+    UserService,
+    CountryService
 } from '../../../../services/services';
 declare const _;
 
@@ -68,7 +69,8 @@ export class PersonalDetails extends UniView {
         private businessRelationService: BusinessRelationService,
         private uniSearchEmployeeConfig: UniSearchEmployeeConfig,
         private userService: UserService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private countryService: CountryService
     ) {
 
         super(router.url, cacheService);
@@ -108,14 +110,14 @@ export class PersonalDetails extends UniView {
                 super.getStateSubject('subEntities'))
                 .take(1)
                 .subscribe((result: [Employee, SubEntity[]]) => {
-                    let [employee, subEntities] = result;
+                    const [employee, subEntities] = result;
                     this.getLayout(subEntities, employee);
                 });
         });
     }
 
     private getLayout(subEntities: SubEntity[], employee: Employee) {
-        this.employeeService.layout('EmployeePersonalDetailsForm', employee).subscribe(
+        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
             (layout: any) => {
                 this.fields$.next(this.extendFormConfig(layout.Fields, subEntities, employee));
             }
@@ -180,12 +182,12 @@ export class PersonalDetails extends UniView {
     public showHideNameProperties(
         doUpdateFocus: boolean = false, employee?: Employee, fields?: any[]
     ) {
-        let refresh = !fields;
+        const refresh = !fields;
         fields = fields || this.fields$.getValue();
         employee = employee || this.employee$.getValue();
 
-        let employeeSearchResult: UniFieldLayout = fields.find(x => x.Property === '_EmployeeSearchResult');
-        let employeeName: UniFieldLayout = fields.find(x => x.Property === 'BusinessRelationInfo.Name');
+        const employeeSearchResult: UniFieldLayout = fields.find(x => x.Property === '_EmployeeSearchResult');
+        const employeeName: UniFieldLayout = fields.find(x => x.Property === 'BusinessRelationInfo.Name');
 
         if (this.employeeID > 0
             || (employee && employee.BusinessRelationInfo
@@ -233,7 +235,7 @@ export class PersonalDetails extends UniView {
     }
 
     private extendFormConfig(fields: any[], subEntities: SubEntity[], employee: Employee) {
-        let subEntityField = fields.find(field => field.Property === 'SubEntityID');
+        const subEntityField = fields.find(field => field.Property === 'SubEntityID');
         subEntityField.Options = {
             source: subEntities,
             valueProperty: 'ID',
@@ -247,7 +249,7 @@ export class PersonalDetails extends UniView {
                     : ''
         };
 
-        let multiValuePhone: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultPhone');
+        const multiValuePhone: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultPhone');
         multiValuePhone.Options = {
             entity: Phone,
             listProperty: 'BusinessRelationInfo.Phones',
@@ -272,7 +274,7 @@ export class PersonalDetails extends UniView {
             }
         };
 
-        let multiValueEmail: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultEmail');
+        const multiValueEmail: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.DefaultEmail');
         multiValueEmail.Options = {
             entity: Email,
             listProperty: 'BusinessRelationInfo.Emails',
@@ -289,7 +291,7 @@ export class PersonalDetails extends UniView {
             }
         };
 
-        let multiValueAddress: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.InvoiceAddress');
+        const multiValueAddress: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.InvoiceAddress');
 
         multiValueAddress.Options = {
             entity: Address,
@@ -307,7 +309,7 @@ export class PersonalDetails extends UniView {
             },
             display: (address: Address) => {
 
-                let displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '')
+                const displayVal = (address.AddressLine1 ? address.AddressLine1 + ', ' : '')
                     + (address.PostalCode || '') + ' ' + (address.City || '')
                     + (address.CountryCode ? ', ' + address.CountryCode : '');
                 return displayVal;
@@ -343,16 +345,16 @@ export class PersonalDetails extends UniView {
         const employeeNumberField: UniFieldLayout = this.findByProperty(fields, 'EmployeeNumber');
         employeeNumberField.ReadOnly = !!this.employeeID;
 
-        let employeeNameField: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.Name');
+        const employeeNameField: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.Name');
         employeeNameField.Hidden = this.employeeID === 0;
 
-        let employeeSearchField: UniFieldLayout = this.findByProperty(fields, '_EmployeeSearchResult');
+        const employeeSearchField: UniFieldLayout = this.findByProperty(fields, '_EmployeeSearchResult');
         employeeSearchField.Hidden = this.employeeID > 0;
         employeeSearchField.Options = {
             uniSearchConfig: this.getEmployeeLookupOptions()
         };
 
-        let userIDField = this.findByProperty(fields, 'UserID');
+        const userIDField = this.findByProperty(fields, 'UserID');
         userIDField.Options = {
             getDefaultData: () => {
                 return this.employee$
@@ -372,15 +374,48 @@ export class PersonalDetails extends UniView {
             debounceTime: 200,
         };
 
+        const municipalityField = this.findByProperty(fields, 'MunicipalityNo');
+        const defaultValue = this.employee$.asObservable()
+            .switchMap(emp => emp && emp.MunicipalityNo
+                ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
+                : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]))
+            .take(1);
+        municipalityField.Options = {
+            getDefaultData: () => defaultValue,
+            template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
+            search: (query: string) => this.municipalService.search(query),
+            valueProperty: 'MunicipalityNo',
+            displayProperty: 'MunicipalityName',
+            debounceTime: 200
+        };
+
+        const internationalIDCountryField = this.findByProperty(fields, 'InternasjonalIDCountry');
+        internationalIDCountryField.Options = {
+            search: (query) => {
+                const filter = query && query.length
+                    ? `filter=startswith(Name,'${query}')&top=20`
+                    : 'top=20';
+                return this.countryService.GetAll(filter);
+            },
+            events: {
+                select: (model: Address, selectedItem: Country) => {
+                    model.Country = selectedItem.Name;
+                    model.CountryCode = selectedItem.CountryCode;
+                }
+            },
+            valueProperty: 'Name',
+            displayProperty: 'Name',
+        };
+
         return this.showHideNameProperties(false, employee, fields);
     }
 
     private getEmployeeLookupOptions() {
-        let uniSearchConfig = this.uniSearchEmployeeConfig.generate(
+        const uniSearchConfig = this.uniSearchEmployeeConfig.generate(
             this.expands,
             () => {
-                let employee = this.employee$.getValue();
-                let searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
+                const employee = this.employee$.getValue();
+                const searchInfo = <any>this.uniform.field('_EmployeeSearchResult');
                 if (searchInfo) {
                     if (searchInfo.component && searchInfo.component.input) {
                         employee.BusinessRelationInfo.Name = searchInfo.component.input.value;
@@ -412,7 +447,7 @@ export class PersonalDetails extends UniView {
                 this.router.navigateByUrl(`/salary/employees/${selectedItem.ID}`);
                 return Observable.empty();
             } else {
-                let employeeData = this.uniSearchEmployeeConfig
+                const employeeData = this.uniSearchEmployeeConfig
                     .customStatisticsObjToEmployee(selectedItem);
 
                 return Observable.from([employeeData]);
@@ -423,22 +458,27 @@ export class PersonalDetails extends UniView {
     }
 
     private findByProperty(fields, name): UniFieldLayout {
-        var field = fields.find((fld) => fld.Property === name);
+        const field = fields.find((fld) => fld.Property === name);
         return field;
     }
 
     private updateInfoFromSSN(employee: Employee) {
         if (employee.SocialSecurityNumber && employee.SocialSecurityNumber.length === 11) {
 
-            let day: number = +employee.SocialSecurityNumber.substring(0, 2);
+
+            const day: number = +employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +employee.SocialSecurityNumber.substring(2, 4);
             let year: number = +employee.SocialSecurityNumber.substring(4, 6);
-            let controlNumber: number = +employee.SocialSecurityNumber.substring(8, 9);
+            const controlNumber: number = +employee.SocialSecurityNumber.substring(8, 9);
 
-            let yearToday = +new Date().getFullYear().toString().substring(2, 4);
+            const yearToday = +new Date().getFullYear().toString().substring(2, 4);
+
+            if (day > 31) {
+                return;
+            }
 
             if (year < yearToday) {
-                let fullYear: string = new Date().getFullYear().toString().substring(0, 2)
+                const fullYear: string = new Date().getFullYear().toString().substring(0, 2)
                     + (year < 10 ? '0' + year.toString() : year.toString());
                 year = +fullYear;
             }

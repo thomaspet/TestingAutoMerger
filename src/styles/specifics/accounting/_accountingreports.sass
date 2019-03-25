@@ -8,6 +8,10 @@ drilldown-balance-report-part
     display: block
 
 accounting-details-report
+    .uni-account-report-details-year-select
+        margin: 1rem 2rem
+        input
+            height: 2.25rem
     .account-search
         display: block
         height: 2.25rem
@@ -47,6 +51,7 @@ accounting-reports, accounting-details-report
 
     .amount
         text-align: right !important
+        min-width: 6em;
 
     .percentage
         text-align: right !important
@@ -67,21 +72,10 @@ accounting-reports, accounting-details-report
             width: 6.2rem
             float: right
 
-    .dimension-result
-        margin-top: 2rem
-        clear: both
-
-        uni-table
-            font-size: small
-
-        h2
-            margin-top: 0
-            float: left
-            margin-right: pxToRem(20)
-
-        .toggle-period-button
-            margin-top: pxToRem(12)
-            font-size: smaller
+    .dimension-result h2
+        display: inline-block
+        margin-right: 1rem
+        margin-top: 0
 
     .accounting-report-drilldown
         clear: both
@@ -170,6 +164,9 @@ accounting-reports, accounting-details-report
 
             &:nth-of-type(odd)
                 background: mix($uni-color-scale9, $uni-color-negative, 30%)
+
+            &:nth-of-type(even)
+                background: $uni-color-negative
 
             &:hover
                 background: mix($uni-color-c2a, $uni-color-negative, 15%)

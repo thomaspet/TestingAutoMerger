@@ -1,7 +1,23 @@
 $table-border-style: 1px solid $uni-color-scale9
 
 ag-grid-wrapper
-    display: block
+    display: flex
+    flex-direction: column
+    width: 100%
+
+    table-filters
+        flex: 0 0 auto
+
+    .uni-ag-wrapper
+        overflow: hidden
+
+    .row-count
+        position: absolute
+        bottom: 5px
+        left: 5px
+
+    &.small-text .uni-ag-wrapper
+        font-size: 14px
 
 ag-grid-angular
     width: 100%
@@ -10,6 +26,18 @@ ag-grid-angular
 .uni-ag-wrapper
     display: block
     position: relative
+    font-size: 15px
+
+    span.expand-collapse-groups
+        cursor: pointer
+        color: #1565c0
+        position: absolute
+        top: 1px
+        right: 1rem
+        z-index: 999
+        font-size: 14px
+        line-height: 30px
+        user-select: none
 
 .ag-icon-checkbox-indeterminate
     @extend .ag-icon-checkbox-unchecked
@@ -36,6 +64,15 @@ ag-grid-angular
     .ag-pinned-right-cols-container .ag-cell
         border-left: $table-border-style
         border-right: $table-border-style
+
+    .ag-row-group
+        font-style: italic
+        font-weight: bold
+        .table-link
+            text-decoration: none !important
+            cursor: default
+            &:hover
+                background: transparent
 
 ag-grid-wrapper:not(.selection-list)
     .ag-header
@@ -70,8 +107,14 @@ ag-grid-angular.col-menu-hidden
 
 .ag-cell
     line-height: 35px
+    > span
+        display: flex
 .ag-header-cell
     line-height: 35px // 40px
+
+// Hide resize indicator
+.ag-header-cell::after
+    display: none !important
 
 .ag-cell, .ag-header-cell
     padding: 0 10px
@@ -110,6 +153,9 @@ ag-grid-angular.col-menu-hidden
             content: 'unfold_more'
             font-size: 24px
             color: $uni-color-scale4
+
+        & + .ag-cell-value
+            visibility: hidden
 
 
     &.row-menu .row-menu-container
@@ -282,7 +328,8 @@ ag-grid-angular .disabled-row
         background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
     &.bad
         background: unicon-warning($uni-color-bad) no-repeat center
-        background-size: 1rem
+        background-size: 1.4rem
+        height: 1.9rem
 
     &.good, &.warn
         background-size: .4rem

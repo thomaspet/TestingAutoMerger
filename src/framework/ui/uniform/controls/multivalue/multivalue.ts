@@ -46,9 +46,14 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     public filter: string = '';
     public filterFormControl: FormControl = new FormControl();
 
-
     public selectedRow: any;
     public focusedRow: any;
+    public emptyRow = {
+        isClearSelection: true
+    };
+
+    public shortCutMessage: string = 'Hurtigtaster: \n F2 - Rediger markert linje \n F3 - Opprett ny' +
+    ' \n ENTER - Velg markert linje \n DEL - Slett markert linje \n ESC - Lukk vinduet';
 
     constructor(
         public el: ElementRef,
@@ -73,8 +78,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
             const modelValue = _.get(this.model, this.field.Options.storeResultInProperty);
             this.displayValue = this.getDisplayValue(modelValue);
-
-            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) == this.displayValue);
+            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) === this.displayValue);
 
             if (this.field.Options.onChange) {
                 this.changeEvent.subscribe(value => this.field.Options.onChange(this.selectedRow));
@@ -85,14 +89,16 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     public ngAfterViewInit() {
         this.filteredRows = this.rows;
         this.filterFormControl.valueChanges
-            .subscribe(() => {
+            .debounceTime(150)
+            .subscribe((f) => {
                 this.filteredRows = this.rows.filter(row => {
-                    if (!!this.filter) {
-                        return this.getDisplayValue(row).toLowerCase().startsWith(this.filter.toLowerCase());
-                    }
-                    return true;
+                    const value = (this.getDisplayValue(row) || '').toLowerCase();
+                    const filterString = (this.filter || '').toLowerCase();
+                    return value.includes(filterString);
                 });
+
                 this.updateFocusedRow();
+                this.cd.markForCheck();
             });
         this.readyEvent.emit(this);
     }
@@ -149,9 +155,11 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     }
 
     public close() {
-        this.isOpen = false;
-        this.filter = '';
-        this.focusedRow = this.selectedRow;
+        if (this.isOpen) {
+            this.isOpen = false;
+            this.filter = '';
+            this.focusedRow = null;
+        }
     }
 
     public clearSelection() {
@@ -166,18 +174,18 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         }
 
         this.emitChange(previousValue, null);
+        this.close();
         this.moveForwardEvent.emit({event: null, field: this.field});
     }
 
-    public selectRow(row: any) {
+    public selectRow(row: any, forcedSelection?: boolean) {
         if (row && row.Deleted) {
             return;
         }
         this.close();
-        if (row === this.selectedRow) {
+        if (row === this.selectedRow && !forcedSelection) {
             return;
         }
-
         const previousValue = _.cloneDeep(this.selectedRow);
         this.focusedRow = this.selectedRow = row || null;
         this.displayValue = this.getDisplayValue(row);
@@ -230,6 +238,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
         const oldRows = this.rows;
 
+        let editedValue;
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
                 this.editorIsOpen = true;
@@ -242,14 +251,23 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                         return this.rows;
                     }
 
-                    editedEntity['_isDirty'] = true;
                     const index = this.rows.findIndex(r => r === row);
-                    if (index >= 0) {
-                        this.rows[index] = editedEntity;
-                        this.selectRow(editedEntity);
+                    if (_.isEqual(editedEntity, this.rows[index]) || index === -1) {
+                        editedEntity['_isDirty'] = true;
+                    }
+                    editedValue = editedEntity;
+                    if (editedEntity['_isDirty']) {
+                        if (index >= 0) {
+                            this.rows[index] = editedEntity;
+                            this.selectRow(editedEntity, true);
+                        } else {
+                            this.rows.push(editedEntity);
+                            this.selectRow(editedEntity, true);
+                        }
                     } else {
-                        this.rows.push(editedEntity);
-                        this.selectRow(editedEntity);
+                        this.rows[index] = editedEntity;
+                        this.selectedRow = this.rows[index];
+                        this.displayValue = this.getDisplayValue(editedEntity);
                     }
                     return this.rows;
                 })
@@ -257,7 +275,9 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                 .then(rows => {
                     // let listProperty = this.field.Options.listProperty || this.field.Property;
                     _.set(this.model, listProperty, rows);
-                    this.emitChange(oldRows, rows);
+                    if (editedValue['_isDirty']) {
+                        this.emitChange(oldRows, rows);
+                    }
                 })
                 .catch((err) => {
                     this.editorIsOpen = false;
@@ -277,7 +297,6 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         }
 
         const oldrows = [...this.rows];
-
         // If deleted row was selected row
         if (row === this.selectedRow) {
             if (this.field.Options.storeIdInProperty) {
@@ -327,7 +346,13 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             case KeyCodes.ENTER:
                 if (this.isOpen) {
                     event.preventDefault();
-                    this.selectRow(this.focusedRow);
+                    if (!this.focusedRow && this.field.Options.allowAddValue !== false) {
+                        this.addNew(this.filter);
+                    } else if (this.focusedRow && !this.focusedRow.isClearSelection) {
+                        this.selectRow(this.focusedRow);
+                    } else if (this.focusedRow && this.focusedRow.isClearSelection) {
+                        this.clearSelection();
+                    }
                 }
                 break;
 
@@ -337,9 +362,21 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                     this.isOpen = true;
                     return;
                 }
-                let selectedRowIndexDown = this.filteredRows.findIndex(row => row === this.focusedRow);
-                selectedRowIndexDown = selectedRowIndexDown === undefined ? 0 : selectedRowIndexDown;
-                if (selectedRowIndexDown < this.filteredRows.length - 1) {
+                const selectedRowIndexDown = this.filteredRows.findIndex(row => row === this.focusedRow);
+
+                // Set focus to "Create new" row
+                if (selectedRowIndexDown === this.filteredRows.length - 1) {
+                    // If create new is not allowed, to to top
+                    if (this.field.Options.allowAddValue !== false) {
+                        this.focusedRow = undefined;
+                    } else {
+                        this.focusedRow = this.emptyRow;
+                    }
+                // Set focus to "Clear selected"
+                } else if (!this.focusedRow) {
+                    this.focusedRow = this.emptyRow;
+                // Select next item
+                } else {
                     this.focusedRow = this.filteredRows[selectedRowIndexDown + 1];
                 }
                 break;
@@ -351,25 +388,45 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                     return;
                 }
                 const selectedRowIndexUp = this.filteredRows.findIndex(row => row === this.focusedRow);
-                if (selectedRowIndexUp >= 0) { // allow to go lower than 0 and highlight "not selected" row
+
+                // Set focus to "Create new" row
+                if (selectedRowIndexUp === 0) {
+                    this.focusedRow = this.emptyRow;
+                // Select next item
+                } else if (selectedRowIndexUp > 0) {
                     this.focusedRow = this.filteredRows[selectedRowIndexUp - 1];
+                } else {
+                    // Select last item in list
+                    if (!this.focusedRow || this.field.Options.allowAddValue === false) {
+                        this.focusedRow = this.filteredRows[this.filteredRows.length - 1];
+                    // Set focus to "Create new" row
+                    } else {
+                        this.focusedRow = undefined;
+                    }
                 }
                 break;
 
             case KeyCodes.DELETE:
                 if (!this.isOpen) {
                     this.clearSelection();
+                } else if (this.focusedRow && !this.focusedRow.isClearSelection) {
+                    this.delete(this.focusedRow);
+                    this.close();
                 }
                 break;
 
-            case KeyCodes.F1:
+            case KeyCodes.F2:
                 event.preventDefault();
-                this.edit(this.focusedRow);
+                if (this.focusedRow && !this.focusedRow.isClearSelection) {
+                    this.edit(this.focusedRow);
+                }
                 break;
 
             case KeyCodes.F3:
                 event.preventDefault();
-                this.addNew(this.filter);
+                if (this.field && this.field.Options && this.field.Options.allowAddValue !== false) {
+                    this.addNew(this.filter);
+                }
                 break;
 
             case KeyCodes.SPACE:
@@ -399,13 +456,11 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             return;
         }
 
-        if (!this.rows.length && character) {
-            this.addNew(character);
-        } else if (character) {
+        if (character) {
             if (!this.isOpen) {
                 this.open();
             }
-            this.filter = character;
+            this.filter += character;
             setTimeout(() => this.filterInput.nativeElement.focus());
         }
     }

@@ -190,7 +190,7 @@ export class UniQueryDetails {
                        if (f.field.toLowerCase().endsWith('statuscode')) {
                             const statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
                             if (statusCodes && statusCodes.length > 0) {
-                               f.selectConfig = {
+                               f.filterSelectConfig = {
                                    options: statusCodes,
                                    displayField: 'name',
                                    valueField: 'statusCode'
@@ -206,8 +206,7 @@ export class UniQueryDetails {
                            field: field.Field,
                            operator: field.Operator,
                            value: field.Value,
-                           group: field.Group,
-                           selectConfig: null
+                           group: field.Group
                        };
 
                        this.filters.push(f);
@@ -286,7 +285,7 @@ export class UniQueryDetails {
                 col.template = (rowModel) => this.statusCodeToText(rowModel[aliasColName]);
             }
 
-            col.selectConfig = field.selectConfig;
+            col.filterSelectConfig = field.filterSelectConfig;
 
             columns.push(col);
 
@@ -436,7 +435,7 @@ export class UniQueryDetails {
 
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.queryDefinition.MainModelName, this.selects, this.filterObject.filter, this.expands, headers, null)
+            .GetExportedExcelFile(this.queryDefinition.MainModelName, this.selects, this.filterObject.filter, this.expands, headers, null, false)
                 .subscribe((blob) => {
                     // download file so the user can open it
                     saveAs(blob, 'export.xlsx');
@@ -497,7 +496,7 @@ export class UniQueryDetails {
             if (column.field.toLowerCase().endsWith('statuscode')) {
                 const statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
                 if (statusCodes && statusCodes.length > 0) {
-                    newCol.selectConfig = {
+                    newCol.filterSelectConfig = {
                         options: statusCodes,
                         displayField: 'name',
                         valueField: 'statusCode'
@@ -735,7 +734,7 @@ export class UniQueryDetails {
         if (newCol.field.toLowerCase().endsWith('statuscode')) {
             const statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
             if (statusCodes && statusCodes.length > 0) {
-                newCol.selectConfig = {
+                newCol.filterSelectConfig = {
                     options: statusCodes,
                     displayField: 'name',
                     valueField: 'statusCode'

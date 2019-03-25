@@ -1,13 +1,12 @@
 import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTickerService, CustomerInvoiceService, CustomerOrderService, CustomerQuoteService} from '../../../services/services';
+import {UniTickerService, CustomerInvoiceService, CustomerOrderService, CustomerQuoteService, SupplierInvoiceService} from '../../../services/services';
 import {Ticker, TickerGroup, TickerAction} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Location} from '@angular/common';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniTickerContainer} from '../tickerContainer/tickerContainer';
 import {ITickerActionOverride} from '../../../services/common/uniTickerService';
+import {UniModalService, UniReinvoiceModal} from '@uni-framework/uni-modal';
 
 declare const _; // lodash
 
@@ -40,6 +39,8 @@ export class UniTickerOverview {
         private customerInvoiceService: CustomerInvoiceService,
         private customerOrderService: CustomerOrderService,
         private customerQuoteService: CustomerQuoteService,
+        private supplierInvoiceService: SupplierInvoiceService,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({
             name: 'Oversikt',
@@ -77,7 +78,38 @@ export class UniTickerOverview {
                     case 'quote_list':
                         this.actionOverrides = this.customerQuoteService.actionOverrides;
                         break;
+                    case 'supplierinvoice_list':
+                        this.actionOverrides = this.reinvoiceActionOverrides;
+                        break;
                 }
+            });
+        });
+    }
+
+    // ActionOverrides for reInvoice, here because of circular deps
+    private reinvoiceActionOverrides: Array<ITickerActionOverride> = [
+        {
+            Code: 'supplierinvoice_reinvoice',
+            ExecuteActionHandler: (selectedRows) => this.onReinvoice(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => !selectedRow || !selectedRow.SupplierInvoiceReInvoiced
+        }
+    ];
+
+    private onReinvoice(selectedRows: Array<any>): Promise<any> {
+        const row = selectedRows[0];
+        if (!row) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            this.supplierInvoiceService.Get(row.ID).subscribe(invoice => {
+                this.modalService.open(UniReinvoiceModal, {
+                    data: {
+                        supplierInvoice: invoice
+                    }
+                }).onClose.subscribe(() => {
+                    resolve();
+                });
             });
         });
     }
@@ -142,5 +174,9 @@ export class UniTickerOverview {
         this.tickerContainer.exportToExcel(() => {
             this.exportBusy = false;
         });
+    }
+
+    public turnGroupingOnOff() {
+        this.tickerContainer.turnGroupingOnOff();
     }
 }

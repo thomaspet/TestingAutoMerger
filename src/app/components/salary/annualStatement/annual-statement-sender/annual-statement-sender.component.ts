@@ -1,10 +1,16 @@
 import {Component, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
 import {EmployeeReportPickerListComponent} from '../../common/employee-report-picker-list/employee-report-picker-list.component';
-import {ErrorService, EmployeeService, AnnualStatementService, ReportNames} from '../../../../services/services';
+import {
+    ErrorService, EmployeeService, AnnualStatementService, ReportNames,
+    IAnnualStatementEmailInfo, BrowserStorageService, FinancialYearService, CompanySettingsService
+} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {Employee} from '../../../../unientities';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {Employee, CompanySettings} from '../../../../unientities';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {take, switchMap, finalize} from 'rxjs/operators';
+
+const DEFAULT_OPTIONS_KEY = 'Default_Annual_Statement_Options';
 
 @Component({
     selector: 'uni-annual-statement-sender',
@@ -19,12 +25,17 @@ export class AnnualStatementSenderComponent implements OnInit {
 
     @ViewChild(EmployeeReportPickerListComponent)
     private empReportCmp: EmployeeReportPickerListComponent;
+    public formModel$: BehaviorSubject<IAnnualStatementEmailInfo> = new BehaviorSubject({});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
         private tabService: TabService,
-        private errorService: ErrorService,
         private employeeService: EmployeeService,
-        private annualStatementService: AnnualStatementService
+        private annualStatementService: AnnualStatementService,
+        private storageService: BrowserStorageService,
+        private yearService: FinancialYearService,
+        private companySettingsService: CompanySettingsService,
     ) {}
 
     public ngOnInit() {
@@ -35,11 +46,14 @@ export class AnnualStatementSenderComponent implements OnInit {
             url: this.url
         });
         this.fetchEmployees();
+        this.getDefault()
+            .subscribe(def => this.formModel$.next(def));
+        this.fields$.next(this.getLayout());
     }
 
     private fetchEmployees() {
         this.employeeService
-            .GetAll('', ['BusinessRelationInfo.DefaultEmail'])
+            .getEmpsUsedThisYear(1, ['BusinessRelationInfo.DefaultEmail'])
             .subscribe(emps => this.employees$.next(emps));
     }
 
@@ -65,20 +79,78 @@ export class AnnualStatementSenderComponent implements OnInit {
             return Observable.of(true);
         }
 
-        return this.annualStatementService
-            .sendMail(mailEmps)
-            .finally(() => {
-                this.busy.next(false);
-                this.empReportCmp.resetRows();
-            });
+        return this.formModel$
+            .pipe(
+                take(1),
+                switchMap(model => this.annualStatementService
+                    .sendMail({
+                        EmpIDs: mailEmps.map(e => e.ID),
+                        Mail: {
+                            Subject: model.Subject,
+                            Message: model.Message,
+                        }
+                    })),
+                finalize(() => {
+                    this.busy.next(false);
+                    this.empReportCmp.resetRows();
+                })
+            );
     }
 
     private createFilter(employees: Employee[]): string {
         return employees.map(emp => emp.EmployeeNumber).join(',');
     }
 
+    private getDefault(): Observable<IAnnualStatementEmailInfo> {
+        let def: IAnnualStatementEmailInfo = this.storageService.getItemFromCompany(DEFAULT_OPTIONS_KEY);
+        if (def) {
+            return of(def);
+        }
+        def = {};
+        return this.companySettingsService
+            .getCompanySettings()
+            .map(settings => {
+                def.Message = this.defaultMessage(settings);
+                def.Subject = this.defaultSubject(this.yearService.getActiveYear());
+                return def;
+            });
+    }
+
+    private defaultSubject(year: number) {
+        return `Årsoppgave fra ${year}`;
+    }
+
+    private defaultMessage(compSettings: CompanySettings) {
+        return `Vedlagt årsoppgave \n\r`
+            + `Merk: Passordet for vedlagt fil er ditt fødselsnummer (11 siffer) \n\r`
+            + `Med vennlig hilsen \n`
+            + compSettings.CompanyName;
+    }
+
+    private getLayout(): UniFieldLayout[] {
+        return <any[]>[
+            {
+                Property: 'Subject',
+                FieldType: FieldType.TEXT,
+                Label: 'Epost emne',
+            },
+            {
+                Property: 'Message',
+                FieldType: FieldType.TEXTAREA,
+                Label: 'Epost melding',
+                Class: 'freeTextField'
+            }
+        ];
+    }
+
     public onSelect(event: number) {
         this.selectedEmps.next(event);
+    }
+
+    public formChange() {
+        this.formModel$
+            .take(1)
+            .subscribe(model => this.storageService.setItemOnCompany(DEFAULT_OPTIONS_KEY, model));
     }
 
 }

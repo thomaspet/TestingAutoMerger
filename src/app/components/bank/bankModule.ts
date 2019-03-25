@@ -16,13 +16,16 @@ import {bankRoutes} from './bankRoutes';
 
 import {
     UniPaymentEditModal,
-    UniAutobankAgreementListModal,
-    UniAutobankAgreementModal,
+    UniBankListModal,
     MatchCustomerInvoiceManual,
-    UniAgreementWarningModal,
-    MatchCustomerManualModal
+    MatchSubAccountManualModal,
+    MatchMainAccountModal
 } from './modals';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
+
+import {
+    MatCheckboxModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -30,7 +33,7 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-
+        MatCheckboxModule,
         RouterModule.forChild(bankRoutes),
 
         UniFrameworkModule,
@@ -42,21 +45,19 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
     declarations: [
         BankComponent,
         UniPaymentEditModal,
-        UniAutobankAgreementListModal,
-        UniAutobankAgreementModal,
-        UniAgreementWarningModal,
+        UniBankListModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
-        MatchCustomerManualModal
+        MatchSubAccountManualModal,
+        MatchMainAccountModal
     ],
     entryComponents: [
         UniPaymentEditModal,
-        UniAutobankAgreementListModal,
-        UniAutobankAgreementModal,
-        UniAgreementWarningModal,
+        UniBankListModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
-        MatchCustomerManualModal
+        MatchSubAccountManualModal,
+        MatchMainAccountModal
     ],
     providers: [
         CanDeactivateGuard

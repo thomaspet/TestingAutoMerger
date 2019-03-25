@@ -8,7 +8,7 @@ import {BehaviorSubject} from 'rxjs';
 import {
     ReportDefinitionParameterService,
     ErrorService,
-    YearService,
+    FinancialYearService,
     PayrollrunService
 } from '../../../../services/services';
 
@@ -28,20 +28,15 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
     public model$: BehaviorSubject<{ Yer: number }> = new BehaviorSubject({ Yer: new Date().getFullYear() });
     constructor(
         private payrollRunService: PayrollrunService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) { }
 
     public ngOnInit() {
+        const activeYear = this.financialYearService.getActiveYear();
+
         this.config$.next(this.config);
         this.fields$.next(this.getLayout(this.config.report.parameters));
-        let subscription = this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .finally(() => subscription.unsubscribe())
-            .subscribe(year => {
-                this.model$.next({ Yer: year - 1 });
-            });
+        this.model$.next({ Yer: activeYear - 1 });
     }
 
     private getLayout(reportParameters: ReportDefinitionParameter[]): UniFieldLayout[] {
@@ -82,8 +77,8 @@ export class VacationPayBaseReportFilterModal implements OnInit {
                     class: 'good',
                     method: (model$) => {
                         this.modal.close();
-                        let report = this.modalConfig.report;
-                        let paramName = this.modalConfig.report.parameters[0].Name;
+                        const report = this.modalConfig.report;
+                        const paramName = this.modalConfig.report.parameters[0].Name;
                         report.parameters = [{Name: paramName, value: model$.getValue()[paramName]}];
 
                         this.modalService.open(UniPreviewModal, {

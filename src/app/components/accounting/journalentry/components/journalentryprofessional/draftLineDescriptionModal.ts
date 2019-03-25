@@ -15,7 +15,7 @@ import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
             <article class='modal-content'>
                 <span>Legg til beskrivelse:</span>
                 <br>
-                <input id="text_input" type="text" [(ngModel)]="text">
+                <input id="text_input" type="text" (keydown.enter)="accept()" [(ngModel)]="text">
             </article>
 
             <footer>
@@ -36,18 +36,6 @@ export class DraftLineDescriptionModal implements IUniModal, OnInit, AfterViewIn
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
 
     public text: string;
-    private keyListener: any;
-
-    constructor() {
-        this.keyListener = document.addEventListener('keyup', (event: KeyboardEvent) => {
-            const key = event.which || event.keyCode;
-            // enter to run accept()
-            if (key === 13) {
-                this.accept();
-                document.removeEventListener('keydown', this.keyListener);
-            }
-        });
-    }
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {

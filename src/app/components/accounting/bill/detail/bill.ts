@@ -15,29 +15,28 @@ import {
     Supplier, SupplierInvoice, JournalEntry, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project, Department, User, ApprovalStatus, Approval,
+    User, ApprovalStatus, Approval,
     UserRole,
     TaskStatus,
     Dimensions,
-    BankData,
-    VatDeduction
+    VatDeduction,
+    Payment
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '../../../../../framework/save/save';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
-import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniImageSize, UniImage} from '../../../../../framework/uniImage/uniImage';
+import {UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
-import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
-import {JournalEntryData, NumberSeriesTaskIds} from '../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
     UniModalService,
@@ -49,13 +48,12 @@ import {
     ConfirmActions,
     UniApproveModal,
     ApprovalDetails,
-    IModalOptions
+    IModalOptions,
+    UniReinvoiceModal
 } from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
     SupplierService,
-    UniCacheService,
-    VatTypeService,
     BankAccountService,
     CurrencyCodeService,
     CurrencyService,
@@ -70,24 +68,25 @@ import {
     ProjectService,
     DepartmentService,
     Lookupservice,
-    AccountService,
     JournalEntryService,
-    NumberFormat,
     UserService,
     ValidationService,
     UniFilesService,
     BankService,
     CustomDimensionService,
-    SupplierInvoiceItemService,
     FileService,
-    VatDeductionService
+    VatDeductionService,
+    PaymentService,
+    BrowserStorageService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
-declare var _;
+import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
+import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 
 interface ITab {
     name: string;
@@ -101,7 +100,8 @@ enum actionBar {
     save = 0,
     saveWithNewDocument = 1,
     delete = 2,
-    ocr = 3
+    ocr = 3,
+    runSmartBooking = 4
 }
 
 interface ILocalValidation {
@@ -135,10 +135,10 @@ export class BillView implements OnInit {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
+    public costAllocationData$: BehaviorSubject<CostAllocationData> = new BehaviorSubject(new CostAllocationData());
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
-    public hasStartupFileID: boolean = false;
     public ocrData: any;
     public ocrWords: Array<any>;
     public startUpFileID: Array<number> = [];
@@ -151,6 +151,9 @@ export class BillView implements OnInit {
     public files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
+    private invoicePayments: Array<Payment> = [];
+    // Sum of amount and amount currency
+    private sumOfPayments: any;
     private supplierIsReadOnly: boolean = false;
     public commentsConfig: ICommentsConfig;
     private formReady: boolean;
@@ -169,12 +172,14 @@ export class BillView implements OnInit {
     public loadingForm: boolean = false;
     public hasLoadedCustomDimensions: boolean = false;
     public isBlockedSupplier: boolean = false;
+    public orgNumber: string;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
         'Info.BankAccounts',
         'Info.DefaultBankAccount',
-        'CurrencyCode'
+        'CurrencyCode',
+        'CostAllocation'
     ];
 
     public activeTabIndex: number = 0;
@@ -184,7 +189,16 @@ export class BillView implements OnInit {
         {name: 'Leverandørhistorikk'}
     ];
 
+    currentFreeTxt: string = '';
+
+    public detailsTabIndex: number = 0;
+    public detailsTabs: IUniTab[] = [
+        {name: 'Detaljer', value: 0},
+        {name: 'Fritekst', tooltip: '', value: 1 }
+    ];
+
     public actions: IUniSaveAction[];
+    public contextMenuItems: IContextMenuItem[] = [];
 
     private rootActions: IUniSaveAction[] = [
         {
@@ -197,7 +211,7 @@ export class BillView implements OnInit {
             label: lang.tool_save_and_new,
             action: (done) => this.saveAndGetNewDocument(done),
             main: true,
-            disabled: true
+            disabled: false
         },
         {
             label: lang.tool_delete,
@@ -211,15 +225,31 @@ export class BillView implements OnInit {
             main: false,
             disabled: false
         },
+        {
+            label: 'Kjør smart bokføring',
+            action: (done) => { this.runSmartBooking(this.orgNumber, true); done(); },
+            main: false,
+            disabled: false
+        },
+        {
+            label: 'Innstilliger for smart bokføring',
+            action: (done) => { this.openSmartBookingSettingsModal(); done(); },
+            main: false,
+            disabled: false
+        }
     ];
+
+    public smartBookingSettings = {
+        showNotification: true,
+        addNotifcationAsComment: false,
+        turnOnSmartBooking: true
+    };
 
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
         private toast: ToastService,
         private route: ActivatedRoute,
-        private cache: UniCacheService,
-        private vatTypeService: VatTypeService,
         private supplierService: SupplierService,
         private router: Router,
         private location: Location,
@@ -239,22 +269,31 @@ export class BillView implements OnInit {
         private lookup: Lookupservice,
         private userService: UserService,
         private commentService: CommentService,
-        private accountService: AccountService,
         private journalEntryService: JournalEntryService,
-        private numberFormat: NumberFormat,
         private validationService: ValidationService,
         private uniFilesService: UniFilesService,
         private bankService: BankService,
         private customDimensionService: CustomDimensionService,
         private vatDeductionService: VatDeductionService,
-        private fileService: FileService
+        private fileService: FileService,
+        private paymentService: PaymentService,
+        private browserStorageService: BrowserStorageService
     ) {
         this.actions = this.rootActions;
+
+        // Get settings from localstorage or use default
+        const settings = this.browserStorageService.getSpecificViewSettings('SUPPLIERINVOICE');
+        this.smartBookingSettings = settings ? settings : this.smartBookingSettings;
+
         userService.getCurrentUser().subscribe( usr => {
             this.myUser = usr;
             this.userService.getRolesByUserId(this.myUser.ID).subscribe(roles => {
                 this.myUserRoles = roles;
             });
+        });
+
+        this.current.subscribe((invoice) => {
+            this.tryUpdateCostAllocationData(invoice);
         });
     }
 
@@ -285,6 +324,7 @@ export class BillView implements OnInit {
             const id = safeInt(params.id);
             const projectID = safeInt(params['projectID']);
             const pageParams = this.pageStateService.getPageState();
+            this.currentFreeTxt = '';
 
             if (id === this.currentID) { return; } // no-reload-required
             Observable.forkJoin(
@@ -292,7 +332,10 @@ export class BillView implements OnInit {
                 this.currencyCodeService.GetAll(null),
                 this.customDimensionService.getMetadata(),
                 this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid),
-                this.vatDeductionService.GetAll(null)
+                this.vatDeductionService.GetAll(null),
+                this.bankService.getBankPayments(id),
+                this.bankService.getRegisteredPayments(id),
+                this.bankService.getSumOfPayments(id)
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
@@ -301,18 +344,32 @@ export class BillView implements OnInit {
 
                 if (links.length > 0) {
                     if (links.length > 1) {
-                        this.toast.addToast('Flere fakturamottak knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                        this.toast.addToast('Flere leverandørfaktura knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                    } else  {
+                        this.toast.addToast('Filen du vil bruke er knyttet til en leverandørfaktura. ' +
+                        'Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen ' +
+                        'og gå tilbake til innboksen og starte på nytt med riktig fil.', ToastType.warn, ToastTime.medium);
                     }
                     this.currentID = links[0].entityID;
                     this.router.navigateByUrl('/accounting/bills/' + this.currentID);
                 } else if (id > 0) {
                     this.fetchInvoice(id, true);
                 } else {
-                    this.newInvoice(true);
-                    this.checkPath();
+                    const getSupplier = +params['supplierID']
+                        ? this.supplierService.Get(+params['supplierID'], this.supplierExpandOptions)
+                        : Observable.of(null);
+
+                    getSupplier.subscribe(supplier => {
+                        this.newInvoice(true, supplier);
+                        this.checkPath();
+                    });
                 }
 
                 this.vatDeductions = res[4];
+
+                this.invoicePayments = res[5].concat(res[6]);
+
+                this.sumOfPayments = res[7][0];
 
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
@@ -387,10 +444,21 @@ export class BillView implements OnInit {
         }
     }
 
+    private updateInvoicePayments() {
+        return Observable.forkJoin(
+            this.bankService.getBankPayments(this.currentID),
+            this.bankService.getRegisteredPayments(this.currentID),
+            this.bankService.getSumOfPayments(this.currentID)
+            ).subscribe(res => {
+                this.invoicePayments = res[0].concat(res[1]);
+                this.sumOfPayments = res[2][0];
+                this.fetchInvoice(this.currentID, false);
+            });
+    }
+
     private addTab(id: number = 0) {
-        const label = id > 0 ? trimLength(this.toolbarConfig.title, 12) : lang.title_new;
         this.tabService.addTab({
-            name: label,
+            name: 'Leverandørfaktura',
             url : '/accounting/bills/' + id,
             moduleID: UniModules.Bills,
             active: true
@@ -411,20 +479,29 @@ export class BillView implements OnInit {
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Fakturadato',
                 Classes: 'bill-small-field',
-                Section: 0
+                Section: 0,
+                Options: {
+                    useLastMonthsPreviousYearUntilMonth: 4
+                }
             },
             <any> {
                 Property: 'PaymentDueDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forfallsdato',
                 Classes: 'bill-small-field right',
-                Section: 0
+                Section: 0,
+                Options: {
+                    useLastMonthsPreviousYearUntilMonth: 4
+                }
             },
             <any> {
                 Property: 'DeliveryDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Leveringsdato',
-                Section: 0
+                Section: 0,
+                Options: {
+                    useLastMonthsPreviousYearUntilMonth: 4
+                }
             },
             <any> {
                 Property: 'InvoiceNumber',
@@ -652,6 +729,7 @@ export class BillView implements OnInit {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`)
             .subscribe((invoice: SupplierInvoice) => {
+                invoice.ID = this.currentID;
                 this.updateSummary([]);
                 this.toast.clear();
                 this.handleEHFResult(invoice);
@@ -732,7 +810,8 @@ export class BillView implements OnInit {
                 });
 
             // Existing supplier and new bankaccount?
-        } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
+            } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
+                this.orgNumber = invoice.Supplier.OrgNumber;
                 const bbanoriban = invoice.BankAccount.AccountNumber
                     ? `${lang.create_bankaccount_bban} ${invoice.BankAccount.AccountNumber}`
                     : `${lang.create_bankaccount_iban} ${invoice.BankAccount.IBAN}`;
@@ -755,6 +834,12 @@ export class BillView implements OnInit {
                 this.current.next(invoice);
             }
 
+            if (invoice.Supplier) {
+                this.orgNumber = invoice.Supplier.OrgNumber;
+            }
+
+            this.tryAddCostAllocation('EHF');
+
             // CHECK IF CUSTOMER IS BLOCKED!!
             // Should check here for customer status, and suggest to reject when status is BLOCKED!
             if (invoice && invoice.Supplier && invoice.Supplier.StatusCode === 70001) {
@@ -771,6 +856,12 @@ export class BillView implements OnInit {
                 invoice.BankAccount = res;
                 invoice.BankAccountID = res.ID;
                 this.current.next(invoice);
+
+                // supplier
+                const idx = supplier.Info.BankAccounts.findIndex(ba => ba.ID == 0 && ba.AccountNumber == res.AccountNumber);
+                idx != undefined
+                    ? supplier.Info.BankAccounts[idx] = res
+                    : supplier.Info.BankAccounts.push(res);
 
                 this.setSupplier(supplier);
             },
@@ -790,23 +881,6 @@ export class BillView implements OnInit {
     ///     FILES AND OCR
 
     /// =============================
-
-    public onImageClicked(file: any) {
-        const current = this.current.getValue();
-        const data = {
-            entity: 'SupplierInvoice',
-            entityID: current.ID || 0,
-            fileIDs: null,
-            showFileID: file.ID,
-            readonly: true,
-            size: UniImageSize.large
-        };
-
-        if (data.entityID <= 0) {
-            data.fileIDs = this.files.map(f => f.ID);
-        }
-        this.modalService.open(ImageModal, { data: data });
-    }
 
     public onImageDeleted(file: any) {
         const index = this.files.findIndex(f => f.ID === file.ID);
@@ -899,51 +973,56 @@ export class BillView implements OnInit {
                 this.flagUnsavedChanged();
                 this.ocrData = result;
                 this.uniImage.setOcrData(this.ocrData);
+                this.tryAddCostAllocation();
             }, (err) => {
                 this.errorService.handle(err);
             });
+    }
+
+    private setSupplierBasedOnOrgno(orgNo: string, ocr) {
+        this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, this.supplierExpandOptions)
+            .subscribe((result: Supplier[]) => {
+                if (!result || !result.length) {
+                    this.findSupplierViaPhonebook(
+                        orgNo,
+                        true,
+                        ocr.BankAccountCandidates.length > 0
+                            ? ocr.BankAccountCandidates[0]
+                            : null
+                    );
+
+                    return;
+                }
+
+                const supplier = result[0];
+
+                if (ocr.BankAccountCandidates.length > 0) {
+                    let bankAccount: BankAccount;
+
+                    for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
+                        const candidate = ocr.BankAccountCandidates[i];
+
+                        const existingAccount = supplier.Info.BankAccounts
+                            .find(x => x.AccountNumber === candidate);
+
+                        if (existingAccount) {
+                            bankAccount = existingAccount;
+                        }
+                    }
+
+                    this.setOrCreateBankAccount(bankAccount, supplier, ocr.BankAccount);
+                }
+
+                this.setSupplier(supplier);
+            },
+            err => this.errorService.handle(err));
     }
 
     private handleOcrResult(ocr: OcrValuables) {
         if (ocr.Orgno) {
             if (!this.hasValidSupplier()) {
                 const orgNo = filterInput(ocr.Orgno);
-                this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts'])
-                    .subscribe((result: Supplier[]) => {
-                        if (!result || !result.length) {
-                            this.findSupplierViaPhonebook(
-                                orgNo,
-                                true,
-                                ocr.BankAccountCandidates.length > 0
-                                    ? ocr.BankAccountCandidates[0]
-                                    : null
-                            );
-
-                            return;
-                        }
-
-                        const supplier = result[0];
-
-                        if (ocr.BankAccountCandidates.length > 0) {
-                            let bankAccount: BankAccount;
-
-                            for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
-                                const candidate = ocr.BankAccountCandidates[i];
-
-                                const existingAccount = supplier.Info.BankAccounts
-                                    .find(x => x.AccountNumber === candidate);
-
-                                if (existingAccount) {
-                                    bankAccount = existingAccount;
-                                }
-                            }
-
-                            this.setOrCreateBankAccount(bankAccount, supplier, ocr.BankAccount);
-                        }
-
-                        this.setSupplier(supplier);
-                    },
-                    err => this.errorService.handle(err));
+                this.setSupplierBasedOnOrgno(orgNo, ocr);
             }
         }
 
@@ -1047,6 +1126,17 @@ export class BillView implements OnInit {
                         item.forradrpostnr, item.forradrpoststed, bankAccount
                     );
                 }
+            } else {
+                this.toast.addToast(
+                    'Ingen leverandør funnet',
+                    ToastType.warn,
+                    ToastTime.long,
+                    'Det finnes ikke noen leverandør med orgnr ' + orgNo + ' ' +
+                    'blant registrerte leverandører eller hos 1881. ' +
+                    'Vennligst velg leverandør eller legg til en ny manuelt'
+                );
+
+                this.setSupplier(null, true);
             }
         }, err => this.errorService.handle(err));
     }
@@ -1120,6 +1210,11 @@ export class BillView implements OnInit {
         let property = null;
 
         switch (event.field.Property) {
+            case 'Supplier':
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.OfficialNumber
+                );
+                break;
             case 'InvoiceDate':
                 property = this.ocrData.InterpretedProperties.find(
                     x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceDate
@@ -1192,6 +1287,15 @@ export class BillView implements OnInit {
         let value = event.word.text;
 
         switch (event.propertyType) {
+            case OcrPropertyType.OfficialNumber:
+                if (this.validationService.isStringWithOnlyNumbers(value) && value.length === 9) {
+                    const orgNo = filterInput(value);
+                    const ocrData = new OcrValuables(this.ocrData);
+                    this.setSupplierBasedOnOrgno(orgNo, ocrData);
+                } else {
+                    isValid = false;
+                }
+                break;
             case OcrPropertyType.CustomerIdentificationNumber:
                 if (this.validationService.isKidNumber(value)) {
                     invoice.PaymentID = value;
@@ -1364,7 +1468,12 @@ export class BillView implements OnInit {
 
         if (change['Supplier'])  {
             const supplier = change['Supplier'].currentValue;
-            if (model.Supplier.StatusCode === StatusCode.InActive) {
+
+            if (supplier === null) {
+                model.SupplierID = null;
+            }
+
+            if (model.Supplier && model.Supplier.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
@@ -1380,7 +1489,19 @@ export class BillView implements OnInit {
                 });
             }
 
-            if (supplier.ID) {
+            if (supplier && (supplier.ID === 0 || !supplier.ID)) {
+                this.supplierService.getSuppliers(supplier.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede leverandør med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.SupplierNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toast.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
+
+            if (supplier && supplier.ID) {
                 if (!this.modulusService.isValidOrgNr(supplier.OrgNumber)
                     && (!supplier.StatusCode || supplier.StatusCode === StatusCode.Pending)
                 ) {
@@ -1395,13 +1516,19 @@ export class BillView implements OnInit {
                         res => {
                             if (res === ConfirmActions.ACCEPT) {
                                 this.fetchNewSupplier(supplier.ID);
-                                return this.uniForm.field('InvoiceDate').focus();
+                                if (this.detailsTabIndex === 0) {
+                                    this.uniForm.field('InvoiceDate').focus();
+                                    return;
+                                }
                             }
                             const current = this.current.value;
                             current.SupplierID = null;
                             current.Supplier = null;
                             this.current.next(current);
-                            return this.uniForm.field('Supplier').focus();
+                            if (this.detailsTabIndex === 0) {
+                                this.uniForm.field('Supplier').focus();
+                                return;
+                            }
                         }
                     );
                 }
@@ -1487,6 +1614,10 @@ export class BillView implements OnInit {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
             }
+
+            if (this.orgNumber && !change['TaxInclusiveAmountCurrency'].previousValue && !model.Supplier.CostAllocation) {
+                this.runSmartBooking(this.orgNumber);
+            }
         }
 
         // need to push an update if other fields changes to make the journal entry grid update itself
@@ -1502,15 +1633,20 @@ export class BillView implements OnInit {
             this.current.next(model);
         }
 
-        if (change['DefaultDimensions.ProjectID']) {
-            model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
-            this.projectService.Get(change['DefaultDimensions.ProjectID'].currentValue).subscribe((project) => {
-                model.DefaultDimensions.Project = project;
-                this.current.next(model);
+        if (change['TaxInclusiveAmountCurrency'] && this.journalEntryManual.isEmpty()) {
+            this.tryAddCostAllocation();
+        }
 
-                // Check if the journalentrylines have a different project..
-                if (lines.filter(line => line.Dimensions && line.Dimensions.ProjectID &&
-                    line.Dimensions.ProjectID !== project.ID).length) {
+        if (change['DefaultDimensions.ProjectID']) {
+            if (!model.DefaultDimensionsID) {
+                model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
+            }
+            if (!change['DefaultDimensions.ProjectID'].currentValue) {
+                model.DefaultDimensions.Project = null;
+                model.DefaultDimensions.ProjectID = null;
+                this.current.next(model);
+                const linesWithProject = lines.filter(line => line.Dimensions && line.Dimensions.ProjectID && line.Dimensions.ProjectID);
+                if (linesWithProject.length) {
                     this.modalService.open(UniConfirmModalV2, {
                         buttonLabels: {
                             accept: 'Oppdater alle linjer',
@@ -1521,31 +1657,65 @@ export class BillView implements OnInit {
                     }).onClose.subscribe((res) => {
                         if (res === ConfirmActions.ACCEPT) {
                             lines.forEach((line: any) => {
-                                line.Dimensions.Project = project;
-                                line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                                line.Dimensions.Project = null;
+                                line.Dimensions.ProjectID = null;
                             });
                             this.journalEntryManual.setJournalEntryData(lines);
                         }
                     });
                 } else {
                     lines.forEach((line: any) => {
-                        line.Dimensions.Project = project;
-                        line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                        line.Dimensions.Project = null;
+                        line.Dimensions.ProjectID = null;
                     });
                     this.journalEntryManual.setJournalEntryData(lines);
                 }
-            });
+            } else {
+                this.projectService.Get(change['DefaultDimensions.ProjectID'].currentValue).subscribe((project) => {
+                    model.DefaultDimensions.Project = project;
+                    this.current.next(model);
+
+                    // Check if the journalentrylines have a different project..
+                    if (lines.filter(line => line.Dimensions && line.Dimensions.ProjectID &&
+                        line.Dimensions.ProjectID !== project.ID).length) {
+                        this.modalService.open(UniConfirmModalV2, {
+                            buttonLabels: {
+                                accept: 'Oppdater alle linjer',
+                                reject: 'Ikke oppdater'
+                            },
+                            header: 'Prosjekt',
+                            message: 'Det finnes linjer med ulikt prosjekt. Vil du oppdatere prosjekt på alle linjene?'
+                        }).onClose.subscribe((res) => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                lines.forEach((line: any) => {
+                                    line.Dimensions.Project = project;
+                                    line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                                });
+                                this.journalEntryManual.setJournalEntryData(lines);
+                            }
+                        });
+                    } else {
+                        lines.forEach((line: any) => {
+                            line.Dimensions.Project = project;
+                            line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                        });
+                        this.journalEntryManual.setJournalEntryData(lines);
+                    }
+                });
+            }
         }
 
         if (change['DefaultDimensions.DepartmentID']) {
-            model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
-            this.departmentService.Get(change['DefaultDimensions.DepartmentID'].currentValue).subscribe((department) => {
-                model.DefaultDimensions.Department = department;
+            if (!model.DefaultDimensionsID) {
+                model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
+            }
+            if (!change['DefaultDimensions.DepartmentID'].currentValue) {
+                model.DefaultDimensions.Department = null;
+                model.DefaultDimensions.DepartmentID = null;
                 this.current.next(model);
-
-                // Check if the journalentrylines have a different department..
-                if (lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID &&
-                    line.Dimensions.DepartmentID !== department.ID).length) {
+                const linesWithDepartment = lines.filter(line =>
+                    line.Dimensions && line.Dimensions.DepartmentID && line.Dimensions.DepartmentID);
+                if (linesWithDepartment.length) {
                     this.modalService.open(UniConfirmModalV2, {
                         buttonLabels: {
                             accept: 'Oppdater alle linjer',
@@ -1556,20 +1726,52 @@ export class BillView implements OnInit {
                     }).onClose.subscribe((res) => {
                         if (res === ConfirmActions.ACCEPT) {
                             lines.forEach((line: any) => {
-                                line.Dimensions.Department = department;
-                                line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                                line.Dimensions.Department = null;
+                                line.Dimensions.DepartmentID = null;
                             });
                             this.journalEntryManual.setJournalEntryData(lines);
                         }
                     });
                 } else {
                     lines.forEach((line: any) => {
-                        line.Dimensions.Department = department;
-                        line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                        line.Dimensions.Department = null;
+                        line.Dimensions.DepartmentID = null;
                     });
                     this.journalEntryManual.setJournalEntryData(lines);
                 }
-            });
+            } else {
+                this.departmentService.Get(change['DefaultDimensions.DepartmentID'].currentValue).subscribe((department) => {
+                    model.DefaultDimensions.Department = department;
+                    this.current.next(model);
+
+                    // Check if the journalentrylines have a different department..
+                    if (lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID &&
+                        line.Dimensions.DepartmentID !== department.ID).length) {
+                        this.modalService.open(UniConfirmModalV2, {
+                            buttonLabels: {
+                                accept: 'Oppdater alle linjer',
+                                reject: 'Ikke oppdater'
+                            },
+                            header: 'Avdeling',
+                            message: 'Det finnes linjer med ulik avdeling. Vil du oppdatere avdeling på alle linjene?'
+                        }).onClose.subscribe((res) => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                lines.forEach((line: any) => {
+                                    line.Dimensions.Department = department;
+                                    line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                                });
+                                this.journalEntryManual.setJournalEntryData(lines);
+                            }
+                        });
+                    } else {
+                        lines.forEach((line: any) => {
+                            line.Dimensions.Department = department;
+                            line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                        });
+                        this.journalEntryManual.setJournalEntryData(lines);
+                    }
+                });
+            }
         }
 
         this.flagUnsavedChanged();
@@ -1601,29 +1803,78 @@ export class BillView implements OnInit {
 
     private setSupplier(result: Supplier, updateCombo = true) {
         const current: SupplierInvoice = this.current.value;
-        this.currentSupplierID = result.ID;
+        this.currentSupplierID = result ? result.ID : null;
         current.Supplier = result;
 
-        if (current.SupplierID !== result.ID) {
+        if (!result) {
+            current.SupplierID = null;
+            current.BankAccount = null;
+            current.BankAccountID = null;
+        } else if (current.SupplierID !== result.ID) {
             current.SupplierID = result.ID;
         }
 
-        if (!current.BankAccountID && result.Info.DefaultBankAccountID ||
-            (current.BankAccount && current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
-            current.BankAccountID = result.Info.DefaultBankAccountID;
-            current.BankAccount = result.Info.DefaultBankAccount;
-        }
+        if (result) {
+            if (!current.BankAccountID && result.Info.DefaultBankAccountID ||
+                (current.BankAccount && current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
+                current.BankAccountID = result.Info.DefaultBankAccountID;
+                current.BankAccount = result.Info.DefaultBankAccount;
+            }
 
-        if (result.CurrencyCodeID) {
-            current.CurrencyCodeID = result.CurrencyCodeID;
-        } else {
-            current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            if (result.CurrencyCodeID) {
+                current.CurrencyCodeID = result.CurrencyCodeID;
+            } else {
+                current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+            this.orgNumber = result.OrgNumber;
+
+            if (!current.Supplier.CostAllocation) {
+                // Add orgnumber as params, not input.. Only run if not costallocation
+                this.runSmartBooking(this.orgNumber);
+            }
+
+            if (current.TaxInclusiveAmountCurrency && this.journalEntryManual.isEmpty()) {
+                this.tryAddCostAllocation();
+            }
         }
 
         // make uniform update itself to show correct values for bankaccount/currency
         this.current.next(current);
 
         this.setupToolbar();
+    }
+
+    private runSmartBooking(orgNumber, showToastIfNotRan: boolean = false) {
+        if (!this.current.getValue().TaxInclusiveAmountCurrency || (!this.smartBookingSettings.turnOnSmartBooking && !showToastIfNotRan)) {
+            if (this.smartBookingSettings.showNotification && showToastIfNotRan) {
+                this.toast.addToast('Smart bokføring', ToastType.warn, 15,
+                'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten total eller leverandør med orgnr.');
+            }
+            return;
+        }
+
+        this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan).then((value: any) => {
+            if (value.msg) {
+                if (this.smartBookingSettings.showNotification) {
+                    this.toast.addToast('Smart bokføring', value.type, 15, value.msg);
+                }
+
+                if (this.smartBookingSettings.addNotifcationAsComment) {
+                    this.addComment(value.msg);
+                }
+            }
+        });
+
+    }
+
+    private openSmartBookingSettingsModal() {
+        const options = { data: { settings: this.smartBookingSettings } };
+        this.modalService.open(UniSmartBookingSettingsModal, options).onClose.subscribe((res) => {
+            if (res) {
+                this.smartBookingSettings = res;
+                this.browserStorageService.setSpecificViewSettings('SUPPLIERINVOICE', res);
+            }
+        });
     }
 
     private blockedSupplier(current) {
@@ -1678,13 +1929,21 @@ export class BillView implements OnInit {
             });
     }
 
-    private newInvoice(isInitial: boolean) {
+    private newInvoice(isInitial: boolean, supplier?: Supplier) {
         const current = new SupplierInvoice();
+        this.orgNumber = null;
         current.StatusCode = 0;
         current.SupplierID = null;
         current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
         current.CurrencyExchangeRate = 1;
         current.DefaultDimensions = new Dimensions();
+        this.currentFreeTxt = '';
+
+        if (supplier) {
+            current.SupplierID = supplier.ID;
+            current.Supplier = supplier;
+            this.uniSearchConfig.initialItem$.next(current.Supplier);
+        }
 
         this.current.next(current);
 
@@ -1707,6 +1966,7 @@ export class BillView implements OnInit {
         this.flagUnsavedChanged(true);
         this.initDefaultActions();
         this.flagActionBar(actionBar.delete, false);
+        this.flagActionBar(actionBar.runSmartBooking, true);
         this.supplierIsReadOnly = false;
         this.hasUnsavedChanges = false;
         this.resetDocuments();
@@ -1714,19 +1974,18 @@ export class BillView implements OnInit {
         this.startUpFileID = [];
         this.busy = false;
 
-        if (!isInitial) {
-            this.hasStartupFileID = false;
-        } else {
-            setTimeout(() => {
-                this.journalEntryManual.setJournalEntryData([]);
-            });
-        }
+        setTimeout(() => {
+            if (this.journalEntryManual) { this.journalEntryManual.setJournalEntryData([]); }
+        });
+
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
     }
 
     private flagUnsavedChanged(reset = false) {
+
         this.flagActionBar(actionBar.save, !reset);
-        this.flagActionBar(actionBar.saveWithNewDocument, !reset);
+        this.detailsTabs[1].tooltip = this.currentFreeTxt;
+
         if (!reset && !this.isBlockedSupplier) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
@@ -1757,9 +2016,17 @@ export class BillView implements OnInit {
             const list: IUniSaveAction[] = [];
             this.rootActions.forEach(x => list.push(x));
             const hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
-            const filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment
-                && hasJournalEntry) ? ['journal'] : undefined);
-            this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'sendForPayment'], filter);
+            const filter = [];
+            let mainFirst = true;
+            if (this.invoicePayments.length > 0) {
+                filter.push('sendForPayment');
+                mainFirst = false;
+                list.forEach(x => x.main = false);
+            }
+            if (hasJournalEntry) {
+                filter.push('journal');
+            }
+            this.addActions(it._links.transitions, list, mainFirst, ['assign', 'approve', 'journal', 'sendForPayment'], filter);
 
             // Reassign as admin
             if (!it._links.transitions.hasOwnProperty('reAssign')
@@ -1808,13 +2075,38 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || it.StatusCode === StatusCodeSupplierInvoice.ToPayment) {
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || (it.StatusCode === StatusCodeSupplierInvoice.ToPayment
+                && hasJournalEntry)) {
                 list.push(
                     {
                         label: 'Krediter',
                         action: (done) => setTimeout(() => this.creditSupplierInvoice(done)),
                         main: false,
                         disabled: false
+                    }
+                );
+            }
+
+            // Legg til delbetaling
+            if (it._links.transitions.sendForPayment) {
+                list.push(
+                    {
+                        label: 'Til betalingsliste(delbetaling)',
+                        action: (done) => this.addPayment(done),
+                        main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
+                        disabled: false
+                    }
+                );
+            }
+
+            // Vis betalinger
+            if (this.invoicePayments.length > 0) {
+                list.push(
+                    {
+                        label: 'Vis betalinger',
+                        action: (done) => this.viewPayments(done),
+                        main: true,
+                        disabled: false,
                     }
                 );
             }
@@ -1836,10 +2128,29 @@ export class BillView implements OnInit {
     }
 
     public creditSupplierInvoice(done: any) {
+        const paymentsSentToBank = this.invoicePayments.find(payment =>
+            payment.StatusCode === 44002
+            || payment.StatusCode === 44007
+            || payment.StatusCode === 44008
+            || payment.StatusCode === 44009
+            || payment.StatusCode === 44011) !== undefined;
+
+        const paymentsThatWillBeDeleted = this.invoicePayments.find(payment =>
+            payment.StatusCode === 44001
+            || payment.StatusCode === 44003
+            || payment.StatusCode === 44005
+            || payment.StatusCode === 44012
+            || payment.StatusCode === 44014) !== undefined;
 
         const modal = this.modalService.open(UniConfirmModalV2, {
             header: 'Kreditere faktura?',
-            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til forrige status. '
+            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til kladd.',
+            warning: paymentsSentToBank ?
+                'Leverandørfakturaen har en eller flere betalinger som er sendt til banken. ' +
+                'Dersom du krediterer bør denne betalingen stoppes manuelt i banken.'
+                : paymentsThatWillBeDeleted
+                ? 'Leverandørfakturaen har en eller flere betalinger som vil bli slettet viss du krediterer.'
+                : ''
         });
 
         modal.onClose.subscribe(response => {
@@ -1858,6 +2169,20 @@ export class BillView implements OnInit {
         });
     }
 
+    private viewPayments(done: any) {
+
+        const modal = this.modalService.open(EditSupplierInvoicePayments, {
+            data: this.currentID,
+            buttonLabels: {
+                cancel: 'Lukk'
+            },
+            header: 'Betalinger'
+        });
+
+        modal.onClose.subscribe(() => {
+            this.updateInvoicePayments().add(done());
+        });
+    }
 
     private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
         return {
@@ -1956,15 +2281,31 @@ export class BillView implements OnInit {
     }
 
     public openAddFileModal() {
-        this.modalService.open(UniAddFileModal).onClose.subscribe((element) => {
-            if (element) {
-                if (this.files.length === 0) {
-                    this.startUpFileID = [safeInt(element.ID)];
+        this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
+            if (file) {
+                if (this.files.length) {
+                    this.uniImage.fetchDocumentWithID(safeInt(file.ID));
                 } else {
-                    this.uniImage.fetchDocumentWithID(safeInt(element.ID));
+                    this.startUpFileID = [safeInt(file.ID)];
                 }
+
                 this.numberOfDocuments++;
                 this.hasUnsavedChanges = true;
+            }
+        });
+    }
+
+    public openReinvoiceModal() {
+        this.modalService.open(UniReinvoiceModal, {
+            data: {
+                supplierInvoice: this.current.getValue()
+            }
+        }).onClose.subscribe((result) => {
+            if (result) {
+                this.toast.addToast('Viderefakturering lagret', ToastType.good);
+                setTimeout(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
+                }, 500);
             }
         });
     }
@@ -2002,6 +2343,13 @@ export class BillView implements OnInit {
                 }, (err) => {
                     this.errorService.handle(err);
                     done(err);
+                });
+                return true;
+
+            case 'sendForPayment':
+                this.sendForPayment()
+                .subscribe(() => {
+                    this.updateInvoicePayments().add(done());
                 });
                 return true;
 
@@ -2094,8 +2442,7 @@ export class BillView implements OnInit {
                                     : Observable.of(false);
                             })
                             .subscribe(result => {
-                                this.fetchInvoice(current.ID, false);
-                                done(result ? 'Godkjent, bokført og til betaling' : '');
+                                this.updateInvoicePayments().add(done(result ? 'Godkjent, bokført og til betaling' : ''));
                             });
                     } else {
                         done('Ikke mulig å godkjenne');
@@ -2117,8 +2464,7 @@ export class BillView implements OnInit {
                             : Observable.of(false);
                     })
                     .subscribe(result => {
-                        this.fetchInvoice(current.ID, false);
-                        done(result ? 'Bokført og til betaling' : '');
+                        this.updateInvoicePayments().add(done(result ? 'Bokført og til betaling' : ''));
                     });
 
                 return true;
@@ -2131,8 +2477,60 @@ export class BillView implements OnInit {
     private sendForPayment(): Observable<boolean> {
         const current = this.current.getValue();
         return this.supplierInvoiceService.PostAction(current.ID, 'sendForPayment')
-                   .switchMap(result => Observable.of(true))
-                   .catch(err => Observable.of(false));
+                   .switchMap(() => Observable.of(true))
+                   .catch(() => Observable.of(false));
+    }
+
+    private addPayment(done: any) {
+        const bill = this.current.getValue();
+        const today = new LocalDate(Date());
+        const dueDate = this.current.getValue().PaymentDueDate;
+
+        const paymentData: InvoicePaymentData = {
+            Amount: roundTo(bill.RestAmount),
+            AmountCurrency: roundTo(bill.RestAmountCurrency),
+            BankChargeAmount: 0,
+            CurrencyCodeID: bill.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: dueDate > today ? dueDate : today,
+            AgioAccountID: 0,
+            BankChargeAccountID: 0,
+            AgioAmount: 0,
+            PaymentID: null
+        };
+
+        if (this.sumOfPayments && this.sumOfPayments.Amount && this.sumOfPayments.AmountCurrency) {
+            paymentData.AmountCurrency = Math.max(paymentData.AmountCurrency -= this.sumOfPayments.AmountCurrency, 0);
+            paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
+        }
+
+        const modal = this.modalService.open(UniRegisterPaymentModal, {
+            header: lang.ask_register_payment_for_outgoing_payment + (bill.InvoiceNumber || ''),
+            data: paymentData,
+            modalConfig: {
+                entityName: 'SupplierInvoice',
+                currencyCode: bill.CurrencyCode.Code,
+                currencyExchangeRate: bill.CurrencyExchangeRate,
+                isSendForPayment: true
+            }
+        });
+
+        modal.onClose.subscribe((payment: Payment) => {
+            if (payment) {
+                this.supplierInvoiceService.sendForPaymentWithData(this.currentID, payment)
+                .finally(() => this.busy = false)
+                .subscribe(() => {
+                    this.updateInvoicePayments().add(() => {
+                        this.userMsg(lang.payment_ok, null, 3, true);
+                        done();
+                    });
+                }, err => {
+                    this.errorService.handle(err);
+                    done();
+                });
+            }
+            done();
+        });
     }
 
     private journal(ask: boolean, href: string): Observable<boolean> {
@@ -2309,7 +2707,8 @@ export class BillView implements OnInit {
                 id,
                 [
                     'Supplier.Info.BankAccounts',
-                    'JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType,JournalEntry.DraftLines.Accrual.Periods',
+                    `JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType,
+                    JournalEntry.DraftLines.Accrual.Periods,JournalEntry.Lines`,
                     'CurrencyCode',
                     'BankAccount',
                     'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department'
@@ -2321,13 +2720,21 @@ export class BillView implements OnInit {
                 if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
 
                 this.current.next(invoice);
+                this.currentFreeTxt = invoice.FreeTxt;
+                this.detailsTabs[1].tooltip = this.currentFreeTxt;
+
+                if (invoice.Supplier) {
+                    this.orgNumber = invoice.Supplier.OrgNumber;
+                }
                 this.setupToolbar();
                 this.addTab(+id);
                 this.flagActionBar(actionBar.delete, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
                 this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled)
                 this.loadActionsFromEntity();
-                this.checkLockStatus();
                 this.lookupHistory();
+                this.checkLockStatus();
+
 
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
 
@@ -2385,7 +2792,7 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (!line.Description) {
+            if (!line.Description || line._updateDescription) {
                 line.Description = this.createLineDescription();
                 changes = line.Description !== '';
             }
@@ -2468,7 +2875,7 @@ export class BillView implements OnInit {
                 const lines = this.journalEntryManual.getJournalEntryData();
 
                 lines.map(line => {
-                    if (line.FinancialDate.toString() === oldDate.toString()) {
+                    if (line.FinancialDate && oldDate && (line.FinancialDate.toString() === oldDate.toString())) {
                         // if user changed the FinancialDate manually, dont override it when changing
                         // the InvoiceDate
                         line.FinancialDate = newDate;
@@ -2482,8 +2889,17 @@ export class BillView implements OnInit {
         }
     }
 
+    public onDetailsTabClick(index: number) {
+        // Check lock status when activating the details tab to avoid
+        if (index === 0) {
+            setTimeout(() => {
+                this.checkLockStatus();
+            });
+        }
+    }
+
     private checkLockStatus() {
-        if (!this.formReady) {
+        if (!this.formReady || this.detailsTabIndex === 1) {
             return;
         }
 
@@ -2524,10 +2940,11 @@ export class BillView implements OnInit {
                     this.uniForm.field('DefaultDimensions.DepartmentID').editMode();
                     return;
             }
+        } else {
+            this.uniForm.editMode();
         }
 
-        this.uniForm.editMode();
-        if (this.hasLoadedCustomDimensions) {
+        if (this.hasLoadedCustomDimensions && false) {
             this.customDimensions.forEach((dim) => {
                 if (this.uniForm.field(`DefaultDimensions.Dimension${dim.Dimension}ID`)) {
                     if (dim.IsActive) {
@@ -2607,11 +3024,11 @@ export class BillView implements OnInit {
 
     private saveAndGetNewDocument(done?) {
         return this.save(done).then(() => {
-            this.supplierInvoiceService.fetch('filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0').subscribe((res) => {
+            this.supplierInvoiceService.fetch(
+                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox')
+                .subscribe((res) => {
                 if (res && res.length > 0) {
-                    this.newInvoice(false);
-                    this.hasStartupFileID = true;
-                    this.startUpFileID = [res[0].ID];
+                    this.router.navigateByUrl('/accounting/bills/0?fileid=' + res[0].ID);
                     if (done) { done(lang.save_success); }
                 } else {
                     this.toast.addToast('Ingen flere dokumenter i flyten', ToastType.good, 2);
@@ -2627,15 +3044,25 @@ export class BillView implements OnInit {
     public saveAndReject(done) {
         let obs;
         const current = this.current.getValue();
+        if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+            current.Supplier = null;
+        }
         if (current.ID) {
             // if the journalentry is already booked, clear the object before saving as we don't
             // want to resave a booked journalentry
             if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
               current.JournalEntry = null;
             }
-
+            if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                current.Supplier = null;
+            } else if (current.SupplierID && (current.Supplier && current.Supplier['_createguid'])) {
+                current.SupplierID = null;
+            }
             obs = this.supplierInvoiceService.Put(current.ID, current);
         } else {
+            if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                current.Supplier = null;
+            }
             obs = this.supplierInvoiceService.Post(current);
         }
         obs.subscribe((res) => {
@@ -2674,14 +3101,32 @@ export class BillView implements OnInit {
 
             const saveFunc = () => {
                 if (current.ID) {
+                    // Items should only be saved first time with post
+                    current.Items = null;
                     // if the journalentry is already booked, clear the object before saving as we don't
                     // want to resave a booked journalentry
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                       current.JournalEntry = null;
+                    } else {
+                        current.JournalEntry.DraftLines.forEach(line => {
+                            if (!line.VatDeductionPercent) {
+                                line.VatDeductionPercent = 0;
+                            }
+                        });
                     }
-
+                    if (!current.SupplierID
+                        && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                        current.Supplier = null;
+                    } else if (current.SupplierID
+                            && (current.Supplier && current.Supplier['_createguid'])) {
+                            current.SupplierID = null;
+                    }
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {
+                    if (!current.SupplierID
+                        && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                        current.Supplier = null;
+                    }
                     obs = this.supplierInvoiceService.Post(current);
                 }
                 obs.subscribe((result) => {
@@ -2695,7 +3140,6 @@ export class BillView implements OnInit {
                     if (this.unlinkedFiles.length > 0) {
                         this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
                             () => {
-                            this.hasStartupFileID = false;
                             this.resetDocuments();
                             reload();
                         });
@@ -2780,9 +3224,10 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (!current.Supplier && !current.InvoiceNumber) { return ''; }
 
-        const supplierDescription =
-            (current.Supplier ? current.Supplier.SupplierNumber : '') +
-            (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
+        const supplierDescription = (current.Supplier
+            ? current.Supplier.SupplierNumber : '') + (current.Supplier && current.Supplier.Info
+            ? ' - ' + current.Supplier.Info.Name
+            : '');
 
         return current.InvoiceNumber
             ? `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`
@@ -2794,6 +3239,8 @@ export class BillView implements OnInit {
         let changesMade = false;
         const current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
+        current.FreeTxt = this.currentFreeTxt;
+        current.Supplier.CostAllocation = null;
 
         if (!current.JournalEntry) {
             current.JournalEntry = new JournalEntry();
@@ -2994,7 +3441,7 @@ export class BillView implements OnInit {
         };
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
-            header: lang.ask_register_payment + bill.InvoiceNumber,
+            header: lang.ask_register_payment + (bill.InvoiceNumber || ''),
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
@@ -3007,7 +3454,7 @@ export class BillView implements OnInit {
             if (payment) {
                 this.supplierInvoiceService.ActionWithBody(bill.ID, payment, 'payInvoice')
                     .finally(() => this.busy = false)
-                    .subscribe((res) => {
+                    .subscribe(() => {
                         this.fetchInvoice(bill.ID, true);
                         this.userMsg(lang.payment_ok, null, 3, true);
                         done('Betaling registrert');
@@ -3143,9 +3590,9 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         const statustrack: IStatus[] = [];
         const activeStatus = current.StatusCode;
-
         this.supplierInvoiceService.statusTypes.forEach((status) => {
             let _state: STATUSTRACK_STATES;
+            const _substatuses: IStatus[] = [];
             let _addIt = status.isPrimary;
             if (status.Code > activeStatus) {
                 _state = STATUSTRACK_STATES.Future;
@@ -3157,16 +3604,35 @@ export class BillView implements OnInit {
                     _state = STATUSTRACK_STATES.Obsolete;
                 }
                 _addIt = true;
+
+                this.invoicePayments.sort((payment1, payment2) =>
+                    new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
+                    );
+
+                this.invoicePayments.forEach(payment => {
+                    _substatuses.push({
+                        title: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
+                        subtitle: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
+                        ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
+                        state: STATUSTRACK_STATES.Completed,
+                        timestamp: new Date(<any> payment.PaymentDate),
+                        data: payment,
+                        formatDateTime: 'L' // Use moment.js date time format
+                    });
+                });
             }
             if (_addIt) {
                 statustrack.push({
                     title: status.Text,
                     state: _state,
-                    code: status.Code
+                    code: status.Code,
+                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
+                    && this.invoicePayments.length > 0 ? this.invoicePayments.length + '' : null,
+                    substatusList: _substatuses,
+                    forceSubstatus: _state === STATUSTRACK_STATES.Active && this.invoicePayments.length > 0
                 });
             }
         });
-
         return statustrack;
     }
 
@@ -3196,6 +3662,18 @@ export class BillView implements OnInit {
             entityID: doc.ID || 0,
             entityType: SupplierInvoice.EntityType
         };
+        this.contextMenuItems = [
+            {
+                label: lang.clearpostings,
+                action: () => this.journalEntryManual.removeJournalEntryData(),
+                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
+            },
+            {
+                label: lang.reinvoice,
+                action: () => this.openReinvoiceModal(),
+                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
+            },
+        ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
                 ? `${trimLength(doc.Supplier.Info.Name, 20)}`
@@ -3223,7 +3701,8 @@ export class BillView implements OnInit {
                 }
             },
             entityID: doc && doc.ID ? doc.ID : null,
-            entityType: 'SupplierInvoice'
+            entityType: 'SupplierInvoice',
+            contextmenu: this.contextMenuItems
         };
     }
 
@@ -3266,7 +3745,6 @@ export class BillView implements OnInit {
     }
 
     private loadFromFileID(fileID: number | string) {
-        this.hasStartupFileID = true;
         this.startUpFileID = [safeInt(fileID)];
         this.numberOfDocuments++;
         this.hasUnsavedChanges = true;
@@ -3292,9 +3770,14 @@ export class BillView implements OnInit {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID).subscribe(tags => {
+        this.fileService
+        .getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID)
+        .subscribe(tags => {
             const file = this.files.find(x => x.ID === fileID);
-            const tagname = tags.Data.length ? tags.Data[0].tagname : this.supplierInvoiceService.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+            const tagname = tags.Data.length
+            ? tags.Data[0].tagname
+            : this.supplierInvoiceService.isOCR(file)
+            ? 'IncomingMail' : 'IncomingEHF';
             this.fileService.tag(fileID, tagname, flagFileStatus).subscribe(null, err => this.errorService.handle(err));
         });
     }
@@ -3333,5 +3816,45 @@ export class BillView implements OnInit {
             }
             this.suggestions = items;
         });
+    }
+
+    private tryUpdateCostAllocationData(invoice) {
+        const currentCostAllocationData = this.costAllocationData$.getValue();
+        if (invoice.TaxInclusiveAmountCurrency !== currentCostAllocationData.CurrencyAmount ||
+            invoice.CurrencyExchangeRate !== currentCostAllocationData.ExchangeRate ||
+            invoice.CurrencyCodeID !== currentCostAllocationData.CurrencyCodeID ||
+            invoice.DeliveryDate !== currentCostAllocationData.FinancialDate ||
+            invoice.InvoiceDate !== currentCostAllocationData.VatDate) {
+
+            currentCostAllocationData.CurrencyAmount = invoice.TaxInclusiveAmountCurrency;
+            currentCostAllocationData.CurrencyCodeID = invoice.CurrencyCodeID;
+            currentCostAllocationData.ExchangeRate = invoice.CurrencyExchangeRate;
+            currentCostAllocationData.FinancialDate = invoice.DeliveryDate;
+            currentCostAllocationData.VatDate = invoice.InvoiceDate;
+            this.costAllocationData$.next(currentCostAllocationData);
+        }
+    }
+
+    private tryAddCostAllocation(mode: string = '') {
+        const current = this.current.getValue();
+        if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency !== 0) {
+            this.journalEntryManual.addCostAllocationForSupplier(
+                current.SupplierID,
+                current.TaxInclusiveAmountCurrency,
+                current.CurrencyCodeID,
+                current.CurrencyExchangeRate,
+                current.DeliveryDate,
+                current.InvoiceDate,
+                false
+            ).then((result: boolean) => {
+                if (!result && mode === 'EHF') {
+                    this.runSmartBooking(this.orgNumber);
+                }
+            });
+        }
+    }
+
+    private resetPostings() {
+        this.journalEntryManual.clear();
     }
 }

@@ -1,27 +1,33 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {Observable, forkJoin} from 'rxjs';
+
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
-import {Observable} from 'rxjs';
 import {AuthService} from '@app/authService';
-import {ElsaProduct, ElsaProductType} from '@app/services/elsa/elsaModels';
+import {ElsaProduct, ElsaProductType} from '@app/models';
 import {
     ElsaProductService,
-    ElsaCompanyLicenseService,
     ElsaPurchaseService,
     ErrorService,
     CompanySettingsService,
-    EHFService
+    EHFService,
+    PaymentBatchService,
+    UserRoleService,
 } from '@app/services/services';
 import {
     UniModalService,
     ActivateOCRModal,
     UniActivateAPModal,
     UniActivateInvoicePrintModal,
+    ProductPurchasesModal,
+    UniAutobankAgreementModal,
+    MissingPurchasePermissionModal
 } from '@uni-framework/uni-modal';
 
 import {CompanySettings} from '@uni-entities';
-import {ActivationEnum} from '@app/models/activationEnum';
+import {ActivationEnum, ElsaPurchase} from '@app/models';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -31,19 +37,25 @@ import {ActivationEnum} from '@app/models/activationEnum';
 export class MarketplaceModules implements AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
+    filteredExtensions: ElsaProduct[];
+    tabs: IUniTab[];
+
+    private canPurchaseProducts: boolean;
     private companySettings: CompanySettings;
+    private autobankAgreements: any[];
 
     constructor(
         tabService: TabService,
         private authService: AuthService,
+        private userRoleService: UserRoleService,
         private companySettingsService: CompanySettingsService,
         private elsaProductService: ElsaProductService,
-        private elsaCompanyLicenseService: ElsaCompanyLicenseService,
         private elsaPurchaseService: ElsaPurchaseService,
         private errorService: ErrorService,
         private route: ActivatedRoute,
         private modalService: UniModalService,
         private ehfService: EHFService,
+        private paymentBatchService: PaymentBatchService
     ) {
         tabService.addTab({
             name: 'Markedsplass', url: '/marketplace/modules', moduleID: UniModules.Marketplace, active: true
@@ -51,62 +63,70 @@ export class MarketplaceModules implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        const companyKey = this.authService.getCompanyKey();
+        const userID = this.authService.currentUser.ID;
 
-        // Get products first, then settings and purchases with error handler
-        // that returns empty purchases array if the request fails (missing permissions).
-        // This is done because we want everyone to see the marketplace
-        // with available products, even though they can't make purchases.
-        this.elsaProductService.GetAll().subscribe(
-            products => {
-                Observable.forkJoin(
-                    this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey),
-                    this.elsaPurchaseService.GetAllByCompanyKey(companyKey),
-                    this.companySettingsService.Get(1),
-                ).catch(() => {
-                    return Observable.of([]);
-                }).subscribe((res) => {
-                    const userPurchases = res[0] || [];
-                    const companyPurchases = res[1] || [];
-                    this.companySettings = res[2];
+        forkJoin(
+            this.companySettingsService.Get(1),
+            this.paymentBatchService.checkAutoBankAgreement()
+                .catch(() => Observable.of([])), // fail silently
 
-                    const modules = products.filter(p => p.productType === ElsaProductType.Module);
-                    this.modules = modules.map(product => {
-                        product['_isBought'] = userPurchases.some(p => p.productID === product.id && p.isAssigned);
-                        return product;
+            this.elsaProductService.GetAll(),
+            this.elsaPurchaseService.getAll(),
+            this.userRoleService.hasAdminRole(userID),
+        ).subscribe(
+            res => {
+                this.companySettings = res[0];
+                this.autobankAgreements = res[1] || [];
+
+                const products = res[2] || [];
+                this.modules = products.filter(p => p.productType === ElsaProductType.Module);
+                this.extensions = products
+                    .filter(p => p.productType === ElsaProductType.Extension)
+                    .map(extension => {
+                        this.setActivationFunction(extension);
+                        return extension;
                     });
 
-                    const extensions = products.filter(p => p.productType === ElsaProductType.Extension);
-                    this.extensions = extensions.map(product => {
-                        product['_isBought'] = companyPurchases.some(p => p.productID === product.id);
-                        if (this.companySettings) {
-                            this.setActivationFunction(product);
+                this.setPurchaseInfo(res[3]);
+                this.canPurchaseProducts = res[4];
+
+                const tabs = this.modules.map(m => ({name: m.label, value: m.name}));
+                tabs.unshift({ name: 'Alle', value: null });
+                this.tabs = tabs;
+                this.onTabChange(this.tabs[0]);
+
+                // Check queryParams if we should open a specific product dialog immediately
+                this.route.queryParamMap.subscribe(paramMap => {
+                    const productName = paramMap.get('productName');
+                    if (productName) {
+                        const product = products.find(p => {
+                            return productName.toLowerCase() === (p.name || '').toLowerCase();
+                        });
+
+                        if (product) {
+                            this.openSubscribeModal(product);
                         }
-
-                        return product;
-                    });
-
-                    // Check queryParams if we should open a specific product dialog immediately
-                    this.route.queryParamMap.subscribe(paramMap => {
-                        const productName = paramMap.get('productName');
-                        if (productName) {
-                            const product = products.find(p => {
-                                return productName.toLowerCase() === (p.name || '').toLowerCase();
-                            });
-
-                            if (product) {
-                                this.openSubscribeModal(product);
-                            }
-                        }
-                    });
+                    }
                 });
             },
             err => this.errorService.handle(err)
         );
     }
 
-    private setActivationFunction(product) {
-        const name = product && product.name.toLowerCase();
+    setPurchaseInfo(purchases: ElsaPurchase[]) {
+        this.modules = this.modules.map(product => {
+            product['_isBought'] = purchases.some(p => p.ProductID === product.id);
+            return product;
+        });
+
+        this.extensions = this.extensions.map(extension => {
+            extension['_isBought'] = purchases.some(p => p.ProductID === extension.id);
+            return extension;
+        });
+    }
+
+    private setActivationFunction(product: ElsaProduct) {
+        const name = product && product.name && product.name.toLowerCase();
         let activationModal;
 
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated(this.companySettings)) {
@@ -115,32 +135,78 @@ export class MarketplaceModules implements AfterViewInit {
             activationModal = UniActivateAPModal;
         } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
             activationModal = ActivateOCRModal;
+        } else if (name === 'autobank' && !this.autobankAgreements.length) {
+            activationModal = UniAutobankAgreementModal;
         }
 
         if (activationModal) {
             product['_activationFunction'] = {
                 label: 'Aktiver',
                 click: () => {
-                    this.modalService.open(activationModal).onClose.subscribe(res => {
+                    this.modalService.open(activationModal, {}).onClose.subscribe(res => {
                         if (res && res !== ActivationEnum.NOT_ACTIVATED) {
                             product['_activationFunction'] = undefined;
                         }
                     });
                 }
             };
-        } else {
-            delete product['_activationFunction'];
         }
     }
 
-    openSubscribeModal(module: ElsaProduct) {
+    openSubscribeModal(product: ElsaProduct) {
         return this.modalService.open(SubscribeModal, {
-            data: module,
-            closeOnClickOutside: true
+            data: {
+                product: product,
+                canPurchaseProducts: this.canPurchaseProducts
+            }
         });
+    }
+
+    onTabChange(tab: IUniTab) {
+        if (tab.value) {
+            this.filteredExtensions = this.extensions.filter(extension => {
+                return extension.parentProducts.some(pName => pName === tab.value);
+            });
+        } else {
+            this.filteredExtensions = this.extensions;
+        }
     }
 
     priceText(module: ElsaProduct): string {
         return this.elsaProductService.ProductTypeToPriceText(module);
+    }
+
+    manageUserPurchases(product: ElsaProduct) {
+        if (this.canPurchaseProducts) {
+            this.modalService.open(ProductPurchasesModal, {
+                data: {
+                    product: product
+                }
+            }).onClose.subscribe(changesMade => {
+                if (changesMade) {
+                    this.elsaPurchaseService.getAll().subscribe(purchases => {
+                        this.setPurchaseInfo(purchases);
+                    });
+                }
+            });
+        } else {
+            this.modalService.open(MissingPurchasePermissionModal);
+        }
+    }
+
+    purchaseExtension(product: ElsaProduct) {
+        if (this.canPurchaseProducts) {
+            const purchase: ElsaPurchase = {
+                ID: null,
+                ProductID: product.id
+            };
+
+            this.elsaPurchaseService.massUpdate([purchase]).subscribe(
+                () => product['_isBought'] = true,
+                err => this.errorService.handle(err)
+            );
+        } else {
+            this.modalService.open(MissingPurchasePermissionModal);
+        }
     }
 }

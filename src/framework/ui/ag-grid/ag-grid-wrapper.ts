@@ -10,9 +10,8 @@ import {
 } from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
-
 import {UniTableConfig} from '../unitable/config/unitableConfig';
-import {UniTableColumn} from '../unitable/config/unitableColumn';
+import {UniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
@@ -64,7 +63,9 @@ export class AgGridWrapper {
     @Output() public rowChange: EventEmitter<IRowChangeEvent> = new EventEmitter(false); // TODO: typeme!
     @Output() public rowDelete: EventEmitter<any> = new EventEmitter(false);
     @Output() public rowSelectionChange: EventEmitter<any|any[]> = new EventEmitter(false);
+    @Output() public rowSelect: EventEmitter<any> = new EventEmitter(false);
     @Output() public filtersChange: EventEmitter<{filter: string}> = new EventEmitter(false);
+    @Output() public filtersChangeWhileGroup: EventEmitter<{filter: string}> = new EventEmitter(false);
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
@@ -74,16 +75,18 @@ export class AgGridWrapper {
     public localData: boolean;
     public cacheBlockSize: number;
     public tableHeight: string;
+    public flex: string = '1';
     public usePagination: boolean;
     public selectionMode: string = 'single';
     public paginationInfo: any;
+    public allIsExpanded = true;
 
     public columns: UniTableColumn[];
     private agColDefs: ColDef[];
     public rowClassResolver: (params) => string;
 
-    private resizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
-    private resizeInProgress: string;
+    private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
+    private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
 
@@ -91,7 +94,7 @@ export class AgGridWrapper {
 
     // Used for custom cell renderers
     public context: any;
-    public cellRendererComponents: any;
+    public cellRendererComponents: any = {rowMenu: RowMenuRenderer};
 
     isRowSelectable: (rowModel: any) => boolean;
 
@@ -100,13 +103,14 @@ export class AgGridWrapper {
         private tableUtils: TableUtils,
         private modalService: UniModalService,
         private router: Router,
-        private cdr: ChangeDetectorRef,
+        private cdr: ChangeDetectorRef
     ) {}
 
     public ngOnInit() {
         this.rowSelectionDebouncer$
-            .debounceTime(200)
+            .debounceTime(50)
             .subscribe((event: SelectionChangedEvent) => {
+                this.agGridApi.refreshHeader();
                 this.rowSelectionChange.emit(event.api.getSelectedRows());
             });
 
@@ -114,15 +118,22 @@ export class AgGridWrapper {
             .debounceTime(1000)
             .subscribe((event: ColumnMovedEvent) => this.onColumnMove(event));
 
-        this.resizeDebouncer$
+        this.gridSizeChangeDebouncer$
             .debounceTime(200)
-            .subscribe(event => {
-                this.onColumnResize(event);
-            });
+            .subscribe(() => this.agGridApi.sizeColumnsToFit());
+
+        this.colResizeDebouncer$
+            .debounceTime(200)
+            .subscribe(event => this.onColumnResize(event));
     }
 
     public ngOnDestroy() {
         this.rowSelectionDebouncer$.complete();
+        this.columnMoveDebouncer$.complete();
+        this.colResizeDebouncer$.complete();
+        this.gridSizeChangeDebouncer$.complete();
+        this.dataService.sumRow$.complete();
+        this.dataService.localDataChange$.complete();
     }
 
     public ngOnChanges(changes) {
@@ -168,7 +179,6 @@ export class AgGridWrapper {
         if (changes['columnSumResolver'] && this.columnSumResolver) {
             this.dataService.columnSumResolver = this.columnSumResolver;
         }
-
         if (this.config && this.resource && (changes['config'] || changes['resource'])) {
             if (Array.isArray(this.resource)) {
                 this.localData = true;
@@ -210,6 +220,12 @@ export class AgGridWrapper {
     public onAgGridReady(event: GridReadyEvent) {
         this.agGridApi = event.api;
         this.agGridApi.sizeColumnsToFit();
+        if (this.config.groupingIsOn) {
+            const doc = document.getElementsByClassName('ag-column-drop-empty-message');
+            if (doc && doc.length) {
+                doc[0].innerHTML = 'Dra kolonner her for å gruppere';
+            }
+        }
         this.initialize();
     }
 
@@ -228,14 +244,11 @@ export class AgGridWrapper {
                     }
 
                     if (this.config.multiRowSelect && this.config.multiRowSelectDefaultValue) {
-                        event.api.selectAll();
+                        this.selectAll();
                     }
 
                     this.isInitialLoad = false;
                 }
-                // if (this.config.autofocus && !this.autofocusPerformed) {
-                //     this.focusRow(0);
-                // }
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
@@ -247,37 +260,49 @@ export class AgGridWrapper {
                 }
 
                 if (this.config.multiRowSelect && this.config.multiRowSelectDefaultValue) {
-                    event.api.selectAll();
+                    this.selectAll();
                 }
 
                 this.isInitialLoad = false;
             }
-
-
-
-            // if (this.config.autofocus && !this.autofocusPerformed) {
-            //     this.focusRow(0);
-            // }
         }
     }
 
     public onDataLoaded(api: GridApi) {
         if (!this.localData) {
             const loadedRowCount = this.dataService.loadedRowCount;
+            const pageSize = this.config.pageSize || 20;
 
-            if (loadedRowCount < this.config.pageSize) {
-                if (loadedRowCount > 0) {
-                    this.tableHeight = 80 + (loadedRowCount * 35) + 'px';
-                } else {
-                    this.tableHeight = '95px';
-                }
+            if (loadedRowCount < pageSize) {
+                this.tableHeight = loadedRowCount > 0
+                    ? 75 + (loadedRowCount * 35) + 'px'
+                    : '95px';
             } else {
-                this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
+                let height = 75 + (pageSize * 35);
+
+                // Make room for the bar displaying active filters
+                if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
+                    height -= 40;
+                }
+
+                this.tableHeight = height + 'px';
             }
 
-            api.doLayout();
-            api.sizeColumnsToFit();
+            setTimeout(() => {
+                api.doLayout();
+                api.sizeColumnsToFit();
+            });
         }
+    }
+
+    public expandCollapseAll() {
+        if (this.allIsExpanded) {
+            this.agGridApi.collapseAll();
+        } else {
+            this.agGridApi.expandAll();
+        }
+        this.allIsExpanded = !this.allIsExpanded;
+        this.config.groupDefaultExpanded = this.allIsExpanded ? -1 : 0;
     }
 
     public onRowDragEnd(event: RowDragEndEvent) {
@@ -305,20 +330,14 @@ export class AgGridWrapper {
                     this.columns[colIndex].width = event.column.getActualWidth();
                     this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
                 }
-            }
 
-            if (this.wrapperElement) {
-                const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
-                const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
-                if (body.clientWidth < viewport.clientWidth) {
-                    event.api.sizeColumnsToFit();
-                }
+                event.api.sizeColumnsToFit();
             }
         }
     }
 
     public onColumnMove(event: ColumnMovedEvent) {
-        if (!this.config || !this.config.configStoreKey) {
+        if (!event.column || !this.config || !this.config.configStoreKey || this.config.groupingIsOn) {
             return;
         }
 
@@ -328,7 +347,17 @@ export class AgGridWrapper {
         if (index >= 0) {
             const col = this.columns.splice(index, 1)[0];
             this.columns.splice(event.toIndex, 0, col);
+            this.columns = [...this.columns];
+
             this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
+            this.columnsChange.emit(this.columns);
+            this.agColDefs = this.getAgColDefs(this.columns);
+            this.cdr.markForCheck();
+            setTimeout(() => {
+                if (this.agGridApi) {
+                    this.agGridApi.sizeColumnsToFit();
+                }
+            });
         }
     }
 
@@ -365,6 +394,20 @@ export class AgGridWrapper {
         });
     }
 
+    selectAll() {
+        if (this.config && this.config.multiRowSelect) {
+            if (this.rowModelType === 'infinite') {
+                this.agGridApi.forEachNode(row => row.setSelected(true));
+            } else {
+                if (this.config.selectOnlyVisible) {
+                    this.agGridApi.getRenderedNodes().forEach(row => row.setSelected(true));
+                } else {
+                    this.agGridApi.selectAll();
+                }
+            }
+        }
+    }
+
     public paginate(action: 'next' | 'prev' | 'first' | 'last') {
         switch (action) {
             case 'next':
@@ -386,6 +429,10 @@ export class AgGridWrapper {
         this.agGridApi.paginationGoToPage(pageNumber - 1);
     }
 
+    public addAggFunction(func) {
+        this.agGridApi.addAggFunc('summing', func);
+    }
+
     public onPaginationChange(event: PaginationChangedEvent) {
         this.paginationInfo = {
             currentPage: event.api.paginationGetCurrentPage() + 1,
@@ -393,33 +440,20 @@ export class AgGridWrapper {
         };
     }
 
-    public onFiltersChange(event) { // TODO: typeme
+    public onFiltersChange(event) {
         if (this.config.multiRowSelect) {
             this.rowSelectionChange.next([]);
-            // Remove the checkmark in header checkbox
-            if (this.wrapperElement && this.wrapperElement.nativeElement) {
-                const headerCheckbox = this.wrapperElement.nativeElement.querySelector('.header-checkbox');
-                if (headerCheckbox) {
-                    headerCheckbox.classList.remove('checked');
-                }
-            }
         }
 
-        this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
+        if (this.config.groupingIsOn) {
+            this.filtersChangeWhileGroup.emit(this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters, false));
+        } else {
+            this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
+        }
+
         // TODO: refactor this once every table using it is over on ag-grid
         // Should just emit the filterString, not an object containing it
         this.filtersChange.emit({filter: this.dataService.filterString});
-    }
-
-    public onFilterInputUpOrDownArrows(event: KeyboardEvent) {
-        const key = (event.keyCode || event.which);
-        if (key === 38) {
-            // TODO: focus prev
-            console.log('TODO: focus prev');
-        } else if (key === 40) {
-            // TODO: focus next
-            console.log('TODO: focus next');
-        }
     }
 
     public onEditorChange(event) {
@@ -470,6 +504,9 @@ export class AgGridWrapper {
     }
 
     public onLinkClick(column: UniTableColumn, row) {
+        if (!column) {
+           return;
+        }
         if (column.linkClick) {
             column.linkClick(row);
             return;
@@ -555,13 +592,43 @@ export class AgGridWrapper {
         }
     }
 
+    public onRowSelected(event) {
+        this.rowSelect.emit(event.data);
+    }
+
+    private sumTotalInGroup(values) {
+        const nums = values.map(value => {
+            value = value.toString().replace('\u2009', '').replace(' ', '');
+            return isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10);
+        });
+
+        const options = {
+            thousandSeparator: '\u2009',
+            decimalSeparator: ',',
+            decimalLength: 2
+        };
+
+        const asMoney = (value) => {
+            let stringValue = value.toString().replace(',', '.');
+            stringValue = parseFloat(stringValue).toFixed(options.decimalLength);
+
+            let [integer, decimal] = stringValue.split('.');
+            integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, options.thousandSeparator);
+
+            stringValue = decimal ? (integer + options.decimalSeparator + decimal) : integer;
+
+            return stringValue;
+        };
+
+        return asMoney(nums.length ? nums.reduce((total, number) =>  total + number ) : 0);
+    }
+
     private getAgColDefs(columns: UniTableColumn[]): ColDef[] {
         if (!columns) {
             return [];
         }
 
         this.context = { componentParent: this };
-        this.cellRendererComponents = {};
 
         const colDefs = columns.map(col => {
 
@@ -578,10 +645,14 @@ export class AgGridWrapper {
 
             const agCol: ColDef = {
                 headerName: col.header,
+                suppressMenu: true,
                 hide: !col.visible,
                 headerClass: col.headerCls,
                 cellClass: cellClass,
                 headerTooltip: col.header,
+                rowGroup: col.rowGroup,
+                aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
+                enableRowGroup: col.enableRowGroup,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
             };
@@ -595,6 +666,23 @@ export class AgGridWrapper {
                 agCol.suppressResize = true;
                 agCol.suppressSizeToFit = true;
                 agCol.suppressAutoSize = true;
+            }
+
+            if (col.type === UniTableColumnType.LocalDate
+                || col.type === UniTableColumnType.DateTime
+            ) {
+                agCol.comparator = (value1, value2, node1, node2) => {
+                    return this.tableUtils.dateComparator(node1, node2, col);
+                };
+            }
+
+            if (col.type === UniTableColumnType.Number
+                || col.type === UniTableColumnType.Money
+                || col.type === UniTableColumnType.Percent
+            ) {
+                agCol.comparator = (value1, value2, node1, node2) => {
+                    return this.tableUtils.numberComparator(node1, node2, col);
+                };
             }
 
             if (col.linkResolver || col.linkClick) {
@@ -620,7 +708,8 @@ export class AgGridWrapper {
 
         if (this.config.multiRowSelect) {
             colDefs.unshift({
-                headerCheckboxSelection: true,
+                // headerCheckboxSelection: true,
+                headerComponent: CellRenderer.getHeaderCheckbox(this.config),
                 checkboxSelection: true,
                 width: 38,
                 suppressSizeToFit: true,
@@ -652,7 +741,6 @@ export class AgGridWrapper {
                 && this.config.contextMenu.items.length;
 
             if (hasDeleteButton || hasContextMenu) {
-                this.cellRendererComponents.rowMenu = RowMenuRenderer;
                 menuColumn.cellRenderer = 'rowMenu';
             }
 
@@ -714,11 +802,7 @@ export class AgGridWrapper {
 
     // Public functions for host components
     public getTableData() {
-        if (this.config.editable) {
-            return this.dataService.getTableData(true);
-        } else {
-            console.warn('getTableData() does nothing for readonly tables');
-        }
+        return this.dataService.getTableData(true);
     }
 
     public getSelectedRows() {
@@ -754,6 +838,32 @@ export class AgGridWrapper {
             }
         } catch (e) {
             console.error('Error in ag-grid-wrapper selectRow()');
+        }
+    }
+
+    selectNext() {
+        if (!this.config.multiRowSelect) {
+            const selectedNodes = this.agGridApi.getSelectedNodes();
+            const index = (selectedNodes && selectedNodes[0].rowIndex) || 0;
+
+            const nextRow = this.agGridApi.getDisplayedRowAtIndex(index + 1);
+            if (nextRow) {
+                nextRow.setSelected(true);
+                this.agGridApi.ensureNodeVisible(nextRow);
+            }
+        }
+    }
+
+    selectPrevious() {
+        if (!this.config.multiRowSelect) {
+            const selectedNodes = this.agGridApi.getSelectedNodes();
+            const index = (selectedNodes && selectedNodes[0].rowIndex) || 0;
+
+            const prevRow = this.agGridApi.getDisplayedRowAtIndex(index - 1);
+            if (prevRow) {
+                prevRow.setSelected(true);
+                this.agGridApi.ensureNodeVisible(prevRow);
+            }
         }
     }
 
@@ -829,6 +939,10 @@ export class AgGridWrapper {
         }
     }
 
+    public clearSelection() {
+        this.agGridApi.deselectAll();
+    }
+
     /**
      * Refreshes table data. This is only relevant for remote data tables.
      * If you have a local data table you want to use either updateRow(index, data)
@@ -856,5 +970,25 @@ export class AgGridWrapper {
      */
     public removeFilter(field: string): void {
         this.dataService.removeFilter(field);
+    }
+
+    public exportFromGrid() {
+        // exportMode will work when we upgrade AG to V20
+        const obj: any = {
+            exportMode: 'xlsx',
+            sheetName: 'Gruppert_export',
+            fileName: 'Gruppert_export'
+        };
+
+        obj.shouldRowBeSkipped = function(params) {
+            if (params.node.group && !params.node.leafGroup) {
+                return false;
+            } else if (params.node.parent && params.node.parent.expanded) {
+                return false;
+            }
+            return true;
+        };
+
+        this.agGridApi.exportDataAsExcel(obj);
     }
 }

@@ -1,37 +1,61 @@
 <section *ngIf="journalEntryLines" >
-    <section class="action-buttons" *ngIf="!hideHeader">
-        <select [value]="displayPostsOption" (change)="showHideEntries($event.target.value)">
-            <option value="OPEN">Vis åpne poster</option>
-            <option value="MARKED">Vis lukkede poster</option>
-            <option value="ALL">Vis alle poster</option>
-        </select>
-        <button class="warn" (click)="abortMarking()" [disabled]="!(currentSelectedRows.length > 0 || isDirty)">Avbryt</button>
-        <button class="warn" (click)="unlockJournalEntries()" [disabled]="currentSelectedRows.length < 2">Lås opp</button>
-        <button class="warn" (click)="autoMarkJournalEntries()" [hidden]="displayPostsOption === 'CLOSED'">Automerk</button>
-        <button
-            class="good"
-            (click)="markCheckedJournalEntries()"
-            [disabled]="currentMarkingSession.length < 2"
-            [hidden]="displayPostsOption === 'CLOSED'">
-            Lås
-        </button>
-        <button class="good" (click)="reconciliateJournalEntries()" [disabled]="!isDirty">
-            Lagre {{allMarkingSessions.length > 0 ? allMarkingSessions.length : ''}} endringer
-        </button>
-    </section>
-
     <mat-progress-bar
         *ngIf="loading$ | async"
         class="uni-progress-bar"
         mode="indeterminate">
     </mat-progress-bar>
 
-    <uni-table
-        class="smaller-font-size-table"
-        [resource]="journalEntryLines"
-        [config]="uniTableConfig"
-        (rowSelectionChanged)="onRowSelected($event)">
-    </uni-table>
+    <input type="search" [(ngModel)]="searchValue" [formControl]="searchControl" style="margin-bottom: 1rem; width: 250px;" placeholder="Søk i poster"/>
+
+    <table class="uni-table postpost-single-table" *ngIf="uniTableConfig">
+        <thead>
+            <tr>
+                <td *ngIf="showRowSelect" class="postpost-first">
+                    <i *ngIf="displayPostsOption === 'OPEN'" class="material-icons" title="Automerk konto" (click)="onCheckAllSelected()">select_all</i>
+                    <i *ngIf="displayPostsOption !== 'OPEN'" class="material-icons" title="Merk alle linjer" (click)="onCheckAllSelected(true)">{{ allSelected ? 'check_box' : 'check_box_outline_blank' }}</i>
+                </td>
+                <td *ngFor="let col of getVisibleFields()"  [ngClass]="col.cls" (click)="sortJournalEntryLines(col)"> {{ col.header }} </td>
+                <td>
+                    <i class="material-icons" (click)="openColumnsModal()"> settings </i>
+                </td>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let row of journalEntryLinesDisplayed; let i = index;"
+                [attr.aria-selected]="row._rowSelected"
+                [ngClass]="row.StatusCode === 31003 ? 'journal-entry-credited' : ''">
+                <td *ngIf="showRowSelect" class="postpost-first" (click)="onPostpostRowSelect(row, i)"> <i class="material-icons"> {{ row._rowSelected ? 'check_box' : 'check_box_outline_blank' }} </i> </td>
+                <td *ngFor="let col of getVisibleFields()"
+                    [ngClass]="col.conditionalCls ? col.conditionalCls(row) : col.cls ? col.cls : ''">
+
+                    <span *ngIf="!col.template" (click)="onLinkClick(col, row)" title="{{ row[col.field] }}"> {{ row[col.field] }} </span>
+                    <span *ngIf="col.template" title="{{ col.template(row) }}"> {{ col.template(row) }} </span>
+                </td>
+                <td [matMenuTriggerFor]="contextMenu">
+                    <ng-container>
+                        <i class="material-icons timetable-context-menu">
+                            more_horiz
+                        </i>
+                        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                            <ul class="menu-list">
+                                <li *ngFor="let item of getActions(row)" (click)="actionClicked(item, row)">
+                                    {{item.label}}
+                                </li>
+                            </ul>
+                        </mat-menu>
+                    </ng-container>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="postpost-pager" *ngIf="filteredJournalEntryLines?.length > uniTableConfig?.pageSize">
+        <span> <i class="material-icons" (click)="onPageChange('first')"> first_page </i> </span>
+        <span> <i class="material-icons" (click)="onPageChange('prev')"> chevron_left </i> </span>
+        <span class="page-indicator"> Side {{ page }} av {{ getNumberOfPages() }} </span>
+        <span> <i class="material-icons" (click)="onPageChange('next')"> chevron_right </i> </span>
+        <span> <i class="material-icons" (click)="onPageChange('last')"> last_page </i> </span>
+    </div>
 
     <uni-summary [configs]="summary" *ngIf="itemsSummaryData"></uni-summary>
 </section>

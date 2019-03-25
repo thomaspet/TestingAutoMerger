@@ -65,7 +65,7 @@ export class NavbarCreateNew {
             { name: 'Ansatt', url: '/salary/employees/0/personal-details' },
             { name: 'Timeføring', url: '/timetracking/timeentry' },
             { name: 'Leverandør', url: '/accounting/suppliers/0' },
-            { name: 'Fakturamottak', url: '/accounting/bills/0' },
+            { name: 'Leverandørfaktura', url: '/accounting/bills/0' },
         ];
     }
 }

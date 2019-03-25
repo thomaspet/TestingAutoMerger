@@ -2,7 +2,7 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/co
 import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
 import {AuthService} from '../../../authService';
-import {YearService} from '@app/services/services';
+import {FinancialYearService} from '@app/services/services';
 import {WidgetDataService} from '@app/components/widgets/widgetDataService';
 import {Company} from '@uni-entities';
 
@@ -72,7 +72,7 @@ export class UniKpiWidget {
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private dataService: WidgetDataService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) {
         this.authService.authentication$.subscribe(auth => {
             this.company = auth.activeCompany;
@@ -89,7 +89,8 @@ export class UniKpiWidget {
     }
 
     private getKpiData() {
-        this.yearService.selectedYear$.subscribe(year => {
+        this.financialYearService.lastSelectedFinancialYear$.subscribe(financialYear => {
+            const year = financialYear.Year;
             const endpoint = '/api/statistics?model=JournalEntryLine'
             + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
             + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'

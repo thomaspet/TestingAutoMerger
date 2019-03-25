@@ -10,11 +10,11 @@
                 <i class="material-icons" role="button" (click)="refresh()">refresh</i>
             </h2>
 
-            <uni-table
+            <ag-grid-wrapper
                 [resource]="jobRuns"
                 [config]="jobRunsConfig"
-                (rowSelected)="onJobRunSelected($event)">
-            </uni-table>
+                (rowSelectionChange)="onJobRunSelected($event)">
+            </ag-grid-wrapper>
         </ng-template>
 
         <ng-template [ngIf]="activeTabIndex === 1">
@@ -27,10 +27,8 @@
                     </a>
                 </li>
             </ul>
-
         </ng-template>
 
         <saft-import-view *ngIf="activeTabIndex === 2"></saft-import-view>
     </section>
-
 </section>

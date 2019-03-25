@@ -46,17 +46,23 @@ export class NavbarLinkService {
             dimensionLinks => {
                 if (dimensionLinks) {
                     const linkSections = this.linkSections$.getValue();
-                    const dimensionsIdx = linkSections.findIndex(section => section.name === 'Dimensjoner');
-                    linkSections[dimensionsIdx] = dimensionLinks;
+
+                    // Insert before settings (or marketplace if no settings access)
+                    const insertIndex = linkSections.findIndex(section => {
+                        return section.name === 'Innstillinger' || section.name === 'Markedsplass';
+                    });
+
+                    if (insertIndex > 0) {
+                        linkSections.splice(insertIndex, 0, dimensionLinks);
+                    } else {
+                        linkSections.push(dimensionLinks);
+                    }
+
                     this.linkSections$.next(linkSections);
                 }
             },
             err => console.error(err)
         );
-    }
-
-    public getApprovedRouteSearchQueries() {
-
     }
 
     private getLinksFilteredByPermissions(user): any[] {

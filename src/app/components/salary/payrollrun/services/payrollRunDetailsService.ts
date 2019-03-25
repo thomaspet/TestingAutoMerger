@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {PayrollrunService, ErrorService, YearService} from '../../../../services/services';
+import {PayrollrunService, ErrorService, FinancialYearService} from '../../../../services/services';
 import {Observable} from 'rxjs';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
 import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval, PaymentInterval} from '../../../../unientities';
@@ -19,7 +19,7 @@ export class PayrollRunDetailsService {
         private errorService: ErrorService,
         private router: Router,
         private toastService: ToastService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
     ) {}
 
     public deletePayrollRun(id: number): void {
@@ -57,14 +57,12 @@ export class PayrollRunDetailsService {
     }
 
     private lookupPayrollRuns(payrollRun: PayrollRun, query: string): Observable<PayrollRun[]> {
-        return this.yearService
-            .selectedYear$
-            .take(1)
-            .map(year => `filter=ID ne ${payrollRun.ID} and (startswith(ID, '${query}') `
-            + `or contains(Description, '${query}')) and year(PayDate) eq ${year}`
-            + `&top=50&hateoas=false`)
-            .switchMap(odata => this.payrollRunService.GetAll(odata))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        const year = this.financialYearService.getActiveYear();
+        const odataQuery = `filter=ID ne ${payrollRun.ID} and (startswith(ID, '${query}') `
+        + `or contains(Description, '${query}')) and year(PayDate) eq ${year}`
+        + `&top=50&hateoas=false`;
+
+        return this.payrollRunService.GetAll(odataQuery);
     }
 
     public suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun, activeYear: number) {

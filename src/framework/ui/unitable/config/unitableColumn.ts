@@ -74,7 +74,7 @@ export interface IUniTableColumn {
     width?: number|string;
     filterable: boolean;
     filterOperator?: string;
-    selectConfig?: {options: Array<any>, displayField: string, valueField: string};
+    filterSelectConfig?: {options: Array<any>, displayField: string, valueField: string};
     skipOnEnterKeyNavigation?: boolean;
     sortMode: UniTableColumnSortMode;
     jumpToColumn?: string;
@@ -118,13 +118,16 @@ export class UniTableColumn implements IUniTableColumn {
 
     public filterable: boolean;
     public filterOperator: string;
-    public selectConfig: {options: Array<any>, displayField: string, valueField: string};
+    public filterSelectConfig: {options: Array<any>, displayField: string, valueField: string};
 
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
     public onCellClick: (rowModel) => void;
     public maxLength: number;
     public resizeable: boolean = true;
+    public rowGroup?: boolean;
+    public enableRowGroup?: boolean;
+    public enablePivot?: boolean;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -152,6 +155,7 @@ export class UniTableColumn implements IUniTableColumn {
         this.setType(type || UniTableColumnType.Text);
 
         if (type === UniTableColumnType.Number || type === UniTableColumnType.Money || type === UniTableColumnType.Percent) {
+            this.filterOperator = 'eq';
             this.setAlignment('right');
             this.numberFormat = {
                 thousandSeparator: ' ',
@@ -174,8 +178,13 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setWidth(width: number|string) {
+    public setWidth(width: number|string, resizeable?: boolean) {
         this.width = width;
+
+        if (typeof resizeable === 'boolean') {
+            this.resizeable = resizeable;
+        }
+
         return this;
     }
 
@@ -184,8 +193,23 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
+    public setRowGroup(rowGroup: boolean) {
+        this.rowGroup = rowGroup;
+        return this;
+    }
+
+    public setEnableRowGroup(enableRowGroup: boolean) {
+        this.enableRowGroup = enableRowGroup;
+        return this;
+    }
+
     public setField(field: string) {
         this.field = field;
+        return this;
+    }
+
+    public setAlias(alias: string) {
+        this.alias = alias;
         return this;
     }
 

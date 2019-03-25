@@ -1,0 +1,64 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions"
+    [commentsConfig]="commentsConfig"
+    [selectConfig]="selectConfig"
+    (selectValueChanged)="numberSeriesChange($event)">
+</uni-toolbar>
+
+<section class="application">
+    <uni-tof-head
+        [readonly]="false"
+        [entityName]="'RecurringInvoice'"
+        [data]="invoice"
+        [currencyCodes]="currencyCodes"
+        [projects]="projects"
+        [paymentTerms]="paymentTerms"
+        [deliveryTerms]="deliveryTerms"
+        [sellers]="sellers"
+        [companySettings]="companySettings"
+        [dimensionTypes]="dimensionTypes"
+        [distributionPlans]="distributionPlans"
+        [reports]="reports"
+        [paymentInfoTypes]="paymentInfoTypes"
+        [currentUser]="currentUser"
+        (dataChange)="onInvoiceChange($event)"
+        (sellerDelete)="onSellerDelete($event)">
+    </uni-tof-head>
+
+    <section class="uni-container tradeitem-container">
+        <header>Varelinjer</header>
+
+        <uni-tradeitem-table
+            *ngIf="invoice"
+            [configStoreKey]="'sales.recurringinvoice.tradeitemTable'"
+            [readonly]="false"
+            [projects]="projects"
+            [departments]="departments"
+            [vatTypes]="vatTypes"
+            [vatDate]="invoice.InvoiceDate"
+            [(items)]="invoiceItems"
+            [dimensionTypes]="dimensionTypes"
+            [currencyCodeID]="currencyCodeID"
+            [currencyExchangeRate]="currencyExchangeRate"
+            [defaultTradeItem]="newInvoiceItem"
+            (itemsChange)="recalcDebouncer.next($event)">
+        </uni-tradeitem-table>
+
+        <section class="tof-summary">
+            <span class="currency-info">
+                {{currencyInfo}}
+            </span>
+
+            <section class="vertical-summary" *ngIf="summaryLines?.length">
+                <section class="summary-line"
+                    *ngFor="let summaryLine of summaryLines"
+                    [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+
+                    <label>{{summaryLine.label}}</label>
+                    <span>{{summaryLine.value}}</span>
+                </section>
+            </section>
+        </section>
+    </section>
+</section>

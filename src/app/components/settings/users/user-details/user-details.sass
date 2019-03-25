@@ -1,0 +1,102 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+$lightblue: #2699fb
+$darkblue: #1565c0
+$red: #f53b57
+$green: #0be881
+$yellow: #ffdd59
+
+.mat-expansion-panel-header-title
+    font-size: 14px
+
+\:host
+    flex: 1
+    max-height: 100%
+
+    header
+        display: flex
+        box-sizing: border-box
+        padding: 2rem 0 1.5rem 0
+        margin: 0 2rem
+        border-bottom: 2px solid $uni-color-scale9
+
+        .left-side
+            flex: 1
+            display: flex
+            flex-wrap: wrap
+        .right-side
+            flex: 0 0 auto
+            display: flex
+
+        i.material-icons
+            vertical-align: middle
+
+        .user-info
+            margin: auto 2rem auto 0
+            strong
+                font-size: 16px
+
+        .info-bar
+            display: flex
+            flex-wrap: wrap
+            height: 3rem
+            margin: 0
+            font-weight: 500
+            font-size: 14px
+            color: #8C96A9
+            small
+                margin: auto 1rem auto 0
+
+            i.material-icons
+                color: #1565C0
+                margin: 0 2px 2px 0
+                user-select: none
+
+                &.status-icon
+                    color: $green
+                    &.inactive
+                        color: $red
+                    &.invited
+                        color: $yellow
+
+        .edit-roles-button
+            flex: 0 0 auto
+            margin: auto 5px auto auto
+            color: #1565c0
+            font-weight: 600
+
+        .user-actions
+            margin: auto 0
+            cursor: pointer
+            padding: 0 5px
+
+            i.material-icons
+                color: #485460
+                font-size: 30px
+
+
+    #role-info
+        display: block
+        position: relative
+        margin: 2rem 0
+        padding: 0 2rem
+        max-height: calc(100% - 10rem)
+
+        mat-expansion-panel
+            box-shadow: none
+            border: 1px solid $uni-color-scale9
+            border-radius: 3px
+            margin-bottom: 16px
+
+        mat-panel-title
+            font-weight: 500
+
+        table
+            width: 100%
+            th, td
+                text-align: left
+                width: 33%
+
+// @media screen and (max-width: 1650px)
+//     .info-bar
+//         display: none

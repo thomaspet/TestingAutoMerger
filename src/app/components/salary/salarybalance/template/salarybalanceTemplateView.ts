@@ -239,8 +239,10 @@ export class SalarybalanceTemplateView extends UniView {
                     return;
                 }
                 super.updateState(SALBAL_TEMPLATE_KEY, template, false);
-                this.getSalaryBalances(template);
             })
+            .switchMap(template => template.SalaryBalances && template.SalaryBalances.length
+                ? this.getSalaryBalances(template)
+                : super.getStateSubject(SALARYBALANCES_ON_TEMPLATE_KEY).take(1))
             .catch((err, obs) => {
                 done('Lagring feilet');
                 return this.errorService.handleRxCatch(err, obs);
@@ -261,9 +263,9 @@ export class SalarybalanceTemplateView extends UniView {
     }
 
     private getSalaryBalances(template: SalaryBalanceTemplate) {
-        this.salarybalanceService
+        return this.salarybalanceService
             .getSalarybalancesOnTemplate(template.ID)
-            .subscribe(salBals => super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, salBals, false));
+            .do(salBals => super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, salBals, false));
     }
 
     private getSalaryBalancesObs(salarybalanceTemplate: SalaryBalanceTemplate): Observable<SalaryBalance[]> {

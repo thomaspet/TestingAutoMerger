@@ -6,6 +6,7 @@ export class WorkOrder {
     public CustomerID: number;
     public OrderDate: LocalDate;
     public CustomerName: string;
+    public EmailAddress: string;
     public Items: Array<WorkOrderItem> = [];
     public TaxExclusiveAmount: number;
     public OurReference: string;

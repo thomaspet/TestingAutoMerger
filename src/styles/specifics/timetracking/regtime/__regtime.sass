@@ -107,143 +107,37 @@ $primaryBorder: pxToRem(1) solid $uni-color-c2a
     tr > td:nth-last-of-type(2)
         text-align: right
 
-.regtime_filters
-    ul
-        margin: pxToRem(7) 0 pxToRem(7) 0
-        /*padding-left: pxToRem(30)*/
-        list-style: none
-        text-align: left
-        width: 100%
-        color: $uni-color-scale7
-        display: flex
-        flex-direction: row
-        justify-content: left
-        height: 2rem
-        /*background: unicon-filter($uni-color-scale7) left center no-repeat*/
-        background-size: 1rem
-        border-bottom: pxToRem(1) solid $uni-color-scale8
-
-        li a
-            @extend %clickable
-            white-space: nowrap
-            display: inline-block
-            text-decoration: none
-            font-weight: 400
-            margin-left: pxToRem(1)
-            padding: 0 1rem
-            border-right: .1rem solid transparentize($uni-color-negative, .5)
-            height: 2rem
-            box-sizing: border-box
-            line-height: 2rem
-            border-radius: pxToRem(5) pxToRem(5) 0 0
-
-            &:last-of-type
-                border-right: none
-
-            &.-is-active
-                color: $navbarTextColor
-                background: darken(mix($uni-color-scale7, $navbarBackground, 60%), 15%)
-
-            &:hover,
-            &.router-link-active
-                color: $navbarTextColor
-                background: darken(mix($uni-color-scale7, $navbarBackground, 60%), 15%)
-
-.timeentriesTable .timecell
-    whitespace: no-wrap
-    vertical-align: middle
-
-    .flexitime
-        margin-left: 1em
-        padding: pxToRem(3)
-        color: $uni-color-bad
-        font-size: pxToRem(9)
-
-.timeentry-scrollview
-    max-width: 100%
-    overflow: auto
-
 .timeentriesTable
     min-width: 100%
     table-layout: fixed
     border-collapse: collapse
     cursor: pointer
     margin-top: 1rem
+
 vacation .timeentriesTable
     margin-top: 0
-
 
 .timeentriesTable th
     text-align: left
     text-overflow: ellipsis
     overflow-x: hidden
     white-space: nowrap
-    border-width: 0 0 pxToRem(1) 0
-    border-color: $uni-color-scale8
-    border-style: solid
-    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
-
-
-.timeentriesTable th.s1
-    width: pxToRem(40)
-.timeentriesTable th.s2
-    width: pxToRem(90)
-.timeentriesTable th.s3
-    width: pxToRem(140)
-.timeentriesTable th.s4
-    width: 35%
-.timeentriesTable th.s5
-    width: 45%
-
-.timeentriesTable th.left
-    text-align: left
-    padding-left: 1em;
-
-.timeentriesTable th.center
-    text-align: center
-
-.timeentriesTable th.right
-    text-align: right
-
-.timeentriesTable th:first-of-type
-    border-width: 0 0 pxToRem(1) 0
-
-.timeentriesTable th:last-of-type
-    border-right: 0
+    border-bottom: 1px solid $uni-color-scale8
+    padding: 3px 4px 0 4px
 
 .timeentriesTable tr:hover
     background-color: lighten($uni-color-scale6, 32%)
 
 .timeentriesTable td
-    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
-    border-bottom: pxToRem(1) solid $uni-color-scale9
-    border-left: pxToRem(1) solid $uni-color-scale9
+    padding: 3px 4px 0 4px
+    border-bottom: 1px solid $uni-color-scale9
+    border-left: 1px solid $uni-color-scale9
     white-space: nowrap
     text-overflow: ellipsis
     overflow-x: hidden
 
-.timeentriesTable td.sum
-    height: 2rem
-    border-top: pxToRem(1) solid $uni-color-negative !important
-    font-weight: 600
-
-.timeentriesTable td.sumright
-    font-weight: 600
-    border-left: pxToRem(1) solid $uni-color-scale6
-
-
-.timeentriesTable th.sum
-    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 24%)
-
-.timeentriesTable td.left
-    text-align: left
-    padding-left: 1em
-
 .timeentriesTable td.center
     text-align: center
-
-.timeentriesTable td.right
-    text-align: right
 
 .timeentriesTable td:first-of-type
     border-left: 0
@@ -256,26 +150,6 @@ vacation .timeentriesTable
 
 .alternateRow td
     border-color: $uni-color-scale8
-
-.timeentriesTable tr td.timeSheet_actions
-    width: pxToRem(15)
-
-.timeentriesTable tr:last-of-type td.timeSheet_actions button
-    visibility: hidden
-
-.timeentriesTable tr td.timeSheet_actions button
-    width: 2rem
-    margin: 0 0 0 pxToRem(7)
-    padding: 0 pxToRem(7) 0 pxToRem(7)
-    background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
-    background-size: 0.9rem
-    box-shadow: none
-    height: 1em
-
-.timeentriesTable tr:hover td.timeSheet_actions button
-    background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
-    background-size: 0.8rem
-    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
 
 .flex-table
     border-collapse: collapse
@@ -372,14 +246,8 @@ div.bad
     td.good
         color: $uni-color-good
 
-// .wideapplication
-//     margin-left: 1em
-//     margin-right: 1em
-//     position: relative
-
 .clickablecell
-    @extend %clickable
-
+    cursor: pointer
     &:hover
         background-color: $uni-color-scale8
 
@@ -423,69 +291,6 @@ uni-file-import input
     width: 100%
     height: 2rem
 
-// .timetracking_periode_selector
-//     list-style: none
-//     // float: right
-//     border-radius: pxToRem(3)
-//     margin: 0
-//     // position: absolute
-//     // top: 0
-//     // right: 0
-
-//     // &:after
-//     //     clear: both
-
-//     li
-//         float: left
-//         width: pxToRem(105)
-//         text-align: center
-//         height: 1.5rem
-//         line-height: 1.5rem
-//         vertical-align: middle
-//         border-top: $primaryBorder
-//         border-bottom: $primaryBorder
-//         border-left: $primaryBorder
-//         color: $uni-color-c2a
-//         font-size: 0.8rem
-
-//         &:first-of-type
-//             border-top-left-radius: pxToRem(4)
-//             border-bottom-left-radius: pxToRem(4)
-
-//         &:last-of-type
-//             border-right: $primaryBorder
-//             border-top-right-radius: pxToRem(4)
-//             border-bottom-right-radius: pxToRem(4)
-
-//         @media screen and (max-width: 1250px)
-//             float: none
-//             border: none
-//             border-bottom: none
-//             border-radius: pxToRem(4)
-//             height: pxToRem(20)
-//             line-height: pxToRem(20)
-//             vertical-align: middle
-
-//             &:last-of-type
-//                 border-right: none
-
-//         &:after
-//             clear: both
-
-//         &.timetracking_periode_selected
-//             background-color: $uni-color-c2a
-//             color: #fff
-
-//         &:hover
-//             cursor: pointer
-//             background-color: $uni-color-c2a
-//             color: #fff
-
-// .timeentry_biglabel
-//     font-weight: 400
-//     color: $uni-color-c2a
-//     margin-bottom: 0
-
 .timetracking_progress_bar
     -webkit-appearance: none
     appearance: none
@@ -525,3 +330,7 @@ uni-file-import input
             height: 2rem
             line-height: 0
             min-width: 8rem
+
+
+workrelations .splitview_list
+    flex: 0 0 auto

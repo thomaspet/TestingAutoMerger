@@ -26,7 +26,6 @@ import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {SideMenu} from './sidemenu/sidemenu';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {DayBrowser} from './components/daybrowser';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {TimeApproveModal} from './components/popupapprove';
@@ -34,6 +33,7 @@ import {TimeentryImportModal} from './components/file-import-modal';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
+import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 import {MatSelectModule} from '@angular/material';
 import {MatMenuModule} from '@angular/material';
@@ -53,7 +53,8 @@ import {MatMenuModule} from '@angular/material';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        WidgetModule
+        WidgetModule,
+        UniTickerModule
     ],
     declarations: [
         GenericDetailview,
@@ -72,7 +73,6 @@ import {MatMenuModule} from '@angular/material';
         VacationView,
         WorkBalancesView,
         SideMenu,
-        DayBrowser,
         UniTemplateModal,
         TeamworkReport,
         TimeApproveModal,

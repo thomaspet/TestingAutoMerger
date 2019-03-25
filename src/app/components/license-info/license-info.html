@@ -1,0 +1,34 @@
+<h1>Lisensinfo</h1>
+<section class="license-owner">
+    <section class="info-card">
+        <section class="info-field">
+            <strong>Lisenseier</strong>
+            <span>{{licenseOwner?.Name || '-'}}</span>
+        </section>
+
+        <section class="info-field">
+            <strong>Org.nummer</strong>
+            <span>{{licenseOwner?.OrgNumber || '-'}}</span>
+        </section>
+    </section>
+
+    <section class="info-card">
+        <section class="info-field">
+            <strong>Kontaktperson</strong>
+            <span>
+                {{licenseOwner?.ContactPerson || '-'}}
+                <a href="mailto:{{licenseOwner?.ContactEmail}}">{{licenseOwner?.ContactEmail || '-'}}</a>
+                <a *ngIf="licenseOwner?.ContactPhone" href="tel:{{licenseOwner?.ContactPhone}}">{{licenseOwner?.ContactPhone}}</a>
+            </span>
+        </section>
+    </section>
+</section>
+
+<uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+
+<license-info-admin-list
+    *ngIf="activeTabIndex === 0"
+    [managers]="licenseOwner?.Managers">
+</license-info-admin-list>
+
+<license-info-company-list *ngIf="activeTabIndex === 1"></license-info-company-list>

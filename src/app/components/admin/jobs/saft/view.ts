@@ -69,7 +69,7 @@ export class SaftExportView implements OnInit {
     public onJobStart(file: ISaftFileInfo) {
 
         this.modalService.open(SaftImportModal,
-            { header: 'SAF-T IMPORT', data: {
+            { header: 'SAF-T', data: {
                 IncludeStartingBalance: true,
                 ReuseExistingNumbers: true,
                 UpdateExistingData: false,
@@ -190,9 +190,11 @@ export class SaftExportView implements OnInit {
                 if (data.Success) {
                     data.Data.forEach(file => {
                         const retfile = retlist.find(x => x.FileID === file.ID);
-                        retfile.FileName = file.Name;
-                        retfile.FileContentType = file.ContentType;
-                        retfile.FileSize = file.Size;
+                        if (retfile) {
+                            retfile.FileName = file.Name;
+                            retfile.FileContentType = file.ContentType;
+                            retfile.FileSize = file.Size;
+                        }
                     });
                 }
             });
@@ -271,7 +273,7 @@ export class SaftExportView implements OnInit {
         });
     }
 
-    public uploadFile(event, triedReAuthenticating?: boolean) {
+    public uploadFile(event) {
         const source = event.srcElement || event.target;
         const file: IFile = source.files && source.files[0];
 
@@ -279,7 +281,7 @@ export class SaftExportView implements OnInit {
             this.busy = true;
 
             const data = new FormData();
-            data.append('Token', this.authService.filesToken);
+            data.append('Token', this.authService.jwt);
             data.append('Key', this.authService.getCompanyKey());
             data.append('Caption', '');
             data.append('File', <any> file);
@@ -302,14 +304,8 @@ export class SaftExportView implements OnInit {
                             err => this.errorService.handle(err)
                         );
                 }, err => {
-                    if (triedReAuthenticating) {
-                        this.busy = false;
-                        this.errorService.handle(err);
-                    } else {
-                        this.authService.authenticateUniFiles().then(() => {
-                            this.uploadFile(event, true);
-                        });
-                    }
+                    this.busy = false;
+                    this.errorService.handle(err);
                 }
             );
         }

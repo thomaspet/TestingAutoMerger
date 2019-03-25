@@ -305,7 +305,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
     }
 
     public open() {
-        if (this.readonly) {
+        if (this.readonly || this.expanded) {
             return;
         }
         this.searchControl.setValue('');
@@ -324,8 +324,10 @@ export class UniSelect implements OnChanges, AfterViewInit {
     }
 
     public close() {
-        this.expanded = false;
-        this.cd.markForCheck();
+        if (this.expanded) {
+            this.expanded = false;
+            this.cd.markForCheck();
+        }
     }
 
     public onNewItemClick() {

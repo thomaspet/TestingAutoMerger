@@ -19,6 +19,10 @@ uni-toolbar
     display: flex
     flex-direction: row
 
+    &.static
+        position: static
+        margin-bottom: 2rem
+
     background: #fff
     color: $toolbar-grey
     // border-bottom: 1px solid $uni-color-scale9
@@ -46,15 +50,6 @@ uni-toolbar
     li
         width: 14rem
         padding: .35rem .5rem
-
-.toolbar-content
-    width: 100%
-    margin: 0
-    padding: 0
-    display: flex
-    flex-direction: row
-    flex-wrap: nowrap
-    height: 100%
 
 .toolbar-left,
 .toolbar-center,
@@ -118,6 +113,7 @@ uni-toolbar
     .toolbar-extras
         flex: 0 0 auto
         margin: auto 0
+        display: flex
 
         > *
             margin-right: 1rem

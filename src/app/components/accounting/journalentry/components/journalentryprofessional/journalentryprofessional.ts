@@ -37,7 +37,7 @@ import {
     InvoicePaymentData,
     NumberSeries
 } from '../../../../../unientities';
-import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
@@ -59,7 +59,8 @@ import {
     PredefinedDescriptionService,
     SupplierService,
     CustomerService,
-    UserService
+    UserService,
+    CostAllocationService,
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -99,6 +100,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public defaultRowData: JournalEntryData;
     @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
+    @Input() public orgNumber: string;
 
     @ViewChild(UniTable) private table: UniTable;
 
@@ -113,6 +115,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
+    @Output() public rowFieldChanged: EventEmitter<FieldAndJournalEntryData> = new EventEmitter<FieldAndJournalEntryData>();
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
@@ -194,6 +197,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private customerService: CustomerService,
         private userService: UserService,
         private paymentService: PaymentService,
+        private costAllocationService: CostAllocationService,
     ) {}
 
     public ngOnInit() {
@@ -238,8 +242,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.selectedNumberSeriesTaskID =  this.selectedNumberSeries.NumberSeriesTaskID;
             this.setupJournalEntryNumbers(true);
         }
-
-
     }
 
     public setJournalEntryData(data) {
@@ -265,10 +267,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        this.journalEntryLines = data;
-
-        // If SupplierInvoice don't set focus on table
-        if (this.mode === JournalEntryMode.SupplierInvoice) { return; }
+        // If SupplierInvoice don't set focus on table, and filter away credited lines!
+        if (this.mode === JournalEntryMode.SupplierInvoice) {
+            // Hide credited lines from Supplier Invoice view
+            this.journalEntryLines = data.filter(line => line.StatusCode !== 34002);
+            return;
+        } else {
+            this.journalEntryLines = data;
+        }
 
         setTimeout(() => {
             if (this.currentRowIndex >= 0) {
@@ -464,6 +470,127 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean ) {
+        const returnValue: any = {
+            type: ToastType.warn
+        };
+
+        return new Promise((resolve, reject) => {
+            // Dont do anything if user has more lines!
+            if (!orgNumber || (this.journalEntryLines && this.journalEntryLines.length > 1)) {
+                if (showToastIfNotRan) {
+                    returnValue.msg = !orgNumber
+                    ? 'Mangler organisasjonsnummer for å finne kontoforslag'
+                    : 'Det er allerede manuelle konteringslinjer. Slett disse for å kjøre smart bokføring';
+                }
+               resolve(returnValue);
+               return;
+            } else {
+                this.journalEntryService.getLedgerSuggestions(orgNumber).subscribe(res => {
+                    if (!res || !res.Suggestion) {
+                        this.journalEntryLines = [].concat([]);
+                        this.dataChanged.emit(this.journalEntryLines);
+                        returnValue.msg = 'Ingen bokføringsforslag funnet på denne leverandøren. Vi vil huske din neste bokføring.';
+                        resolve(returnValue);
+                        return;
+                    }
+
+                    // Check for account to suggest
+                    if (res.Suggestion.AccountNumber > 0) {
+                        const msg = '';
+
+                        // Minimum percentage criteria for using suggested account number.. Should/could be set in Company settings??
+                        const LIMIT_PERCENTAGE = 70;
+
+                        let percent = res.Suggestion.PercentWeight || 0;
+                        const counter = res.Suggestion.Counter;
+
+                        if ((counter < 15 && res.Source === 3) || (counter < 20 && res.Source === 2)) {
+                            percent = percent > 45 ? 45 : percent;
+                        }
+
+                        // If the suggestion does not meet limit criteria, dont do anything, just return..
+                        if (res.Source > 1 && percent < LIMIT_PERCENTAGE) {
+                            returnValue.msg = 'Fant ikke en konto som tilfredstiller kravet for smart bokføring på denne leverandøren. ' +
+                            '<br/>Vi vil huske din bokføring på neste faktura fra denne leverandøren.';
+                            resolve(returnValue);
+
+                            this.journalEntryLines = [].concat([]);
+                            this.dataChanged.emit(this.journalEntryLines);
+                            return;
+                        }
+
+                        this.journalEntryService.getAccountsFromSuggeestions(res.Suggestion.AccountNumber.toString().substr(0, 3))
+                        .subscribe((accounts) => {
+                            if (accounts.length) {
+                                let match = accounts.find(acc => acc.AccountNumber === res.Suggestion.AccountNumber);
+                                match = match ? match : accounts[0];
+
+                                let newLine;
+
+                                if (this.journalEntryLines && this.journalEntryLines.length === 1) {
+                                    this.journalEntryLines[0].DebitAccount = match;
+                                    this.journalEntryLines[0].DebitAccountID = match.ID;
+                                    this.journalEntryLines[0]['_updateDescription'] = true;
+                                    if (match.VatTypeID) {
+                                        this.journalEntryLines[0].DebitVatTypeID = match.VatTypeID;
+                                        this.journalEntryLines[0].DebitVatType = this.vattypes.find(x => x.ID === match.VatTypeID);
+                                    }
+                                } else {
+                                    newLine = {
+                                        Dimensions: {},
+                                        DebitAccount: match,
+                                        DebitAccountID: match.ID,
+                                        CreditAccount: null,
+                                        CreditAccountID: null,
+                                        Description: '',
+                                        FileIDs: []
+                                    };
+                                    if (match.VatTypeID) {
+                                        newLine.DebitVatTypeID = match.VatTypeID;
+                                        newLine.DebitVatType = this.vattypes.find(x => x.ID === match.VatTypeID);
+                                    }
+
+                                    this.journalEntryLines.push(newLine);
+                                }
+
+                                returnValue.msg = res.Source === 1
+                                    ? 'Kontoforslag på konteringslinje er lagt til basert på ditt firmas tidligere' +
+                                        ' bokføringer på faktura fra denne leverandøren.'
+                                    : res.Source === 2
+                                    ? 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort på' +
+                                        ' denne leverandøren i UniEconomy'
+                                    : 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort i UniEconomy' +
+                                        ' på levernadører i samme bransje som valgt leverandør på din faktura.';
+
+                                this.journalEntryLines = [].concat(this.journalEntryLines);
+                                this.dataChanged.emit(this.journalEntryLines);
+
+                                returnValue.type = ToastType.good;
+                                resolve(returnValue);
+                                return;
+                            } else {
+                                returnValue.msg = `Smart bokføring foreslo konto ${res.Suggestion.AccountNumber} men denne kontoen` +
+                                ` (og nærliggende kontoer) mangler i din kontoplan.`;
+                                resolve(returnValue);
+                            }
+                        }, err => {
+                            returnValue.msg = `Noe gikk galt da smart bokføring prøvde å hente konto ${res.Suggestion.AccountNumber}`;
+                            resolve(returnValue);
+                        });
+                    } else {
+                        returnValue.msg = `Noe gikk galt da smart bokføring prøvde å hente bokføringsforslag.`;
+                        resolve(returnValue);
+                    }
+                }, err => {
+                    returnValue.msg = `Noe gikk galt da smart bokføring prøvde å hente bokføringsforslag. ` +
+                    `Prøv å start den manuelt igjen i menyen oppe til høyre.`;
+                    resolve(returnValue);
+                });
+            }
+        });
+    }
+
     private getExternalCurrencyExchangeRate(rowModel: JournalEntryData): Promise<JournalEntryData> {
         const rowDate = rowModel.FinancialDate || new LocalDate();
         rowModel.CurrencyID = rowModel.CurrencyCode.ID;
@@ -614,6 +741,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         if (isPercentageChanged) {
+            rowModel.VatDeductionPercent = rowModel.VatDeductionPercent || 0;
             return rowModel;
         }
 
@@ -696,8 +824,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             );
             this.setVatDeductionPercent(newRow);
         } else if (newRow.VatDeductionPercent &&
-            !((newRow.DebitAccount && !newRow.DebitAccount.UseVatDeductionGroupID)
-            || (newRow.CreditAccount && !newRow.CreditAccount.UseVatDeductionGroupID))
+            !((newRow.DebitAccount && newRow.DebitAccount.UseVatDeductionGroupID)
+            || (newRow.CreditAccount && newRow.CreditAccount.UseVatDeductionGroupID))
         ) {
             this.toastService.addToast(
                 'Fradragsprosent kan ikke angis',
@@ -991,12 +1119,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
+            .setOptions({
+                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
+                useLastMonthsPreviousYearUntilMonth: 4
+            });
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
             .setVisible(false)
-            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
+            .setOptions({
+                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
+                useLastMonthsPreviousYearUntilMonth: 4
+            });
 
         const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
 
@@ -1257,9 +1391,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return (item.Number + ': ' + item.Name);
                 },
                 lookupFunction: (query) => {
-                    return this.customDimensionService.getCustomDimensionListWithFilter(
+                    return this.customDimensionService.getCustomDimensionList(
                         type.Dimension,
-                        `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                        `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
                     ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             }).setWidth('8%');
@@ -1312,6 +1446,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 : null
             )
             .setVisible(false);
+
+        const costAllocationCol = new UniTableColumn('CostAllocation', 'Fordelingsnøkkel', UniTableColumnType.Lookup)
+            .setTemplate((rowModel) => {
+                if (rowModel.CostAllocation && rowModel.CostAllocation.Name) {
+                    return rowModel.CostAllocation.ID + ' - ' + rowModel.CostAllocation.Name;
+                }
+                return '';
+            })
+            .setWidth('12%')
+            .setOptions({
+                itemTemplate: (item) => {
+                    return (item.ID + ' - ' + item.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.costAllocationService.search(searchValue);
+                }
+            })
+            .setVisible(true);
 
         let defaultRowData = {
             Dimensions: {},
@@ -1385,7 +1537,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         } else if (this.mode === JournalEntryMode.SupplierInvoice) {
-            // SupplierInvoice == "Fakturamottak"
+            // SupplierInvoice == "Leverandørfaktura"
             tableName = 'accounting.journalEntry.supplierinvoice';
 
             if (this.defaultRowData) {
@@ -1408,6 +1560,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             projectCol.setVisible(false);
             departmentCol.setVisible(false);
             netAmountCol.setVisible(false);
+            costAllocationCol.setVisible(false);
+            debitAccountCol.setWidth('20%');
 
             columns = [
                 debitAccountCol,
@@ -1419,7 +1573,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 amountCol,
                 netAmountCol,
-                amountCurrencyCol
+                amountCurrencyCol,
+                costAllocationCol
             ];
 
             if (dimensionCols.length) {
@@ -1475,6 +1630,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 createdAtCol,
                 createdByCol,
+                costAllocationCol,
                 addedPaymentCol,
                 fileCol
             ];
@@ -1687,11 +1843,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
-        const sign = journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID ? -1 : 1; // we need to invert but not use abs!
+        const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
             const journalEntryPaymentData: Partial<InvoicePaymentData> = {
-                Amount: postPostJournalEntryLine.RestAmount * sign,
-                AmountCurrency: postPostJournalEntryLine.RestAmountCurrency * sign,
+                Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
+                AmountCurrency: UniMath.round(postPostJournalEntryLine.RestAmountCurrency * sign, 2),
                 BankChargeAmount: 0,
                 CurrencyCodeID: postPostJournalEntryLine.CurrencyCodeID,
                 CurrencyExchangeRate: 0,
@@ -1710,7 +1866,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
                     currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
-                    isDebit: journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID
+                    isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost
                 }
             });
             paymentModal.onClose.subscribe((paymentData) => {
@@ -1719,22 +1875,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
                 // calculate the Amount that was paid in the base currency - the diff between this and
                 // what is registerred as a payment on the opposite account (normally a bankaccount)
                 // will be balanced using an agio line
+                const higherPrecisionExchangeRate = Math.abs(postPostJournalEntryLine.Amount / postPostJournalEntryLine.AmountCurrency);
                 journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * postPostJournalEntryLine.CurrencyExchangeRate
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate
                 );
 
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
+                journalEntryRow.CurrencyExchangeRate = higherPrecisionExchangeRate;
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
-
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
                     if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
                         journalEntryRow.CreditAccount = null;
                         journalEntryRow.CreditAccountID = null;
@@ -1755,6 +1913,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             : null;
                     }
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        let agioSign = agioRow.DebitAccountID > 0 ? 1 : -1;
+
+                        if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                            agioSign *= -1;
+                        }
+
+                        journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
                         this.addJournalEntryLines([oppositeRow, agioRow]);
                         resolve(journalEntryRow);
@@ -1800,7 +1966,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return new Promise(resolve => {
             const paymentData: InvoicePaymentData = {
                 Amount: customerInvoice.RestAmount,
-                AmountCurrency: customerInvoice.RestAmountCurrency,
+                AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
                 BankChargeAmount: 0,
                 CurrencyCodeID: customerInvoice.CurrencyCodeID,
                 CurrencyExchangeRate: 0,
@@ -1830,29 +1996,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     resolve(journalEntryRow);
                 }
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
                 // the Amount that was paid in the base currency - the diff between this and what
                 // is registerred as a payment on the opposite account (normally a bankaccount)
                 // will be balanced using an agio line
-                journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate
-                );
-
+                journalEntryRow.Amount = paymentData.Amount;
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
                 journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
                 journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
+                journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
 
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
                     journalEntryRow.DebitAccount = null;
                     journalEntryRow.DebitAccountID = null;
 
+
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
                         agioRow.CustomerInvoiceID = customerInvoice.ID;
+                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
                         resolve(journalEntryRow);
                         setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
@@ -1909,7 +2078,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData
     ): Promise<JournalEntryData> {
         const agioRow = new JournalEntryData();
-        const isCredit = invoicePaymentData.AgioAmount < 0;
+        const isCredit = (invoicePaymentData.AgioAmount < 0 && journalEntryData.DebitAccount && journalEntryData.DebitAccount.UsePostPost)
+            || (invoicePaymentData.AgioAmount > 0 && journalEntryData.CreditAccount && journalEntryData.CreditAccount.UsePostPost);
 
         agioRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
         agioRow.CustomerInvoice = journalEntryData.CustomerInvoice;
@@ -2019,7 +2189,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
                 `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
-                `or (Account.AccountNumber eq ${searchValue} ` +
+                `or (Account.AccountNumber eq '${parseInt(searchValue, 10)}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             }
         }
@@ -2095,6 +2265,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             if (item.JournalEntryDataAccrual) {
                 const data = {
+                    item: item,
                     accrualAmount: null,
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2104,6 +2275,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.openAccrualModal(data, item);
             } else if (item.AmountCurrency && item.AmountCurrency !== 0 && item.FinancialDate) {
                 const data = {
+                    item: item,
                     accrualAmount: item['NetAmountCurrency'],
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2133,6 +2305,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public onModalChanged(item, modalval) {
+        if (modalval && !modalval.BalanceAccountID) {
+            modalval.BalanceAccountID = 0;
+        }
+        if (modalval && !modalval.ResultAccountID) {
+            modalval.ResultAccountID = 0;
+        }
         item.JournalEntryDataAccrual = modalval;
         // if the item is already booked, just add the payment through the API now
         /* if (item.StatusCode) {
@@ -2169,7 +2347,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (payment) {
                     item.JournalEntryPaymentData.PaymentData = res;
                     this.table.updateRow(item['_originalIndex'], item);
-                    this.rowChanged();
                 }
             });
 
@@ -2303,11 +2480,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 this.toastService.addToast('Betaling',
                                     ToastType.good, 5, 'Betaling registrert');
                                 this.table.updateRow(item['_originalIndex'], item);
-                                this.rowChanged();
                             });
                         } else {
                             this.table.updateRow(item['_originalIndex'], item);
-                            this.rowChanged();
                         }
                     }
                 });
@@ -2359,13 +2534,19 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             const readonlyRows = tableData.filter(row => !!row.StatusCode);
                             const editableRows = tableData.filter(row => !row.StatusCode);
 
-                            // Check if readonly rows contains one or more lines with the wrong numberseries
+                            // Check if readonly rows contains one or more lines with the wrong numberseries.
+                            // Rows where _editmode is set is journalentries that are being corrected, so they
+                            // will already have a defined journalentrynumber. Dont update numbers for these
+                            // even if the numberseries does not exist, because this will not have any effect
+                            // when saving anyway (i.e. if a journalentry is corrected from 15.01.2018 to 15.01.2019
+                            // the journalentrynumber will still be set to 2018-something)
                             const shouldUpdateData = editableRows.some(
-                                row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
-                                row.NumberseriesID !== this.selectedNumberSeries.ID
+                                row => (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
+                                row.NumberseriesID !== this.selectedNumberSeries.ID) && !row._editmode
                             );
+
                             if (shouldUpdateData) {
-                                const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
+                                const uniQueNumbers = _.uniq(editableRows.filter(x => !x._editmode).map(item => item.JournalEntryNo));
                                 uniQueNumbers.forEach(uniQueNumber => {
                                     const lines = editableRows.filter(line => line.JournalEntryNo === uniQueNumber);
 
@@ -2533,6 +2714,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+            if (!data.VatDeductionPercent) {
+                data.VatDeductionPercent = 100;
+            }
         });
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {
@@ -2749,6 +2933,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private rowChanged(event?) {
+        if (!event) {
+            return;
+        }
+
         if (event.newValue && event.newValue.CustomerID && event.newValue.StatusCode === StatusCode.InActive) {
             const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -2785,6 +2973,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
+
+        if (event.newValue && event.field) {
+            this.rowFieldChanged.emit({
+                Field: event.field,
+                JournalEntryData: event.rowModel
+            });
+        }
     }
 
     public getTableData() {
@@ -2792,5 +2987,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             return this.table.getTableData();
         }
         return null;
+    }
+
+    public focusLastRow() {
+        const rows = this.getTableData() || [];
+        this.currentRowIndex = rows.length;
+        this.table.focusRow(this.currentRowIndex);
     }
 }

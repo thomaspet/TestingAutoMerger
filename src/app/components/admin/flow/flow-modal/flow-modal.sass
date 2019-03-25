@@ -1,0 +1,99 @@
+.uni-modal
+    max-height: 95vh
+    article
+        padding: 1rem 0
+    footer
+        margin-top: 0
+        button.c2a
+            min-width: 7rem
+
+.setup-step
+    padding: 1.75rem 2.5rem 2rem
+
+    & + .setup-step
+        border-top: 1px solid #ccc
+
+    > .header
+        font: 300 20px 'Roboto', sans-serif
+        i.material-icons
+            vertical-align: middle
+            margin-bottom: 2px
+            margin-right: 5px
+            color: rgba(0, 0, 0, 0.75)
+
+    > .content
+        margin: 2rem 0rem 0
+        button
+            margin: 0
+
+label
+    display: flex
+    margin-bottom: 1rem
+    span
+        flex: 0 0 10rem
+        margin: auto 0
+
+input
+    height: 36px
+    font-size: 15px
+
+.operation-filters
+    display: flex
+
+    li
+        flex: 1
+        display: flex
+        height: 2.75rem
+        background: #f9f9f9
+        border: 1px solid #C3CAD9
+        border-radius: 3px
+        cursor: pointer
+        user-select: none
+        padding: 0 1rem
+
+        & + li
+            margin-left: 1rem
+
+        > *
+            margin: auto 0
+
+        mat-checkbox
+            margin-right: 1rem
+
+        span
+            text-transform: capitalize
+
+.action-setup
+    mat-radio-group
+        margin-left: 2rem
+        .mat-radio-button
+            display: inline-block !important
+            margin-right: 1rem
+
+    small
+        display: block
+        margin-bottom: 10px
+        font-size: 13px
+
+    input
+        width: 100%
+
+    .job-params
+        padding: 10px 15px
+        background: #f9f9f9
+        border: 1px solid #C3CAD9
+        border-radius: 3px
+        margin-top: 1rem
+
+        .param
+            display: flex
+            margin-bottom: 10px
+
+            input
+                flex: 1
+                margin-right: 10px
+                &.name
+                    flex: 0 0 15rem
+
+            button
+                flex: 0 0 auto

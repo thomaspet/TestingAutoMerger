@@ -37,6 +37,7 @@ import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
 import {EmployeeTax} from './employee/employeeTax/employeeTax';
 import {EmployeeSalarybalance} from './employee/employeeSalarybalances/employeeSalarybalance';
+import {EmployeeOTP} from './employee/employeeOTP/employeeOTP';
 
 import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
 import {ControlModal} from './payrollrun/modals/controlModal';
@@ -46,10 +47,9 @@ import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsS
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
+import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls.component';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
-import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
-import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 import {SalaryTransViewService} from './sharedServices/salaryTransViewService';
 
@@ -102,7 +102,9 @@ import { TravelDetailsComponent } from './travel/travel-details/travel-details.c
 import { TravelLinesComponent } from './travel/travel-details/travel-lines/travel-lines.component';
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
-import {MatSlideToggleModule} from '@angular/material';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material';
 import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
@@ -119,6 +121,17 @@ import {
 import {
     SalarybalanceTemplateEmployeeListComponent
 } from './salarybalance/template/salarybalance-template-employee-list/salarybalance-template-employee-list.component';
+import { OTPExportComponent } from './otpexport/otpexport.component';
+import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter-modal.component';
+import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail-options/paycheck-mail-options.component';
+import { PeriodAdminModalComponent } from './amelding/modals/period-admin-modal/period-admin-modal.component';
+import {
+    AmeldingPeriodSplitViewComponent
+} from './amelding/modals/period-admin-modal/tabViews/amelding-period-split-view/amelding-period-split-view.component';
+import {
+    AmeldingPayrollsPeriodViewComponent
+} from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
+import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 
 @NgModule({
     imports: [
@@ -126,7 +139,9 @@ import {
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
+        MatTooltipModule,
         MatSlideToggleModule,
+        MatSelectModule,
         UniTickerModule,
 
         RouterModule.forChild(salaryRoutes),
@@ -150,6 +165,8 @@ import {
         AmeldingReceiptView,
         AmeldingSummaryView,
         AmeldingTypePickerModal,
+        AmeldingPeriodSplitViewComponent,
+        AmeldingPayrollsPeriodViewComponent,
 
         // Employee
         UniEmployee,
@@ -167,6 +184,7 @@ import {
         RecurringPost,
         EmployeeTax,
         EmployeeSalarybalance,
+        EmployeeOTP,
 
         // Payrollrun
         VacationPayModal,
@@ -177,11 +195,10 @@ import {
         PaycheckSending,
         PaycheckSenderModal,
         TimeTransferComponent,
+        VariablePayrollsComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
-        SalarytransFilterContent,
-        SalarytransFilter,
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,
@@ -230,6 +247,13 @@ import {
         SalarybalanceTemplateDetailsComponent,
         SalarybalanceTemplateView,
         SalarybalanceTemplateEmployeeListComponent,
+
+        // OTP
+        OTPExportComponent,
+        OtpFilterModalComponent,
+        PaycheckMailOptionsComponent,
+        PeriodAdminModalComponent,
+        OtpPeriodWagetypeModalComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -237,7 +261,6 @@ import {
         VacationPayModal,
         ControlModal,
         PostingSummaryModal,
-        SalarytransFilterContent,
         AmeldingTypePickerModal,
         SalarybalanceLine,
         PaycheckSenderModal,
@@ -247,6 +270,9 @@ import {
         ReconciliationResponseModalComponent,
         TimeTransferComponent,
         TravelRejectModal,
+        OtpFilterModalComponent,
+        PeriodAdminModalComponent,
+        OtpPeriodWagetypeModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -272,6 +298,7 @@ import {
         AmeldingReceiptView,
         AmeldingSummaryView,
         AmeldingTypePickerModal,
+        PeriodAdminModalComponent,
 
         // Employee
         UniEmployee,
@@ -290,6 +317,7 @@ import {
         EmployeeTax,
         EmployeeSalarybalance,
         EmployeeTransTickerComponent,
+        EmployeeOTP,
 
         // Payrollrun
         VacationPayModal,
@@ -300,11 +328,10 @@ import {
         PaycheckSending,
         PaycheckSenderModal,
         TimeTransferComponent,
+        VariablePayrollsComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
-        SalarytransFilterContent,
-        SalarytransFilter,
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,
@@ -339,7 +366,11 @@ import {
         TravelListComponent,
         TravelDetailsComponent,
         TravelLinesComponent,
-        TravelRejectModal
+        TravelRejectModal,
+
+        // OTP
+        OTPExportComponent,
+        OtpPeriodWagetypeModalComponent
     ]
 })
 export class SalaryModule {}

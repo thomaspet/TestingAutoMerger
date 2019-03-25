@@ -10,8 +10,9 @@
     <section class="bill-left-side">
 
         <section class="uni-container">
-            <header>Detaljer</header>
+            <uni-tabs [tabs]="detailsTabs" [(activeIndex)]="detailsTabIndex" (activeIndexChange)="onDetailsTabClick($event)"></uni-tabs>
             <uni-form
+                *ngIf="detailsTabIndex === 0"
                 [config]="formConfig$"
                 [fields]="fields$"
                 [model]="current"
@@ -20,6 +21,10 @@
                 (inputEvent)="onFormInput($event)"
                 (focusEvent)="onFocusEvent($event)">
             </uni-form>
+            <section *ngIf="detailsTabIndex === 1" class="freetext-tab-view">
+                <span>Fritekst</span>
+                <textarea [(ngModel)]="currentFreeTxt" (keyup)="flagUnsavedChanged()" [attr.maxLength]="500"> </textarea>
+            </section>
         </section>
 
         <section class="uni-container" style="margin-bottom: 0">
@@ -34,6 +39,8 @@
                     [runAsSubComponent]="true"
                     [singleRowMode]="true"
                     [doValidateBalance]="false"
+                    [orgNumber]="orgNumber"
+                    [costAllocationData]="(costAllocationData$ | async)"
                     (dataChanged)="onJournalEntryManualChange($event)"
                     (dataLoaded)="onJournalEntryManualDataLoaded($event)">
                 </journal-entry-manual>
@@ -58,19 +65,28 @@
                 *ngIf="activeTabIndex === 1"
                 [supplierID]="(current | async)?.SupplierID"
                 [supplierInvoiceID]="(current | async)?.ID">
-            </uni-bill-previous>                
-    
+            </uni-bill-previous>
+
             <uni-bill-history
                 *ngIf="activeTabIndex === 2"
                 [supplierID]="(current | async)?.SupplierID"
                 [supplierInvoiceID]="(current | async)?.ID">
-            </uni-bill-history>                
+            </uni-bill-history>
 
         </section>
     </section>
 
     <section class="bill-right-side uni-container">
         <header>Dokument ({{this.files?.length || 0}})</header>
+
+        <span class="get-from-inbox" role="button"
+            *ngIf="!(current | async)?.ID"
+            (click)="openAddFileModal()">
+
+            <i class="material-icons">get_app</i>
+            Hent fra innboks
+        </span>
+
         <uni-image
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
@@ -83,10 +99,8 @@
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
             (imageUnlinked)="imageUnlinked($event)"
-            (imageClicked)="onImageClicked($event)"
             (useWord)="onUseWord($event)">
         </uni-image>
-        <button *ngIf="!(current | async)?.ID" class="good document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </section>
 
 </section>

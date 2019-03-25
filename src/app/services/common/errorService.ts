@@ -28,14 +28,12 @@ export class ErrorService {
             error.customMessage = toastMsg;
         }
 
-        try {
-            this.logger.exception(error);
-        } catch (e) {}
-
         if (error.status === 401) {
             return;
         }
 
+        console.error(error);
+        this.logger.log(error);
         this.addErrorToast(toastMsg || message);
     }
 

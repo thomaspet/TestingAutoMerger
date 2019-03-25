@@ -1,16 +1,30 @@
-<table-search
+<table-filters
     *ngIf="config?.searchable"
     [tableConfig]="config"
     [columns]="columns"
-    [configFilters]="dataService?.advancedSearchFilters"
-    (filtersChange)="onFiltersChange($event)"
-    (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
-</table-search>
+    [filters]="dataService?.advancedSearchFilters"
+    (filtersChange)="onFiltersChange($event)">
+</table-filters>
 
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
-    [ngStyle]="{'height': tableHeight}"
-    (clickOutside)="clearEmptyRowsAndEmit()">
+    [ngStyle]="{
+        'height': tableHeight,
+        'flex': config?.groupingIsOn ? '1' : 'unset',
+        'overflow': config?.editable ? 'unset' : 'hidden'
+    }">
+
+    <span
+        *ngIf="config?.groupingIsOn"
+        role="button"
+        class="expand-collapse-groups"
+        (click)="expandCollapseAll()">
+        Åpne/lukk alle grupper
+    </span>
+
+    <section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
+        Antall rader: {{dataService?.totalRowCount$ | async}}
+    </section>
 
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"
@@ -23,7 +37,8 @@
     <ag-grid-angular #agGrid
         [ngClass]="{
             'editable': config?.editable,
-            'col-menu-hidden': config && !config.columnMenuVisible
+            'col-menu-hidden': config && !config.columnMenuVisible,
+            'ag-theme-balham': config?.groupingIsOn
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -31,7 +46,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [gridAutoHeight]="localData"
+        [domLayout]="(localData && !config?.groupingIsOn) ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
@@ -45,13 +60,21 @@
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"
+        [animateRows]="true"
+        [suppressMakeColumnVisibleAfterUnGroup]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [suppressDragLeaveHidesColumns]="config?.suppressDragLeaveHidesColumns"
+        [autoGroupColumnDef]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [rowGroupPanelShow]="config?.rowGroupPanelShow"
+        [blockLoadDebounceMillis]="250"
+        [suppressContextMenu]="true"
 
         [pagination]="usePagination"
         [paginationPageSize]="config?.pageSize"
         (paginationChanged)="onPaginationChange($event)"
 
         (gridReady)="onAgGridReady($event)"
-        (columnResized)="resizeDebouncer$.next($event)"
+        (gridSizeChanged)="gridSizeChangeDebouncer$.next($event)"
+        (columnResized)="colResizeDebouncer$.next($event)"
         (modelUpdated)="onAgModelUpdate($event)"
         (rowDragEnd)="onRowDragEnd($event)"
 
@@ -59,6 +82,7 @@
         [suppressRowClickSelection]="selectionMode === 'multiple'"
         [isRowSelectable]="isRowSelectable"
         (selectionChanged)="onSelectionChange($event)"
+        (rowSelected)="onRowSelected($event)"
         (rowClicked)="onRowClick($event)"
         (cellClicked)="onCellClick($event)"
         (columnMoved)="columnMoveDebouncer$.next($event)"
@@ -66,21 +90,21 @@
         [context]="context"
         [frameworkComponents]="cellRendererComponents">
     </ag-grid-angular>
+</section>
 
-    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1">
-        <i class="material-icons" (click)="paginate('first')">first_page</i>
-        <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
+<section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
+    <i class="material-icons" (click)="paginate('first')">first_page</i>
+    <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 
-        <span class="pagination-info" *ngIf="paginationInfo">
-            Side
-            <input type="text" #pageInput
-                [value]="paginationInfo.currentPage"
-                (change)="paginationInputChange(pageInput.value)"
-            />
-            av {{paginationInfo.pageCount}}
-        </span>
+    <span class="pagination-info" *ngIf="paginationInfo">
+        Side
+        <input type="text" #pageInput
+            [value]="paginationInfo.currentPage"
+            (change)="paginationInputChange(pageInput.value)"
+        />
+        av {{paginationInfo.pageCount}}
+    </span>
 
-        <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
-        <i class="material-icons" (click)="paginate('last')">last_page</i>
-    </section>
+    <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
+    <i class="material-icons" (click)="paginate('last')">last_page</i>
 </section>

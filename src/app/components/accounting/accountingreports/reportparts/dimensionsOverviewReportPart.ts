@@ -3,13 +3,13 @@ import {Router} from '@angular/router';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {
     UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat
-} from '../../../../../framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable';
 import {
     StatisticsService,
     ErrorService,
     DimensionService,
     DimensionTypes
-} from '../../../../services/services';
+} from '@app/services/services';
 import { IDimType } from '../dimensionreport/dimensiontypereport';
 
 export class DimensionSummaryData {
@@ -36,14 +36,14 @@ export class DimensionSummaryData {
     templateUrl: './dimensionsOverviewReportPart.html',
 })
 export class DimensionsOverviewReportPart {
-    @Input() public periodFilter1: PeriodFilter;
-    @Input() public periodFilter2: PeriodFilter;
-    @Input() public dimensionType: DimensionTypes;
-    @Input() private filter: any;
-    @Input() private dimensionTypes: IDimType[];
+    @Input() periodFilter1: PeriodFilter;
+    @Input() periodFilter2: PeriodFilter;
+    @Input() dimensionType: DimensionTypes;
+    @Input() filter: any;
+    @Input() dimensionTypes: IDimType[];
 
     private dimensionEntityName: string = '';
-    private dimensionDisplayName: string = '';
+    dimensionDisplayName: string = '';
     private dimensionsNumberField: string = '';
     private showPercent: boolean = true;
     private numberFormat: INumberFormat = {
@@ -52,16 +52,14 @@ export class DimensionsOverviewReportPart {
         decimalLength: 0
     };
 
-    private dimensionDataList: Array<DimensionSummaryData> = [];
-    public uniTableConfigDimension: UniTableConfig;
+    dimensionDataList: DimensionSummaryData[] = [];
+    uniTableConfigDimension: UniTableConfig;
 
     constructor(
         private router: Router,
         private statisticsService: StatisticsService,
         private errorService: ErrorService
-    ) {
-
-    }
+    ) {}
 
     public ngOnChanges() {
         if (this.filter) {
@@ -157,20 +155,15 @@ export class DimensionsOverviewReportPart {
                 const totalIncome = dimensionItem.amountGroup3;
 
                 dimensionItem.percentGroup4 = totalIncome === 0
-                    ? 0
-                    : Math.round((dimensionItem.amountGroup4 * 100) / totalIncome);
+                    ? 0 : Math.round((dimensionItem.amountGroup4 * 100) / totalIncome);
                 dimensionItem.percentGroup5 = totalIncome === 0
-                    ? 0
-                    : Math.round((dimensionItem.amountGroup5 * 100) / totalIncome);
+                    ? 0 : Math.round((dimensionItem.amountGroup5 * 100) / totalIncome);
                 dimensionItem.percentGroup6 = totalIncome === 0
-                    ? 0
-                    : Math.round((dimensionItem.amountGroup6 * 100) / totalIncome);
+                    ? 0 : Math.round((dimensionItem.amountGroup6 * 100) / totalIncome);
                 dimensionItem.percentGroup7 = totalIncome === 0
-                    ? 0
-                    : Math.round((dimensionItem.amountGroup7 * 100) / totalIncome);
+                    ? 0 : Math.round((dimensionItem.amountGroup7 * 100) / totalIncome);
                 dimensionItem.percentGroup8 = totalIncome === 0
-                    ? 0
-                    : Math.round((dimensionItem.amountGroup8 * 100) / totalIncome);
+                    ? 0 : Math.round((dimensionItem.amountGroup8 * 100) / totalIncome);
 
                 dimensionItem.amountGroupResult = totalIncome - (
                     dimensionItem.amountGroup4
@@ -180,19 +173,14 @@ export class DimensionsOverviewReportPart {
                     + dimensionItem.amountGroup8
                 );
                 dimensionItem.percentGroupResult = totalIncome === 0
-                    ? 0
-                    : Math.round((dimensionItem.amountGroupResult * 100) / totalIncome);
+                    ? 0 : Math.round((dimensionItem.amountGroupResult * 100) / totalIncome);
             });
 
             // do this to make UniTable accept the data as it's datasource
             this.dimensionDataList = JSON.parse(JSON.stringify(dimensionDataList));
 
-            const dimensionName = new UniTableColumn(
-                'dimensionName',
-                this.dimensionDisplayName,
-                UniTableColumnType.Text
-            )
-                .setWidth('15%')
+            const dimensionName = new UniTableColumn('dimensionName', this.dimensionDisplayName)
+                .setWidth('15rem')
                 .setTemplate(x => x.dimensionId > 0 ? `${x.dimensionNumber}: ${x.dimensionName}` : 'Ikke definert');
 
             const amountGroup3 = new UniTableColumn('amountGroup3', 'Salgsinntekter', UniTableColumnType.Money)
@@ -204,7 +192,6 @@ export class DimensionsOverviewReportPart {
                 .setNumberFormat(this.numberFormat);
 
             const percentGroup4 = new UniTableColumn('percentGroup4', '%', UniTableColumnType.Number)
-                .setWidth('4%')
                 .setCls('percentage');
 
             const amountGroup5 = new UniTableColumn('amountGroup5', 'Lønnskostnader', UniTableColumnType.Money)
@@ -212,7 +199,6 @@ export class DimensionsOverviewReportPart {
                 .setNumberFormat(this.numberFormat);
 
             const percentGroup5 = new UniTableColumn('percentGroup5', '%', UniTableColumnType.Number)
-                .setWidth('4%')
                 .setCls('percentage');
 
             const amountGroup6 = new UniTableColumn('amountGroup6', 'Andre driftskost', UniTableColumnType.Money)
@@ -220,7 +206,6 @@ export class DimensionsOverviewReportPart {
                 .setNumberFormat(this.numberFormat);
 
             const percentGroup6 = new UniTableColumn('percentGroup6', '%', UniTableColumnType.Number)
-                .setWidth('4%')
                 .setCls('percentage');
 
             const amountGroup7 = new UniTableColumn('amountGroup7', 'Andre driftskost', UniTableColumnType.Money)
@@ -228,7 +213,6 @@ export class DimensionsOverviewReportPart {
                 .setNumberFormat(this.numberFormat);
 
             const percentGroup7 = new UniTableColumn('percentGroup7', '%', UniTableColumnType.Number)
-                .setWidth('4%')
                 .setCls('percentage');
 
             const amountGroup8 = new UniTableColumn('amountGroup8', 'Finanskost/innt', UniTableColumnType.Money)
@@ -236,7 +220,6 @@ export class DimensionsOverviewReportPart {
                 .setNumberFormat(this.numberFormat);
 
             const percentGroup8 = new UniTableColumn('percentGroup8', '%', UniTableColumnType.Number)
-                .setWidth('4%')
                 .setCls('percentage');
 
             const amountGroupResult = new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money)
@@ -244,13 +227,10 @@ export class DimensionsOverviewReportPart {
                 .setNumberFormat(this.numberFormat);
 
             const percentGroupResult = new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number)
-                .setWidth('4%')
                 .setCls('percentage');
 
             const tableName = 'accounting.dimensionOverviewReportPart';
-            this.uniTableConfigDimension = new UniTableConfig(tableName, false, false)
-                .setPageable(true)
-                .setPageSize(25);
+            this.uniTableConfigDimension = new UniTableConfig(tableName, false, true, 25);
 
             if (this.showPercent) {
                 this.uniTableConfigDimension.setColumns([

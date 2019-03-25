@@ -1,20 +1,16 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router, ActivationEnd} from '@angular/router';
-import {UniModalService} from '../../../framework/uni-modal/modalService';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {UniNewCompanyModal} from './newCompanyModal';
+import {UniNewCompanyModal} from './new-company-modal/newCompanyModal';
 import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
-import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
-import {SingleTextFieldModal} from '../../../framework/uni-modal/modals/singleTextFieldModal';
+import {BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
 import {UniEditFieldModal} from '@uni-framework/uni-modal/modals/editFieldModal';
-import {isNullOrUndefined} from 'util';
 import {AuthService} from '../../authService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
-import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
 import {Subscription} from 'rxjs';
 import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
@@ -22,6 +18,8 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
+import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
+import { DeleteCompanyModal } from './delete-company-modal/delete-company-modal';
 
 
 enum KPI_STATUS {
@@ -287,16 +285,31 @@ export class BureauDashboard {
             ])
             .setContextMenu([
                 {
-                    label: 'Administrer produkter',
-                    action: item => this.editPurchases(item)
+                    label: 'Administrer brukertilganger',
+                    action: company => this.redirectToCompanyUrl(company, '/settings/users')
                 },
                 {
                     label: 'Opprett som kunde',
-                    action: item => this.createCustomer(item)
+                    action: company => this.createCustomer(company)
                 },
                 {
                     label: 'Rediger klientnr',
-                    action: item => this.editClientNumber(item)
+                    action: company => this.editClientNumber(company)
+                },
+                {
+                    label: 'Slett selskap',
+                    action: (company) => {
+                        this.modalService.open(DeleteCompanyModal, {
+                            data: company
+                        }).onClose.subscribe(companyDeleted => {
+                            if (companyDeleted) {
+                                this.companies = this.companies.filter(c => c.ID !== company.ID);
+                                this.filterCompanies();
+
+                                // this.loadCompanies();
+                            }
+                        });
+                    }
                 }
             ]);
     }
@@ -405,7 +418,9 @@ export class BureauDashboard {
                     this.companies.unshift(company);
                     this.companies = [...this.companies];
                     this.filterCompanies();
-                    doneCallback(`Selskap ${company.Name} opprettet`);
+                    this.authService.setActiveCompany(company);
+                    this.uniModalService.open(CompanyActionsModal, <IModalOptions>{ header: `${company.Name} opprettet!` });
+                    doneCallback(`${company.Name} opprettet!`);
                 }
             });
     }
@@ -441,14 +456,6 @@ export class BureauDashboard {
     private setCurrentCompany(company: KpiCompany) {
         this.highlightedCompany = company;
         this.currentCompanyService.setCurrentCompany(company);
-    }
-
-
-    public editPurchases(company: KpiCompany) {
-        this.modalService.open(ManageProductsModal, {
-            header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
-            data: {companyKey: company.Key},
-        });
     }
 
     public createCustomer(company: KpiCompany) {

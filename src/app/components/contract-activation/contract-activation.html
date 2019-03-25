@@ -1,0 +1,98 @@
+<section class="activation-section">
+    <section *ngIf="!isTrialUser" class="contract-activated">
+        <i class="material-icons">check_circle</i>
+        Kontrakt er allerede aktivert for dette selskapet
+    </section>
+
+    <section *ngIf="isTrialUser" class="form-container">
+        <h1>Aktivering av kundeforhold</h1>
+
+        <form #f="ngForm" [formGroup]="licenseData">
+            <label>
+                <span>Organisasjonsnummer</span>
+                <input type="text"
+                    formControlName="orgNumber"
+                    [ngClass]="{'no-brreg-match': noBrRegMatch}"
+                />
+            </label>
+
+            <small class="form-error" *ngIf="noBrRegMatch">
+                Organisasjonsnummer finnes ikke i enhetsregisteret
+            </small>
+
+            <label>
+                <span>Selskapsnavn</span>
+                <input type="text" formControlName="companyName">
+            </label>
+
+            <label>
+                <span>Addresse</span>
+                <input type="text" formControlName="address">
+            </label>
+
+            <label>
+                <span>Postnummer</span>
+                <input type="text" formControlName="postalCode">
+            </label>
+
+            <label>
+                <span>Poststed</span>
+                <input type="text" formControlName="city">
+            </label>
+
+            <label>
+                <span>Regnskapsbyrå</span>
+                <select formControlName="isBureau">
+                    <option value="false">Nei</option>
+                    <option value="true">Ja</option>
+                </select>
+            </label>
+
+            <fieldset>
+                <legend>Brukerinformasjon</legend>
+
+                <label>
+                    <span>Navn</span>
+                    <input type="text" formControlName="name">
+                </label>
+
+                <label>
+                    <span>Telefon</span>
+                    <input type="text" formControlName="phone">
+                </label>
+
+                <label>
+                    <span>Epost</span>
+                    <input type="text" formControlName="email">
+                </label>
+            </fieldset>
+
+            <section class="submit-section">
+                <mat-checkbox formControlName="hasAcceptedTerms">
+                    <span class="checkbox-label">
+                        Jeg har lest og godtar <a href="https://google.com" target="_blank" rel="noopener noreferrer">vilkår for bruk</a>.
+                    </span>
+                </mat-checkbox>
+
+                <button
+                    type="button"
+                    class="good rounded"
+                    [attr.aria-busy]="busy"
+                    [disabled]="!f.form.valid || noBrRegMatch"
+                    (click)="activate()">
+                    Aktiver kontrakt
+                </button>
+            </section>
+        </form>
+    </section>
+
+
+</section>
+
+
+<section class="info-section">
+    <img src="../../../../../assets/ue_activation-min.png" alt="Uni Economy bilde">
+
+    <h1>Uni Economy</h1>
+    <h2>Fremtidens økonomisystem i skyen</h2>
+</section>

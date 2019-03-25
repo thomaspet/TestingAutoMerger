@@ -5,6 +5,10 @@
         flex: 5 !important
         padding: 1rem
 
+        > *
+            display: block
+            width: 100%
+
 .project-router-outlet
 
     .chart-container
@@ -14,26 +18,8 @@
         margin-left: 5%
         padding-top: 1rem
 
-    .project-edit-container
-        h2
-            margin: 16px
-            font-size: 2rem
-
-    .project-edit-form
-        @include clearfix
-
-        uni-form
-            float: left
-
     .project-edit-resources
         width: calc(100% - 33px)
-
-    // .project-task-container
-    //     width: calc(100% - 40px)
-    //     margin: 25px
-    //     padding: 20px
-    //     border: 1px solid #c3c3c3
-    //     border-radius: 3px
 
     .project-subview
         width: calc(100% - 40px)
@@ -42,56 +28,6 @@
     .project-overview-timeline-container
         margin: 25px
 
-.twenty-width-field
-    width: calc(20% - 33px)
-
-.twentyfive-width-field
-    width: calc(25% - 33px)
-
-.third-width-field
-    width: calc(33.33% - 33px)
-
-.fourthy-width-field
-    width: calc(40% - 33px)
-
-.fifty-width-field
-    width: calc(50% - 33px)
-
-.mini-nav
-    margin: 0 0 pxToRem(5) 0
-    width: 100%
-
-    ul
-        margin: 0
-        width: 100%
-        overflow: hidden
-        list-style: none
-        display: flex
-        flex-direction: row
-        align-items: stretch
-
-        li
-            padding-left: 1em
-            padding-right: 1em
-            border-color: $navbarBackground
-            border-style: solid
-            border-width: pxToRem(1) 0 pxToRem(1) pxToRem(1)
-
-            &:first-of-type
-                border-radius: 7px 0 0 0
-
-            &:last-of-type
-                flex: 1
-                border-radius: 0 7px 0 0
-                border-width: pxToRem(1) pxToRem(1) pxToRem(1) pxToRem(1)
-
-            &.is-active
-                background: $navbarBackground
-                color: $navbarTextColor
-
-            &:hover
-                background: $navbarBackground
-                color: $navbarTextColor
 project-overview
     width: 100%
 

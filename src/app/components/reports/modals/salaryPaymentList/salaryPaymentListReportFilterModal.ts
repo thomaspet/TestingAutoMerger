@@ -8,10 +8,12 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {
     ReportDefinitionParameterService,
-    YearService,
+    FinancialYearService,
     ErrorService,
-    PayrollrunService
+    PayrollrunService,
+    SalaryBookingType
 } from '../../../../services/services';
+import {tap, switchMap} from 'rxjs/operators';
 
 interface IModalConfig {
     report: any;
@@ -21,7 +23,7 @@ interface IModalConfig {
 
 interface ISalaryPaymentModel {
     RunID: number;
-    DimensionGrouping: boolean;
+    BookingType: SalaryBookingType;
 }
 
 @Component({
@@ -32,25 +34,30 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     @Input() public config: IModalConfig;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<ISalaryPaymentModel> = new BehaviorSubject({ RunID: 0, DimensionGrouping: true });
+    public model$: BehaviorSubject<ISalaryPaymentModel> = new BehaviorSubject({ RunID: 0, BookingType: SalaryBookingType.Dimensions });
     public currentYear: number;
     constructor(
         private payrollRunService: PayrollrunService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) { }
 
     public ngOnInit() {
         this.config$.next(this.config);
-        const subscription = this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .do(year => this.currentYear = year)
-            .switchMap(year => this.payrollRunService.getLatestSettledRun(year))
-            .finally(() => subscription.unsubscribe())
-            .subscribe(payrollRun => {
-                this.fields$.next(this.getLayout(payrollRun));
-                this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0, DimensionGrouping: true });
+        this.currentYear = this.financialYearService.getActiveYear();
+
+        this.payrollRunService
+            .getLatestSettledRun(this.currentYear)
+            .pipe(
+                tap(payrollRun => {
+                    this.fields$.next(this.getLayout(payrollRun));
+                    this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0, BookingType: SalaryBookingType.Dimensions });
+                }),
+                switchMap(run => this.payrollRunService.getPostingSummaryDraft(run.ID)),
+            )
+            .subscribe(draft => {
+                const model = this.model$.value;
+                model.BookingType = this.payrollRunService.getBookingTypeFromDraft(draft);
+                this.model$.next(model);
             });
     }
 
@@ -72,9 +79,18 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
 
         if (this.config.report.ID === 8) {
             fields.push({
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Splitt på dimensjoner',
-                Property: 'DimensionGrouping'
+                Property: 'BookingType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Type bilag',
+                Options: {
+                    source: [
+                        {ID: SalaryBookingType.Dimensions, name: 'Bilag med dimensjoner kun på resultatkontoer'},
+                        {ID: SalaryBookingType.DimensionsAndBalance, name: 'Bilag med dimensjoner på resultat- og balansekontoer'},
+                        {ID: SalaryBookingType.NoDimensions, name: 'Bilag uten dimensjoner'}
+                    ],
+                    valueProperty: 'ID',
+                    template: (el: any) => el.name,
+                }
             });
         }
 
@@ -109,12 +125,12 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                 {
                     text: 'Ok',
                     class: 'good',
-                    method: (model$) => {
+                    method: (model$: BehaviorSubject<ISalaryPaymentModel>) => {
                         this.modal.close();
                         const report = this.modalConfig.report;
                         report.parameters = [{Name: 'RunID', value: model$.getValue().RunID}];
                         if (report.ID === 8) {
-                            report.parameters.push({Name: 'DimensionGrouping', value: model$.getValue().DimensionGrouping});
+                            report.parameters.push({Name: 'BookingType', value: model$.getValue().BookingType});
                         }
                         this.modalService.open(UniPreviewModal, {
                             data: report

@@ -54,11 +54,11 @@ import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
+import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {UniAssignModal} from './bill/detail/assignmodal';
-import {UniAddFileModal} from './bill/detail/addFileModal';
+import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
-import {DimensionList} from './accountSettings/dimensionList/dimensionList';
 import {AccountList} from './accountSettings/accountList/accountList';
 import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
 import {VatSettings} from './vatsettings/vatsettings';
@@ -72,16 +72,33 @@ import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
+import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
+import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
-import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} from '@angular/material';
+import {UniBudgetView} from './budget/budgetview';
+import {UniBudgetEntryEditModal} from './budget/budgetEntryEditModal';
+import {UniBudgetEditModal} from './budget/budgetEditModal';
+import {
+    MatTabsModule,
+    MatSelectModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatMenuModule,
+} from '@angular/material';
+import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
+import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
+import { UniCostAllocationDetails } from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
 
 @NgModule({
     imports: [
         MatTabsModule,
         MatSelectModule,
         MatIconModule,
+        MatTooltipModule,
         MatProgressBarModule,
+        MatMenuModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
@@ -100,7 +117,6 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         UniAccounting,
 
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
 
@@ -117,6 +133,10 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         SupplierList,
         SupplierDetails,
         UniNewSupplierModal,
+        UniBudgetView,
+        UniBudgetEntryEditModal,
+        UniBudgetEditModal,
+        FileFromInboxModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -128,10 +148,14 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         BillView,
         BillHistoryView,
         BillPreviousView,
+        BillTransitionModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
+        EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
-        UniAddFileModal, NumberAsMoneyPipe,
+        NumberAsMoneyPipe,
+        UniSmartBookingSettingsModal,
+        NumberAsMoneyPipe,
 
         // vatreport
         CheckListVat,
@@ -162,7 +186,12 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         AccountingReportShortcuts,
 
         // PostPost
-        PostPost
+        PostPost,
+
+        // Cost Allocation
+        UniCostAllocation,
+        UniCostAllocationList,
+        UniCostAllocationDetails,
     ],
     entryComponents: [
         HistoricVatReportModal,
@@ -171,17 +200,24 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         AccountDetailsReport,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
+        EditSupplierInvoicePayments,
         NewAccountModal,
         UniAssignModal,
-        UniAddFileModal,
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
-        DraftLineDescriptionModal
+        DraftLineDescriptionModal,
+        UniBudgetEntryEditModal,
+        UniBudgetEditModal,
+        UniSmartBookingSettingsModal,
+        UniCostAllocation,
+        UniCostAllocationList,
+        UniCostAllocationDetails,
+        FileFromInboxModal,
+        BillTransitionModal
     ],
     exports: [
         AccountSettings,
-        DimensionList,
         AccountList,
         AccountDetails,
         NewAccountModal,
@@ -230,7 +266,11 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         DrilldownBalanceReportPart,
 
         // PostPost
-        PostPost
+        PostPost,
+
+        // CostAllocation
+        UniCostAllocation,
+        UniCostAllocationList,
     ],
     providers: [
         PeriodFilterHelper,

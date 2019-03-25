@@ -14,7 +14,8 @@ import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uni-modal';
@@ -111,6 +112,7 @@ export class UniImage {
     private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
+    private uniEconomyToken: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
     private lastUrlFailed: string = null;
@@ -134,6 +136,8 @@ export class UniImage {
     public processingPercentage: number = null;
     public ocrWords: Array<any> = [];
 
+    onDestroy$: Subject<any> = new Subject();
+
     constructor(
         private ngHttp: Http,
         private http: UniHttp,
@@ -145,13 +149,18 @@ export class UniImage {
         private uniFilesService: UniFilesService,
         private toastService: ToastService
     ) {
-        this.authService.authentication$.subscribe((authDetails) => {
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
             this.refreshFiles();
         });
 
-        this.authService.filesToken$.subscribe(token => {
+        this.authService.filesToken$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(token => {
             this.token = token;
+            this.uniEconomyToken = this.authService.jwt;
             this.refreshFiles();
         });
     }
@@ -175,6 +184,21 @@ export class UniImage {
                 }
             }
         }
+    }
+
+    ngOnDestroy() {
+        this.setFileViewerData([]);
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
+    }
+
+    openFileViewer() {
+        const baseUrl = window.location.href.split('/#/')[0];
+        window.open(
+            baseUrl + '/fileviewer.html',
+            'Fileviewer',
+            'menubar=0,height=950,width=965,left=0,top=8'
+        );
     }
 
     public setOcrData(ocrResult) {
@@ -218,6 +242,22 @@ export class UniImage {
         this.ocrMenu.closeMenu();
     }
 
+    private setFileViewerData(files: File[]) {
+        localStorage.setItem('fileviewer-data', JSON.stringify([]));
+
+        if (files) {
+            const imgUrls = [];
+            files.forEach(file => {
+                const numberOfPages = file.Pages || 1;
+                for (let pageIndex = 1; pageIndex <= numberOfPages; pageIndex++) {
+                    imgUrls.push(this.generateImageUrl(file, UniImageSize.large, pageIndex));
+                }
+            });
+
+            localStorage.setItem('fileviewer-data', JSON.stringify(imgUrls));
+        }
+    }
+
     public refreshFiles() {
         if (!this.token || !this.activeCompany) {
             return;
@@ -231,6 +271,7 @@ export class UniImage {
                 .subscribe((res) => {
                     this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
+                    this.setFileViewerData(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
                         this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
@@ -248,6 +289,7 @@ export class UniImage {
                 .subscribe((res) => {
                     this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
+                    this.setFileViewerData(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
                         this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
@@ -258,7 +300,8 @@ export class UniImage {
                     }
                 }, err => this.errorService.handle(err));
         } else {
-             this.files = [];
+            this.files = [];
+            this.setFileViewerData(this.files);
         }
     }
 
@@ -344,7 +387,8 @@ export class UniImage {
         const currentFile = this.files[this.currentFileIndex];
 
         // If not pdf, just print the image
-        if (!currentFile.Name || !currentFile.Name.includes('.pdf')) {
+        const fileName = (currentFile.Name || '').toLowerCase();
+        if (!fileName.includes('.pdf')) {
             this.printImage(this.imgUrl);
             return;
         }
@@ -397,6 +441,8 @@ export class UniImage {
     }
 
     public splitFile() {
+        const fileIndex = this.currentFileIndex;
+
         this.modalService.confirm({
             header: 'Bekreft oppdeling av fil',
             message: 'Vennligst bekreft at du vil dele filen i to fra og med denne siden. ' +
@@ -407,26 +453,33 @@ export class UniImage {
             }
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                this.uniFilesService.splitFile(this.files[this.currentFileIndex].StorageReference, this.currentPage, true)
-                    .then(splitFileResult => {
+                this.uniFilesService.splitFile(
+                    this.files[fileIndex].StorageReference,
+                    this.currentPage,
+                ).subscribe(
+                    splitFileResult => {
                         this.fileService.splitFile(
-                            this.files[this.currentFileIndex].ID,
+                            this.files[fileIndex].ID,
                             splitFileResult.FirstPart.ExternalId,
                             splitFileResult.SecondPart.ExternalId
-                        ).subscribe(splitResultUE => {
-                            // replace the current file, and make uniimage reload the split file
-                            this.files[this.currentFileIndex] = splitResultUE.FirstPart;
+                        ).subscribe(
+                            splitResultUE => {
+                                this.files[fileIndex] = splitResultUE.FirstPart;
 
-                            // because the file was split, go back one page, or the request will
-                            // fail because the page does not exist
-                            this.currentPage--;
+                                if (this.currentPage > 1) {
+                                    this.currentPage--;
+                                }
 
-                            // check filestatus and load file/image when Uni Files is done
-                            // processing it
-                            this.checkFileStatusAndLoadImage(splitFileResult.FirstPart.StorageReference);
-                        }, err => this.errorService.handle(err));
-                    }).catch(err => this.errorService.handle(err));
-                }
+                                this.checkFileStatusAndLoadImage(
+                                    splitFileResult.FirstPart.StorageReference
+                                );
+                            },
+                            err => this.errorService.handle(err)
+                        );
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
         });
     }
 
@@ -598,9 +651,15 @@ export class UniImage {
         this.cdr.markForCheck();
     }
 
-    private generateImageUrl(file: File, width: number): string {
-        const url =
-            `${this.baseUrl}/api/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.StorageReference}&width=${width}&page=${this.currentPage}&t=${Date.now()}`;
+    private generateImageUrl(file: File, width: number, pageOverride?: number): string {
+        const url = `${this.baseUrl}/api/image`
+            + `?key=${this.activeCompany.Key}`
+            + `&token=${this.token}`
+            + `&id=${file.StorageReference}`
+            + `&width=${width}`
+            + `&page=${pageOverride || this.currentPage}`
+            + `&t=${Date.now()}`;
+
         return encodeURI(url);
     }
 
@@ -666,7 +725,7 @@ export class UniImage {
 
     private uploadFile(file) {
         const data = new FormData();
-        data.append('Token', this.token);
+        data.append('Token', this.uniEconomyToken);
         data.append('Key', this.activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);
@@ -688,6 +747,7 @@ export class UniImage {
                     .subscribe(newFile => {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
+                        this.setFileViewerData(this.files);
                         this.currentFileIndex = this.files.length - 1;
                         this.currentPage = 1;
                         this.removeHighlight();

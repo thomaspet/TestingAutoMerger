@@ -117,11 +117,6 @@
                 background-color: $uni-color-scale9
                 cursor: pointer
 
-        .sidemenu_template_start_end_time
-            float: right
-            margin: 0
-            font-size: 0.8rem
-
         .sidemenu_template_time_total
             float: right
             &:after
@@ -134,12 +129,6 @@
             overflow-x: hidden
             white-space: nowrap
             display: inline-block
-
-        .sidemenu_template_description
-            width: 70%
-            display: inline-block
-            overflow-x: hidden
-            white-space: nowrap
 
         .sidemenu_template_timeart
             font-size: 0.9rem
@@ -167,14 +156,8 @@
     cursor: pointer
     margin: 0
 
-.uni_template_modal_content
-    footer
-        margin-top: 3rem
-
-.sidemenu_minified_container_class
-    width: calc(100% - 150px)
-
 .calendar_flexplus,
+.calendar_flexminus_light,
 .calendar_flexminus
     width: 60%
     margin: 0 auto
@@ -195,11 +178,10 @@
     background-color: mix($uni-color-good, $uni-color-negative, 75%)
 .calendar_flexminus:after
     background-color: mix($uni-color-bad, $uni-color-negative, 75%)
+.calendar_flexminus_light:after
+    background-color: #fbc531
 
-
-.template_modal_size
-    width: 75%
-
+uni-template-modal
     label
         width: 100px
         display: inline-block

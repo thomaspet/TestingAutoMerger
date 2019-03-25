@@ -160,7 +160,7 @@ uni-init
     min-height: 10rem
     max-width: 25rem
     margin: 0 auto
-    padding: 2rem 3rem 3rem 3rem
+    padding: 2rem 3rem 1.25rem
     background: $uni-color-negative
     position: relative
     box-shadow: 0 0 30px #d9dee9
@@ -214,43 +214,9 @@ uni-init
 
 
     .links
-        position: absolute
         width: 100%
         text-align: center
-        bottom: 1rem
-        left: 0
-
-ul.progress-list
-    list-style: none
-
-    li
-        margin-top: 1rem
-
-        &:before
-            content: ''
-            display: inline-block
-            height: 1rem
-            width: .5rem
-            margin: 0 .5rem 0 .5rem
-            position: relative
-
-        &.finished:before
-            border-bottom: .1rem solid $uni-color-scale7
-            border-right: .1rem solid $uni-color-scale7
-            transform: rotate(45deg)
-
-        &[aria-busy=true]:before
-            content: ''
-            display: inline-block
-            height: 1rem
-            width: 1rem
-            margin-left: 0
-            margin-right: .5rem
-            position: relative
-            border-radius: 50%
-            border-top: .1rem solid $uni-color-scale7
-            border-right: .1rem solid transparent
-            animation: spinner 600ms linear infinite
+        margin-top: .5rem
 
 uni-signup,
 uni-confirm-invite
@@ -262,10 +228,6 @@ uni-confirm-invite
             font-size: 17px
             &.registration-step-info
                 margin-bottom: 2rem
-
-        .links
-            position: static
-            margin-top: 1rem
 
         button.bad
             height: 3rem
@@ -290,21 +252,12 @@ uni-confirm-invite
     form
         position: relative
 
-    uni-helptext
+    .username-tooltip
         position: absolute
+        cursor: pointer
         top: .5rem
-        right: 0
-        .helpTextToggle
-            background-color: $uni-color-negative
-        .helpText
-            color: $uni-color-negative
-            left: unset
-            right: 0
-            width: 22rem
-            transparentize($uni-color-scale1, .05)
-
-            &:after
-                display: none
+        right: .5rem
+        color: rgba(0,0,0,.75)
 
 uni-password-guide
     ul.password-validation

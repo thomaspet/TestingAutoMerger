@@ -133,7 +133,7 @@ export class Project {
                         }
                         if (li.moduleID === 312) {
                             this.projectService.hasSupplierInvoiceModule = true;
-                            this.childRoutes.push( { name: 'Inng. faktura', path: 'supplierinvoices'} );
+                            this.childRoutes.push( { name: 'Leverandørfaktura', path: 'supplierinvoices'} );
                         }
                     });
                 });
@@ -181,10 +181,11 @@ export class Project {
 
     private getFilteredProjects() {
         return this.allProjects.filter((project: ProjectModel) => {
-            if (project.Name.toLowerCase().includes(this.projectSearchFilterString.toLowerCase())
-                || project.ProjectNumber.toLowerCase().includes(this.projectSearchFilterString.toLowerCase())) {
-                return project;
-            }
+            const projectName = (project.Name || '').toLowerCase();
+            const projectNumber = (project.ProjectNumber || '').toLowerCase();
+            const filterString = (this.projectSearchFilterString || '').toLowerCase();
+
+            return projectName.includes(filterString) || projectNumber.includes(filterString);
         }).slice(0, 99);
     }
 
@@ -276,7 +277,7 @@ export class Project {
 
     public saveProject(done: Function) {
         const project = this.projectService.currentProject.getValue();
-        if (project.WorkPlaceAddress.ID === 0) {
+        if (project.WorkPlaceAddress && !project.WorkPlaceAddress.ID) {
             project.WorkPlaceAddress._createguid = this.projectService.getNewGuid();
         }
 

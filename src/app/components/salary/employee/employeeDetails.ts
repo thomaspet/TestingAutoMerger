@@ -5,11 +5,11 @@ import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator
+    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator, CompanySalary
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
     IToolbarConfig,
@@ -20,7 +20,7 @@ import {
 
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniView} from '../../../../framework/core/uniView';
+import {UniView, ISaveObject} from '../../../../framework/core/uniView';
 import {TaxCardModal} from './modals/taxCardModal';
 import {
     UniModalService,
@@ -29,13 +29,14 @@ import {
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    WageTypeService, YearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService
+    WageTypeService, FinancialYearService, BankAccountService, EmployeeCategoryService,
+    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService, CompanySalaryService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
 import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 import * as _ from 'lodash';
+import {tap} from 'rxjs/operators';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
@@ -53,12 +54,6 @@ interface IEmployeeSaveConfig {
     ignoreRefresh?: boolean;
 }
 
-interface ISaveObject {
-    state: any;
-    key: string;
-    dirty: boolean;
-}
-
 @Component({
     selector: 'uni-employee-details',
     templateUrl: './employeeDetails.html'
@@ -69,6 +64,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private url: string = '/salary/employees/';
     public childRoutes: any[];
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
+    private companySalarySettings: CompanySalary;
 
     private employeeID: number;
     private employee: Employee;
@@ -130,24 +126,16 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         helpText: 'Kategorier på ansatt',
         truncate: 20,
         autoCompleteConfig: {
-            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            template: (obj: EmployeeCategory) => obj ? `${obj.ID} - ${obj.Name}` : '',
             valueProperty: 'Name',
             saveCallback: (cat: EmployeeCategory) => this.employeeService.saveEmployeeTag(this.employeeID, cat),
-            deleteCallback: (tag) => this.employeeService.deleteEmployeeTag(this.employeeID, tag),
+            deleteCallback: (tag) => this.employeeOnCategoryService.deleteEmployeeTag(this.employeeID, tag),
             search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter)
-        }
+        },
+        template: tag => `${tag.linkID} - ${tag.title}`
     };
 
     @ViewChild(UniToolbar) public toolbar: UniToolbar;
-
-    private expandOptionsNewTaxcardEntity: Array<string> = [
-        'loennFraHovedarbeidsgiver',
-        'loennFraBiarbeidsgiver',
-        'pensjon',
-        'loennTilUtenrikstjenestemann',
-        ',loennKunTrygdeavgiftTilUtenlandskBorger',
-        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger'
-    ];
 
     constructor(
         private route: ActivatedRoute,
@@ -166,7 +154,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private http: UniHttp,
         private employeeTaxCardService: EmployeeTaxCardService,
         private wageTypeService: WageTypeService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService,
         private modulusService: ModulusService,
@@ -176,16 +164,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private salaryBalanceViewService: SalaryBalanceViewService,
         private salaryBalanceLineService: SalaryBalanceLineService,
         private payrollRunService: PayrollrunService,
+        private employeeOnCategoryService: EmployeeOnCategoryService,
+        private companySalaryService: CompanySalaryService,
     ) {
         super(router.url, cacheService);
 
-        this.childRoutes = this.getPaths();
+        this.companySalaryService.getCompanySalary()
+            .subscribe((compsalarysettings: CompanySalary) => {
+                this.companySalarySettings = compsalarysettings;
+                this.childRoutes = this.getPaths();
+            });
 
-        this.subscriptions
-            .push(this.yearService
-                .getActiveYear()
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe((year) => this.activeYear$.next(year)));
+        this.activeYear$.next(this.financialYearService.getActiveYear());
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
@@ -385,15 +375,19 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getPaths(): any[] {
-        return [
+        const paths = [
             {name: 'Detaljer', path: 'personal-details'},
             {name: 'Skatt', path: 'employee-tax'},
             {name: 'Arbeidsforhold', path: 'employments'},
             {name: 'Faste poster', path: 'recurring-post'},
             {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
             {name: 'Permisjon', path: 'employee-leave'},
-            {name: 'Historiske poster', path: 'employee-trans-ticker'},
+            {name: 'Historiske poster', path: 'employee-trans-ticker'}
         ];
+        if (this.companySalarySettings.OtpExportActive) {
+            paths.push({name: 'OTP', path: 'employee-otp'});
+        }
+        return paths;
     }
 
     private fillInnSubEntityOnEmp(employee: Employee): void {
@@ -433,6 +427,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public ngOnDestroy() {
         this.employeeID = undefined;
         this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.employmentService.clearCache();
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -588,7 +583,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 return taxCard
                     ? Observable.of(taxCard)
                     : this.employeeTaxCardService
-                        .GetNewEntity(this.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
+                        .GetNewEntity(this.employeeTaxCardService.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
                         .map((response: EmployeeTaxCard) => {
                             response.EmployeeID = this.employeeID;
                             response.Year = year;
@@ -695,6 +690,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getProjects() {
         this.getProjectsObservable().subscribe(projects => {
+            this.employmentService.setProjects(projects);
             super.updateState('projects', projects, false);
         });
     }
@@ -705,6 +701,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getDepartments() {
         this.getDepartmentsObservable().subscribe(departments => {
+            this.employmentService.setDepartments(departments);
             super.updateState('departments', departments, false);
         });
     }
@@ -728,6 +725,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getSubEntities() {
         this.getSubEntitiesObservable().subscribe((response: SubEntity[]) => {
+            this.employmentService.setSubEntities(response);
             super.updateState(SUB_ENTITIES_KEY, response, false);
         }, err => this.errorService.handle(err));
     }
@@ -855,18 +853,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.getSaveObject(RECURRING_POSTS_KEY),
             this.getSaveObject(SALARYBALANCES_KEY)
         ]);
-    }
-
-    private getSaveObject(key: string): Observable<ISaveObject> {
-        if (!super.exist(key)) {
-            return Observable.of({
-                state: null,
-                key: key,
-                dirty: false
-            });
-        }
-
-        return super.getStateSubject(key).take(1).map(state => ({state: _.cloneDeep(state), key: key, dirty: super.isDirty(key)}));
     }
 
     private saveAllObs(config: IEmployeeSaveConfig, saveObjects: ISaveObject[]): Observable<any[]> {
@@ -1033,6 +1019,13 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 }
                 emp.BusinessRelationInfo = brInfo;
                 emp['_EmployeeSearchResult'] = undefined;
+
+                if (!emp.IncludeOtpUntilMonth) {
+                    emp.IncludeOtpUntilMonth = 0;
+                }
+                if (!emp.IncludeOtpUntilMonth) {
+                    emp.IncludeOtpUntilYear = 0;
+                }
                 return emp;
             })
             .switchMap(emp => !!emp.ID
@@ -1059,8 +1052,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     employeeTaxCard.Year = year;
                 }
                 this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
+
                 if (employeeTaxCard.ID === 0 || !employeeTaxCard.ID) {
                     employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
+                }
+                if (employeeTaxCard.ufoereYtelserAndre && !employeeTaxCard.ufoereYtelserAndreID) {
+                    employeeTaxCard.ufoereYtelserAndre['_createguid'] = this.employeeTaxCardService.getNewGuid();
                 }
 
                 if (employeeTaxCard) {
@@ -1088,7 +1085,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private saveEmploymentsObs(config: IEmployeeSaveConfig, emps: Employment[], employee: Employee): Observable<Employment[]> {
         this.employmentService.invalidateCache();
-        return Observable.of(emps)
+        return Observable
+            .of(emps)
             .switchMap((employments: Employment[]) => {
                 const changes = [];
                 let hasStandard = false;
@@ -1101,11 +1099,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         if (!employment['_isDirty']) {
                             return;
                         }
+
+                        if (employment.Dimensions && !employment.DimensionsID) {
+                            if (Object.keys(employment.Dimensions)
+                                .filter(x => x.indexOf('ID') > -1)
+                                .some(key => employment.Dimensions[key])) {
+                                    employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                            } else {
+                                employment.Dimensions = null;
+                            }
+                        }
                         employment.EmployeeID = employee.ID;
                         employment.EmployeeNumber = employee.EmployeeNumber;
-                        if (!employment.DimensionsID && employment.Dimensions) {
-                            employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
-                        }
                         employment.MonthRate = employment.MonthRate || 0;
                         employment.HourRate = employment.HourRate || 0;
                         employment.UserDefinedRate = employment.UserDefinedRate || 0;
@@ -1150,7 +1155,39 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     .map((emp: Employee) => {
                         return emp.Employments;
                     });
-            });
+            })
+            .pipe(
+                tap(employments => {
+
+                    if (!employments.some(emp => !!emp.StartDate)) {
+                        return;
+                    }
+                    if (!employee.SocialSecurityNumber) {
+                        this.toastService
+                            .addToast('Mangler fødselsnummer', ToastType.warn, ToastTime.long, 'Fødselsnummer mangler på ansatt');
+                    }
+                    const employmentsMissingType = employments
+                        .filter(emp => !emp.TypeOfEmployment);
+
+                    if (employmentsMissingType.length) {
+                        let message = `Arbeidsforhold `;
+                        let last: Employment = null;
+                        if (employmentsMissingType.length > 1) {
+                            last = employmentsMissingType.pop();
+                        }
+                        message += `${employmentsMissingType.map(emp => `"${emp.ID} - ${emp.JobName}"`).join(`, `)}`
+                            + `${last ? ` og "${last.ID} - ${last.JobName}"` : ''}`;
+                        this.toastService
+                            .addToast(
+                                'Mangler informasjon om type arbeidsforhold',
+                                ToastType.warn,
+                                ToastTime.long,
+                                `${message} mangler informasjon om type arbeidsforhold. `
+                                + `Dette medfører at a-melding vil bli avvist. `
+                                + `Vennligst fyll ut informasjon i feltet`);
+                    }
+                })
+            );
     }
 
     private saveSalarybalancesObs(config: IEmployeeSaveConfig, salBals: SalaryBalance[], employee: Employee): Observable<SalaryBalance[]> {
@@ -1376,6 +1413,16 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     .forEach((leave, index) => {
                         if (!leave['_isEmpty'] && (leave['_isDirty'] || leave.Deleted)) {
                             changeCount++;
+
+                            if (leave.Employment && leave.Employment.Dimensions && !leave.Employment.DimensionsID) {
+                                if (Object.keys(leave.Employment.Dimensions)
+                                    .filter(x => x.indexOf('ID') > -1)
+                                    .some(key => leave.Employment.Dimensions[key])) {
+                                        leave.Employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                                } else {
+                                    leave.Employment.Dimensions = null;
+                                }
+                            }
 
                             const source = (leave.ID > 0)
                                 ? this.employeeLeaveService.Put(leave.ID, leave)

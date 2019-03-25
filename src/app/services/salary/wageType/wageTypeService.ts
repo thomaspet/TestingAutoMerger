@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {WageType, Account, LimitType, SpecialTaxAndContributionsRule, CompanySalary, SpecialAgaRule} from '../../../unientities';
+import {WageType, Account, LimitType, SpecialTaxAndContributionsRule, CompanySalary, TaxType, StdWageType} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
 import {AccountService} from '../../accounting/accountService';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
@@ -14,8 +14,7 @@ import {CompanySalaryService} from '../companySalary/companySalaryService';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
-    AGA = 1,
-    Pension = 2
+    AGA = 1
 }
 
 @Injectable()
@@ -45,6 +44,28 @@ export class WageTypeService extends BizHttp<WageType> {
         { ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn' },
         { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk' },
         { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister' }
+    ];
+
+    private taxType: {ID: TaxType, Name: string}[] = [
+        { ID: TaxType.Tax_None, Name: 'Ingen' },
+        { ID: TaxType.Tax_Table, Name: 'Tabelltrekk' },
+        { ID: TaxType.Tax_Percent, Name: 'Prosenttrekk' },
+        { ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk' }
+    ];
+
+    private stdWageType: {ID: StdWageType, Name: string}[] = [
+        { ID: StdWageType.None, Name: 'Ingen' },
+        { ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk' },
+        { ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk' },
+        { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
+        { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
+        { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
+        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' },
+        { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
+        { ID: StdWageType.Contribution, Name: 'Bidragstrekk' },
+        { ID: StdWageType.Garnishment, Name: 'Påleggstrekk' },
+        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' },
+        { ID: StdWageType.SourceTaxPension, Name: 'Forskuddstrekk kildeskatt på pensjon' }
     ];
 
     constructor(
@@ -208,6 +229,11 @@ export class WageTypeService extends BizHttp<WageType> {
         }
     }
 
+    public getNameForTaxType(type: TaxType): string {
+        const ret = this.taxType.find(t => t.ID === type);
+        return ret && ret.Name;
+    }
+
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
         return this.companySalaryService
             .getCompanySalary()
@@ -286,8 +312,7 @@ export class WageTypeService extends BizHttp<WageType> {
                                 multivalue: true,
                                 source: [
                                     {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
-                                    {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
-                                    {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
+                                    {ID: WageTypeBaseOptions.AGA, Name: 'Aga'}
                                 ],
                                 valueProperty: 'ID',
                                 labelProperty: 'Name'
@@ -388,24 +413,41 @@ export class WageTypeService extends BizHttp<WageType> {
                                 target: '_blank'
                             },
                             Combo: 0
-                        }
+                        },
                     ]
                 };
             });
     }
 
+    public GetNameForStandardWageTypeFor(type: StdWageType) {
+        const ret = this.stdWageType.find(t => t.ID === type);
+        return ret && ret.Name;
+    }
+
+    public getNameForSpecialTaxAndContributionRule(rule: SpecialTaxAndContributionsRule) {
+        const ret = this.specialTaxAndContributionsRule.find(r => r.ID === rule);
+        return ret && ret.Name;
+    }
+
     private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
-        const ret = [this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard)];
-        if (companySalary.Base_SpesialDeductionForMaritim) {
-            ret.push(this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.SpesialDeductionForMaritim));
-        }
-        return ret;
+        return [
+                this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard),
+                ...Object
+                .keys(companySalary)
+                .filter(key => key.startsWith('Base') && companySalary[key])
+                .map(key => key.substring(5))
+                .map(key => this.specialTaxAndContributionsRule
+                    .find(rule => rule.ID === SpecialTaxAndContributionsRule[key]))
+            ];
     }
 
     public specialSettingsLayout(layoutID: string, wageTypes$: Observable<WageType[]>) {
-        return wageTypes$
+        return Observable
+            .forkJoin(wageTypes$, this.companySalaryService.getCompanySalary())
             .take(1)
-            .switchMap(wageTypes => Observable.from([{
+            .map(response => {
+                const [wagetypes, compSal] = response;
+                return {
                 Name: layoutID,
                 BaseEntity: 'wagetype',
                 Fields: [
@@ -509,14 +551,33 @@ export class WageTypeService extends BizHttp<WageType> {
                         FieldSet: 2,
                         Section: 0,
                         Options: {
-                            source: wageTypes,
+                            source: wagetypes,
                             valueProperty: 'WageTypeNumber',
                             template: (wt: WageType) => wt
                                 ? `${wt.WageTypeNumber} - ${wt.WageTypeName}`
                                 : ''
                         }
-                    }
+                    },
+                    ...this.getShipFields(compSal)
                 ]
-            }]));
+            };
+        });
+    }
+
+    private getShipFields(compSal: CompanySalary): any[] {
+        if (!compSal.Base_SpesialDeductionForMaritim) {
+            return [];
+        }
+        return [
+            {
+                EntityType: 'WageType',
+                Property: 'DaysOnBoard',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Antall døgn ombord',
+                Legend: 'Særskilt fradrag for sjøfolk',
+                FieldSet: 3,
+                Section: 0,
+            },
+        ];
     }
 }

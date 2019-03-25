@@ -189,13 +189,18 @@ export class UniDistributionSettings {
     private setUpForm() {
         this.fields$.next([]);
         const plan = this.plan.getValue();
+
+        const disableForm = plan.Name.toLowerCase() === 'ingen utsendelse';
+
         const fields: any = [
             {
                 EntityType: 'DistributionPlan',
                 Property: 'Name',
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
-                Placeholder: 'Navn på distribusjonsplan'
+                Placeholder: 'Navn på distribusjonsplan',
+                ReadOnly: disableForm
+
             },
             {
                 EntityType: 'DistributionPlan',
@@ -225,7 +230,7 @@ export class UniDistributionSettings {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Prioritet ' + i,
                     Placeholder: '',
-                    ReadOnly: i > filteredElements.length,
+                    ReadOnly: i > filteredElements.length || disableForm,
                     Hidden: i > this.currentPriority,
                     Options: {
                         source: filteredElements,

@@ -2,30 +2,6 @@ ledger-account-reconciliation
     display: block
     width: 100%
 
-    .action-buttons
-        margin-bottom: 1rem
-        float: right
-
-        button
-            margin: 0 0 0 .5rem
-            height: 2.25rem
-            line-height: 0
-            min-width: 6rem
-            color: #fff
-
-        select
-            width: auto
-            height: 2.25rem
-            border-radius: 3px
-
-
-    .reconciliation-marked-row
-        font-style: italic
-        color: $uni-color-scale5
-
-        td:first-child
-            background-color: $uni-color-scale8
-
     .reconciliation-likely-match
         background-color: transparentize($uni-color-good, .7)
         opacity: 0.6
@@ -54,11 +30,6 @@ ledger-account-reconciliation
             &:hover
                 text-decoration: underline
 
-
-.faded
-    opacity: .5
-    cursor: wait
-
 .automark-log-modal-view
     list-style-type: circle
     min-height: 12rem
@@ -75,5 +46,61 @@ ledger-account-reconciliation
     font-size: .8rem
     margin: .2rem 2rem
 
-.smaller-font-size-table
+.postpost-single-table
     font-size: .9rem
+    thead
+        tr
+            td:not(:last-of-type)
+                border-right: $unitable-border
+                cursor: pointer
+            &:hover
+                background-color: #fafafa
+    thead, tbody
+        tr
+            td
+                &.table-link
+                    text-align: center
+                &.postpost-first
+                    width: 3rem
+                    cursor: pointer
+                    color: $uni-color-c2a
+                    text-align: center
+                    i
+                        font-size: 1.3rem
+                        vertical-align: middle
+                &:last-of-type
+                    text-align: center
+                    cursor: pointer
+                    width: 3rem
+                    i
+                        font-size: 1.3rem
+                        vertical-align: middle
+    tbody
+        tr
+            td
+                &.table-link
+                    text-align: center
+                    color: $uni-color-plus
+                    text-decoration: underline
+                    cursor: pointer
+
+.postpost-pager
+    text-align: center
+    color: $uni-color-plus
+    margin: 1rem 0
+    span
+        margin-left: .5rem
+        i
+            cursor: pointer
+            vertical-align: middle
+
+        &:first-of-type
+            i
+                margin-left: 0
+
+        &.page-indicator
+            margin: 0 1rem
+            background-color: transparent
+            color: $uni-color-c2a
+            padding-top: .2rem
+

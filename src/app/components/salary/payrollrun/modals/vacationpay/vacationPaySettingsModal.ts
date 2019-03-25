@@ -5,7 +5,7 @@ import {
     UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../../framework/ui/unitable/index';
 import {
-    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService, YearService
+    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService, FinancialYearService
 } from '../../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, CompanySalary
@@ -16,6 +16,11 @@ import * as moment from 'moment';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
+export interface IVacationPaySettingsReturn {
+    dueToHolidayChanged: boolean;
+    needVacationPayRefresh: boolean;
+}
+
 @Component({
     selector: 'vacation-pay-settings-modal',
     templateUrl: './vacationPaySettingsModal.html'
@@ -23,19 +28,20 @@ import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toas
 export class VacationPaySettingsModal implements OnInit, IUniModal {
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     @Input() public options: IModalOptions;
-    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() public onClose: EventEmitter<IVacationPaySettingsReturn> = new EventEmitter<IVacationPaySettingsReturn>();
 
     public busy: boolean;
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    public companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
+    public companysalaryModel$: BehaviorSubject<CompanySalary> = new BehaviorSubject(<CompanySalary>{});
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public tableConfig: UniTableConfig;
     public vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
     public infoText: string;
-    private originalDeduction: number;
+
     public dueToHolidayChanged: boolean = false;
+    public modalReturn: IVacationPaySettingsReturn = { dueToHolidayChanged: false, needVacationPayRefresh: false };
     private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
     private activeYear: number;
     private stdCompVacRate: CompanyVacationRate;
@@ -46,28 +52,26 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         private _accountService: AccountService,
         private errorService: ErrorService,
         private vacationPayLineService: VacationpayLineService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private modalService: UniModalService,
         private toastService: ToastService
     ) { }
 
     public ngOnInit() {
         this.busy = true;
-        this.yearService
-            .getActiveYear()
-            .do(yr => this.activeYear = yr || null)
-            .switchMap(yr =>
-                Observable.forkJoin(
-                    this._companysalaryService.getCompanySalary(),
-                    this._companyvacationRateService.GetAll(''),
-                    this._companyvacationRateService.getCurrentRates(yr)
-                ))
+        this.activeYear = this.financialYearService.getActiveYear();
+        this.options.cancelValue = this.modalReturn;
+
+            Observable.forkJoin(
+                this._companysalaryService.getCompanySalary(),
+                this._companyvacationRateService.GetAll(''),
+                this._companyvacationRateService.getCurrentRates(this.activeYear)
+            )
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .finally(() => this.busy = false)
             .subscribe((response: any) => {
                 const [compsal, rates, stdRate] = response;
                 this.setDefaultValues(compsal, stdRate);
-                this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
                 this.stdCompVacRate = stdRate;
                 this.vacationRates = rates;
                 this.formConfig$.next({
@@ -96,10 +100,14 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
                 .finally(() => this.checkForSaveDone())
                 .subscribe((formresponse) => {
                     this.done('Firmalønn oppdatert');
-                    if (this.originalDeduction !== formresponse.WageDeductionDueToHoliday) {
-                        this.dueToHolidayChanged = true;
-                        this.options.cancelValue = true;
+                    const compSal = this.companysalaryModel$.getValue();
+                    if (compSal.WageDeductionDueToHoliday !== formresponse.WageDeductionDueToHoliday) {
+                        this.modalReturn.dueToHolidayChanged = true;
                     }
+                    if (compSal.AllowOver6G !== formresponse.AllowOver6G) {
+                        this.modalReturn.needVacationPayRefresh = true;
+                    }
+                    this.options.cancelValue = this.modalReturn;
                     this.saveStatus.completeCount++;
                 }, (err) => {
                     this.saveStatus.completeCount++;
@@ -217,6 +225,11 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             valueProperty: 'id'
         };
 
+        const allowOver6G = new UniFieldLayout();
+        allowOver6G.Label = 'Ignorer grunnbeløp';
+        allowOver6G.Property = 'AllowOver6G';
+        allowOver6G.FieldType = FieldType.CHECKBOX;
+
         const vacationpayRate = new UniFieldLayout();
         vacationpayRate.Label = 'Standard feriepengesats';
         vacationpayRate.Property = '_standardVacationRate';
@@ -224,7 +237,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         vacationpayRate.FieldType = FieldType.TEXT;
         vacationpayRate.ReadOnly = true;
 
-        this.fields$.next([payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation, vacationpayRate]);
+        this.fields$.next([payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation, allowOver6G, vacationpayRate]);
     }
 
     private setTableConfig() {
@@ -273,7 +286,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
     }
 
     public close() {
-        this.onClose.next(this.dueToHolidayChanged);
+        this.onClose.next(this.modalReturn);
     }
 
     public onRowDeleted(rowModel: CompanyVacationRate) {

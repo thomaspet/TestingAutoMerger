@@ -238,6 +238,11 @@
             "Url": "/sales/products/:ID"
         },
         {
+            "Name": "RecurringInvoice",
+            "Translated": "Repeterende faktura",
+            "Url": "/sales/recurringinvoice/:ID"
+        },
+        {
             "Name": "Contact",
             "Translated": "Kontakt",
             "Url": "/contacts/:ID"
@@ -249,7 +254,7 @@
         },
         {
             "Name": "SupplierInvoice",
-            "Translated": "Fakturamottak",
+            "Translated": "Leverandørfaktura",
             "Url": "/accounting/bills/:ID"
         },
         {
@@ -266,6 +271,16 @@
             "Name": "Worker",
             "Translated": "Timefører",
             "Url": "/timetracking/workers/:ID"
+        },
+        {
+            "Name": "WorkType",
+            "Translated": "Timeart",
+            "Url": "/timetracking/worktypes/:ID"
+        },
+        {
+            "Name": "WorkProfile",
+            "Translated": "Stillingsmaler",
+            "Url": "/timetracking/workprofiles/:ID"
         },
         {
             "Name": "Employee",

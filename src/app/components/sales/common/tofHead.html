@@ -15,8 +15,15 @@
     <section class="uni-container tof-forms">
         <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
+        <uni-recurring-invoice-settings-view
+            *ngIf="activeTabIndex === 0 && entityName === 'RecurringInvoice'"
+            [entity]="data"
+            (entityChange)="onDataChange($event)"
+            [entityType]="entityName">
+        </uni-recurring-invoice-settings-view>
+
         <tof-details-form
-            *ngIf="activeTabIndex === 0"
+            *ngIf="activeTabIndex === indexes[0]"
             [entity]="data"
             (entityChange)="onDataChange($event)"
             [entityType]="entityName"
@@ -28,7 +35,7 @@
         </tof-details-form>
 
         <tof-delivery-form
-            *ngIf="activeTabIndex === 1"
+            *ngIf="activeTabIndex === indexes[1]"
             [entity]="data"
             (entityChange)="onDataChange($event)"
             [entityType]="entityName"
@@ -38,7 +45,7 @@
             [paymentInfoTypes]="paymentInfoTypes">
         </tof-delivery-form>
 
-        <section *ngIf="activeTabIndex === 2" class="tof-freetext">
+        <section *ngIf="activeTabIndex === indexes[2]" class="tof-freetext">
             <label>
                 <span>Kommentar</span>
                 <input type="text"
@@ -60,7 +67,7 @@
             </label>
         </section>
 
-        <section class="tof-sellers" *ngIf="activeTabIndex === 3">
+        <section class="tof-sellers" *ngIf="activeTabIndex === indexes[3]">
             <seller-links
                 [parent]="data"
                 [readonly]="isReadOnly()"
@@ -69,9 +76,9 @@
             </seller-links>
         </section>
 
-        <section class="tof-attachments" *ngIf="activeTabIndex === 4">
+        <section class="tof-attachments" *ngIf="activeTabIndex === indexes[4]">
             <p *ngIf="!data?.ID">
-                <span *ngIf="entityName == 'CustomerInvoice'">
+                <span *ngIf="entityName == 'CustomerInvoice' || entityName === 'RecurringInvoice'">
                     Du må lagre faktura som kladd før du kan legge til dokumenter.
                 </span>
                 <span *ngIf="entityName == 'CustomerOrder'">
@@ -90,7 +97,7 @@
         </section>
 
         <uni-dimension-tof-view
-            *ngIf="activeTabIndex === 5"
+            *ngIf="activeTabIndex === indexes[5]"
             (entityChange)="onDataChange($event)"
             [dimensionTypes]="dimensionTypes"
             [entity]="data"
@@ -98,7 +105,7 @@
         </uni-dimension-tof-view>
 
         <uni-distribute
-            *ngIf="activeTabIndex === 6"
+            *ngIf="activeTabIndex === indexes[6]"
             [distributionPlans]="distributionPlans"
             [reports]="reports"
             [entity]="data"
@@ -106,7 +113,7 @@
             (entityChange)="onDataChange($event)">
         </uni-distribute>
 
-        <section class="tof-reminders" *ngIf="activeTabIndex === 7 && entityName === 'CustomerInvoice'">
+        <section class="tof-reminders" *ngIf="activeTabIndex === indexes[7] && entityName === 'CustomerInvoice'">
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>
         </section>
 

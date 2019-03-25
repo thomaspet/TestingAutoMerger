@@ -36,10 +36,6 @@
                 <p>Ordrereserve:</p>
                 <h3 [ngClass]="getQANClass(orderReserve)" (click)="onNavigate('/dimensions/projects/orders', true)"> {{ orderReserve }}</h3>
             </div>
-            <div *ngIf="projectService?.hasSupplierInvoiceModule">
-                <p>Ubetalte regninger</p>
-                <h3 [ngClass]="getQANClass(unpayedBills, true)" (click)="onNavigate('/dimensions/projects/supplierinvoices', true)"> {{ unpayedBills }} </h3>
-            </div>
             <div *ngIf="projectService?.hasJournalEntryLineModule">
                 <p>Løpende resultat</p>
                 <h3 [ngClass]="getQANClass(resultSoFar)" (click)="onNavigate('/accounting/accountingreports/dimensions?dimtype=1')"> {{ resultSoFar }} </h3>

@@ -1,17 +1,17 @@
 import {Injectable} from '@angular/core';
-import {UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/config/unitableColumn';
+import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '@uni-framework/ui/unitable/config/unitableColumn';
 import {UniTableConfig} from '@uni-framework/ui/unitable/config/unitableConfig';
-import {ISavedFilter} from '../interfaces';
+import {ISavedSearch, ITableFilter} from '../interfaces';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-interface IColumnSetupMap {
+interface ColumnSetupMap {
     [key: string]: UniTableColumn[];
 }
 
-interface ITableFilterMap {
-    [key: string]: ISavedFilter[];
+interface SavedSearchMap {
+    [key: string]: ISavedSearch[];
 }
 
 const CONFIG_STORAGE_KEY: string = 'uniTable_column_configs';
@@ -19,18 +19,41 @@ const FILTER_STORAGE_KEY: string = 'uniTable_filters';
 
 @Injectable()
 export class TableUtils {
-    private columnSetupMap: IColumnSetupMap = {};
-    private tableFilterMap: ITableFilterMap = {};
+    private columnSetupMap: ColumnSetupMap = {};
+    private savedSearchMap: SavedSearchMap = {};
 
     constructor() {
         try {
             this.columnSetupMap = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
-            this.tableFilterMap = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)) || {};
+            this.savedSearchMap = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)) || {};
         } catch (e) {
             console.error('Error trying to get column setup or filters (unitableUtils constructor)');
             console.error(e);
             this.columnSetupMap = {};
-            this.tableFilterMap = {};
+            this.savedSearchMap = {};
+        }
+    }
+
+    // Local sorting functions
+    dateComparator(rowNode1, rowNode2, column: UniTableColumn) {
+        const field = column.alias || column.field;
+        const value1 = _.get(rowNode1.data, field, '');
+        const value2 = _.get(rowNode2.data, field, '');
+
+        const unix1 = moment(value1).isValid() ? moment(value1).unix() : 0;
+        const unix2 = moment(value2).isValid() ? moment(value2).unix() : 0;
+        return unix1 - unix2;
+    }
+
+    numberComparator(rowNode1, rowNode2, column: UniTableColumn) {
+        const mode = column.sortMode;
+        const field = column.alias || column.field;
+        const value1 = _.get(rowNode1.data, field, 0);
+        const value2 = _.get(rowNode2.data, field, 0);
+        if (mode === UniTableColumnSortMode.Absolute) {
+            return Math.abs(value1) - Math.abs(value2);
+        } else {
+            return value1 - value2;
         }
     }
 
@@ -220,19 +243,53 @@ export class TableUtils {
         return value || '';
     }
 
-    public getFilters(tableName: string): ISavedFilter[] {
-        return this.tableFilterMap[tableName] || [];
+    getLastUsedFilter(tableName: string): ITableFilter[] {
+        const key = tableName + '_filters';
+        try {
+            const filters = JSON.parse(sessionStorage.getItem(key));
+            if (filters && filters.length) {
+                return filters;
+            }
+        } catch (e) { console.error(e); }
     }
 
-    public saveFilters(tableName: string, filters: ISavedFilter[]): void {
+    setLastUsedFilter(tableName: string, filters: ITableFilter[]) {
+        const key = tableName + '_filters';
+
         if (filters && filters.length) {
-            // Make sure all filters have names
-            // (this is mostly to stop us from saving invalid filter objects)
-            this.tableFilterMap[tableName] = filters.filter(filter => !!filter.name);
+            sessionStorage.setItem(key, JSON.stringify(filters || []));
         } else {
-            delete this.tableFilterMap[tableName];
+            sessionStorage.removeItem(key);
+        }
+    }
+
+    getSavedSearches(tableName: string): ISavedSearch[] {
+        return this.savedSearchMap[tableName] || [];
+    }
+
+    saveSearch(tableName: string, search: ISavedSearch): void {
+        const savedSearches = this.savedSearchMap[tableName] || [];
+        const existingSearchIndex = savedSearches.findIndex(s => s.name === search.name);
+
+        if (existingSearchIndex >= 0) {
+            savedSearches[existingSearchIndex] = search;
+        } else {
+            savedSearches.push(search);
         }
 
-        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(this.tableFilterMap));
+        this.savedSearchMap[tableName] = savedSearches;
+        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(this.savedSearchMap));
+    }
+
+    removeSearch(tableName: string, search: ISavedSearch): ISavedSearch[] {
+        const savedSearches = this.savedSearchMap[tableName] || [];
+        const index = savedSearches.findIndex(s => s.name === search.name);
+        if (index >= 0) {
+            savedSearches.splice(index, 1);
+            this.savedSearchMap[tableName] = savedSearches;
+            localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(this.savedSearchMap));
+        }
+
+        return savedSearches;
     }
 }

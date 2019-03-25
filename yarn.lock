@@ -276,9 +276,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@ng-select/ng-select@^2.11.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@ng-select/ng-select/-/ng-select-2.11.0.tgz#53eeb457c364c9f829a95a8e27bb25a8eb3f3025"
+"@ng-select/ng-select@^2.13.1":
+  version "2.13.1"
+  resolved "https://registry.yarnpkg.com/@ng-select/ng-select/-/ng-select-2.13.1.tgz#2a9a615b3a720393386317c02b0f49ea6d850824"
   dependencies:
     tslib "^1.9.0"
 
@@ -310,6 +310,10 @@
     rxjs "6.3.3"
     semver "5.5.1"
     semver-intersect "1.4.0"
+
+"@types/applicationinsights-js@1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@types/applicationinsights-js/-/applicationinsights-js-1.0.9.tgz#791581118068517ecd0bc29fd4590239a577a489"
 
 "@types/concat-stream@^1.6.0":
   version "1.6.0"
@@ -537,9 +541,13 @@ ag-grid-angular@^19.0.0:
   version "19.0.0"
   resolved "https://registry.yarnpkg.com/ag-grid-angular/-/ag-grid-angular-19.0.0.tgz#6869d2e6527d00562174d9ec27513d0ef6a31743"
 
-ag-grid-community@^19.0.0:
+ag-grid-community@19.0.0:
   version "19.0.0"
   resolved "https://registry.yarnpkg.com/ag-grid-community/-/ag-grid-community-19.0.0.tgz#b0909835c63bdeef54047bf27ab16a10fdf61ed0"
+
+ag-grid-enterprise@19.0.0:
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/ag-grid-enterprise/-/ag-grid-enterprise-19.0.0.tgz#ae8dcc5db81108e5344a45a28d06c242393c3384"
 
 agent-base@^4.1.0:
   version "4.2.1"
@@ -676,6 +684,10 @@ append-transform@^1.0.0:
   resolved "https://registry.yarnpkg.com/append-transform/-/append-transform-1.0.0.tgz#046a52ae582a228bd72f58acfbe2967c678759ab"
   dependencies:
     default-require-extensions "^2.0.0"
+
+applicationinsights-js@1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/applicationinsights-js/-/applicationinsights-js-1.0.20.tgz#e0519a2c043e9b4683d32d327a06c3f18c63d5ca"
 
 aproba@^1.0.3, aproba@^1.1.1:
   version "1.2.0"
@@ -5377,9 +5389,9 @@ raw-loader@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/raw-loader/-/raw-loader-0.5.1.tgz#0c3d0beaed8a01c966d9787bf778281252a979aa"
 
-raygun4js@^2.7.1:
-  version "2.8.4"
-  resolved "https://registry.yarnpkg.com/raygun4js/-/raygun4js-2.8.4.tgz#80e71f2d9690bfb2fe4a5204c971fd759263e588"
+raygun4js@^2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/raygun4js/-/raygun4js-2.13.3.tgz#e3817c341656cc302c5825f3e17683dc3bb2da6d"
 
 rc@^1.1.7:
   version "1.2.2"

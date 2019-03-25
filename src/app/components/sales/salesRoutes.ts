@@ -20,6 +20,9 @@ import {routes as ReminderRoutes} from './reminder/reminderRoutes';
 import {ProductList} from './products/productList';
 import {ProductDetails} from './products/productDetails';
 
+import {UniRecurringInvoice} from './recurringInvoice/recurringInvoiceDetails';
+import {RecurringInvoiceList} from './recurringInvoice/recurringInvoiceList';
+
 import {SellerList} from './sellers/sellerList';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
@@ -68,6 +71,15 @@ export const salesRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     },
     {
+        path: 'recurringinvoice',
+        component: RecurringInvoiceList
+    },
+    {
+        path: 'recurringinvoice/:id',
+        component: UniRecurringInvoice,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
         path: 'reminders',
         component: Reminder,
         children: ReminderRoutes
@@ -76,7 +88,6 @@ export const salesRoutes: Routes = [
         path: 'products',
         component: ProductList
     },
-
     {
         path: 'products/:id',
         component: ProductDetails

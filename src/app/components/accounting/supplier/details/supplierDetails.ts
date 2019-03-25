@@ -38,6 +38,7 @@ import {
     NumberSeriesService,
     ModulusService,
     JournalEntryLineService,
+    CostAllocationService,
 } from '../../../../services/services';
 
 import {
@@ -59,7 +60,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'supplier-details',
-    templateUrl: './supplierDetails.html'
+    templateUrl: './supplierDetails.html',
 })
 export class SupplierDetails implements OnInit {
     @Input()
@@ -118,7 +119,7 @@ export class SupplierDetails implements OnInit {
         'Info.BankAccounts.Bank',
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
-        'Info.Contacts.Info.DefaultPhone'
+        'Info.Contacts.Info.DefaultPhone',
     ];
 
     public postposttabs: IUniTab[] = [
@@ -184,6 +185,7 @@ export class SupplierDetails implements OnInit {
         private numberSeriesService: NumberSeriesService,
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
+        private costAllocationService: CostAllocationService,
     ) {}
 
     public ngOnInit() {
@@ -283,9 +285,23 @@ export class SupplierDetails implements OnInit {
 
     public supplierDetailsChange(changes: SimpleChanges) {
         this.isDirty = true;
+        this.setupSaveActions();
 
         if (changes['Info.DefaultBankAccountID']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['Info.DefaultBankAccountID']);
+        }
+
+        if (changes['OrgNumber']) {
+            this.supplierService.getSuppliers(changes['OrgNumber'].currentValue).subscribe(res => {
+                if (res.Data.length > 0) {
+                    let orgNumberUses = 'Dette org.nummeret er i bruk hos leverandør: <br><br>';
+                    res.Data.forEach(function (ba) {
+                        orgNumberUses += ba.SupplierNumber + ' ' + ba.Name + ' <br>';
+                    });
+                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                }
+
+            }, err => this.errorService.handle(err));
         }
 
         if (changes['_SupplierSearchResult']) {
@@ -311,7 +327,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public goToPostpost() {
-        this.router.navigateByUrl('/accounting/postpost?name=' + this.supplier$.value.Info.Name + '&mode=leverandør');
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.supplier$.value.Info.Name + '&register=supplier');
     }
 
     public nextSupplier() {
@@ -445,6 +461,8 @@ export class SupplierDetails implements OnInit {
                 this.saveSupplier(() => {});
             } else if (modalResult === ConfirmActions.REJECT) {
                 this.isDirty = false;
+                this.setupSaveActions();
+
                 if (this.postpost) {
                     this.postpost.isDirty = false;
                 }
@@ -520,6 +538,7 @@ export class SupplierDetails implements OnInit {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
                 this.setTabTitle();
+                this.extendFormConfig();
                 this.showHideNameProperties();
                 this.setSupplierStatusInToolbar();
             }, err => this.errorService.handle(err));
@@ -566,6 +585,10 @@ export class SupplierDetails implements OnInit {
 
     public extendFormConfig() {
         const fields = this.fields$.getValue();
+
+        const supplier = this.supplier$.getValue();
+        const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
+        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(this.supplier$.asObservable());
 
         const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
@@ -849,6 +872,7 @@ export class SupplierDetails implements OnInit {
                 .subscribe(
                     (updatedValue) => {
                         this.isDirty = false;
+                        this.setupSaveActions();
                         completeEvent('Leverandør lagret');
 
                         this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(updatedSupplier => {
@@ -875,6 +899,7 @@ export class SupplierDetails implements OnInit {
                 .subscribe(
                     (newSupplier) => {
                         this.isDirty = false;
+                        this.setupSaveActions();
                         if (!this.modalMode) {
                             this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
                             this.setTabTitle();
@@ -896,35 +921,21 @@ export class SupplierDetails implements OnInit {
                 label: 'Lagre',
                 action: (completeEvent) => this.saveSupplier(completeEvent),
                 main: true,
+                disabled: !this.isDirty
             },
             {
                 label: 'Lagre som kladd',
                 action: (completeEvent) => this.saveSupplier(completeEvent, true),
                 main: true,
+                disabled: !this.isDirty
             }
         ];
     }
 
-    public onContactChanged(contact: Contact) {
-        if (!contact) {
-            return;
-        }
-
-        if (!contact.ID) {
-            contact['_createguid'] = this.supplierService.getNewGuid();
-            contact.Info['_createguid'] = this.supplierService.getNewGuid();
-        }
-
+    public onContactsChange() {
+        // Main entity updated by reference
         this.isDirty = true;
-
-        // prepare for save
-        if (!contact.Info.DefaultEmail.ID) {
-            contact.Info.DefaultEmail['_createguid'] = this.supplierService.getNewGuid();
-        }
-
-        if (!contact.Info.DefaultPhone.ID) {
-            contact.Info.DefaultPhone['_createguid'] = this.supplierService.getNewGuid();
-        }
+        this.setupSaveActions();
     }
 
     private getSupplierLookupOptions() {
@@ -1123,6 +1134,14 @@ export class SupplierDetails implements OnInit {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Språk tilbud/ordre/faktura',
                 },
+                {
+                    FieldSet: 3,
+                    Legend: 'Betingelser',
+                    EntityType: 'Supplier',
+                    Property: 'CostAllocationID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Fordelingsnøkkel'
+                },
 
                 // Fieldset 4 (dimensions)
                 {
@@ -1158,6 +1177,19 @@ export class SupplierDetails implements OnInit {
                     Property: 'GLN',
                     Label: 'GLN-nummer',
                     FieldType: FieldType.TEXT
+                },
+                // Fieldset 6 (self-employed)
+                {
+                    FieldSet: 6,
+                    Classes: 'selfEmployed',
+                    Legend: 'Innrapportering selvstendig næringsdrivende',
+                    EntityType: 'Supplier',
+                    Property: 'SelfEmployed',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Selvstendig næringsdrivende uten fast kontoradresse',
+                    Tooltip: {
+                        Text: 'Marker dersom leverandøren skal innrapporteres i RF-1301, Selvstendig næringsdrivende uten fast kontoradresse. Innrapportering vil fungere fra og med inntektsår 2019.'
+                    },
                 },
             ]
         };

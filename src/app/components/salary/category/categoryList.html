@@ -3,5 +3,9 @@
     [saveactions]="toolbarActions">
 </uni-toolbar>
 <article class="application">
-    <uni-table [resource]="categories$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
+    <ag-grid-wrapper
+        [resource]="categories"
+        [config]="tableConfig"
+        (rowSelectionChange)="rowSelected($event)">
+    </ag-grid-wrapper>
 </article>

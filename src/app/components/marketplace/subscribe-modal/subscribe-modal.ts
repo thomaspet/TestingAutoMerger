@@ -3,17 +3,12 @@ import {
     IModalOptions,
     IUniModal,
     UniModalService,
-    ManageProductsModal,
-    ConfirmActions,
-    UniActivateInvoicePrintModal,
-    UniActivateAPModal,
-    ActivateOCRModal
+    ProductPurchasesModal,
 } from '@uni-framework/uni-modal';
-import {ElsaProduct, ElsaProductType} from '@app/services/elsa/elsaModels';
+import {ElsaProduct, ElsaProductType} from '@app/models';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
-import {AuthService} from '@app/authService';
-
-import {CompanySettingsService, EHFService} from '@app/services/services';
+import {ElsaPurchaseService, ErrorService} from '@app/services/services';
+import {ElsaPurchase} from '@app/models';
 
 @Component({
     selector: 'uni-product-subscribe-modal',
@@ -26,7 +21,8 @@ export class SubscribeModal implements IUniModal, OnInit {
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
-    cannotPurchaseProductsText: string;
+    missingPermissionText: string;
+
     extensionBoughtAndActivated: boolean;
     elsaProductType = ElsaProductType;
 
@@ -36,25 +32,20 @@ export class SubscribeModal implements IUniModal, OnInit {
     };
 
     constructor(
-        private authService: AuthService,
+        private errorService: ErrorService,
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
-        private companySettingsService: CompanySettingsService,
-        private ehfService: EHFService,
-    ) {
-        this.authService.authentication$.take(1).subscribe(auth => {
-            try {
-                this.canPurchaseProducts = auth.user.License.CustomerAgreement.CanAgreeToLicense;
-            } catch (e) {}
-        });
-    }
+        private elsaPurchaseService: ElsaPurchaseService
+    ) {}
 
     ngOnInit() {
-        this.product = this.options.data;
+        const data = this.options.data || {};
+        this.product = data.product;
+        this.canPurchaseProducts = data.canPurchaseProducts;
 
         if (this.product.productType !== ElsaProductType.Integration) {
-            if (!this.canPurchaseProducts) {
-                this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å aktivere produkter.';
+            if (!data.canPurchaseProducts) {
+                this.missingPermissionText = 'Du må være administrator for å kjøpe produkter';
             }
 
             if (this.product.isPerUser) {
@@ -71,7 +62,7 @@ export class SubscribeModal implements IUniModal, OnInit {
                 } else {
                     this.action = {
                         label: 'Kjøp produkt',
-                        click: () => this.purchaseProduct(this.product)
+                        click: () => this.purchaseProduct()
                     };
                 }
             }
@@ -80,13 +71,10 @@ export class SubscribeModal implements IUniModal, OnInit {
 
     manageUserPurchases() {
         if (this.canPurchaseProducts) {
-            const companyKey = this.authService.getCompanyKey();
-            this.modalService.open(ManageProductsModal, {
+            this.modalService.open(ProductPurchasesModal, {
                 closeOnClickOutside: true,
-                header: `Velg hvilke brukere som skal ha hvilke produkter`,
                 data: {
-                    companyKey: companyKey,
-                    selectedProduct: this.product
+                    product: this.product
                 },
             });
 
@@ -94,10 +82,14 @@ export class SubscribeModal implements IUniModal, OnInit {
         }
     }
 
-    purchaseProduct(product) {
+    purchaseProduct() {
         if (this.canPurchaseProducts) {
+            const purchase: ElsaPurchase = {
+                ID: null,
+                ProductID: this.product.id
+            };
 
-            this.elsaProductService.PurchaseProductOnCurrentCompany(product).subscribe(
+            this.elsaPurchaseService.massUpdate([purchase]).subscribe(
                 () => {
                     this.product['_isBought'] = true;
                     this.action = this.product['_activationFunction'];
@@ -105,7 +97,7 @@ export class SubscribeModal implements IUniModal, OnInit {
                         this.action.click();
                     }
                 },
-                err => console.error(err)
+                err => this.errorService.handle(err)
             );
         }
     }

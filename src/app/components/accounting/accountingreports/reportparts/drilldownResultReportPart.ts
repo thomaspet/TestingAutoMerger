@@ -1,22 +1,40 @@
-import {Component, Input, OnChanges} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Component, Input, OnChanges, ViewChild, ElementRef} from '@angular/core';
+import {Observable, of as observableOf} from 'rxjs';
+import {switchMap, map, finalize} from 'rxjs/operators';
+
+import {ChartHelper} from '../chartHelper';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal, IDetailsModalInput} from '../detailsmodal/accountDetailsReportModal';
-import {UniModalService} from '../../../../../framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {UniHttp} from '@uni-framework/core/http/http';
 import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
     INumberFormat
-} from '../../../../../framework/ui/unitable/index';
-import {ChartHelper} from '../chartHelper';
+} from '@uni-framework/ui/unitable';
 import {
     AccountGroupService,
     StatisticsService,
     ErrorService,
     DimensionService,
     NumberFormat
-} from '../../../../services/services';
+} from '@app/services/services';
+import * as Chart from 'chart.js';
+
+interface IReportRow {
+    ID: number;
+    AccountYear: number;
+    AccountNumber: number;
+    AccountName: string;
+    GroupNumber: number;
+    GroupName: string;
+    SubGroupNumber: number;
+    SubGroupName: string;
+    BudgetSum: number;
+    Sum: number;
+    SumLastYear: number;
+}
 
 export class ResultSummaryData {
     public isAccount: boolean;
@@ -25,9 +43,14 @@ export class ResultSummaryData {
     public name: string;
     public amountPeriod1: number = 0;
     public amountPeriod2: number = 0;
+    public budget: number = 0;
     public rowCount: number = 0;
     public percentagePeriod1: number = 0;
     public percentagePeriod2: number = 0;
+    public percantageOfLastYear1: number = 0;
+    public percantageOfLastYear2: number = 0;
+    public percentageOfBudget1: number = 0;
+    public percentageOfBudget2: number = 0;
     public children: ResultSummaryData[] = [];
     public parent: ResultSummaryData;
     public expanded: boolean = false;
@@ -46,30 +69,40 @@ export class DrilldownResultReportPart implements OnChanges {
     @Input() private dimensionId: number;
     @Input() private filter: any;
 
+    @ViewChild('chartElement1')
+    private chartElement1: ElementRef;
+
     private dimensionEntityName: string;
     private treeSummaryList: ResultSummaryData[] = [];
     private flattenedTreeSummaryList: ResultSummaryData[] = [];
     public uniTableConfig: UniTableConfig;
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
+    private showBudget = true;
+    public showPercentOfBudget: boolean = false;
+    private hideBudget = false;
     private showall: boolean = false;
+    private budgetSoFar: number = 0;
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: ',',
         decimalLength: 0
     };
-
-    private colors: Array<string> = ['#7293CB', '#84BA5B', '#ff0000', '#00ff00', '#f0f000'];
+    public busy = true;
+    public CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
+        '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
     private percentagePeriod1: number = 0;
-
+    private myChart: any;
+    private chart: any = {};
     constructor(
         private statisticsService: StatisticsService,
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
         private numberFormatService: NumberFormat,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private http: UniHttp
     ) {
-
+        this.prepChartType();
     }
 
     public ngOnChanges() {
@@ -77,6 +110,9 @@ export class DrilldownResultReportPart implements OnChanges {
             this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
             this.showPercent = this.filter.ShowPercent;
             this.showPreviousAccountYear = this.filter.ShowPreviousAccountYear;
+            this.showBudget = this.filter.ShowBudget;
+            this.showPercentOfBudget = this.filter.ShowPercentOfBudget;
+            this.hideBudget = !this.filter.ShowBudget;
         }
 
         if (this.periodFilter1 && this.periodFilter2) {
@@ -137,7 +173,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
             if (summaryData.expanded) {
                 const index = this.flattenedTreeSummaryList.indexOf(summaryData);
-                if (summaryData.children.length > 0) {
+                if (summaryData.children && summaryData.children.length > 0) {
                     const childrenWithData = summaryData.children.filter(x => x.rowCount > 0);
                     this.flattenedTreeSummaryList = this.flattenedTreeSummaryList
                         .slice( 0, index + 1 )
@@ -146,10 +182,12 @@ export class DrilldownResultReportPart implements OnChanges {
                 }
             } else {
                 // hide child and subchildren if multiple levels are expanded
-                const childrenWithData = this.getChildrenWithDataDeep(summaryData);
-                this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.filter(
-                    x => !childrenWithData.find(y => x === y)
-                );
+                if (summaryData.children) {
+                    const childrenWithData = this.getChildrenWithDataDeep(summaryData);
+                    this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.filter(
+                        x => !childrenWithData.find(y => x === y)
+                    );
+                }
             }
         }
     }
@@ -164,189 +202,163 @@ export class DrilldownResultReportPart implements OnChanges {
         return children;
     }
 
-    private loadData() {
-        const period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} `
-            + `and Period.No ge ${this.periodFilter1.fromPeriodNo} and Period.No le ${this.periodFilter1.toPeriodNo}`;
-        const period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} `
-            + `and Period.No ge ${this.periodFilter2.fromPeriodNo} and Period.No le ${this.periodFilter2.toPeriodNo}`;
-        const dimensionFilter = this.dimensionEntityName
-            ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}`
-            : '';
-        const projectFilter = this.filter && this.filter.ProjectID
-            ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
-            : '';
-        const departmentFilter = this.filter && this.filter.DepartmentID
-            ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
-            : '';
-
-        Observable.forkJoin(
-            this.statisticsService.GetAll(
-                'model=AccountGroup&select=AccountGroup.ID as ID,AccountGroup.GroupNumber as GroupNumber'
-                + ',AccountGroup.Name as Name,AccountGroup.MainGroupID as MainGroupID'
-                + '&orderby=AccountGroup.MainGroupID asc'
-            ),
-            this.statisticsService.GetAll(
-                'model=Account&expand=TopLevelAccountGroup&filter=TopLevelAccountGroup.GroupNumber ge 3'
-                + '&select=Account.ID as ID,Account.AccountNumber as AccountNumber,'
-                + 'Account.AccountName as AccountName,Account.AccountGroupID as AccountGroupID'
-            ),
-            this.statisticsService.GetAll(
-                `model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions`
-                + `&filter=TopLevelAccountGroup.GroupNumber ge 3${dimensionFilter}${projectFilter}${departmentFilter}`
-                + `&select=JournalEntryLine.AccountID as AccountID,sum(casewhen((${period1FilterExpression}) `
-                + `or (${period2FilterExpression})\\,1\\,0)) as CountEntries,`
-                + `sum(casewhen(${period1FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod1,`
-                + `sum(casewhen(${period2FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod2`
-            )
-        ).subscribe(data => {
-            const accountGroups = data[0].Data;
-            const accounts = data[1].Data;
-            const journalEntries = data[2].Data;
-
-            const summaryDataList: ResultSummaryData[] = [];
-            const treeSummaryList: ResultSummaryData[] = [];
-
-            // build treestructure and calculations based on groups and accounts
-            accountGroups.forEach(group => {
-                if (group.GroupNumber && parseInt(group.GroupNumber.toString().substring(0, 1), 10) > 2) {
-
-                    const summaryData: ResultSummaryData = new ResultSummaryData();
-
-                    summaryData.isAccount = false;
-                    summaryData.name = group.Name;
-                    summaryData.number = parseInt(group.GroupNumber, 10);
-                    summaryData.id = group.ID;
-                    summaryData.turned = this.shouldTurnAmount(summaryData.number);
-
-                    if (group.MainGroupID) {
-                        const mainGroupSummaryData: ResultSummaryData = summaryDataList.find(
-                            x => !x.isAccount && x.id === group.MainGroupID
-                        );
-
-                        if (mainGroupSummaryData) {
-                            summaryData.parent = mainGroupSummaryData;
-                            summaryData.level = mainGroupSummaryData.level + 1;
-
-                            if (!this.shouldSkipGroupLevel(summaryData.number)) {
-                                mainGroupSummaryData.children.push(summaryData);
-                            }
-                        }
-                    } else {
-                        summaryData.name = this.accountGroupService.getTopLevelGroupName(summaryData.number);
-                    }
-
-                    const accountsForGroup = accounts.filter(x => x.AccountGroupID === group.ID);
-
-                    accountsForGroup.forEach(account => {
-                        const accountSummaryData: ResultSummaryData = new ResultSummaryData();
-                        accountSummaryData.isAccount = true;
-                        accountSummaryData.name = account.AccountName;
-                        accountSummaryData.number = account.AccountNumber;
-                        accountSummaryData.id = account.ID;
-                        accountSummaryData.turned = this.shouldTurnAmount(accountSummaryData.number);
-
-                        const accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
-                        if (accountJournalEntryData) {
-                            accountSummaryData.amountPeriod1 = this.shouldTurnAmount(accountSummaryData.number)
-                                ? accountJournalEntryData.SumAmountPeriod1 * -1
-                                : accountJournalEntryData.SumAmountPeriod1;
-                            accountSummaryData.amountPeriod2 = this.shouldTurnAmount(accountSummaryData.number)
-                                ? accountJournalEntryData.SumAmountPeriod2 * -1
-                                : accountJournalEntryData.SumAmountPeriod2;
-                            accountSummaryData.rowCount = accountJournalEntryData.CountEntries;
-                        }
-
-                        if (accountSummaryData.rowCount !== 0) {
-                            if (this.shouldSkipGroupLevel(summaryData.number)) {
-                                if (summaryData.parent) {
-                                    accountSummaryData.parent = summaryData.parent;
-                                    summaryData.parent.children.push(accountSummaryData);
-                                }
-                            } else {
-                                accountSummaryData.parent = summaryData;
-                                summaryData.children.push(accountSummaryData);
-                            }
-                            if (accountSummaryData.parent) {
-                                accountSummaryData.level = accountSummaryData.parent.level + 1;
-                            }
-                        }
-                    });
-
-                    summaryDataList.push(summaryData);
-
-                    if (!summaryData.parent) {
-                        treeSummaryList.push(summaryData);
-                    }
-                }
-            });
-
-            // iterate and calculate sums for groups
-            this.calculateTreeAmounts(treeSummaryList);
-
-            // add result summarydata - TBD: BØR VI HA MED DENNE? HVA MED ÅRSAVSLUTNING/RESULTATDISPONERING?
-            const resultNode: ResultSummaryData = {
-                id: 0,
-                number: 9,
-                name: 'Resultat',
-                parent: null,
-                rowCount: 0,
-                level: 0,
-                children: [],
-                isAccount: false,
-                amountPeriod1: 0,
-                amountPeriod2: 0,
-                percentagePeriod1: 0,
-                percentagePeriod2: 0,
-                expanded: false,
-                turned: false
-            };
-
-            treeSummaryList.forEach(item => {
-                if (item.number === 3) {
-                    resultNode.amountPeriod1 += item.amountPeriod1;
-                    resultNode.amountPeriod2 += item.amountPeriod2;
-                } else {
-                    resultNode.amountPeriod1 -= item.amountPeriod1;
-                    resultNode.amountPeriod2 -= item.amountPeriod2;
-                }
-            });
-
-            treeSummaryList.push(resultNode);
-
-            // iterate and calculate percentages for groups based on total income
-            this.calculateTreePercentages(treeSummaryList, null, null);
-            this.percentagePeriod1 = treeSummaryList.find(x => x.number === 9).percentagePeriod1;
-
-            // filter out rows that are not interesting to show. Set both the full tree and a copy we can
-            // manipulate to show drilldown data
-            this.treeSummaryList = treeSummaryList;
-            this.flattenedTreeSummaryList = treeSummaryList.concat();
-
-            this.setupTable();
-            this.setupChart();
-
-     }, err => this.errorService.handle(err));
+    private mapDimTypeToModel(dimType: number): { model: string, filterModel?: string, fld: string } {
+        switch (dimType) {
+            case 1:
+                return { model: 'project', fld: 'ProjectNumber' };
+            case 2:
+                return { model: 'department', fld: 'DepartmentNumber' };
+            case 3:
+                return { model: 'responsible', fld: 'NameOfResponsible' };
+            case 4:
+                return { model: 'region', fld: 'RegionCode' };
+            default:
+                return { model: `dimension${dimType}`, filterModel: `dim${dimType}`, fld: 'Number' };
+        }
     }
 
-    private calculateTreeAmounts(treeList: ResultSummaryData[]) {
-        treeList.forEach(treeNode => {
-            if (!treeNode.isAccount) {
-                treeNode.amountPeriod1 = 0;
-                treeNode.amountPeriod2 = 0;
-                treeNode.rowCount = 0;
+    private getDimFilter(): Observable<string> {
+        this.busy = true;
+
+        // Lookup the 'number' from the 'id' since the report-action doesnt support ID's
+        if (this.dimensionType && this.dimensionId) {
+            const dimType = parseInt(this.dimensionType.toString(), 10);
+            const dimMap = this.mapDimTypeToModel(dimType);
+
+            return this.statisticsService.GetAll(
+                `model=${dimMap.model}&select=${dimMap.fld} as value&filter=id eq ${this.dimensionId}`
+            ).pipe(
+                map(res => {
+                    if (res.Success && res.Data && res.Data.length) {
+                        const value = res.Data[0].value;
+                        return `&${dimMap.filterModel || dimMap.model}='${value}'-'${value}'`;
+                    }
+                })
+            );
+        } else {
+            let dimFilter = '';
+            if (this.filter) {
+                if (this.filter.ProjectNumber) {
+                    dimFilter += `&dim1='${this.filter.ProjectNumber}'-'${this.filter.ProjectNumber}'`;
+                }
+
+                if (this.filter.DepartmentNumber) {
+                    dimFilter += `&dim2='${this.filter.DepartmentNumber}'-'${this.filter.DepartmentNumber}'`;
+                }
             }
 
-            if (treeNode.children.length > 0) {
-                this.calculateTreeAmounts(treeNode.children);
-            }
+            return observableOf(dimFilter);
+        }
+    }
 
-            if (treeNode.parent) {
-                treeNode.parent.amountPeriod1 += treeNode.amountPeriod1;
-                treeNode.parent.amountPeriod2 += treeNode.amountPeriod2;
-                treeNode.parent.rowCount += treeNode.rowCount;
+    private loadData() {
+        this.busy = true;
+
+        this.getDimFilter().pipe(
+            switchMap(dimFilter => {
+                const filter = `&financialyear=${this.periodFilter1.year}`
+                    + `&period=${this.periodFilter1.fromPeriodNo}-${this.periodFilter1.toPeriodNo}`
+                    + dimFilter;
+
+                return this.http.asGET()
+                    .usingBusinessDomain()
+                    .withEndPoint('accounts?action=profit-and-loss-periodical' + filter)
+                    .send();
+            }),
+            finalize(() => this.busy = false)
+        ).subscribe(
+            res => {
+                res = res.json();
+                const list = this.extractGroups(res);
+                this.getBudgetToCurrentMonth(res);
+                this.flattenedTreeSummaryList = list;
+                this.calculateTreePercentages(list, null, null);
+                this.percentagePeriod1 = list.find(x => x.number === 9).percentagePeriod1;
+                this.setupTable();
+                this.setupChart();
+            },
+            err => this.errorService.handle(err),
+        );
+    }
+
+    private toSummaryData(row: IReportRow, level = 0, presign = 1): ResultSummaryData {
+        const ret = new ResultSummaryData();
+        ret.amountPeriod1 = row.Sum * presign;
+        ret.amountPeriod2 = row.SumLastYear * presign;
+        ret.budget = row.BudgetSum * presign;
+        ret.isAccount = true;
+        ret.name = row.AccountName;
+        ret.id = row.ID;
+        ret.number = row.AccountNumber;
+        ret.level = level;
+        ret.turned = presign < 0;
+        return ret;
+    }
+
+    private getBudgetToCurrentMonth(data) {
+
+        this.budgetSoFar = 0;
+        const currentMonth = new Date().getMonth() + 1;
+
+        data.forEach(d => {
+            for (let i = 1; i <= currentMonth; i++) {
+                this.budgetSoFar += d['BudPeriod' + i];
             }
         });
     }
+
+    private extractGroups(rows: IReportRow[]): ResultSummaryData[] {
+        const groups: ResultSummaryData[] = [];
+        let hasBudget = false;
+        const template = [
+            { number: 3, name: 'Salg', from: 3000, to: 3999, turned: true },
+            { number: 4, name: 'Varekjøp', from: 4000, to: 4999 },
+            { number: 5, name: 'Lønn', from: 5000, to: 5999 },
+            { number: 6, name: 'Andre kostnader', from: 6000, to: 7999 },
+            { number: 7, name: 'Driftsresultat', from: 3000, to: 7999, turned: true, virtual: true },
+            { number: 8, name: 'Finansinntekter', from: 8000, to: 8099, turned: true, autohide: true },
+            { number: 81, name: 'Finanskostnader', from: 8100, to: 8199, autohide: true },
+            { number: 83, name: 'Skatt', from: 8200, to: 8799, autohide: true },
+            { number: 89, name: 'Årsresultat', from: 8800, to: 8899, autohide: true },
+            { number: 89, name: 'Disponeringer', from: 8900, to: 8999, autohide: true },
+            { number: 9, name: 'Årsresultat', from: 3000, to: 8999, turned: true, virtual: true },
+        ];
+        template.forEach( (x: any) => {
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const presign = x.turned ? -1 : 1;
+                const sumrow = (<ResultSummaryData>x);
+                if (row.AccountNumber >= x.from && row.AccountNumber <= x.to) {
+
+                    if (!x.virtual) {
+                        sumrow.children = sumrow.children || [];
+                        const item = this.toSummaryData(row, 1, presign);
+                        x.children.push(item);
+                        item.parent = sumrow;
+                        item.rowCount = 1;
+                    } else {
+                        sumrow.children = [];
+                    }
+                    sumrow.amountPeriod1 = (sumrow.amountPeriod1 || 0) + (row.Sum * presign);
+                    sumrow.amountPeriod2 = (sumrow.amountPeriod2 || 0) + (row.SumLastYear * presign);
+                    sumrow.budget = (sumrow.budget || 0) + (row.BudgetSum * presign);
+                    sumrow.level = 0;
+                    sumrow.isAccount = false;
+                    sumrow.id = sumrow.number;
+                }
+            }
+            if (!(x.autohide && ( (!x.children) || x.children.length === 0))) {
+                groups.push(x);
+            }
+            hasBudget = hasBudget || (x.budget !== 0 && x.budget !== undefined);
+        });
+        // Dynamic on/off budget column
+        if (!this.hideBudget) {
+            this.showBudget = hasBudget;
+        }
+        return groups;
+    }
+
 
     private calculateTreePercentages(
         treeList: ResultSummaryData[],
@@ -360,16 +372,23 @@ export class DrilldownResultReportPart implements OnChanges {
             totalAmountPeriod1 = totalIncomeNode.amountPeriod1;
             totalAmountPeriod2 = totalIncomeNode.amountPeriod2;
         }
-
         treeList.forEach(treeNode => {
-            treeNode.percentagePeriod1 = totalAmountPeriod1 !== 0
+            treeNode.percentagePeriod1 = totalAmountPeriod1 && treeNode.amountPeriod1
                 ? Math.round((treeNode.amountPeriod1 * 100) / totalAmountPeriod1)
                 : 0;
-            treeNode.percentagePeriod2 = totalAmountPeriod2 !== 0
+            treeNode.percentagePeriod2 = totalAmountPeriod2 && treeNode.amountPeriod2
                 ? Math.round((treeNode.amountPeriod2 * 100) / totalAmountPeriod2)
                 : 0;
 
-            if (treeNode.children.length > 0) {
+            treeNode.percantageOfLastYear1 = treeNode.amountPeriod2 && treeNode.amountPeriod1
+                ? Math.round(treeNode.amountPeriod1 / (treeNode.amountPeriod2 / 100) )
+                : 0;
+
+            treeNode.percentageOfBudget1 = treeNode.budget && treeNode.amountPeriod1
+                ? Math.round((treeNode.amountPeriod1 * 100) / treeNode.budget)
+                : 0;
+
+            if (treeNode.children && treeNode.children.length > 0) {
                 this.calculateTreePercentages(treeNode.children, totalAmountPeriod1, totalAmountPeriod2);
             }
         });
@@ -393,7 +412,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
     public getPaddingLeft(level) {
         if (level > 0) {
-            return (level * 15).toString() + 'px';
+            return (level * 20).toString() + 'px';
         }
     }
 
@@ -420,82 +439,207 @@ export class DrilldownResultReportPart implements OnChanges {
     }
 
     private setupChart() {
-        const dataSets = [];
-
         const sales = this.flattenedTreeSummaryList.find(x => x.number === 3);
+        const purchase = this.flattenedTreeSummaryList.find(x => x.number === 4);
         const salary = this.flattenedTreeSummaryList.find(x => x.number === 5);
-        const other2 = this.flattenedTreeSummaryList.find(x => x.number === 6);
-        const other = this.flattenedTreeSummaryList.find(x => x.number === 7);
+        const other = this.flattenedTreeSummaryList.find(x => x.number === 6);
         const result = this.flattenedTreeSummaryList.find(x => x.number === 9);
 
-        // amountPeriod1
-        dataSets.push({
-            label: this.periodFilter1.year,
-            data: [],
-            backgroundColor: this.colors[1],
-            borderColor: this.colors[1],
-            fill: true,
-            borderWidth: 2
-        });
+        let budget, budgetString;
 
-        dataSets[0].data.push(
-            sales.amountPeriod1,
-            salary.amountPeriod1,
-            other.amountPeriod1 + other2.amountPeriod1,
-            result.amountPeriod1
-        );
-
-        // create datasets
-        if (this.showPreviousAccountYear) {
-            dataSets.push({
-                label: this.periodFilter2.year,
-                data: [],
-                backgroundColor: this.colors[0],
-                borderColor: this.colors[0],
-                fill: true,
-                borderWidth: 2
-            });
-
-            // amountPeriod2
-            dataSets[1].data.push(
-                sales.amountPeriod2,
-                salary.amountPeriod2,
-                other.amountPeriod2 + other2.amountPeriod2,
-                result.amountPeriod2
-            );
+        if (parseInt(this.periodFilter1.year.toString(), 10) === new Date().getFullYear()) {
+            budget = this.budgetSoFar * -1;
+            budgetString = 'Budsjett hittil';
+        } else {
+            budget = (sales.budget || 0) + (purchase.budget || 0) + (salary.budget || 0) + (other.budget || 0);
+            budgetString = 'Budsjett';
         }
 
-        // Result
-        const resulttext = result.amountPeriod1 > 0
-            ? 'Overskudd'
-            : (result.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat');
+        if (this.myChart) {
+            this.myChart.destroy();
+        }
 
-        const chartConfig = {
-            label: '',
-            labels: ['Salgsinntekter', 'Lønnskostnad', 'Andre kostnader', resulttext],
-            chartType: 'bar',
-            borderColor: null,
-            backgroundColor: null,
-            datasets: dataSets,
-            data: null
+        const cost1 = other.amountPeriod1 + purchase.amountPeriod1 + salary.amountPeriod1;
+        const cost2 = other.amountPeriod2 + purchase.amountPeriod2 + salary.amountPeriod2;
+
+        const labels = [this.periodFilter1.year, this.periodFilter2.year];
+        const element = this.chartElement1.nativeElement;
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Driftsinntekter',
+                    backgroundColor: '#2850a0',
+                    data: [
+                        Math.round(sales.amountPeriod1),
+                        Math.round(sales.amountPeriod2)
+                    ],
+                    stack: 1
+                },
+                {
+                    label: 'Underskudd',
+                    backgroundColor: 'rgba(67, 105, 210, .2)',
+                    data: [
+                        cost1 > sales.amountPeriod1 ? Math.round(cost1 - sales.amountPeriod1) : 0,
+                        cost2 > sales.amountPeriod2 ? Math.round(cost2 - sales.amountPeriod2) : 0,
+                    ],
+                    stack: 1
+                },
+                {
+                    label: 'Varekostnader',
+                    backgroundColor: 'rgba(67, 105, 210, 1)',
+                    data: [
+                        Math.round(purchase.amountPeriod1),
+                        Math.round(purchase.amountPeriod2)
+                    ],
+                    stack: 2
+                },
+                {
+                    label: 'Personalkostnader',
+                    backgroundColor: 'rgba(67, 105, 210, .8)',
+                    data: [
+                        Math.round(salary.amountPeriod1),
+                        Math.round(salary.amountPeriod2)
+                    ],
+                    stack: 2
+                },
+                {
+                    label: 'Driftskostnader',
+                    backgroundColor: 'rgba(67, 105, 210, .6)',
+                    data: [
+                        Math.round(other.amountPeriod1),
+                        Math.round(other.amountPeriod2)
+                    ],
+                    stack: 2
+                },
+                {
+                    label: 'Overskudd',
+                    backgroundColor: 'rgba(67, 105, 210, .3)',
+                    data: [
+                        cost1 < sales.amountPeriod1 ? Math.round(sales.amountPeriod1 - cost1) : 0,
+                        cost2 < sales.amountPeriod2 ? Math.round(sales.amountPeriod2 - cost2) : 0,
+                    ],
+                    stack: 2
+                },
+                {
+                    label: budgetString,
+                    backgroundColor: this.CUSTOM_COLORS[7],
+                    data: [
+                        Math.round(budget), 0
+                    ],
+                    stack: 3
+                }
+            ]
         };
 
-        ChartHelper.generateChart('accountingReportDrilldownChart', chartConfig);
+        if (!this.showPreviousAccountYear) {
+            data.labels.pop();
+            data.datasets.forEach(d => d.data.pop());
+        }
+
+        if (!this.showBudget) {
+            data.datasets.pop();
+        }
+
+        this.myChart = new Chart(element, {
+            type: 'groupableBar',
+            data: data,
+            options: {
+                tooltips: {
+                    callbacks: {
+                        label: this.labelFormat.bind(this)
+                    }
+                },
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    yAxes: [{
+                        stacked: true,
+                    }]
+                },
+                legend: {
+                    position: 'left',
+                    display: true
+                }
+            }
+        });
     }
 
-    public profitMarginText() {
-        // feks 20% og oppover gir visning av prosent og kommentaren:
-        // Best, 10-20%: Svært godt, 5-10% Godt, 0-5% Bra, og under: Svak
-        if (this.percentagePeriod1 >= 20) {
-            return this.percentagePeriod1  + '% Best';
-        } else if (this.percentagePeriod1 > 10) {
-            return this.percentagePeriod1  + '% Svært godt';
-        } else if (this.percentagePeriod1 > 5) {
-            return this.percentagePeriod1 + '% Godt';
-        } else if (this.percentagePeriod1 >= 0) {
-            return this.percentagePeriod1 + '% Bra';
-        } else {
-            return this.percentagePeriod1 + '% Svak';
-        }
+    private prepChartType() {
+        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
+
+        const helpers = Chart.helpers;
+        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
+            calculateBarX: function (index, datasetIndex) {
+                // position the bars based on the stack index
+                const stackIndex = this.getMeta().stackIndex;
+                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
+            },
+
+            hideOtherStacks: function (datasetIndex) {
+                const meta = this.getMeta();
+                const stackIndex = meta.stackIndex;
+
+                this.hiddens = [];
+                for (let i = 0; i < datasetIndex; i++) {
+                    const dsMeta = this.chart.getDatasetMeta(i);
+                    if (dsMeta.stackIndex !== stackIndex) {
+                        this.hiddens.push(dsMeta.hidden);
+                        dsMeta.hidden = true;
+                    }
+                }
+            },
+
+            unhideOtherStacks: function (datasetIndex) {
+                const meta = this.getMeta();
+                const stackIndex = meta.stackIndex;
+
+                for (let i = 0; i < datasetIndex; i++) {
+                        const dsMeta = this.chart.getDatasetMeta(i);
+                    if (dsMeta.stackIndex !== stackIndex) {
+                        dsMeta.hidden = this.hiddens.unshift();
+                    }
+                }
+            },
+
+            calculateBarY: function (index, datasetIndex) {
+                this.hideOtherStacks(datasetIndex);
+                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
+                this.unhideOtherStacks(datasetIndex);
+                return barY;
+            },
+
+            calculateBarBase: function (datasetIndex, index) {
+                this.hideOtherStacks(datasetIndex);
+                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
+                this.unhideOtherStacks(datasetIndex);
+                return barBase;
+            },
+
+            getBarCount: function () {
+                const stacks = [];
+
+                // put the stack index in the dataset meta
+                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
+                    const meta = this.chart.getDatasetMeta(datasetIndex);
+                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
+                    let stackIndex = stacks.indexOf(dataset.stack);
+                    if (stackIndex === -1) {
+                    stackIndex = stacks.length;
+                    stacks.push(dataset.stack);
+                    }
+                    meta.stackIndex = stackIndex;
+                }
+                }, this);
+
+                this.getMeta().stacks = stacks;
+                return stacks.length;
+            },
+        });
+    }
+
+    private labelFormat (tooltipItem, array) {
+        const datasetLabel = array.datasets[tooltipItem.datasetIndex].label || 'Other';
+        return datasetLabel + ': ' + this.numberFormatService.asMoney(tooltipItem.yLabel);
     }
 }

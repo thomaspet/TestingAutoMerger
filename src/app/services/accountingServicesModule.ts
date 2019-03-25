@@ -9,7 +9,6 @@ import {JournalEntryLineService} from './accounting/journalEntryLineService';
 import {JournalEntryService} from './accounting/journalEntryService';
 import {PeriodSeriesService} from './accounting/periodSeriesService';
 import {PeriodService} from './accounting/periodService';
-import {SupplierInvoiceItemService} from './accounting/supplierInvoiceItemService';
 import {SupplierInvoiceService} from './accounting/supplierInvoiceService';
 import {SupplierService} from './accounting/supplierService';
 import {VatDeductionService} from './accounting/vatDeductionService';
@@ -25,6 +24,10 @@ import {PaymentService} from './accounting/paymentService';
 import {PaymentBatchService} from './accounting/paymentBatchService';
 import {PostPostService} from './accounting/postPostService';
 import {BankFileDownloadService} from './accounting/bankFileDownloadService';
+import {BudgetService} from './accounting/budgetService';
+import {CostAllocationService} from './accounting/costAllocationService';
+import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
+import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
 
 export * from './accounting/accountGroupService';
 export * from './accounting/accountGroupSetService';
@@ -36,7 +39,6 @@ export * from './accounting/journalEntryLineService';
 export * from './accounting/journalEntryService';
 export * from './accounting/periodSeriesService';
 export * from './accounting/periodService';
-export * from './accounting/supplierInvoiceItemService';
 export * from './accounting/supplierInvoiceService';
 export * from './accounting/supplierService';
 export * from './accounting/vatDeductionService';
@@ -52,6 +54,10 @@ export * from './accounting/paymentService';
 export * from './accounting/paymentBatchService';
 export * from './accounting/postPostService';
 export * from './accounting/bankFileDownloadService';
+export * from './accounting/budgetService';
+export * from './accounting/costAllocationService';
+export * from './accounting/ReInvoicingService';
+export * from './accounting/companyAccountingSettingsService';
 
 @NgModule()
 export class AccountingServicesModule {
@@ -69,7 +75,6 @@ export class AccountingServicesModule {
                 JournalEntryService,
                 PeriodSeriesService,
                 PeriodService,
-                SupplierInvoiceItemService,
                 SupplierInvoiceService,
                 SupplierService,
                 VatDeductionService,
@@ -84,7 +89,11 @@ export class AccountingServicesModule {
                 PaymentService,
                 PaymentBatchService,
                 PostPostService,
-                BankFileDownloadService
+                BankFileDownloadService,
+                BudgetService,
+                CostAllocationService,
+                ReInvoicingService,
+                CompanyAccountingSettingsService
             ]
         };
     }

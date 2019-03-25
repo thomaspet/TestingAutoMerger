@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { Eventplan } from '@app/unientities';
-import { EventplanService } from '@app/components/settings/eventPlans/eventplan.service';
+import { EventplanService } from '@app/services/common/eventplan.service';
 
 import { ErrorService } from '@app/services/common/errorService';
 import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
-import { Observable } from 'rxjs';
 import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
+import { GuidService } from '@app/services/services';
 
 @Component({
     selector: 'event-plans',
@@ -21,7 +21,8 @@ export class EventPlans {
         public eventplanService: EventplanService,
         public errorService: ErrorService,
         public toast: ToastService,
-        public modalService: UniModalService
+        public modalService: UniModalService,
+        private guidService: GuidService
     ) {
         this.onAddNewEventplan();
         this.requestData();
@@ -31,13 +32,12 @@ export class EventPlans {
     }
 
     requestData(result =  null) {
-        this.eventplanService.getData()
-            .subscribe(data => {
-                this.data = data;
-                if (result) {
-                    this.currentEventplan = this.data.find(item => item.ID === result.ID);
-                }
-            });
+        this.eventplanService.GetAll().subscribe(data => {
+            this.data = data;
+            if (result) {
+                this.currentEventplan = this.data.find(item => item.ID === result.ID);
+            }
+        });
     }
 
     onAddNewEventplan() {
@@ -54,18 +54,7 @@ export class EventPlans {
         } else {
             this.modalService.openUnsavedChangesModal().onClose.subscribe((res: any) => {
                 if (res === ConfirmActions.ACCEPT) {
-                    this.eventplanService.save(this.currentEventplan).then((result: any) => {
-                        this.areDetailsTouched = false;
-                        this.eventplanService.getData()
-                            .subscribe(data => {
-                                this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
-                                this.currentEventplan = result;
-                                this.data = data;
-                                this.selectedIndex = this.data.findIndex(item => item.ID === result.ID);
-                            });
-                    }).catch(reason => {
-                        this.toast.addToast(reason, ToastType.bad, ToastTime.medium);
-                    });
+                    this.onSaveEventplan(this.currentEventplan);
                 } else {
                     if (res !== ConfirmActions.CANCEL) {
                         this.currentEventplan = row;
@@ -77,25 +66,40 @@ export class EventPlans {
     }
 
     onSaveEventplan(eventplan) {
-        this.eventplanService.save(eventplan).then((result) => {
-            this.areDetailsTouched = false;
-            this.requestData(result);
-            this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
-        }).catch(reason => this.toast.addToast(reason, ToastType.bad, ToastTime.medium));
+        const subscribers = eventplan.Subscribers && eventplan.Subscribers
+            .filter(row => !row['_isEmpty'])
+            .map(s => {
+                if (!s.ID) {
+                    s._createguid = this.guidService.guid();
+                }
+                if (!s.Active) {
+                    s.Active = false;
+                }
+                return s;
+            });
+        eventplan.Subscribers = subscribers;
+
+        this.eventplanService.save(eventplan).subscribe(
+            (result) => {
+                this.areDetailsTouched = false;
+                this.requestData(result);
+                this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
+            },
+            err => this.toast.addToast(err, ToastType.bad, ToastTime.medium)
+        );
     }
 
     onDeleteEventplan(eventplan) {
-        this.eventplanService.delete(eventplan)
-            .subscribe(
-                () => {
-                    this.requestData();
-                    this.currentEventplan = new Eventplan();
-                    this.currentEventplan.Active = true;
-                    this.currentEventplan.Subscribers = [];
-                    this.toast.addToast('Flyt slettet', ToastType.good, ToastTime.medium);
-                },
-                (error) => this.errorService.handle(error)
-            );
+        this.eventplanService.Remove(eventplan.ID).subscribe(
+            () => {
+                this.requestData();
+                this.currentEventplan = new Eventplan();
+                this.currentEventplan.Active = true;
+                this.currentEventplan.Subscribers = [];
+                this.toast.addToast('Flyt slettet', ToastType.good, ToastTime.medium);
+            },
+            (error) => this.errorService.handle(error)
+        );
     }
 
     onAddSubscriber() {
@@ -112,35 +116,5 @@ export class EventPlans {
 
     onDetailsTouched(areTouched) {
         this.areDetailsTouched = areTouched;
-    }
-
-    public canDeactivate(): boolean | Observable<boolean> {
-        if (this.areDetailsTouched === false) {
-            return true;
-        }
-        return this.openUnsavedChangesModal();
-    }
-
-    private openUnsavedChangesModal() {
-        return Observable.create(observer => {
-            this.modalService.openUnsavedChangesModal().onClose.subscribe(res => {
-                if (res === ConfirmActions.ACCEPT) {
-                    this.eventplanService.save(this.currentEventplan).then(() => {
-                        this.areDetailsTouched = false;
-                        this.requestData();
-                        this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
-                        observer.next(true);
-                        observer.complete();
-                    }).catch(reason => {
-                        this.toast.addToast(reason, ToastType.bad, ToastTime.medium);
-                        observer.next(false);
-                        observer.complete();
-                    });
-                } else {
-                    observer.next(res !== ConfirmActions.CANCEL);
-                    observer.complete();
-                }
-            });
-        });
     }
 }

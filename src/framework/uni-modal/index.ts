@@ -18,11 +18,17 @@ import {SingleTextFieldModal} from './modals/singleTextFieldModal';
 import {CustomerLicenseAgreementModal} from './modals/customerLicenseAgreementModal';
 import {UserLicenseAgreementModal} from './modals/userLicenseAgreementModal';
 import {UniBrRegModal} from './modals/brRegModal/brRegModal';
-import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
 import {UniChooseReportModal} from './modals/choose-report-modal/chooseReportModal';
 import {SubCompanyModal} from './modals/subCompanyModal';
 import {UniEditFieldModal} from './modals/editFieldModal';
+import {ProductPurchasesModal} from './modals/product-purchases-modal/product-purchases-modal';
+import {MissingPurchasePermissionModal} from './modals/missing-purchase-permission/missing-purchase-permission';
+import {UniAutobankAgreementModal} from './modals/autobankAgreementModal';
+import {UniFileUploadModal} from './modals/uploadFilesModal';
+import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
+import {UniReinvoiceModal} from './modals/reInvoiceModal/reinvoiceModal';
+import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -46,10 +52,16 @@ export * from './modals/singleTextFieldModal';
 export * from './modals/customerLicenseAgreementModal';
 export * from './modals/userLicenseAgreementModal';
 export * from './modals/brRegModal/brRegModal';
-export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
 export * from './modals/choose-report-modal/chooseReportModal';
 export * from './modals/editFieldModal';
+export * from './modals/product-purchases-modal/product-purchases-modal';
+export * from './modals/missing-purchase-permission/missing-purchase-permission';
+export * from './modals/autobankAgreementModal';
+export * from './modals/uploadFilesModal';
+export * from './modals/company-actions-modal/company-actions-modal';
+export * from './modals/reInvoiceModal/reinvoiceModal';
+export * from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -72,10 +84,16 @@ export const MODALS = [
     CustomerLicenseAgreementModal,
     UserLicenseAgreementModal,
     UniBrRegModal,
-    ManageProductsModal,
     UniBankModal,
     UniChooseReportModal,
     SubCompanyModal,
     UniEditFieldModal,
+    ProductPurchasesModal,
+    UniAutobankAgreementModal,
+    UniFileUploadModal,
+    CompanyActionsModal,
+    MissingPurchasePermissionModal,
+    UniReinvoiceModal,
+    UniCompanyAccountingSettingsModal
 ];
 

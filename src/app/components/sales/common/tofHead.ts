@@ -41,6 +41,7 @@ export class TofHead implements OnChanges {
 
     tabs: IUniTab[];
     activeTabIndex: number = 0;
+    indexes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
     freeTextControl: FormControl = new FormControl('');
     commentControl: FormControl = new FormControl('');
@@ -58,6 +59,11 @@ export class TofHead implements OnChanges {
 
         if (this.entityName === 'CustomerInvoice') {
             this.tabs.push({name: 'Purringer'});
+        }
+
+        if (this.entityName === 'RecurringInvoice') {
+            this.tabs.unshift({name: 'Innstillinger'});
+            this.indexes = this.indexes.map(i => ++i);
         }
     }
 

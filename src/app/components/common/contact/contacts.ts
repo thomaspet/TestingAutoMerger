@@ -1,44 +1,31 @@
-import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {Contact, BusinessRelation} from '../../../unientities';
+import {Contact, BusinessRelation} from '@uni-entities';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig, IContextMenuItem
-} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {
-    ErrorService,
-    ContactService
-} from '../../../services/services';
-
-declare const _;
+} from '@uni-framework/ui/unitable';
+import { GuidService } from '@app/services/services';
 
 @Component({
     selector: 'contacts',
     templateUrl: './contacts.html',
+    styleUrls: ['./contacts.sass']
 })
-export class Contacts implements AfterViewInit {
-    @ViewChild(UniTable) private table: UniTable;
-
-    @Input() public parentBusinessRelation: BusinessRelation;
-    @Output() public contactChanged: EventEmitter<Contact> = new EventEmitter<Contact>();
-    @Output() public selected: EventEmitter<Contact> = new EventEmitter<Contact>();
-    @Output() public deleted: EventEmitter<Contact> = new EventEmitter<Contact>();
-    @Output() public mainContactSet: EventEmitter<Contact> = new EventEmitter<Contact>();
+export class Contacts {
+    @Input() parentBusinessRelation: BusinessRelation;
+    @Output() parentBusinessRelationChange: EventEmitter<BusinessRelation> = new EventEmitter();
 
     public contactTableConfig: UniTableConfig;
-    public contacts: Array<Contact>;
-    public selectedContact: Contact;
+    public contacts: Contact[];
 
     constructor(
         private router: Router,
-        private contactService: ContactService,
-        private errorService: ErrorService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private guidService: GuidService
     ) {}
-
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['parentBusinessRelation'] && changes['parentBusinessRelation'].currentValue) {
@@ -47,85 +34,54 @@ export class Contacts implements AfterViewInit {
         }
     }
 
-    public onRowSelected(event) {
-        this.selectedContact = event.rowModel;
-        this.selected.emit(this.selectedContact);
-    }
+    onDataChange() {
+        this.contacts.forEach(contact => {
+            if (!contact.ID && !contact['_createguid']) {
+                contact['_createguid'] = this.guidService.guid();
+            }
 
-    public onRowChanged(event) {
-        let contact = event.rowModel;
-        this.parentBusinessRelation.Contacts[contact._originalIndex] = contact;
+            if (!contact.Info.ID && !contact.Info['_createguid']) {
+                contact.Info['_createguid'] = this.guidService.guid();
+            }
 
-        this.contactChanged.emit(contact);
-    }
+            if (!contact.Info.DefaultEmail.ID && !contact.Info.DefaultEmail['_createguid']) {
+                contact.Info.DefaultEmail['_createguid'] = this.guidService.guid();
+            }
 
-    public ngAfterViewInit() {
-        this.focusRow(0);
-    }
+            if (!contact.Info.DefaultPhone.ID && !contact.Info.DefaultPhone['_createguid']) {
+                contact.Info.DefaultPhone['_createguid'] = this.guidService.guid();
+            }
+        });
 
-    public focusRow(index = undefined) {
-        if (this.table && index) {
-            this.table.focusRow(index);
-        }
-    }
-
-    public onRowDelete(event) {
-        var contact = event.rowModel;
-        if (!contact) { return; }
-
-        contact.Deleted = true;
-        this.parentBusinessRelation.Contacts[contact._originalIndex] = contact;
-
-        this.deleted.emit(contact);
-    }
-
-    private changeCallback(event) {
-        var rowModel = event.rowModel;
-
-        if (event.field === 'Info.Name') {
-            rowModel.Info.Name = rowModel[event.field];
-        } else if (event.field === 'Info.DefaultPhone.Number') {
-            rowModel.Info.DefaultPhone.Number = rowModel[event.field];
-        } else if (event.field === 'Info.DefaultEmail.EmailAddress') {
-            rowModel.Info.DefaultEmail.EmailAddress = rowModel[event.field];
-        }
-
-        return rowModel;
+        this.parentBusinessRelation.Contacts = this.contacts;
+        this.parentBusinessRelationChange.emit(this.parentBusinessRelation);
     }
 
     private setupTable() {
-        // Define columns to use in the table
-        let nameCol = new UniTableColumn('Info.Name', 'Navn',  UniTableColumnType.Text).setWidth('200px');
-        let titleCol = new UniTableColumn('Role', 'Rolle',  UniTableColumnType.Text);
-        let phoneCol = new UniTableColumn('Info.DefaultPhone.Number', 'Telefon',  UniTableColumnType.Text);
-        let emailCol = new UniTableColumn('Info.DefaultEmail.EmailAddress', 'Epost',  UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('Info.Name', 'Navn',  UniTableColumnType.Text).setWidth('200px');
+        const titleCol = new UniTableColumn('Role', 'Rolle',  UniTableColumnType.Text);
+        const phoneCol = new UniTableColumn('Info.DefaultPhone.Number', 'Telefon',  UniTableColumnType.Text);
+        const emailCol = new UniTableColumn('Info.DefaultEmail.EmailAddress', 'E-postadresse',  UniTableColumnType.Text);
 
-        let isMainContactCol =
-            new UniTableColumn('_maincontact', 'Hovedkontakt',  UniTableColumnType.Text)
-                .setTemplate((item) => {
-                    if (typeof item._maincontact === 'boolean' && item._maincontact ) {
-                        return 'Ja';
-                    }
-                    return '';
-                })
-                .setEditable(false);
+        const isMainContactCol = new UniTableColumn('_maincontact', 'Hovedkontakt', UniTableColumnType.Text, false)
+            .setTemplate((item) => {
+                if (typeof item._maincontact === 'boolean' && item._maincontact ) {
+                    return 'Ja';
+                }
+                return '';
+            });
 
-
-        let defaultRowModel = {
+        const defaultRowModel = {
             Role: '',
             Info: {
                 Name: '',
                 ParentBusinessRelationID: this.parentBusinessRelation.ID,
-                DefaultEmail: {
-                    EmailAddress: null
-                },
-                DefaultPhone: {
-                    Number: null
-                }
+                DefaultEmail: { EmailAddress: null },
+                DefaultPhone: { Number: null }
             }
         };
 
-        let contextMenuItems: IContextMenuItem[] = [];
+        const contextMenuItems: IContextMenuItem[] = [];
 
         contextMenuItems.push({
             label: 'Vis kontaktdetaljer',
@@ -142,43 +98,29 @@ export class Contacts implements AfterViewInit {
         },
         {
             label: 'Sett som hovedkontakt',
-            action: (rowModel) => {
-                if (!rowModel.ID || rowModel.ID === 0) {
-                    this.toastService.addToast(
-                        'Lagre endringene dine først',
-                        ToastType.warn,
-                        ToastTime.medium,
-                        'Du må lagre endringene før du setter hovedkontakten'
-                    );
-                } else {
-                    // set main contact on parent model
-                    this.parentBusinessRelation.DefaultContactID = rowModel.ID;
-                    this.contacts.forEach(x => {
-                        if (x.ID === this.parentBusinessRelation.DefaultContactID && !x['_maincontact']) {
-                            x['_maincontact'] = true;
-                            this.table.updateRow(x['_originalIndex'], x);
-                        } else if (x['_maincontact']) {
-                            x['_maincontact'] = false;
-                            this.table.updateRow(x['_originalIndex'], x);
-                        }
+            action: row => {
+                if (row.ID) {
+                    this.parentBusinessRelation.DefaultContactID = row.ID;
+                    this.contacts = this.contacts.map(contact => {
+                        contact['_maincontact'] = contact.ID === row.ID;
+                        return contact;
                     });
 
-                    this.mainContactSet.emit(rowModel);
+                    this.onDataChange();
+                } else {
+                    this.toastService.addToast(
+                        'Lagre endringene dine først',
+                        ToastType.warn, 10,
+                        'Du må lagre endringene før du setter hovedkontakten'
+                    );
                 }
             },
-            disabled: (rowModel) => {
-                return false;
-            }
         });
 
-        // Setup table
-        this.contactTableConfig = new UniTableConfig('common.contacts', true, true, 15)
-            .setSearchable(false)
-            .setSortable(false)
+        this.contactTableConfig = new UniTableConfig('common.contacts', true)
             .setDeleteButton(true)
             .setContextMenu(contextMenuItems)
             .setDefaultRowData(defaultRowModel)
-            .setChangeCallback(event => this.changeCallback(event))
             .setColumns([nameCol, titleCol, isMainContactCol, phoneCol, emailCol]);
     }
 }

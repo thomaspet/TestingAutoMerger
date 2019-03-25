@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {EmployeeCategory} from '../../../unientities';
+import {EmployeeCategory, Employee, PayrollRun} from '../../../unientities';
 import {Observable} from 'rxjs';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 
@@ -32,10 +32,11 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
 
     public searchCategories(query: string, ignoreFilter: string): Observable<EmployeeCategory[]> {
         return this
-            .GetAll(`filter=contains(Name,'${query}')${ignoreFilter ? ' and (' + ignoreFilter + ')' : ''}&top=50`);
+            .GetAll(`filter=(contains(Name,'${query}') or startswith(ID,'${query}'))`
+                + `${ignoreFilter ? ' and (' + ignoreFilter + ')' : ''}&top=50`);
     }
 
-    public getEmployeesInCategory(categoryID: number) {
+    public getEmployeesInCategory(categoryID: number): Observable<Employee[]> {
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -44,7 +45,7 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
             .map(response => response.json());
     }
 
-    public getPayrollrunsInCategory(categoryID: number) {
+    public getPayrollrunsInCategory(categoryID: number): Observable<PayrollRun[]> {
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -61,10 +62,6 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
     public getNext(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
-    }
-
-    public saveCategory(category: EmployeeCategory) {
-        return super.Post(category);
     }
 
     public layout(layoutID: string) {

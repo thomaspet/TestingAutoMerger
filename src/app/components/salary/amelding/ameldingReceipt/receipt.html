@@ -1,11 +1,29 @@
-<section *ngIf="showFeedback">
-    <h1 *ngIf="allAvvikGroupedByPeriod.length > 0">Avvik</h1>
+<section>
+    <table *ngIf="allAvvikGroupedByPeriod.length">
+        <tr>
+            <th>
+                <h1 style="color: red">Avvik</h1>
+            </th>
+            <td></td>
+        </tr>
+        <tr>
+            <th>
+                <em class="amelding_validation_errors" title="Avvik"></em>
+            </th>
+            <td>
+                A-meldingen du har sendt inn har blitt avvist i altinn<br>
+                Det betyr at a-meldingen du leverte før denne er den gjeldende i altinn<br>
+                Vennligst korriger feilen, generer ny a-melding og send den inn
+            </td>
+        </tr>
+    </table>
+
     <ul>
         <section *ngFor="let avvik of allAvvikGroupedByPeriod">
             <h4>Periode {{avvik.periode}}</h4>
 
-            <li *ngFor="let periodeavvik of avvik.periodeAvvik; let index = index" class="amelding_summaryview collapsable" [ngClass]="{'-is-open':periodeavvik.expanded}">
-                <h4 (click)="periodeavvik.expanded = !periodeavvik.expanded">{{periodeavvik.id}}</h4>
+            <li *ngFor="let periodeavvik of avvik.periodeAvvik; let index = index" class="amelding_summaryview collapsable" [ngClass]="{'-is-open':!periodeavvik.closed}">
+                <h4 (click)="periodeavvik.closed = !periodeavvik.closed">{{periodeavvik.id}}</h4>
                 <table class="collapsable-content">
                     <tr>
                         <th>Avvikstype</th>
@@ -66,5 +84,5 @@
 
     <h1 *ngIf="mottattLeveranserIPerioden.length > 0">Leveranser (a-meldinger)</h1>
 
-    <uni-table *ngIf="mottattLeveranserIPerioden.length > 0" [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></uni-table>
+    <ag-grid-wrapper *ngIf="mottattLeveranserIPerioden.length > 0" [config]="mottattLeveranserIPeriodenConfig" [resource]="mottattLeveranserIPerioden" (rowSelected)="rowSelected($event)"></ag-grid-wrapper>
 </section>

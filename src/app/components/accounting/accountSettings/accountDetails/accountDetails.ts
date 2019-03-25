@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {Account, VatType, AccountGroup, VatDeductionGroup} from '../../../../unientities';
+import {Account, VatType, AccountGroup, VatDeductionGroup, CostAllocation} from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {
@@ -12,7 +12,8 @@ import {
     VatTypeService,
     CurrencyCodeService,
     AccountService,
-    VatDeductionGroupService
+    VatDeductionGroupService,
+    CostAllocationService
 } from '../../../../services/services';
 
 @Component({
@@ -39,7 +40,8 @@ export class AccountDetails implements OnInit {
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private vatDeductionGroupService: VatDeductionGroupService
+        private vatDeductionGroupService: VatDeductionGroupService,
+        private costAllocationService: CostAllocationService
     ) {}
 
     public ngOnInit() {
@@ -77,10 +79,17 @@ export class AccountDetails implements OnInit {
             this.account$.next(incomingAccount);
         } else {
             this.getAccount(this.inputAccount.ID).subscribe(
-                dataset => this.account$.next(dataset),
+                dataset => {
+                    this.account$.next(dataset);
+                    this.extendFormConfig();
+                },
                 err => this.errorService.handle(err)
             );
         }
+    }
+
+    public onChange(event) {
+        this.changeEvent.emit();
     }
 
     private extendFormConfig() {
@@ -92,6 +101,10 @@ export class AccountDetails implements OnInit {
             displayProperty: 'Code',
             debounceTime: 200
         };
+
+        const account = this.account$.getValue();
+        const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
+        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(this.account$.asObservable());
 
         const vattype: UniFieldLayout = fields.find(x => x.Property === 'VatTypeID');
         vattype.Options = {
@@ -147,7 +160,18 @@ export class AccountDetails implements OnInit {
                 }
             }
         };
+        this.setSynchronizeVisibility(account, fields);
         this.fields$.next(fields);
+    }
+
+    private setSynchronizeVisibility(account: Account, fields) {
+        if (!account) return;
+        const doSynchronize: UniFieldLayout = fields.find(x => x.Property === 'DoSynchronize');
+        if (account.AccountSetupID) {
+            doSynchronize.Hidden = false;
+        } else {
+            doSynchronize.Hidden = true;
+        }
     }
 
     public getAccount(ID: number) {
@@ -164,6 +188,60 @@ export class AccountDetails implements OnInit {
             ]);
     }
 
+    public save(done?: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const account = this.account$.getValue();
+            // Doing this to prevent "Foreignkey does not match parent ID" error:
+            if (account.AccountGroup && account.AccountGroupID !== account.AccountGroup.ID) {
+                account.AccountGroup = null;
+            }
+
+            if (!account.AccountNumber || !account.AccountName || !account.AccountGroupID) {
+                this.toastService.addToast(
+                    'Kan ikke lagre, mangler informasjon',
+                    ToastType.bad,
+                    ToastTime.medium,
+                    'Du må velge minimum kontonummer, navn og velge en kontogruppe før du kan lagre');
+                if (done) { done('Lagring feilet'); }   //completeEvent('Lagring feilet');
+                resolve(false);
+                return;
+            }
+
+            if (account.ID && account.ID > 0) {
+                this.accountService
+                    .Put(account.ID, account)
+                    .subscribe(
+                        (response) => {
+                            //completeEvent('Lagret');
+                            resolve(true);
+                            this.accountSaved.emit(account);
+                        },
+                        (err) => {
+                            //completeEvent('Feil ved lagring');
+                            resolve(false);
+                            this.errorService.handle(err);
+                        }
+                    );
+            } else {
+                this.accountService
+                    .Post(account)
+                    .subscribe(
+                        (response) => {
+                            //completeEvent('Lagret');
+                            resolve(true);
+                            this.accountSaved.emit(account);
+                        },
+                        (err) => {
+                            //completeEvent('Feil ved lagring');
+                            resolve(false);
+                            this.errorService.handle(err);
+                        }
+                    );
+            }
+            return;
+        });
+
+    }
 
     public saveAccount(completeEvent: any): void {
         const account = this.account$.getValue();
@@ -283,6 +361,22 @@ export class AccountDetails implements OnInit {
                     Property: 'UsePostPost',
                     FieldType: FieldType.CHECKBOX,
                     Label: 'PostPost',
+                },
+                {
+                    FieldSet: 2,
+                    Legend: 'Detaljer',
+                    EntityType: 'Account',
+                    Property: 'CostAllocationID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Fordelingsnøkkel'
+                },
+                {
+                    FieldSet: 2,
+                    Legend: 'Detaljer',
+                    EntityType: 'Account',
+                    Property: 'DoSynchronize',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Synkronisér'
                 },
                 // Fieldset 3 (vatdeduction)
                 {

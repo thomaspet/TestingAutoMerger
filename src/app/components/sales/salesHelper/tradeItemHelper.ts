@@ -58,6 +58,7 @@ export class TradeItemHelper  {
                     item.SumVatCurrency = 0;
                     item.Unit = null;
                     item.VatTypeID = null;
+                    item.Dimensions = null;
                 }
 
                 return item;
@@ -90,16 +91,22 @@ export class TradeItemHelper  {
             DiscountPercent: 0,
             AccountID: null,
             Account: null,
-            SumVat: 0
+            SumVat: 0,
+            // Recurring Invoice fields
+            PricingSource: null,
+            TimeFactor: null,
+            ReduceIncompletePeriod: false
         };
     }
 
     public tradeItemChangeCallback(
         event, currencyCodeID: number, currencyExchangeRate: number,
-        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate
+        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate,
+        pricingSourceLabels, priceFactor
     ) {
-        const newRow = event.rowModel;
 
+
+        const newRow = event.rowModel;
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
 
@@ -123,12 +130,14 @@ export class TradeItemHelper  {
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
 
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings);
+                let overrideVatType: VatType;
+
                 if (currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
                     newRow.VatType = foreignVatType;
                     newRow.VatTypeID = foreignVatType.ID;
+                    overrideVatType = foreignVatType;
                 }
-
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType);
 
             } else {
                 newRow['ProductID'] = null;
@@ -137,6 +146,14 @@ export class TradeItemHelper  {
 
         if (event.field === 'VatType') {
             newRow.VatTypeID = !!newRow.VatType ? newRow.VatType.ID : null;
+        }
+
+        if (event.field === 'PricingSource') {
+            newRow.PricingSource = pricingSourceLabels.findIndex(res => res === event.newValue);
+        }
+
+        if (event.field === 'TimeFactor') {
+            newRow.TimeFactor = event.newValue.value;
         }
 
         if (newRow.VatTypeID && !newRow.VatType) {
@@ -255,7 +272,7 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings) {
+    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings, overrideVatType: VatType) {
         const product: Product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
@@ -264,7 +281,12 @@ export class TradeItemHelper  {
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
 
-        const productVatType = product.VatTypeID ? vatTypes.find(x => x.ID === product.VatTypeID) : null;
+        // Set recurring invoice item defaults when selecting item..
+        rowModel.PricingSource = 0;
+        rowModel.TimeFactor = 0;
+
+        let productVatType = product.VatTypeID ? vatTypes.find(x => x.ID === product.VatTypeID) : null;
+        if (overrideVatType) { productVatType = overrideVatType; }
 
         if (settings.TaxMandatoryType === 1) {
             // company does not use VAT/MVA
@@ -281,7 +303,7 @@ export class TradeItemHelper  {
                     rowModel.VatType = vatType6;
                     rowModel.VatTypeID = vatType6.ID;
                 } else {
-                    rowModel.VatTypeID = product.VatTypeID;
+                    rowModel.VatTypeID = productVatType.ID;
                     rowModel.VatType = productVatType;
 
                     if (!rowModel.VatTypeID && product.Account) {
@@ -290,7 +312,7 @@ export class TradeItemHelper  {
                 }
             }
         } else {
-            rowModel.VatTypeID = product.VatTypeID;
+            rowModel.VatTypeID = productVatType ? productVatType.ID : product.VatTypeID;
             rowModel.VatType = productVatType || product.VatType;
 
             if (!rowModel.VatTypeID && product.Account) {
@@ -299,7 +321,8 @@ export class TradeItemHelper  {
         }
 
         // if vat is not used/not defined, set PriceIncVat to PriceExVat
-        if ((!rowModel.VatType || rowModel.VatType.VatPercent === 0)) {
+
+        if (!rowModel.VatType || rowModel.VatType.VatPercent === 0) {
             rowModel.PriceExVat = product.PriceExVat;
             rowModel.PriceIncVat = product.PriceExVat;
         } else {
@@ -307,22 +330,21 @@ export class TradeItemHelper  {
             rowModel.PriceIncVat = product.PriceIncVat;
         }
 
-        if (currencyExchangeRate) {
+        if (currencyExchangeRate !== 1) {
 
             rowModel.PriceExVatCurrency = this.round(rowModel.PriceExVat / currencyExchangeRate, 4);
 
-            const vatPercent = rowModel.VatPercent || 0;
+            const vatPercent = rowModel.VatType ? rowModel.VatType.VatPercent || 0 : 0;
             const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
             const taxPercentage = (100 + vatPercent) / 100;
             const price = priceExVatCurrency * taxPercentage;
-            rowModel['PriceIncVatCurrency'] = this.round(price, 4);
-            rowModel['PriceIncVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
+            rowModel.PriceIncVatCurrency = this.round(price, 4);
+            rowModel.PriceIncVat = rowModel.PriceExVatCurrency * currencyExchangeRate;
 
         } else {
             rowModel.PriceExVatCurrency = rowModel.PriceExVat;
             rowModel.PriceIncVatCurrency = rowModel.PriceIncVat;
         }
-
         rowModel.PriceSetByUser = false;
 
         if (!rowModel.Dimensions) {

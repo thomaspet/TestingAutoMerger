@@ -311,6 +311,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                         if (hasCopyParam) {
+                            if (!this.currentCustomer && order.Customer) {
+                                this.currentCustomer = order.Customer;
+                            }
                             this.refreshOrder(this.copyOrder(order));
                         } else {
                             this.refreshOrder(order);
@@ -511,6 +514,18 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
+            if ((!order.Customer.ID || order.Customer.ID === 0) && order.Customer.OrgNumber !== null) {
+                this.customerService.getCustomers(order.Customer.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede kunde med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
+
             if (order.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -792,10 +807,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
                 this.order = _.cloneDeep(order);
                 this.updateCurrency(order, true);
+                this.recalcItemSums(order.Items);
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
-                this.recalcDebouncer.next(res[0].Items);
 
                 resolve(true);
             });
@@ -807,6 +822,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         if (!this.currentCustomer && !order.Customer) {
             return false;
+        }
+
+        if (!this.currentCustomer && order.Customer.ID === 0) {
+            change = true;
         }
 
         if (order.Customer && this.currentCustomer) {
@@ -1200,7 +1219,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private recalcItemSums(orderItems: any) {
+    private recalcItemSums(orderItems: CustomerOrderItem[] = null) {
         const items = orderItems && orderItems.filter(item => !item.Deleted);
         const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
 
@@ -1210,6 +1229,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         if (this.itemsSummaryData) {
             this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {
@@ -1266,6 +1287,33 @@ export class OrderDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            order.CustomerName = this.currentCustomer.Info.Name;
+            if (this.currentCustomer.Info.Addresses && this.currentCustomer.Info.Addresses.length > 0) {
+                var address = this.currentCustomer.Info.Addresses[0];
+                if (this.currentCustomer.Info.InvoiceAddressID) {
+                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.InvoiceAddressID);
+                }
+                order.InvoiceAddressLine1 = address.AddressLine1;
+                order.InvoiceAddressLine2 = address.AddressLine2;
+                order.InvoiceAddressLine3 = address.AddressLine3;
+                order.InvoicePostalCode = address.PostalCode;
+                order.InvoiceCity = address.City;
+                order.InvoiceCountry = address.Country;
+                order.InvoiceCountryCode = address.CountryCode;
+
+                if (this.currentCustomer.Info.ShippingAddressID) {
+                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.ShippingAddressID);
+                }
+                order.ShippingAddressLine1 = address.AddressLine1;
+                order.ShippingAddressLine2 = address.AddressLine2;
+                order.ShippingAddressLine3 = address.AddressLine3;
+                order.ShippingPostalCode = address.PostalCode;
+                order.ShippingCity = address.City;
+                order.ShippingCountry = address.Country;
+                order.ShippingCountryCode = address.CountryCode;
+            }
+        }
         return order;
     }
 

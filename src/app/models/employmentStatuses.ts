@@ -1,4 +1,4 @@
-import {TypeOfEmployment, RemunerationType, WorkingHoursScheme} from '../unientities';
+import {TypeOfEmployment, RemunerationType, WorkingHoursScheme, ShipTypeOfShip, ShipRegistry, ShipTradeArea} from '../unientities';
 
 export class EmploymentStatuses {
     private static typeOfEmployment: { ID: number, Name: string }[] = [
@@ -27,6 +27,26 @@ export class EmploymentStatuses {
         { ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid' }
     ];
 
+    private static shipType: {ID: number, Name: string}[] = [
+        {ID: ShipTypeOfShip.notSet, Name: 'Ikke valgt'},
+        {ID: ShipTypeOfShip.Other, Name: '1 - Annet'},
+        {ID: ShipTypeOfShip.DrillingPlatform, Name: '2 - Boreplattform'},
+        {ID: ShipTypeOfShip.Tourist, Name: '3 - Turist'}
+    ];
+
+    private static shipReg: {ID: number, Name: string}[] = [
+        {ID: ShipRegistry.notSet, Name: 'Ikke valgt'},
+        {ID: ShipRegistry.NorwegianInternationalShipRegister, Name: '1 - Norsk Internasjonalt skipsregister (NIS)'},
+        {ID: ShipRegistry.NorwegianOrdinaryShipRegister, Name: '2 - Norsk ordinært skipsregister (NOR)'},
+        {ID: ShipRegistry.ForeignShipRegister, Name: '3 - Utenlandsk skipsregister (UTL)'}
+    ];
+
+    private static tradeArea: {ID: number, Name: string}[] = [
+        {ID: ShipTradeArea.notSet, Name: 'Ikke valgt'},
+        {ID: ShipTradeArea.Domestic, Name: '1 - Innenriks'},
+        {ID: ShipTradeArea.Foreign, Name: '2 - Utenriks'}
+    ];
+
 
 
     public static employmentTypeToText(type: number) {
@@ -39,6 +59,18 @@ export class EmploymentStatuses {
 
     public static workingHoursSchemeToText(type: number) {
         return this.typeToText(this.workingHoursScheme.find(x => x.ID === type));
+    }
+
+    public static shipTypeToText(type: ShipTypeOfShip) {
+        return this.typeToText(this.shipType.find(t => t.ID === type));
+    }
+
+    public static shipRegToText(type: ShipRegistry) {
+        return this.typeToText(this.shipReg.find(t => t.ID === type));
+    }
+
+    public static tradeAreaToText(type: ShipTradeArea) {
+        return this.typeToText(this.tradeArea.find(t => t.ID === type));
     }
 
     private static typeToText(obj: {ID: number, Name: string}) {

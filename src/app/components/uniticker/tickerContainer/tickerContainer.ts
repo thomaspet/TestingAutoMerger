@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import {Router, ActivatedRoute, ParamMap} from '@angular/router';
 import {UniTicker} from '../ticker/ticker';
-import {YearService, StatisticsService} from '@app/services/services';
+import {FinancialYearService, StatisticsService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {
     UniTickerService,
@@ -47,10 +47,11 @@ export class UniTickerContainer {
     private expressionFilters: Array<IExpressionFilterValue> = [];
     public currentUserGlobalIdentity: string;
     public currentAccountingYear: string;
+    public grouping: boolean = false;
 
     constructor(
         private authService: AuthService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private statisticsService: StatisticsService,
         private tickerService: UniTickerService,
         private router: Router,
@@ -59,19 +60,18 @@ export class UniTickerContainer {
     ) {
         this.authService.authentication$.subscribe(authDetails => {
             this.currentUserGlobalIdentity = authDetails.user && authDetails.user.GlobalIdentity;
-            this.yearService.getActiveYear().subscribe(activeyear => {
-                this.currentAccountingYear = activeyear.toString();
 
-                this.expressionFilters = [];
-                this.expressionFilters.push({
-                    Expression: 'currentuserid',
-                    Value: this.currentUserGlobalIdentity
-                });
+            this.currentAccountingYear = this.financialYearService.getActiveYear().toString();
 
-                this.expressionFilters.push({
-                    Expression: 'currentaccountingyear',
-                    Value: this.currentAccountingYear
-                });
+            this.expressionFilters = [];
+            this.expressionFilters.push({
+                Expression: 'currentuserid',
+                Value: this.currentUserGlobalIdentity
+            });
+
+            this.expressionFilters.push({
+                Expression: 'currentaccountingyear',
+                Value: this.currentAccountingYear
             });
         });
     }
@@ -207,6 +207,11 @@ export class UniTickerContainer {
 
     public exportToExcel(completeEvent) {
         this.mainTicker.exportToExcel(completeEvent);
+    }
+
+    public turnGroupingOnOff() {
+        this.grouping = !this.grouping;
+        this.mainTicker.turnGroupingOnOff();
     }
 
     public runAction(action) {

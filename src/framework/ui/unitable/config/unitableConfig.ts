@@ -1,6 +1,5 @@
 import {UniTableColumn, IUniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './unitableColumn';
 import {IContextMenuItem, ITableFilter, IExpressionFilterValue} from '../unitable';
-import {Observable} from 'rxjs';
 
 export interface IDeleteButton {
     deleteHandler: (rowModel?: any) => any;
@@ -32,6 +31,7 @@ export interface IUniTableConfig {
     pageSize?: number;
     multiRowSelect?: boolean;
     multiRowSelectDefaultValue?: boolean;
+    selectOnlyVisible?: boolean;
     columnMenuVisible?: boolean;
     advancedColumnMenu?: boolean;
     changeCallback?: (event: IRowChangeEvent) => any | Promise<any>;
@@ -61,6 +61,7 @@ export interface IUniTableConfig {
     headerVisible?: boolean;
     rowDraggable?: boolean;
     autofocus?: boolean;
+    showTotalRowCount?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -86,6 +87,7 @@ export class UniTableConfig implements IUniTableConfig {
     public rowDraggable: boolean;
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
+    public selectOnlyVisible: boolean;
     public columnMenuVisible: boolean;
     public advancedColumnMenu: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
@@ -114,6 +116,17 @@ export class UniTableConfig implements IUniTableConfig {
     public beforeEdit: (event: IEditorData) => IEditorData;
     public headerVisible: boolean;
     public autofocus: boolean;
+    public showTotalRowCount: boolean;
+    public rowGroupPanelShow?: string;
+    public groupUseEntireRow?: boolean;
+    public suppressMakeColumnVisibleAfterUnGroup: boolean;
+    public suppressDragLeaveHidesColumns: boolean;
+    public groupHideOpenParents: boolean;
+    public autoGroupColumnDef: any;
+    public getChildCount?: (event) => any;
+    public groupDefaultExpanded: number;
+    public groupIncludeFooter: boolean;
+    public groupingIsOn: boolean;
 
     /**
      * @constructor
@@ -141,6 +154,7 @@ export class UniTableConfig implements IUniTableConfig {
 
         this.copyFromCellAbove = true;
         this.headerVisible = true;
+        this.groupDefaultExpanded = -1;
     }
 
     public static fromObject(obj: IUniTableConfig, configStoreKey: string) {
@@ -185,6 +199,40 @@ export class UniTableConfig implements IUniTableConfig {
     public setColumnMenuVisible(columnMenuVisible: boolean, advancedColumnMenu: boolean = false) {
         this.columnMenuVisible = columnMenuVisible;
         this.advancedColumnMenu = advancedColumnMenu;
+        return this;
+    }
+
+    public setRowGroupPanelShow(rowGroupPanelShow: string) {
+        this.rowGroupPanelShow = rowGroupPanelShow;
+        return this;
+    }
+    public setGroupUseEntireRow(groupUseEntireRow: boolean) {
+        this.groupUseEntireRow = groupUseEntireRow;
+        return this;
+    }
+
+    public setSuppressMakeColumnVisibleAfterUnGroup(suppressMakeColumnVisibleAfterUnGroup: boolean) {
+        this.suppressMakeColumnVisibleAfterUnGroup = suppressMakeColumnVisibleAfterUnGroup;
+        return this;
+    }
+
+    public setSuppressDragLeaveHidesColumns(suppressDragLeaveHidesColumns: boolean) {
+        this.suppressDragLeaveHidesColumns = suppressDragLeaveHidesColumns;
+        return this;
+    }
+
+    public setGroupHideOpenParents(groupHideOpenParents) {
+        this.groupHideOpenParents = groupHideOpenParents;
+        return this;
+    }
+
+    public setAutoGroupColumnDef(autoGroupColumnDef: any) {
+        this.autoGroupColumnDef = autoGroupColumnDef;
+        return this;
+    }
+
+    public setGroupIncludeFooter(groupIncludeFooter: boolean) {
+        this.groupIncludeFooter = groupIncludeFooter;
         return this;
     }
 
@@ -238,14 +286,24 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
+    public setGetChildCount(getChildCount: (event) => number) {
+        this.getChildCount = getChildCount;
+        return this;
+    }
+
     public setDataMapper(dataMapper: (data) => Array<any>) {
         this.dataMapper = dataMapper;
         return this;
     }
 
-    public setMultiRowSelect(multirowSelect: boolean, multiRowSelectDefaultValue?: boolean) {
+    public setMultiRowSelect(
+        multirowSelect: boolean,
+        multiRowSelectDefaultValue?: boolean,
+        selectOnlyVisible?: boolean
+    ) {
         this.multiRowSelect = multirowSelect;
         this.multiRowSelectDefaultValue = multiRowSelectDefaultValue || false;
+        this.selectOnlyVisible = selectOnlyVisible || false;
         return this;
     }
 
@@ -332,6 +390,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setSearchListVisible(visible: boolean) {
         this.searchListVisible = visible;
+        return this;
+    }
+
+    public setShowTotalRowCount(show: boolean) {
+        this.showTotalRowCount = show;
         return this;
     }
 }

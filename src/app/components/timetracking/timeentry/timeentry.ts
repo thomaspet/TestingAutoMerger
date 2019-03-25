@@ -11,7 +11,6 @@ import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {WorkEditor} from '@app/components/common/timetrackingCommon';
-import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
 import {TimeentryImportModal} from '../components/file-import-modal';
@@ -51,7 +50,6 @@ export class TimeEntry {
     @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
     @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
     @ViewChild(WorkEditor) private workEditor: WorkEditor;
-    @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
     @ViewChild(SideMenu) private sideMenu: SideMenu;
     @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
     @ViewChild(TimeentryImportModal) private fileImport: TimeentryImportModal;
@@ -193,11 +191,6 @@ export class TimeEntry {
         this.initWorker(workerId);
     }
 
-    public onWorkrelationChange(event: any) {
-        const id = (event && event.target ? safeInt(event.target.value) : 0);
-        this.setWorkRelationById(id);
-    }
-
     private setWorkRelationById(id: number) {
         this.checkSave().then((canDeactivate) => {
             if (canDeactivate && id) {
@@ -328,11 +321,6 @@ export class TimeEntry {
             this.loadItems();
             this.reloadFlex();
         }
-    }
-
-    public onRowActionClicked(rowIndex: number, item: any) {
-        this.timeSheet.removeRow(rowIndex);
-        this.flagUnsavedChanged();
     }
 
     public canDeactivate() {
@@ -497,7 +485,13 @@ export class TimeEntry {
             if (item.IsWeekend) {
                 flexDays.push('');
             } else {
-                flexDays.push(item.Flextime >= 0 ? 'calendar_flexplus' : 'calendar_flexminus');
+                // Dont show deep red user has registered more then 3 hours
+                if (item.Flextime < 0) {
+                    const percentWorked = (item.ExpectedTime + item.Flextime) / (item.ExpectedTime || 1) * 100;
+                    flexDays.push(percentWorked >= 50 ? 'calendar_flexminus_light' : 'calendar_flexminus');
+                } else {
+                    flexDays.push('calendar_flexplus');
+                }
             }
         });
 
@@ -617,45 +611,6 @@ export class TimeEntry {
         this.actions[0].disabled = reset;
     }
 
-    public onClickDay(event: Day) {
-        this.checkSave().then((canDeactivate) => {
-            if (canDeactivate) {
-                this.busy = true;
-                this.loadItems(event.date);
-                event.selected = true;
-            }
-        });
-    }
-
-    public onRequestDaySums(interval: ITimeSpan) {
-        const wid = this.timeSheet.currentRelation.ID;
-        const d1 = moment(interval.fromDate).format('YYYY-MM-DD');
-        const d2 = moment(interval.toDate).format('YYYY-MM-DD');
-        if (!wid) {
-            return; // Nothing to do here yet..
-        }
-        const query = `model=workitem&select=sum(minutes),WorkType.SystemType,Date&filter=workrelationid eq ${wid}`
-            + ` and ( not setornull(deleted) ) and ( date ge '${d1}' and date le '${d2}' )`
-            + `&join=workitem.worktypeid eq worktype.id&pivot=true`;
-        this.timesheetService.workerService.getStatistics(query).subscribe( (result: any) => {
-            if (result && result.Data) {
-                if (this.dayBrowser) {
-                    this.dayBrowser.setDaySums(result.Data, 'WorkItemDate', '1', '12');
-                }
-            }
-        });
-    }
-
-    public onNavigateDays(direction: INavDirection) {
-        this.checkSave().then((canDeactivate) => {
-            if (canDeactivate) {
-                const dt = moment(direction.currentDate);
-                this.busy = true;
-                this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
-            }
-        });
-    }
-
     private hasUnsavedChanges(): boolean {
         return !this.actions[0].disabled;
     }
@@ -668,8 +623,6 @@ export class TimeEntry {
         }
         return true;
     }
-
-
 
     private checkSave(): Promise<boolean> {
         return new Promise((resolve, reject) => {

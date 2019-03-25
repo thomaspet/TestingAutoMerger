@@ -8,7 +8,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {salesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
-import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerProductsSold} from './customer/customerDetails/customerProductsSold';
 import {CustomerList} from './customer/list/customerList';
@@ -26,6 +25,9 @@ import {QuoteList} from './quote/list/quoteList';
 
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
+import {UniRecurringInvoice} from './recurringInvoice/recurringInvoiceDetails';
+import {RecurringInvoiceList} from './recurringInvoice/recurringInvoiceList';
+import {UniRecurringInvoiceLogModal} from './recurringInvoice/recurringInvoiceLogModal';
 import {InvoiceReminders} from './invoice/reminders/reminders';
 import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
@@ -38,6 +40,7 @@ import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
+import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings';
 import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
@@ -84,7 +87,6 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
     declarations: [
         UniSales,
         Customer,
-        CustomerDetailsModal,
         CustomerDetails,
         CustomerProductsSold,
         CustomerList,
@@ -95,12 +97,17 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         TofDetailsForm,
         TofDeliveryForm,
         TradeItemTable,
+        UniRecurringInvoiceSettingsView,
         UniTofSelectModal,
         UniDimensionTOFView,
         UniDistibutionTOFView,
 
         InvoiceList,
         InvoiceDetails,
+
+        UniRecurringInvoice,
+        RecurringInvoiceList,
+        UniRecurringInvoiceLogModal,
 
         OrderDetails,
         OrderList,
@@ -140,11 +147,11 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         UniReminderSendingModal,
         ReminderSending,
         InvoiceReminders,
-        CustomerDetailsModal,
         UniTofSelectModal,
         UniProductDetailsModal,
         KidModalComponent,
         UniChooseOrderHoursModal,
+        UniRecurringInvoiceLogModal
     ],
     providers: [
         TradeItemHelper,
@@ -154,7 +161,6 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
     exports: [
         UniSales,
         Customer,
-        CustomerDetailsModal,
         CustomerDetails,
         CustomerProductsSold,
         CustomerList,

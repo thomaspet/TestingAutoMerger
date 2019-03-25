@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
-import {YearService} from '../../services/services';
+import {FinancialYearService} from '@app/services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
 
 import * as Chart from 'chart.js';
@@ -28,7 +28,7 @@ export class Dashboard {
 
     constructor(
         private http: UniHttp,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private browserStorage: BrowserStorageService,
     ) {
         // Avoid compile error. Seems to be something weird with the chart.js typings file

@@ -12,24 +12,16 @@ import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
     templateUrl: './JobList.html'
 })
 export class JobList implements OnInit {
-    public activeTabIndex: number = 0;
-    public tabs: IUniTab[] = [
+    tabs: IUniTab[] = [
         {name: 'Siste utførte'},
         {name: 'Alle jobber'},
-        {name: 'SAF-T import'},
+        {name: 'SAF-T'},
     ];
 
-    public filterTabs: any[] = [
-        { label: 'Siste utførte', name: 'jobruns', id: 1 },
-        { label: 'Alle jobber', name: 'jobs', id: 2 },
-        { label: 'SAF-T import', name: 'saft', id: 3 }
-    ];
-
-    private activeTab: { id: number, name: string, label: string } = this.filterTabs[0];
-
-    private jobRuns: any[];
-    public jobRunsConfig: UniTableConfig;
-    private jobs: any[];
+    activeTabIndex: number = 0;
+    jobRuns: any[];
+    jobRunsConfig: UniTableConfig;
+    jobs: any[];
 
     constructor(
         private tabService: TabService,
@@ -39,14 +31,12 @@ export class JobList implements OnInit {
     ) {}
 
     public ngOnInit() {
-
         this.tabService.addTab({
             url: '/admin/jobs',
             name: 'Jobber',
             active: true,
             moduleID: UniModules.Jobs
         });
-
 
         this.setupJobTable();
     }
@@ -57,9 +47,7 @@ export class JobList implements OnInit {
 
     private getLatestJobRuns() {
         this.jobService.getLatestJobRuns(20).subscribe(
-            result => {
-                this.jobRuns = result;
-            },
+            result => this.jobRuns = result,
             err => this.errorService.handle(err)
         );
     }
@@ -69,9 +57,7 @@ export class JobList implements OnInit {
         this.getLatestJobRuns();
 
         this.jobService.getJobs().subscribe(
-            result => {
-                this.prepareJobList(result);
-            },
+            result => this.prepareJobList(result),
             err => this.errorService.handle(err)
         );
     }
@@ -81,26 +67,24 @@ export class JobList implements OnInit {
         tableConfig.columns = [
             new UniTableColumn('ID', 'Nr.').setWidth('4rem'),
             new UniTableColumn('HangfireJobId', 'Jobb nr.').setWidth('5rem'),
-            new UniTableColumn('JobName', 'Navn').setWidth('15rem'),
+            new UniTableColumn('JobName', 'Navn'),
             new UniTableColumn('Created', 'Startet')
                 .setWidth('8rem')
-                .setTemplate( row => {
-                    return row && row.Created
-                        ? moment(row.Created).format('DD.MM.YY HH:mm')
-                        : '';
-                }),
+                .setTemplate(row => row.Created && moment(row.Created).format('DD.MM.YY - HH:mm')),
             new UniTableColumn('LastStatus', 'Fremdrift')
                 .setWidth('6rem')
-                .setTemplate( row => {
-                    return row && row.Progress && row.Progress.length > 0
-                        ? moment(row.Progress[0].Created).format('HH:mm')
-                        : '';
+                .setTemplate(row => {
+                    if (row.Progress && row.Progress.length) {
+                        return moment(row.Progress[0].Created).format('HH:mm');
+                    }
                 }),
-            new UniTableColumn('Status', 'Status').setTemplate(row => {
-                    return row && row.Progress && row.Progress.length > 0
-                        ? row.Progress[0].Progress
-                        : '';
-            })
+            new UniTableColumn('Status', 'Status')
+                .setWidth('20rem')
+                .setTemplate(row => {
+                    if (row.Progress && row.Progress.length) {
+                        return row.Progress[0].Progress;
+                    }
+                })
         ];
 
         this.jobRunsConfig = tableConfig;
@@ -112,28 +96,7 @@ export class JobList implements OnInit {
         });
     }
 
-    public isFiltered() {
-        return this.activeTab === undefined || this.activeTab === this.filterTabs[0];
-    }
-
-    public createJob() {
-        this.router.navigateByUrl('/admin/job-details/');
-    }
-
-    // do we need this?
-    public onRowSelected(event) {
-        this.router.navigateByUrl(`/admin/job-details/${event.rowModel.ID}`);
-    }
-
-    public onJobRunSelected(event) {
-        const item = event.rowModel;
-        this.router.navigateByUrl(`/admin/job-logs?jobName=${item.JobName}&jobID=${item.HangfireJobId}`);
-    }
-
-    public onTabChange(tab) {
-        this.activeTab = tab;
-        if (!this.jobRunsConfig) {
-            this.setupJobTable();
-        }
+    public onJobRunSelected(job) {
+        this.router.navigateByUrl(`/admin/job-logs?jobName=${job.JobName}&jobID=${job.HangfireJobId}`);
     }
 }

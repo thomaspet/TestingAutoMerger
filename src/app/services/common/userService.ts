@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 @Injectable()
 export class UserService extends BizHttp<User> {
@@ -12,7 +13,7 @@ export class UserService extends BizHttp<User> {
         super(http);
         this.relativeURL = User.RelativeUrl;
         this.entityType = User.EntityType;
-        this.DefaultOrderBy = null;
+        this.DefaultOrderBy = 'DisplayName';
 
         this.http.authService.authentication$.subscribe((auth) => {
             this.userObservable = undefined;
@@ -42,6 +43,22 @@ export class UserService extends BizHttp<User> {
         return super.Put(id, entity);
     }
 
+    inviteUser(email: string) {
+        return this.http.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('user-verifications')
+            .withBody({Email: email})
+            .send()
+            .pipe(
+                switchMap(() => {
+                    super.invalidateCache();
+                    return this.GetAll().pipe(
+                        map(users => users.find(u => u.Email === email))
+                    );
+                })
+            );
+    }
+
     public getRolesByUserId(id: number) {
         return this.http.asGET()
             .usingBusinessDomain()
@@ -49,26 +66,6 @@ export class UserService extends BizHttp<User> {
                 '&expand=SharedRole')
             .send()
             .map(res => res.json());
-    }
-
-
-    private getPermissionKey(url: string): string {
-        if (!url) {
-            return '';
-        }
-
-        // Remove query params first
-        let noQueryParams = url.split('?')[0];
-        noQueryParams = noQueryParams.split(';')[0];
-
-
-        let urlParts = noQueryParams.split('/');
-        urlParts = urlParts.filter(part => {
-            // Remove empty url parts and numeric url parts (ID params)
-            return part !== '' && isNaN(parseInt(part));
-        });
-
-        return 'ui_' + urlParts.join('_');
     }
 
     public changeAutobankPassword(body: any) {
@@ -79,5 +76,13 @@ export class UserService extends BizHttp<User> {
             .withBody(body)
             .send()
             .map(res => res.json());
+    }
+
+    public getUsersByGUIDs(GUIDs: string[]): Observable<User[]> {
+        if (GUIDs.length === 0) {
+            return Observable.of([]);
+        }
+        const query = `filter=GlobalIdentity eq '` + GUIDs.join(`' OR ID eq '`) + `'`;
+        return this.GetAll(query);
     }
 }

@@ -4,7 +4,7 @@ import {AuthService} from '../../../authService';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
 import * as moment from 'moment';
-import {YearService} from '@app/services/services';
+import {FinancialYearService} from '@app/services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 enum PayrollRunPaymentStatus {
@@ -37,6 +37,9 @@ enum PayrollRunPaymentStatus {
                                 [ngClass]="col.class">
                                 {{ col.label }}
                             </th>
+
+                            <th *ngIf="current?.contextMenu">
+                            </th>
                         <tr>
                     </thead>
 
@@ -47,7 +50,23 @@ enum PayrollRunPaymentStatus {
                                 (click)="rowSelected(row)">
                                 {{ col.displayFunction ? col.displayFunction(row[col.key]) : row[col.key] }}
                             </td>
+
+                            <td *ngIf="current?.contextMenu" class="center hovereffect" [matMenuTriggerFor]="contextMenu">
+                                <ng-container>
+                                    <i class="material-icons">
+                                        more_horiz
+                                    </i>
+                                    <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                        <ul class="menu-list">
+                                            <li *ngFor="let item of current.contextMenu" (click)="contextMenuLinkClick(item, row)">
+                                                    {{item.label}}
+                                                </li>
+                                        </ul>
+                                    </mat-menu>
+                                </ng-container>
+                            </td>
                         </tr>
+
                     </tbody>
 
                 </table>
@@ -75,7 +94,7 @@ export class UniTransactionsWidget implements AfterViewInit {
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private router: Router,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private browserStorage: BrowserStorageService,
     ) { }
 
@@ -91,6 +110,10 @@ export class UniTransactionsWidget implements AfterViewInit {
                 }
             });
         }
+    }
+
+    contextMenuLinkClick(item, row) {
+        this.router.navigateByUrl(item.link + row.ID);
     }
 
     public changeModel(index: number) {
@@ -130,7 +153,7 @@ export class UniTransactionsWidget implements AfterViewInit {
         if (this.widget.config.dashboard === 'Sale') {
             this.items = this.getSalesTransactionItems();
         } else if (this.widget.config.dashboard === 'Salary') {
-            this.items = this.getSalaryTransactionItems(this.yearService.selectedYear$.getValue());
+            this.items = this.getSalaryTransactionItems(this.financialYearService.getActiveYear());
         } else if (this.widget.config.dashboard === 'Accounting') {
             this.items = this.getAccountingTransactionItems();
         }
@@ -560,6 +583,12 @@ export class UniTransactionsWidget implements AfterViewInit {
                         key: 'PayDate'
                     }
                 ],
+                contextMenu: [
+                    {
+                        label: 'Gå til variable lønnsposter',
+                        link: '/salary/variablepayrolls/',
+                    }
+                ],
                 urlToNew: '/salary/payrollrun/0',
                 link: '/salary/payrollrun/'
             },
@@ -630,8 +659,8 @@ export class UniTransactionsWidget implements AfterViewInit {
     private getAccountingTransactionItems() {
         return [
             {
-                label: 'Fakturamottak',
-                header: 'Siste fakturamottak',
+                label: 'Leverandørfaktura',
+                header: 'Siste leverandørfaktura',
                 dataEndPoint: '/api/statistics/?model=SupplierInvoice&select=id as ID,statuscode as StatusCode,'
                 + 'Supplier.SupplierNumber,Info.Name,paymentduedate as PaymentDueDate,invoicedate as InvoiceDate,'
                 + 'invoicenumber as InvoiceNumber,stuff(user.displayname) as Assignees,BankAccount.AccountNumber,'

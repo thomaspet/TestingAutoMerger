@@ -15,8 +15,10 @@ import {VideoMappingService} from '@app/services/services';
 
         <ul class="toolbar-dropdown-list" [attr.aria-expanded]="isExpanded">
             <li [attr.aria-disabled]="!videoURL?.length" (click)="goToVideo()">Opplæringsvideo for skjermbilde</li>
+            <li (click)="goToTipsAndTricks()">Tips og triks</li>
             <li (click)="goToServiceDesk()">Kundesenter</li>
             <li (click)="goToAbout()">Versjonsinformasjon</li>
+            <li (click)="goToLicenseInfo()">Lisensinformasjon</li>
         </ul>
     `,
     styleUrls: ['./help.sass'],
@@ -38,17 +40,25 @@ export class UniTabstripHelp {
         });
     }
 
-    public goToVideo() {
+    goToVideo() {
         if (this.videoURL) {
             window.open(this.videoURL, '_blank');
         }
     }
 
-    public goToServiceDesk() {
+    goToTipsAndTricks() {
+        window.open('https://app.cimple.no/unimicro/tips-og-triks-2/', '_blank');
+    }
+
+    goToServiceDesk() {
         window.open('https://unimicro.atlassian.net/servicedesk/customer/portal/3', '_blank');
     }
 
-    public goToAbout() {
+    goToAbout() {
         this.router.navigateByUrl('/about/versions');
+    }
+
+    goToLicenseInfo() {
+        this.router.navigateByUrl('/license-info');
     }
 }

@@ -94,6 +94,8 @@ export class UniToolbar implements OnInit, OnChanges {
 
     @Output()
     public tagsChange: EventEmitter<any> = new EventEmitter();
+    @Output()
+    public tagsBusy: EventEmitter<boolean> = new EventEmitter();
 
     @Output()
     public statusSelectEvent: EventEmitter<any> = new EventEmitter();
@@ -197,6 +199,10 @@ export class UniToolbar implements OnInit, OnChanges {
 
     public tagsChangeEvent(tags) {
         this.tagsChange.emit(tags);
+    }
+
+    public tagsBusyEvent(busy) {
+        this.tagsBusy.emit(busy);
     }
 
     public selectValueSelected(selectedItem) {

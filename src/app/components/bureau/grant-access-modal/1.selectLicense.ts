@@ -1,5 +1,5 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
-import {ElsaCustomer, ElsaContractType, ElsaContract} from '@app/services/elsa/elsaModels';
+import {ElsaCustomer, ElsaContractType, ElsaContract} from '@app/models';
 import {ElsaCustomersService} from '@app/services/elsa/elsaCustomersService';
 import {ErrorService} from '@app/services/common/errorService';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
@@ -22,7 +22,9 @@ export class SelectLicenseForBulkAccess {
     ) {}
 
     ngOnInit() {
-        this.elsaCustomersService.GetAll().subscribe(
+        this.elsaCustomersService.getAll('Contracts').subscribe(res => console.log(res));
+
+        this.elsaCustomersService.getAll('Contracts').subscribe(
             (customers: ElsaCustomer[]) => {
                 this.customers = customers;
             },
@@ -31,8 +33,13 @@ export class SelectLicenseForBulkAccess {
     }
 
     selectContract(contract: ElsaContract) {
-        this.selectedContractID = contract.id;
+        this.selectedContractID = contract.ID;
 
+        const selectedCustomer = this.customers.find(customer => {
+            return customer.Contracts && customer.Contracts.some(c => c.ID === contract.ID);
+        });
+
+        this.data.customer = selectedCustomer;
         this.data.contract = contract;
         this.data.companies = undefined;
         this.data.products = undefined;

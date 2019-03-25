@@ -285,6 +285,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     quote.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     if (hasCopyParam) {
+                        if (!this.currentCustomer && quote.Customer) {
+                            this.currentCustomer = quote.Customer;
+                        }
                         this.refreshQuote(this.copyQuote(quote));
                     } else {
                         this.refreshQuote(quote);
@@ -479,6 +482,17 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         const customerChanged = this.didCustomerChange(quote);
 
         if (customerChanged) {
+            if ((!quote.Customer.ID || quote.Customer.ID === 0) && quote.Customer.OrgNumber !== null) {
+                this.customerService.getCustomers(quote.Customer.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede kunde med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
             if (quote.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -770,6 +784,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             return false;
         }
 
+        if (!this.currentCustomer && quote.Customer.ID === 0) {
+            change = true;
+        }
+
         if (quote.Customer && this.currentCustomer) {
             change = quote.Customer.ID !== this.currentCustomer.ID;
         } else if (quote.Customer && quote.Customer.ID) {
@@ -856,6 +874,33 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            quote.CustomerName = this.currentCustomer.Info.Name;
+            if (this.currentCustomer.Info.Addresses && this.currentCustomer.Info.Addresses.length > 0) {
+                var address = this.currentCustomer.Info.Addresses[0];
+                if (this.currentCustomer.Info.InvoiceAddressID) {
+                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.InvoiceAddressID);
+                }
+                quote.InvoiceAddressLine1 = address.AddressLine1;
+                quote.InvoiceAddressLine2 = address.AddressLine2;
+                quote.InvoiceAddressLine3 = address.AddressLine3;
+                quote.InvoicePostalCode = address.PostalCode;
+                quote.InvoiceCity = address.City;
+                quote.InvoiceCountry = address.Country;
+                quote.InvoiceCountryCode = address.CountryCode;
+
+                if (this.currentCustomer.Info.ShippingAddressID) {
+                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.ShippingAddressID);
+                }
+                quote.ShippingAddressLine1 = address.AddressLine1;
+                quote.ShippingAddressLine2 = address.AddressLine2;
+                quote.ShippingAddressLine3 = address.AddressLine3;
+                quote.ShippingPostalCode = address.PostalCode;
+                quote.ShippingCity = address.City;
+                quote.ShippingCountry = address.Country;
+                quote.ShippingCountryCode = address.CountryCode;
+            }
+        }
         return quote;
     }
 
@@ -1016,6 +1061,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         if (this.itemsSummaryData) {
             this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {

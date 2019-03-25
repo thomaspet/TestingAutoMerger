@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Response} from '@angular/http';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
-import {ElsaProduct, ElsaPurchase} from '@app/services/elsa/elsaModels';
+import {ElsaProduct} from '@app/models';
 
 @Injectable()
 export class ElsaProductService {
@@ -43,18 +43,6 @@ export class ElsaProductService {
         return this.requestData('/api/products').map(products => {
             return products.find(product => product.name === name);
         });
-    }
-
-    public PurchaseProductOnCurrentCompany(product: ElsaProduct): Observable<ElsaPurchase> {
-        // Shouldnt't need to invalidateCache here, since we're not actually
-        // changing anything on products, only adding a purchase.
-        // (bad practice to do it here, but this should be temporary until elsa is refactored..)
-        return this.uniHttp
-            .asPOST()
-            .usingElsaDomain()
-            .withEndPoint(`/api/products/${product.id}/purchase`)
-            .send()
-            .map(req => req.json());
     }
 
     public ProductTypeToPriceText(product: ElsaProduct): string {

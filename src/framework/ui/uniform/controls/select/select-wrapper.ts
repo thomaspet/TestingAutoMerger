@@ -72,6 +72,7 @@ export class UniSelectInput extends BaseControl implements OnChanges {
             } else if (this.field.Options.source.subscribe) {
                 this.field.Options.source.subscribe(items => {
                     this.items = this.addEmptyValue(items);
+                    this.cd.markForCheck();
                 });
             } else if (typeof this.field.Options.source === 'string') {
                 // TODO: manage lookup url;

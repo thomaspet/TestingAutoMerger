@@ -9,7 +9,7 @@ import {
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
-import {YearService} from '../../../services/common/yearService';
+import {FinancialYearService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import * as moment from 'moment';
@@ -44,7 +44,7 @@ const BASE = environment.BASE_URL;
     <section class="tab-part">
         <section class="image-container">
             <img class="amelding-icon">
-            <span>A-Melding</span>
+            <span>A-melding</span>
         </section>
         <section class="text-container">
             <p>
@@ -69,9 +69,9 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
         private authService: AuthService,
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
-        yearService: YearService,
+        financialYearService: FinancialYearService,
     ) {
-        this.accountingYear = yearService.selectedYear$.getValue();
+        this.accountingYear = financialYearService.getActiveYear();
     }
 
     public ngAfterViewInit() {

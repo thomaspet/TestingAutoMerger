@@ -4,18 +4,16 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../fr
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs';
 
 @Component({
     selector: 'payrollrun-list',
     templateUrl: './payrollrunList.html'
 })
 export class PayrollrunList implements OnInit {
-    public payrollrunListConfig: UniTableConfig;
-    public payrollRuns$: Observable<PayrollRun>;
-    public busy: boolean;
+    payrollrunListConfig: UniTableConfig;
+    payrollRuns: PayrollRun[];
 
-    public toolbarActions = [{
+    toolbarActions = [{
         label: 'Ny lønnsavregning',
         action: this.newPayrollrun.bind(this),
         main: true,
@@ -24,15 +22,32 @@ export class PayrollrunList implements OnInit {
 
     constructor(
         private router: Router,
-        private tabSer: TabService,
+        private tabService: TabService,
         private payrollService: PayrollrunService,
         private errorService: ErrorService
-    ) { }
+    ) {}
 
     public ngOnInit() {
         this.createTableConfig();
-        this.loadData();
-        this.addTab();
+        this.payrollService.getAll(`orderby=ID desc`, true).subscribe(
+            res => this.payrollRuns = res,
+            err => this.errorService.handle(err)
+        );
+
+        this.tabService.addTab({
+            name: 'Lønnsavregninger',
+            url: 'salary/payrollrun',
+            moduleID: UniModules.Payrollrun,
+            active: true
+        });
+    }
+
+    newPayrollrun() {
+        this.router.navigateByUrl('/salary/payrollrun/' + 0);
+    }
+
+    rowSelected(row) {
+        this.router.navigateByUrl('/salary/payrollrun/' + row.ID);
     }
 
     private createTableConfig() {
@@ -57,32 +72,5 @@ export class PayrollrunList implements OnInit {
         this.payrollrunListConfig = new UniTableConfig('salary.payrollrun.payrollrunList', false)
             .setColumns([idCol, nameCol, statusCol, payStatusCol, paydateCol, fromdateCol, todateCol])
             .setSearchable(true);
-    }
-
-    private loadData() {
-        this.busy = true;
-        this.payrollRuns$ = this.payrollService
-            .getAll(`orderby=ID desc`, true)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .finally(() => this.busy = false);
-    }
-
-    private addTab() {
-        this.tabSer.addTab(
-            {
-                name: 'Lønnsavregninger',
-                url: 'salary/payrollrun',
-                moduleID: UniModules.Payrollrun,
-                active: true
-            }
-        );
-    }
-
-    public newPayrollrun() {
-        this.router.navigateByUrl('/salary/payrollrun/' + 0);
-    }
-
-    public rowSelected(event) {
-        this.router.navigateByUrl('/salary/payrollrun/' + event.rowModel.ID);
     }
 }

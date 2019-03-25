@@ -1,14 +1,11 @@
-import {Component, OnInit, ChangeDetectorRef, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {FieldType} from '../../../../framework/ui/uniform/index';
-import {IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '@uni-framework/save/save';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Project, Department, Region, Responsible} from '../../../unientities';
 import {
     CustomDimensionService,
     DimensionSettingsService,
@@ -18,16 +15,12 @@ import {
     CustomerInvoiceService,
     CustomerQuoteService,
     CustomerOrderService
-} from '../../../services/services';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+} from '@app/services/services';
 import {
     UniTableConfig,
     UniTableColumnType,
     UniTableColumn,
-    IUniTableConfig,
-    UniTable,
-    ITableFilter
-} from '../../../../framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
@@ -37,38 +30,34 @@ import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 })
 
 export class UniDimensionView implements OnInit {
+    currentDimension: any = 5;
+    currentItem;
+    dimensionList: any[];
+    dimensionMetaData;
+    numberKey: string;
 
-    @ViewChild(UniTable)
-    private table: UniTable;
+    tableConfig: UniTableConfig;
+    TOFTableConfig: UniTableConfig;
+    lookupFunction: (urlParams: URLSearchParams) => any;
 
-    public currentDimension: any = 5;
-    public currentItem;
-    public dimensionList: any[];
-    public dimensionMetaData;
-    public numberKey: string;
-    public tableConfig: IUniTableConfig;
-    private TOFTableConfig: IUniTableConfig;
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
-
-    public activeTabIndex: number = 0;
-    public tabs: IUniTab[] = [
+    activeTabIndex: number = 0;
+    tabs: IUniTab[] = [
         {name: 'Detaljer'},
         {name: 'Tilbud'},
         {name: 'Ordre'},
         {name: 'Faktura'}
     ];
 
-    public numberStrings = ['QuoteNumber', 'OrderNumber', 'InvoiceNumber'];
-    public dateStrings = ['QuoteDate', 'OrderDate', 'InvoiceDate'];
-    public dateTitles = ['Tilbudsdato', 'Ordredato', 'Fakturadato'];
-    public linkResolverValues = ['quotes', 'orders', 'invoices'];
-    public services = [this.quoteService, this.orderService, this.invoiceService];
+    numberStrings = ['QuoteNumber', 'OrderNumber', 'InvoiceNumber'];
+    dateStrings = ['QuoteDate', 'OrderDate', 'InvoiceDate'];
+    dateTitles = ['Tilbudsdato', 'Ordredato', 'Fakturadato'];
+    linkResolverValues = ['quotes', 'orders', 'invoices'];
+    services = [this.quoteService, this.orderService, this.invoiceService];
 
-    public lookupFunction: (urlParams: URLSearchParams) => any;
-
-    public saveActions: IUniSaveAction[] = [
+    saveActions: IUniSaveAction[] = [
         {
             label: 'Lagre',
             action: (completeEvent) => this.save(completeEvent),
@@ -77,7 +66,7 @@ export class UniDimensionView implements OnInit {
         }
     ];
 
-    public toolbarconfig: IToolbarConfig = {
+    toolbarconfig: IToolbarConfig = {
         title: 'Dimensjoner',
         navigation: {
             add: () => this.add()
@@ -91,7 +80,6 @@ export class UniDimensionView implements OnInit {
         private dimensionSettingsService: DimensionSettingsService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
-        private router: Router,
         private route: ActivatedRoute,
         private cdr: ChangeDetectorRef,
         private errorService: ErrorService,
@@ -114,6 +102,11 @@ export class UniDimensionView implements OnInit {
 
             this.getDimensions();
         });
+    }
+
+    ngOnDestroy() {
+        this.fields$.complete();
+        this.model$.complete();
     }
 
     public getHeaderText(dimension): string {
@@ -170,15 +163,10 @@ export class UniDimensionView implements OnInit {
             .setSearchable(true);
     }
 
-    public onRowSelected(item) {
-        this.currentItem = item.rowModel;
+    public onDimensionSelected(dimension) {
+        this.currentItem = dimension;
         this.model$.next(this.currentItem);
         this.setUpTOFListTable(this.activeTabIndex);
-    }
-
-    public onTOFRowSelected(item) {
-        console.log(item);
-        // TODO: What todo when user clicks on tof?
     }
 
     public changeTab(index: number) {
@@ -218,33 +206,26 @@ export class UniDimensionView implements OnInit {
                     urlParams.set('orderby', this.numberStrings[index - 1] + ' desc');
                 }
 
-                    // Custom dimensions
-                if (!urlParams.get('filter') && this.currentDimension >= 5) {
-                    urlParams.set('filter', 'DefaultDimensions.Dimension' + this.currentDimension + 'ID eq ' + this.currentItem.ID);
-                    // Project
-                } else if (!urlParams.get('filter') && this.currentDimension === 1) {
-                    urlParams.set('filter', 'DefaultDimensions.ProjectID eq ' + this.currentItem.ID);
-                    // Department
-                } else if (!urlParams.get('filter') && this.currentDimension === 2) {
-                    urlParams.set('filter', 'DefaultDimensions.DepartmentID eq ' + this.currentItem.ID);
-                    // Region ??
-                } else if (!urlParams.get('filter') && this.currentDimension === 3) {
-                    urlParams.set('filter', 'DefaultDimensions.RegionID eq ' + this.currentItem.ID);
-                    // Responsibility ??
-                } else if (!urlParams.get('filter') && this.currentDimension === 4) {
-                    urlParams.set('filter', 'DefaultDimensions.ResponsibilityID eq ' + this.currentItem.ID);
+                let filter = urlParams.get('filter') || '';
+                if (this.currentItem && this.currentItem.ID) {
+                    const dimensionFilter = 'DefaultDimensions.' + fieldString + ' eq ' + this.currentItem.ID;
+                    if (filter) {
+                        filter += ' and ' + dimensionFilter;
+                    } else {
+                        filter = dimensionFilter;
+                    }
                 }
+
+                urlParams.set('filter', filter);
 
                 return this.services[index - 1].GetAllByUrlSearchParams(urlParams)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             };
 
             const idCol = new UniTableColumn( this.numberStrings[index - 1], 'Nr')
-                .setWidth('8%')
                 .setLinkResolver(row => `/sales/${this.linkResolverValues[index - 1]}/${row.ID}`);
 
             const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
-                .setWidth('10%')
                 .setLinkResolver(row => `/sales/customer/${row.Customer.ID}`);
 
             const nameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
@@ -252,21 +233,21 @@ export class UniDimensionView implements OnInit {
             const dateCol = new UniTableColumn(
                 this.dateStrings[index - 1],
                 this.dateTitles[index - 1],
-                UniTableColumnType.LocalDate).setWidth('15%');
+                UniTableColumnType.LocalDate
+            );
 
             let secondDateCol = index === 3
-                ? new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate).setWidth('15%')
-                : new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate).setWidth('15%');
+                ? new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
+                : new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate);
 
             secondDateCol = index === 1
-                ? new UniTableColumn('ValidUntilDate', 'Gyldig til', UniTableColumnType.LocalDate).setWidth('15%')
+                ? new UniTableColumn('ValidUntilDate', 'Gyldig til', UniTableColumnType.LocalDate)
                 : secondDateCol;
 
             const refCol = new UniTableColumn('OurReference', 'Vår referanse');
 
             const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-                .setTemplate(line => service.getStatusText(line.StatusCode))
-                .setWidth('15%');
+                .setTemplate(line => service.getStatusText(line.StatusCode));
 
             const dimCol = new UniTableColumn(
                 'DefaultDimensions.' + fieldString,
@@ -274,19 +255,10 @@ export class UniDimensionView implements OnInit {
                 UniTableColumnType.Text
             ).setVisible(false);
 
-            const totalCol = new UniTableColumn('TaxInclusiveAmount', 'Sum', UniTableColumnType.Money).setWidth('10%');
-
-            const filter: ITableFilter = {
-                field: 'DefaultDimensions.' + fieldString,
-                operator: 'eq',
-                value: this.currentItem.ID,
-                group: 0,
-                selectConfig: null
-            };
+            const totalCol = new UniTableColumn('TaxInclusiveAmount', 'Sum', UniTableColumnType.Money);
 
             this.TOFTableConfig = new UniTableConfig('dimension.tof.list', false)
                 .setColumns([idCol, customerNumberCol, nameCol, dateCol, secondDateCol, refCol, statusCol, dimCol, totalCol])
-                .setFilters([filter])
                 .setSearchable(true);
         }
     }
@@ -338,22 +310,8 @@ export class UniDimensionView implements OnInit {
 
     public getDefaultDims() {
         return [
-            {
-                Label: 'Prosjekt',
-                Dimension: 1
-            },
-            {
-                Label: 'Avdeling',
-                Dimension: 2
-            },
-            /*{
-                Label: 'Ansvar',
-                Dimension: 3
-            },
-            {
-                Label: 'Område',
-                Dimension: 4
-            },*/
+            { Label: 'Prosjekt', Dimension: 1 },
+            { Label: 'Avdeling', Dimension: 2 },
         ];
     }
 

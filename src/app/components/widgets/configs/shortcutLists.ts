@@ -55,17 +55,17 @@ export const SHORTCUT_LISTS = [
                     icon: 'chrome_reader_mode'
                 },
                 {
-                    label: 'Fakturamottak',
+                    label: 'Leverandørfaktura',
                     url: '/accounting/bills',
                     icon: 'description'
                 },
                 {
-                    label: 'Bilagssøk',
+                    label: 'Søk på bilag',
                     url: '/accounting/transquery',
                     icon: 'search'
                 },
                 {
-                    label: 'Rapporter',
+                    label: 'Resultat og balanse',
                     url: '/accounting/accountingreports/result',
                     icon: 'insert_chart'
                 },
@@ -150,7 +150,7 @@ export const SHORTCUT_LISTS = [
                     label: 'Altinn',
                     url: '/salary/altinnoverview',
                     icon: 'search'
-                }
+                },
             ]
         }
     },
@@ -206,9 +206,14 @@ export const SHORTCUT_LISTS = [
                     urlToNew: ''
                 },
                 {
-                    label: 'Fakturamottak',
+                    label: 'Leverandørfaktura',
                     link: '/accounting/bills',
                     urlToNew: '/accounting/bills/0'
+                },
+                {
+                    label: 'Budsjett',
+                    link: '/accounting/budget',
+                    urlToNew: ''
                 },
                 {
                     label: 'Åpne poster',
@@ -216,8 +221,13 @@ export const SHORTCUT_LISTS = [
                     urlToNew: ''
                 },
                 {
-                    label: 'Forespørsel bilg',
+                    label: 'Søk på bilag',
                     link: '/accounting/transquery',
+                    urlToNew: ''
+                },
+                {
+                    label: 'Søk på konto',
+                    link: '/accounting/accountquery',
                     urlToNew: ''
                 },
                 {
@@ -240,6 +250,11 @@ export const SHORTCUT_LISTS = [
                     link: '/accounting/suppliers',
                     urlToNew: '/accounting/suppliers/0'
                 },
+                {
+                    link: '/reports?category=Accounting',
+                    label: 'Rapport - Regnskap',
+                    urlToNew: ''
+                }
             ]
         }
     },
@@ -327,6 +342,11 @@ export const SHORTCUT_LISTS = [
                 {
                     label: 'Tilleggsopplysninger',
                     link: '/salary/supplements',
+                    urlToNew: ''
+                },
+                {
+                    label: 'Variable lønnsposter',
+                    link: '/salary/variablepayrolls',
                     urlToNew: ''
                 }
             ]

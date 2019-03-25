@@ -20,18 +20,17 @@
               "src/assets",
               "src/favicon.png",
               "src/robots.txt",
-              "src/security.txt"
+              "src/security.txt",
+              "src/fileviewer.html"
             ],
             "styles": [
               "src/styles.sass",
               "src/assets/bootstrap-grid/bootstrap-grid.min.css",
               "node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
+              "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@ng-select/ng-select/themes/default.theme.css"
-            ],
-            "scripts": [
-              "src/raygun-setup.js"
             ]
           },
           "configurations": {
@@ -61,7 +60,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "sourceMap": false,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": false,
               "extractLicenses": true,

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import * as moment from 'moment';
 
 import {
@@ -35,6 +35,7 @@ import {
     CustomerInvoiceService,
     CustomerService,
     EHFService,
+    VIPPSService,
     ErrorService,
     NumberFormat,
     ProjectService,
@@ -63,6 +64,7 @@ import {
     UniConfirmModalV2,
     IModalOptions,
     UniChooseReportModal,
+    UniSendVippsInvoiceModal,
 } from '../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
@@ -87,6 +89,9 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import { AccrualModal } from '@app/components/common/modals/accrualModal';
+import { createGuid } from '@app/services/common/dimensionService';
+import { AccrualService } from '@app/services/common/accrualService';
 
 declare const _;
 
@@ -118,6 +123,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private deletables: SellerLink[] = [];
 
     readonly: boolean;
+    readonlyDraft: boolean;
     invoice: CustomerInvoice;
     invoiceItems: CustomerInvoiceItem[];
     newInvoiceItem: CustomerInvoiceItem;
@@ -207,6 +213,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private customerInvoiceService: CustomerInvoiceService,
         private customerService: CustomerService,
         private ehfService: EHFService,
+        private vippsService: VIPPSService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private numberFormat: NumberFormat,
@@ -233,6 +240,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
         private modulusService: ModulusService,
+        private accrualService: AccrualService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -372,6 +380,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1')
                     ).subscribe((res) => {
                     const invoice = res[0];
+
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
                     this.paymentTerms = res[3];
@@ -408,6 +417,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     invoice.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
 
                     if (hasCopyParam) {
+                        if (!this.currentCustomer && invoice.Customer) {
+                            this.currentCustomer = invoice.Customer;
+                        }
                         this.refreshInvoice(this.copyInvoice(invoice));
                     } else {
                         this.refreshInvoice(invoice);
@@ -551,9 +563,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
-
         const customerChanged: boolean = this.didCustomerChange(invoice);
         if (customerChanged) {
+            if ((!invoice.Customer.ID || invoice.Customer.ID === 0) && invoice.Customer.OrgNumber !== null) {
+                this.customerService.getCustomers(invoice.Customer.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede kunde med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
+
             if (invoice.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -814,6 +837,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return false;
         }
 
+        if (!this.currentCustomer && invoice.Customer.ID === 0) {
+            change = true;
+        }
+
         if (invoice.Customer && this.currentCustomer) {
             change = invoice.Customer.ID !== this.currentCustomer.ID;
         } else if (invoice.Customer && invoice.Customer.ID) {
@@ -1072,7 +1099,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.isDirty = false;
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-        this.readonly = !!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+        this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
+        this.readonlyDraft = !!invoice.AccrualID;
         this.invoiceItems = invoice.Items.sort(
             function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
         );
@@ -1143,7 +1171,36 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         const reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
-
+        this.contextMenuItems = [<IContextMenuItem>{
+            label: 'Periodisering',
+            action: (item) => {
+                const data = {
+                    accrualAmount: this.itemsSummaryData.SumTotalExVat,
+                    accrualStartDate: new LocalDate(this.invoice.InvoiceDate.toString()),
+                    journalEntryLineDraft: null,
+                    accrual: null,
+                    title: 'Periodisering av fakturaen'
+                };
+                if (!this.invoice.ID) {
+                    this.saveAsDraft(() => {
+                        this.openAccrualModal(data);
+                    });
+                } else {
+                    if (this.invoice.Accrual) {
+                        data.accrual = this.invoice.Accrual;
+                        this.openAccrualModal(data);
+                    } else {
+                        const accrual$ = this.invoice.AccrualID ? this.accrualService.Get(this.invoice.AccrualID, ['Periods'])
+                            : Observable.of(null);
+                        accrual$.subscribe(accrual => {
+                            data.accrual = accrual;
+                            this.openAccrualModal(data);
+                        });
+                    }
+                }
+            },
+            disabled: () => this.invoice.InvoiceNumber > '42002'
+        }];
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
@@ -1160,6 +1217,39 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.updateShareActions();
         this.toolbarconfig = toolbarconfig;
+    }
+
+    openAccrualModal(data) {
+        // Add the accounting lock date to the data object
+        if (this.companySettings.AccountingLockedDate) {
+            data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
+        }
+        this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
+            if (res && res.action === 'ok') {
+                const accrual = res.model;
+                if (!accrual['_createguid'] && !accrual.ID) {
+                    accrual['createguid'] = createGuid();
+                }
+                const accrual$ = accrual.ID ? this.accrualService.Put(accrual.ID, accrual): this.accrualService.Post(accrual);
+                const journalEntry$ = this.invoice.JournalEntryID ?
+                    this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
+                    : this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID);
+                forkJoin([accrual$, journalEntry$]).subscribe(([savedAccrual, currentJournalEntry]) => {
+                    if (currentJournalEntry.DraftLines && currentJournalEntry.DraftLines.length) {
+                        currentJournalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
+                        this.invoice.AccrualID = savedAccrual.ID;
+                        this.invoice.JournalEntryID = currentJournalEntry.ID;
+                        const saveInvoice$ = this.customerInvoiceService.Put(this.invoice.ID, this.invoice);
+                        const saveJournalEntry$ = this.journalEntryService.Put(currentJournalEntry.ID, currentJournalEntry);
+                        forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
+                            this.invoice = <CustomerInvoice>invoice;
+                            this.readonlyDraft = true;
+                            this.toastService.addToast('Periodiseringen er oppdatert', ToastType.good, 3);
+                        });
+                    }
+                });
+            }
+        });
     }
 
     private getToolbarSubheads() {
@@ -1309,7 +1399,41 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             action: (done) => this.deleteInvoice(done),
             disabled: status !== StatusCodeCustomerInvoice.Draft
         });
+
+        this.saveActions.push({
+            label: 'Send til Vipps',
+            action: (done) => this.sendToVippsAction(done),
+            disabled: false
+        });
     }
+
+
+    private sendToVippsAction(doneHandler: (msg?: string) => void) {
+        this.vippsService.isActivated('Vipps').subscribe(data => {
+            if (data) {
+                this.modalService.open(UniSendVippsInvoiceModal, {
+                    data: this.invoice.ID
+                }).onClose.subscribe(text => {
+                    doneHandler();
+                });
+            } else {
+                this.modalService.confirm({
+                    header: 'Markedsplassen',
+                    message: 'Til markedsplassen for å kjøpe tilgang til å sende Vipps?',
+                    buttonLabels: {
+                        accept: 'Ja',
+                        cancel: 'Nei'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.router.navigateByUrl('/marketplace/modules');
+                    }
+                    doneHandler('');
+                });
+            }
+        });
+    }
+
 
     private saveInvoice(done = (msg: string) => {}): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
@@ -1411,6 +1535,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         invoice.ID = 0;
         invoice.InvoiceNumber = null;
         invoice.InvoiceNumberSeriesID = null;
+        invoice.CollectorStatusCode = null;
+        invoice.CustomerInvoiceReminders = null;
         invoice.StatusCode = null;
         invoice.PrintStatus = null;
         invoice.DontSendReminders = false;
@@ -1431,6 +1557,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
             );
         }
+        if (invoice.PaymentInfoTypeID) {
+            if (this.paymentInfoTypes.findIndex(x => x.ID === invoice.PaymentInfoTypeID && x.StatusCode === 42000 && !x.Locked) === -1) {
+                invoice.PaymentInfoTypeID = null; //Kid innstilling fra original faktura er ikke lenger aktiv
+            }
+        }
         invoice.InvoiceReferenceID = null;
         invoice.Comment = null;
         delete invoice['_links'];
@@ -1447,6 +1578,38 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        return(this.refreshInfo(invoice));
+    }
+
+    public refreshInfo(invoice: CustomerInvoice): CustomerInvoice {
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            let info = this.currentCustomer.Info;
+            invoice.CustomerName = info.Name;
+            if (info.Addresses && info.Addresses.length > 0) {
+                var address = info.Addresses[0];
+                if (info.InvoiceAddressID) {
+                    address = info.Addresses.find(x => x.ID == info.InvoiceAddressID);
+                }
+                invoice.InvoiceAddressLine1 = address.AddressLine1;
+                invoice.InvoiceAddressLine2 = address.AddressLine2;
+                invoice.InvoiceAddressLine3 = address.AddressLine3;
+                invoice.InvoicePostalCode = address.PostalCode;
+                invoice.InvoiceCity = address.City;
+                invoice.InvoiceCountry = address.Country;
+                invoice.InvoiceCountryCode = address.CountryCode;
+
+                if (info.ShippingAddressID) {
+                    address = info.Addresses.find(x => x.ID == info.ShippingAddressID);
+                }
+                invoice.ShippingAddressLine1 = address.AddressLine1;
+                invoice.ShippingAddressLine2 = address.AddressLine2;
+                invoice.ShippingAddressLine3 = address.AddressLine3;
+                invoice.ShippingPostalCode = address.PostalCode;
+                invoice.ShippingCity = address.City;
+                invoice.ShippingCountry = address.Country;
+                invoice.ShippingCountryCode = address.CountryCode;
+            }
+        }
         return invoice;
     }
 
@@ -1563,7 +1726,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 this.journalEntryService.getTaxableIncomeLast12Months(this.invoice.DeliveryDate || this.invoice.InvoiceDate)
                     .subscribe(existingAmount => {
                         const linesWithVatCode6 =
-                            this.invoice.Items.filter(x => x.VatType && x.VatType.VatCode === '6');
+                            this.invoiceItems.filter(x => x.VatType && x.VatType.VatCode === '6');
 
                         // income is negative amounts in the journalentries, switch to positive amounts
                         // to make it easier to calculate the values here
@@ -1655,11 +1818,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
                     this.getInvoice(this.invoice.ID).subscribe(
-                        res => this.refreshInvoice(res),
-                        err => this.errorService.handle(err)
+                        res => {
+                            this.refreshInvoice(res);
+                            done('Lagring fullført');
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            done('Lagring feilet');
+                        }
                     );
                 }
-                done('Lagring fullført');
             } else {
                 done('Lagring feilet');
             }
@@ -2088,6 +2256,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         if (this.itemsSummaryData) {
             this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {

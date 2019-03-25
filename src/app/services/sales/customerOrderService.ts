@@ -62,55 +62,8 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         this.DefaultOrderBy = null;
     }
 
-    public getGroupCounts() {
-        const route = '?model=customerorder&select=count(id),statuscode&filter=isnull(deleted,0) eq 0';
-        return this.http.asGET()
-            .usingStatisticsDomain()
-            .withEndPoint(route)
-            .send()
-            .map((res) => {
-                const data = (res.json() || {}).Data || [];
-                return data.reduce((counts, group) => {
-                    if (group.CustomerOrderStatusCode) {
-                        counts[group.CustomerOrderStatusCode] = group.countid;
-                    }
-                    return counts;
-                }, {});
-            });
-    }
-
-
-    public next(currentID: number): Observable<CustomerOrder> {
-        return super.GetAction(currentID, 'next');
-    }
-
-    public previous(currentID: number): Observable<CustomerOrder> {
-        return super.GetAction(currentID, 'previous');
-    }
-
     public setPrintStatus(orderId: number, printStatus: string): Observable<any> {
         return super.PutAction(orderId, 'set-customer-order-printstatus', 'ID=' + orderId + '&printStatus=' + printStatus);
-    }
-
-    public newCustomerOrder(): Promise<CustomerOrder> {
-        return new Promise(resolve => {
-            this.GetNewEntity([], CustomerOrder.EntityType).subscribe((order: CustomerOrder) => {
-                order.OrderDate = new LocalDate(new Date());
-
-                resolve(order);
-            }, err => this.errorService.handle(err));
-        });
-    }
-
-    public calculateOrderSummary(orderItems: Array<CustomerOrderItem>): Observable<any> {
-        super.invalidateCache();
-        return this.http
-            .asPOST()
-            .usingBusinessDomain()
-            .withBody(orderItems)
-            .withEndPoint(this.relativeURL + '?action=calculate-order-summary')
-            .send()
-            .map(response => response.json());
     }
 
     public getStatusText(statusCode: string): string  {
@@ -201,8 +154,8 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                                 data: {model: model, reportType: ReportTypeEnum.ORDER, entity: order, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(
-                                        email.model.selectedForm.Name,
+                                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerOrder',
+                                        email.model.selectedForm.ID,
                                         email.model.sendEmail,
                                         email.parameters
                                     );

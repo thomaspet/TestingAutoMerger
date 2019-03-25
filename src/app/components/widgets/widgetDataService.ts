@@ -1,7 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../authService';
-import {YearService} from '../../services/services';
+import {FinancialYearService} from '../../services/services';
 import {Observable} from 'rxjs';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class WidgetDataService {
     constructor(
         private http: UniHttp,
         private authService: AuthService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) {
         this.authService.authentication$.subscribe(authChange => {
             this.requestCache = {};
@@ -25,9 +25,8 @@ export class WidgetDataService {
         }
 
         if (endpoint.includes('<year>')) {
-            return this.yearService.getActiveYear().switchMap((year) => {
-                return this.request(endpoint.replace('<year>', year.toString()));
-            });
+            const year = this.financialYearService.getActiveYear();
+            return this.request(endpoint.replace('<year>', year.toString()));
         }
 
         return this.request(endpoint);

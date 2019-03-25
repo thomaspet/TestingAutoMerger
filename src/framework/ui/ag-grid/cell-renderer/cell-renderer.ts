@@ -1,9 +1,16 @@
 import {ICellRendererParams} from 'ag-grid-community';
 import {UniTableColumn} from '../../unitable/config/unitableColumn';
 
+let config;
+
 export class CellRenderer {
     static getColMenu() {
         return HeaderMenuRenderer;
+    }
+
+    static getHeaderCheckbox(tableConfig) {
+        config = tableConfig;
+        return HeaderCheckbox;
     }
 
     static getLinkColumn(onClick: (col, row) => void) {
@@ -63,6 +70,56 @@ export class HeaderMenuRenderer {
         el.onclick = (event: MouseEvent) => {
             event.stopPropagation();
             this.onClick();
+        };
+
+        this.element = el;
+    }
+
+    getGui() {
+        return this.element;
+    }
+
+    destroy() {}
+}
+
+export class HeaderCheckbox {
+    element: HTMLElement;
+    selectOnlyVisible: boolean;
+
+    init(params: ICellRendererParams) {
+        this.selectOnlyVisible = config && config.selectOnlyVisible;
+
+        const el = document.createElement('label');
+        el.classList.add('header-checkbox');
+
+        let numberOfRows = 0;
+        if (this.selectOnlyVisible) {
+            numberOfRows = params.api.getRenderedNodes().length;
+        } else {
+            params.api.forEachNode(() => numberOfRows++);
+        }
+
+        const selectedRows = params.api.getSelectedNodes();
+        const allRowsSelected = selectedRows && numberOfRows && selectedRows.length >= numberOfRows;
+        if (allRowsSelected) {
+            el.classList.add('checked');
+        }
+
+        el.onclick = () => {
+            let checked = el.classList.contains('checked');
+            checked = !checked;
+
+            if (checked) {
+                el.classList.add('checked');
+                if (this.selectOnlyVisible) {
+                    params.api.getRenderedNodes().forEach(row => row.setSelected(true));
+                } else {
+                    params.api.forEachNode(row => row.setSelected(true));
+                }
+            } else {
+                el.classList.remove('checked');
+                params.api.forEachNode(row => row.setSelected(false));
+            }
         };
 
         this.element = el;

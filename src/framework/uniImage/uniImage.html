@@ -52,6 +52,10 @@
                 <i class="material-icons">redo</i>
             </a>
 
+            <a (click)="openFileViewer()">
+                <i class="material-icons">open_in_new</i>
+            </a>
+
             <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
                 class="next"
                 (click)="next()">
@@ -70,7 +74,7 @@
         <picture
             #imageContainer
             [ngClass]="{'clickable': currentClicked}"
-            (click)="onImageClick()">
+            (click)="openFileViewer()">
 
             <source
                 [attr.srcset]="imageUrl2x"
@@ -97,7 +101,7 @@
                     <section class="ocr-value-picker" (click)="$event.stopPropagation()">
                         <p>Valgt verdi: <strong>{{currentClickedWord?.text}}</strong></p>
                         <strong>Bruk verdi som</strong>
-
+                        <button mat-menu-item (click)="selectOCRWord(1, $event)">Organisasjonsnr</button>
                         <button mat-menu-item (click)="selectOCRWord(7, $event)">Fakturadato</button>
                         <button mat-menu-item (click)="selectOCRWord(8, $event)">Forfallsdato</button>
                         <button mat-menu-item (click)="selectOCRWord(5, $event)">Fakturanummer</button>

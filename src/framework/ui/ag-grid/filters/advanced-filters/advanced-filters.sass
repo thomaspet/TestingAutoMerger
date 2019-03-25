@@ -1,0 +1,82 @@
+// \:host
+    // display: flex
+    // flex-direction: column
+    // width: 40rem
+    // margin-top: 5px
+    // background: #fff
+    // border: 1px solid #C3CAD9
+
+.filters
+    flex: 1
+    overflow: auto
+    padding: 1px // to avoid clipping outline
+    min-height: 6rem
+
+    .filter
+        display: flex
+        margin-bottom: 10px
+        font-size: 15px
+
+        select
+            flex: 0 0 10rem
+            height: 2.25rem
+            border: 1px solid #C3CAD9
+            padding: 0 4px
+
+            &.operator-select
+                flex: 0 0 8rem
+                margin: 0 1rem
+
+            &.value-select
+                flex: 1
+
+        input, .date-input
+            flex: 1
+            height: 2.25rem
+
+        button.remove-filter
+            margin-left: 10px
+            i.material-icons
+                font-size: 21px
+
+    button.add-button
+        margin-top: .5rem
+        border: 1px solid #C3CAD9
+        i.material-icons
+            margin: 0 0 2px -5px
+
+.date-input
+    position: relative
+
+    input
+        width: 100%
+
+    .calendar-toggle
+        position: absolute
+        top: 0
+        right: 0
+        margin: 0 !important
+
+        &:hover, &:focus
+            border-left: 1px solid #C3CAD9
+
+        i.material-icons
+            font-size: 22px
+
+// .footer
+//     flex: 0 0 4rem
+//     display: flex
+//     padding: 0 20px
+//     border-top: 1px solid #C3CAD9
+
+//     button
+//         margin: auto 0
+
+//         & + button
+//             margin-left: 10px
+
+.align-right
+    margin-left: auto !important
+
+footer input
+    font-size: 15px

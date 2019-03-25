@@ -1,0 +1,181 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+@import '~src/styles/unibase/helpers/_zindex.sass'
+
+$red: #f53b57
+
+.uni-modal
+    width: 63rem
+    border-radius: 3px
+
+\:host
+    display: flex
+    width: 100%
+    height: 100%
+    background: #edeeef
+
+    // Overlay mode when the trial is expired
+    &.overlay
+        position: fixed
+        width: 100%
+        height: calc(100vh - 4.75rem)
+        top: 4.75rem
+        left: 0
+        z-index: #{map-get($zindex, sidebar) + 1}
+
+    .activation-section
+        flex: 1
+        display: flex
+        flex-direction: column
+        justify-content: center
+        overflow: hidden
+        box-sizing: border-box
+
+        .contract-activated
+            text-align: center
+            font-size: 15px
+
+            i.material-icons
+                color: #55BF87
+                vertical-align: middle
+                margin-bottom: 2px
+                margin-right: 2px
+
+        .form-container
+            overflow-y: auto
+            padding: 2rem
+
+            h1
+                font: 400 22px 'Roboto', sans-serif
+                width: 40rem
+                margin: 0 auto 1.75rem
+                padding-left: 170px
+
+            form
+                width: 40rem
+                padding-right: 4rem
+                margin: 0 auto
+
+                fieldset legend
+                    background: unset
+
+            @media (max-width: 650px)
+                h1
+                    width: 32rem
+                    padding-left: 0
+                form
+                    width: 32rem
+                    padding-right: 0
+
+
+    .info-section
+        flex: 0 0 35%
+
+        box-sizing: border-box
+        padding: 1rem 1rem 2rem
+        background: #1565C0
+        color: #fff
+        display: flex
+        flex-direction: column
+        text-align: center
+
+        img
+            width: 16rem
+            margin: 20vh auto 1.25rem
+
+        h1
+            font: 500 30px 'Roboto', sans-serif
+
+        h2
+            font: 300 18px 'Roboto', sans-serif
+            margin: 0
+
+        @media (max-width: 1400px)
+            img
+                width: 12rem
+            h1
+                font-size: 26px
+                margin-bottom: .5rem
+            h2
+                font-size: 15px
+
+        @media screen and (max-width: 1050px)
+            display: none !important
+
+
+form
+    fieldset
+        // Resetting existing form styling (fieldset.sass mostly)
+        position: static
+        width: 100%
+        max-width: unset
+        min-width: unset
+        box-shadow: unset
+        background: unset
+        padding: 0
+        margin: 2rem 0 0
+
+        legend
+            // Resetting existing form styling (fieldset.sass mostly)
+            position: static
+            height: unset
+            border: none
+            padding: 0
+
+            // New styling
+            padding-left: 170px
+            font-weight: 400
+            font-size: 18px
+            margin-bottom: 1rem
+
+    label
+        display: flex
+        margin-bottom: 1rem
+
+        span
+            flex: 0 0 150px
+            margin-right: 20px
+            font-weight: 400
+            font-size: 14px
+            text-align: right
+            line-height: 2.4rem
+
+        input, select
+            flex: 1
+            height: 2.4rem
+            border: 1px solid rgba(0, 0, 0, 0.25)
+            border-radius: 3px
+            font-size: 14px
+
+            &.ng-touched.ng-invalid,
+            &.no-brreg-match
+                border: 1px solid $red
+
+        select
+            padding-left: 4px
+
+    small.form-error
+        display: block
+        color: $red
+        margin: -10px 0 16px 170px
+
+.submit-section
+    margin-left: 170px
+    margin-top: 10px
+
+    mat-checkbox
+        display: block
+
+    .checkbox-label
+        font-size: 14px
+
+    button.good
+        height: 2.5rem
+        min-width: 10rem
+        border-radius: 20px
+        color: #fff
+        text-shadow: none
+        padding: 0 1rem
+        margin: 2rem 0 0
+        font-size: 14px
+        font-weight: 500
+

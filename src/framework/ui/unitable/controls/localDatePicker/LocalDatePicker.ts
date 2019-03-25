@@ -63,12 +63,13 @@ export class  LocalDatePicker {
 
         const options = this.column.get('options') || {};
         const year = options.defaultYear || new Date().getFullYear();
+        const useLastMonthsPreviousYearUntilMonth = options.useLastMonthsPreviousYearUntilMonth;
 
         if (value && value.length) {
             if (value === '*') {
                 date = new Date();
             } else {
-                date = this.dateUtil.autocompleteDate(value, year) || null;
+                date = this.dateUtil.autocompleteDate(value, year, useLastMonthsPreviousYearUntilMonth) || null;
             }
         }
 

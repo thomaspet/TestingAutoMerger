@@ -14,7 +14,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
-import {UniHelpText} from './helpText/helpText';
 import {NavbarLinkService} from './navbar/navbar-link-service';
 
 import {NavbarUserDropdown} from './navbar/user-dropdown/user-dropdown';
@@ -30,6 +29,8 @@ import {SmartSearchDataService} from './smart-search/smart-search-data.service';
 
 import {A11yModule} from '@angular/cdk/a11y';
 import {OverlayModule} from '@angular/cdk/overlay';
+
+import {NotificationsModule} from './notifications/notifications.module';
 
 import {
     MatTabsModule,
@@ -60,7 +61,8 @@ import {
         MatProgressBarModule,
 
         UniFrameworkModule,
-        AppPipesModule
+        AppPipesModule,
+        NotificationsModule
     ],
     declarations: [
         UniTabs,
@@ -74,7 +76,6 @@ import {
         NavbarUserDropdown,
         UserSettingsModal,
         YearModal,
-        UniHelpText,
         UniCompanySearch,
         UniSmartSearch,
         UniSmartSearchItem
@@ -97,7 +98,6 @@ import {
         NavbarCreateNew,
         UniCompanyDropdown,
         YearModal,
-        UniHelpText
     ]
 })
 export class LayoutModule {

@@ -27,13 +27,13 @@ mat-selection-list
     .mat-list-option
         font-size: 14px !important
         color: #485460 !important
-        font-weight: 500
         user-select: none
 
     .mat-pseudo-checkbox
         border-width: 1px
 
         &:after
+            box-sizing: content-box
             margin: 2px
 
     .mat-pseudo-checkbox-checked
@@ -104,3 +104,39 @@ mat-tree
 
             &[aria-selected]:not([aria-selected=false])
                 background-color: #f0f0f0
+
+
+mat-expansion-panel
+    box-shadow: none !important
+    border: 1px solid $uni-color-scale9
+    border-radius: 0 !important
+    margin-bottom: 16px !important
+
+    .mat-expansion-panel-body
+        padding: 0 10px 10px
+        border-top: 1px solid $uni-color-scale9
+
+    mat-expansion-panel-header
+        border-radius: 0
+        padding: 0 15px !important
+
+        .mat-checkbox-inner-container
+            margin-right: 10px
+            margin-bottom: 5px
+
+        .panel-toggle
+            margin-right: 5px
+
+        .panel-right
+            margin: auto 0 auto auto
+
+    mat-panel-title
+        margin: auto 0
+
+.mat-tab-label .mat-tab-label-content
+    font-size: 14px
+
+mat-calendar
+    .mat-button:hover,
+    .mat-button:focus
+        background-color: #ddd

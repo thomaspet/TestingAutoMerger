@@ -2,24 +2,19 @@ import {Component, ViewChild, Output, EventEmitter, AfterViewInit} from '@angula
 import {Router, ActivatedRoute} from '@angular/router';
 import {
     UniTableConfig,
-    UniTableColumnType,
     UniTableColumn
 } from '@uni-framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {UniHttp} from '@uni-framework/core/http/http';
 import {
     Employee, AGAZone, SalaryTransactionSums,
-    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel, TaxCard
+    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel,
 } from '../../../unientities';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {UniView} from '../../../../framework/core/uniView';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {ILinkMenuItem} from '../../common/linkMenu/linkMenu';
-import {ReplaySubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import {ReplaySubject, Observable} from 'rxjs';
 import {
-    EmployeeService,
-    PayrollrunService,
     UniCacheService,
     AgaZoneService,
     NumberFormat,
@@ -29,8 +24,12 @@ import {
 } from '../../../services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
-declare var _;
+import * as _ from 'lodash';
 const PAYROLL_RUN_KEY = 'payrollRun';
+
+class EmployeeWithError extends Employee {
+    _errors: string;
+}
 
 @Component({
     selector: 'salarytrans',
@@ -54,9 +53,6 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     @Output() public salaryTransSelectionListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     constructor(
-        private uniHttpService: UniHttp,
-        private _employeeService: EmployeeService,
-        private _payrollRunService: PayrollrunService,
         private _agaZoneService: AgaZoneService,
         private _salarySumsService: SalarySumsService,
         private numberFormat: NumberFormat,
@@ -80,8 +76,12 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 .do(() => this.selectedIndex = 0)
                 .do(employees => this.linkMenu$
                     .next(this.generateLinkMenu(this.payrollRun, employees[this.selectedIndex])))
-                .subscribe((employees: Employee[]) => {
-                    this.employeeList = _.cloneDeep(employees) || [];
+                .subscribe((employees: EmployeeWithError[]) => {
+                    const employeeListWithErrors = employees.map(employee => {
+                        employee._errors = this.generateEmployeeError(employee);
+                        return employee;
+                    });
+                    this.employeeList = _.cloneDeep(employeeListWithErrors) || [];
 
                     if (this.employeeList && this.employeeList.length) {
                         this.focusRow(0);
@@ -136,23 +136,28 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public tableConfig() {
         const employeenumberCol = new UniTableColumn('EmployeeNumber', '#')
             .setWidth('3rem');
-        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn')
+        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn');
+        const errorsCol = new UniTableColumn('_errors', 'Feil')
+            .setTemplate(row => row._errors ?  ' ' : '')
+            .setWidth('2rem')
+            .setFilterable(true)
             .setTooltipResolver(rowModel => {
-                const error = this.generateEmployeeError(rowModel);
-                if (error) {
+                if (rowModel._errors) {
                     return {
                         type: 'bad',
-                        text: error,
+                        text: rowModel._errors,
                     };
                 }
             });
 
         this.salarytransSelectionTableConfig = new UniTableConfig('salary.salarytrans.selectionList', false)
             .setColumnMenuVisible(false)
+            .setSearchable(true)
             .setDefaultOrderBy('EmployeeNumber', 1)
             .setColumns([
                 employeenumberCol,
                 nameCol,
+                errorsCol,
             ]);
     }
 

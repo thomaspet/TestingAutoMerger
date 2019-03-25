@@ -7,7 +7,7 @@
         "IsTopLevelTicker": true,
         "Group": "Bank",
         "Model": "Payment",
-        "OrderBy":"PaymentDate desc",
+        "OrderBy":"ID desc",
         "Joins": "Payment.JournalEntryID eq JournalEntry.ID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount",
         "Columns": [
@@ -74,6 +74,13 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "FilterOperator": "contains",
+                "DefaultHidden": true,
+                "SelectRequired": true
             }
         ],
         "Filters": [
@@ -88,26 +95,6 @@
                             "Field": "IsCustomerPayment",
                             "Operator": "eq",
                             "Value": "true"
-                        }
-                    ]
-                }]
-            },
-            {
-                "Name": "Innbetalt ikke bokført",
-                "Code": "incomming_not_journaled",
-                "UseAllCriterias": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "IsCustomerPayment",
-                            "Operator": "eq",
-                            "Value": "true"
-                        },
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "eq",
-                            "Value": "44001"
                         }
                     ]
                 }]
@@ -180,6 +167,24 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg leverandør manuelt",
+                "Code": "select_supplier",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg hovedbokskonto manuelt",
+                "Code": "select_main_account",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "SubTickersCodes": ["payment_details", "post_in_file", "payment_status_log"]
@@ -194,12 +199,19 @@
         "MultiRowSelect": true,
         "Group": "Bank",
         "Model": "Payment",
+        "OrderBy":"ID desc",
         "Joins": "Payment.JournalEntryID eq JournalEntry.ID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode",
         "Columns": [
             {
                 "Header": "Betales til",
                 "Field": "BusinessRelation.Name",
+                "LinkNavigationProperty": "InvoiceNumber",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Fakturanr",
+                "Field": "InvoiceNumber",
                 "LinkNavigationProperty": "InvoiceNumber",
                 "FilterOperator": "startswith"
             },
@@ -342,7 +354,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Manuelt bokføring",
+                "Name": "Manuell bokføring",
                 "Code": "book_manual",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
@@ -541,6 +553,7 @@
         "IsTopLevelTicker": true,
         "EditToggle": false,
         "MultiRowSelect": false,
+        "OrderBy":"ID desc",
         "Group": "Bank",
         "Model": "PaymentBatch",
         "Columns": [

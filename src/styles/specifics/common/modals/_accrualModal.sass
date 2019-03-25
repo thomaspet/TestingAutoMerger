@@ -1,46 +1,49 @@
 accrual-modal
-    .accrual-modal
-        height: pxToRem(600)
-        width: pxToRem(1000) !important
+    .accrual-split-view
+        display: flex
+        justify-content: space-between
+        padding: 2rem
 
-        footer
-            clear: both
+        .accrual-form
+            flex: 1
+            min-width: 300px
+            margin-top: 1rem
+            margin-right: 1rem
 
-        uni-checkboxgroup-input
-            label
-                padding-right: 1.5rem
+        .accrual-periods
+            flex: 0 0 10rem
+            margin-right: 2rem
+            input[type=checkbox]
+                height: pxToRem(15)
+                width: pxToRem(15)
+                position: relative
 
-    .accrual-form
-        width: 60%
-        float: left
-        margin-top: 1.5rem
-
-        uni-field
-            width: 100%
-
-    .accrual-periods
-        width: calc(25% - 2rem)
-        float: right
-        margin-top: 1.5rem
-        margin-right: 4rem
-        margin-bottom: 1rem
-
-        table
-            width: 40%
-
-        input[type=checkbox]
-            height: pxToRem(15)
-            width: pxToRem(15)
-            position: relative
-
-    h1
-        width: 60%
-        margin-right: 0
+    .yearbutton
+        cursor: pointer
+        display: inline-block
+        height: 2rem !important
+        width: 2.1rem
+        margin: 0 0 0 .5rem
+        font-size: 0
+        box-shadow: none
+        background-color: transparent
+        background-repeat: no-repeat
+        background-position: center
+        background-size: 1rem auto
+        position: relative
         padding: 0
-        display: inline-block
+        box-sizing: border-box
+        border-radius: 3px
+        border: 1px solid white
+        &:hover
+            border: 1px solid $uni-color-scale6
+            background-color: transparent
+        &:active
+            background-color: transparent
 
-    footer
-        margin-top: 1rem
-
-    section.accrual-periods
-        display: inline-block
+    .previous
+        background-image: unicon-prev($uni-color-scale5)
+        background-size: auto .8rem
+    .next
+        background-image: unicon-next($uni-color-scale5)
+        background-size: auto .8rem

@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, Dimensions, FinancialYear, VatDeduction,
-    JournalEntryPaymentData, Payment, CustomerInvoice, InvoicePaymentData} from '../../unientities';
-import {JournalEntryData, JournalEntryExtended} from '../../models/models';
+import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData} from '../../unientities';
+import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/mergeMap';
@@ -116,8 +115,45 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return null;
     }
 
-    public setSessionData(mode: number, data: Array<JournalEntryData>) {
+    public getLedgerSuggestions(orgNumber: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`ledgersuggestions/${orgNumber}`)
+            .send()
+            .map(res => res.json());
+    }
+
+    public getAccountsFromSuggeestions(accountNumberStart) {
+        return this.http
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint('?model=Account' +
+            '&select=id as ID,AccountNumber as AccountNumber,AccountName as AccountName,VatTypeID as VatTypeID,Visible as Visible,' +
+            `UseVatDeductionGroupID&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
+            'isnull(customerid,0) eq 0 and isnull(supplierid,0) eq 0&expand=VatType&orderby=accountnumber&wrap=false')
+            .send()
+            .map(res => res.json());
+    }
+
+    public getSessionNumberSeries() {
+        const numberSeriesID = this.storageService.getSessionItemFromCompany('Numberseries_journalEntry');
+
+        return +numberSeriesID || null;
+    }
+
+    public setSessionData(mode: number, data: Array<JournalEntryData>, numberSeriesID?: number) {
         this.storageService.setSessionItemOnCompany(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, data);
+        // Remove stored session numberseries when setting empty array
+        if (!data) {
+            this.setSessionNumberSeries(null);
+        } else {
+            this.setSessionNumberSeries(numberSeriesID);
+        }
+    }
+
+    public setSessionNumberSeries(data) {
+        this.storageService.setSessionItemOnCompany(`Numberseries_journalEntry`, data);
     }
 
     public getLastJournalEntryNumber(): Observable<any> {
@@ -691,8 +727,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             if (companySettings && companySettings.VatLockedDate) {
                 const invalidVatDates = journalDataEntries.filter(
-                    x => !x.StatusCode && x.FinancialDate
-                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
+                    x => !x.StatusCode && x.VatDate
+                    && moment(x.VatDate).isSameOrBefore(moment(companySettings.VatLockedDate))
+                    && (x.DebitVatType || x.CreditVatType)
                 );
 
                 if (invalidVatDates.length > 0) {
@@ -860,7 +897,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             // inline function that checks if the sum
             const vatSummaryCheck = () => {
-                if (companySettings.TaxMandatoryType === 2) {
+                if (companySettings && companySettings.TaxMandatoryType === 2) {
                     // get sum of items where vatcode is used - if the sum is larger than limit, add warning
                     let sumNewRowsWithVatCode6 = 0;
                     sortedJournalEntries.forEach(x => {
@@ -1009,7 +1046,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             this.statisticsService.GetAll(`model=Tracelink&filter=DestinationEntityName eq 'Payment' `
                 + `and SourceEntityName eq 'JournalEntry' and JournalEntry.ID eq ${journalEntryID}`
-                + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID as SupplierInvoice and `
+                + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID and `
                 + `Tracelink.DestinationInstanceId eq Payment.ID`
                 + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`)
         ).map(responses => {
@@ -1299,10 +1336,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 sum.debitNetChangeCurrentLine += currentLine.NetAmount;
 
                 const lineCalc =
-                    this.calculateJournalEntryData(
+                    this.calculateJournalEntryDataAmount(
                         currentLine.DebitAccount,
                         currentLine.DebitVatType,
-                        currentLine.AmountCurrency,
+                        currentLine.Amount,
                         null,
                         currentLine
                     );
@@ -1324,14 +1361,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 sum.creditNetChangeCurrentLine += currentLine.NetAmount * -1;
 
                 const lineCalc =
-                    this.calculateJournalEntryData(
+                    this.calculateJournalEntryDataAmount(
                         currentLine.CreditAccount,
                         currentLine.CreditVatType,
-                        currentLine.AmountCurrency,
+                        currentLine.Amount,
                         null,
                         currentLine
                     );
-
                 sum.creditIncomingVatCurrentLine = lineCalc.incomingVatAmount * -1;
                 sum.creditOutgoingVatCurrentLine = lineCalc.outgoingVatAmount * -1;
             } else {
@@ -1446,17 +1482,17 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (journalDataEntries) {
             journalDataEntries.forEach(entry => {
-                const debitData = this.calculateJournalEntryData(
+                const debitData = this.calculateJournalEntryDataAmount(
                     entry.DebitAccount,
                     entry.DebitVatType,
-                    entry.AmountCurrency,
+                    entry.Amount,
                     null,
                     entry
                 );
-                const creditData =  this.calculateJournalEntryData(
+                const creditData =  this.calculateJournalEntryDataAmount(
                     entry.CreditAccount,
                     entry.CreditVatType,
-                    entry.AmountCurrency * -1,
+                    entry.Amount * -1,
                     null,
                     entry
                 );
@@ -1619,6 +1655,134 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         res.taxBasisAmount = taxBasisAmountCurrency * journalEntryData.CurrencyExchangeRate;
         res.amountGross = UniMath.round(res.amountGrossCurrency * journalEntryData.CurrencyExchangeRate);
         res.amountNet = UniMath.round(res.amountNetCurrency * journalEntryData.CurrencyExchangeRate);
+        return res;
+    }
+
+    public calculateJournalEntryDataAmount(
+        account: Account, vattype: VatType, grossAmount: number, netAmount: number, journalEntryData: JournalEntryData
+    ): JournalEntryLineCalculation {
+        // grossAmountCurrency == med mva, netAmout == uten mva
+        const res: JournalEntryLineCalculation = {
+            amountGross: 0,
+            amountGrossCurrency: 0,
+            amountNet: 0,
+            amountNetCurrency: 0,
+            taxBasisAmount: 0,
+            incomingVatAmount: 0,
+            outgoingVatAmount: 0
+        };
+
+        if (!grossAmount && !netAmount) {
+            return res;
+        }
+
+        let incomingVatAmount = 0;
+        let outgoingVatAmount = 0;
+        let taxBasisAmount = 0;
+        if (account) {
+            if (vattype && !vattype.DirectJournalEntryOnly) {
+                let deductionpercent =
+                    journalEntryData.VatDeductionPercent &&
+                    (journalEntryData.StatusCode || !!account.UseVatDeductionGroupID)
+                    ? journalEntryData.VatDeductionPercent
+                    : 0;
+
+                // if no deductions exist, assume we get deduction for the entire amounts, i.e. 100%
+                // because this simplifies the expressions further down in this function
+                if (deductionpercent === 0) {
+                    deductionpercent = 100;
+                }
+
+                this.setCorrectVatPercent(vattype, journalEntryData);
+
+                const vatPercent = vattype.VatPercent;
+
+                if (grossAmount) {
+                    res.amountGross = grossAmount;
+
+                    if (!vattype.IncomingAccountID && !vattype.OutgoingAccountID) {
+                        res.amountNet = res.amountGross;
+                    } else {
+                        res.amountNet =
+                            vattype.ReversedTaxDutyVat ?
+                                vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                                    (res.amountGross * deductionpercent / 100)
+                                    : (res.amountGross * (1 + vatPercent / 100)) * deductionpercent / 100
+                                : res.amountGross * deductionpercent / 100 / (1 + vatPercent / 100);
+
+                        if (deductionpercent !== 100) {
+                            res.amountNet += vattype.ReversedTaxDutyVat
+                                ? res.amountGross * (100 - deductionpercent) / 100
+                                    + (res.amountGross * vatPercent / 100) * ((100 - deductionpercent) / 100)
+                                : res.amountGross - res.amountNet - res.amountNet * vatPercent / 100;
+                        }
+                    }
+                } else if (netAmount) {
+                    res.amountNet = netAmount;
+
+                    if (!vattype.IncomingAccountID && !vattype.OutgoingAccountID) {
+                        res.amountGross = res.amountNet;
+                    } else {
+                        if (deductionpercent > 0 && deductionpercent < 100) {
+                            console.error(
+                                'calculateJournalEntryData called for netAmountCurrency with deduction percent set, this is not supported'
+                            );
+                        }
+
+                        res.amountGross = vattype.ReversedTaxDutyVat ?
+                            vattype.IncomingAccountID && vattype.OutgoingAccountID ?
+                                res.amountNet
+                                : res.amountNet / (1 + (vatPercent / 100))
+                            : res.amountNet * (1 + (vatPercent / 100));
+                    }
+                }
+
+                taxBasisAmount =
+                    vattype.ReversedTaxDutyVat ?
+                            res.amountGross
+                            : res.amountGross / (1 + vatPercent / 100);
+
+                if (vattype.ReversedTaxDutyVat) {
+                    if (vattype.OutgoingAccountID) {
+                        outgoingVatAmount += -1 * (taxBasisAmount * vatPercent / 100);
+                    } else if (vattype.IncomingAccountID) {
+                        incomingVatAmount += (-1 * (taxBasisAmount * vatPercent / 100)) * (deductionpercent / 100);
+                    }
+                }
+
+                if (!(vattype.ReversedTaxDutyVat && !vattype.IncomingAccountID)) {
+                    if (vattype.IncomingAccountID) {
+                        incomingVatAmount += ((taxBasisAmount * vatPercent) / 100) * (deductionpercent / 100);
+                    } else if (vattype.OutgoingAccountID) {
+                        outgoingVatAmount += (taxBasisAmount * vatPercent) / 100;
+                    }
+                }
+            } else {
+                if (grossAmount) {
+                    res.amountGross = grossAmount;
+                    res.amountNet = grossAmount;
+                } else if (netAmount) {
+                    res.amountGross = netAmount;
+                    res.amountNet = netAmount;
+                }
+
+                if (vattype && vattype.DirectJournalEntryOnly) {
+                    if (vattype.IncomingAccountID) {
+                        res.incomingVatAmount += res.amountGross;
+                        res.amountNet -= res.amountNet;
+                    } else if (vattype.OutgoingAccountID) {
+                        res.outgoingVatAmount -= res.amountGross;
+                        res.amountNet -= res.amountNet;
+                    }
+                }
+            }
+        }
+
+        res.incomingVatAmount = incomingVatAmount;
+        res.outgoingVatAmount = outgoingVatAmount;
+        res.taxBasisAmount = taxBasisAmount * journalEntryData.CurrencyExchangeRate;
+        res.amountGross = UniMath.round(res.amountGross);
+        res.amountNet = UniMath.round(res.amountNet);
 
         return res;
     }

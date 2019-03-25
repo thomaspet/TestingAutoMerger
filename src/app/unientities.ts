@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -455,6 +455,179 @@ export class CampaignTemplate extends UniEntity {
 }
 
 
+export class RecurringInvoiceLog extends UniEntity {
+    public static RelativeUrl = 'RecurringInvoicelogs';
+    public static EntityType = 'RecurringInvoiceLog';
+
+    public _createguid: string;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreationDate: LocalDate;
+    public Deleted: boolean;
+    public ID: number;
+    public InvoiceDate: LocalDate;
+    public InvoiceID: number;
+    public IterationNumber: number;
+    public NotifiedOrdersPrepared: boolean;
+    public NotifiedRecurringEnds: boolean;
+    public OrderID: number;
+    public RecurringInvoiceID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class RecurringInvoiceItem extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'RecurringInvoiceItem';
+
+    public _createguid: string;
+    public AccountID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CurrencyCodeID: number;
+    public CurrencyExchangeRate: number;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public Discount: number;
+    public DiscountCurrency: number;
+    public DiscountPercent: number;
+    public ID: number;
+    public ItemText: string;
+    public NumberOfItems: number;
+    public PriceExVat: number;
+    public PriceExVatCurrency: number;
+    public PriceIncVat: number;
+    public PriceSetByUser: boolean;
+    public PricingSource: PricingSource;
+    public ProductID: number;
+    public RecurringInvoiceID: number;
+    public ReduceIncompletePeriod: boolean;
+    public SortIndex: number;
+    public StatusCode: number;
+    public SumTotalExVat: number;
+    public SumTotalExVatCurrency: number;
+    public SumTotalIncVat: number;
+    public SumTotalIncVatCurrency: number;
+    public SumVat: number;
+    public SumVatCurrency: number;
+    public TimeFactor: RecurringPeriod;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public VatDate: LocalDate;
+    public VatPercent: number;
+    public VatTypeID: number;
+    public Product: Product;
+    public VatType: VatType;
+    public Dimensions: Dimensions;
+    public Account: Account;
+    public CurrencyCode: CurrencyCode;
+    public CustomFields: any;
+}
+
+
+export class RecurringInvoice extends UniEntity {
+    public static RelativeUrl = 'recurringinvoices';
+    public static EntityType = 'RecurringInvoice';
+
+    public _createguid: string;
+    public AmountRegards: string;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreditDays: number;
+    public CurrencyCodeID: number;
+    public CurrencyExchangeRate: number;
+    public CustomerID: number;
+    public CustomerName: string;
+    public CustomerOrgNumber: string;
+    public CustomerPerson: string;
+    public DefaultDimensionsID: number;
+    public DefaultSellerID: number;
+    public Deleted: boolean;
+    public DeliveryDate: LocalDate;
+    public DeliveryMethod: string;
+    public DeliveryName: string;
+    public DeliveryTerm: string;
+    public DeliveryTermsID: number;
+    public DistributionPlanID: number;
+    public EmailAddress: string;
+    public EndDate: LocalDate;
+    public FreeTxt: string;
+    public ID: number;
+    public InternalNote: string;
+    public Interval: number;
+    public InvoiceAddressLine1: string;
+    public InvoiceAddressLine2: string;
+    public InvoiceAddressLine3: string;
+    public InvoiceCity: string;
+    public InvoiceCountry: string;
+    public InvoiceCountryCode: string;
+    public InvoiceNumberSeriesID: number;
+    public InvoicePostalCode: string;
+    public InvoiceReceiverName: string;
+    public MaxIterations: number;
+    public NextInvoiceDate: LocalDate;
+    public NoCreditDays: boolean;
+    public NotifyUser: string;
+    public NotifyWhenOrdersArePrepared: boolean;
+    public NotifyWhenRecurringEnds: boolean;
+    public OurReference: string;
+    public PayableRoundingAmount: number;
+    public PayableRoundingCurrencyAmount: number;
+    public Payment: string;
+    public PaymentInformation: string;
+    public PaymentInfoTypeID: number;
+    public PaymentTerm: string;
+    public PaymentTermsID: number;
+    public PreparationDays: number;
+    public PrintStatus: number;
+    public ProduceAs: RecurringResult;
+    public Requisition: string;
+    public SalesPerson: string;
+    public ShippingAddressLine1: string;
+    public ShippingAddressLine2: string;
+    public ShippingAddressLine3: string;
+    public ShippingCity: string;
+    public ShippingCountry: string;
+    public ShippingCountryCode: string;
+    public ShippingPostalCode: string;
+    public StartDate: LocalDate;
+    public StatusCode: number;
+    public SupplierOrgNumber: string;
+    public TaxExclusiveAmount: number;
+    public TaxExclusiveAmountCurrency: number;
+    public TaxInclusiveAmount: number;
+    public TaxInclusiveAmountCurrency: number;
+    public TimePeriod: RecurringPeriod;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UseReportID: number;
+    public VatTotalsAmount: number;
+    public VatTotalsAmountCurrency: number;
+    public YourReference: string;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
+    public Customer: Customer;
+    public CurrencyCode: CurrencyCode;
+    public InvoiceNumberNumberSeries: NumberSeries;
+    public Items: Array<RecurringInvoiceItem>;
+    public DefaultDimensions: Dimensions;
+    public DefaultSeller: Seller;
+    public Sellers: Array<SellerLink>;
+    public PaymentInfoType: PaymentInfoType;
+    public DistributionPlan: DistributionPlan;
+    public CustomFields: any;
+}
+
+
 export class DebtCollectionSettings extends UniEntity {
     public static RelativeUrl = 'debtcollectionsettings';
     public static EntityType = 'DebtCollectionSettings';
@@ -643,6 +816,7 @@ export class SellerLink extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public Percent: number;
+    public RecurringInvoiceID: number;
     public SellerID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -776,6 +950,7 @@ export class Customer extends UniEntity {
     public CurrencyCodeID: number;
     public CustomerInvoiceReminderSettingsID: number;
     public CustomerNumber: number;
+    public CustomerNumberKidAlias: string;
     public DefaultCustomerInvoiceReportID: number;
     public DefaultCustomerOrderReportID: number;
     public DefaultCustomerQuoteReportID: number;
@@ -825,6 +1000,7 @@ export class CustomerInvoice extends UniEntity {
     public static EntityType = 'CustomerInvoice';
 
     public _createguid: string;
+    public AccrualID: number;
     public AmountRegards: string;
     public BankAccountID: number;
     public CollectorStatusCode: number;
@@ -914,6 +1090,7 @@ export class CustomerInvoice extends UniEntity {
     public Items: Array<CustomerInvoiceItem>;
     public InvoiceReference: CustomerInvoice;
     public DefaultDimensions: Dimensions;
+    public Accrual: Accrual;
     public DefaultSeller: Seller;
     public CustomerInvoiceReminders: Array<CustomerInvoiceReminder>;
     public Sellers: Array<SellerLink>;
@@ -979,6 +1156,7 @@ export class CustomerOrder extends UniEntity {
     public static EntityType = 'CustomerOrder';
 
     public _createguid: string;
+    public AccrualID: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1045,6 +1223,7 @@ export class CustomerOrder extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public Accrual: Accrual;
     public PaymentTerms: Terms;
     public DeliveryTerms: Terms;
     public DefaultDimensions: Dimensions;
@@ -1251,6 +1430,7 @@ export class Supplier extends UniEntity {
 
     public _createguid: string;
     public BusinessRelationID: number;
+    public CostAllocationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CreditDays: number;
@@ -1262,6 +1442,7 @@ export class Supplier extends UniEntity {
     public Localization: string;
     public OrgNumber: string;
     public PeppolAddress: string;
+    public SelfEmployed: boolean;
     public StatusCode: number;
     public SubAccountNumberSeriesID: number;
     public SupplierNumber: number;
@@ -1272,6 +1453,7 @@ export class Supplier extends UniEntity {
     public Dimensions: Dimensions;
     public CurrencyCode: CurrencyCode;
     public SubAccountNumberSeries: NumberSeries;
+    public CostAllocation: CostAllocation;
     public CustomFields: any;
 }
 
@@ -1598,6 +1780,7 @@ export class AmeldingData extends UniEntity {
     public mainFileID: number;
     public messageID: string;
     public OppgaveHash: string;
+    public PayrollRunID: number;
     public period: number;
     public receiptID: number;
     public replacesID: number;
@@ -1608,6 +1791,7 @@ export class AmeldingData extends UniEntity {
     public type: AmeldingType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public xmlValidationErrors: string;
     public year: number;
     public log: Array<AmeldingLog>;
     public CustomFields: any;
@@ -1662,6 +1846,7 @@ export class EmployeeTaxCard extends UniEntity {
     public Table: string;
     public TaxcardId: number;
     public Tilleggsopplysning: string;
+    public ufoereYtelserAndreID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Year: number;
@@ -1671,6 +1856,7 @@ export class EmployeeTaxCard extends UniEntity {
     public loennTilUtenrikstjenestemann: TaxCard;
     public loennKunTrygdeavgiftTilUtenlandskBorger: TaxCard;
     public loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger: TaxCard;
+    public ufoereYtelserAndre: TaxCard;
     public CustomFields: any;
 }
 
@@ -1696,17 +1882,32 @@ export class TaxCard extends UniEntity {
 }
 
 
-export class PostingSummaryDraft extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'PostingSummaryDraft';
+export class OtpExportWagetype extends UniEntity {
+    public static RelativeUrl = 'otpexportwagetypes';
+    public static EntityType = 'OtpExportWagetype';
 
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WageTypeNumber: number;
+    public CustomFields: any;
+}
+
+
+export class PostingSummaryDraft extends UniEntity {
     public draftBasic: string;
     public draftWithDims: string;
+    public draftWithDimsOnBalance: string;
     public ID: number;
+    public JobInfoID: number;
     public PayrollID: number;
     public status: SummaryJobStatus;
     public statusTime: Date;
-    public CustomFields: any;
 }
 
 
@@ -1830,12 +2031,14 @@ export class TaxBasis extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DisabilityOtherBasis: number;
     public ForeignBorderCommuterBasis: number;
     public ForeignCitizenInsuranceBasis: number;
     public ID: number;
     public JanMayenBasis: number;
     public PensionBasis: number;
     public PensionSourcetaxBasis: number;
+    public SailorBasis: number;
     public SalaryTransactionID: number;
     public StatusCode: number;
     public SvalbardBasis: number;
@@ -1989,6 +2192,7 @@ export class WageTypeSupplement extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public GetValueFromTrans: boolean;
     public ID: number;
     public Name: string;
     public StatusCode: number;
@@ -2027,10 +2231,11 @@ export class CompanySalary extends UniEntity {
     public static EntityType = 'CompanySalary';
 
     public _createguid: string;
+    public AllowOver6G: boolean;
     public Base_JanMayenAndBiCountries: boolean;
     public Base_NettoPayment: boolean;
     public Base_NettoPaymentForMaritim: boolean;
-    public Base_PayAsYouEarnOnPensions: boolean;
+    public Base_PayAsYouEarnTaxOnPensions: boolean;
     public Base_SpesialDeductionForMaritim: boolean;
     public Base_Svalbard: boolean;
     public CalculateFinancialTax: boolean;
@@ -2038,6 +2243,7 @@ export class CompanySalary extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public FreeAmount: number;
+    public HourFTEs: number;
     public HoursPerMonth: number;
     public ID: number;
     public InterrimRemitAccount: number;
@@ -2051,6 +2257,7 @@ export class CompanySalary extends UniEntity {
     public MainAccountCostFinancial: number;
     public MainAccountCostFinancialVacation: number;
     public MainAccountCostVacation: number;
+    public OtpExportActive: boolean;
     public PaymentInterval: CompanySalaryPaymentInterval;
     public PostToTaxDraw: boolean;
     public RateFinancialTax: number;
@@ -2127,6 +2334,7 @@ export class EmployeeLeave extends UniEntity {
     public static EntityType = 'EmployeeLeave';
 
     public _createguid: string;
+    public AffectsOtp: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2295,7 +2503,6 @@ export class WageType extends UniEntity {
     public _createguid: string;
     public AccountNumber: number;
     public AccountNumber_balance: number;
-    public Base_div1: boolean;
     public Base_div2: boolean;
     public Base_div3: boolean;
     public Base_EmploymentTax: boolean;
@@ -2304,6 +2511,7 @@ export class WageType extends UniEntity {
     public Benefit: string;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DaysOnBoard: boolean;
     public Deleted: boolean;
     public Description: string;
     public FixedSalaryHolidayDeduction: boolean;
@@ -2402,18 +2610,26 @@ export class Employee extends UniEntity {
     public Deleted: boolean;
     public EmployeeNumber: number;
     public EmploymentDate: Date;
+    public EmploymentDateOtp: LocalDate;
+    public EndDateOtp: LocalDate;
     public ForeignWorker: ForeignWorker;
+    public FreeText: string;
     public ID: number;
+    public IncludeOtpUntilMonth: number;
+    public IncludeOtpUntilYear: number;
     public InternasjonalIDCountry: string;
     public InternasjonalIDType: InternationalIDType;
     public InternationalID: string;
     public MunicipalityNo: string;
+    public OtpExport: boolean;
+    public OtpStatus: OtpStatus;
     public PaymentInterval: PaymentInterval;
     public PhotoID: number;
     public Sex: GenderEnum;
     public SocialSecurityNumber: string;
     public StatusCode: number;
     public SubEntityID: number;
+    public TypeOfPaymentOtp: TypeOfPaymentOtp;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
@@ -3577,7 +3793,6 @@ export class CompanySettings extends UniEntity {
     public CompanyTypeID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
-    public CurrentAccountingYear: number;
     public CustomerAccountID: number;
     public CustomerCreditDays: number;
     public CustomerInvoiceReminderSettingsID: number;
@@ -3636,23 +3851,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultAddress: Address;
-    public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultPhone: Phone;
+    public DefaultAddress: Address;
+    public BaseCurrencyCode: CurrencyCode;
+    public SalaryBankAccount: BankAccount;
+    public CompanyBankAccount: BankAccount;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
-    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -4968,6 +5183,7 @@ export class HangfireJob extends UniEntity {
     public JobId: string;
     public Status: number;
     public UpdatedAt: Date;
+    public Year: number;
     public CustomFields: any;
 }
 
@@ -4987,6 +5203,7 @@ export class HangfireJobContext extends UniEntity {
     public SchemaName: string;
     public Status: number;
     public UpdatedAt: Date;
+    public Year: number;
     public CustomFields: any;
 }
 
@@ -5006,6 +5223,7 @@ export class HangfireResponse extends UniEntity {
     public ProgressUrl: string;
     public Status: number;
     public UpdatedAt: Date;
+    public Year: number;
     public CustomFields: any;
 }
 
@@ -5123,10 +5341,12 @@ export class Accrual extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public JournalEntryLineDraftID: number;
+    public ResultAccountID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public BalanceAccount: Account;
+    public ResultAccount: Account;
     public JournalEntryLineDraft: JournalEntryLineDraft;
     public JournalEntryLines: Array<JournalEntryLine>;
     public Periods: Array<AccrualPeriod>;
@@ -5162,6 +5382,70 @@ export class BankIntegrationAgreement extends UniEntity {
 }
 
 
+export class Budget extends UniEntity {
+    public static RelativeUrl = 'budgets';
+    public static EntityType = 'Budget';
+
+    public _createguid: string;
+    public AccountingYear: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Entries: Array<BudgetEntry>;
+    public CustomFields: any;
+}
+
+
+export class BudgetEntry extends UniEntity {
+    public static RelativeUrl = 'budgetentries';
+    public static EntityType = 'BudgetEntry';
+
+    public _createguid: string;
+    public AccountID: number;
+    public Amount: number;
+    public BudgetID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public ID: number;
+    public PeriodNumber: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Budget: Budget;
+    public Account: Account;
+    public Dimensions: Dimensions;
+    public CustomFields: any;
+}
+
+
+export class CompanyAccountingSettings extends UniEntity {
+    public static RelativeUrl = 'companyaccountingsettings';
+    public static EntityType = 'CompanyAccountingSettings';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public ReInvoicingCostsharingProductID: number;
+    public ReInvoicingMethod: number;
+    public ReInvoicingTurnoverProductID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ReInvoicingCostsharingProduct: Product;
+    public ReInvoicingTurnoverProduct: Product;
+    public CustomFields: any;
+}
+
+
 export class CompanyBankAccount extends UniEntity {
     public static RelativeUrl = 'companybankaccounts';
     public static EntityType = 'CompanyBankAccount';
@@ -5188,6 +5472,50 @@ export class CompanyBankAccount extends UniEntity {
 }
 
 
+export class CostAllocation extends UniEntity {
+    public static RelativeUrl = 'costallocations';
+    public static EntityType = 'CostAllocation';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Items: Array<CostAllocationItem>;
+    public CustomFields: any;
+}
+
+
+export class CostAllocationItem extends UniEntity {
+    public static RelativeUrl = 'costallocationitems';
+    public static EntityType = 'CostAllocationItem';
+
+    public _createguid: string;
+    public AccountID: number;
+    public Amount: number;
+    public CostAllocationID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public DimensionsID: number;
+    public ID: number;
+    public Percent: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public VatTypeID: number;
+    public Account: Account;
+    public VatType: VatType;
+    public Dimensions: Dimensions;
+    public CustomFields: any;
+}
+
+
 export class JournalEntryType extends UniEntity {
     public static RelativeUrl = 'journalentrytypes';
     public static EntityType = 'JournalEntryType';
@@ -5202,6 +5530,17 @@ export class JournalEntryType extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
+}
+
+
+export class LedgerSuggestion extends UniEntity {
+    public BusinessType: string;
+    public ID: number;
+    public IndustryCode: string;
+    public IndustryName: string;
+    public Name: string;
+    public OrgNumber: string;
+    public Source: SuggestionSource;
 }
 
 
@@ -5470,6 +5809,55 @@ export class Payment extends UniEntity {
     public ToBankAccount: BankAccount;
     public CurrencyCode: CurrencyCode;
     public PaymentCode: PaymentCode;
+    public CustomFields: any;
+}
+
+
+export class ReInvoice extends UniEntity {
+    public static RelativeUrl = 'reinvoicing';
+    public static EntityType = 'ReInvoice';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public OwnCostAmount: number;
+    public OwnCostShare: number;
+    public ProductID: number;
+    public ReInvoicingType: number;
+    public StatusCode: number;
+    public SupplierInvoiceID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public SupplierInvoice: SupplierInvoice;
+    public Product: Product;
+    public Items: Array<ReInvoiceItem>;
+    public CustomFields: any;
+}
+
+
+export class ReInvoiceItem extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ReInvoiceItem';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerID: number;
+    public Deleted: boolean;
+    public GrossAmount: number;
+    public ID: number;
+    public NetAmount: number;
+    public ReInvoiceID: number;
+    public Share: number;
+    public StatusCode: number;
+    public Surcharge: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Vat: number;
+    public Customer: Customer;
     public CustomFields: any;
 }
 
@@ -5773,6 +6161,7 @@ export class SupplierInvoice extends UniEntity {
     public PaymentTermsID: number;
     public PrintStatus: number;
     public ProjectID: number;
+    public ReInvoiced: boolean;
     public Requisition: string;
     public RestAmount: number;
     public RestAmountCurrency: number;
@@ -5803,6 +6192,7 @@ export class SupplierInvoice extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
+    public ReInvoice: ReInvoice;
     public CustomFields: any;
 }
 
@@ -5859,12 +6249,14 @@ export class Account extends UniEntity {
     public AccountNumber: number;
     public AccountSetupID: number;
     public Active: boolean;
+    public CostAllocationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;
     public CustomerID: number;
     public Deleted: boolean;
     public DimensionsID: number;
+    public DoSynchronize: boolean;
     public EmployeeID: number;
     public ID: number;
     public Locked: boolean;
@@ -5892,6 +6284,7 @@ export class Account extends UniEntity {
     public SubAccounts: Array<Account>;
     public UseVatDeductionGroup: VatDeductionGroup;
     public CurrencyCode: CurrencyCode;
+    public CostAllocation: CostAllocation;
     public CustomFields: any;
 }
 
@@ -6077,20 +6470,17 @@ export class VippsInvoice extends UniEntity {
 
     public _createguid: string;
     public Amount: number;
+    public BankAccountNumber: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
-    public DueDate: string;
+    public Due: string;
     public ID: number;
-    public InvoiceHotelID: string;
     public InvoiceID: string;
-    public MerchantSerialNumber: string;
+    public InvoiceRef: string;
     public MobileNumber: string;
-    public Receipt: string;
-    public RequestID: string;
     public StatusCode: number;
-    public Text: string;
-    public TimeStamp: string;
+    public Subject: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -6375,9 +6765,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6496,6 +6886,15 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
 }
 
 
+export class PayrollRunInAmeldingPeriod extends UniEntity {
+    public AmeldingSentdate: Date;
+    public CanGenerateAddition: boolean;
+    public PayrollrunDescription: string;
+    public PayrollrunID: number;
+    public PayrollrunPaydate: Date;
+}
+
+
 export class AmeldingSumUp extends UniEntity {
     public entities: Array<AmeldingEntity>;
     public agadetails: Array<AGADetails>;
@@ -6595,6 +6994,18 @@ export class SupplementInfo extends UniEntity {
     public ValueString: string;
     public ValueType: Valuetype;
     public WageTypeSupplementID: number;
+}
+
+
+export class AnnualStatementReportSetup extends UniEntity {
+    public EmpIDs: string;
+    public Mail: AnnualStatementEmailInfo;
+}
+
+
+export class AnnualStatementEmailInfo extends UniEntity {
+    public Message: string;
+    public Subject: string;
 }
 
 
@@ -6752,6 +7163,20 @@ export class PostingSummary extends UniEntity {
 }
 
 
+export class PaycheckReportSetup extends UniEntity {
+    public EmpIDs: string;
+    public Mail: PaycheckEmailInfo;
+}
+
+
+export class PaycheckEmailInfo extends UniEntity {
+    public GroupByWageType: boolean;
+    public Message: string;
+    public ReportID: number;
+    public Subject: string;
+}
+
+
 export class WorkItemToSalary extends UniEntity {
     public PayrollRunID: number;
     public Rate: number;
@@ -6834,7 +7259,9 @@ export class FieldsChanged extends UniEntity {
 
 export class CreateCompanyDetails extends UniEntity {
     public CompanyName: string;
+    public ContractID: number;
     public LicenseKey: string;
+    public ProductNames: string;
     public CompanySettings: CompanySettings;
 }
 
@@ -6859,25 +7286,25 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
-    public License: UserLicense;
+    public License: ElsaUserLicenseInfo;
     public CustomFields: any;
 }
 
 
-export class UserLicense extends UniEntity {
+export class ElsaUserLicenseInfo extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
-    public CustomerAgreement: CustomerLicenseAgreement;
+    public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
-    public Company: CompanyLicense;
+    public Company: ElsaCompanyLicenseInfo;
     public ContractType: ContractLicenseType;
-    public UserLicenseAgreement: LicenseAgreement;
+    public UserLicenseAgreement: LicenseAgreementInfo;
 }
 
 
-export class CustomerLicenseAgreement extends UniEntity {
+export class CustomerLicenseAgreementInfo extends UniEntity {
     public AgreementId: number;
     public CanAgreeToLicense: boolean;
     public HasAgreedToLicense: boolean;
@@ -6885,14 +7312,17 @@ export class CustomerLicenseAgreement extends UniEntity {
 
 
 export class UserLicenseType extends UniEntity {
+    public EndDate: Date;
     public TypeID: number;
     public TypeName: string;
 }
 
 
-export class CompanyLicense extends UniEntity {
+export class ElsaCompanyLicenseInfo extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
+    public ContractID: number;
+    public EndDate: Date;
     public ID: number;
     public Key: string;
     public Name: string;
@@ -6907,13 +7337,14 @@ export class Agency extends UniEntity {
 
 
 export class ContractLicenseType extends UniEntity {
+    public StartDate: Date;
     public TrialExpiration: Date;
     public TypeID: number;
     public TypeName: string;
 }
 
 
-export class LicenseAgreement extends UniEntity {
+export class LicenseAgreementInfo extends UniEntity {
     public AgreementId: number;
     public HasAgreedToLicense: boolean;
 }
@@ -7033,6 +7464,7 @@ export class SendEmail extends UniEntity {
 
 export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
+    public FileID: number;
     public FileName: string;
 }
 
@@ -7066,6 +7498,17 @@ export class CurrencyRateData extends UniEntity {
     public Factor: number;
     public IsOverrideRate: boolean;
     public FromCurrencyCode: CurrencyCode;
+}
+
+
+export class EmailDTO extends UniEntity {
+    public CopyAddress: string;
+    public Format: string;
+    public FromAddress: string;
+    public Message: string;
+    public ReportID: number;
+    public Subject: string;
+    public Parameters: Array<ReportParameter>;
 }
 
 
@@ -7109,6 +7552,57 @@ export class EHFActivate extends UniEntity {
 }
 
 
+export class ReportRow extends UniEntity {
+    public AccountName: string;
+    public AccountNumber: number;
+    public AccountYear: number;
+    public BudgetAccumulated: number;
+    public BudgetSum: number;
+    public BudPeriod1: number;
+    public BudPeriod10: number;
+    public BudPeriod11: number;
+    public BudPeriod12: number;
+    public BudPeriod2: number;
+    public BudPeriod3: number;
+    public BudPeriod4: number;
+    public BudPeriod5: number;
+    public BudPeriod6: number;
+    public BudPeriod7: number;
+    public BudPeriod8: number;
+    public BudPeriod9: number;
+    public GroupName: string;
+    public GroupNumber: number;
+    public ID: number;
+    public IsSubTotal: boolean;
+    public Period1: number;
+    public Period10: number;
+    public Period11: number;
+    public Period12: number;
+    public Period2: number;
+    public Period3: number;
+    public Period4: number;
+    public Period5: number;
+    public Period6: number;
+    public Period7: number;
+    public Period8: number;
+    public Period9: number;
+    public PrecedingBalance: number;
+    public SubGroupName: string;
+    public SubGroupNumber: number;
+    public Sum: number;
+    public SumLastYear: number;
+    public SumPeriod: number;
+    public SumPeriodAccumulated: number;
+    public SumPeriodLastYear: number;
+    public SumPeriodLastYearAccumulated: number;
+}
+
+
+export class BudgetImport extends UniEntity {
+    public Budget: Budget;
+}
+
+
 export class CreateBankIntegrationDTO extends UniEntity {
     public Bank: string;
     public BankAcceptance: boolean;
@@ -7127,6 +7621,12 @@ export class AutobankUserDTO extends UniEntity {
     public Password: string;
     public Phone: string;
     public UserID: number;
+}
+
+
+export class UpdateServiceStatusDTO extends UniEntity {
+    public ServiceID: string;
+    public StatusCode: StatusCodeBankIntegrationAgreement;
 }
 
 
@@ -7317,6 +7817,13 @@ export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
 }
 
 
+export class AccountUsageReference extends UniEntity {
+    public Entity: string;
+    public EntityID: number;
+    public Info: string;
+}
+
+
 export class BankData extends UniEntity {
     public AccountNumber: string;
     public IBAN: string;
@@ -7376,15 +7883,14 @@ export class JournalEntryPeriodData extends UniEntity {
 }
 
 
-export class LedgerSuggestion extends UniEntity {
-    public BusinessType: string;
-    public IndustryCode: string;
-    public IndustryName: string;
-    public Name: string;
-    public OrgNumber: string;
-    public Source: SuggestionSource;
-    public Suggestion: AccountUsage;
-    public Suggestions: Array<AccountUsage>;
+export class VippsUpdateStatus extends UniEntity {
+    public InvoiceID: string;
+    public StatusCode: number;
+}
+
+
+export class VippsUser extends UniEntity {
+    public PhoneNumber: string;
 }
 
 
@@ -7445,6 +7951,28 @@ export enum FieldType{
 }
 
 
+export enum PricingSource{
+    None = 0,
+    LookupProduct = 1,
+}
+
+
+export enum RecurringPeriod{
+    None = 0,
+    Days = 1,
+    Weeks = 2,
+    Month = 3,
+    Quarter = 4,
+    Year = 5,
+}
+
+
+export enum RecurringResult{
+    Order = 0,
+    Invoice = 1,
+}
+
+
 export enum CompanyRelation{
     ChildOfBeurea = 1,
     Subsidiary = 2,
@@ -7481,6 +8009,7 @@ export enum AmeldingType{
     Standard = 0,
     Employments = 1,
     Nullstilling = 2,
+    Addition = 3,
 }
 
 
@@ -7705,6 +8234,7 @@ export enum StdWageType{
     Contribution = 8,
     Garnishment = 9,
     Outlay = 10,
+    SourceTaxPension = 11,
 }
 
 
@@ -7743,6 +8273,15 @@ export enum InternationalIDType{
 }
 
 
+export enum OtpStatus{
+    A = 0,
+    S = 1,
+    P = 2,
+    LP = 3,
+    AP = 4,
+}
+
+
 export enum PaymentInterval{
     Standard = 0,
     Monthly = 1,
@@ -7755,6 +8294,13 @@ export enum GenderEnum{
     NotDefined = 0,
     Woman = 1,
     Man = 2,
+}
+
+
+export enum TypeOfPaymentOtp{
+    FixedSalary = 0,
+    HourlyPay = 1,
+    PaidOnCommission = 2,
 }
 
 
@@ -7802,6 +8348,7 @@ export enum EventplanType{
     Webhook = 0,
     Custom = 1,
     Other = 2,
+    NATS = 3,
 }
 
 
@@ -7917,6 +8464,13 @@ export enum KpiValueStatus{
 }
 
 
+export enum SuggestionSource{
+    InternalCompanyHistory = 1,
+    CommonSupplierHistory = 2,
+    CommonIndustryHistory = 3,
+}
+
+
 export enum VatCodeGroupingValueEnum{
     Costs = 1,
     Invoice = 2,
@@ -7997,6 +8551,16 @@ export enum ReportType{
 }
 
 
+export enum StatusCodeBankIntegrationAgreement{
+    Pending = 700001,
+    WaitForSigning = 700002,
+    WaitForBankApprove = 700003,
+    WaitForZDataApprove = 700004,
+    Active = 700005,
+    Canceled = 700006,
+}
+
+
 export enum StatusCodeJournalEntryLine{
     Open = 31001,
     PartlyMarked = 31002,
@@ -8012,10 +8576,17 @@ export enum AltinnGetVatReportDataFromAltinnStatus{
 }
 
 
-export enum SuggestionSource{
-    InternalCompanyHistory = 1,
-    CommonSupplierHistory = 2,
-    CommonIndustryHistory = 3,
+export enum StatusCodeRecurringInvoiceLog{
+    Draft = 46101,
+    InProgress = 46102,
+    Failed = 46103,
+    Completed = 46104,
+}
+
+
+export enum StatusCodeRecurringInvoice{
+    InActive = 46001,
+    Active = 46002,
 }
 
 
@@ -8137,6 +8708,13 @@ export enum StatusCodeJournalEntryLineDraft{
 }
 
 
+export enum StatusCodeReInvoice{
+    Marked = 30201,
+    Ready = 30202,
+    ReInvoiced = 30203,
+}
+
+
 export enum StatusCodeVatReport{
     Executed = 32001,
     Submitted = 32002,
@@ -8159,10 +8737,13 @@ export enum StatusCodeSupplierInvoice{
 
 
 export enum VippsProcessStatus{
-    Pending = 45000,
-    Processed = 46000,
-    Failed = 47000,
-    Paid = 48000,
+    Created = 41000,
+    Rejected = 42000,
+    Pending = 43000,
+    Expired = 44000,
+    Approved = 45000,
+    Deleted = 46000,
+    Revoked = 47000,
 }
 
 

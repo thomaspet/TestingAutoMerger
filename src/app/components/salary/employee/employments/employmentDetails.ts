@@ -1,17 +1,22 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, SimpleChange} from '@angular/core';
-import {Employment, Account, SubEntity, Project, Department} from '../../../../unientities';
+import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
+import {Employment, Account, Employee, LocalDate, CompanySalary} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {TypeOfEmployment} from '@uni-entities';
 import {
-    EmployeeService,
     ErrorService,
     EmploymentService,
     AccountService,
-    StatisticsService
+    StatisticsService,
+    CompanySalaryService
 } from '../../../../services/services';
+import {filter, take} from 'rxjs/operators';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import { ConfirmActions } from '@uni-framework/uni-modal';
+import * as moment from 'moment';
+
 declare var _;
 
 @Component({
@@ -31,12 +36,10 @@ export class EmploymentDetails implements OnChanges {
     @ViewChild(UniForm) private form: UniForm;
 
     @Input() public employment: Employment;
-    @Input() private subEntities: SubEntity[];
-    @Input() private projects: Project[];
-    @Input() private departments: Department[];
-    @Input() private employeeID: number;
+    @Input() private employee: Employee;
 
     @Output() private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
+    @Output() private employeeChange: EventEmitter<Employee> = new EventEmitter<Employee>();
 
     private focusJobCode: boolean;
 
@@ -46,14 +49,21 @@ export class EmploymentDetails implements OnChanges {
     private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
     private jobCodeInitValue: Observable<any>;
+    private companySalarySettings: CompanySalary;
 
     constructor(
-        private employeeService: EmployeeService,
         private employmentService: EmploymentService,
         private accountService: AccountService,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService
-    ) {}
+        private errorService: ErrorService,
+        private modalService: UniModalService,
+        private companySalaryService: CompanySalaryService
+    ) {
+        this.companySalaryService.getCompanySalary()
+            .subscribe((compsalarysettings: CompanySalary) => {
+                this.companySalarySettings = compsalarysettings;
+            });
+     }
 
     public ngOnChanges(change: SimpleChanges) {
         if (!this.formReady) {
@@ -81,7 +91,7 @@ export class EmploymentDetails implements OnChanges {
             }
 
 
-            if (this.employment.JobCode) {
+            if (this.employment && this.employment.JobCode) {
                 this.jobCodeInitValue = this.statisticsService
                     .GetAll(
                         'model=STYRKCode&select=styrk as styrk,'
@@ -95,19 +105,13 @@ export class EmploymentDetails implements OnChanges {
             }
 
             this.employment$.next(change['employment'].currentValue);
-            this.updateAmeldingTooltips();
-        }
-
-        if (change['subEntities'] && change['subEntities'].currentValue) {
-            this.setSourceOn('SubEntityID', this.subEntities);
-        }
-
-        if (change['projects'] && change['projects'].currentValue) {
-            this.setSourceOn('Dimensions.ProjectID', this.projects);
-        }
-
-        if (change['departments'] && change['departments'].currentValue) {
-            this.setSourceOn('Dimensions.DepartmentID', this.departments);
+            this.employmentService.updateDefaults(change['employment'].currentValue);
+            this.fields$
+                .pipe(
+                    filter(fields => !!fields && !!fields.length),
+                    take(1),
+                )
+                .subscribe(fields => this.updateAmeldingTooltips(change['employment'].currentValue, fields));
         }
     }
 
@@ -119,19 +123,6 @@ export class EmploymentDetails implements OnChanges {
                     '1': { isOpen: true }
                 }
             });
-
-            const subEntityField = layout.Fields.find(field => field.Property === 'SubEntityID');
-            subEntityField.Options = {
-                valueProperty: 'ID',
-                debounceTime: 200,
-                template: (obj: SubEntity) =>
-                    obj && obj.BusinessRelationInfo
-                    ?
-                    obj.BusinessRelationInfo.Name
-                        ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
-                        : `${obj.OrgNumber}`
-                    : ''
-            };
 
             const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
@@ -160,8 +151,8 @@ export class EmploymentDetails implements OnChanges {
             ledgerAccountField.Options = {
                 getDefaultData: () => accountObs,
                 search: (query: string) => {
-                    const filter = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
-                    return this.accountService.GetAll(filter);
+                    const filtr = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
+                    return this.accountService.GetAll(filtr);
                 },
                 displayProperty: 'AccountName',
                 valueProperty: 'AccountNumber',
@@ -172,10 +163,7 @@ export class EmploymentDetails implements OnChanges {
         }, err => this.errorService.handle(err));
     }
 
-    public updateAmeldingTooltips() {
-        const employment = this.employment$.getValue();
-        const fields: any[] = this.fields$.getValue();
-
+    public updateAmeldingTooltips(employment: Employment, fields: any[]) {
         fields.forEach(field => {
             if (field.Tooltip && field.Tooltip._isAmeldingValidationTooltip) {
                 field.Tooltip = undefined;
@@ -189,16 +177,12 @@ export class EmploymentDetails implements OnChanges {
         if (employment.TypeOfEmployment === TypeOfEmployment.notSet
             || employment.TypeOfEmployment === TypeOfEmployment.PensionOrOtherNonEmployedBenefits
         ) {
-            this.fields$.next(fields);
+            setTimeout(() => this.fields$.next(fields));
             return;
         }
 
         // Ordinary, maritime and frilancer
         this.setRequiredTooltip(fields, employment, 'StartDate');
-
-        this.setRequiredTooltip(fields, employment, 'ShipReg');
-        this.setRequiredTooltip(fields, employment, 'ShipType');
-        this.setRequiredTooltip(fields, employment, 'TradeArea');
 
         // Ordinary and maritime
         if (employment.TypeOfEmployment !== TypeOfEmployment.FrilancerContratorFeeRecipient) {
@@ -213,9 +197,12 @@ export class EmploymentDetails implements OnChanges {
         // Only maritime
         if (employment.TypeOfEmployment === TypeOfEmployment.MaritimeEmployment) {
             this.setRequiredTooltip(fields, employment, 'RemunerationType');
+            this.setRequiredTooltip(fields, employment, 'ShipReg');
+            this.setRequiredTooltip(fields, employment, 'ShipType');
+            this.setRequiredTooltip(fields, employment, 'TradeArea');
         }
 
-        this.fields$.next(fields);
+        setTimeout(() => this.fields$.next(fields));
     }
 
     private setRequiredTooltip(fields, model, property) {
@@ -252,15 +239,6 @@ export class EmploymentDetails implements OnChanges {
         this.fields$.next(allFields);
     }
 
-    public setSourceOn(searchField: string, source: any) {
-        const fields = this.fields$.getValue();
-        const currentField = fields.find(field => field.Property === searchField);
-        if (currentField) {
-            currentField.Options.source = source;
-        }
-        this.fields$.next(fields);
-    }
-
     public getJobName(styrk) {
         return this.statisticsService
             .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
@@ -279,6 +257,10 @@ export class EmploymentDetails implements OnChanges {
 
         const employment = this.employment$.getValue();
 
+        if (changes['TypeOfEmployment']) {
+            this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
+        }
+
         if (changes['JobCode'] && employment.JobCode) {
             this.getJobName(changes['JobCode'].currentValue).subscribe(jobName => {
                 employment.JobName = jobName;
@@ -288,6 +270,66 @@ export class EmploymentDetails implements OnChanges {
             });
         } else {
             this.employmentChange.emit(this.employment$.getValue());
+        }
+
+        if (changes['StartDate'] && !this.employee.EmploymentDateOtp) {
+            this.employee.EmploymentDateOtp = changes['StartDate'].currentValue;
+            this.employeeChange.emit(this.employee);
+        }
+
+        if (changes['StartDate'] && this.employee.EndDateOtp) {
+            if (!changes['StartDate'].previousValue && !employment.ID) {
+                if (this.companySalarySettings.OtpExportActive) {
+                    const obs = this.modalService
+                    .confirm({
+                        header: 'Oppdater Slutttdato OTP',
+                        message: `Den ansatte er satt opp med sluttdato for OTP.
+                            Vil du fjerne sluttdato for OTP nå som du legger til nytt arbeidsforhold?`,
+                        buttonLabels: {
+                            accept: 'Ja, fjern sluttdato OTP',
+                            cancel: 'Nei, behold sluttdato OTP'
+                        }
+                    })
+                    .onClose;
+                    return obs
+                        .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+                        .map(() => this.employee)
+                        .subscribe((employee) => {
+                            employee.EndDateOtp = null;
+                            employee.IncludeOtpUntilMonth = 0;
+                            employee.IncludeOtpUntilYear = 0;
+                            this.employeeChange.emit(employee);
+                        });
+                }
+            }
+        }
+
+        if (changes['EndDate']) {
+            const enddate: LocalDate = changes['EndDate'].currentValue;
+            if (!!enddate) {
+                if (this.companySalarySettings.OtpExportActive) {
+                    const includedate = moment(new Date()).add(2, 'months');
+                    const obs = this.modalService
+                    .confirm({
+                        header: 'Oppdater Slutttdato OTP',
+                        message: 'Vil du også oppdatere sluttdato OTP?',
+                        buttonLabels: {
+                            accept: 'Ja, oppdater sluttdato OTP',
+                            cancel: 'Nei, den ansatte har ikke sluttet. Endrer bare på arbeidsforhold'
+                        }
+                    })
+                    .onClose;
+                    return obs
+                        .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+                        .switchMap(() => Observable.of(this.employee))
+                        .subscribe((employee) => {
+                            employee.EndDateOtp = enddate;
+                            employee.IncludeOtpUntilMonth = includedate.month();
+                            employee.IncludeOtpUntilYear = includedate.year();
+                            this.employeeChange.emit(employee);
+                        });
+                }
+            }
         }
     }
 

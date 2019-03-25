@@ -27,9 +27,9 @@ export class WorkitemTransferWizardPreview {
         if (this.baseList) {
             this.options.mergeBy = parseInt(this.mergeOption, 10);
             this.orderList.length = 0;
-            setTimeout(() => {
-                this.invoiceHourService.processList(this.baseList, this.options);
-            }, 20);
+            this.invoiceHourService.processList(this.baseList, this.options).then(result => {
+                this.orderList = result;
+            });
             return;
         }
         this.refresh();

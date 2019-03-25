@@ -1,11 +1,12 @@
-<section role="dialog" class="paycheckSenderModal uni-modal medium"
-        (clickOutside)="close()"
-        (keydown.esc)="close()">
+<section role="dialog" class="paycheckSenderModal uni-modal medium">
     <header>
         <h1>Send/Skriv ut lønnslipp</h1>
     </header>
 
-    <article>
+    <article class="scrollable">
+        <uni-paycheck-mail-options
+            (mailOptions)="onEmailOptions($event)">
+        </uni-paycheck-mail-options>
         <paycheck-sending
             [runID]="options.data"
             (busy)="setBusy($event)"
@@ -30,7 +31,7 @@
                 [attr.aria-expanded]="open"
                 [disabled]="saveActions[0].disabled">More options</button>
 
-            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
+            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" (click)="open = false">
                 <li *ngFor="let action of saveActions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
             </ul>
         </section>

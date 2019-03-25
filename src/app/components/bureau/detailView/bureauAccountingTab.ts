@@ -9,7 +9,6 @@ import {
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
-import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
@@ -18,7 +17,7 @@ import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '@app/components/reports/modals/parameter/reportParamModal';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
-import {ReportDefinitionService} from '@app/services/services';
+import {ReportDefinitionService, FinancialYearService} from '@app/services/services';
 import {ToastService} from '@uni-framework/uniToast/toastService';
 
 const BASE = environment.BASE_URL;
@@ -31,7 +30,7 @@ const BASE = environment.BASE_URL;
     <section class="tab-part">
         <section class="image-container">
             <img class="invoice-icon">
-            <span>Fakturamottak</span>
+            <span>Leverandørfaktura</span>
         </section>
         <section class="text-container">
             <p>
@@ -84,12 +83,12 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
         private authService: AuthService,
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
-        yearService: YearService,
+        private financialYearService: FinancialYearService,
         private uniModalService: UniModalService,
         private reportService: ReportDefinitionService,
         private toast: ToastService
     ) {
-        this.accountingYear = yearService.selectedYear$.getValue();
+        this.accountingYear = financialYearService.getActiveYear();
     }
 
     public ngAfterViewInit() {

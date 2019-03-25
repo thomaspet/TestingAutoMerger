@@ -3,13 +3,12 @@ import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from '@app/authService';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
-import {User} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'uni-login-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal" (keydown.enter)="authenticate()">
             <header>
                 <h1>Autentisering</h1>
             </header>

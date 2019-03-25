@@ -1,6 +1,8 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {ClickOutsideModule} from '../../click-outside/click-outside.module';
+
 import {UniForm} from './uniform/uniform';
 
 import {SectionIndexesPipe} from '@uni-framework/ui/uniform/pipes/section-indexes.pipe';
@@ -21,12 +23,11 @@ import {ShowError} from './showError.component';
 import {UniCalendar} from './controls/calendar/calendar';
 import {UniLineBreak} from './uni-linebreak.component';
 import {LayoutBuilder} from './services/index';
-import {ClickOutsideDirective} from './shared/clickOutside';
 
 import {UniSearchModule} from '../unisearch/index';
 import {UniTooltipModule} from '../tooltip/tooltip.module';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule} from '@angular/material';
+import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule, MatTooltipModule} from '@angular/material';
 import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
 
 @NgModule({
@@ -40,7 +41,9 @@ import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
         MatCheckboxModule,
         MatRadioModule,
         MatSlideToggleModule,
-        UniSelectModule
+        MatTooltipModule,
+        UniSelectModule,
+        ClickOutsideModule
     ],
     declarations: [
         UniForm,
@@ -51,7 +54,6 @@ import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
         ShowError,
         UniLineBreak,
         CONTROLS,
-        ClickOutsideDirective,
         SectionIndexesPipe,
         BySectionPipe,
         NoFieldSetPipe,

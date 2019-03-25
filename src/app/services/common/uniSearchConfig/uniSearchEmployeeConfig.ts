@@ -77,6 +77,8 @@ export class UniSearchEmployeeConfig {
     }
 
     private generateEmployeeStatisticsQuery(searchTerm: string): string {
+        searchTerm = searchTerm.replace(/'/g,"\\'");
+
         const model = 'Employee';
         const expand = 'BusinessRelationInfo.DefaultPhone,BusinessRelationInfo.InvoiceAddress,BusinessRelationInfo.DefaultEmail,BusinessRelationInfo.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);

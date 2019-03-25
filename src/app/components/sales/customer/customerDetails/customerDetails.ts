@@ -1,5 +1,5 @@
 import {Router, ActivatedRoute} from '@angular/router';
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges, OnInit} from '@angular/core';
+import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -67,6 +67,8 @@ import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
+import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
+import { ReportTypeService } from '@app/services/reports/reportTypeService';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -85,15 +87,12 @@ const isNumber = (value) => _.reduce(value, (res, letter) => {
     templateUrl: './customerDetails.html'
 })
 export class CustomerDetails implements OnInit {
-    @Input() public modalMode: boolean;
-    @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
     @ViewChild(SubCompanyComponent) private subCompany: SubCompanyComponent;
 
     private customerID: any;
-    private allowSearchCustomer: boolean = true;
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public showReminderSection: boolean = false; // used in template
@@ -251,7 +250,8 @@ export class CustomerDetails implements OnInit {
         private journalEntryLineService: JournalEntryLineService,
         private authService: AuthService,
         private distributionPlanService: DistributionPlanService,
-        private navbarLinkService: NavbarLinkService
+        private navbarLinkService: NavbarLinkService,
+        private reportTypeService: ReportTypeService
     ) {}
 
     public ngOnInit() {
@@ -265,56 +265,54 @@ export class CustomerDetails implements OnInit {
         ];
 
         this.setupSaveActions();
-        if (!this.modalMode) {
-            this.route.params.subscribe((params) => {
-                this.customerID = +params['id'];
+        this.route.params.subscribe((params) => {
+            this.customerID = +params['id'];
 
-                this.commentsConfig = {
-                    entityType: 'Customer',
-                    entityID: this.customerID
-                };
+            this.commentsConfig = {
+                entityType: 'Customer',
+                entityID: this.customerID
+            };
 
-                this.selectConfig = this.numberSeriesService.getSelectConfig(
-                    this.customerID, this.numberSeries, 'Customer number series'
-                );
-                this.setup();
+            this.selectConfig = this.numberSeriesService.getSelectConfig(
+                this.customerID, this.numberSeries, 'Customer number series'
+            );
+            this.setup();
 
-                this.tabs = [
-                    {name: 'Detaljer'},
-                    {name: 'Åpne poster'},
-                    {name: 'Produkter solgt'},
-                    {name: 'Dokumenter'},
-                    {name: 'Selskap'}
-                ];
+            this.tabs = [
+                {name: 'Detaljer'},
+                {name: 'Åpne poster'},
+                {name: 'Produkter solgt'},
+                {name: 'Dokumenter'},
+                {name: 'Selskap'}
+            ];
 
-                if (!!this.customerID) {
-                    // Add check to see if user has access to the TOF-modules before adding the tabs
-                    this.navbarLinkService.linkSections$.subscribe(linkSections => {
-                        const mySections = linkSections.filter(sec => sec.name === 'Salg');
-                        if (mySections.length) {
-                            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
-                                links => {
-                                    this.reportLinks = links;
-                                    const addLinks = [];
-                                    links.forEach((link) => {
-                                        mySections[0].linkGroups.forEach((group) => {
-                                            group.links.forEach( (li) => {
-                                                if (li.name === link.name) {
-                                                    addLinks.push(link);
-                                                }
-                                            });
+            if (!!this.customerID) {
+                // Add check to see if user has access to the TOF-modules before adding the tabs
+                this.navbarLinkService.linkSections$.subscribe(linkSections => {
+                    const mySections = linkSections.filter(sec => sec.name === 'Salg');
+                    if (mySections.length) {
+                        this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                            links => {
+                                this.reportLinks = links;
+                                const addLinks = [];
+                                links.forEach((link) => {
+                                    mySections[0].linkGroups.forEach((group) => {
+                                        group.links.forEach( (li) => {
+                                            if (li.name === link.name) {
+                                                addLinks.push(link);
+                                            }
                                         });
                                     });
+                                });
 
-                                    this.tabs = this.tabs.concat([], ...addLinks);
-                                },
-                                err => this.errorService.handle(err)
-                            );
-                        }
-                    });
-                }
-            });
-        }
+                                this.tabs = this.tabs.concat([], ...addLinks);
+                            },
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                });
+            }
+        });
     }
 
     private activateCustomer(customerID: number) {
@@ -435,9 +433,6 @@ export class CustomerDetails implements OnInit {
     }
 
     private setTabTitle() {
-        if (this.modalMode) {
-            return;
-        }
         const customer = this.customer$.getValue();
         const tabTitle = customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
         this.tabService.addTab({
@@ -503,25 +498,6 @@ export class CustomerDetails implements OnInit {
         if (tab.name === 'Selskap') {
             this.subCompany.activate();
         }
-    }
-
-    public reset() {
-        this.customerID = 0;
-        this.isDirty = false;
-        this.hasErrors = false;
-        this.setup();
-        this.formIsInitialized = true;
-        this.showReportWithID = null;
-    }
-
-    public openInModalMode(id?: number) {
-        this.customerID = id ? id : 0;
-        this.allowSearchCustomer = false;
-        this.setup();
-    }
-
-    public showSearch(customerID): boolean {
-        return isNaN(customerID);
     }
 
     public setup() {
@@ -670,7 +646,7 @@ export class CustomerDetails implements OnInit {
     }
 
     public goToPostpost() {
-        this.router.navigateByUrl('/accounting/postpost?name=' + this.customer$.value.Info.Name + '&mode=kunder');
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.customer$.value.Info.Name + '&register=customer');
     }
 
     public numberSeriesChange(selectedSerie) {
@@ -918,7 +894,6 @@ export class CustomerDetails implements OnInit {
         const customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (
-            !this.allowSearchCustomer ||
             this.customerID > 0 ||
             (customer && customer.Info.Name !== null && customer.Info.Name !== '')
         ) {
@@ -1065,20 +1040,18 @@ export class CustomerDetails implements OnInit {
                 this.hasErrors = false;
                 this.selectConfig = undefined;
                 doneCallback('Kunde lagret');
-                if (this.modalMode) {
-                    this.customerUpdated.next(res);
+
+                // Reload if customer already existed, navigate if not
+                if (this.customerID) {
+                    this.setupSaveActions();
+                    this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
+                        this.setMainContact(updatedCustomer);
+                        this.customer$.next(updatedCustomer);
+                        this.subCompany.refresh();
+                        this.setTabTitle();
+                    });
                 } else {
-                    // Reload if customer already existed, navigate if not
-                    if (this.customerID) {
-                        this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
-                            this.setMainContact(updatedCustomer);
-                            this.customer$.next(updatedCustomer);
-                            this.subCompany.refresh();
-                            this.setTabTitle();
-                        });
-                    } else {
-                        this.router.navigateByUrl('/sales/customer/' + res.ID);
-                    }
+                    this.router.navigateByUrl('/sales/customer/' + res.ID);
                 }
             },
             err => {
@@ -1088,24 +1061,10 @@ export class CustomerDetails implements OnInit {
         );
     }
 
-    public onContactChanged(contact: Contact) {
-        if (!contact) {
-            return;
-        }
-
-        if (!contact.ID) {
-            contact['_createguid'] = this.customerService.getNewGuid();
-            contact.Info['_createguid'] = this.customerService.getNewGuid();
-        }
-
-        // prepare for save
-        if (!contact.Info.DefaultEmail.ID) {
-            contact.Info.DefaultEmail['_createguid'] = this.customerService.getNewGuid();
-        }
-
-        if (!contact.Info.DefaultPhone.ID) {
-            contact.Info.DefaultPhone['_createguid'] = this.customerService.getNewGuid();
-        }
+    onContactsChange() {
+        // Main entity updated by reference
+        this.isDirty = true;
+        this.setupSaveActions();
     }
 
     private getCustomerLookupOptions() {
@@ -1150,6 +1109,18 @@ export class CustomerDetails implements OnInit {
     public onChange(changes: SimpleChanges) {
         let customer = this.customer$.getValue();
         this.isDirty = true;
+        if (changes['OrgNumber'] && customer.OrgNumber) {
+            this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
+                if (res.Data.length > 0) {
+                    let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
+                    res.Data.forEach(function (ba) {
+                        orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                    });
+                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                }
+
+            }, err => this.errorService.handle(err));
+        }
 
         if (changes['Info.InvoiceAddress']
             && changes['Info.InvoiceAddress'].currentValue
@@ -1214,7 +1185,6 @@ export class CustomerDetails implements OnInit {
             }
         }
 
-        this.form.validateForm();
         this.setupSaveActions();
         this.customer$.next(customer);
     }
@@ -1515,6 +1485,48 @@ export class CustomerDetails implements OnInit {
                     FieldSet: 7,
                     Section: 0,
                     Hidden: false
+                },
+                {
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Standard blankett faktura',
+                    Property: 'DefaultCustomerInvoiceReportID',
+                    Options: {
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+                        valueProperty: 'ID',
+                        displayProperty: 'Description',
+                        hideDeleteButton: true,
+                        searchable: false,
+                    },
+                    Section: 0,
+                    FieldSet: 7,
+                },
+                {
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Standard blankett ordre',
+                    Property: 'DefaultCustomerOrderReportID',
+                    Options: {
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
+                        valueProperty: 'ID',
+                        displayProperty: 'Description',
+                        hideDeleteButton: true,
+                        searchable: false,
+                    },
+                    FieldSet: 7,
+                    Section: 0,
+                },
+                {
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Standard blankett tilbud',
+                    Property: 'DefaultCustomerQuoteReportID',
+                    Options: {
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
+                        valueProperty: 'ID',
+                        displayProperty: 'Description',
+                        hideDeleteButton: true,
+                        searchable: false,
+                    },
+                    Section: 0,
+                    FieldSet: 7,
                 },
                 {
                     EntityType: 'Customer',

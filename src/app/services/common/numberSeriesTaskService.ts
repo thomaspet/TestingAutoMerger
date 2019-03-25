@@ -28,7 +28,7 @@ export class NumberSeriesTaskService extends BizHttp<NumberSeriesTask> {
         switch (task.Name) {
             case 'Journal': task._DisplayName = 'Bokføring'; break;
             case 'CustomerInvoice': task._DisplayName = 'Fakturering'; break;
-            case 'SupplierInvoice': task._DisplayName = 'Fakturamottak'; break;
+            case 'SupplierInvoice': task._DisplayName = 'Leverandørfaktura'; break;
             case 'Salary': task._DisplayName = 'Lønn'; break;
             case 'Bank': task._DisplayName = 'Bank'; break;
             case 'VatReport': task._DisplayName = 'MVA-melding'; break;

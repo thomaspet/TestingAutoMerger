@@ -82,7 +82,7 @@ export class TransqueryDetails implements OnInit {
     private activeFinancialYear: FinancialYear;
 
     public toolbarconfig: IToolbarConfig = {
-        title: 'Forespørsel på bilag'
+        title: 'Søk på bilag'
     };
 
     private COLUMN_VISIBILITY_LOCALSTORAGE_KEY: string = 'TransqueryDetailsColumnVisibility';
@@ -103,7 +103,7 @@ export class TransqueryDetails implements OnInit {
         private customDimensionService: CustomDimensionService
     ) {
         this.tabService.addTab({
-            'name': 'Forespørsel bilag',
+            'name': 'Søk på bilag',
             url: '/accounting/transquery',
             moduleID: UniModules.TransqueryDetails,
             active: true
@@ -111,16 +111,15 @@ export class TransqueryDetails implements OnInit {
     }
 
     public ngOnInit() {
+        this.activeFinancialYear = this.financialYearService.getActiveFinancialYear();
 
         // setup unitable and router parameter subscriptions
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYear(),
             this.customDimensionService.getMetadata()
         ).subscribe(data => {
             this.financialYears = data[0];
-            this.activeFinancialYear = data[1];
-            this.dimensionTypes = data[2];
+            this.dimensionTypes = data[1];
 
             // set default value for filtering
             const searchParams: ISearchParams = {
@@ -266,6 +265,7 @@ export class TransqueryDetails implements OnInit {
         if (isSum) {
             urlParams.set('select', 'sum(Amount) as JournalEntryLineAmount');
             urlParams.delete('orderby');
+            urlParams.delete('join');
             return this.statisticsService.GetAllByUrlSearchParams(urlParams)
                 .map(res => res.json())
                 .map(res => (res.Data && res.Data[0]) || []);
@@ -359,7 +359,7 @@ export class TransqueryDetails implements OnInit {
                 title: 'Sum debet',
             }, {
                 value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumCredit || 0) : null,
-                title: 'Sum kreditt',
+                title: 'Sum kredit',
             }, {
                 value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumLedger || 0) : null,
                 title: 'Sum reskontro',
@@ -397,8 +397,6 @@ export class TransqueryDetails implements OnInit {
                 field: 'Account.AccountNumber',
                 operator: 'eq',
                 value: routeParams['Account_AccountNumber'],
-                group: 0,
-                selectConfig: null
             });
 
             if (+routeParams['period'] === 0) {
@@ -407,8 +405,6 @@ export class TransqueryDetails implements OnInit {
                     operator: 'lt',
                     value: accountYear,
                     isDate: true,
-                    group: 0,
-                    selectConfig: null
                 });
             } else if (+routeParams['period'] === 13) {
                 if (routeParams['isIncomingBalance'] === 'true') {
@@ -417,8 +413,6 @@ export class TransqueryDetails implements OnInit {
                         operator: 'lt',
                         value: nextAccountYear,
                         isDate: true,
-                        group: 0,
-                        selectConfig: null
                     });
                 } else {
                     filter.push({
@@ -426,8 +420,6 @@ export class TransqueryDetails implements OnInit {
                         operator: 'ge',
                         value: accountYear,
                         isDate: true,
-                        group: 0,
-                        selectConfig: null
                     });
 
                     filter.push({
@@ -435,8 +427,6 @@ export class TransqueryDetails implements OnInit {
                         operator: 'lt',
                         value: nextAccountYear,
                         isDate: true,
-                        group: 0,
-                        selectConfig: null
                     });
                 }
             } else {
@@ -447,8 +437,6 @@ export class TransqueryDetails implements OnInit {
                     operator: 'ge',
                     value: periodDates.firstDayOfPeriod,
                     isDate: true,
-                    group: 0,
-                    selectConfig: null
                 });
 
                 filter.push({
@@ -456,7 +444,6 @@ export class TransqueryDetails implements OnInit {
                     operator: 'le',
                     value: periodDates.lastDayOfPeriod,
                     isDate: true,
-                    group: 0, selectConfig: null
                 });
             }
         } else if (routeParams['Account_AccountNumber']) {
@@ -520,8 +507,6 @@ export class TransqueryDetails implements OnInit {
                 field: 'JournalEntryNumber',
                 operator: 'eq',
                 value: routeParams['JournalEntryNumber'],
-                group: 0,
-                selectConfig: null
             });
 
             this.allowManualSearch = false;
@@ -537,8 +522,6 @@ export class TransqueryDetails implements OnInit {
                     field: field.replace('_', '.'),
                     operator: 'eq',
                     value: routeParams[field],
-                    group: 0,
-                    selectConfig: null
                 });
             }
         }

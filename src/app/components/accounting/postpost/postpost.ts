@@ -1,142 +1,165 @@
-import {ViewChild, Component, HostListener} from '@angular/core';
+import {ViewChild, Component} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IToolbarConfig, IAutoCompleteConfig, IShareAction} from './../../common/toolbar/toolbar';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {LedgerAccountReconciliation, LedgerTableEmitValues} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
 import {Observable} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
-import {
-    Customer,
-    Supplier,
-    Account,
-    StatusCodeJournalEntryLine,
-    LocalDate
-} from '../../../unientities';
-import {
-    ErrorService,
-    AccountService,
-    StatisticsService,
-    JournalEntryLineService,
-    NumberFormat
-} from '../../../services/services';
+import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
+import {StatisticsService, NumberFormat, PageStateService} from '../../../services/services';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({
     selector: 'postpost',
-    templateUrl: './postpost.html'
+    templateUrl: './postpost.html',
+    host: {
+        '(document:keydown)': 'checkForSaveKey($event)'
+    }
 })
 export class PostPost {
 
     @ViewChild(LedgerAccountReconciliation)
     public postpost: LedgerAccountReconciliation;
 
-    @HostListener('keydown', ['$event'])
-    public onKeyDown(event: KeyboardEvent) {
-        if ((event.ctrlKey || event.metaKey) && event.keyCode === 77) {
-            event.preventDefault();
-            this.autoMark();
-        }
-    }
-
-    // tslint:disable:member-ordering
-
-    // Save
-    public shareActions: IShareAction[];
-    public saveActions: IUniSaveAction[];
-
-    // Filter
-    public datefield: UniFieldLayout = new UniFieldLayout();
-
-    private registers: any[] = [
+    shareActions: IShareAction[];
+    saveActions: IUniSaveAction[];
+    registers: any[] = [
         {Register: 'customer', _DisplayName: 'Kunde'},
         {Register: 'supplier', _DisplayName: 'Leverandør'},
         {Register: 'account', _DisplayName: 'Hovedbok'}
     ];
 
-    public currentFilter: string = 'OPEN';
-    public tabs: IUniTab[] = [
-        {name: 'Åpne poster', value: 'OPEN'},
+    currentFilter: string = 'OPEN';
+
+    activeIndex: number = 0;
+    tabs: IUniTab[] = [
+        {
+            name: 'Åpne poster',
+            value: 'OPEN',
+            tooltip: 'Ctrl + A for å automerke, Ctrl + M for å fjerne alle markeringer'
+        },
         {name: 'Lukkede poster', value: 'MARKED'},
-        {name: 'Alle poster', value: 'ALL'}
+        {
+            name: 'Alle poster',
+            value: 'ALL',
+            tooltip: 'Om du skal lukke poster, velg Åpne poster-fanen.'
+        }
+    ];
+
+    mainTabs: IUniTab[] = [
+        {name: 'Alle', value: 'EVERY', hidden: false},
+        {name: 'Alle med åpne poster', value: 'ALL', hidden: false},
+        {
+            name: `Differanser`,
+            value: 'DIFF',
+            hidden: true,
+            tooltip: 'Differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
+        }
     ];
 
     accountListfilters = [
-        { name: 'Kontonummer', value: 'AccountNumber' },
-        { name: 'Navn', value: 'AccountName' },
-        { name: 'Sum åpne poster', value: 'SumAmount' },
-        { name: 'Antall poster', value: 'count' }
+        { name: 'Kontonummer', value: 'AccountNumber', multiplier: 1, initialMulitplier: 1 },
+        { name: 'Navn', value: 'AccountName', multiplier: 1, initialMulitplier: 1 },
+        { name: 'Sum poster', value: 'SumAmount', multiplier: -1, initialMulitplier: 1 },
+        { name: 'Antall poster', value: 'count', multiplier: -1, initialMulitplier: 1 }
     ];
 
     currentListFilter = this.accountListfilters[0];
-
-    public mainTabs: IUniTab[] = [];
-    public currentTab: IUniTab;
+    mainActiveIndex: number = 0;
     accountSearchFilterString: string = '';
+    postSearchFilterString: string = '';
+    nameFromParams: string = '';
     searchControl: FormControl = new FormControl('');
     scrollbar: PerfectScrollbar;
     activeAccount: number = 0;
-
-    // Detail view
-    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject(null);
-    public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
-    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
-    public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
-    public current$: BehaviorSubject<any> = new BehaviorSubject(null);
-
+    activeSubAccountID: number = 0;
+    customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
+    supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
+    account$: BehaviorSubject<Account> = new BehaviorSubject(null);
+    current$: BehaviorSubject<any> = new BehaviorSubject(null);
     accounts = [];
     filteredAccounts = [];
 
-    public toolbarconfig: IToolbarConfig;
-    public accountSearch: IAutoCompleteConfig;
-    public registerConfig: any;
-    private register: string = 'customer';
-    public autolocking: boolean = true;
+    toolbarconfig: IToolbarConfig;
+    accountSearch: IAutoCompleteConfig;
+    registerConfig: any;
+    autolocking: boolean = true;
+    initial: boolean = true;
     private canceled: boolean = false;
-    private allSelectedLocked: boolean = false;
+    private ledgerEmitValue: LedgerTableEmitValues = LedgerTableEmitValues.InitialValue;
+    private register: string = 'customer';
 
     constructor(
         private tabService: TabService,
-        private errorService: ErrorService,
         private modalService: UniModalService,
-        private toastService: ToastService,
-        private accountService: AccountService,
         private statisticsService: StatisticsService,
-        private journalEntryLineService: JournalEntryLineService,
         private route: ActivatedRoute,
         private router: Router,
-        public numberFormatService: NumberFormat,
+        private pageStateService: PageStateService,
+        public numberFormatService: NumberFormat
     ) {
-
         this.route.queryParams.subscribe((params) => {
+            this.initial = true;
+            this.register = params['register'] || this.register;
 
-            const mode = params['mode'];
-            let toolbarModeString = 'Kunder';
+            // Fetch values from params
+            this.nameFromParams = params['name'] || '';
+            this.accountSearchFilterString = params['search'] || '';
+            this.postSearchFilterString = params['postsearch'] || '';
+            this.activeIndex = params['tabindex'] || 0;
 
-            this.accountSearchFilterString = params['name'] || '';
-
-            if (mode && mode !== 'kunder') {
-                this.register = mode === 'kontoer' ? 'account' : 'supplier';
-                toolbarModeString = mode === 'kontoer' ? 'Leverandører' : 'Hovedbok';
+            if (this.activeIndex > this.tabs.length) {
+                this.activeIndex = 0;
             }
 
-            this.setupFilter();
-            this.setMainTabs(mode || 'kunder');
-            this.checkForDiff();
-            this.setupShareActions();
-            this.setupToolbarConfig(toolbarModeString);
-            this.setupRegisterConfig();
-            this.setTabTitle();
-            this.reloadRegister();
-            this.setupSaveActions();
+            // Set current filter for posts
+            this.currentFilter = this.tabs[this.activeIndex].value;
+
+            this.checkForDiff().then((hideDiff: boolean) => {
+
+                // Hide/show correct tabs
+                this.mainTabs[2].hidden = hideDiff;
+                this.mainTabs[1].hidden = this.register === 'account';
+                this.mainTabs = [...this.mainTabs];
+
+                // Wait for the tab update before settings mainTabIndex. Check that the number is not corrupt (to big)
+                this.mainActiveIndex = (params['maintabindex'] < this.mainTabs.length) ? params['maintabindex'] || 0 : 0;
+
+                this.setupShareActions();
+                this.setupToolbarConfig();
+                this.setupRegisterConfig();
+                this.reloadRegister();
+                this.setupSaveActions();
+                this.addTab();
+
+                setTimeout(() => {
+                    this.initial = false;
+                }, 500);
+            });
         });
+    }
+
+    public addTab() {
+        this.pageStateService.setPageState('register', this.register);
+        this.pageStateService.setPageState('name', this.nameFromParams);
+        this.pageStateService.setPageState('search', this.accountSearchFilterString);
+        this.pageStateService.setPageState('postsearch', this.postSearchFilterString);
+        this.pageStateService.setPageState('tabindex', this.activeIndex.toString());
+        this.pageStateService.setPageState('maintabindex', this.mainActiveIndex.toString());
+
+        this.tabService.addTab({
+            url: this.pageStateService.getUrl(),
+            name: 'Åpne poster',
+            active: true,
+            moduleID: UniModules.PostPost
+        });
+
     }
 
     public ngOnInit() {
@@ -146,8 +169,26 @@ export class PostPost {
                 this.filteredAccounts = this.getFilteredAccounts();
                 setTimeout(() => {
                     this.scrollbar.update();
+                    this.addTab();
                 });
             });
+    }
+
+    public postpostSearchUpdated(searchString) {
+        this.postSearchFilterString = searchString;
+        this.addTab();
+    }
+
+    public checkForSaveKey(event) {
+        if ((event.ctrlKey || event.metaKey) && event.keyCode === 65) {
+            event.preventDefault();
+            this.autoMark();
+        }
+
+        if ((event.ctrlKey || event.metaKey) && event.keyCode === 77) {
+            event.preventDefault();
+            this.cancel(() => {}, false);
+        }
     }
 
     public ngAfterViewInit() {
@@ -173,22 +214,7 @@ export class PostPost {
             });
     }
 
-    private setMainTabs(name: string, hidden: boolean = true) {
-        this.mainTabs = [
-            {name: 'Alle ' +  name, value: 'ALL'},
-            {
-                name: `${(name.substr(0, 1).toUpperCase()) + (name.substr(1, name.length - 1))} med differanse`,
-                value: 'DIFF',
-                hidden: hidden,
-                tooltip: 'Kunder som har differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
-            }
-        ];
-        if (!this.currentTab) {
-            this.currentTab = this.mainTabs[0];
-        }
-    }
-
-    public goToAccount(event, id: number) {
+    public goToAccount(event, id: number, number?: number) {
         event.stopPropagation();
         switch (this.register) {
             case 'customer':
@@ -198,15 +224,15 @@ export class PostPost {
                 this.router.navigateByUrl(`/accounting/suppliers/${id}`);
                 break;
             case 'account':
-                this.router.navigateByUrl(`/accounting/accountsettings`);
+                this.router.navigateByUrl(`/accounting/accountquery?account=${number}`);
                 break;
         }
     }
 
     public onActiveFilterChange(filter) {
-        const reverseMultiplier = filter.value === this.currentListFilter.value ? -1 : 1;
         this.currentListFilter = filter;
-        this.filteredAccounts = this.filteredAccounts.sort(this.compare(filter.value, reverseMultiplier));
+        this.filteredAccounts = this.filteredAccounts.sort(this.compare(filter.value, filter.multiplier * filter.initialMulitplier));
+        filter.initialMulitplier *= -1;
     }
 
     // Share actions
@@ -233,26 +259,19 @@ export class PostPost {
         this.saveActions = [
             {
                 action: this.save.bind(this),
-                disabled: false,
+                disabled: this.currentFilter !== 'OPEN',
                 label: 'Lagre',
-                main: this.autolocking && this.currentFilter !== 'MARKED'
-                    && !this.allSelectedLocked && !(this.postpost && this.postpost.canAutoMark)
-            }, {
-                action: this.lock.bind(this),
-                disabled: false,
-                label: 'Lukk valgte',
-                main: !this.autolocking && this.currentFilter !== 'MARKED'
-                    && !this.allSelectedLocked && !(this.postpost && this.postpost.canAutoMark)
+                main: this.autolocking && this.ledgerEmitValue === LedgerTableEmitValues.MarkedPosts
             }, {
                 action: this.unlock.bind(this),
                 disabled: false,
                 label: 'Gjenåpne valgte',
-                main: this.currentFilter === 'MARKED' || this.allSelectedLocked
+                main: this.ledgerEmitValue === LedgerTableEmitValues.MarkedLocked,
             }, {
                 action: this.autoMark.bind(this),
-                disabled: false,
+                disabled: !(this.postpost && this.postpost.canAutoMark),
                 label: 'Automerk denne konto',
-                main: false,
+                main: this.ledgerEmitValue === LedgerTableEmitValues.InitialValue && (this.postpost && this.postpost.canAutoMark),
             }, {
                 action: this.autoMarkAll.bind(this),
                 disabled: false,
@@ -260,11 +279,15 @@ export class PostPost {
             }, {
                 action: this.cancel.bind(this),
                 disabled: false,
-                label: 'Angre'
+                label: 'Fjern alle markeringer'
             }, {
                 action: this.autolock.bind(this),
                 disabled: false,
                 label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
+            }, {
+                action: this.cleanAndResetLinesWithWrongStatus.bind(this),
+                disabled: false,
+                label: 'Tilbakestill linjer uten motpost'
             }
         ];
     }
@@ -305,18 +328,37 @@ export class PostPost {
         });
     }
 
-    private lock(done: (message: string) => void) {
-        this.postpost.markCheckedJournalEntries();
-        done('Lukket');
-    }
-
     private unlock(done: (message: string) => void) {
-        this.postpost.unlockJournalEntries();
+        this.postpost.unlockJournalEntries(this.activeAccount);
         done('Gjenåpnet');
     }
 
-    private cancel(done: (message: string) => void) {
-        this.postpost.abortMarking();
+
+    private cleanAndResetLinesWithWrongStatus (done: (message: string) => void) {
+
+        this.modalService.confirm({
+            header: 'Tilbakestille linjer',
+            message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost?',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            switch (response) {
+                case ConfirmActions.ACCEPT:
+                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID);
+                    done('Tilbakestilling ble kjørt.');
+                break;
+                default:
+                    done('Avbrutt');
+                break;
+            }
+        });
+
+    }
+    private cancel(done: (message: string) => void, ask: boolean = true) {
+        this.postpost.abortMarking(ask);
         done('Angret');
     }
 
@@ -348,27 +390,54 @@ export class PostPost {
         });
     }
 
-    private getFilteredAccounts() {
+    private getFilteredAccounts(isInit: boolean = false) {
+
+        let index = 0;
+
+        if (isInit && this.nameFromParams && this.accounts.length > 100) {
+            index = this.accounts.findIndex(acc => acc.AccountName === this.nameFromParams);
+            if ((index + 100) > this.accounts.length) {
+                index = this.accounts.length - 100;
+            }
+        }
+
+        // Let user search for smaller/bigger than SumAmount by starting querystring with < or > and then a number..
+        if (this.accountSearchFilterString.startsWith('>')) {
+            const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
+            if (searchString.length && !isNaN(parseInt(searchString.trim(), 10))) {
+                return this.accounts.filter(acc => acc.SumAmount > parseInt(searchString.trim(), 10));
+            }
+        } else if (this.accountSearchFilterString.startsWith('<')) {
+            const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
+            if (searchString.length && !isNaN(parseInt(searchString.trim(), 10))) {
+                return this.accounts.filter(acc => acc.SumAmount < parseInt(searchString.trim(), 10));
+            }
+        } else if (this.accountSearchFilterString.startsWith('=')) {
+            const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
+            if (searchString.length && !isNaN(parseInt(searchString.trim(), 10))) {
+                return this.accounts.filter(acc => acc.SumAmount === parseInt(searchString.trim(), 10));
+            }
+        }
         return this.accounts.filter((account: any) => {
             if (account.AccountName.toLowerCase().includes(this.accountSearchFilterString.toLowerCase())
                 || account.AccountNumber.toString().includes(this.accountSearchFilterString.toLowerCase())) {
                 return account;
             }
-        }).slice(0, 99);
+        }).slice(index > -1 ? index : 0, index + 100);
     }
 
     private compare(propName, rev) {
         return (a, b) => a[propName] === b[propName] ? 0 : a[propName] < b[propName] ? (-1 * rev) : (1 * rev);
     }
 
-    private setupFilter() {
-        this.datefield.Property = 'PointInTime';
-        this.datefield.Placeholder = 'Til og med dato';
-    }
-
-    private setupToolbarConfig(register: string = '') {
+    private setupToolbarConfig() {
+        const reg = this.registers.find(r => r.Register === this.register);
+        let title = 'Åpne poster';
+        if (reg) {
+            title += ` - ${reg._DisplayName}`;
+        }
         this.toolbarconfig = {
-            title: 'Åpne poster - ' + register,
+            title: title,
             contextmenu: [],
         };
     }
@@ -379,15 +448,6 @@ export class PostPost {
             selectedItem: this.registers.find(x => x.Register === this.register),
             placeholder: 'Register'
         };
-    }
-
-    private setTabTitle() {
-        this.tabService.addTab({
-            url: '/accounting/postpost',
-            name: 'Åpne poster',
-            active: true,
-            moduleID: UniModules.PostPost
-        });
     }
 
     public onRowSelected(event) {
@@ -401,7 +461,9 @@ export class PostPost {
 
             if (allowed) {
                 this.activeAccount = event.ID;
+                this.activeSubAccountID = event.SubAccountID;
                 const account = event;
+                this.nameFromParams = account.AccountName;
                 this.current$.next(account);
                 switch (this.register) {
                     case 'customer':
@@ -414,36 +476,32 @@ export class PostPost {
                         this.account$.next(account);
                         break;
                 }
+                this.addTab();
             } else {
                 this.canceled = true;
             }
         });
     }
 
-    public onPointInTimeChanged(model) {
-        this.pointInTime$.next(model.PointInTime.currentValue);
-        this.reloadRegister();
-    }
-
     public onFilterClick(tab: IUniTab) {
-        this.postpost.showHideEntries(tab.value);
+        this.currentFilter = tab.value;
+        this.postpost.showHideEntries(this.currentFilter);
+        this.addTab();
         this.setupSaveActions();
-        //  this.reloadRegister();
     }
 
     public onCustomerFilterClick(tab: IUniTab) {
-        this.currentTab = tab;
+        // Dont run if tab is activated from param value. Causes double calles to reloadRegister!
+        if (this.initial) {
+            return;
+        }
+        this.addTab();
         this.reloadRegister();
     }
 
-    public onAllSelectedLocked(allLocked) {
-        this.allSelectedLocked = allLocked;
+    public onLedgerTableSelectionChanged(value) {
+        this.ledgerEmitValue = value;
         this.setupSaveActions();
-    }
-
-    private getDateFilter(): string {
-        const date = this.pointInTime$.getValue();
-        return date ? `and FinancialDate le '${date}'` : '';
     }
 
     private getStatusFilter(): string {
@@ -458,34 +516,63 @@ export class PostPost {
         return '';
     }
 
-    private checkForDiff() {
-         if (this.register === 'account') {
-            this.setMainTabs('kontoer', true);
-        } else {
-            this.statisticsService.GetAll(
-                'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
-                'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,count(ID) as count,' +
-                'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
-                `&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id gt 0&top=` +
-                '&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
-                    this.setMainTabs((this.register === 'customer' ? 'kunder' : 'leverandører'),
-                    !(res && res.Data && res.Data.length));
-                }) ;
+    public setAccount() {
+        if (this.filteredAccounts.length) {
+            if (this.nameFromParams) {
+                const index = this.filteredAccounts.findIndex(acc => acc.AccountName === this.nameFromParams);
+                if (index !== -1) {
+                    this.onRowSelected(this.filteredAccounts[index]);
+                    setTimeout(() => {
+                        const list = document.getElementById('role-info');
+                        const listElement = document.getElementsByClassName('selected')[0];
+                        list.scrollTop = listElement['offsetTop'];
+                    });
+                } else {
+                    this.onRowSelected(this.filteredAccounts[0]);
+                }
+            } else {
+                this.onRowSelected(this.filteredAccounts[0]);
+            }
         }
+        this.scrollbar.update();
+    }
+
+    private checkForDiff() {
+        return new Promise((resolve, reject) => {
+            if (this.register === 'account') {
+                resolve(true);
+            } else {
+                this.statisticsService.GetAll(
+                    'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
+                    'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,count(ID) as count,' +
+                    'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
+                    `,SubAccount.id as SubAccountID&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id ` +
+                    'gt 0&top=&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
+                        if (res && res.Data && res.Data.length) {
+                            resolve(false);
+                        } else {
+                            resolve(true);
+                        }
+                    }, err => {
+                        resolve(true);
+                    });
+            }
+        });
     }
 
     private loadCustomers() {
-        const query = this.currentTab.value !== 'DIFF'
+        const query = this.mainTabs[this.mainActiveIndex].value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
-                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                `filter=SubAccount.CustomerID gt ` +
-                `0 ${this.getStatusFilter()} ${this.getDateFilter()}` +
+                `filter=SubAccount.CustomerID gt 0 ` +
+                (this.mainTabs[this.mainActiveIndex].value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,count(ID) as count,` +
-                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as ` +
+                `SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 'expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&' +
                 `filter=SubAccountid gt 0 and subaccount.customerid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
@@ -493,25 +580,24 @@ export class PostPost {
         this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts = accounts;
-                this.filteredAccounts = this.getFilteredAccounts();
-                if (this.filteredAccounts.length) {
-                    this.onRowSelected(this.filteredAccounts[0]);
-                }
-                this.scrollbar.update();
+                this.filteredAccounts = this.getFilteredAccounts(true);
+                this.setAccount();
             });
     }
 
     private loadSuppliers() {
-        const query = this.currentTab.value !== 'DIFF'
+        const query = this.mainTabs[this.mainActiveIndex].value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
-                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}` +
+                `filter=SubAccount.SupplierID gt 0 ` +
+                (this.mainTabs[this.mainActiveIndex].value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,count(ID) as count,` +
-                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) ` +
+                `as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
                 `filter=SubAccountid gt 0 and subaccount.supplierid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
@@ -519,34 +605,25 @@ export class PostPost {
         this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts = accounts;
-                this.filteredAccounts = this.getFilteredAccounts();
-                if (this.filteredAccounts.length) {
-                    this.onRowSelected(this.filteredAccounts[0]);
-                }
-                this.scrollbar.update();
+                this.filteredAccounts = this.getFilteredAccounts(true);
+                this.setAccount();
             });
     }
 
     private loadAccounts() {
-        this.statisticsService
-            .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Account.ID as ID,Account.AccountNumber as AccountNumber,count(ID) as count,` +
-                             `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
-                             `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()}` +
-                             ` ${this.getDateFilter()}&` +
-                             `orderby=Account.AccountNumber`)
+        this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine&` +
+        `select=Account.ID as ID,Account.AccountNumber as AccountNumber,count(ID) as count,` +
+        `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&expand=Account&` +
+        `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 and (StatusCode eq 31001 or StatusCode eq 31002)` +
+        `&orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts = accounts;
-                this.filteredAccounts = this.getFilteredAccounts();
-                if (this.filteredAccounts.length) {
-                    this.onRowSelected(this.filteredAccounts[0]);
-                }
-                this.scrollbar.update();
+                this.filteredAccounts = this.getFilteredAccounts(true);
+                this.setAccount();
             });
     }
 
-    private reloadRegister() {
+    public reloadRegister() {
         switch (this.register) {
             case 'customer':
                 this.loadCustomers();
@@ -561,27 +638,39 @@ export class PostPost {
     }
 
     public changeRegister(register) {
-            this.register = register;
-            switch (this.register) {
-                case 'customer':
-                    this.setupToolbarConfig('Kunder');
+        this.register = register;
+        this.mainActiveIndex = 0;
+        this.mainTabs[1].hidden = this.register === 'account';
+        this.addTab();
+        this.setupToolbarConfig();
+
+        switch (this.register) {
+            case 'customer':
+                this.checkForDiff().then((res: boolean) => {
+                    this.mainTabs[2].hidden = res;
+                    this.mainTabs = [...this.mainTabs];
                     this.supplier$.next(null);
                     this.account$.next(null);
                     this.loadCustomers();
-                    break;
-                case 'supplier':
-                    this.setupToolbarConfig('Leverandører');
+                });
+                break;
+            case 'supplier':
+                this.checkForDiff().then((res: boolean) => {
+                    this.mainTabs[2].hidden = res;
+                    this.mainTabs = [...this.mainTabs];
                     this.customer$.next(null);
                     this.account$.next(null);
                     this.loadSuppliers();
-                    break;
-                case 'account':
-                this.setupToolbarConfig('Hovedbok');
-                    this.customer$.next(null);
-                    this.supplier$.next(null);
-                    this.loadAccounts();
-                    break;
-            }
-            this.checkForDiff();
+                });
+                break;
+            case 'account':
+                this.mainTabs[1].hidden = true;
+                this.mainTabs[2].hidden = true;
+                this.mainTabs = [...this.mainTabs];
+                this.customer$.next(null);
+                this.supplier$.next(null);
+                this.loadAccounts();
+                break;
+        }
     }
 }

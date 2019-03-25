@@ -9,9 +9,10 @@ import {CustomerOrderService} from '../sales/customerOrderService';
 import {CustomerQuoteService} from '../sales/customerQuoteService';
 import {CustomerInvoiceItemService} from '../sales/customerInvoiceItemService';
 import {CustomerOrderItemService} from '../sales/customerOrderItemService';
-import {CustomerQuoteItemService} from '../sales/customerQuoteItemService';
+import {RecurringInvoiceService} from '../sales/recurringInvoiceService';
 import {PaymentService} from '../accounting/paymentService';
 import {PaymentBatchService} from '../accounting/paymentBatchService';
+import { SupplierInvoiceService } from '../accounting/supplierInvoiceService';
 
 @Injectable()
 export class StatusService {
@@ -26,14 +27,15 @@ export class StatusService {
         private customerQuoteService: CustomerQuoteService,
         private customerInvoiceItemService: CustomerInvoiceItemService,
         private customerOrderItemService: CustomerOrderItemService,
-        private customerQuoteItemService: CustomerQuoteItemService,
+        private recurringInvoiceService: RecurringInvoiceService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
+        private supplierInvoiceService: SupplierInvoiceService
     ) {}
 
     public getStatusText(statusCode: number): string {
         if (this.statusDictionary) {
-            let status = this.statusDictionary[statusCode];
+            const status = this.statusDictionary[statusCode];
             return status ? status.name : '';
         }
 
@@ -41,10 +43,10 @@ export class StatusService {
     }
 
     public getStatusCodesForEntity(entityType: string): Array<StatusCode> {
-        let statusCodes: Array<StatusCode> = [];
+        const statusCodes: Array<StatusCode> = [];
         if (this.statusDictionary) {
             Object.keys(this.statusDictionary).forEach(x => {
-                let status = this.statusDictionary[x];
+                const status = this.statusDictionary[x];
                 if (status.entityType === entityType) {
                     statusCodes.push({
                         statusCode: +x,
@@ -57,17 +59,19 @@ export class StatusService {
         return statusCodes;
     }
 
-
     public loadStatusCache(): Promise<any> {
         return new Promise((resolve, reject) => {
-            if (!this.statusDictionary) {
-                // get statuses from API and add it to the cache
-                this.statisticsService.GetAll('model=Status&select=StatusCode,Description,EntityType')
-                    .subscribe(data => {
+            if (this.statusDictionary) {
+                resolve(true);
+            } else {
+                this.statisticsService.GetAll(
+                    'model=Status&select=StatusCode,Description,EntityType'
+                ).subscribe(
+                    data => {
                         if (data.Data) {
                             this.statusDictionary = {};
                             data.Data.forEach(item => {
-                                let name: string = item.StatusDescription;
+                                let name;
                                 switch (item.StatusEntityType) {
                                     case 'CustomerInvoice':
                                         name = this.customerInvoiceService.getStatusText(item.StatusStatusCode, 0);
@@ -84,6 +88,9 @@ export class StatusService {
                                     case 'CustomerOrderItem':
                                         name = this.customerOrderItemService.getStatusText(item.StatusStatusCode);
                                         break;
+                                    case 'RecurringInvoice':
+                                        name = this.recurringInvoiceService.getStatusText(item.StatusStatusCode);
+                                        break;
                                     case 'Payment':
                                         name = this.paymentService.getStatusText(item.StatusStatusCode);
                                         break;
@@ -92,10 +99,17 @@ export class StatusService {
                                         break;
                                     case 'Sharing':
                                         name = this.getSharingStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'SupplierInvoice':
+                                        name = this.supplierInvoiceService.getStatusText(item.StatusStatusCode);
                                     // TODO: Add when Quote Item status flow is implemented in back-end
                                     // case 'CustomerQuoteItem':
                                     //     name = this.customerQuoteItemService.getStatusText(item.StatusStatusCode);
                                     //     break;
+                                }
+
+                                if (!name) {
+                                    name = item.StatusDescription;
                                 }
 
                                 this.statusDictionary[item.StatusStatusCode] = {
@@ -108,10 +122,10 @@ export class StatusService {
                         } else {
                             reject('Could not get statuses from API');
                         }
-                    }, err => this.errorService.handle(err));
+                    },
+                    err => this.errorService.handle(err)
+                );
             }
-
-            resolve(true);
         });
     }
 
@@ -134,14 +148,16 @@ export class StatusService {
         return Observable.forkJoin(
             this.userService.GetAll(null),
             this.statisticsService.GetAll(
-                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
+                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}` +
+                `&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,` +
+                `ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
             this.loadStatusCache()
         ).map(responses => {
-                let users: Array<User> = responses[0];
-                let data = responses[1].Data ? responses[1].Data : [];
+                const users: Array<User> = responses[0];
+                const data = responses[1].Data ? responses[1].Data : [];
                 data.forEach(item => {
                     item.FromStatusText = this.getStatusText(item.FromStatus);
-                    let createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
+                    const createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
                     item.CreatedByName = createdByUser ? createdByUser.DisplayName : '';
                 });
                 return data;

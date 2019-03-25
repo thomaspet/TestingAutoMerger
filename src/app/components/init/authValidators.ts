@@ -24,7 +24,7 @@ export function passwordValidator(control: FormControl) {
         counter++;
     }
 
-    if (control.value.length < 8 || counter < 3) {
+    if (control.value.length < 10 || counter < 3) {
         return {'passwordValidator': 'Passord er ikke gyldig'};
     }
 

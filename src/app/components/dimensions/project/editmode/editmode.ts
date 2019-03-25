@@ -1,10 +1,9 @@
 ﻿import {Component, ViewChild, SimpleChange} from '@angular/core';
-import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
-import {BehaviorSubject} from 'rxjs';
-import {ProjectResponsibility} from '../../../../models/models';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {ProjectResponsibility} from '@app/models';
 import {Project, Address, User, Country} from '@app/unientities';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
@@ -35,7 +34,6 @@ export class ProjectEditmode {
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public project$: BehaviorSubject<Project> = new BehaviorSubject(null);
-    public actionLabel: string = '';
     public uniSearchConfig: IUniSearchConfig;
     public addressChanged: any;
     private customerExpandOptions: Array<string> = ['Info.Name'];
@@ -74,10 +72,6 @@ export class ProjectEditmode {
 
             project.WorkPlaceAddress = project.WorkPlaceAddress || new Address();
             project.WorkPlaceAddress.ID = project.WorkPlaceAddressID || 0;
-
-            this.actionLabel = project && project.ID
-                ? 'Rediger prosjekt - '
-                + project.Name + ':' : 'Nytt prosjekt:';
 
             this.project$.next(project);
             this.project = project;

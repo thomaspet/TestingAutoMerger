@@ -14,19 +14,20 @@ import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 
-type PaylistSection = {
+interface PaylistSection {
     employeeInfo: {
-        number: number,
-        name: string,
-        payment: number
-    },
-    paymentLines: SalaryTransaction[],
-    collapsed: boolean
-};
+        number: number;
+        name: string;
+        payment: number;
+    };
+    paymentLines: SalaryTransaction[];
+    collapsed: boolean;
+}
 
 @Component({
     selector: 'control-modal',
-    templateUrl: './controlModal.html'
+    templateUrl: './controlModal.html',
+    styleUrls: ['./controlModal.sass']
 })
 
 export class ControlModal implements OnInit, IUniModal {
@@ -60,7 +61,7 @@ export class ControlModal implements OnInit, IUniModal {
 
     public ngOnInit() {
         this.busy = true;
-        let runID: number = this.options.data.ID;
+        const runID: number = this.options.data.ID;
         this.generateHeadingsForm();
         this._payrollRunService
             .controlPayroll(runID)
@@ -89,10 +90,10 @@ export class ControlModal implements OnInit, IUniModal {
 
     public setData(response: any) {
         this.busy = true;
-        let [salaryTrans, sums, transPay, payrollrun] = response;
+        const [salaryTrans, sums, transPay, payrollrun] = response;
         this.transes = salaryTrans;
 
-        let model = this.model$.getValue();
+        const model = this.model$.getValue();
         model.sums = sums;
         model.salaryTransactionPay = transPay;
         this.model$.next(model);
@@ -103,7 +104,7 @@ export class ControlModal implements OnInit, IUniModal {
     }
 
     private generateHeadingsForm() {
-        var withholdingField = new UniFieldLayout();
+        const withholdingField = new UniFieldLayout();
         withholdingField.FieldType = FieldType.NUMERIC;
         withholdingField.Property = 'salaryTransactionPay.Withholding';
         withholdingField.Label = 'Beregnet forskuddstrekk';
@@ -112,7 +113,7 @@ export class ControlModal implements OnInit, IUniModal {
             format: 'money'
         };
 
-        var baseVacationPay: UniFieldLayout = new UniFieldLayout();
+        const baseVacationPay: UniFieldLayout = new UniFieldLayout();
         baseVacationPay.FieldType = FieldType.NUMERIC;
         baseVacationPay.Property = 'sums.baseVacation';
         baseVacationPay.Label = 'Feriepengegrunnlag';
@@ -121,7 +122,7 @@ export class ControlModal implements OnInit, IUniModal {
             format: 'money'
         };
 
-        var baseAga = new UniFieldLayout();
+        const baseAga = new UniFieldLayout();
         baseAga.FieldType = FieldType.NUMERIC;
         baseAga.Property = 'sums.baseAGA';
         baseAga.Label = 'Arbeidsgiveravgift grunnlag';
@@ -131,7 +132,7 @@ export class ControlModal implements OnInit, IUniModal {
             format: 'money'
         };
 
-        var netPayment = new UniFieldLayout();
+        const netPayment = new UniFieldLayout();
         netPayment.FieldType = FieldType.NUMERIC;
         netPayment.Property = 'sums.netPayment';
         netPayment.Label = 'Sum til utbetaling';
@@ -140,7 +141,7 @@ export class ControlModal implements OnInit, IUniModal {
             format: 'money'
         };
 
-        var calculatedVacationPay = new UniFieldLayout();
+        const calculatedVacationPay = new UniFieldLayout();
         calculatedVacationPay.FieldType = FieldType.NUMERIC;
         calculatedVacationPay.Property = 'sums.calculatedVacationPay';
         calculatedVacationPay.Label = 'Beregnet feriepenger';
@@ -149,7 +150,7 @@ export class ControlModal implements OnInit, IUniModal {
             format: 'money'
         };
 
-        var calculatedAga = new UniFieldLayout();
+        const calculatedAga = new UniFieldLayout();
         calculatedAga.FieldType = FieldType.NUMERIC;
         calculatedAga.Property = 'sums.calculatedAGA';
         calculatedAga.Label = 'Beregnet arbeidsgiveravgift';
@@ -171,17 +172,17 @@ export class ControlModal implements OnInit, IUniModal {
     private generateTableConfigs(runID: number) {
 
         this.payList = [];
-        let wagetypeNumberCol = new UniTableColumn(
+        const wagetypeNumberCol = new UniTableColumn(
             'WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem'
         );
-        let wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
-        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate).setWidth('6rem');
-        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate).setWidth('6rem');
-        let accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('4rem');
-        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money).setWidth('7rem');
-        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('4rem');
-        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money).setWidth('7rem');
-        let paymentCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Text)
+        const wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
+        const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate).setWidth('6rem');
+        const toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate).setWidth('6rem');
+        const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('4rem');
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money).setWidth('7rem');
+        const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('4rem');
+        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money).setWidth('7rem');
+        const paymentCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Text)
             .setWidth('6rem')
             .setTemplate((row: SalaryTransaction) => {
                 if (!row.Wagetype) {
@@ -199,11 +200,11 @@ export class ControlModal implements OnInit, IUniModal {
         if (this.model$.getValue().salaryTransactionPay.PayList) {
             this.model$.getValue().salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
 
-                let salaryTranses = this.transes
+                const salaryTranses = this.transes
                     .filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === runID);
 
                 if (salaryTranses.length) {
-                    let section: PaylistSection = {
+                    const section: PaylistSection = {
                         employeeInfo: {
                             number: payline.EmployeeNumber,
                             name: payline.EmployeeName,
@@ -221,14 +222,14 @@ export class ControlModal implements OnInit, IUniModal {
 
     public runSettling() {
         this.busy = true;
-        let runID: number = this.options.data.ID;
+        const runID: number = this.options.data.ID;
         this._payrollRunService
             .runSettling(runID)
             .finally(() => this.busy = false)
             .do(response => this.payrollrunIsSettled = response)
             .subscribe((response: boolean) => {
                 if (response) {
-                    let config = this.options.modalConfig;
+                    const config = this.options.modalConfig;
                     if (config && config.update) {
                         config.update();
                     }
@@ -241,13 +242,15 @@ export class ControlModal implements OnInit, IUniModal {
 
     public sendPayments() {
         this.busy = true;
-        let runID: number = this.options.data.ID;
+        const runID: number = this.options.data.ID;
         this._payrollRunService
             .sendPaymentList(runID)
             .subscribe((response: boolean) => {
-                this._router.navigateByUrl('/bank/payments');
+                this._router.navigateByUrl('/bank?code=payment_list');
+                this.close();
             },
             (err) => {
+                this.busy = false;
                 this.errorService.handle(err);
             });
     }

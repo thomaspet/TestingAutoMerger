@@ -3,17 +3,16 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {CompanySettings, FinancialYear, User} from '@app/unientities';
 import {UniSelect, ISelectConfig} from '@uni-framework/ui/uniform';
-import {UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '@uni-framework/uni-modal';
 import {AuthService} from '@app/authService';
 import {
     CompanySettingsService,
     CompanyService,
     FinancialYearService,
     AltinnAuthenticationService,
-    ErrorService,
-    YearService
+    ErrorService
 } from '@app/services/services';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {YearModal, IChangeYear} from './yearModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -24,6 +23,8 @@ import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
     templateUrl: './companyDropdown.html'
 })
 export class UniCompanyDropdown {
+    private LAST_ASKED_CHANGE_YEAR_LOCALSTORAGE_KEY: string = 'lastAskedChangeYear';
+
     @ViewChildren(UniSelect)
     private dropdowns: QueryList<UniSelect>;
 
@@ -40,6 +41,8 @@ export class UniCompanyDropdown {
 
     private financialYears: Array<FinancialYear> = [];
 
+    public isCreatingNewYear: boolean = false;
+
     constructor(
         private altInnService: AltinnAuthenticationService,
         private router: Router,
@@ -50,7 +53,6 @@ export class UniCompanyDropdown {
         private financialYearService: FinancialYearService,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
-        private yearService: YearService,
         private modalService: UniModalService,
         private toastService: ToastService,
         private browserStorage: BrowserStorageService,
@@ -79,26 +81,126 @@ export class UniCompanyDropdown {
             if (auth && auth.user) {
                 this.activeCompany = auth.activeCompany;
                 this.loadCompanyData();
+
                 this.cdr.markForCheck();
             }
         },
         err => this.errorService.handle(err));
 
-        this.yearService.selectedYear$
-            .subscribe(val => {
-                this.selectYear = this.getYearComboSelection(val);
-                this.activeYear = val;
-            },
-            err => this.errorService.handle(err));
+        const currentYear = this.financialYearService.getActiveYear();
+        this.selectYear = this.getYearComboSelection(currentYear);
+        this.activeYear = currentYear;
 
         this.financialYearService.lastSelectedFinancialYear$
             .subscribe(res => {
-                let found = this.financialYears.find(v => v.Year === res.Year);
+                const previousSelectedYear = this.activeYear;
+                const newSelectedYear = res.Year;
+
+                const found = this.financialYears.find(v => v.Year.toString() === newSelectedYear.toString());
                 if (found && this.activeYear && found.Year !== this.activeYear) {
-                    return this.yearIsSelected(found.Year.toString());
+                    this.selectYear = this.getYearComboSelection(newSelectedYear);
+                    this.activeYear = newSelectedYear;
+                } else if (!found) {
+                    this.financialYearService.GetAll(null)
+                        .subscribe(years => {
+                            // refresh years before checking if this is actually a new year, someone
+                            // else might have created it already after you logged in (or it may have been
+                            // automatically created when booking a journalentry)
+                            this.financialYears = years;
+                            const foundSecondAttempt = this.financialYears.find(v => v.Year.toString() === newSelectedYear.toString());
+
+                            if (foundSecondAttempt && this.activeYear
+                                && foundSecondAttempt.Year.toString() !== this.activeYear.toString()) {
+                                this.selectYear = this.getYearComboSelection(newSelectedYear);
+                                this.activeYear = newSelectedYear;
+                            } else if (!foundSecondAttempt) {
+                                this.promptToCreateNewYear(newSelectedYear, previousSelectedYear);
+                            }
+                        });
                 }
             },
-            err => this.errorService.handle(err));
+            err => {
+                this.errorService.handle(err);
+            });
+    }
+
+    public promptToCreateNewYear(newSelectedYear: number, previousSelectedYear: number) {
+        // add simple validation, max 5 years back, 2 years ahead
+        const currentDateYear = new Date().getFullYear();
+        if (newSelectedYear > currentDateYear + 2 || newSelectedYear < currentDateYear - 5) {
+            this.toastService.addToast(
+                'Ugyldig år valgt',
+                ToastType.bad,
+                ToastTime.medium,
+                'Kan ikke velge et nytt regnskapsår som er mer enn 2 år frem i tid, eller 5 år tilbake i tid'
+            );
+            return;
+        }
+
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: `Opprett nytt regnskapsår for ${newSelectedYear}?`,
+            message: 'Du har valgt et år som ikke er opprett enda, vil du opprette dette året?',
+            buttonLabels: {
+                accept: 'Opprett nytt regnskapsår',
+                cancel: 'Avbryt'
+            }
+        });
+
+        modal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.isCreatingNewYear  = true;
+
+                this.toastService.addToast(
+                    'Oppretter nytt regnskapsår...',
+                    ToastType.good,
+                    ToastTime.long,
+                    'Dette kan ta litt tid, vennligst vent'
+                );
+
+                this.financialYearService.createFinancialYear(newSelectedYear)
+                    .subscribe(newYear => {
+                        this.financialYears.push(newYear);
+
+                        this.financialYearService.setActiveYear(newYear);
+
+                        this.selectYear = this.getYearComboSelection(newSelectedYear);
+                        this.activeYear = newSelectedYear;
+
+                        this.yearIsSelected(newYear.Year.toString());
+
+                        this.toastService.clear();
+                        this.toastService.addToast(
+                            `Regnskapsår ${newSelectedYear} opprettet!`,
+                            ToastType.good,
+                            ToastTime.short
+                        );
+
+                        this.isCreatingNewYear = false;
+                    }, err => {
+                        this.errorService.handle(err);
+                        this.isCreatingNewYear = false;
+                    });
+                } else {
+                    if (previousSelectedYear !== newSelectedYear) {
+                        this.selectYear = this.getYearComboSelection(previousSelectedYear);
+                        this.activeYear = previousSelectedYear;
+
+                        const resetFinancialYear = new FinancialYear();
+                        resetFinancialYear.Year = previousSelectedYear;
+                        this.financialYearService.setActiveYear(resetFinancialYear);
+                    } else {
+                        const sortedYears = this.financialYears.sort((a, b) => a.Year > b.Year ? -1 : 1);
+                        const lastYear = sortedYears.length > 0 ? sortedYears[0] : null;
+
+                        if (lastYear) {
+                            this.selectYear = this.getYearComboSelection(lastYear.Year);
+                            this.activeYear = lastYear.Year;
+
+                            this.financialYearService.setActiveYear(lastYear);
+                        }
+                    }
+                }
+            });
     }
 
     public openYearModal()  {
@@ -106,38 +208,23 @@ export class UniCompanyDropdown {
             YearModal, { data: { year: this.activeYear }}
         ).onClose.subscribe((val: IChangeYear) => {
             if (val && val.year && (typeof val.year === 'number')) {
-                this.yearService.setSelectedYear(val.year);
-                let found = this.financialYears.find(v => v.Year === val.year);
+                const found = this.financialYears.find(v => v.Year === val.year);
                 if (found) {
                     this.financialYearService.setActiveYear(found);
                 } else {
-                    let fin = new FinancialYear();
+                    // set a new dummy year based on the value - this will trigger an event from
+                    // this.financialYearService.lastSelectedFinancialYear$ which will validate and
+                    // create the actual year if it does not exist already
+                    const fin = new FinancialYear();
                     fin.Year = val.year;
-                    this.financialYearService.setActiveYear(fin);
+                    this.yearSelected(fin, true);
                 }
 
-                if (found && val.checkStandard) {
-                    this.companySettings.CurrentAccountingYear = val.year;
-                    this.companySettingsService.Put(this.companySettings.ID, this.companySettings)
-                        .subscribe(
-                            res => res,
-                            err => this.errorService.handle(err)
-                        );
-                } else if (!found && val.checkStandard) {
-                    this.toastService.addToast(
-                        'Kan ikke endre standard',
-                         ToastType.warn,
-                         5,
-                         'Regnskapsår eksisterer ikke. Endret kun nåværende sesjon.'
-                    );
-                }
                 this.close();
-            }   else {
-                this.yearService.setSelectedYear(this.activeYear);
             }
         },
         (err) => {
-            this.yearService.setSelectedYear(this.activeYear);
+            this.errorService.handle('Error setting year');
         });
     }
 
@@ -161,7 +248,8 @@ export class UniCompanyDropdown {
             (res) => {
                 this.companySettings = res[0];
                 this.financialYears = res[1];
-                this.selectDefaultYear(this.financialYears, this.companySettings);
+                this.selectDefaultYear(this.financialYears);
+
                 this.cdr.markForCheck(); // not sure where this should be
             },
             err => this.errorService.handle(err)
@@ -171,8 +259,6 @@ export class UniCompanyDropdown {
     public companySelected(selectedCompany): void {
         this.close();
         if (selectedCompany && selectedCompany !== this.activeCompany) {
-            this.yearService.clearActiveYear();
-
             // Trigger change detection on dropdown with previously active company.
             // This is done because unsaved changes might stop the process of
             // changing company. If company is changed successfully the class
@@ -183,39 +269,68 @@ export class UniCompanyDropdown {
         }
     }
 
-    private selectDefaultYear(financialYears: FinancialYear[], companySettings: CompanySettings): void {
-        let selYr = this.yearService.getSavedYear();
+    private selectDefaultYear(financialYears: FinancialYear[]): void {
+        let selYr = this.financialYearService.getActiveYear();
 
-        if (companySettings) {
-            selYr = companySettings.CurrentAccountingYear;
-        }
+        const currentYear = new Date().getFullYear();
 
         if (!selYr) {
-            selYr = new Date().getFullYear();
+            selYr = currentYear;
         }
 
-        let localStorageYear = this.financialYearService.getYearInLocalStorage();
+        const localStorageYear = this.financialYearService.getYearInLocalStorage();
+
         if (localStorageYear) {
-            if (selYr !== localStorageYear.Year)  {
-                let fin = financialYears.find(finyear => finyear.Year === selYr);
-                if (fin) {
-                    this.yearSelected(fin);
-                } else {
-                    fin = new FinancialYear();
-                    fin.Year = selYr;
-                    this.yearSelected(fin);
-                }
-            } else {
-                this.yearSelected(localStorageYear);
-            }
+            this.yearSelected(localStorageYear, false);
         } else {
-            let fin = financialYears.find(finyear => finyear.Year === selYr);
-            if (fin) {
-                this.yearSelected(fin);
+            let financialYear = financialYears.find(finyear => finyear.Year === selYr);
+            if (financialYear) {
+                this.yearSelected(financialYear, false);
             } else {
-                fin = new FinancialYear();
-                fin.Year = selYr;
-                this.yearSelected(fin);
+                // we havent created a new year yet for some reason, select the
+                // previous year - most likely we will ask if the user wants to
+                // select a new year right after
+                const sortedYears = this.financialYears.sort((a, b) => a.Year > b.Year ? -1 : 1);
+                const lastYear = sortedYears.length > 0 ? sortedYears[0] : null;
+                if (lastYear) {
+                    financialYear = lastYear;
+                    selYr = lastYear.Year;
+                    this.yearSelected(financialYear, false);
+                }
+            }
+
+            if (!financialYear) {
+                financialYear = new FinancialYear();
+                financialYear.Year = selYr;
+                this.yearSelected(financialYear, false);
+            }
+        }
+
+        if (selYr && selYr + 1 === currentYear) {
+            // if year is not current year, check if user has been asked to
+            // use a new year previously
+            const lastAskedChangeYear = this.browserStorage.getItemFromCompany(this.LAST_ASKED_CHANGE_YEAR_LOCALSTORAGE_KEY);
+
+            if (!lastAskedChangeYear || lastAskedChangeYear < currentYear) {
+                // save info that the user has been asked to switch year
+                this.browserStorage.setItemOnCompany(this.LAST_ASKED_CHANGE_YEAR_LOCALSTORAGE_KEY, currentYear);
+
+                const modal = this.modalService.open(UniConfirmModalV2, {
+                    header: `Vil du bytte regnskapsår til ${currentYear}?`,
+                    message: 'Du kan senere endre hvilket regnskapsår du vil jobbe med i menyen oppe til høyre',
+                    buttonLabels: {
+                        accept: 'Ja, bytt regnskapsår',
+                        cancel: `Nei, behold ${selYr}`
+                    }
+                });
+
+                modal.onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        const fin = new FinancialYear();
+                        fin.Year = currentYear;
+                        this.yearSelected(fin, false);
+                    }
+                });
             }
         }
     }
@@ -230,30 +345,48 @@ export class UniCompanyDropdown {
     private yearIsSelected(selYear: string): void {
         const year = parseInt(selYear, 10);
         if (year) {
-            this.yearService.setSelectedYear(year);
             let financialYear = this.financialYears.find(val => val.Year === year);
-            if (financialYear) {
-                this.financialYearService.setActiveYear(financialYear);
-                this.close();
+            const currentYear = this.financialYearService.getActiveYear();
+            if (financialYear && financialYear.Year !== currentYear) {
+                this.yearSelected(financialYear, true);
             } else {
                 financialYear = new FinancialYear();
                 financialYear.Year = year;
-                this.yearSelected(financialYear);
+                this.yearSelected(financialYear, true);
             }
+
+            this.close();
         } else {
             this.openYearModal();
         }
     }
 
-    private yearSelected(selectedYear: FinancialYear): void {
+    private yearSelected(selectedYear: FinancialYear, setManual: boolean): void {
         const localStorageYear = this.financialYearService.getYearInLocalStorage();
 
-        if (localStorageYear && selectedYear.Year !== localStorageYear.Year) {
-            this.financialYearService.setActiveYear(selectedYear);
-            this.yearService.setSelectedYear(selectedYear.Year);
-            this.close();
+        this.selectYear = this.getYearComboSelection(selectedYear.Year);
+
+        this.activeYear = selectedYear.Year;
+
+        if (setManual) {
+            const currentYear = new Date().getFullYear();
+
+            if (selectedYear.Year.toString() < currentYear.toString()) {
+                // save info that the user has manually set a year prior to this year,
+                // not point in asking them if they want to switch to current year on next
+                // logon if so
+                this.browserStorage.setItemOnCompany(this.LAST_ASKED_CHANGE_YEAR_LOCALSTORAGE_KEY, currentYear);
+            }
         }
 
+        if (!localStorageYear || (localStorageYear && selectedYear.Year !== localStorageYear.Year)) {
+            this.financialYearService.setActiveYear(selectedYear);
+        }
+
+        // needed when switching year after changing company
+        this.cdr.markForCheck();
+
+        this.close();
     }
 
     public close() {

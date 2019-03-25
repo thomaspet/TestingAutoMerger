@@ -25,6 +25,9 @@ import {TravelTypeService} from './salary/travel/travelTypeService';
 import {TravelService} from './salary/travel/travelService';
 import {TravelLineService} from './salary/travel/travelLineService';
 import {SalarybalanceTemplateService} from './salary/salarybalanceTemplate/salarybalanceTemplateService';
+import {EmployeeOnCategoryService} from './salary/employee/EmployeeOnCategoryService';
+import {PayrollRunOnCategoryService} from './salary/payrollRun/payrollRunOnCategoryService';
+import {OtpExportWagetypesService} from './salary/otpExport/otpExportWagetypesService';
 
 export * from './salary/aMelding/aMeldingService';
 export * from './salary/basicAmount/basicAmountService';
@@ -52,6 +55,9 @@ export * from './salary/travel/travelTypeService';
 export * from './salary/travel/travelService';
 export * from './salary/travel/travelLineService';
 export * from './salary/salarybalanceTemplate/salarybalanceTemplateService';
+export * from './salary/employee/EmployeeOnCategoryService';
+export * from './salary/payrollRun/payrollRunOnCategoryService';
+export * from './salary/otpExport/otpExportWagetypesService';
 
 @NgModule({})
 export class SalaryServicesModule {
@@ -85,6 +91,9 @@ export class SalaryServicesModule {
                 TravelService,
                 TravelLineService,
                 SalarybalanceTemplateService,
+                EmployeeOnCategoryService,
+                PayrollRunOnCategoryService,
+                OtpExportWagetypesService,
             ]
         };
     }

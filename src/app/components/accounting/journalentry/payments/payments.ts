@@ -1,9 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
-import {
-    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
@@ -17,17 +15,15 @@ import {
     AccountService,
     CompanySettingsService,
 } from '../../../../services/services';
-
-import * as moment from 'moment';
-import {JournalEntryData} from '../../../../models/models';
-import { ToastService } from '@uni-framework/uniToast/toastService';
+import {JournalEntryData} from '@app/models';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'payments',
     templateUrl: './payments.html'
 })
 export class Payments {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     @ViewChild(JournalEntryManual) public journalEntryManual: JournalEntryManual;
 
     public contextMenuItems: IContextMenuItem[] = [];
@@ -48,8 +44,10 @@ export class Payments {
         private statisticsService: StatisticsService,
     ) {
         this.tabService.addTab({
-            name: 'Innbetalinger', url: '/accounting/journalentry/payments',
-            moduleID: UniModules.Payments, active: true
+            name: 'Innbetalinger',
+            url: '/accounting/journalentry/payments',
+            moduleID: UniModules.Payments,
+            active: true
         });
 
         this.companySettingsService.Get(1, ['BaseCurrencyCode', 'CompanyBankAccount', 'CompanyBankAccount.Account'])
@@ -78,11 +76,10 @@ export class Payments {
                 disabled: () => false,
             },
             {
-                    action: (item) => this.openPredefinedDescriptions(),
-                    disabled: (item) => false,
-                    label: 'Faste tekster'
+                action: (item) => this.openPredefinedDescriptions(),
+                disabled: (item) => false,
+                label: 'Faste tekster'
             }
-
         ];
 
         const toolbarConfig: IToolbarConfig = {
@@ -90,7 +87,6 @@ export class Payments {
             omitFinalCrumb: true,
             contextmenu: this.contextMenuItems
         };
-
         this.toolbarConfig = toolbarConfig;
     }
 
@@ -98,64 +94,58 @@ export class Payments {
         this.router.navigate(['./predefined-descriptions']);
     }
 
-    public onRowSelectionChanged(invoice: CustomerInvoice) {
-        if (!invoice) {
-            alert('Vennligst velg bare en faktura om gangen');
-        } else {
-            if (this.journalEntryManual) {
+    public rowSelected(invoice: CustomerInvoice) {
+        if (this.journalEntryManual) {
+            const newJournalEntry: JournalEntryData = new JournalEntryData();
+            newJournalEntry.InvoiceNumber = invoice.InvoiceNumber;
+            newJournalEntry.CustomerInvoiceID = invoice.ID;
+            newJournalEntry.CustomerInvoice = invoice;
+            newJournalEntry.CurrencyID = invoice.CurrencyCodeID;
+            newJournalEntry.CurrencyCode = invoice.CurrencyCode;
+            newJournalEntry.Description = 'Innbetaling';
+            newJournalEntry.VatDate = new LocalDate();
+            newJournalEntry.DueDate = new LocalDate();
+            newJournalEntry.FinancialDate = new LocalDate();
+            newJournalEntry.PaymentID = invoice.PaymentID;
 
-                const newJournalEntry: JournalEntryData = new JournalEntryData();
-                newJournalEntry.InvoiceNumber = invoice.InvoiceNumber;
-                newJournalEntry.CustomerInvoiceID = invoice.ID;
-                newJournalEntry.CustomerInvoice = invoice;
-                newJournalEntry.CurrencyID = invoice.CurrencyCodeID;
-                newJournalEntry.CurrencyCode = invoice.CurrencyCode;
-                newJournalEntry.Description = 'Innbetaling';
-                newJournalEntry.VatDate = new LocalDate();
-                newJournalEntry.DueDate = new LocalDate();
-                newJournalEntry.FinancialDate = new LocalDate();
-                newJournalEntry.PaymentID = invoice.PaymentID;
+            if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
+                for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
+                    const line = invoice.JournalEntry.Lines[i];
 
-                if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
-                    for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
-                        const line = invoice.JournalEntry.Lines[i];
+                    if (line.Account.UsePostPost) {
+                        newJournalEntry.Amount = line.RestAmount;
+                        newJournalEntry.AmountCurrency = line.RestAmountCurrency;
 
-                        if (line.Account.UsePostPost) {
-                            newJournalEntry.Amount = line.RestAmount;
-                            newJournalEntry.AmountCurrency = line.RestAmountCurrency;
-
-                            if (line.SubAccount) {
-                                newJournalEntry.CreditAccountID = line.SubAccountID;
-                                newJournalEntry.CreditAccount = line.SubAccount;
-                            } else {
-                                newJournalEntry.CreditAccountID = line.AccountID;
-                                newJournalEntry.CreditAccount = line.Account;
-                            }
-
-                            if (this.defaultBankAccount) {
-                                newJournalEntry.DebitAccount = this.defaultBankAccount;
-                                newJournalEntry.DebitAccountID = this.defaultBankAccount.ID;
-                            }
-
-                            break;
+                        if (line.SubAccount) {
+                            newJournalEntry.CreditAccountID = line.SubAccountID;
+                            newJournalEntry.CreditAccount = line.SubAccount;
+                        } else {
+                            newJournalEntry.CreditAccountID = line.AccountID;
+                            newJournalEntry.CreditAccount = line.Account;
                         }
-                    }
 
-                    // calculate reminder fee and interest
-                    if (invoice.StatusCode === 42002) {
-                        newJournalEntry.Amount += (invoice['_ReminderFee'] || 0) + (invoice['_InterestFee'] || 0);
-                        newJournalEntry.AmountCurrency += (invoice['_ReminderFeeCurrency'] || 0) + (invoice['_InterestFeeCurrency'] || 0);
+                        if (this.defaultBankAccount) {
+                            newJournalEntry.DebitAccount = this.defaultBankAccount;
+                            newJournalEntry.DebitAccountID = this.defaultBankAccount.ID;
+                        }
+                        break;
                     }
                 }
 
-                // add new journalentry data for the payment
-                this.journalEntryManual.addJournalEntryData(newJournalEntry);
-
-                // hide invoice form table if it is added to the journalentry list,
-                // to avoid adding the same invoice multiple times
-                this.ignoreInvoiceIdList.push(invoice.ID);
-                this.table.refreshTableData();
+                // Calculate reminder fee and interest
+                if (invoice.StatusCode === 42002) {
+                    newJournalEntry.Amount += (invoice['_ReminderFee'] || 0) + (invoice['_InterestFee'] || 0);
+                    newJournalEntry.AmountCurrency += (invoice['_ReminderFeeCurrency'] || 0) + (invoice['_InterestFeeCurrency'] || 0);
+                }
             }
+
+            // Add new journalentry data for the payment
+            this.journalEntryManual.addJournalEntryData(newJournalEntry);
+
+            // Hide invoice from table if it is added to the journalentry list,
+            // to avoid adding the same invoice multiple times
+            this.ignoreInvoiceIdList.push(invoice.ID);
+            this.table.refreshTableData();
         }
     }
 
@@ -201,13 +191,6 @@ export class Payments {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-
-
-
-
-
-
-
         // Define columns to use in the table
         const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
             .setWidth('6%')
@@ -222,28 +205,26 @@ export class Payments {
             .setFilterOperator('contains');
 
         const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
-            .setWidth('8%').setFilterOperator('eq');
+            .setWidth('8%')
+            .setFilterable(false);
 
         const dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
-            .setWidth('8%').setFilterOperator('eq');
+            .setWidth('8%')
+            .setFilterable(false);
 
-        const taxInclusiveAmountCurrencyCol = new UniTableColumn(
-            'TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Number
-        )
+        const taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Number)
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        const currencyFeeCurrencyCol = new UniTableColumn(
-            '_ReminderFeeCurrency', 'Purregebyr', UniTableColumnType.Number
-        )
+        const currencyFeeCurrencyCol = new UniTableColumn('_ReminderFeeCurrency', 'Purregebyr', UniTableColumnType.Number)
             .setWidth('6%')
-            .setFilterOperator('eq')
+            .setFilterable(false)
             .setFormat('{0:n}')
             .setCls('column-align-right');
         const interestFeeCurrencyCol = new UniTableColumn('_InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
-            .setFilterOperator('eq')
+            .setFilterable(false)
             .setVisible(false);
 
         const restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
@@ -255,7 +236,7 @@ export class Payments {
         const currencyCodeCol = new UniTableColumn('CurrencyCode', `Valuta`, UniTableColumnType.Number)
             .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
             .setWidth('8%')
-            .setFilterOperator('eq')
+            .setFilterable(false)
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
@@ -272,12 +253,10 @@ export class Payments {
                 return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
             });
 
-        // Setup table
-
         this.invoiceTable = new UniTableConfig('acconting.journalEntry.payments', false, true)
             .setPageSize(25)
             .setSearchable(true)
-            .setMultiRowSelect(true)
+            .setMultiRowSelect(false)
             .setDataMapper(cInvoices => {
                 return cInvoices.map(cInvoice => {
                     if (this.reminderFeeSumList.Data) {
@@ -291,8 +270,6 @@ export class Payments {
                             cInvoice.RestAmount += sum.SumReminderFee + sum.SumInterestFee;
                         }
                     }
-
-                    // cInvoices map må returnere endret invoice for hver iterasjon
                     return cInvoice;
                 });
             })

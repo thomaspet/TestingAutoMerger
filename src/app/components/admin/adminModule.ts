@@ -4,32 +4,36 @@ import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
-
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniQueryModule} from '../uniquery/uniqueryModule';
-
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
-import {UniModels} from './models/models';
-import {UniRoles} from './roles/roles';
-import {PermissionSelector} from './roles/permissionSelector';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
 import {SaftImportModal} from './jobs/saft/saftimportmodal';
-import { UniGdprPeopleList } from '@app/components/admin/gdpr/gdpr-people-list.component';
-import { PeopleService } from '@app/components/admin/gdpr/people.service';
-import { GdprFileWriter } from '@app/components/admin/gdpr/gdpr-file-writer';
-import { SaftExportModal } from './jobs/saft/saftexportmodal';
+import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.component';
+import {PeopleService} from '@app/components/admin/gdpr/people.service';
+import {GdprFileWriter} from '@app/components/admin/gdpr/gdpr-file-writer';
+import {SaftExportModal} from './jobs/saft/saftexportmodal';
+import {MatAutocompleteModule, MatSlideToggleModule, MatRadioModule, MatCheckboxModule, MatProgressSpinnerModule} from '@angular/material';
+
+import {FlowSettings} from './flow/flowSettings';
+import {FlowModal} from './flow/flow-modal/flow-modal';
+import {FlowList} from './flow/flow-list/flow-list';
+import {FlowTemplates} from './flow/templates/templates';
+import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
 
 @NgModule({
     entryComponents: [
         SaftImportModal,
-        SaftExportModal
+        SaftExportModal,
+        FlowTemplateModal,
+        FlowModal,
     ],
     imports: [
         BrowserModule,
@@ -37,38 +41,43 @@ import { SaftExportModal } from './jobs/saft/saftexportmodal';
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
-
+        FormsModule,
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
         UniQueryModule,
+        MatAutocompleteModule,
+        MatSlideToggleModule,
+        MatProgressSpinnerModule,
+        MatRadioModule,
+        MatCheckboxModule
     ],
     declarations: [
         JobList,
         JobDetails,
         JobLog,
-        UniModels,
-        UniRoles,
-        PermissionSelector,
         ApprovalThresholds,
         ApprovalThresholdRules,
         SaftExportView,
         SaftImportModal,
         SaftExportModal,
-        UniGdprPeopleList
+        UniGdprPeopleList,
+
+        FlowSettings,
+        FlowModal,
+        FlowTemplateModal,
+        FlowList,
+        FlowTemplates
     ],
     providers: [
         PeopleService,
-        GdprFileWriter
+        GdprFileWriter,
     ],
     exports: [
         JobList,
         JobDetails,
         JobLog,
-        UniModels,
-        UniRoles,
-        PermissionSelector,
         ApprovalThresholds,
         UniGdprPeopleList
     ]

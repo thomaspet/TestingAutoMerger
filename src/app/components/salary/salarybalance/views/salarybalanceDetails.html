@@ -12,14 +12,18 @@
 <fieldset class="small">
     <legend>Dokumenter</legend>
     <div *ngIf="!(salarybalance$ | async)?.ID">
-        <uni-image [singleImage]="true" [uploadWithoutEntity]="'true'" [fileIDs]="fileIds"
-            (fileListReady)="onFileListReady($event)"
-            (imageClicked)="onImageClicked($event)">
+        <uni-image
+            [singleImage]="true"
+            [uploadWithoutEntity]="'true'"
+            [fileIDs]="fileIds"
+            (fileListReady)="onFileListReady($event)">
         </uni-image>
     </div>
-    <uni-image *ngIf="(salarybalance$ | async)?.ID" [entity]="'SalaryBalance'" [entityID]="(salarybalance$ | async)?.ID"
-        (fileListReady)="onFileListReady($event)"
-        (imageClicked)="onImageClicked($event)" >
+    <uni-image
+        *ngIf="(salarybalance$ | async)?.ID"
+        [entity]="'SalaryBalance'"
+        [entityID]="(salarybalance$ | async)?.ID"
+        (fileListReady)="onFileListReady($event)">
     </uni-image>
 </fieldset>
 

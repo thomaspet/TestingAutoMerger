@@ -42,8 +42,8 @@ export class ProductList {
     }
 
     public onRowSelected (event) {
-        this.router.navigateByUrl('/sales/products/' + event.rowModel.ID);
-    };
+        this.router.navigateByUrl('/sales/products/' + event.ID);
+    }
 
     private setupProductTable() {
 
@@ -60,28 +60,29 @@ export class ProductList {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        let partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text)
+        const partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains');
 
-        let nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text)
-            .setFilterOperator('contains');
+        const nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text);
 
-        let priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Money)
+        const dateCol = new UniTableColumn('CreatedAt', 'Opprettet',  UniTableColumnType.LocalDate)
+            .setVisible(false)
+            .setWidth('4rem');
+
+        const priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Money)
             .setFilterOperator('eq')
-            .setWidth('15%')
+            .setWidth('10%')
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
-        let priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Money)
+        const priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Money)
             .setFilterOperator('eq')
-            .setWidth('15%')
+            .setWidth('10%')
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
-        let departmentCol = new UniTableColumn(
-            'Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text
-        )
+        const departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains')
             .setTemplate((data: Product) => {
@@ -90,7 +91,7 @@ export class ProductList {
                     : '';
             });
 
-        let projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text)
+        const projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains')
             .setTemplate((data: Product) => {
@@ -99,6 +100,10 @@ export class ProductList {
                     : '';
             });
 
+        const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+            .setWidth('15%')
+            .setVisible(false);
+
         this.productTable = new UniTableConfig('common.productList', false, true, 25)
             .setSearchable(true)
             .setEntityType('Product')
@@ -106,10 +111,12 @@ export class ProductList {
             .setColumns([
                 partNameCol,
                 nameCol,
+                dateCol,
                 priceExVatCol,
                 priceIncVatCol,
                 departmentCol,
-                projectCol
+                projectCol,
+                descriptionCol
             ]);
     }
 }

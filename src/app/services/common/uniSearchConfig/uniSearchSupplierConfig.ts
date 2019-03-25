@@ -146,6 +146,8 @@ export class UniSearchSupplierConfig {
     }
 
     private generateSupplierStatisticsQuery(searchTerm: string): string {
+        searchTerm = searchTerm.replace(/'/g,"\\'");
+
         const model = 'Supplier';
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
