@@ -271,6 +271,7 @@ export class UniBankAccountModal implements IUniModal {
             this.validAccount = false;
             return;
         }
+        this.validAccount = true;
     }
 
     private isAccountNumberAlreadyRegistered(account: BankAccount): Observable<StatisticsResponse> {
