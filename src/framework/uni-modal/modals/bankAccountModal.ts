@@ -176,6 +176,9 @@ export class UniBankAccountModal implements IUniModal {
             this.validAccount = false;
             const account = this.formModel$.value;
             this.validateAccountNumber(account);
+            if (!this.isAccountNumberDuplicate(changes['AccountNumber'].currentValue)) {
+                this.checkIsAccountNumberAlreadyRegistered(account);
+            }
         }
         if (changes['_manualAccountNumber']) {
             const account = this.formModel$.getValue();
@@ -187,33 +190,6 @@ export class UniBankAccountModal implements IUniModal {
                 if (field.FieldSet === 2) {
                     field.ReadOnly = !account['_manualAccountNumber'];
                 }
-/*                this.isAccountNumberDuplicate(account);
-                this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
-                    if (res2.Data.length > 0) {
-                        let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
-                        res2.Data.forEach(function (ba) {
-                            let baMessage = '';
-                            switch (ba.BankAccountBankAccountType.toLowerCase()) {
-                                case 'supplier':
-                                    baMessage = ' - Leverandør ' + ba.Name;
-                                    break;
-                                case 'customer':
-                                    baMessage = ' - Kunde ' + ba.Name;
-                                    break;
-                                case 'company':
-                                    baMessage = ' - Driftskonto i firmainnstillinger';
-                                    break;
-                                case 'salarybank':
-                                    baMessage = ' - Lønnskonto i firmainnstilinger';
-                                    break;
-                            }
-                                bankAccountUsesMessages += baMessage + '<br>';
-                        });
-                        this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);    
-                    }
-
-                }, err => this.errorService.handle(err));*/
-
             });
             this.formFields$.next(fields);
         }
@@ -224,6 +200,7 @@ export class UniBankAccountModal implements IUniModal {
 
             if (changes['_ibanAccountSearch'].currentValue) {
                 if (!this.isAccountNumberDuplicate(changes['_ibanAccountSearch'].currentValue)) {
+                    //this.checkIsAccountNumberAlreadyRegistered(account);
                     this.busy = true;
                     const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
                     this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
@@ -281,6 +258,34 @@ export class UniBankAccountModal implements IUniModal {
         '&join=BankAccount.BusinessRelationID eq BusinessRelation.ID';
 
         return this.statisticsService.GetAll(qryString);
+    }
+
+    private checkIsAccountNumberAlreadyRegistered(account: BankAccount) {
+        this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
+            if (res2.Data.length > 0) {
+                let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
+                res2.Data.forEach(function (ba) {
+                    let baMessage = '';
+                    switch (ba.BankAccountBankAccountType.toLowerCase()) {
+                        case 'supplier':
+                            baMessage = ' - Leverandør ' + ba.Name;
+                            break;
+                        case 'customer':
+                            baMessage = ' - Kunde ' + ba.Name;
+                            break;
+                        case 'company':
+                            baMessage = ' - Driftskonto i firmainnstillinger';
+                            break;
+                        case 'salarybank':
+                            baMessage = ' - Lønnskonto i firmainnstilinger';
+                            break;
+                    }
+                        bankAccountUsesMessages += baMessage + '<br>';
+                });
+                this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);    
+            }
+
+        }, err => this.errorService.handle(err));
     }
 
     private isAccountNumberDuplicate(accountNumber: string): boolean {
