@@ -58,6 +58,7 @@ export class UniBankAccountModal implements IUniModal {
     public busy: boolean = false;
     public hasChanges: boolean = false;
     private saveBankAccountInModal: boolean = false;
+    public bankAccounts: Array<BankAccount> = [];
 
     constructor(
         private bankService: BankService,
@@ -70,7 +71,8 @@ export class UniBankAccountModal implements IUniModal {
     ) {}
 
     public ngOnInit() {
-        const accountInfo = this.options.data || {};
+        const accountInfo = this.options.data.bankAccount || this.options.data || {};
+        this.bankAccounts = this.options.data.bankAccounts || [];
         const fields = this.getFormFields();
         if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
             accountInfo[fields[0].Property] = accountInfo._initValue;
@@ -185,6 +187,33 @@ export class UniBankAccountModal implements IUniModal {
                 if (field.FieldSet === 2) {
                     field.ReadOnly = !account['_manualAccountNumber'];
                 }
+/*                this.isAccountNumberDuplicate(account);
+                this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
+                    if (res2.Data.length > 0) {
+                        let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
+                        res2.Data.forEach(function (ba) {
+                            let baMessage = '';
+                            switch (ba.BankAccountBankAccountType.toLowerCase()) {
+                                case 'supplier':
+                                    baMessage = ' - Leverandør ' + ba.Name;
+                                    break;
+                                case 'customer':
+                                    baMessage = ' - Kunde ' + ba.Name;
+                                    break;
+                                case 'company':
+                                    baMessage = ' - Driftskonto i firmainnstillinger';
+                                    break;
+                                case 'salarybank':
+                                    baMessage = ' - Lønnskonto i firmainnstilinger';
+                                    break;
+                            }
+                                bankAccountUsesMessages += baMessage + '<br>';
+                        });
+                        this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);    
+                    }
+
+                }, err => this.errorService.handle(err));*/
+
             });
             this.formFields$.next(fields);
         }
@@ -194,39 +223,40 @@ export class UniBankAccountModal implements IUniModal {
             const account = this.formModel$.value;
 
             if (changes['_ibanAccountSearch'].currentValue) {
-                this.busy = true;
-                const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
-                this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
-                    this.busy = false;
-                    this.toastService.removeToast(toastSearchBankAccount);
-                    this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
-                        if (res2.Data.length > 0) {
-                            let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
-                            res2.Data.forEach(function (ba) {
-                                let baMessage = '';
-                                switch (ba.BankAccountBankAccountType.toLowerCase()) {
-                                    case 'supplier':
-                                        baMessage = ' - Leverandør ' + ba.Name;
-                                        break;
-                                    case 'customer':
-                                        baMessage = ' - Kunde ' + ba.Name;
-                                        break;
-                                    case 'company':
-                                        baMessage = ' - Driftskonto i firmainnstillinger';
-                                        break;
-                                    case 'salarybank':
-                                        baMessage = ' - Lønnskonto i firmainnstilinger';
-                                        break;
-                                }
-                                    bankAccountUsesMessages += baMessage + '<br>';
-                            });
-                            this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);    
-                        }
+                if (!this.isAccountNumberDuplicate(changes['_ibanAccountSearch'].currentValue)) {
+                    this.busy = true;
+                    const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
+                    this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
+                        this.busy = false;
+                        this.toastService.removeToast(toastSearchBankAccount);
+                        this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
+                            if (res2.Data.length > 0) {
+                                let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
+                                res2.Data.forEach(function (ba) {
+                                    let baMessage = '';
+                                    switch (ba.BankAccountBankAccountType.toLowerCase()) {
+                                        case 'supplier':
+                                            baMessage = ' - Leverandør ' + ba.Name;
+                                            break;
+                                        case 'customer':
+                                            baMessage = ' - Kunde ' + ba.Name;
+                                            break;
+                                        case 'company':
+                                            baMessage = ' - Driftskonto i firmainnstillinger';
+                                            break;
+                                        case 'salarybank':
+                                            baMessage = ' - Lønnskonto i firmainnstilinger';
+                                            break;
+                                    }
+                                        bankAccountUsesMessages += baMessage + '<br>';
+                                });
+                                this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);    
+                            }
 
-                    }, err => this.errorService.handle(err));
+                        }, err => this.errorService.handle(err));
 
-
-                }, (err) => { this.busy = false; this.toastService.removeToast(toastSearchBankAccount); this.errorService.handle(err); });
+                    }, (err) => { this.busy = false; this.toastService.removeToast(toastSearchBankAccount); this.errorService.handle(err); });
+                }
             }
         }
     }
@@ -252,7 +282,20 @@ export class UniBankAccountModal implements IUniModal {
         return this.statisticsService.GetAll(qryString);
     }
 
+    private isAccountNumberDuplicate(accountNumber: string): boolean {
+        if (this.bankAccounts.length > 0) {
+            let duplicate = this.bankAccounts.find(x => x.AccountNumber == accountNumber);
+            if (duplicate !== null && duplicate !== undefined) {
+                this.toastService.addToast('Duplikat bankkonto nummer', ToastType.bad, null, 'Bankkonto med samme kontonummer er allerede registrert');
+                this.validAccount = false;
+                return true;
+            }
+        }
+        return false;
+    }
+
     private accountAndIBANSearch(searchValue: string) {
+        searchValue = searchValue.replace(/ /g, '');
         const request = (isNaN(Number(searchValue)))
             ? this.bankService.validateIBANUpsertBank(searchValue)
             : this.bankService.getIBANUpsertBank(searchValue);
@@ -354,7 +397,8 @@ export class UniBankAccountModal implements IUniModal {
                         }
                     },
                     getDefaultData: () => {
-                        const model = this.options && this.options.data || {};
+                        const model = this.options && this.options.data.bankAccount || this.options.data || {};
+
                         return model.Account
                             ? Observable.of([model.Account])
                             : Observable.of([]);

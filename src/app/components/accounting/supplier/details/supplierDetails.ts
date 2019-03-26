@@ -722,8 +722,12 @@ export class SupplierDetails implements OnInit {
                     bankaccount.ID = 0;
                 }
                 const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount
-                });
+                    data: {
+                        bankAccount: bankaccount,
+                        bankAccounts: supplier.Info.BankAccounts
+                    }
+                }
+                );
 
                 return modal.onClose.take(1).toPromise();
             }
