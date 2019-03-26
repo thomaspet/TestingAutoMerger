@@ -12,6 +12,7 @@ import {
     SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService, PayrollrunService
 } from '../../../../services/services';
 import {SalarybalanceLine} from '../salarybalanceLine';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'salary-balance-summary',
@@ -23,11 +24,11 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     @Input() public salaryBalance: SalaryBalance;
     @Input() public busy: boolean;
     @Output() public changeEvent: EventEmitter<SalaryBalanceLine[]> = new EventEmitter();
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: UniTable;
     public editMode: boolean;
     private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
-    private tableModel$: BehaviorSubject<SalaryBalanceLine[]>;
-    private description$: BehaviorSubject<string>;
+    public tableModel$: BehaviorSubject<SalaryBalanceLine[]>;
+    public description$: BehaviorSubject<string>;
     public tableConfig: UniTableConfig;
     public showDescriptionText: boolean = false;
     public showAllLines: boolean;
@@ -83,9 +84,6 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private toggleEditMode(editMode) {
         this.editMode = editMode;
         this.createConfig(editMode);
-        if (this.table) {
-            this.table.blur();
-        }
     }
 
     public onSalaryBalanceChange(salaryBalance: SalaryBalance) {
@@ -206,6 +204,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
         this.tableConfig = new UniTableConfig('salary.salarybalance.summary', !!editMode, false)
             .setColumns(columnList)
+            .setAutoAddNewRow(true)
             .setChangeCallback((event) => this.emitChanges(event));
     }
 
@@ -241,6 +240,10 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     }
 
     public activateEditMode() {
+        if (!this.editMode) {
+            this.table.addRow(null);
+        }
+
         this.editMode = true;
         this.createConfig(this.editMode);
         if (!this.table || !this.table.getTableData().length) {
