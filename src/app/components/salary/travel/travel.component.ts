@@ -174,7 +174,9 @@ export class TravelComponent implements OnInit {
                 });
             })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)));
+            .switchMap(travels => this.wageTypeService
+                .GetAll('orderby=WageTypeNumber').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt))
+            );
     }
 
     private markFirstTravel(travels: Travel[]) {
