@@ -10,12 +10,12 @@
     *ngIf="rowModelType"
     [ngStyle]="{
         'height': tableHeight,
-        'flex': config?.groupingIsOn ? '1' : 'unset',
+        'flex': config?.isGroupingTicker ? '1' : 'unset',
         'overflow': config?.editable ? 'unset' : 'hidden'
     }">
 
     <span
-        *ngIf="config?.groupingIsOn"
+        *ngIf="config?.isGroupingTicker"
         role="button"
         class="expand-collapse-groups"
         (click)="expandCollapseAll()">
@@ -38,7 +38,7 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.groupingIsOn
+            'ag-theme-balham': config?.isGroupingTicker
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -46,7 +46,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [domLayout]="(localData && !config?.groupingIsOn) ? 'autoHeight' : 'normal'"
+        [domLayout]="(localData && !config?.isGroupingTicker) ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
@@ -63,7 +63,8 @@
         [animateRows]="true"
         [suppressMakeColumnVisibleAfterUnGroup]="config?.suppressMakeColumnVisibleAfterUnGroup"
         [suppressDragLeaveHidesColumns]="config?.suppressDragLeaveHidesColumns"
-        [autoGroupColumnDef]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [groupMultiAutoColumn]="!config?.isGroupingTicker"
+        [autoGroupColumnDef]="config?.autoGroupColumnDef"
         [rowGroupPanelShow]="config?.rowGroupPanelShow"
         [blockLoadDebounceMillis]="250"
         [suppressContextMenu]="true"
@@ -88,11 +89,12 @@
         (columnMoved)="columnMoveDebouncer$.next($event)"
 
         [context]="context"
-        [frameworkComponents]="cellRendererComponents">
+        [frameworkComponents]="cellRendererComponents"
+        [groupRowAggNodes]="aggregator">
     </ag-grid-angular>
 </section>
 
-<section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
+<section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.isGroupingTicker">
     <i class="material-icons" (click)="paginate('first')">first_page</i>
     <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 

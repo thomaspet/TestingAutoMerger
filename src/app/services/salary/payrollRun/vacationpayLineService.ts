@@ -4,12 +4,14 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {VacationPayLine, WageDeductionDueToHolidayType} from '../../../unientities';
 import {Observable} from 'rxjs';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
+import {FinancialYearService} from '@app/services/accounting/financialYearService';
 
 @Injectable()
 export class VacationpayLineService extends BizHttp<VacationPayLine> {
     constructor(
         protected http: UniHttp,
-        private salaryTransactionService: SalaryTransactionService
+        private salaryTransactionService: SalaryTransactionService,
+        private yearService: FinancialYearService,
     ) {
         super(http);
         this.relativeURL = VacationPayLine.RelativeUrl;
@@ -23,7 +25,7 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
         { id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn' }
     ];
 
-    public getVacationpayBasis(year: number, payrun: number = 0): Observable<VacationPayLine[]> {
+    public getVacationpayBasis(year: number = this.yearService.getActiveYear(), payrun: number = 0): Observable<VacationPayLine[]> {
         return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}`);
     }
 

@@ -60,8 +60,8 @@ export class TableDataService {
 
         if (Array.isArray(resource)) {
             this.originalData = this.setMetadata(resource);
-            // Don't filter locally when grouping is on!
-            const filteredData = this.config.groupingIsOn ? this.originalData  : this.filterLocalData(this.originalData);
+            // Don't filter locally when ticker grouping is on!
+            const filteredData = this.config.isGroupingTicker ? this.originalData  : this.filterLocalData(this.originalData);
             this.loadedRowCount = filteredData.length;
             this.totalRowCount$.next(this.loadedRowCount);
 
@@ -86,7 +86,7 @@ export class TableDataService {
         // Remote data column sums is handled in dataSource
         if (Array.isArray(resource)) {
             this.sumRow$.next(undefined);
-            const sumColumns = this.config.columns.filter(col => col.isSumColumn);
+            const sumColumns = this.config.columns.filter(col => col.isSumColumn || col.aggFunc);
             if (sumColumns.length) {
                 this.getLocalDataColumnSums(sumColumns, resource);
             }
@@ -234,7 +234,7 @@ export class TableDataService {
 
                 // Re-calculate sum row if we have sum columns
                 setTimeout(() => {
-                    const sumColumns = this.config.columns.filter(col => col.isSumColumn);
+                    const sumColumns = this.config.columns.filter(col => col.isSumColumn || col.aggFunc);
                     if (sumColumns.length) {
                         const visibleData = [];
                         this.getLocalDataColumnSums(sumColumns, this.originalData);
@@ -601,9 +601,11 @@ export class TableDataService {
 
         sumColumns.forEach((col, index) => {
             // TODO: filteredData
-            sumRow[col.alias || col.field] = data.reduce((sum, row) => {
-                return sum += parseFloat(get(row, col.alias || col.field, 0)) || 0;
-            }, 0);
+            sumRow[col.alias || col.field] = col.aggFunc
+                ? col.aggFunc(data)
+                : data.reduce((sum, row) => {
+                    return sum += parseFloat(get(row, col.alias || col.field, 0)) || 0;
+                }, 0);
         });
 
         this.sumRow$.next([sumRow]);

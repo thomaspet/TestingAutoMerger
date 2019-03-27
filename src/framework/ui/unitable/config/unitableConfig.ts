@@ -126,7 +126,7 @@ export class UniTableConfig implements IUniTableConfig {
     public getChildCount?: (event) => any;
     public groupDefaultExpanded: number;
     public groupIncludeFooter: boolean;
-    public groupingIsOn: boolean;
+    public isGroupingTicker: boolean;
 
     /**
      * @constructor

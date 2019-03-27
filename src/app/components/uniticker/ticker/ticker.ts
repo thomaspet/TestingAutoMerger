@@ -1258,11 +1258,12 @@ export class UniTicker {
                 .setSuppressMakeColumnVisibleAfterUnGroup(true)
                 .setSuppressDragLeaveHidesColumns(true)
                 .setAutoGroupColumnDef({
-                    headerName: 'Gruppering'
+                    headerName: 'Gruppering',
+                    suppressMenu: true
                 });
         }
 
-        config.groupingIsOn = this.groupingIsOn;
+        config.isGroupingTicker = this.groupingIsOn;
 
         return config;
     }

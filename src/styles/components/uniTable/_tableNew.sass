@@ -39,6 +39,11 @@ ag-grid-angular
         line-height: 30px
         user-select: none
 
+// Group toggle
+.ag-group-contracted
+    margin-right: .5rem
+    margin-top: 1px
+
 .ag-icon-checkbox-indeterminate
     @extend .ag-icon-checkbox-unchecked
 
@@ -66,8 +71,7 @@ ag-grid-angular
         border-right: $table-border-style
 
     .ag-row-group
-        font-style: italic
-        font-weight: bold
+        font-weight: 600
         .table-link
             text-decoration: none !important
             cursor: default
@@ -102,22 +106,19 @@ ag-grid-angular.col-menu-hidden
     background: #fff
     color: $uni-color-scale5
 
-    // .ag-header-cell-text
-    //     color: $uni-color-scale5
-
-.ag-cell
-    line-height: 35px
-    > span
-        display: flex
-.ag-header-cell
-    line-height: 35px // 40px
-
 // Hide resize indicator
 .ag-header-cell::after
     display: none !important
 
-.ag-cell, .ag-header-cell
+.ag-cell,
+.ag-header-cell,
+.ag-theme-balham .ag-cell,
+.ag-theme-balham .ag-header-cell
     padding: 0 10px
+    line-height: 34px !important
+
+    > span
+        display: flex
 
     &:focus
         outline: none
