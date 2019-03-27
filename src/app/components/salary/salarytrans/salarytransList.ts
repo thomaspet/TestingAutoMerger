@@ -95,7 +95,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             const projectSubject = super.getStateSubject('projects');
             const departmentSubject = super.getStateSubject('departments');
 
-            wagetypesSubject.subscribe(wagetypes => {
+            this.wageTypeService.getOrderByWageTypeNumber('').subscribe(wagetypes => {
                 this.wagetypes = wagetypes;
             });
 
