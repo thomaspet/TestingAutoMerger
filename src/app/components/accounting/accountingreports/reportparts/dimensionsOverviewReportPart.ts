@@ -195,43 +195,37 @@ export class DimensionsOverviewReportPart {
                 .setCls('amount')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup4 = new UniTableColumn('percentGroup4', '%', UniTableColumnType.Number)
-                .setCls('percentage');
+            const percentGroup4 = new UniTableColumn('percentGroup4', '%', UniTableColumnType.Percent);
 
             const amountGroup5 = new UniTableColumn('amountGroup5', 'Lønnskostnader', UniTableColumnType.Money)
                 .setCls('amount')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup5 = new UniTableColumn('percentGroup5', '%', UniTableColumnType.Number)
-                .setCls('percentage');
+            const percentGroup5 = new UniTableColumn('percentGroup5', '%', UniTableColumnType.Percent);
 
             const amountGroup6 = new UniTableColumn('amountGroup6', 'Andre driftskost', UniTableColumnType.Money)
                 .setCls('amount')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup6 = new UniTableColumn('percentGroup6', '%', UniTableColumnType.Number)
-                .setCls('percentage');
+            const percentGroup6 = new UniTableColumn('percentGroup6', '%', UniTableColumnType.Percent);
 
             const amountGroup7 = new UniTableColumn('amountGroup7', 'Andre driftskost', UniTableColumnType.Money)
                 .setCls('amount')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup7 = new UniTableColumn('percentGroup7', '%', UniTableColumnType.Number)
-                .setCls('percentage');
+            const percentGroup7 = new UniTableColumn('percentGroup7', '%', UniTableColumnType.Percent);
 
             const amountGroup8 = new UniTableColumn('amountGroup8', 'Finanskost/innt', UniTableColumnType.Money)
                 .setCls('amount')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup8 = new UniTableColumn('percentGroup8', '%', UniTableColumnType.Number)
-                .setCls('percentage');
+            const percentGroup8 = new UniTableColumn('percentGroup8', '%', UniTableColumnType.Percent);
 
             const amountGroupResult = new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money)
                 .setCls('amount')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroupResult = new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number)
-                .setCls('percentage');
+            const percentGroupResult = new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Percent);
 
             const tableName = 'accounting.dimensionOverviewReportPart';
             this.uniTableConfigDimension = new UniTableConfig(tableName, false, true, 25);
