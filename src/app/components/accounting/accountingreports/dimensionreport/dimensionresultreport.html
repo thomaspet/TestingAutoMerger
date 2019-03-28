@@ -1,21 +1,30 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<h1>
+    <i routerLink="../dimensions" class="material-icons">arrow_back</i>
+    {{headerText}}
+</h1>
 
-<section class="application">
+<section class="result-report-content">
     <section class="period-setup">
         Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker><period-picker style="display: none" [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
     </section>
 
-    <drilldown-result-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [dimensionType]="dimensionType" [dimensionId]="filterDimensionID"></drilldown-result-report-part>
+    <drilldown-result-report-part
+        [periodFilter1]="periodFilter1"
+        [periodFilter2]="periodFilter2"
+        [dimensionType]="dimensionType"
+        [dimensionId]="filterDimensionID">
+    </drilldown-result-report-part>
 
-    <distribution-period-report-part [accountIDs]="distributionPeriodAccountIDs"
-                                     [subaccountIDs]=""
-                                     [accountYear1]="periodFilter1.year - 1"
-                                     [accountYear2]="periodFilter1.year"
-                                     [doTurnAmounts]="true"
-                                     [showHeader]="true"
-                                     [activeDistributionElement]="activeDistributionElement"
-                                     [includeIncomingBalance]="false"
-                                     [dimensionType]="dimensionType"
-                                     [dimensionId]="filterDimensionID">
+    <distribution-period-report-part
+        [accountIDs]="distributionPeriodAccountIDs"
+        [subaccountIDs]=""
+        [accountYear1]="periodFilter1.year - 1"
+        [accountYear2]="periodFilter1.year"
+        [doTurnAmounts]="true"
+        [showHeader]="true"
+        [activeDistributionElement]="activeDistributionElement"
+        [includeIncomingBalance]="false"
+        [dimensionType]="dimensionType"
+        [dimensionId]="filterDimensionID">
     </distribution-period-report-part>
 </section>

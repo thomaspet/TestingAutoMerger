@@ -97,8 +97,12 @@ export class DimensionsOverviewReportPart {
 
     public selectDimension(data) {
         const dimName = data.dimensionName.replace(/\//g, '-');
-        const url = `/accounting/accountingreports/dimension/${this.dimensionType}/`
-            + `${data.dimensionId}/${data.dimensionNumber}/${dimName}`;
+        const url = '/accounting/accountingreports/dimension'
+            + `?type=${this.dimensionType}`
+            + `&id=${data.dimensionId}`
+            + `&number=${data.dimensionNumber}`
+            + `&name=${dimName}`;
+
         this.router.navigateByUrl(url);
     }
 

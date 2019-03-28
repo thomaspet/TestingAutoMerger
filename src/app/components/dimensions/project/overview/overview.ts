@@ -95,18 +95,21 @@ export class ProjectOverview {
     }
 
     public ngAfterViewInit() {
-        if (!this.projectService.hasJournalEntryLineModule) {
-            return;
+        if (this.projectService.hasJournalEntryLineModule) {
+            this.chartElement1.nativeElement.onclick = (event) => {
+                const temp = this.myChart.getElementAtEvent(event);
+                if (this.myChart && temp && temp.length) {
+                    const project = this.projectService.currentProject.getValue();
+
+                    const url = '/accounting/accountingreports/dimension?type=1'
+                        + `&id=${project.ID}`
+                        + `&number=${project.ProjectNumber}`
+                        + `&name=${project.Name}`;
+
+                    this.onNavigate(url);
+                }
+            };
         }
-        this.chartElement1.nativeElement.onclick = (event) => {
-            const temp = this.myChart.getElementAtEvent(event);
-            if (this.myChart && temp && temp.length) {
-                const project = this.projectService.currentProject.getValue();
-                this.onNavigate(`/accounting/accountingreports/dimension/1/${project.ID}/${project.ProjectNumber}/` +
-                project.Name.replace(' ', '%20'));
-                // TODO: When filter added to accounting view, attach filter from selected bar in chart
-            }
-        };
     }
 
     onNavigate(url, isChildRoute: boolean = false) {

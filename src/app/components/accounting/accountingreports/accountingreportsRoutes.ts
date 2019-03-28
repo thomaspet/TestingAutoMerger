@@ -23,7 +23,7 @@ export const routes = [
         component: DimensionTypeReport
     },
     {
-        path: 'dimension/:type/:id/:number/:name',
+        path: 'dimension',
         component: DimensionResultReport
     },
     {
