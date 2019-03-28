@@ -1,49 +1,36 @@
 import {Component} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {TabService} from '../../../layout/navbar/tabstrip/tabService';
+import {ActivatedRoute} from '@angular/router';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {ResultSummaryData} from '../resultreport/resultreport';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {
-    StatisticsService,
-    DimensionTypes,
-    PageStateService
-
-} from '../../../../services/services';
+import {DimensionTypes} from '@app/services/services';
 
 @Component({
     selector: 'dimension-result-report',
     templateUrl: './dimensionresultreport.html',
+    styleUrls: ['./dimensionresultreport.sass']
 })
 export class DimensionResultReport {
-    public periodFilter1: PeriodFilter;
-    public periodFilter2: PeriodFilter;
-
-    public treeSummaryList: ResultSummaryData[] = [];
-    public flattenedTreeSummaryList: ResultSummaryData[] = [];
-
-    public dimensionType: number;
-    private dimensionEntityName: string = '';
     private dimensionDisplayName: string = '';
-    public filterDimensionID: number = 0;
     private filterDimensionNumber: number = 0;
     private filterDimensionName: string = '';
-    private pageTitle: string = '';
 
-    public activeDistributionElement: string = 'Resultat';
-    public distributionPeriodAccountIDs: Array<number> = [];
+    periodFilter1: PeriodFilter;
+    periodFilter2: PeriodFilter;
 
-    public toolbarconfig: IToolbarConfig;
+    treeSummaryList: ResultSummaryData[] = [];
+    flattenedTreeSummaryList: ResultSummaryData[] = [];
+
+    dimensionType: number;
+    filterDimensionID: number = 0;
+    headerText: string;
+    activeDistributionElement: string = 'Resultat';
+    distributionPeriodAccountIDs: Array<number> = [];
 
     constructor(
-        private router: Router,
         private route: ActivatedRoute,
-        private statisticsService: StatisticsService,
-        private tabService: TabService,
-        private pageStateService: PageStateService,
         private periodFilterHelper: PeriodFilterHelper,
     ) {
-        this.route.params.subscribe(params => {
+        this.route.queryParams.subscribe(params => {
 
             this.dimensionType = params['type'];
             this.filterDimensionID = +params['id'];
@@ -52,10 +39,8 @@ export class DimensionResultReport {
 
             if (this.dimensionType.toString() === DimensionTypes.Project.toString()) {
                 this.dimensionDisplayName = 'Prosjekt';
-                this.dimensionEntityName = 'Project';
             } else if (this.dimensionType.toString() === DimensionTypes.Department.toString()) {
                 this.dimensionDisplayName = 'Avdeling';
-                this.dimensionEntityName = 'Department';
             }
 
             this.setPageTitle();
@@ -65,15 +50,11 @@ export class DimensionResultReport {
 
     private setPageTitle() {
         if (this.filterDimensionID && this.filterDimensionID > 0) {
-            this.pageTitle += `${this.dimensionDisplayName} `
+            this.headerText = `${this.dimensionDisplayName} `
                 + `${this.filterDimensionNumber}: ${this.filterDimensionName}`;
         } else {
-            this.pageTitle += `Posteringer uten definert ${this.dimensionDisplayName.toLowerCase()}`;
+            this.headerText = `Posteringer uten definert ${this.dimensionDisplayName.toLowerCase()}`;
         }
-
-        this.toolbarconfig = {
-            title: this.pageTitle,
-        };
     }
 
     public ngOnInit() {

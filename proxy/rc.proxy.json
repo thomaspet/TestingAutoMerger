@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "https://rc-api.unieconomy.no",
+        "secure": false,
+        "changeOrigin": true
+    }
+}
