@@ -22,7 +22,7 @@
         <section *ngIf="showReceipt" [attr.aria-busy]="busy">
             <p>Bilaget er bokført i ditt regnskap</p>
             <p>
-                <a (click)="close()" href="#/accounting/transquery?JournalEntryNumber={{journalNumber}}">
+                <a (click)="close(true)">
                     Bilagsnummer: {{journalNumber}}
                 </a>
             </p>

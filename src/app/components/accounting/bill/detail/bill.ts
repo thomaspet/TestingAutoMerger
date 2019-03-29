@@ -3683,7 +3683,11 @@ export class BillView implements OnInit {
                 { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr ? `#/accounting/transquery?JournalEntryNumber=${jnr}` : undefined
+                    link: jnr
+                        ? jnr.split('-').length > 1
+                            ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
+                            : `#/accounting/transquery?JournalEntryNumber=${jnr}&AccountYear=${moment(doc.InvoiceDate).year()}`
+                        : undefined
                 }
             ],
             statustrack: stConfig,

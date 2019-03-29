@@ -74,6 +74,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private subaccountIDs: number[];
     @Input() public showHeader: boolean = false;
     @Input() private doTurnAmounts: boolean = false;
+    @Input() private showCredited: boolean = false;
     @Input() public activeDistributionElement: string;
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
@@ -189,8 +190,10 @@ export class DistributionPeriodReportPart implements OnChanges {
                 ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
                 : '';
 
+            const creditedFilter = !this.showCredited ? ` and isnull(StatusCode,0) ne '31004'` : '';
+
             const periodQuery = 'model=JournalEntryLine&expand=Period,SubAccount,Account.TopLevelAccountGroup,Dimensions'
-                + `&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter} and `
+                + `&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter}${creditedFilter} and `
                 + `(Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})`
                 + `&orderby=Period.AccountYear,Period.No&select=Period.AccountYear as PeriodAccountYear,`
                 + `Period.No as PeriodNo,sum(JournalEntryLine.Amount) as SumAmount`;

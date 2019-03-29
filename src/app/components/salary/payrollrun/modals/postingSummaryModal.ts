@@ -345,8 +345,19 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             .then(() => this.close());
     }
 
-    public close() {
+    public close(link: boolean = false) {
         this.destroy$.next();
+        if (link) {
+            const numberAndYear = this.journalNumber.split('-');
+            let url = `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
+            if (numberAndYear.length > 1) {
+                url += numberAndYear[1];
+            } else {
+                const year = this.journalDate ? moment(this.journalDate).year() : moment().year();
+                url += year;
+            }
+            this.router.navigateByUrl(url);
+        }
         this.onClose.next(true);
     }
 }

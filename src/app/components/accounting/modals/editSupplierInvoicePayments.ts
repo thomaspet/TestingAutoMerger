@@ -10,6 +10,7 @@ import { RequestMethod } from '@angular/http';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import { Payment } from '@uni-entities';
 import {Router} from '@angular/router';
+import * as moment from 'moment';
 
 @Component({
     selector: 'view-connected-payments-modal',
@@ -132,7 +133,14 @@ export class EditSupplierInvoicePayments implements IUniModal {
                             .setTemplate(x => this.paymentService.getStatusText(x.StatusCode)),
                         new UniTableColumn('JournalEntryNumber', 'Bilagnr.', UniTableColumnType.Link)
                         .setLinkClick(row => {
-                            this.router.navigateByUrl(`/accounting/journalentry/manual;journalEntryID=${row.JournalEntryID}`);
+                            const numberAndYear = row.JournalEntryNumber.split('-');
+                            let url: string = `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
+                            if (numberAndYear.length > 1) {
+                                url += numberAndYear[1];
+                            } else {
+                                url += row.PaymentDate ? moment(row.PaymentDate).year() : moment().year();
+                            }
+                            this.router.navigateByUrl(url);
                             this.close();
                         }),
                         new UniTableColumn('JournalEntryID', 'JournalEntryID', UniTableColumnType.Number)

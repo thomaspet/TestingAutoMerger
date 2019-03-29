@@ -540,7 +540,7 @@ export class TableDataService {
                     filterString += (`${filter.operator}(${filter.field},'${filterValue}')`);
                 } else {
                     // Logical operator
-                    filterString += `${filter.field} ${filter.operator} '${filterValue}'`;
+                    filterString += `${this.getFieldValue(filter.field, filter.operator)} ${filter.operator} '${filterValue}'`;
                 }
             }
         });
@@ -555,6 +555,14 @@ export class TableDataService {
         }
 
         return filterString;
+    }
+
+    private getFieldValue(field, operator) {
+        if (operator === 'ne' && field.toLocaleLowerCase().includes('statuscode')) {
+            return `isnull(${field},0)`;
+        } else {
+            return field;
+        }
     }
 
     private getFilterValueFromFilter(filter: ITableFilter, expressionFilterValues: IExpressionFilterValue[]): string {

@@ -835,7 +835,15 @@ export class BillsView implements OnInit {
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
-                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+                .setLinkResolver(row => {
+                    const numberAndYear = row.JournalEntryJournalEntryNumber.split('-');
+                    if (numberAndYear.length > 1) {
+                        return `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=${numberAndYear[1]}`;
+                    } else {
+                        const year = row.InvoiceDate ? new Date(row.InvoiceDate).getFullYear() : new Date().getFullYear();
+                        return `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}&AccountYear=${year}`;
+                    }
+                }),
 
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setFilterOperator('eq')
@@ -862,7 +870,7 @@ export class BillsView implements OnInit {
 
         ];
 
-        let contextMenuItems: IContextMenuItem[] = [
+        const contextMenuItems: IContextMenuItem[] = [
             {
                 action: (row) => this.reInvoice(row),
                 disabled: (row) => !row || !row.ReInvoiced,

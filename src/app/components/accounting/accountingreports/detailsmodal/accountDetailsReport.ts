@@ -30,6 +30,7 @@ import {
 } from '../../../../services/services';
 import {YearModal, IChangeYear} from '../../../layout/navbar/company-dropdown/yearModal';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import * as moment from 'moment';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -81,6 +82,7 @@ export class AccountDetailsReport {
     };
     selectYear: string[];
     activeYear: number;
+    showCredited: boolean = false;
 
     private dimensionEntityName: string;
     private financialYears: Array<FinancialYear> = null;
@@ -134,6 +136,7 @@ export class AccountDetailsReport {
             this.route.queryParams.subscribe(params => {
                 const accountParam = +params['account'];
                 this.tabIndex = +params['tabIndex'] || 0;
+                this.showCredited = params['showCredited'] === 'true';
                 this.accountNumber = accountParam;
 
                 const item = {
@@ -198,6 +201,11 @@ export class AccountDetailsReport {
         }
     }
 
+    public showCreditedChange() {
+        this.addTab();
+        this.setupLookupTransactions();
+    }
+
     public onFilterAccountChange(account: Account) {
         if (account && account.ID) {
             this.setAccountConfig(account);
@@ -252,6 +260,10 @@ export class AccountDetailsReport {
     }
 
     public addTab() {
+        // Dont update if in modal, causes broken tabs
+        if (this.config.modalMode) {
+            return;
+        }
         const f = this.periodFilter3$.getValue();
 
         // Set page state service to make sure browser navigatio works
@@ -259,6 +271,7 @@ export class AccountDetailsReport {
         this.pageStateService.setPageState('fromPeriodNo', f.fromPeriodNo + '');
         this.pageStateService.setPageState('toPeriodNo', f.toPeriodNo + '');
         this.pageStateService.setPageState('year', f.year + '');
+        this.pageStateService.setPageState('showCredited', this.showCredited + '');
         if (!!this.accountNumber) {
             this.pageStateService.setPageState('account', this.accountNumber + '');
         }
@@ -353,6 +366,10 @@ export class AccountDetailsReport {
             filters.push(`isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.config.dimensionId}`);
         }
 
+        if (!this.showCredited) {
+            filters.push(`isnull(StatusCode,0) ne '31004'`);
+        }
+
         urlParams.set('model', 'JournalEntryLine');
         urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
         urlParams.set('filter', filters.join(' and '));
@@ -373,6 +390,7 @@ export class AccountDetailsReport {
             'PaymentID as PaymentID,' +
             'AmountCurrency as AmountCurrency,' +
             'Description as Description,' +
+            'StatusCode as StatusCode,' +
             'VatType.VatCode,' +
             'Amount as Amount,' +
             'VatDeductionPercent as VatDeductionPercent,' +
@@ -425,7 +443,15 @@ export class AccountDetailsReport {
 
         if (!this.config || !this.config.modalMode) {
             journalEntryNumberCol.setLinkResolver(row => {
-                return `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`;
+                const isCredited = !!row.ReferenceCreditPostID || !!row.OriginalReferencePostID || row.StatusCode === 31004;
+                const numberAndYear = row.JournalEntryNumber.split('-');
+                let url = `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&ShowCreditedLines=${isCredited}&AccountYear=`;
+                if (numberAndYear.length > 1) {
+                    return url += numberAndYear[1];
+                } else {
+                    const year = row.JournalEntryLineFinancialDate ? moment(row.JournalEntryLineFinancialDate).year() : moment().year();
+                    return  url += year;
+                }
             });
         }
 
@@ -469,16 +495,26 @@ export class AccountDetailsReport {
             x.conditionalCls = (data) => this.getCssClasses(data, x.field);
         });
 
+        let pageSize = window.innerHeight // Window size
+            - 80 // Header/Navbar
+            - 90 // Toolbar
+            - 70 // Search container
+            - 50 // UniTabs
+            - 70 // Header
+            - 40 // Filters
+            - 200; // Paddings + margins
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
         const tableName = 'accounting.accountingreports.detailsmodal';
-        this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false)
+        this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false, pageSize)
             .setPageable(true)
-            .setPageSize(20)
             .setSearchable(true)
             .setConditionalRowCls(row => {
                 if (!row) {
                     return '';
                 }
-                if (row.ReferenceCreditPostID || row.OriginalReferencePostID) {
+                if (row.ReferenceCreditPostID || row.OriginalReferencePostID || row.StatusCode === 31004) {
                     return 'journal-entry-credited';
                 }
             })
