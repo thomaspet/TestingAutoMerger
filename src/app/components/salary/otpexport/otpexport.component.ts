@@ -216,6 +216,10 @@ export class OTPExportComponent implements OnInit {
     const nameCol = new UniTableColumn('_Fulltnavn', 'Navn', UniTableColumnType.Text);
     const birthCol = new UniTableColumn('Fodselsnummer', 'Fødselsnummer', UniTableColumnType.Text);
     const addressCol = new UniTableColumn('Adresselinje1', 'Adresse', UniTableColumnType.Text);
+    const address2Col = new UniTableColumn('Adresselinje2', 'Adresselinje2', UniTableColumnType.Text).setVisible(false);
+    const address3Col = new UniTableColumn('Adresselinje3', 'Adresselinje3', UniTableColumnType.Text).setVisible(false);
+    const postalCodeCol = new UniTableColumn('Postnummer', 'Postnummer', UniTableColumnType.Text);
+    const cityCol = new UniTableColumn('Poststed', 'Poststed', UniTableColumnType.Text);
     const startdateCol = new UniTableColumn('Ansattdato', 'Ansattdato', UniTableColumnType.DateTime);
     const enddateCol = new UniTableColumn('Sluttdato', 'Sluttdato', UniTableColumnType.DateTime);
     const paymentformCol = new UniTableColumn('Avlonningsform', 'Avlønningsform', UniTableColumnType.Text)
@@ -242,7 +246,8 @@ export class OTPExportComponent implements OnInit {
     });
     this.otpTableConfig = new UniTableConfig('salary.otpexport.data', false, true)
       .setColumns([
-        numberCol, nameCol, birthCol, addressCol, startdateCol, enddateCol, paymentformCol, yearwageCol,
+        numberCol, nameCol, birthCol, addressCol, address2Col, address3Col,
+        postalCodeCol, cityCol, startdateCol, enddateCol, paymentformCol, yearwageCol,
         employmentpercentCol, periodsalarySumCol, periodsalaryAmountCol, statusPensionCol
       ])
       .setSearchable(true);
