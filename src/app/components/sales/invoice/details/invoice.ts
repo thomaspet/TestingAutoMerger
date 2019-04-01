@@ -1271,7 +1271,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             });
         }
 
-        if (this.invoice.JournalEntry) {
+        if (this.invoice.JournalEntry && this.invoice.JournalEntry.JournalEntryNumber) {
             const numberAndYear = this.invoice.JournalEntry.JournalEntryNumber.split('-');
             let url: string = `/#/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
             if (numberAndYear.length > 1) {
