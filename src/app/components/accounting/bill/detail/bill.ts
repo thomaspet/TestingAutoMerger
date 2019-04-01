@@ -77,7 +77,8 @@ import {
     FileService,
     VatDeductionService,
     PaymentService,
-    BrowserStorageService
+    BrowserStorageService,
+    ReInvoicingService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
@@ -277,7 +278,8 @@ export class BillView implements OnInit {
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
         private paymentService: PaymentService,
-        private browserStorageService: BrowserStorageService
+        private browserStorageService: BrowserStorageService,
+        private reinvoicingService: ReInvoicingService
     ) {
         this.actions = this.rootActions;
 
@@ -1609,7 +1611,19 @@ export class BillView implements OnInit {
             }
         }
 
+        if ( change['TaxInclusiveAmountCurrency'] || change['TaxInclusiveAmount'] ) {
+            if ( model.ReInvoiceID != null ) {
+                     this.reinvoicingService.Get(model.ReInvoiceID).subscribe( reInv => {
+                        if (  reInv.StatusCode === 30203 ) {
+                            this.toast.addToast('', ToastType.bad, 10, 'Du har knyttet en viderefakturering som er gjennomført til denne leverandørfakturaen. Viderefaktureringen må slettes og settes opp på nytt igjen for å viderefakturere med korrekt beløp.');
+                        }
+                });
+            }
+        }
+
+
         if (change['TaxInclusiveAmountCurrency']) {
+
             this.updateJournalEntryAmountsWhenCurrencyChanges(model);
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
