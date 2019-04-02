@@ -3,12 +3,13 @@ import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {
-    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService, NumberFormat, VacationpayLineService
+    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService, NumberFormat, VacationpayLineService, StatisticsService
 } from '../../../../services/services';
 import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '../../../../unientities';
 import {BehaviorSubject, Subject, ReplaySubject} from 'rxjs';
 import {ISummaryConfig} from '@app/components/common/summary/summary';
 import {switchMap, finalize} from 'rxjs/operators';
+import {UniMath} from '@uni-framework/core/uniMath';
 
 interface PaylistSection {
     employeeInfo: {
@@ -18,6 +19,17 @@ interface PaylistSection {
     };
     paymentLines: SalaryTransaction[];
     collapsed: boolean;
+}
+
+interface IVacationBase {
+    EmployeeID: number;
+    VacationBase: number;
+}
+
+interface IControlSumModel {
+    sums?: SalaryTransactionSums;
+    vacationLines?: VacationPayLine[];
+    vacationBases?: IVacationBase[];
 }
 
 @Component({
@@ -34,10 +46,7 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
     public busy: boolean;
     public description$: ReplaySubject<string>;
     public transes: SalaryTransaction[] = [];
-    public model$: BehaviorSubject<{
-        sums: SalaryTransactionSums,
-        vacationLines: VacationPayLine[]
-    }> = new BehaviorSubject({ sums: null, vacationLines: [] });
+    public model$: BehaviorSubject<IControlSumModel> = new BehaviorSubject({ sums: null, vacationLines: [], vacationBases: [] });
     public tableConfig: UniTableConfig;
     public payrollrunIsSettled: boolean;
     constructor(
@@ -48,6 +57,7 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
         private salarySumsService: SalarySumsService,
         private numberFormat: NumberFormat,
         private vacationPayService: VacationpayLineService,
+        private statisticsService: StatisticsService,
     ) {
         this.description$ = new ReplaySubject<string>(1);
      }
@@ -57,7 +67,7 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
         this.generateTableConfigs();
         this.model$
             .takeUntil(this.destroy$)
-            .subscribe(model => this.summary = this.getSums(model.sums, model.vacationLines));
+            .subscribe(model => this.summary = this.getSums(model.sums, model.vacationLines, model.vacationBases));
     }
 
     public ngOnDestroy() {
@@ -84,19 +94,26 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
 
         this.salarySumsService
             .getFromPayrollRun(runID)
-            .subscribe(sums => {
-                const model = this.model$.getValue();
-                model.sums = sums;
-                this.model$.next(model);
-            });
+            .subscribe(sums => this.updateSumModel({sums: sums}));
 
         this.vacationPayService
             .getVacationpayBasis()
-            .subscribe(lines => {
-                const model = this.model$.getValue();
-                model.vacationLines = lines;
-                this.model$.next(model);
-            });
+            .subscribe(lines => this.updateSumModel({vacationLines: lines}));
+
+        this.statisticsService
+            .GetAll(
+                `select=employeeid as EmployeeID,sum(sum) as VacationBase&model=SalaryTransaction`
+                + `&filter=PayrollRunID eq ${runID} and wagetype.base_vacation eq 1`
+                + `&expand=wagetype`)
+            .subscribe(res => this.updateSumModel({vacationBases: res.Data}));
+    }
+
+    private updateSumModel(state: IControlSumModel) {
+        const model = this.model$.getValue();
+        model.sums = state.sums || model.sums;
+        model.vacationBases = state.vacationBases || model.vacationBases;
+        model.vacationLines = state.vacationLines || model.vacationLines;
+        this.model$.next(model);
     }
 
     private generateTableConfigs() {
@@ -113,9 +130,9 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
         const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money)
             .setIsSumColumn(true)
-            .setAggFunc((rows: SalaryTransaction[]) => rows
+            .setAggFunc((rows: SalaryTransaction[]) => UniMath.round(rows
                     .filter(row => row.Wagetype && row.Wagetype.Base_Payment)
-                    .reduce((sum, row) => sum + row.Sum, 0));
+                    .reduce((sum, row) => sum + row.Sum, 0), 2));
         const paymentCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Text)
             .setTemplate((row: SalaryTransaction) => {
                 if (!row.Wagetype) {
@@ -132,23 +149,23 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
 
     }
 
-    private getSums(sums: SalaryTransactionSums, vacationLines: VacationPayLine[] = []): ISummaryConfig[] {
+    private getSums(
+        sums: SalaryTransactionSums,
+        vacationLines: VacationPayLine[] = [],
+        vacationBases: IVacationBase[] = []): ISummaryConfig[] {
         return [
             {
-                title: 'Arbeidsgiveravgift',
-                value: sums && this.numberFormat.asMoney(sums.calculatedAGA),
-                description: sums && `av ${this.numberFormat.asNumber(sums.baseAGA, {decimalLength: 0})}`
+                title: 'Grunnlag AGA',
+                value: sums && this.numberFormat.asNumber(sums.baseAGA, {decimalLength: 0}),
             },
             {
                 title: 'Feriepenger',
-                value: this.numberFormat.asMoney(vacationLines.reduce((sum, line) => sum + line.VacationPay60, 0)),
-                description: vacationLines.length
-                    ? `av ${this.numberFormat
+                value: this.numberFormat.asMoney(this.calculateVacationPay(vacationLines, vacationBases)),
+                description: sums && `av ${this.numberFormat
                         .asNumber(
-                            vacationLines.reduce((sum, line) => sum + line.ManualVacationPayBase + line.SystemVacationPayBase, 0),
+                            sums.baseVacation,
                             {decimalLength: 0}
                     )}`
-                    : ``
             },
             {
                 title: 'Forskuddstrekk',
@@ -157,6 +174,14 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
             },
             {title: 'Sum til utbetaling', value: sums && this.numberFormat.asMoney(sums.netPayment)},
         ];
+    }
+
+    private calculateVacationPay(vacationLines: VacationPayLine[], vacationBases: IVacationBase[]) {
+        if (!vacationLines.length || !vacationBases.length) {
+            return 0;
+        }
+        return vacationBases
+            .reduce((sum, curr) => sum + curr.VacationBase * vacationLines.find(l => l.EmployeeID === curr.EmployeeID).Rate / 100, 0);
     }
 
     public runSettling() {
