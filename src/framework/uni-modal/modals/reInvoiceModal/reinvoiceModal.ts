@@ -123,7 +123,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 this.currentReInvoice.ReInvoicingType = result[0].ReInvoicingType;
                 this.currentReInvoice.OwnCostAmount = result[0].OwnCostAmount;
                 this.currentReInvoice.OwnCostShare = result[0].OwnCostShare;
-                this.currentReInvoice.Amount = result[0].Amount;
+                this.currentReInvoice.TaxInclusiveAmount = result[0].TaxInclusiveAmount;
+                this.currentReInvoice.TaxExclusiveAmount = result[0].TaxExclusiveAmount;
                 this.currentReInvoice.Items = _.cloneDeep(result[0].Items);
             } else {
                 this.currentReInvoice = null;
@@ -211,7 +212,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.currentReInvoice = null;
                         this.onClose.emit(false);
                     },
-                    error => this.errorService.handle(error)
+                    error => this.errorService.handle(error)//TODO vis "behandle manuelt" melding som warning
                 )
             }
         });
@@ -236,7 +237,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
             return prev;
         }, []);
-        this.currentReInvoice.Amount = this.calcReinvoicingAmount();
+        this.currentReInvoice.TaxInclusiveAmount = this.calcReinvoicingAmount();
+        //TODO? this.currentReInvoice.TaxExclusiveAmount
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
         let saveSupplierInvoiceRequest = Observable.of(this.supplierInvoice);
