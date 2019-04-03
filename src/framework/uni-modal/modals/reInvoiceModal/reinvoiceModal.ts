@@ -237,6 +237,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
             return prev;
         }, []);
+        this.currentReInvoice.TaxInclusiveAmount = this.calcReinvoicingGrossAmount();
         this.currentReInvoice.TaxExclusiveAmount = this.calcReinvoicingAmount();
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
@@ -382,6 +383,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     public calcReinvoicingAmount() {
+        return UniMath.round(this.reinvoicingCustomers.reduce((previous, current) => {
+            return previous + (current.NetAmount || 0);
+        }, 0));
+    }
+
+    public calcReinvoicingGrossAmount() {
         return UniMath.round(this.reinvoicingCustomers.reduce((previous, current) => {
             return previous + (current.NetAmount || 0);
         }, 0));
