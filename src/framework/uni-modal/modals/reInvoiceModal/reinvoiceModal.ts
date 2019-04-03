@@ -287,7 +287,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         });
                     });
                 } else {
-                    this.toastr.addToast('Viderefakturere er ugyldig');
+                    this.toastr.addToast('Viderefaktura er ugyldig');
                     this.isSaving = false;
                 }
             });
