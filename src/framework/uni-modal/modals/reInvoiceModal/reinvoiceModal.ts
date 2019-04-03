@@ -237,8 +237,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
             return prev;
         }, []);
-        this.currentReInvoice.TaxInclusiveAmount = this.calcReinvoicingAmount();
-        //TODO? this.currentReInvoice.TaxExclusiveAmount
+        this.currentReInvoice.TaxExclusiveAmount = this.calcReinvoicingAmount();
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
         let saveSupplierInvoiceRequest = Observable.of(this.supplierInvoice);
