@@ -121,7 +121,7 @@ export class UserDetails {
                         actions.push({
                             label: 'Tilbakestill autobank passord',
                             action: (user: User) => {
-                                this.modalService.open(ResetAutobankPasswordModal, {data: user});
+                                this.modalService.open(ResetAutobankPasswordModal, {data: this.user});
                             }
                         });
                     }
