@@ -1423,9 +1423,23 @@ export class UniTicker {
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
                 this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
-                    .subscribe((blob) => {
+                    .subscribe((result) => {
+                        let filename = '';
+                        // Get filename with filetype from headers
+                        if (result.headers) {
+                            const fromHeader = result.headers.get('content-disposition');
+                            if (fromHeader) {
+                                filename = fromHeader.split('=')[1];
+                            }
+                        }
+
+                        if (!filename || filename === '') {
+                            filename = 'export.xlsx';
+                        }
+
+                        const blob = new Blob([result._body], { type: 'text/csv' });
                         // download file so the user can open it
-                        saveAs(blob, 'export.xlsx');
+                        saveAs(blob, filename);
                     },
                     err => this.errorService.handle(err));
 

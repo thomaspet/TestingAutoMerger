@@ -120,8 +120,7 @@ export class StatisticsService extends BizHttp<string> {
             .usingRootDomain()
             .asGET()
             .withEndPoint('exportstatistics')
-            .send({responseType: ResponseContentType.Blob}, params)
-            .map(res => new Blob([res._body], { type: 'text/csv' }));
+            .send({responseType: ResponseContentType.Blob}, params);
     }
 
     public checkShouldShowField(field: string) {
