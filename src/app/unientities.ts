@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -1106,6 +1106,7 @@ export class CustomerInvoiceItem extends UniEntity {
 
     public _createguid: string;
     public AccountID: number;
+    public AccountingCost: string;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
     public CreatedAt: Date;
@@ -3851,23 +3852,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultEmail: Email;
-    public DefaultPhone: Phone;
     public DefaultAddress: Address;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -5118,6 +5119,7 @@ export class Company extends UniEntity {
     public FileFlowEmail: string;
     public FileFlowOrgnrEmail: string;
     public ID: number;
+    public IsTemplate: boolean;
     public IsTest: boolean;
     public Key: string;
     public Name: string;
@@ -5818,7 +5820,6 @@ export class ReInvoice extends UniEntity {
     public static EntityType = 'ReInvoice';
 
     public _createguid: string;
-    public Amount: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -5829,6 +5830,8 @@ export class ReInvoice extends UniEntity {
     public ReInvoicingType: number;
     public StatusCode: number;
     public SupplierInvoiceID: number;
+    public TaxExclusiveAmount: number;
+    public TaxInclusiveAmount: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public SupplierInvoice: SupplierInvoice;
@@ -6067,6 +6070,7 @@ export class SupplierInvoiceItem extends UniEntity {
     public static EntityType = 'SupplierInvoiceItem';
 
     public _createguid: string;
+    public AccountingCost: string;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
     public CreatedAt: Date;
@@ -7261,6 +7265,7 @@ export class FieldsChanged extends UniEntity {
 export class CreateCompanyDetails extends UniEntity {
     public CompanyName: string;
     public ContractID: number;
+    public IsTemplate: boolean;
     public LicenseKey: string;
     public ProductNames: string;
     public CompanySettings: CompanySettings;
