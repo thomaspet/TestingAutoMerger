@@ -20,7 +20,8 @@ import {
     TaskStatus,
     Dimensions,
     VatDeduction,
-    Payment
+    Payment,
+    StatusCodeReInvoice
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -3690,7 +3691,7 @@ export class BillView implements OnInit {
             {
                 label: lang.reinvoice,
                 action: () => this.openReinvoiceModal(),
-                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
+                disabled: () => this.current && this.current.getValue().ReInvoice && this.current.getValue().ReInvoice.StatusCode >= StatusCodeReInvoice.ReInvoiced,
             },
         ];
         this.toolbarConfig = {
