@@ -76,7 +76,10 @@ export class ActivateAutobankModal implements IUniModal {
                 .map(res => res.json());
         }).subscribe(
             () => this.onClose.emit(true),
-            err => this.errorService.handle(err)
+            err => {
+                this.busy = false;
+                this.errorMessages.push('Noe gikk galt. Sjekk at ditt autobank passord er korrekt.');
+            }
         );
     }
 
