@@ -6162,6 +6162,7 @@ export class SupplierInvoice extends UniEntity {
     public PrintStatus: number;
     public ProjectID: number;
     public ReInvoiced: boolean;
+    public ReInvoiceID: number;
     public Requisition: string;
     public RestAmount: number;
     public RestAmountCurrency: number;

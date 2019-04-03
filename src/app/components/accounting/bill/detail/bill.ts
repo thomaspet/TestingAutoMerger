@@ -2310,16 +2310,20 @@ export class BillView implements OnInit {
     }
 
     public openReinvoiceModal() {
-        this.modalService.open(UniReinvoiceModal, {
-            data: {
-                supplierInvoice: this.current.getValue()
-            }
-        }).onClose.subscribe((result) => {
-            if (result) {
-                this.toast.addToast('Viderefakturering lagret', ToastType.good);
-                setTimeout(() => {
-                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
-                }, 500);
+        this.checkSave().then((res: boolean) => {
+            if (res) {
+                this.modalService.open(UniReinvoiceModal, {
+                    data: {
+                        supplierInvoice: this.current.getValue()
+                    }
+                }).onClose.subscribe((result) => {
+                    if (result) {
+                        this.toast.addToast('Viderefakturering er gjennomført', ToastType.good);
+                        setTimeout(() => {
+                            this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
+                        }, 500);
+                    }
+                });
             }
         });
     }
@@ -3025,14 +3029,15 @@ export class BillView implements OnInit {
             done(lang.delete_success);
             this.newInvoice(false);
         }, (error) => {
-            let msg = error.statusText;
+            this.errorService.handle(error);
+/*            let msg = error.statusText;
             if (error._body) {
                 msg = trimLength(error._body, 100, true);
                 this.showErrMsg(msg, true);
             } else {
                 this.userMsg(lang.save_error);
             }
-            done(lang.delete_error + ': ' + msg);
+            done(lang.delete_error + ': ' + msg);*/
         });
     }
 
