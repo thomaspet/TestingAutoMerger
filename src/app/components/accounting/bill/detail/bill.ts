@@ -89,6 +89,7 @@ import {JournalEntryMode} from '../../../../services/accounting/journalEntryServ
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
+import { isNullOrUndefined } from 'util';
 
 interface ITab {
     name: string;
@@ -3030,15 +3031,17 @@ export class BillView implements OnInit {
             done(lang.delete_success);
             this.newInvoice(false);
         }, (error) => {
-            this.errorService.handle(error);//TODO sjekk om error er array
-/*            let msg = error.statusText;
+            let msg = error.statusText;
             if (error._body) {
-                msg = trimLength(error._body, 100, true);
+                msg = this.errorService.extractMessage(error);
+                if (isNullOrUndefined(msg)) {
+                    msg = trimLength(error._body, 100, true);
+                }
                 this.showErrMsg(msg, true);
             } else {
                 this.userMsg(lang.save_error);
             }
-            done(lang.delete_error + ': ' + msg);*/
+            done(lang.delete_error + ': ' + msg);
         });
     }
 
