@@ -3668,11 +3668,6 @@ export class BillView implements OnInit {
                 action: () => this.journalEntryManual.removeJournalEntryData(),
                 disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
             },
-            {
-                label: lang.reinvoice,
-                action: () => this.openReinvoiceModal(),
-                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
-            },
         ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
