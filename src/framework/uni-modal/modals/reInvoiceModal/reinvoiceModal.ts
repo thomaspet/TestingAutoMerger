@@ -261,8 +261,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         if (type === '') {
             validationRequest = Observable.of(String);
         }
-        validationRequest.subscribe(valid => {
-                if (valid === '') {
+        validationRequest.subscribe(validMsg => {
+                if (validMsg === '') {
                     saveSupplierInvoiceRequest
                         .finally(() => this.isSaving = false)
                         .subscribe(supplierInvoice => {
@@ -297,7 +297,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         });
                     });
                 } else {
-                    this.toastr.addToast(valid);//'Viderefaktura er ugyldig');
+                    this.toastr.addToast(validMsg);
                     this.isSaving = false;
                 }
             });
