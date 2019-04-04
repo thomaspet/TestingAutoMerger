@@ -2319,7 +2319,7 @@ export class BillView implements OnInit {
                     }
                 }).onClose.subscribe((result) => {
                     if (result) {
-                        this.toast.addToast('Viderefakturering er gjennomført', ToastType.good);//TODO annen melding "Viderefakturering er lagret" når kun Lagret
+                        this.toast.addToast('Viderefakturering lagret', ToastType.good);
                         setTimeout(() => {
                             this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
                         }, 500);
