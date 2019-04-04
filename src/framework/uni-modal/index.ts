@@ -10,6 +10,7 @@ import {UniBankAccountModal} from './modals/bankAccountModal';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniRegisterPaymentModal} from './modals/registerPaymentModal';
 import {UniActivateAPModal} from './modals/activateAPModal';
+import {UniActivateEInvoiceModal} from './modals/activateEInvoiceModal';
 import {UniActivateInvoicePrintModal} from './modals/activateInvoicePrintModal';
 import {ActivateOCRModal} from './modals/activateOcrModal';
 import {UniApproveModal} from './modals/approveModal';
@@ -44,6 +45,7 @@ export * from './modals/bankAccountModal';
 export * from './modals/unsavedChangesModal';
 export * from './modals/registerPaymentModal';
 export * from './modals/activateAPModal';
+export * from './modals/activateEInvoiceModal';
 export * from './modals/activateOcrModal';
 export * from './modals/activateInvoicePrintModal';
 export * from './modals/approveModal';
@@ -76,6 +78,7 @@ export const MODALS = [
     UniUnsavedChangesModal,
     UniRegisterPaymentModal,
     UniActivateAPModal,
+    UniActivateEInvoiceModal,
     ActivateOCRModal,
     UniActivateInvoicePrintModal,
     UniApproveModal,
