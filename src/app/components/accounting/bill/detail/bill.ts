@@ -88,6 +88,7 @@ import {JournalEntryMode} from '../../../../services/accounting/journalEntryServ
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
+import { isNullOrUndefined } from 'util';
 
 interface ITab {
     name: string;
@@ -2310,16 +2311,20 @@ export class BillView implements OnInit {
     }
 
     public openReinvoiceModal() {
-        this.modalService.open(UniReinvoiceModal, {
-            data: {
-                supplierInvoice: this.current.getValue()
-            }
-        }).onClose.subscribe((result) => {
-            if (result) {
-                this.toast.addToast('Viderefakturering lagret', ToastType.good);
-                setTimeout(() => {
-                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
-                }, 500);
+        this.checkSave().then((res: boolean) => {
+            if (res) {
+                this.modalService.open(UniReinvoiceModal, {
+                    data: {
+                        supplierInvoice: this.current.getValue()
+                    }
+                }).onClose.subscribe((result) => {
+                    if (result) {
+                        this.toast.addToast('Viderefakturering lagret', ToastType.good);
+                        setTimeout(() => {
+                            this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
+                        }, 500);
+                    }
+                });
             }
         });
     }
@@ -3027,7 +3032,10 @@ export class BillView implements OnInit {
         }, (error) => {
             let msg = error.statusText;
             if (error._body) {
-                msg = trimLength(error._body, 100, true);
+                msg = this.errorService.extractMessage(error);
+                if (isNullOrUndefined(msg)) {
+                    msg = trimLength(error._body, 100, true);
+                }
                 this.showErrMsg(msg, true);
             } else {
                 this.userMsg(lang.save_error);
@@ -3685,7 +3693,6 @@ export class BillView implements OnInit {
             {
                 label: lang.reinvoice,
                 action: () => this.openReinvoiceModal(),
-                disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
             },
         ];
         this.toolbarConfig = {

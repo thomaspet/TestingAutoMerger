@@ -24,9 +24,10 @@ import { UniMath } from '@uni-framework/core/uniMath';
 import { RequestMethod } from '@angular/http';
 import { getNewGuid } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
-import { ToastService } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
 import * as _ from 'lodash';
+import { isNullOrUndefined } from 'util';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -123,6 +124,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 this.currentReInvoice.ReInvoicingType = result[0].ReInvoicingType;
                 this.currentReInvoice.OwnCostAmount = result[0].OwnCostAmount;
                 this.currentReInvoice.OwnCostShare = result[0].OwnCostShare;
+                this.currentReInvoice.TaxInclusiveAmount = result[0].TaxInclusiveAmount;
                 this.currentReInvoice.TaxExclusiveAmount = result[0].TaxExclusiveAmount;
                 this.currentReInvoice.Items = _.cloneDeep(result[0].Items);
             } else {
@@ -211,7 +213,15 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.currentReInvoice = null;
                         this.onClose.emit(false);
                     },
-                    error => this.errorService.handle(error)
+                    error => 
+                    {
+                        if (!isNullOrUndefined(error._body)) {
+                            const msg = this.errorService.extractMessage(error);
+                            this.toastr.addToast(msg, ToastType.warn, ToastTime.forever);
+                        } else {
+                            this.errorService.handle(error);
+                        }
+                    }
                 )
             }
         });
@@ -226,6 +236,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.OwnCostShare = this.reinvoicingCustomers[0].Share;
         this.currentReInvoice.OwnCostAmount = this.reinvoicingCustomers[0].NetAmount;
         this.currentReInvoice.ProductID = this.items[0].Product.ID;
+        this.currentReInvoice.Product = this.items[0].Product;
         this.currentReInvoice.Items = this.reinvoicingCustomers.reduce((prev: ReInvoiceItem[], current: ReInvoiceItem) => {
             if (current.Customer && current.Customer.ID > 0) {
                 if (!current.ID) {
@@ -236,6 +247,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
             return prev;
         }, []);
+        this.currentReInvoice.TaxInclusiveAmount = this.calcReinvoicingGrossAmount();
         this.currentReInvoice.TaxExclusiveAmount = this.calcReinvoicingAmount();
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
@@ -245,12 +257,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             this.supplierInvoice._createguid = getNewGuid();
             saveSupplierInvoiceRequest = this.supplierInvoiceService.Post(this.supplierInvoice);
         }
-        let validationRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid', RequestMethod.Put);
+        let validationRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid-message', RequestMethod.Put);
         if (type === '') {
-            validationRequest = Observable.of(true);
+            validationRequest = Observable.of(String);
         }
-        validationRequest.subscribe(valid => {
-                if (valid) {
+        validationRequest.subscribe(validMsg => {
+                if (validMsg === '') {
                     saveSupplierInvoiceRequest
                         .finally(() => this.isSaving = false)
                         .subscribe(supplierInvoice => {
@@ -285,7 +297,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         });
                     });
                 } else {
-                    this.toastr.addToast('Viderefakturere er ugyldig');
+                    this.toastr.addToast(validMsg);
                     this.isSaving = false;
                 }
             });
@@ -386,6 +398,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }, 0));
     }
 
+    public calcReinvoicingGrossAmount() {
+        return UniMath.round(this.reinvoicingCustomers.reduce((previous, current) => {
+            return previous + (current.NetAmount || 0);
+        }, 0));
+    }
+
     public calcItemNetAmount() {
         return UniMath.round(this.reinvoicingCustomers.slice(1).reduce((previous, current) => {
             return previous + (current.NetAmount || 0) * (1 + (current.Surcharge / 100 || 0));
@@ -394,7 +412,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public calcItemGrossAmount(line) {
         const vatPercent = line && line.VatType && line.VatType.VatPercent || 0;
-        return UniMath.round((line.NetAmount || 0) * (1 + ((vatPercent / 100) || 0)));
+        return UniMath.round((line.GrossAmount || 0) * (1 + ((vatPercent / 100) || 0)));
     }
 
     public updateItemsTableConfig(isTurnOver = false) {
