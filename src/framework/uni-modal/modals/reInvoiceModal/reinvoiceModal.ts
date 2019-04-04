@@ -24,9 +24,10 @@ import { UniMath } from '@uni-framework/core/uniMath';
 import { RequestMethod } from '@angular/http';
 import { getNewGuid } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
-import { ToastService } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
 import * as _ from 'lodash';
+import { isNullOrUndefined } from 'util';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -213,6 +214,15 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.onClose.emit(false);
                     },
                     error => this.errorService.handle(error)//TODO vis "behandle manuelt" melding som warning
+                    error => 
+                    {
+                        if (!isNullOrUndefined(error._body)) {
+                            const msg = this.errorService.extractMessage(error);
+                            this.toastr.addToast(msg, ToastType.warn, ToastTime.forever);
+                        } else {
+                            this.errorService.handle(error);
+                        }
+                    }
                 )
             }
         });
@@ -227,6 +237,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.OwnCostShare = this.reinvoicingCustomers[0].Share;
         this.currentReInvoice.OwnCostAmount = this.reinvoicingCustomers[0].NetAmount;
         this.currentReInvoice.ProductID = this.items[0].Product.ID;
+        this.currentReInvoice.Product = this.items[0].Product;
         this.currentReInvoice.Items = this.reinvoicingCustomers.reduce((prev: ReInvoiceItem[], current: ReInvoiceItem) => {
             if (current.Customer && current.Customer.ID > 0) {
                 if (!current.ID) {
@@ -247,12 +258,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             this.supplierInvoice._createguid = getNewGuid();
             saveSupplierInvoiceRequest = this.supplierInvoiceService.Post(this.supplierInvoice);
         }
-        let validationRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid', RequestMethod.Put);
+        let validationRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid-message', RequestMethod.Put);
         if (type === '') {
-            validationRequest = Observable.of(true);
+            validationRequest = Observable.of(String);
         }
         validationRequest.subscribe(valid => {
-                if (valid) {
+                if (valid === '') {
                     saveSupplierInvoiceRequest
                         .finally(() => this.isSaving = false)
                         .subscribe(supplierInvoice => {
@@ -287,7 +298,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         });
                     });
                 } else {
-                    this.toastr.addToast('Viderefaktura er ugyldig');
+                    this.toastr.addToast(valid);//'Viderefaktura er ugyldig');
                     this.isSaving = false;
                 }
             });
@@ -402,7 +413,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public calcItemGrossAmount(line) {
         const vatPercent = line && line.VatType && line.VatType.VatPercent || 0;
-        return UniMath.round((line.NetAmount || 0) * (1 + ((vatPercent / 100) || 0)));
+        return UniMath.round((line.GrossAmount || 0) * (1 + ((vatPercent / 100) || 0)));
     }
 
     public updateItemsTableConfig(isTurnOver = false) {
