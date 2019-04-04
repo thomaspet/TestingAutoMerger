@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ElsaUserLicense} from '@app/models';
+import {ElsaUserLicense, ElsaUserLicenseType} from '@app/models';
 import {ErrorService, ElsaContractService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 
@@ -12,10 +12,12 @@ export class UserList {
     users: ElsaUserLicense[];
     filteredUsers: ElsaUserLicense[];
     filterValue: string;
+    userType: number = -1;
 
     columns = [
         { header: 'Navn', field: 'UserName' },
-        { header: 'Epost', field: 'Email' }
+        { header: 'Epost', field: 'Email' },
+        { header: 'Lisenstype', field: '_typeText', flex: '0 0 10rem' }
     ];
 
     constructor(
@@ -26,19 +28,41 @@ export class UserList {
         const contractID = this.authService.currentUser.License.Company.ContractID;
         this.elsaContractService.getUserLicenses(contractID).subscribe(
             res => {
-                this.users = res;
+                this.users = (res || []).map(user => {
+                    switch (user.UserLicenseType) {
+                        case ElsaUserLicenseType.Standard:
+                            user['_typeText'] = 'Standard';
+                        break;
+                        case ElsaUserLicenseType.Accountant:
+                            user['_typeText'] = 'Regnskapsfører';
+                        break;
+                        case ElsaUserLicenseType.Support:
+                            user['_typeText'] = 'Support';
+                        break;
+                    }
+
+                    return user;
+                });
+
                 this.filteredUsers = res;
-                console.log(res);
             },
             err => this.errorService.handle(err)
         );
     }
 
     filterUsers() {
-        const filterValue = (this.filterValue || '').toLowerCase();
-        this.filteredUsers = this.users.filter(user => {
-            return (user.UserName || '').toLowerCase().includes(filterValue)
-                || (user.Email || '').toLowerCase().includes(filterValue);
-        });
+        const filteredByType = this.userType >= 0
+            ? this.users.filter(u => u.UserLicenseType === +this.userType)
+            : this.users;
+
+        if (this.filterValue) {
+            const filterValue = (this.filterValue || '').toLowerCase();
+            this.filteredUsers = filteredByType.filter(user => {
+                return (user.UserName || '').toLowerCase().includes(filterValue)
+                    || (user.Email || '').toLowerCase().includes(filterValue);
+            });
+        } else {
+            this.filteredUsers = filteredByType;
+        }
     }
 }

@@ -98,10 +98,18 @@ export enum ElsaProductType {
     Extension = 3
 }
 
+export enum ElsaUserLicenseType {
+    Standard = 0,
+    Accountant = 1,
+    Revision = 2,
+    Training = 3,
+    Support = 10
+}
+
 export interface ElsaUserLicense {
     ID: number;
     CompanyLicenseID: number;
-    UserLicenceType: number;
+    UserLicenseType: number;
     StatusCode: number;
     UserIdentity: string;
     UserLicenseKey: string;

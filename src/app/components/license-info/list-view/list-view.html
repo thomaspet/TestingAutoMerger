@@ -7,7 +7,7 @@
 </section>
 
 <cdk-virtual-scroll-viewport itemSize="50" class="list-body" #listBody>
-    <section class="list-row" *cdkVirtualFor="let row of rows" (click)="rowClick.emit(row)">
+    <section class="list-row" *cdkVirtualFor="let row of rows; templateCacheSize: 100" (click)="rowClick.emit(row)">
         <span *ngFor="let column of columns"
             [ngClass]="{'align-right': !!column.format}"
             [ngStyle]="{'flex': column.flex || 1}">

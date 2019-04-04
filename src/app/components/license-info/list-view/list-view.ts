@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, ViewChild} from '@angular/core';
+import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -30,7 +30,8 @@ export class CellValuePipe implements PipeTransform {
 @Component({
     selector: 'license-info-list',
     templateUrl: './list-view.html',
-    styleUrls: ['./list-view.sass']
+    styleUrls: ['./list-view.sass'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListView {
     @ViewChild('listBody') listBody: CdkVirtualScrollViewport ;
@@ -57,6 +58,12 @@ export class ListView {
                     return row1Value.localeCompare(get(row2, this.orderBy, ''));
                 } else {
                     return 1;
+                }
+            });
+
+            setTimeout(() => {
+                if (this.scrollbar) {
+                    this.scrollbar.update();
                 }
             });
         }
