@@ -213,7 +213,6 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.currentReInvoice = null;
                         this.onClose.emit(false);
                     },
-                    error => this.errorService.handle(error)//TODO vis "behandle manuelt" melding som warning
                     error => 
                     {
                         if (!isNullOrUndefined(error._body)) {
