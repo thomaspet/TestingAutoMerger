@@ -218,8 +218,6 @@ export class AuthService {
 
                 this.loadCurrentSession().take(1).subscribe(
                     authDetails => {
-                        this.authentication$.next(authDetails);
-
                         const permissions = authDetails.user['Permissions'] || [];
                         if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
                             redirect = '/assignments/approvals';
