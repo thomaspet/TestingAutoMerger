@@ -1,0 +1,24 @@
+<section class="no-users" *ngIf="users?.length === 0">
+    Ingen brukere å vise. Det er kun lisensadministratorer som har tilgang
+    til å se hvilke brukere som finnes på en lisens.
+</section>
+
+<section class="list-container" *ngIf="users?.length">
+    <section class="header">
+        <h1>Brukere på lisensen</h1>
+
+        <input
+            class="pull-right"
+            type="search"
+            placeholder="Søk"
+            [(ngModel)]="filterValue"
+            (ngModelChange)="filterUsers()"
+        />
+    </section>
+
+    <license-info-list
+        [columns]="columns"
+        [rows]="filteredUsers"
+        [orderBy]="'UserName'">
+    </license-info-list>
+</section>

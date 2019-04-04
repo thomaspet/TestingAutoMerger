@@ -99,6 +99,17 @@ export enum ElsaProductType {
 }
 
 export interface ElsaUserLicense {
+    ID: number;
+    CompanyLicenseID: number;
+    UserLicenceType: number;
+    StatusCode: number;
+    UserIdentity: string;
+    UserLicenseKey: string;
+    UserName: string;
+    Email: string;
+}
+
+export interface ElsaUserLicense_deprecated {
     id: number;
     companyLicense?: any;
     companyLicenseID: number;

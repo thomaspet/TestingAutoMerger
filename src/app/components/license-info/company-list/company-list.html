@@ -3,14 +3,22 @@
     til å se hvilke selskaper som inngår i en lisens.
 </section>
 
-<ng-container *ngIf="companies?.length">
-    <input type="search" placeholder="Søk" [(ngModel)]="searchValue" (ngModelChange)="filterItems()">
+<section class="list-container" *ngIf="companies?.length">
+    <section class="header">
+        <h1>Selskaper på lisensen</h1>
 
-    <cdk-virtual-scroll-viewport itemSize="56" class="list-container">
-        <section class="list-row" *cdkVirtualFor="let license of filteredCompanies">
-            <span>{{license.CompanyName}}</span>
-            <span>{{license['_orgNumberText']}}</span>
-            <!-- <i class="material-icons menu-toggle">more_vert</i> -->
-        </section>
-    </cdk-virtual-scroll-viewport>
-</ng-container>
+        <input
+            class="pull-right"
+            type="search"
+            placeholder="Søk"
+            [(ngModel)]="filterValue"
+            (ngModelChange)="filterCompanies()"
+        />
+    </section>
+
+    <license-info-list
+        [columns]="columns"
+        [rows]="filteredCompanies"
+        [orderBy]="'CompanyName'">
+    </license-info-list>
+</section>

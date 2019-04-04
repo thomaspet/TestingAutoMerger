@@ -1,6 +1,5 @@
-import {Component, Output, EventEmitter, Input} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
-import {ElsaCompanyLicense, ElsaProduct, ElsaUserLicense} from '@app/models';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
 import {Observable} from 'rxjs';
 
@@ -10,8 +9,6 @@ import {Observable} from 'rxjs';
     styleUrls: ['./grant-access-modal.sass']
 })
 export class ExecuteForBulkAccess {
-    // @Output()
-    // public next: EventEmitter<void> = new EventEmitter<void>();
     @Input() data: GrantAccessData;
 
     hangfireId: number;

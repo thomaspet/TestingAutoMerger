@@ -1,0 +1,17 @@
+<section class="list-row header-row">
+    <span *ngFor="let column of columns"
+        [ngClass]="{'align-right': !!column.format}"
+        [ngStyle]="{'flex': column.flex || 1}">
+        {{column.header}}
+    </span>
+</section>
+
+<cdk-virtual-scroll-viewport itemSize="50" class="list-body" #listBody>
+    <section class="list-row" *cdkVirtualFor="let row of rows" (click)="rowClick.emit(row)">
+        <span *ngFor="let column of columns"
+            [ngClass]="{'align-right': !!column.format}"
+            [ngStyle]="{'flex': column.flex || 1}">
+            {{row | cellValue: column}}
+        </span>
+    </section>
+</cdk-virtual-scroll-viewport>
