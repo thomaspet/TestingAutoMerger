@@ -868,13 +868,12 @@ export class BillsView implements OnInit {
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }),
-            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert status', UniTableColumnType.Number)
+            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Number)
                 .setVisible(!!filter.showStatus)
                 .setAlignment('center')
                 .setTemplate((dataItem) => {
                     return this.reInvoicingService.getStatusText(dataItem.ReInvoiceStatusCode);
-                }),
-            new UniTableColumn('ReInvoiced', 'Viderefakturering', UniTableColumnType.Boolean).setVisible(false)
+                })
 
         ];
 
