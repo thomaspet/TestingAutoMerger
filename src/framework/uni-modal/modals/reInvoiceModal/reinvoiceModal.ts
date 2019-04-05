@@ -7,15 +7,16 @@ import {
     UniTableColumnType,
 } from '@uni-framework/ui/unitable/config/unitableColumn';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
-import { ErrorService } from '@app/services/services';
+import { ErrorService, StatisticsService } from '@app/services/services';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     CompanyAccountingSettings, Customer, Product, ReInvoice, ReInvoiceItem,
-    SupplierInvoice, VatType, StatusCodeReInvoice
+    SupplierInvoice, VatType, StatusCodeReInvoice, Tracelink
 } from '@app/unientities';
 import { CustomerService } from '@app/services/sales/customerService';
 import { MatRadioChange } from '@angular/material';
 import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
+
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
 import { ProductService } from '@app/services/common/productService';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
@@ -24,9 +25,11 @@ import { UniMath } from '@uni-framework/core/uniMath';
 import { RequestMethod } from '@angular/http';
 import { getNewGuid } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
 import * as _ from 'lodash';
+import { Router } from '@angular/router';
 import { isNullOrUndefined } from 'util';
 
 @Component({
@@ -72,13 +75,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         en vare/tjeneste i fellesskap. Ditt firma er mottaker av leverandørfakturaen
         og belaster de øvrige partene for deres andel. Den andelen som skal viderebelastes
         andre balanseføres som en fordring på motpart.
-        
+
         Velg viderefakturering, omsetning dersom leveringen av varen/tjenesten
         skal føres som omsetning. Den andelen som skal viderebelastes andre
         balanseføres som en fordring på motpart.
     `;
     public companyAccountSettings: CompanyAccountingSettings;
     constructor(
+        private statisticsService: StatisticsService,
         private customerService: CustomerService,
         private reinvoiceService: ReInvoicingService,
         private productService: ProductService,
@@ -87,13 +91,17 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         private companyAccountSettingsService: CompanyAccountingSettingsService,
         private toastr: ToastService,
         private errorService: ErrorService,
-        private modalService: UniModalService) {}
+        private modalService: UniModalService,
+        private router: Router) {}
 
-    public ngOnInit() {
-        this.customersTableConfig = this.updateCustomersTableConfig(false);
-        this.customersTableConfigTurnOver = this.updateCustomersTableConfig(true);
-        this.itemsTableConfig = this.updateItemsTableConfig(false);
-        this.supplierInvoice = this.options.data.supplierInvoice;
+    public ngOnInit(skipRebuildTables: boolean = false) {
+
+        if (!skipRebuildTables) {
+            this.customersTableConfig = this.updateCustomersTableConfig(false);
+            this.customersTableConfigTurnOver = this.updateCustomersTableConfig(true);
+            this.itemsTableConfig = this.updateItemsTableConfig(false);
+            this.supplierInvoice = this.options.data.supplierInvoice;
+        }
 
         const supplierID = this.supplierInvoice.SupplierID;
         const invoiceNumber = this.supplierInvoice.InvoiceNumber;
@@ -115,6 +123,10 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         reinvoiceRequest.subscribe((result: ReInvoice[]) => {
             if (result && result.length && result[0] && result[0].SupplierInvoiceID === this.supplierInvoice.ID) {
                 this.currentReInvoice = result[0];
+                this.AddReinvoiceItemTOFLinks(result[0].Items).subscribe(items => {
+                    this.currentReInvoice.Items = _.cloneDeep(items);
+                    this.setInititalConfig(this.currentReInvoice);
+                },  err => this.errorService.handle(err));
             } else if (result && result.length && result[0] && result[0].SupplierInvoiceID !== this.supplierInvoice.ID) {
                 this.currentReInvoice = new ReInvoice();
                 this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
@@ -126,11 +138,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 this.currentReInvoice.OwnCostShare = result[0].OwnCostShare;
                 this.currentReInvoice.TaxInclusiveAmount = result[0].TaxInclusiveAmount;
                 this.currentReInvoice.TaxExclusiveAmount = result[0].TaxExclusiveAmount;
-                this.currentReInvoice.Items = _.cloneDeep(result[0].Items);
+                this.AddReinvoiceItemTOFLinks(result[0].Items).subscribe(items => {
+                    this.currentReInvoice.Items = _.cloneDeep(items);
+                    this.setInititalConfig(this.currentReInvoice);
+                }, err =>  this.errorService.handle(err));
             } else {
                 this.currentReInvoice = null;
+                this.setInititalConfig(this.currentReInvoice);
             }
-            this.setInititalConfig(this.currentReInvoice);
 
             this.companyAccountSettingsService.GetAll('',
                 [
@@ -159,6 +174,51 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             });
         });
     }
+
+
+
+    private AddReinvoiceItemTOFLinks(items: ReInvoiceItem[]): Observable<ReInvoiceItem[]> {
+        return this.statisticsService.GetAllUnwrapped(
+            `model=Tracelink&select=CustomerInvoice.CustomerID,`
+            + `isnull(customerinvoice.invoiceNumber,'kladd') as invoiceNumber,CustomerInvoice.ID`
+            + `&filter=DestinationEntityName eq 'CustomerInvoice' `
+            + `and SourceEntityName eq 'ReInvoice' and SourceInstanceID eq ` + this.currentReInvoice.ID
+            + `&join=CustomerInvoice on Tracelink.DestinationInstanceId eq CustomerInvoice.ID`
+        ).pipe(
+            switchMap((linkedInvoices) => {
+                if (linkedInvoices === null) {
+                    return this.statisticsService.GetAllUnwrapped(
+                        `model=Tracelink&select=CustomerOrder.CustomerID,`
+                        + `isnull(CustomerOrder.orderNumber,'kladd') as orderNumber,CustomerOrder.ID`
+                        + `&filter=DestinationEntityName eq 'CustomerOrder' `
+                        + `and SourceEntityName eq 'ReInvoice' and SourceInstanceID eq ` + this.currentReInvoice.ID
+                        + `&join=CustomerOrder on Tracelink.DestinationInstanceId eq CustomerOrder.ID`
+                    ).map((linkedOrders) => {
+                        items.forEach(reInvoiceItem => {
+                            linkedOrders.forEach(lt => {
+                                if (lt.CustomerOrderCustomerID === reInvoiceItem.CustomerID) {
+                                    reInvoiceItem['_link'] = '/sales/orders/' + lt.CustomerOrderID;
+                                    reInvoiceItem['_linkText'] = lt.orderNumber;
+                                }
+                            });
+                        });
+                        return items;
+                    });
+                } else {
+                    items.forEach(reInvoiceItem => {
+                        linkedInvoices.forEach(lt => {
+                            if (lt.CustomerInvoiceCustomerID === reInvoiceItem.CustomerID) {
+                                reInvoiceItem['_link'] = '/sales/invoices/' + lt.CustomerInvoiceID;
+                                reInvoiceItem['_linkText'] = lt.invoiceNumber;
+                            }
+                        });
+                    });
+                    return Observable.of(items);
+                }
+            })
+        );
+    }
+
     public getMainAction() {
         return this.saveactions.find((item) => item.main);
     }
@@ -213,7 +273,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.currentReInvoice = null;
                         this.onClose.emit(false);
                     },
-                    error => 
+                    error =>
                     {
                         if (!isNullOrUndefined(error._body)) {
                             const msg = this.errorService.extractMessage(error);
@@ -228,11 +288,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     public saveReinvoiceAs(type: string) {
+
         this.isSaving = true;
         if (!this.currentReInvoice) {
             this.currentReInvoice = new ReInvoice();
             this.currentReInvoice._createguid = getNewGuid();
         }
+        this.currentReInvoice.Product = null;
         this.currentReInvoice.OwnCostShare = this.reinvoicingCustomers[0].Share;
         this.currentReInvoice.OwnCostAmount = this.reinvoicingCustomers[0].NetAmount;
         this.currentReInvoice.ProductID = this.items[0].Product.ID;
@@ -251,6 +313,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.TaxExclusiveAmount = this.calcReinvoicingAmount();
         this.currentReInvoice.ReInvoicingType = this.reinvoiceType;
         this.currentReInvoice.SupplierInvoiceID = this.supplierInvoice.ID;
+
         let saveSupplierInvoiceRequest = Observable.of(this.supplierInvoice);
         if (!this.supplierInvoice.ID) {
             this.currentReInvoice.SupplierInvoice = this.supplierInvoice;
@@ -260,6 +323,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         let validationRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid-message', RequestMethod.Put);
         if (type === '') {
             validationRequest = Observable.of('');
+        } else {
+            if (!this.isSupplierInvoiceJournaled() && this.currentReInvoice.ReInvoicingType === 1) {
+                this.toastr.addToast('', ToastType.bad, 10, 'Leverandørfakturaen må være bokført før du kan lage Viderefakturering, omsetning');
+                this.isSaving = false;
+                return;
+            }
+            this.toastr.addToast('Faktura / ordre opprettes ...', ToastType.warn, 2);
         }
         validationRequest.subscribe(validMsg => {
                 if (validMsg === '') {
@@ -281,17 +351,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                             .subscribe(reinvoice => {
                             if (type !== '') {
                                 this.reinvoiceService.Action(reinvoice.ID, type).subscribe(() => {
-                                    this.onClose.emit({
-                                        supplierInvoice: supplierInvoice,
-                                        reinvoice: reinvoice
-                                    });
-                                    this.isSaving = false;
+                                   this.ngOnInit(true);
+                                   this.toastr.addToast('Faktura / ordre ble opprettet!', ToastType.good, 6);
+                                   this.isSaving = false;
                                 });
                             } else {
-                                this.onClose.emit({
-                                    supplierInvoice: supplierInvoice,
-                                    reinvoice: reinvoice
-                                });
+                                this.ngOnInit(true);
+                                this.toastr.addToast('Viderefakturering ble lagret !', ToastType.good, 6);
                                 this.isSaving = false;
                             }
                         });
@@ -493,6 +559,17 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         const surchargeColumn = new UniTableColumn('Surcharge', 'Påslag %', UniTableColumnType.Percent, (rowModel) => rowModel.Customer && rowModel.Customer.ID !== 0);
         const vatColumn = new UniTableColumn('Vat', 'Mva', UniTableColumnType.Money, false);
         const grossColumn = new UniTableColumn('GrossAmount', 'Brutto', UniTableColumnType.Money, (rowModel) => rowModel.Customer && rowModel.Customer.ID !== 0);
+        const linkColumn = new UniTableColumn('_link', 'Link', UniTableColumnType.Text, false)
+            .setWidth(40)
+            .setTemplate(rowModel => {
+                if (!rowModel._link) {
+                    return '';
+                }
+                return rowModel._linkText;
+            })
+            .setLinkClick((rowModel => {
+                this.router.navigateByUrl(rowModel._link).then(() => this.onClose.emit(false));
+            }));
         let columns = [
             customerColumn,
             shareColumn,
@@ -505,6 +582,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 grossColumn
             ]);
         }
+        columns.push(linkColumn);
+
         return new UniTableConfig('reinvoicing.table', true, false)
             .setIsRowReadOnly((row => row.Customer && row.Customer.ID === 0))
             .setColumns(columns)
@@ -518,11 +597,20 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     onReinvoiceTypeChange(change: MatRadioChange) {
         this.reinvoiceType = change.value;
+        if (this.reinvoiceType === 1 && !this.isSupplierInvoiceJournaled()) {
+            this.toastr.addToast('', ToastType.bad, 10, 'Leverandørfakturaen må bokføres før du kan velge Viderefakturering, omsetning');
+        }
+
         if (this.reinvoiceType === 0) {
             this.removeSurchargeAndVat();
             this.updateItemsData(this.items[0] && this.items[0].Product);
             this.onReinvoicingCustomerChange(null);
         }
+    }
+
+    private isSupplierInvoiceJournaled(): boolean {
+        if (!this.supplierInvoice.TaxExclusiveAmount || this.supplierInvoice.TaxExclusiveAmount === 0)
+        { return false; } else { return true; }
     }
 
     onItemChange(change) {

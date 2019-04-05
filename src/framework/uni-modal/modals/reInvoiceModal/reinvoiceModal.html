@@ -68,7 +68,6 @@
         <section role="group" class="comboButton" *ngIf="saveactions?.length">
             <button class="comboButton_btn good" type="button"
                     (click)="getMainAction().action()" [attr.aria-busy]="busy"
-                    [disabled]="getMainAction().disabled"
                     [attr.aria-busy]="isSaving"
                     [disabled]="!isReinvoiceValid || isSaving"
             >{{getMainAction()?.label}}</button>
