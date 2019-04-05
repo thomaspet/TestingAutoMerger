@@ -30,6 +30,7 @@ import {UniFileUploadModal} from './modals/uploadFilesModal';
 import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
 import {UniReinvoiceModal} from './modals/reInvoiceModal/reinvoiceModal';
 import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
+import {UniShowReinvoiceStatus} from '@uni-framework/uni-modal/modals/reInvoiceModal/showReinvoiceStatus.pipe';
 import {UniConfirmModalWithCheckbox} from './modals/confirmWithCheckboxModal';
 
 export * from './modalService';
@@ -66,6 +67,8 @@ export * from './modals/company-actions-modal/company-actions-modal';
 export * from './modals/reInvoiceModal/reinvoiceModal';
 export * from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
 export * from './modals/confirmWithCheckboxModal';
+
+export { UniShowReinvoiceStatus } from '@uni-framework/uni-modal/modals/reInvoiceModal/showReinvoiceStatus.pipe';
 
 export const MODALS = [
     UniConfirmModalV2,

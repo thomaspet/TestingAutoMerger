@@ -31,7 +31,7 @@ import {UniComponentLoader} from './core/componentLoader';
 import {ComponentCreator} from './core/dynamic/UniComponentCreator';
 import {Logger} from './core/logger';
 
-import {UniModalService, MODALS} from './uni-modal';
+import { UniModalService, MODALS, UniShowReinvoiceStatus } from './uni-modal';
 
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
 import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
@@ -90,6 +90,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniCommentList,
         UniAvatar,
         UniInfo,
+        UniShowReinvoiceStatus,
         ...MODALS
     ],
     entryComponents: [
@@ -127,6 +128,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniCommentList,
         UniAvatar,
         UniInfo,
+        UniShowReinvoiceStatus,
 
         UniComponentLoader,
 
