@@ -16,7 +16,8 @@ import {InvoiceItemDetails} from './billing/invoice-item-details/invoice-item-de
 
 import {CellValuePipe, ListView} from './list-view/list-view';
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
-import {UserList} from './user-list/user-list';
+import {UserList} from './user-list/license-user-list';
+import {UserDetails} from './user-list/license-user-details/license-user-details';
 
 @NgModule({
     imports: [
@@ -47,6 +48,7 @@ import {UserList} from './user-list/user-list';
         LicenseDetails,
         CompanyList,
         UserList,
+        UserDetails,
         Billing,
         InvoiceItemDetails,
         CellValuePipe,

@@ -4,15 +4,18 @@ import {ErrorService, ElsaContractService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 
 @Component({
-    selector: 'license-info-user-list',
-    templateUrl: './user-list.html',
-    styleUrls: ['./user-list.sass']
+    selector: 'license-user-list',
+    templateUrl: './license-user-list.html',
+    styleUrls: ['./license-user-list.sass']
 })
 export class UserList {
     users: ElsaUserLicense[];
     filteredUsers: ElsaUserLicense[];
     filterValue: string;
     userType: number = -1;
+
+    selectedUser: ElsaUserLicense;
+    detailsVisible: boolean;
 
     columns = [
         { header: 'Navn', field: 'UserName' },
@@ -64,5 +67,10 @@ export class UserList {
         } else {
             this.filteredUsers = filteredByType;
         }
+    }
+
+    onUserSelected(user) {
+        this.selectedUser = user;
+        this.detailsVisible = true;
     }
 }

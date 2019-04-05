@@ -23,8 +23,16 @@
     </section>
 
     <license-info-list
+        class="selection-list"
         [columns]="columns"
         [rows]="filteredUsers"
-        [orderBy]="'UserName'">
+        [orderBy]="'UserName'"
+        (rowClick)="onUserSelected($event)">
     </license-info-list>
 </section>
+
+<license-user-details 
+    *ngIf="selectedUser && detailsVisible"
+    [user]="selectedUser"
+    (close)="detailsVisible = false">
+</license-user-details>
