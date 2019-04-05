@@ -5,7 +5,7 @@ import { UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem } 
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import { UniModalService, UniConfirmModalV2, ConfirmActions } from '../../../../framework/uni-modal';
+import { UniModalService, UniConfirmModalWithCheckbox, ConfirmActions } from '../../../../framework/uni-modal';
 import { RequestMethod } from '@angular/http';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import { Payment } from '@uni-entities';
@@ -91,6 +91,8 @@ export class EditSupplierInvoicePayments implements IUniModal {
                 data.forEach(payment => {
                     this.payments.push(payment);
                 });
+            } else {
+                this.close();
             }
             this.table.refreshTableData();
         });
@@ -107,6 +109,10 @@ export class EditSupplierInvoicePayments implements IUniModal {
                 action: (rows) => this.editPayment(rows),
                 label: 'Endre betaling',
                 disabled: (row) => row.StatusCode !== 44001
+            },
+            {
+                action: (rows) => this.goToPayments(),
+                label: 'Gå til utbetalinger'
             }
         ];
 
@@ -170,13 +176,15 @@ export class EditSupplierInvoicePayments implements IUniModal {
 
     private deletePayment(payment: any) {
         const warningMessage = this.isAllowedToForceDeletePayment(payment) ?
-        `Viktig, betalinger er sendt til banken og må stoppes manuelt der før du kan slette betalingen.<br>
-        Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br><br>`
+        `Viktig! Betaling(er) er sendt til banken og <strong class="modwarn">må</strong> stoppes manuelt der før du sletter betalingen.<br>
+        Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br>`
         : '';
 
-        const modal = this.modalService.open(UniConfirmModalV2, {
+        const modal = this.modalService.open(UniConfirmModalWithCheckbox, {
             header: 'Bekreft Sletting',
             message: `Vil du slette betaling ${payment.Description ? ' ' + payment.Description : ''}?`,
+            checkboxLabel: warningMessage !== '' ? 'Jeg har forstått og kommer til å slette betaling manuelt i bank.' : '',
+            closeOnClickOutside: false,
             buttonLabels: {
                 accept: 'Slett betaling',
                 cancel: 'Avbryt'
@@ -185,7 +193,7 @@ export class EditSupplierInvoicePayments implements IUniModal {
         });
 
         modal.onClose.subscribe(result => {
-            if (result !== ConfirmActions.CANCEL) {
+            if (result === ConfirmActions.ACCEPT) {
                 this.paymentService.Action(payment.ID, 'force-delete', null, RequestMethod.Delete)
                 .subscribe(() => {
                     this.toastService.addToast('Betaling er slettet', ToastType.good, 3);
@@ -194,6 +202,11 @@ export class EditSupplierInvoicePayments implements IUniModal {
                 });
             }
         });
+    }
+
+    private goToPayments() {
+        this.router.navigateByUrl('/bank?code=payment_list');
+        this.close();
     }
 
     private editPayment(row: any) {

@@ -49,7 +49,8 @@ import {
     UniApproveModal,
     ApprovalDetails,
     IModalOptions,
-    UniReinvoiceModal
+    UniReinvoiceModal,
+    UniConfirmModalWithCheckbox
 } from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
@@ -2157,18 +2158,24 @@ export class BillView implements OnInit {
             || payment.StatusCode === 44012
             || payment.StatusCode === 44014) !== undefined;
 
-        const modal = this.modalService.open(UniConfirmModalV2, {
+        const options = {
             header: 'Kreditere faktura?',
             message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til kladd.',
+            closeOnClickOutside: false,
+            checkboxLabel: '',
             warning: paymentsSentToBank ?
                 'Leverandørfakturaen har en eller flere betalinger som er sendt til banken. ' +
                 'Dersom du krediterer bør denne betalingen stoppes manuelt i banken.'
                 : paymentsThatWillBeDeleted
                 ? 'Leverandørfakturaen har en eller flere betalinger som vil bli slettet viss du krediterer.'
                 : ''
-        });
+        };
 
-        modal.onClose.subscribe(response => {
+        if (options.warning !== '') {
+            options.checkboxLabel = 'Jeg har forstått hva som skjer hvis jeg krediterer fakturaen.';
+        }
+
+        this.modalService.open(UniConfirmModalWithCheckbox, options).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                     this.supplierInvoiceService.creditInvoiceJournalEntry(this.currentID)
                     .subscribe(

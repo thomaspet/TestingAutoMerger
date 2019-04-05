@@ -18,7 +18,8 @@ import {
     UniAutobankAgreementModal,
     ConfirmActions,
     UniFileUploadModal,
-    IModalOptions
+    IModalOptions,
+    UniConfirmModalWithCheckbox
 } from '../../../framework/uni-modal';
 import {
     UniBankListModal,
@@ -554,15 +555,18 @@ export class BankComponent implements AfterViewInit {
     public revertBatch(selectedRows: any) {
         return new Promise(() => {
         const row = selectedRows[0];
-        const modal = this.modalService.open(UniConfirmModalV2, {
+        const modal = this.modalService.open(UniConfirmModalWithCheckbox, {
             header: 'Tilbakestille betalingsbunt',
-            message: `Viktig, du må kun gjøre dette hvis betalingsfil er avvist fra banken eller `
-            + ` hvis betalingsfil ikke er sendt til nettbank.<br>Når filen er allerede er akseptert `
-            + ` i nettbanken og du sender den igjen blir betalingen utført flere ganger.<br>`
+            warning: `Viktig! Du må kun gjøre dette hvis betalingsfil er avvist fra banken eller `
+            + ` hvis betalingsfil ikke er sendt til nettbank.`,
+            message: `Når filen allerede er akseptert `
+            + ` i nettbanken og du sender den igjen, vil betalingen bli utført flere ganger.`
             + ` Vil du tilbakestille betalingsbunt med ID: ${row.ID}?`,
+            checkboxLabel: 'Jeg har forstått og bekrefter at betalingsfil enten er avvist i bank eller ikke sendt.',
+            closeOnClickOutside: false,
             buttonLabels: {
                 accept: 'Tilbakestill',
-                reject: 'Avbryt'
+                cancel: 'Avbryt'
             }
         });
 
@@ -581,28 +585,30 @@ export class BankComponent implements AfterViewInit {
         return new Promise(() => {
         const row = selectedRows[0];
         const warningMessage = this.isAllowedToForceDeletePayment(row) ?
-        `Viktig, betalinger er sendt til banken og må stoppes manuelt der før du kan slette betalingen.<br>
-        Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br><br>`
+        `Viktig! Betaling(er) er sendt til banken og <strong class="modwarn">må</strong> stoppes manuelt der før du kan slette betalingen.
+        Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken`
         : '';
         this.isJournaled(row.ID).subscribe(res => {
             const journalEntryLine = res[0] ? res[0] : null;
             const invoiceNumber = journalEntryLine ? journalEntryLine.InvoiceNumber : null;
-            const modal = this.modalService.open(UniConfirmModalV2, {
+            const modal = this.modalService.open(UniConfirmModalWithCheckbox, {
                 header: 'Slett betaling',
+                checkboxLabel: warningMessage !== '' ? 'Jeg har forstått og kommer til å slette betaling manuelt i bank.' : '',
                 message: `Vil du slette betaling${invoiceNumber ? ' som tilhører fakturanr: ' + invoiceNumber : ''}?`,
                 warning: warningMessage,
+                closeOnClickOutside: false,
                 buttonLabels: {
-                    accept: journalEntryLine ? `Slett og krediter faktura` : null,
-                    reject: 'Slett betaling',
+                    accept: 'Slett betaling',
+                    reject: journalEntryLine ? `Slett og krediter faktura` : null,
                     cancel: 'Avbryt'
                 }
             });
 
             modal.onClose.subscribe((result) => {
-                if (result !== ConfirmActions.CANCEL) {
+                if (result === ConfirmActions.ACCEPT || result === ConfirmActions.REJECT) {
                     this.paymentService.Action(
                         row.ID,
-                        result === ConfirmActions.ACCEPT ? 'force-delete-and-credit' : 'force-delete',
+                        result === ConfirmActions.REJECT ? 'force-delete-and-credit' : 'force-delete',
                         null,
                         RequestMethod.Delete
                     ).subscribe(() => {
