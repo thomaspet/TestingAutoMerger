@@ -49,8 +49,7 @@ import {
     UniApproveModal,
     ApprovalDetails,
     IModalOptions,
-    UniReinvoiceModal,
-    UniConfirmModalWithCheckbox
+    UniReinvoiceModal
 } from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
@@ -78,8 +77,7 @@ import {
     FileService,
     VatDeductionService,
     PaymentService,
-    BrowserStorageService,
-    ReInvoicingService
+    BrowserStorageService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
@@ -89,7 +87,6 @@ import {JournalEntryMode} from '../../../../services/accounting/journalEntryServ
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-import { isNullOrUndefined } from 'util';
 
 interface ITab {
     name: string;
@@ -280,8 +277,7 @@ export class BillView implements OnInit {
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
         private paymentService: PaymentService,
-        private browserStorageService: BrowserStorageService,
-        private reinvoicingService: ReInvoicingService
+        private browserStorageService: BrowserStorageService
     ) {
         this.actions = this.rootActions;
 
@@ -1613,19 +1609,7 @@ export class BillView implements OnInit {
             }
         }
 
-        if ( change['TaxInclusiveAmountCurrency'] || change['TaxInclusiveAmount'] ) {
-            if ( model.ReInvoiceID != null ) {
-                     this.reinvoicingService.Get(model.ReInvoiceID).subscribe( reInv => {
-                        if (  reInv.StatusCode === 30203 ) {
-                            this.toast.addToast('', ToastType.bad, 10, 'Du har knyttet en viderefakturering som er gjennomført til denne leverandørfakturaen. Viderefaktureringen må slettes og settes opp på nytt igjen for å viderefakturere med korrekt beløp.');
-                        }
-                });
-            }
-        }
-
-
         if (change['TaxInclusiveAmountCurrency']) {
-
             this.updateJournalEntryAmountsWhenCurrencyChanges(model);
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
@@ -2158,24 +2142,18 @@ export class BillView implements OnInit {
             || payment.StatusCode === 44012
             || payment.StatusCode === 44014) !== undefined;
 
-        const options = {
+        const modal = this.modalService.open(UniConfirmModalV2, {
             header: 'Kreditere faktura?',
             message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til kladd.',
-            closeOnClickOutside: false,
-            checkboxLabel: '',
             warning: paymentsSentToBank ?
                 'Leverandørfakturaen har en eller flere betalinger som er sendt til banken. ' +
                 'Dersom du krediterer bør denne betalingen stoppes manuelt i banken.'
                 : paymentsThatWillBeDeleted
                 ? 'Leverandørfakturaen har en eller flere betalinger som vil bli slettet viss du krediterer.'
                 : ''
-        };
+        });
 
-        if (options.warning !== '') {
-            options.checkboxLabel = 'Jeg har forstått hva som skjer hvis jeg krediterer fakturaen.';
-        }
-
-        this.modalService.open(UniConfirmModalWithCheckbox, options).onClose.subscribe(response => {
+        modal.onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                     this.supplierInvoiceService.creditInvoiceJournalEntry(this.currentID)
                     .subscribe(
@@ -2318,20 +2296,16 @@ export class BillView implements OnInit {
     }
 
     public openReinvoiceModal() {
-        this.checkSave().then((res: boolean) => {
-            if (res) {
-                this.modalService.open(UniReinvoiceModal, {
-                    data: {
-                        supplierInvoice: this.current.getValue()
-                    }
-                }).onClose.subscribe((result) => {
-                    if (result) {
-                        this.toast.addToast('Viderefakturering lagret', ToastType.good);
-                        setTimeout(() => {
-                            this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
-                        }, 500);
-                    }
-                });
+        this.modalService.open(UniReinvoiceModal, {
+            data: {
+                supplierInvoice: this.current.getValue()
+            }
+        }).onClose.subscribe((result) => {
+            if (result) {
+                this.toast.addToast('Viderefakturering lagret', ToastType.good);
+                setTimeout(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
+                }, 500);
             }
         });
     }
@@ -3039,10 +3013,7 @@ export class BillView implements OnInit {
         }, (error) => {
             let msg = error.statusText;
             if (error._body) {
-                msg = this.errorService.extractMessage(error);
-                if (isNullOrUndefined(msg)) {
-                    msg = trimLength(error._body, 100, true);
-                }
+                msg = trimLength(error._body, 100, true);
                 this.showErrMsg(msg, true);
             } else {
                 this.userMsg(lang.save_error);
@@ -3697,10 +3668,6 @@ export class BillView implements OnInit {
                 action: () => this.journalEntryManual.removeJournalEntryData(),
                 disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
             },
-            {
-                label: lang.reinvoice,
-                action: () => this.openReinvoiceModal(),
-            },
         ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
@@ -3711,11 +3678,7 @@ export class BillView implements OnInit {
                 { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr
-                        ? jnr.split('-').length > 1
-                            ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
-                            : `#/accounting/transquery?JournalEntryNumber=${jnr}&AccountYear=${moment(doc.InvoiceDate).year()}`
-                        : undefined
+                    link: jnr ? `#/accounting/transquery?JournalEntryNumber=${jnr}` : undefined
                 }
             ],
             statustrack: stConfig,
