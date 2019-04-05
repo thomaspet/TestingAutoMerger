@@ -7,7 +7,6 @@ import { isNullOrUndefined } from 'util';
 @Injectable()
 export class ReInvoicingService extends BizHttp<ReInvoice> {
 
-    // TODO: To be retrieved from database schema shared.Status instead?
     public statusTypes: Array<any> = [
         { Code: StatusCodeReInvoice.Marked, Text: 'Markert til viderefakturering', isPrimary: true},
         { Code: StatusCodeReInvoice.Ready, Text: 'Klar til viderefakturering', isPrimary: false },
