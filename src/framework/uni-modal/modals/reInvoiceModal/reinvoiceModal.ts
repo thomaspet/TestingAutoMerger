@@ -202,10 +202,10 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             + `&join=CustomerInvoice on Tracelink.DestinationInstanceId eq CustomerInvoice.ID`
         ).pipe(
             switchMap((linkedInvoices) => {
-                if (linkedInvoices === null) {
+                if (!linkedInvoices.length) {
                     return this.statisticsService.GetAllUnwrapped(
                         `model=Tracelink&select=CustomerOrder.CustomerID,`
-                        + `isnull(CustomerOrder.orderNumber,'kladd') as orderNumber,CustomerOrder.ID`
+                        + `isnull(CustomerOrder.orderNumber, 0) as orderNumber,CustomerOrder.ID`
                         + `&filter=DestinationEntityName eq 'CustomerOrder' `
                         + `and SourceEntityName eq 'ReInvoice' and SourceInstanceID eq ` + this.currentReInvoice.ID
                         + `&join=CustomerOrder on Tracelink.DestinationInstanceId eq CustomerOrder.ID`
