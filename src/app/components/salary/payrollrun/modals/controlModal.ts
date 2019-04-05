@@ -180,8 +180,23 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
         if (!vacationLines.length || !vacationBases.length) {
             return 0;
         }
+
         return vacationBases
-            .reduce((sum, curr) => sum + curr.VacationBase * vacationLines.find(l => l.EmployeeID === curr.EmployeeID).Rate / 100, 0);
+            .reduce((sum, curr) =>
+                sum + curr.VacationBase
+                * this.getRate(vacationLines.find(l => l.EmployeeID === curr.EmployeeID)) / 100, 0);
+    }
+
+    private getRate(line: VacationPayLine) {
+
+        const age = line.Employee.BirthDate
+            ? line.Year - new Date(line.Employee.BirthDate).getFullYear()
+            : 0;
+        if (age > 59) {
+            return line.Rate60;
+        }
+
+        return line.Rate;
     }
 
     public runSettling() {
