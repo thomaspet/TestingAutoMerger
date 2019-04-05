@@ -259,7 +259,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }
         let validationRequest = this.reinvoiceService.ActionWithBody(null, this.currentReInvoice, 'valid-message', RequestMethod.Put);
         if (type === '') {
-            validationRequest = Observable.of(String);
+            validationRequest = Observable.of('');
         }
         validationRequest.subscribe(validMsg => {
                 if (validMsg === '') {
