@@ -655,9 +655,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }
     }
 
-    private isSupplierInvoiceJournaled(): boolean {
-        if (!this.supplierInvoice.TaxExclusiveAmount || this.supplierInvoice.TaxExclusiveAmount === 0)
-        { return false; } else { return true; }
+    public isSupplierInvoiceJournaled(): boolean {
+        if (!this.supplierInvoice.TaxExclusiveAmount || this.supplierInvoice.TaxExclusiveAmount === 0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     onItemChange(change) {
