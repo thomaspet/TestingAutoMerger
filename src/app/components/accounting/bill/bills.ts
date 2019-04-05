@@ -21,7 +21,8 @@ import {
     PageStateService,
     UserService,
     JournalEntryService,
-    FileService
+    FileService,
+    ReInvoicingService
 } from '../../../services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniImage} from '../../../../framework/uniImage/uniImage';
@@ -197,7 +198,8 @@ export class BillsView implements OnInit {
         private userService: UserService,
         private approvalService: ApprovalService,
         private journalEntryService: JournalEntryService,
-        private fileService: FileService
+        private fileService: FileService,
+        private reInvoicingService: ReInvoicingService
     ) {
         this.tabService.addTab({
             name: 'Leverandørfaktura',
@@ -866,7 +868,12 @@ export class BillsView implements OnInit {
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }),
-            new UniTableColumn('ReInvoiced', 'Viderefakturering', UniTableColumnType.Boolean).setVisible(false)
+            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Number)
+                .setVisible(!!filter.showStatus)
+                .setAlignment('center')
+                .setTemplate((dataItem) => {
+                    return this.reInvoicingService.getStatusText(dataItem.ReInvoiceStatusCode);
+                })
 
         ];
 
