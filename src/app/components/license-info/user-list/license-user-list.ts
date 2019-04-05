@@ -31,7 +31,8 @@ export class UserList {
         const contractID = this.authService.currentUser.License.Company.ContractID;
         this.elsaContractService.getUserLicenses(contractID).subscribe(
             res => {
-                this.users = (res || []).map(user => {
+                const users = (res || []).filter(user => user.UserName !== 'System User');
+                this.users = users.map(user => {
                     switch (user.UserLicenseType) {
                         case ElsaUserLicenseType.Standard:
                             user['_typeText'] = 'Standard';

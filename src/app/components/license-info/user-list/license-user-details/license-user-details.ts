@@ -1,5 +1,5 @@
 import {Component, HostListener, EventEmitter, Input, Output} from '@angular/core';
-import {ElsaUserLicense} from '@app/models';
+import {ElsaUserLicense, ElsaCompanyLicenseStatus} from '@app/models';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
 
@@ -29,7 +29,10 @@ export class UserDetails {
                 .withEndPoint(endpoint)
                 .send()
                 .subscribe(
-                    res => this.companies = res.json(),
+                    res => {
+                        const companies = (res && res.json()) || [];
+                        this.companies = companies.filter(c => c.StatusCode === ElsaCompanyLicenseStatus.Active);
+                    },
                     err => console.error(err)
                 );
         }
