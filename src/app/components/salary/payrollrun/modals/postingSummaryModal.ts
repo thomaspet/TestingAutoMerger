@@ -154,6 +154,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     }
 
     public rebuildPostings() {
+        this.jobBusy = true;
         this.formModel$
             .pipe(
                 take(1),
