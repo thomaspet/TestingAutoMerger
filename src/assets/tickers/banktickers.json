@@ -560,7 +560,8 @@
             {
                 "Header": "ID",
                 "Field": "ID",
-                "Width": "40",
+                "Width": 80,
+                "Alignment": "center",
                 "FilterOperator": "contains",
                 "DefaultHidden": false,
                 "Resizeable" : false

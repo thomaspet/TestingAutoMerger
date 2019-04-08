@@ -547,7 +547,8 @@ export class PostPost {
                     'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,count(ID) as count,' +
                     'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
                     `,SubAccount.id as SubAccountID&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id ` +
-                    'gt 0&top=&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
+                    'gt 0 and isnull(StatusCode,0) ne 31004&top=&having=sum(amount) ' +
+                    'ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
                         if (res && res.Data && res.Data.length) {
                             resolve(false);
                         } else {
@@ -566,7 +567,7 @@ export class PostPost {
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                `filter=SubAccount.CustomerID gt 0 ` +
+                `filter=isnull(StatusCode,0) ne 31004 and SubAccount.CustomerID gt 0 ` +
                 (this.mainTabs[this.mainActiveIndex].value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
@@ -574,7 +575,7 @@ export class PostPost {
                 `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as ` +
                 `SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 'expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&' +
-                `filter=SubAccountid gt 0 and subaccount.customerid gt 0&` +
+                `filter=isnull(StatusCode,0) ne 31004 and SubAccountid gt 0 and subaccount.customerid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
                 '&expand=account,subaccount&orderby=Customer.CustomerNumber';
         this.statisticsService.GetAllUnwrapped(query)
@@ -591,7 +592,7 @@ export class PostPost {
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                `filter=SubAccount.SupplierID gt 0 ` +
+                `filter=isnull(StatusCode,0) ne 31004 and SubAccount.SupplierID gt 0 ` +
                 (this.mainTabs[this.mainActiveIndex].value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
@@ -599,7 +600,7 @@ export class PostPost {
                 `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) ` +
                 `as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                `filter=SubAccountid gt 0 and subaccount.supplierid gt 0&` +
+                `filter=isnull(StatusCode,0) ne 31004 and SubAccountid gt 0 and subaccount.supplierid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
                 '&expand=account,subaccount&orderby=Supplier.SupplierNumber';
         this.statisticsService.GetAllUnwrapped(query)
@@ -614,7 +615,8 @@ export class PostPost {
         this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine&` +
         `select=Account.ID as ID,Account.AccountNumber as AccountNumber,count(ID) as count,` +
         `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&expand=Account&` +
-        `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 and (StatusCode eq 31001 or StatusCode eq 31002)` +
+        `filter=isnull(StatusCode,0) ne 31004 and Account.UsePostPost eq 1 and ` +
+        `Account.AccountGroupID gt 0 and (StatusCode eq 31001 or StatusCode eq 31002)` +
         `&orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts = accounts;
