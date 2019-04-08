@@ -6,18 +6,24 @@
         </section>
 
         <mat-horizontal-stepper [linear]="true" (selectionChange)="onStepChange($event)" #stepper [@.disabled]="true">
+            <mat-step label="Velg lisens" [completed]="selectedContract && !companyLimitReached">
+                <uni-select-license
+                    *ngIf="currentPage === PageType.selectLicense"
+                    [customers]="customers"
+                    [(selectedContract)]="selectedContract"
+                    (selectedContractChange)="onContractSelected($event)"
+                ></uni-select-license>
+
+                <small class="bad" *ngIf="companyLimitReached">
+                    Demolisenser kan kun ha to selskaper, og valgt lisens har nådd dette taket
+                </small>
+            </mat-step>
+
             <mat-step label="Fyll inn selskapsinformasjon" [completed]="companyInfo.valid">
                 <uni-select-company
                     *ngIf="currentPage === PageType.selectCompany"
                     [(companyInfo)]="companyInfo"
                 ></uni-select-company>
-            </mat-step>
-
-            <mat-step label="Velg lisens" [completed]="contractID > 0">
-                <uni-select-license
-                    *ngIf="currentPage === PageType.selectLicense"
-                    [(contractID)]="contractID"
-                ></uni-select-license>
             </mat-step>
 
             <mat-step label="Velg produkter" [completed]="this.selectedProductsNames.length > 0">
@@ -32,14 +38,14 @@
     <footer>
         <button class="back"
             (click)="stepper.previous()"
-            [disabled]="currentPage === PageType.selectCompany">
+            [disabled]="currentPage === 0">
                 Tilbake
         </button>
 
         <button class="c2a"
             *ngIf="currentPage < PageType.selectProducts"
             (click)="stepper.next()"
-            [disabled]="!isCurrentStepValid()">
+            [disabled]="!stepper.selected?.completed">
                 Neste
         </button>
 

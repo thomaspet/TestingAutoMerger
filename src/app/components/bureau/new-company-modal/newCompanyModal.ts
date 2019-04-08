@@ -3,15 +3,16 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {MatStepper} from '@angular/material';
 import {CompanySettings, Company, Address, Role, UserRole} from '@uni-entities';
 import {CompanyInfo} from './select-company/select-company.component';
-import {ErrorService, CompanyService, RoleService} from '@app/services/services';
+import {ErrorService, CompanyService, RoleService, ElsaCustomersService, ElsaContractService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {Http, Headers} from '@angular/http';
 import {environment} from 'src/environments/environment';
+import {ElsaCustomer, ElsaContract, ElsaContractType} from '@app/models';
 
 export enum PAGE_TYPE {
-    selectCompany = 0,
-    selectLicense,
-    selectProducts,
+    selectLicense = 0,
+    selectCompany = 1,
+    selectProducts = 2,
 }
 
 @Component({
@@ -26,19 +27,22 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
     @Output() onClose = new EventEmitter<Company>();
 
     PageType = PAGE_TYPE;
-
-    currentPage: PAGE_TYPE = PAGE_TYPE.selectCompany;
-    lastCompletedPage: PAGE_TYPE = PAGE_TYPE.selectLicense;
+    currentPage: PAGE_TYPE = PAGE_TYPE.selectLicense;
 
     companyInfo = <CompanyInfo>{ companySettings: <CompanySettings>{ DefaultAddress: <Address>{} } };
     contractID = 0;
     selectedProductsNames: string[] = [];
 
     busy = false;
+    companyLimitReached: boolean;
+    customers: ElsaCustomer[];
+    selectedContract: ElsaContract;
     roles: Role[] = [];
 
     constructor(
         private authService: AuthService,
+        private elsaContractService: ElsaContractService,
+        private elsaCustomerService: ElsaCustomersService,
         private roleService: RoleService,
         private errorService: ErrorService,
         private companyService: CompanyService,
@@ -46,11 +50,27 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
     ) {}
 
     ngOnInit() {
+        this.elsaCustomerService.getAll('Contracts').subscribe(
+            res => this.customers = res || [],
+            () => this.customers = []
+        );
+
         this.roleService.GetAll().subscribe(roles => this.roles = roles);
     }
 
     onStepChange(event) {
         this.currentPage = event.selectedIndex;
+    }
+
+    onContractSelected(contract) {
+        this.companyLimitReached = false;
+
+        if (contract.ContractType === ElsaContractType.Demo) {
+            this.elsaContractService.getCompanyLicenses(contract.ID).subscribe(
+                res => this.companyLimitReached = res && res.length >= 2,
+                () => {}
+            );
+        }
     }
 
     createCompany() {
@@ -94,16 +114,5 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
 
     close() {
         this.onClose.emit();
-    }
-
-    isCurrentStepValid(): boolean {
-        switch (this.currentPage) {
-            case PAGE_TYPE.selectCompany:
-                return this.companyInfo.valid;
-            case PAGE_TYPE.selectLicense:
-                return this.contractID > 0;
-            case PAGE_TYPE.selectProducts:
-                return this.selectedProductsNames.length > 0;
-        }
     }
 }

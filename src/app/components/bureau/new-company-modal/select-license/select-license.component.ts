@@ -1,23 +1,15 @@
-import {Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
-import {ElsaCustomer, ElsaContractType} from '@app/models';
-import {ElsaCustomersService} from '@app/services/elsa/elsaCustomersService';
-import {ErrorService} from '@app/services/common/errorService';
+import {Component, Output, EventEmitter, Input} from '@angular/core';
+import {ElsaCustomer, ElsaContractType, ElsaContract} from '@app/models';
 
 @Component({
   selector: 'uni-select-license',
   templateUrl: './select-license.component.html',
   styleUrls: ['./select-license.component.sass'],
 })
-export class SelectLicenseComponent implements OnInit {
-    @Input() contractID: number;
-    @Output() contractIDChange = new EventEmitter<number>();
-
-    customers: ElsaCustomer[];
-
-    constructor(
-        private errorService: ErrorService,
-        private elsaCustomersService: ElsaCustomersService,
-    ) {}
+export class SelectLicenseComponent {
+    @Input() customers: ElsaCustomer[];
+    @Input() selectedContract: ElsaContract;
+    @Output() selectedContractChange = new EventEmitter();
 
     contractTypeToText(contractType: ElsaContractType): string {
         switch (+contractType) {
@@ -40,12 +32,5 @@ export class SelectLicenseComponent implements OnInit {
             default:
                 return 'N/A';
         }
-    }
-
-    ngOnInit() {
-        this.elsaCustomersService.getAll('Contracts').subscribe(
-            (customers: ElsaCustomer[]) => this.customers = customers,
-            err => this.errorService.handle(err),
-        );
     }
 }

@@ -1,30 +1,25 @@
 .card
+    display: flex
+    height: 3.5rem
+    cursor: pointer
+    align-items: center
     background-color: #f7f7f7
     margin-top: 0.5rem
-    box-shadow: none
-    padding: unset
+    padding: 0 1rem
+    font-size: 14px
 
-    mat-radio-button ::ng-deep .mat-radio-outer-circle
-        background-color: white
+    i.material-icons
+        margin-right: .5rem
+        color: #8C97AB
 
-    mat-radio-button ::ng-deep label
-        padding: 16px
+    &.card-selected i.material-icons
+        color: #1565c0
 
-    mat-radio-button ::ng-deep label, mat-radio-button ::ng-deep .mat-radio-label-content, .radio-label
-        width: 100%
-        font-size: 14px
-
-        div
-            display: inline-block
-
-        .radio-label-left
-            width: 65%
-
-        .radio-label-right
-            width: 35%
-
-            .license-type-label
-                color: grey
+    .contract-type
+        width: 12rem
+        margin-left: auto
+        span
+            color: grey
 
 .card-selected, .card:hover
     background-color: #D5EEF6
