@@ -8,7 +8,7 @@
         "Group": "Bank",
         "Model": "Payment",
         "OrderBy":"ID desc",
-        "Joins": "Payment.JournalEntryID eq JournalEntry.ID",
+        "Joins": "Payment.JournalEntryID eq JournalEntry.ID and JournalEntry.ID eq FileEntityLink.EntityID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount",
         "Columns": [
             {
@@ -81,6 +81,14 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "📎",
+                "Field": "sum(casewhen(FileEntityLink.EntityType eq 'JournalEntry'\\,1\\,0))",
+                "Alias": "Attachments",
+                "Type": "attachment",
+                "Width": "40px",
+                "ExternalModel": "JournalEntry"
             }
         ],
         "Filters": [
@@ -200,7 +208,7 @@
         "Group": "Bank",
         "Model": "Payment",
         "OrderBy":"ID desc",
-        "Joins": "Payment.JournalEntryID eq JournalEntry.ID",
+        "Joins": "Payment.JournalEntryID eq JournalEntry.ID and JournalEntry.ID eq FileEntityLink.EntityID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode",
         "Columns": [
             {
@@ -305,6 +313,14 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "📎",
+                "Field": "sum(casewhen(FileEntityLink.EntityType eq 'JournalEntry'\\,1\\,0))",
+                "Alias": "Attachments",
+                "Type": "attachment",
+                "Width": "40px",
+                "ExternalModel": "JournalEntry"
             }
         ],
         "Actions": [
