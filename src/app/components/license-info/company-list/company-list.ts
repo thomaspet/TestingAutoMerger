@@ -14,7 +14,7 @@ export class CompanyList {
     filterValue: string;
     columns = [
         { header: 'Selskapsnavn', field: 'CompanyName' },
-        { header: 'CompanyName', field: '_orgNumberText' },
+        { header: 'Organisasjonsnummer', field: '_orgNumberText' },
     ];
 
     constructor(
