@@ -11,7 +11,7 @@ import {
 @Component({
     selector: 'uni-budget-download-template-modal',
     template: `
-    <section role="dialog" class="uni-modal" style="width: 80vw; font-size: .9rem">
+    <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw; font-size: .9rem">
         <header><h1>Budsjettspost</h1></header>
 
         <article class="budget-entry-modal-container">

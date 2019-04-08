@@ -15,7 +15,7 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
 @Component({
     selector: 'uni-automark-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-automark-modal" style="width: 40vw;" (keydown.esc)="reject()">
+        <section role="dialog" class="uni-modal uni-automark-modal uni-redesign" style="width: 50vw;" (keydown.esc)="reject()">
             <header><h1>{{ header }}</h1></header>
 
             <article *ngIf="!disabled">
