@@ -31,7 +31,7 @@ export class UserDetails {
                 .subscribe(
                     res => {
                         const companies = (res && res.json()) || [];
-                        this.companies = companies.filter(c => c.StatusCode === ElsaCompanyLicenseStatus.Active);
+                        this.companies = companies.filter(c => c.statusCode === ElsaCompanyLicenseStatus.Active);
                     },
                     err => console.error(err)
                 );
