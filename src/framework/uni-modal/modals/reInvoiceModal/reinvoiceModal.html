@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal large">
+<section role="dialog" class="uni-modal reinvoiceModal">
     <header><h1>Viderefakturering</h1></header>
     <article class="reinvoiceContent">
         <form id="reinvoiceFormData">
@@ -10,39 +10,66 @@
                 </uni-tooltip>
             </label>
             <mat-radio-group [value]="reinvoiceType" (change)="onReinvoiceTypeChange($event)">
-                <mat-radio-button [value]="0">
+                <mat-radio-button [value]="0" [disabled]="currentReInvoice?.StatusCode === 30203 || !isSupplierInvoiceJournaled()">
                     Kostnadsdeling
                 </mat-radio-button>
-                <mat-radio-button [value]="1">
+                <mat-radio-button [value]="1" [disabled]="currentReInvoice?.StatusCode === 30203 || !isSupplierInvoiceJournaled()">
                     Viderefakturering, omsetning
                 </mat-radio-button>
             </mat-radio-group>
-            <p class="totalsum">Totalsum leverandørfaktura: {{ supplierInvoice?.TaxInclusiveAmountCurrency | uninumberformat:'money' }} Kr</p>
+            <p class="totalsum">
+                <span *ngIf="supplierInvoice?.TaxInclusiveAmount">
+                    Brutto: {{ supplierInvoice?.TaxInclusiveAmount | uninumberformat:'money' }} Kr
+                </span> <br/>
+                <span *ngIf="supplierInvoice?.TaxExclusiveAmount">
+                    Netto: {{ supplierInvoice?.TaxExclusiveAmount | uninumberformat:'money' }} Kr
+                </span> <br/>
+                Status : {{ currentReInvoice?.StatusCode | showReinvoiceStatus }}
+            </p>
         </form>
-        <uni-information [config]="{ headline: 'Instillinger'}">
-            <span>Kostandsdeling:</span>
-            <dl>
-                <dt>Varenummer</dt>
-                <dd>{{companyAccountSettings?.ReInvoicingCostsharingProductID}} - {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Name}}</dd>
-            </dl>
-            <dl>
-                <dt>Hovedbokskonto</dt>
-                <dd>{{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountNumber}} -
-                    {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountName}}
-                </dd>
-            </dl>
-            <span>Viderefakturering:</span>
-            <dl>
-                <dt>Varenummer</dt>
-                <dd>{{companyAccountSettings?.ReInvoicingTurnoverProductID}} - {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Name}}</dd>
-            </dl>
-            <dl>
-                <dt>Hovedbokskonto</dt>
-                <dd>{{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountNumber}} -
-                    {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountName}}
-                </dd>
-            </dl>
-            <a (click)="openSettingsModal()">Endre instillinger</a>
+        <uni-information [config]="{ headline: 'Innstillinger'}">
+            <uni-tooltip [type]="'info'"
+                         [alignment]="'top'"
+                         [matMenuTriggerFor]="infoToolsText">
+            </uni-tooltip>
+            <mat-menu #infoToolsText="matMenu">
+                <div class="infoToolContent">
+                    <p>Hjelp til Innstillinger/oppsett:</p>
+                    <h2>Standard produktnr kostnadsdeling.</h2>
+                    Du må først opprette et produkt dersom du skal bruke kostnadsdeling. Opprett gjerne dette slik;  Navn: Kostnadsdeling, hovedbokskonto: 1749, lagre. Konto skal ha ingen mva i kontoplan.
+                    <h2>Standard produktnr viderefakturering, omsetning.</h2>
+                    Denne er enklere. Her kan du gjerne bruke et eksisterende produkt. Denne skal ikke føres mot balanse. Bruk derfor gjerne produkt som har konto 3000 og mvakode 3. Sjekk uansett at oppsettet her er i samsvar med reglene for viderefaktureringen du skal utføre.
+                    <h2>Viderefakturere som.</h2>
+                    Denne er ikke påkrevd. Her velger du ev. hvilken viderefakturering som skal bli foreslått. Du kan uansett endre dette manuelt ved viderefaktureringen.
+                    <hr/>
+                    <p>Når produkt(ene) er oppretter velger du Endre innstillinger her i dette bildet. Legger inn produkt for kostnadsdeling og produkt for viderefakturering, omsetning. Legg gjerne inn ønsket standard viderefaktureringsmetode og avslutt med å lagre.</p>
+                </div>
+            </mat-menu>
+            <div style="display: flex">
+                <table class="costSharingTable">
+                    <th colspan="4">Kostnadsdeling:</th>
+                    <tbody>
+                        <tr>
+                            <td class="product title">Produkt</td>
+                            <td class="product value">{{companyAccountSettings?.ReInvoicingCostsharingProductID}} - {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Name}}</td>
+                            <td class="account title">Konto</td>
+                            <td class="account value">{{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountNumber}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="reinvoiceTable">
+                    <th colspan="4">Viderefakturering:</th>
+                    <tbody>
+                        <tr>
+                            <td class="product title">Produkt</td>
+                            <td class="product value">{{companyAccountSettings?.ReInvoicingTurnoverProductID}} - {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Name}}</td>
+                            <td class="account title">Konto</td>
+                            <td class="account value">{{companyAccountSettings?.ReInvoicingTurnoverProduct?.Account?.AccountNumber}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a (click)="openSettingsModal()">Endre Innstillinger</a>
         </uni-information>
     </article>
     <article>
@@ -52,12 +79,12 @@
             [config]="customersTableConfig"
             (rowChange)="onReinvoicingCustomerChange($event)"
         ></ag-grid-wrapper>
-        <ag-grid-wrapper *ngIf="reinvoiceType === 1"
+        <ag-grid-wrapper *ngIf="reinvoiceType === 1" [class.bad]="!isReinvoiceValid"
              [(resource)]="reinvoicingCustomers"
              [config]="customersTableConfigTurnOver"
-             (rowChange)="onReinvoicingCustomerChange($event)"
+             (rowChange)="onReinvoicingCustomerTurnOverChange($event)"
         ></ag-grid-wrapper>
-        <p>Velg vare(r)</p>
+        <p>Velg produckt(r)</p>
         <ag-grid-wrapper
             [resource]="items"
             [config]="itemsTableConfig"
@@ -68,16 +95,15 @@
         <section role="group" class="comboButton" *ngIf="saveactions?.length">
             <button class="comboButton_btn good" type="button"
                     (click)="getMainAction().action()" [attr.aria-busy]="busy"
-                    [disabled]="getMainAction().disabled"
                     [attr.aria-busy]="isSaving"
-                    [disabled]="!isReinvoiceValid || isSaving"
+                    [disabled]="getMainAction()?.disabled || isSaving || !isReinvoiceValid"
             >{{getMainAction()?.label}}</button>
             <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open" [disabled]="!isReinvoiceValid || isSaving">More options</button>
             <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
                 <li *ngFor="let action of saveactions" (click)="open = !open; action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
             </ul>
         </section>
-        <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving">Lagre</button>
+        <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving || currentReInvoice?.StatusCode === 30203">Lagre</button>
         <button (click)="this.onClose.emit(false)" class="bad" [disabled]="isSaving">Avbryt</button>
     </footer>
 </section>

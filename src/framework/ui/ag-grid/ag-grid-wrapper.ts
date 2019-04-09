@@ -32,7 +32,8 @@ import {
     ColumnMovedEvent,
     RowClickedEvent,
     RowDragEndEvent,
-    PaginationChangedEvent
+    PaginationChangedEvent,
+    RowNode
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
@@ -98,6 +99,9 @@ export class AgGridWrapper {
 
     isRowSelectable: (rowModel: any) => boolean;
 
+    groupingEnabled: boolean;
+    aggregator: (nodes: RowNode[]) => any;
+
     constructor(
         public dataService: TableDataService,
         private tableUtils: TableUtils,
@@ -140,6 +144,11 @@ export class AgGridWrapper {
         if (changes['config'] && this.config) {
             this.columns = this.tableUtils.getTableColumns(this.config);
             this.agColDefs = this.getAgColDefs(this.columns);
+
+            this.groupingEnabled = this.config.isGroupingTicker || this.columns.some(col => col.rowGroup);
+            if (this.groupingEnabled) {
+                this.aggregator = nodes => this.groupSumAggregator(nodes);
+            }
 
             if (this.config.conditionalRowCls || this.config.isRowReadOnly || this.config.isRowSelectable) {
                 this.rowClassResolver = (params) => {
@@ -220,7 +229,7 @@ export class AgGridWrapper {
     public onAgGridReady(event: GridReadyEvent) {
         this.agGridApi = event.api;
         this.agGridApi.sizeColumnsToFit();
-        if (this.config.groupingIsOn) {
+        if (this.config.isGroupingTicker) {
             const doc = document.getElementsByClassName('ag-column-drop-empty-message');
             if (doc && doc.length) {
                 doc[0].innerHTML = 'Dra kolonner her for å gruppere';
@@ -337,7 +346,7 @@ export class AgGridWrapper {
     }
 
     public onColumnMove(event: ColumnMovedEvent) {
-        if (!event.column || !this.config || !this.config.configStoreKey || this.config.groupingIsOn) {
+        if (!event.column || !this.config || !this.config.configStoreKey || this.config.isGroupingTicker) {
             return;
         }
 
@@ -445,7 +454,7 @@ export class AgGridWrapper {
             this.rowSelectionChange.next([]);
         }
 
-        if (this.config.groupingIsOn) {
+        if (this.config.isGroupingTicker) {
             this.filtersChangeWhileGroup.emit(this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters, false));
         } else {
             this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
@@ -651,11 +660,21 @@ export class AgGridWrapper {
                 cellClass: cellClass,
                 headerTooltip: col.header,
                 rowGroup: col.rowGroup,
-                aggFunc: col.isSumColumn ? this.sumTotalInGroup : null,
                 enableRowGroup: col.enableRowGroup,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
-                valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
+                valueGetter: (params) => {
+                    let data = params.data;
+                    if (!data && this.groupingEnabled && col.isSumColumn) {
+                        data = params.node && params.node.aggData;
+                    }
+
+                    return this.tableUtils.getColumnValue(data, col);
+                }
             };
+
+            if (col.rowGroup) {
+                agCol.hide = true;
+            }
 
             agCol['_uniTableColumn'] = col;
             if (this.config && this.config.editable) {
@@ -763,6 +782,40 @@ export class AgGridWrapper {
         }
 
         return colDefs;
+    }
+
+    private groupSumAggregator(nodes) {
+        const sumColumns = this.columns.filter(col => col.isSumColumn);
+        const rows = nodes.map(node => node.data).filter(x => !!x);
+
+        if (rows && rows.length) {
+            const aggregationResults = {};
+            sumColumns.forEach(col => {
+                let colSum;
+                if (col.aggFunc) {
+                    colSum = col.aggFunc(rows);
+                } else {
+                    colSum = rows.reduce((sum, row) => {
+                        return sum += parseFloat(_.get(row, col.alias || col.field, 0));
+                    }, 0);
+                }
+
+                aggregationResults[col.alias || col.field] = colSum;
+            });
+            return aggregationResults;
+        } else {
+            const groupAggregations = {};
+            nodes.forEach(node => {
+                if (node.aggData) {
+                    Object.keys(node.aggData).forEach(key  => {
+                        groupAggregations[key] = (groupAggregations[key] || 0) + node.aggData[key];
+                    });
+                }
+            });
+
+            return groupAggregations;
+        }
+
     }
 
     private isRowReadonly(row) {

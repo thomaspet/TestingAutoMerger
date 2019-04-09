@@ -584,35 +584,63 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         if (column.Type === 'link') {
             let url = '';
             if (column.ExternalModel) {
-                const modelName = column.ExternalModel.startsWith(':field')
-                    ? data[column.Alias]
-                    : column.ExternalModel;
 
-                const externalModel = this.modelService.getModel(modelName);
+                if (column.ExternalModel === 'JournalEntry') {
+                    const value = data[column.Alias].toString();
 
-                if (externalModel && externalModel.DetailsUrl) {
-                    url = externalModel.DetailsUrl;
+                    const numberAndYear = value.split('-');
+                    let linkUrl = `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
 
-                    if (column.LinkNavigationProperty) {
-                        const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
-                        if (data[linkNavigationPropertyAlias]) {
-                            url = url.replace(':ID', data[linkNavigationPropertyAlias]);
-                        } else {
-                            // we dont have enough data to link to the external model, just show
-                            // the property as a normal field
-                            url = '';
-                        }
-                    } else if (column.LinkNavigationProperties && column.LinkNavigationProperties.length) {
-                        column.LinkNavigationProperties.forEach(prop => {
-                            url = url.replace(`:${prop.toLowerCase().replace('.', '')}`, data[prop.replace('.', '')]);
-                        });
+                    if (numberAndYear.length > 1) {
+                        linkUrl += numberAndYear[1];
                     } else {
-                        if (data['ID']) {
-                            url = url.replace(':ID', data['ID']);
+                        let year = new Date().getFullYear();
+
+                        // Lets try to find the year in another field
+                        // Dont use delivery dates or due dates, as these may vary
+                        for (const key in data) {
+                            if (key.toLowerCase().includes('date')
+                                && !key.toLowerCase().includes('due')
+                                && !key.toLowerCase().includes('delivery')) {
+                                year = moment(data[key]).year();
+                            }
                         }
+
+                        linkUrl += year;
                     }
+
+                    return linkUrl;
                 } else {
-                    console.error(`${column.ExternalModel} not found, or no details url specified for model`);
+                    const modelName = column.ExternalModel.startsWith(':field')
+                        ? data[column.Alias]
+                        : column.ExternalModel;
+
+                    const externalModel = this.modelService.getModel(modelName);
+
+                    if (externalModel && externalModel.DetailsUrl) {
+                        url = externalModel.DetailsUrl;
+
+                        if (column.LinkNavigationProperty) {
+                            const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                            if (data[linkNavigationPropertyAlias]) {
+                                url = url.replace(':ID', data[linkNavigationPropertyAlias]);
+                            } else {
+                                // we dont have enough data to link to the external model, just show
+                                // the property as a normal field
+                                url = '';
+                            }
+                        } else if (column.LinkNavigationProperties && column.LinkNavigationProperties.length) {
+                            column.LinkNavigationProperties.forEach(prop => {
+                                url = url.replace(`:${prop.toLowerCase().replace('.', '')}`, data[prop.replace('.', '')]);
+                            });
+                        } else {
+                            if (data['ID']) {
+                                url = url.replace(':ID', data['ID']);
+                            }
+                        }
+                    } else {
+                        console.error(`${column.ExternalModel} not found, or no details url specified for model`);
+                    }
                 }
             } else {
                 const model = ticker.ApiModel || this.modelService.getModel(ticker.Model);
@@ -998,6 +1026,7 @@ export class Ticker {
     public MultiRowSelect?: boolean;
     public RequiredUIPermissions?: string[];
     public DefaultTabIndex?: number;
+    public DefaultTableFilter?: any;
 }
 
 export class TickerFieldFilter {

@@ -11,7 +11,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {Job} from '../../../models/admin/jobs/job';
 import {Trigger} from '../../../models/admin/jobs/trigger';
 import {JobRun} from '../../../models/admin/jobs/jobRun';
-import {ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaProduct} from '@app/models';
+import {ElsaContract, ElsaCompanyLicense, ElsaUserLicense_deprecated, ElsaProduct} from '@app/models';
 
 export interface JobLogProgress {
     ID: number;
@@ -183,6 +183,6 @@ export class JobService {
 export interface JobServerMassInviteInput {
     Contract: ElsaContract;
     CompanyLicenses: ElsaCompanyLicense[];
-    UserLicenses: ElsaUserLicense[];
+    UserLicenses: ElsaUserLicense_deprecated[];
     Products: ElsaProduct[];
 }

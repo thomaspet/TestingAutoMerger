@@ -179,16 +179,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     }
                     this.payStatus = this.payrollrunService.getStatus(payrollRun).text;
 
+                    const url = `/#/accounting/transquery?JournalEntryNumber=`;
+
                     this.toolbarconfig = {
                         subheads: [
                         {
                             title: payrollRun.JournalEntryNumber ?
                                 'Bilag ' + payrollRun.JournalEntryNumber
                                 : '',
-                            link: payrollRun.JournalEntryNumber
-                                ? '#/accounting/transquery?JournalEntryNumber='
-                                    + payrollRun.JournalEntryNumber
-                                : ''
+                            link: payrollRun.JournalEntryNumber ? (payrollRun.JournalEntryNumber.split('-').length > 1
+                            ? url +
+                                `${payrollRun.JournalEntryNumber.split('-')[0]}&AccountYear=${payrollRun.JournalEntryNumber.split('-')[1]}`
+                            : url + `${payrollRun.JournalEntryNumber}&AccountYear=${new Date().getFullYear()}`)
+                            : ''
                         },
                         {
                             title: 'Oppsett',

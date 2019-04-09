@@ -21,7 +21,8 @@ import {
     PageStateService,
     UserService,
     JournalEntryService,
-    FileService
+    FileService,
+    ReInvoicingService
 } from '../../../services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniImage} from '../../../../framework/uniImage/uniImage';
@@ -197,7 +198,8 @@ export class BillsView implements OnInit {
         private userService: UserService,
         private approvalService: ApprovalService,
         private journalEntryService: JournalEntryService,
-        private fileService: FileService
+        private fileService: FileService,
+        private reInvoicingService: ReInvoicingService
     ) {
         this.tabService.addTab({
             name: 'Leverandørfaktura',
@@ -835,7 +837,15 @@ export class BillsView implements OnInit {
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
-                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+                .setLinkResolver(row => {
+                    const numberAndYear = row.JournalEntryJournalEntryNumber.split('-');
+                    if (numberAndYear.length > 1) {
+                        return `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=${numberAndYear[1]}`;
+                    } else {
+                        const year = row.InvoiceDate ? new Date(row.InvoiceDate).getFullYear() : new Date().getFullYear();
+                        return `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}&AccountYear=${year}`;
+                    }
+                }),
 
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setFilterOperator('eq')
@@ -858,11 +868,16 @@ export class BillsView implements OnInit {
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }),
-            new UniTableColumn('ReInvoiced', 'Viderefakturering', UniTableColumnType.Boolean).setVisible(false)
+            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Number)
+                .setVisible(!!filter.showStatus)
+                .setAlignment('center')
+                .setTemplate((dataItem) => {
+                    return this.reInvoicingService.getStatusText(dataItem.ReInvoiceStatusCode);
+                })
 
         ];
 
-        let contextMenuItems: IContextMenuItem[] = [
+        const contextMenuItems: IContextMenuItem[] = [
             {
                 action: (row) => this.reInvoice(row),
                 disabled: (row) => !row || !row.ReInvoiced,

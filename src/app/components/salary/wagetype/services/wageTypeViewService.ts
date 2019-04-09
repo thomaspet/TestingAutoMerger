@@ -43,7 +43,7 @@ export class WageTypeViewService {
 
     public setupSearchConfig(wageType: WageType): IToolbarSearchConfig {
         return {
-            lookupFunction: (query) => this.wageTypeService.GetAll(
+            lookupFunction: (query) => this.wageTypeService.getOrderByWageTypeNumber(
                 `filter=ID ne ${wageType.ID} and (startswith(WageTypeNumber, '${query}') `
                 + `or contains(WageTypeName, '${query}'))`
                 + `&top=50&hateoas=false`

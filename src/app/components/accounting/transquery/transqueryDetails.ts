@@ -28,7 +28,8 @@ import {
     StatisticsService,
     FinancialYearService,
     BrowserStorageService,
-    CustomDimensionService
+    CustomDimensionService,
+    PageStateService
 } from '../../../services/services';
 
 import {
@@ -37,7 +38,7 @@ import {
 } from '../../../../framework/uni-modal';
 import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 
@@ -46,7 +47,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 interface ISearchParams {
     AccountYear?: number;
     JournalEntryNumber?: number;
-    Account?: number;
+    AccountNumber?: number;
     Amount?: number;
     ShowCreditedLines?: boolean;
 }
@@ -62,26 +63,28 @@ export class TransqueryDetails implements OnInit {
     @ViewChild(UniForm)
     private uniForm: UniForm;
 
-    public summaryData: TransqueryDetailsCalculationsSummary;
-    public uniTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
-    public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
-    private configuredFilter: string;
-    public allowManualSearch: boolean = true;
-    public summary: ISummaryConfig[] = [];
-    public showCredited: boolean = false;
+    summaryData: TransqueryDetailsCalculationsSummary;
+    uniTableConfig: UniTableConfig;
+    lookupFunction: (urlParams: URLSearchParams) => any;
+    columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
+    summary: ISummaryConfig[] = [];
+    showCredited: boolean = false;
+    useConfiguredFilter: boolean = false;
+    loading$: Subject<boolean> = new Subject();
+
     private lastFilterString: string;
     private dimensionTypes: any[];
     private searchTimeout;
-
+    private configuredFilter: string;
     private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
+    config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
 
-    public toolbarconfig: IToolbarConfig = {
+    toolbarconfig: IToolbarConfig = {
         title: 'Søk på bilag'
     };
 
@@ -100,15 +103,9 @@ export class TransqueryDetails implements OnInit {
         private storageService: BrowserStorageService,
         private router: Router,
         private modalService: UniModalService,
-        private customDimensionService: CustomDimensionService
-    ) {
-        this.tabService.addTab({
-            'name': 'Søk på bilag',
-            url: '/accounting/transquery',
-            moduleID: UniModules.TransqueryDetails,
-            active: true
-        });
-    }
+        private customDimensionService: CustomDimensionService,
+        private pageStateService: PageStateService
+    ) { }
 
     public ngOnInit() {
         this.activeFinancialYear = this.financialYearService.getActiveFinancialYear();
@@ -123,30 +120,62 @@ export class TransqueryDetails implements OnInit {
 
             // set default value for filtering
             const searchParams: ISearchParams = {
-                AccountYear: null
+                AccountYear: null,
+                ShowCreditedLines: false
             };
 
             if (this.activeFinancialYear) {
                 searchParams.AccountYear = this.activeFinancialYear.Year;
             }
 
-            this.searchParams$.next(searchParams);
+            this.route.queryParams.subscribe(routeParams => {
+                if (routeParams['AccountNumber']) {
+                    searchParams.AccountNumber = routeParams['AccountNumber'];
+                }
 
-            // setup uniform (filters in the top of the page)
+                if (routeParams['JournalEntryNumber']) {
+                    searchParams.JournalEntryNumber = routeParams['JournalEntryNumber'];
+                }
 
-            this.fields$.next(this.getLayout().Fields);
+                if (routeParams['Amount']) {
+                    searchParams.Amount = routeParams['Amount'];
+                }
 
-            this.route.queryParams.subscribe(params => {
-                const unitableFilter = this.generateUnitableFilters(params);
-                this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
+                if (routeParams['ShowCreditedLines']) {
+                    searchParams.ShowCreditedLines = routeParams['ShowCreditedLines'] === 'true';
+                }
+
+                if (routeParams['AccountYear']) {
+                    const yearFromParam = +routeParams['AccountYear'];
+                    if (!isNaN(yearFromParam)) {
+                        // Lets see if year is in financial years
+                        const financialYear = this.financialYears.find(year => year.Year === yearFromParam);
+                        if (financialYear) {
+                            searchParams.AccountYear = financialYear.Year;
+                        } else {
+                            searchParams.AccountYear = this.activeFinancialYear.Year;
+                        }
+                    } else {
+                        searchParams.AccountYear = this.activeFinancialYear.Year;
+                    }
+                }
+
+                this.searchParams$.next(searchParams);
+                this.addTab();
+
+                const unitableFilter = this.generateUnitableFilters(routeParams);
+                this.uniTableConfig = this.generateUniTableConfig(unitableFilter, routeParams);
                 this.setupFunction();
+                this.fields$.next(this.getLayout().Fields);
             });
         });
     }
 
     private setupFunction() {
         this.lookupFunction = (urlParams: URLSearchParams) =>
-            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            this.getTableData(urlParams)
+                .finally(() => { this.loading$.next(false); })
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         this.columnSumResolver = (urlParams: URLSearchParams) =>
             this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -157,9 +186,12 @@ export class TransqueryDetails implements OnInit {
     }
 
     private getTableData(urlParams: URLSearchParams, isSum: boolean = false): Observable<Response> {
+        this.loading$.next(true);
         urlParams = urlParams || new URLSearchParams();
+
         const filtersFromUniTable = urlParams.get('filter');
-        let filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
+        const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
+
         const searchParams = _.cloneDeep(this.searchParams$.getValue());
 
         // Find the searchvalue
@@ -170,52 +202,31 @@ export class TransqueryDetails implements OnInit {
             searchValue = splitted[1];
         }
 
-        // If not spedified filter from route params!
-        if (this.allowManualSearch) {
-            if (filters && filters.length > 0) {
-                const newFilters = [];
-                const splitFilters = filters[0].split(' and ');
-
-                splitFilters.forEach(x => {
-                    if (
-                        !x.includes('Period.AccountYear eq ')
-                        && !x.includes('JournalEntryNumberNumeric eq ')
-                        && !x.includes('Account.AccountNumber eq')
-                        && !x.includes('Amount eq')
-                        && !x.includes('isnull(StatusCode,0) ne')
-                    ) {
-                        newFilters.push(x);
-                    }
-                });
-
-                filters[0] = newFilters.join(' and ');
+        // This is only used when linking from the MVA-Melding view.. This filter is to specific to mix
+        if (!this.useConfiguredFilter) {
+            if (searchParams.AccountYear) {
+                filters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
             }
 
-            const formFilters = [];
-            if (this.allowManualSearch) {
-                if (searchParams.AccountYear) {
-                    formFilters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
-                }
-                if (searchParams.JournalEntryNumber && !isNaN(searchParams.JournalEntryNumber)) {
-                    formFilters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumber}`);
-                }
-                if (searchParams.Account && !isNaN(searchParams.Account)) {
-                    formFilters.push(`Account.AccountNumber eq ${searchParams.Account}`);
-                }
-                let amount = searchParams.Amount ? searchParams.Amount.toString() : '';
-                amount = amount.replace(',', '.');
-                if (amount && !isNaN(+amount)) {
-                    formFilters.push(`Amount eq ${amount}`);
-                }
-
-                if (!searchParams.ShowCreditedLines) {
-                    formFilters.push('isnull(StatusCode,0) ne 31004');
-                }
+            if (searchParams.JournalEntryNumber && !isNaN(searchParams.JournalEntryNumber)) {
+                filters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumber}`);
             }
-            filters = filters.concat(formFilters);
 
-        } else if (splitted[0].includes('JournalEntryNumber ') && !!searchValue && !this.allowManualSearch) {
-            filters[0] = `JournalEntryNumber eq '${searchValue}'`;
+            if (searchParams.AccountNumber && !isNaN(searchParams.AccountNumber)) {
+                filters.push(`Account.AccountNumber eq ${searchParams.AccountNumber}`);
+            }
+
+            let amount = searchParams.Amount ? searchParams.Amount.toString() : '';
+            amount = amount.replace(',', '.');
+
+            if (amount && !isNaN(+amount)) {
+                filters.push(`Amount eq ${amount}`);
+            }
+
+            // Always allow user to show/hide credited lines!
+            if (!searchParams.ShowCreditedLines) {
+                filters.push('isnull(StatusCode,0) ne 31004');
+            }
         }
 
         // remove empty first filter - this is done if we have multiple filters but the first one is
@@ -313,6 +324,24 @@ export class TransqueryDetails implements OnInit {
         this.uniForm.field('JournalEntryNumber').focus();
     }
 
+    public addTab() {
+        const form = this.searchParams$.getValue();
+
+        // Set page state service to make sure browser navigatio works
+        this.pageStateService.setPageState('JournalEntryNumber', form.JournalEntryNumber ? form.JournalEntryNumber + '' : '');
+        this.pageStateService.setPageState('AccountNumber', form.AccountNumber ? form.AccountNumber + '' : '');
+        this.pageStateService.setPageState('Amount', form.Amount ? form.Amount + '' : '');
+        this.pageStateService.setPageState('AccountYear', form.AccountYear + '');
+        this.pageStateService.setPageState('ShowCreditedLines', form.ShowCreditedLines + '');
+
+        this.tabService.addTab({
+            name: 'Søk på bilag',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.TransqueryDetails,
+            active: true
+        });
+    }
+
     public onFormInput(input) {
         clearTimeout(this.searchTimeout);
         this.searchTimeout = setTimeout(() => {
@@ -322,8 +351,8 @@ export class TransqueryDetails implements OnInit {
                 form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
             }
 
-            if (input['Account']) {
-                form['Account'] = input['Account'].currentValue;
+            if (input['AccountNumber']) {
+                form['AccountNumber'] = input['AccountNumber'].currentValue;
             }
 
             if (input['Amount']) {
@@ -331,26 +360,19 @@ export class TransqueryDetails implements OnInit {
                 input['Amount'].currentValue = input['Amount'].currentValue.replace(',', '.');
             }
 
-            const params = [];
-            if (form['JournalEntryNumber']) {
-                params.push('number=' + form['JournalEntryNumber']);
-            }
-            if (form['Amount']) {
-                params.push('totalamount=' + form['Amount']);
-            }
-            if (form['Account']) {
-                params.push('accountnumber=' + form['Account']);
-            }
-
             this.searchParams$.next(form);
-            let url = this.router.url.split('?')[0];
-            if (params.length) {
-                url += '?' + params.join('&');
-            }
-
-            this.tabService.currentActiveTab.url = url;
-            this.router.navigateByUrl(url);
+            this.addTab();
+            this.setupFunction();
+            // this.router.navigateByUrl(url);
         }, 500);
+    }
+
+    public setSearchParamsOnLinkClick(field, value) {
+        const form = this.searchParams$.getValue();
+        form[field] = value;
+        this.searchParams$.next(form);
+        this.addTab();
+        this.setupFunction();
     }
 
     private setSums() {
@@ -371,111 +393,38 @@ export class TransqueryDetails implements OnInit {
         this.summary = sumItems;
     }
 
-    private isEmpty(obj) {
-        for (const key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private generateUnitableFilters(routeParams: any): ITableFilter[] {
-        this.allowManualSearch = true;
         this.configuredFilter = '';
         const filter: ITableFilter[] = [];
-        const searchParams = this.searchParams$.getValue();
+
         if (
-            routeParams['Account_AccountNumber']
-            && routeParams['year']
-            && routeParams['period']
-            && routeParams['isIncomingBalance']
-        ) {
-            const accountYear = `01.01.${routeParams['year']}`;
-            const nextAccountYear = `01.01.${parseInt(routeParams['year'], 10) + 1}`;
-            filter.push({
-                field: 'Account.AccountNumber',
-                operator: 'eq',
-                value: routeParams['Account_AccountNumber'],
-            });
-
-            if (+routeParams['period'] === 0) {
-                filter.push({
-                    field: 'FinancialDate',
-                    operator: 'lt',
-                    value: accountYear,
-                    isDate: true,
-                });
-            } else if (+routeParams['period'] === 13) {
-                if (routeParams['isIncomingBalance'] === 'true') {
-                    filter.push({
-                        field: 'FinancialDate',
-                        operator: 'lt',
-                        value: nextAccountYear,
-                        isDate: true,
-                    });
-                } else {
-                    filter.push({
-                        field: 'FinancialDate',
-                        operator: 'ge',
-                        value: accountYear,
-                        isDate: true,
-                    });
-
-                    filter.push({
-                        field: 'FinancialDate',
-                        operator: 'lt',
-                        value: nextAccountYear,
-                        isDate: true,
-                    });
-                }
-            } else {
-                const periodDates = this.journalEntryLineService
-                    .periodNumberToPeriodDates(routeParams['period'], routeParams['year']);
-                filter.push({
-                    field: 'FinancialDate',
-                    operator: 'ge',
-                    value: periodDates.firstDayOfPeriod,
-                    isDate: true,
-                });
-
-                filter.push({
-                    field: 'FinancialDate',
-                    operator: 'le',
-                    value: periodDates.lastDayOfPeriod,
-                    isDate: true,
-                });
-            }
-        } else if (routeParams['Account_AccountNumber']) {
-            const sp = this.searchParams$.value;
-            sp.Account = routeParams['Account_AccountNumber'];
-            this.searchParams$.next(sp);
-        } else if (
             routeParams['vatCodesAndAccountNumbers']
             && routeParams['vatFromDate']
             && routeParams['vatToDate']
             && routeParams['showTaxBasisAmount']
         ) {
-            // this is a two-dimensional array, "vatcode1|accountno1,vatcode2|accountno2,etc"
-            const vatCodesAndAccountNumbers: Array<string> = routeParams['vatCodesAndAccountNumbers'].split(',');
 
+            // This filter is to specific for adding to it to unitable.. Lets just hide default filter
+            // and inform user of this.. Add a reset button to remove configured filter and show filter fields
+
+            this.useConfiguredFilter = true;
+
+            // This is a two-dimensional array, "vatcode1|accountno1,vatcode2|accountno2,etc"
+            const vatCodesAndAccountNumbers: Array<string> = routeParams['vatCodesAndAccountNumbers'].split(',');
 
             this.configuredFilter = '';
 
             if (routeParams['vatReportID'] && routeParams['vatReportID'] !== '0') {
-                this.configuredFilter += `VatReportID eq '${routeParams['vatReportID']}' `
-                    + `and TaxBasisAmount ne 0 `;
+                this.configuredFilter += `VatReportID eq '${routeParams['vatReportID']}' and TaxBasisAmount ne 0 `;
             } else if (routeParams['vatReportID'] === '0') {
                 const threeYearsAgo = moment(routeParams['vatFromDate']).subtract(3, 'year');
                 const vatFromDate = threeYearsAgo.format('YYYY.MM.DD');
 
-                this.configuredFilter += `VatDate le '${routeParams['vatToDate']}' `
-                    + `and VatDate ge '${vatFromDate}' `
-                    + `and isnull(VatReportID,0) eq 0 `
-                    + `and TaxBasisAmount ne 0 `;
+                this.configuredFilter += `VatDate le '${routeParams['vatToDate']}' and VatDate ge '${vatFromDate}' `
+                    + `and isnull(VatReportID,0) eq 0 and TaxBasisAmount ne 0 `;
+
             } else {
-                this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' `
-                    + `and VatDate le '${routeParams['vatToDate']}' `
+                this.configuredFilter += `VatDate ge '${routeParams['vatFromDate']}' and VatDate le '${routeParams['vatToDate']}' `
                     + `and TaxBasisAmount ne 0 `;
             }
 
@@ -499,33 +448,15 @@ export class TransqueryDetails implements OnInit {
                 }
 
                 if (vatCodesAndAccountNumbers.length > 1) { this.configuredFilter += ') '; }
-
-                this.allowManualSearch = false;
-            }
-        } else if (routeParams['JournalEntryNumber']) {
-            filter.push({
-                field: 'JournalEntryNumber',
-                operator: 'eq',
-                value: routeParams['JournalEntryNumber'],
-            });
-
-            this.allowManualSearch = false;
-        } else if (routeParams['number'] || routeParams['accountnumber'] || routeParams['totalamount'] ) {
-            const sp = this.searchParams$.value;
-            sp.JournalEntryNumber = routeParams['number'];
-            sp.Account = routeParams['accountnumber'];
-            sp.Amount = routeParams['totalamount'];
-            this.searchParams$.next(sp);
-        } else {
-            for (const field of Object.keys(routeParams)) {
-                filter.push({
-                    field: field.replace('_', '.'),
-                    operator: 'eq',
-                    value: routeParams[field],
-                });
             }
         }
         return filter;
+    }
+
+    public resetConfiguredFilter () {
+        this.useConfiguredFilter = false;
+        this.configuredFilter = '';
+        this.router.navigateByUrl('/accounting/transquery');
     }
 
     private creditJournalEntry(item: any) {
@@ -562,25 +493,10 @@ export class TransqueryDetails implements OnInit {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-        // const data = this.journalEntryService.getSessionData(0);
-        const url = '/accounting/journalentry/manual'
-                + `;journalEntryNumber=${journalEntryNumber}`
-                + `;journalEntryID=${journalEntryID};editmode=true`;
+        const url = '/accounting/journalentry/manual' + `;journalEntryNumber=${journalEntryNumber}`
+            + `;journalEntryID=${journalEntryID};editmode=true`;
 
         this.router.navigateByUrl(url);
-        // if (data && data.length > 0
-        //     && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-        //         this.modalService.openRejectChangesModal()
-        //             .onClose
-        //             .subscribe(result => {
-        //                 if (result === ConfirmActions.REJECT) {
-        //                     this.journalEntryService.setSessionData(0, []);
-        //                     this.router.navigateByUrl(url);
-        //                 }
-        //             });
-        // } else {
-        //     this.router.navigateByUrl(url);
-        // }
     }
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
@@ -595,17 +511,25 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`)
+                .setLinkClick(row => this.setSearchParamsOnLinkClick('JournalEntryNumber', row.JournalEntryLineJournalEntryNumberNumeric))
                 .setFilterable(false)
                 .setWidth(100),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`)
+                .setLinkResolver(row => {
+                    const numberAndYear = row.JournalEntryNumber.split('-');
+                    if (numberAndYear.length > 1) {
+                        return `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=${numberAndYear[1]}`;
+                    } else {
+                        const year = new Date(row.JournalEntryLineFinancialDate).getFullYear() || this.searchParams$.getValue().AccountYear;
+                        return `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=${year}`;
+                    }
+                })
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
                 .setTemplate(line => line.AccountAccountNumber)
-                .setLinkResolver(row => `/accounting/transquery?Account_AccountNumber=${row.AccountAccountNumber}`)
+                .setLinkClick(row => this.setSearchParamsOnLinkClick('AccountNumber', row.AccountAccountNumber))
                 .setWidth('85px')
                 .setFilterable(false),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
@@ -777,7 +701,7 @@ export class TransqueryDetails implements OnInit {
             .setPageable(true)
             .setPageSize(pageSize)
             .setColumnMenuVisible(false)
-            .setSearchable(this.allowManualSearch)
+            .setSearchable(true)
             .setEntityType('JournalEntryLine')
             .setFilters(unitableFilter)
             .setIsRowReadOnly(row => row.StatusCode === 31004)
@@ -841,6 +765,7 @@ export class TransqueryDetails implements OnInit {
     }
 
     public onFormFilterChange(event) {
+        this.addTab();
         this.table.refreshTableData();
     }
 
@@ -875,7 +800,7 @@ export class TransqueryDetails implements OnInit {
                 },
                 {
                     EntityType: 'JournalEntryLine',
-                    Property: 'Account',
+                    Property: 'AccountNumber',
                     FieldType: FieldType.NUMERIC,
                     Label: 'Kontonr',
                     Placeholder: 'Kontonr'

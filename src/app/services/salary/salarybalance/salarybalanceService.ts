@@ -178,7 +178,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     private wageTypesObs(): Observable<WageType[]> {
-        return this.wagetypeService.GetAll('');
+        return this.wagetypeService.getOrderByWageTypeNumber();
     }
 
     private employeesObs(): Observable<Employee[]> {

@@ -1,7 +1,10 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
+    <a class="transquery-filter-hidden-message" *ngIf="useConfiguredFilter">
+        Vi har skjult søkefeltene og viser data basert på linken du kom fra. Trykk <strong (click)="resetConfiguredFilter()">her</strong> for å nullstille søket og vise alle feltene.
+    </a>
     <uni-form
-        *ngIf="allowManualSearch"
+        *ngIf="!useConfiguredFilter"
         class="transquery-filter-form"
         [config]="config$"
         [fields]="fields$"
@@ -10,6 +13,12 @@
         (changeEvent)="onFormFilterChange($event)"
         (inputEvent)="onFormInput($event)">
     </uni-form>
+
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
 
     <ag-grid-wrapper
         class="transquery-grid-font-size"

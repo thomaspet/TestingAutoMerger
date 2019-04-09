@@ -32,6 +32,14 @@ uni-ticker
     .uni-ag-wrapper
         font-size: 14px
 
+    .ticker-default-filter
+        display: flex
+        align-items: center
+        label
+            position: absolute
+            top: 6px
+            right: 2px
+
 uni-ticker-detail-view
     margin-bottom: 1rem
     width: 100%
@@ -50,19 +58,14 @@ uni-ticker-detail-view
         min-width: 18rem
 
         .ticker-field
-            display: block
+            display: flex
             width: 100%
             padding: .25rem 1rem .25rem 0
 
             label
-                display: inline-block
-                float: left
-                width: 8rem
-
+                flex: 0 0 8rem
             span
-                display: inline-block
-                min-height: 1.5rem
-                width: calc(100% - 8.5rem)
+                flex: 1
                 padding: 0 1rem
                 background: mix($uni-color-negative, $uni-color-c2a, 98%)
                 border: 1px solid $uni-color-scale9

@@ -46,13 +46,17 @@ export class NavbarLinkService {
             dimensionLinks => {
                 if (dimensionLinks) {
                     const linkSections = this.linkSections$.getValue();
+                    const dimensionsIdx = linkSections.findIndex(section => section.name === 'Dimensjoner');
 
                     // Insert before settings (or marketplace if no settings access)
                     const insertIndex = linkSections.findIndex(section => {
                         return section.name === 'Innstillinger' || section.name === 'Markedsplass';
                     });
 
-                    if (insertIndex > 0) {
+                    // If dimensions is already in the list, just update
+                    if (dimensionsIdx !== -1) {
+                        linkSections[dimensionsIdx] = dimensionLinks;
+                    } else if (insertIndex > 0) {
                         linkSections.splice(insertIndex, 0, dimensionLinks);
                     } else {
                         linkSections.push(dimensionLinks);

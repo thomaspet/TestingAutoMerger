@@ -19,6 +19,7 @@ import {
     UniModalService,
     ActivateOCRModal,
     UniActivateAPModal,
+    UniActivateEInvoiceModal,
     UniActivateInvoicePrintModal,
     ProductPurchasesModal,
     UniAutobankAgreementModal,
@@ -137,6 +138,8 @@ export class MarketplaceModules implements AfterViewInit {
             activationModal = ActivateOCRModal;
         } else if (name === 'autobank' && !this.autobankAgreements.length) {
             activationModal = UniAutobankAgreementModal;
+        } else if (name === 'efakturab2c' && !this.companySettings.NetsIntegrationActivated) {
+            activationModal = UniActivateEInvoiceModal;
         }
 
         if (activationModal) {
@@ -200,7 +203,6 @@ export class MarketplaceModules implements AfterViewInit {
                 ID: null,
                 ProductID: product.id
             };
-
             this.elsaPurchaseService.massUpdate([purchase]).subscribe(
                 () => product['_isBought'] = true,
                 err => this.errorService.handle(err)

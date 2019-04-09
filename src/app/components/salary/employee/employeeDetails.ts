@@ -685,7 +685,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private getWageTypesObservable(): Observable<WageType[]> {
         return this.wageTypes && this.wageTypes.length
             ? Observable.of(this.wageTypes)
-            : this.wageTypeService.GetAll(null, ['SupplementaryInformations']);
+            : this.wageTypeService.getOrderByWageTypeNumber('', ['SupplementaryInformations']);
     }
 
     private getProjects() {

@@ -124,7 +124,13 @@ export class UniMarkingDetailsModal implements IUniModal {
                 .setLinkResolver(row => {
                     // Close the modal then redirect to transquery details..
                     this.close();
-                    return `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`;
+                    const numberAndYear = row.JournalEntryNumber.split('-');
+                    if (numberAndYear.length > 1) {
+                        return `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=${numberAndYear[1]}`;
+                    } else {
+                        const year = row.FinancialDate ? new Date(row.FinancialDate).getFullYear() : new Date().getFullYear();
+                        return `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}&AccountYear=${year}`;
+                    }
                 }),
             new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)

@@ -1,0 +1,44 @@
+<section class="list-container">
+    <section class="header">
+        <h1>Fakturagrunnlag</h1>
+
+        <select [(ngModel)]="periodFilter.month" (change)="loadInvoice()">
+            <option [value]="0">Januar</option>
+            <option [value]="1">Februar</option>
+            <option [value]="2">Mars</option>
+            <option [value]="3">April</option>
+            <option [value]="4">Mai</option>
+            <option [value]="5">Juni</option>
+            <option [value]="6">Juli</option>
+            <option [value]="7">August</option>
+            <option [value]="8">September</option>
+            <option [value]="9">Oktober</option>
+            <option [value]="10">November</option>
+            <option [value]="11">Desember</option>
+        </select>
+
+        <select [(ngModel)]="periodFilter.year" (change)="loadInvoice()" class="year-select">
+            <option *ngFor="let option of yearSelectOptions" [value]="option">
+                {{option}}
+            </option>
+        </select>
+
+        <span class="sum pull-right">
+            <span class="label">Sum eks.mva. </span>
+            <span class="value">{{(billingData?.total | uninumberformat:'money') || 0}} kr</span>
+        </span>
+    </section>
+
+    <license-info-list
+        class="selection-list"
+        [columns]="columns"
+        [rows]="billingData?.items"
+        (rowClick)="onRowClick($event)">
+    </license-info-list>
+</section>
+
+<invoice-item-details
+    *ngIf="detailsVisible && selectedRow"
+    [item]="selectedRow"
+    (close)="detailsVisible = false">
+</invoice-item-details>

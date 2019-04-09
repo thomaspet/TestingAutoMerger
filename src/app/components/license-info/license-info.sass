@@ -9,70 +9,35 @@
         font: 500 22px 'Roboto'
         margin-left: 1rem
 
-    .info-card
-        background: #fff
-        margin: 0 1rem
-        padding: 1.5rem 2rem
-        border-radius: 3px
-        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065)
-
-    uni-tabs
-        width: calc(100% - 2rem)
-        margin: 1rem
-
-    license-info-company-list,
-    license-info-admin-list
-        display: block
-        margin: 0 1rem
-
-    ::ng-deep input[type=search]
-        width: 20rem
-        height: 2.75rem
-        margin: 0 0 1rem
-        border: 1px solid rgba(0, 0, 0, .12)
-        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065)
-
     ::ng-deep .list-container
-        height: calc(100vh - 29rem)
-        min-height: 20rem
-        border-radius: 2px
-        font-size: 15px
-
-        .list-row
-            display: flex
-            height: 3.5rem
-            align-items: center
-            background: #fff
-            padding-left: 10px
-            border-bottom: 1px solid rgba(0, 0, 0, .12)
-
-            > span
-                flex: 1
-                padding: 0 10px
-
-            // .menu-toggle
-            //     flex: 0 0 4rem
-            //     padding: 10px 0
-            //     text-align: center
-
-.license-owner
-    display: flex
-    flex-wrap: wrap
-
-    .info-card
-        flex: 1
-        min-width: 400px
-        margin-bottom: 1rem
-
-    .info-field
         display: flex
-        justify-content: space-between
-        padding: 5px 0
+        flex-direction: column
+        background: #fff
+        border-radius: 2px
+        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.065)
 
-        strong
-            font-weight: 500
+        .header
+            display: flex
+            align-items: center
+            margin: 1.5rem
 
-        span
-            text-align: right
-            a
-                display: block
+            h1
+                font: 400 20px 'Roboto'
+                margin: 0 2rem 0 0
+
+            input[type=search]
+                width: 18rem
+                height: 2.5rem
+                border: 1px solid #D2DAE2 // 1px solid rgba(0, 0, 0, .12)
+
+            select
+                height: 2.5rem
+                border: 1px solid #D2DAE2
+                border-radius: 2px
+                padding-left: 5px
+
+            .pull-right
+                margin-left: auto
+
+        license-info-list
+            flex: 1

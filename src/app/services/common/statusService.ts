@@ -13,6 +13,7 @@ import {RecurringInvoiceService} from '../sales/recurringInvoiceService';
 import {PaymentService} from '../accounting/paymentService';
 import {PaymentBatchService} from '../accounting/paymentBatchService';
 import { SupplierInvoiceService } from '../accounting/supplierInvoiceService';
+import {JournalEntryLineService} from '../accounting/journalEntryLineService';
 
 @Injectable()
 export class StatusService {
@@ -30,7 +31,8 @@ export class StatusService {
         private recurringInvoiceService: RecurringInvoiceService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
-        private supplierInvoiceService: SupplierInvoiceService
+        private supplierInvoiceService: SupplierInvoiceService,
+        private journalEntryLineService: JournalEntryLineService
     ) {}
 
     public getStatusText(statusCode: number): string {
@@ -99,6 +101,9 @@ export class StatusService {
                                         break;
                                     case 'Sharing':
                                         name = this.getSharingStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'JournalEntryLine':
+                                        name = this.journalEntryLineService.getStatusText(item.StatusStatusCode);
                                         break;
                                     case 'SupplierInvoice':
                                         name = this.supplierInvoiceService.getStatusText(item.StatusStatusCode);

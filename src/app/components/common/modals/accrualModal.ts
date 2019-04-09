@@ -827,11 +827,15 @@ export class AccrualModal implements IUniModal {
         this.modalConfig.model.Periods = this.modalConfig.model.Periods.concat(newAccrualPeriods);
 
         this.modalConfig.model['_numberOfPeriods'] = accrualPeriods.length;
-        this.modalConfig.model['_periodAmount'] =
-            (this.modalConfig.model.AccrualAmount / this.modalConfig.model.Periods.length).toFixed(2);
-        this.modalConfig.model.Periods.forEach(item => {
-            item.Amount = this.modalConfig.model['_periodAmount'];
-        });
+        if (this.modalConfig.model.Periods.length > 0) {
+            this.modalConfig.model['_periodAmount'] =
+                (this.modalConfig.model.AccrualAmount / this.modalConfig.model.Periods.length).toFixed(2);
+            this.modalConfig.model.Periods.forEach(item => {
+                item.Amount = this.modalConfig.model['_periodAmount'];
+            });
+        } else {
+            this.modalConfig.model['_periodAmount'] = null;
+        }
 
         const validationMsg: string [] = this.validateAccrual(false);
         if (validationMsg && validationMsg.length > 0) {

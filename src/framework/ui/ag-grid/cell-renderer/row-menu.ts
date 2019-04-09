@@ -39,21 +39,23 @@ export class RowMenuRenderer implements ICellRendererAngularComp {
     deleteButtonAction: (row) => void;
 
     agInit(params: ICellRendererParams): void {
-        this.rowData = params.data;
-        this.parentContext = params.context.componentParent;
-
-        this.contextMenuItems = this.parentContext.getContextMenuItems(this.rowData);
-        this.deleteButtonAction = this.parentContext.getDeleteButtonAction(this.rowData);
+        this.buildMenuItems(params);
     }
 
     refresh(params: ICellRendererParams): boolean {
-        this.rowData = params.data;
-        this.parentContext = params.context.componentParent;
-
-        this.contextMenuItems = this.parentContext.getContextMenuItems(this.rowData);
-        this.deleteButtonAction = this.parentContext.getDeleteButtonAction(this.rowData);
-
+        this.buildMenuItems(params);
         return true;
+    }
+
+    buildMenuItems(params: ICellRendererParams) {
+        const isGroupRow = params.node.group;
+        if (!isGroupRow) {
+            this.rowData = params.data;
+            this.parentContext = params.context.componentParent;
+
+            this.contextMenuItems = this.parentContext.getContextMenuItems(this.rowData);
+            this.deleteButtonAction = this.parentContext.getDeleteButtonAction(this.rowData);
+        }
     }
 
     public onContextMenuToggle() {

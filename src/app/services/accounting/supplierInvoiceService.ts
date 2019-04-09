@@ -167,11 +167,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber',
             'CurrencyCodeID', 'CurrencyCode.Code',
-            'ReInvoiced');
+            'ReInvoice.StatusCode');
         let route = '?model=SupplierInvoice' +
             '&select=' + flds +
             '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +
-            '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount,CurrencyCode' +
+            '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount,CurrencyCode,ReInvoice' +
             '&orderby=id desc' +
             '&filter=( isnull(deleted,0) eq 0 ' + (userIDFilter === null ? '' : userIDFilter)  + ' )';
 

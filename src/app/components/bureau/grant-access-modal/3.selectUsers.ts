@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
-import {ElsaUserLicense} from '@app/models';
+import {ElsaUserLicense_deprecated} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 
 @Component({
@@ -13,7 +13,7 @@ export class SelectUsersForBulkAccess {
     @Input() data: GrantAccessData;
     @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
-    users: ElsaUserLicense[];
+    users: ElsaUserLicense_deprecated[];
 
     constructor(
         private elsaCompanyLicenseService: ElsaCompanyLicenseService,

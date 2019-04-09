@@ -130,7 +130,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingStatisticsDomain()
             .withEndPoint('?model=Account' +
             '&select=id as ID,AccountNumber as AccountNumber,AccountName as AccountName,VatTypeID as VatTypeID,Visible as Visible,' +
-            `UseVatDeductionGroupID&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
+            `UseVatDeductionGroupID as UseVatDeductionGroupID&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
             'isnull(customerid,0) eq 0 and isnull(supplierid,0) eq 0&expand=VatType&orderby=accountnumber&wrap=false')
             .send()
             .map(res => res.json());

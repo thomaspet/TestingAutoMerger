@@ -1,18 +1,15 @@
-import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
+import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {
-    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService
+    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService, NumberFormat, VacationpayLineService, StatisticsService
 } from '../../../../services/services';
-import {
-    SalaryTransactionPay, SalaryTransactionPayLine,
-    SalaryTransactionSums, SalaryTransaction, StdSystemType, PayrollRun
-} from '../../../../unientities';
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-import {ReplaySubject} from 'rxjs';
+import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '../../../../unientities';
+import {BehaviorSubject, Subject, ReplaySubject} from 'rxjs';
+import {ISummaryConfig} from '@app/components/common/summary/summary';
+import {switchMap, finalize} from 'rxjs/operators';
+import {UniMath} from '@uni-framework/core/uniMath';
 
 interface PaylistSection {
     employeeInfo: {
@@ -24,166 +21,119 @@ interface PaylistSection {
     collapsed: boolean;
 }
 
+interface IVacationBase {
+    EmployeeID: number;
+    VacationBase: number;
+}
+
+interface IControlSumModel {
+    sums?: SalaryTransactionSums;
+    vacationLines?: VacationPayLine[];
+    vacationBases?: IVacationBase[];
+}
+
 @Component({
     selector: 'control-modal',
     templateUrl: './controlModal.html',
     styleUrls: ['./controlModal.sass']
 })
 
-export class ControlModal implements OnInit, IUniModal {
+export class ControlModal implements OnInit, IUniModal, OnDestroy {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    private destroy$: Subject<any> = new Subject();
+    public summary: ISummaryConfig[] = [];
     public busy: boolean;
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public payList: {
-        employeeInfo: { name: string, payment: number},
-        paymentLines: SalaryTransaction[], collapsed: boolean
-    }[] = null;
     public description$: ReplaySubject<string>;
-    private transes: SalaryTransaction[];
-    public model$: BehaviorSubject<{
-        sums: SalaryTransactionSums,
-        salaryTransactionPay: SalaryTransactionPay
-    }> = new BehaviorSubject({ sums: null, salaryTransactionPay: null });
+    public transes: SalaryTransaction[] = [];
+    public model$: BehaviorSubject<IControlSumModel> = new BehaviorSubject({ sums: null, vacationLines: [], vacationBases: [] });
     public tableConfig: UniTableConfig;
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public payrollrunIsSettled: boolean;
     constructor(
         private _salaryTransactionService: SalaryTransactionService,
         private _payrollRunService: PayrollrunService,
         private _router: Router,
-        private route: ActivatedRoute,
         private errorService: ErrorService,
-        private salarySumsService: SalarySumsService
+        private salarySumsService: SalarySumsService,
+        private numberFormat: NumberFormat,
+        private vacationPayService: VacationpayLineService,
+        private statisticsService: StatisticsService,
     ) {
         this.description$ = new ReplaySubject<string>(1);
      }
 
     public ngOnInit() {
+        this.getData(this.options.data.ID);
+        this.generateTableConfigs();
+        this.model$
+            .takeUntil(this.destroy$)
+            .subscribe(model => this.summary = this.getSums(model.sums, model.vacationLines, model.vacationBases));
+    }
+
+    public ngOnDestroy() {
+        this.destroy$.next();
+    }
+
+    private getData(runID: number) {
         this.busy = true;
-        const runID: number = this.options.data.ID;
-        this.generateHeadingsForm();
         this._payrollRunService
             .controlPayroll(runID)
-            .switchMap(response => this.getData(runID))
-            .subscribe(data => this.setData(data));
-    }
-
-    public getData(
-        runID: number
-    ): Observable<[SalaryTransaction[], SalaryTransactionSums, SalaryTransactionPay, PayrollRun]> {
-        this.busy = true;
-        return Observable.forkJoin(
-            this._salaryTransactionService
+            .pipe(
+                switchMap(() => this._salaryTransactionService
                 .GetAll(
-                `filter=PayrollRunID eq ${runID} `
-                + `and ((SystemType ne ${StdSystemType.TableTaxDeduction} `
-                + `and SystemType ne ${StdSystemType.PercentTaxDeduction}) `
-                + `or (Sum lt 0))`
-                + `&orderby=Sum desc&nofilter=true`
-                , ['WageType']),
-            this.salarySumsService.getFromPayrollRun(runID),
-            this._payrollRunService.getPaymentList(runID),
-            this._payrollRunService.Get(runID)
-        );
+                `filter=PayrollRunID eq ${runID}`
+                + `&orderby=EmployeeNumber, Sum desc&nofilter=true`
+                , ['Wagetype', 'Employee.BusinessRelationInfo', ])),
+                finalize(() => this.busy = false)
+            )
+            .subscribe(transes => this.transes = transes);
+
+        this._payrollRunService
+            .Get(runID)
+            .subscribe(payrollrun => this.description$.next(`Kontroll av lønnsavregning ${payrollrun.ID} - ${payrollrun.Description}`));
+
+        this.salarySumsService
+            .getFromPayrollRun(runID)
+            .subscribe(sums => this.updateSumModel({sums: sums}));
+
+        this.vacationPayService
+            .getVacationpayBasis()
+            .subscribe(lines => this.updateSumModel({vacationLines: lines}));
+
+        this.statisticsService
+            .GetAll(
+                `select=employeeid as EmployeeID,sum(sum) as VacationBase&model=SalaryTransaction`
+                + `&filter=PayrollRunID eq ${runID} and wagetype.base_vacation eq 1`
+                + `&expand=wagetype`)
+            .subscribe(res => this.updateSumModel({vacationBases: res.Data}));
     }
 
-    public setData(response: any) {
-        this.busy = true;
-        const [salaryTrans, sums, transPay, payrollrun] = response;
-        this.transes = salaryTrans;
-
+    private updateSumModel(state: IControlSumModel) {
         const model = this.model$.getValue();
-        model.sums = sums;
-        model.salaryTransactionPay = transPay;
+        model.sums = state.sums || model.sums;
+        model.vacationBases = state.vacationBases || model.vacationBases;
+        model.vacationLines = state.vacationLines || model.vacationLines;
         this.model$.next(model);
-        this.description$.next(`Kontroll av lønnsavregning ${payrollrun.ID} - ${payrollrun.Description}`);
-
-        this.generateTableConfigs(payrollrun.ID);
-        this.busy = false;
     }
 
-    private generateHeadingsForm() {
-        const withholdingField = new UniFieldLayout();
-        withholdingField.FieldType = FieldType.NUMERIC;
-        withholdingField.Property = 'salaryTransactionPay.Withholding';
-        withholdingField.Label = 'Beregnet forskuddstrekk';
-        withholdingField.ReadOnly = true;
-        withholdingField.Options = {
-            format: 'money'
-        };
-
-        const baseVacationPay: UniFieldLayout = new UniFieldLayout();
-        baseVacationPay.FieldType = FieldType.NUMERIC;
-        baseVacationPay.Property = 'sums.baseVacation';
-        baseVacationPay.Label = 'Feriepengegrunnlag';
-        baseVacationPay.ReadOnly = true;
-        baseVacationPay.Options = {
-            format: 'money'
-        };
-
-        const baseAga = new UniFieldLayout();
-        baseAga.FieldType = FieldType.NUMERIC;
-        baseAga.Property = 'sums.baseAGA';
-        baseAga.Label = 'Arbeidsgiveravgift grunnlag';
-        baseAga.ReadOnly = true;
-        baseAga.LineBreak = true;
-        baseAga.Options = {
-            format: 'money'
-        };
-
-        const netPayment = new UniFieldLayout();
-        netPayment.FieldType = FieldType.NUMERIC;
-        netPayment.Property = 'sums.netPayment';
-        netPayment.Label = 'Sum til utbetaling';
-        netPayment.ReadOnly = true;
-        netPayment.Options = {
-            format: 'money'
-        };
-
-        const calculatedVacationPay = new UniFieldLayout();
-        calculatedVacationPay.FieldType = FieldType.NUMERIC;
-        calculatedVacationPay.Property = 'sums.calculatedVacationPay';
-        calculatedVacationPay.Label = 'Beregnet feriepenger';
-        calculatedVacationPay.ReadOnly = true;
-        calculatedVacationPay.Options = {
-            format: 'money'
-        };
-
-        const calculatedAga = new UniFieldLayout();
-        calculatedAga.FieldType = FieldType.NUMERIC;
-        calculatedAga.Property = 'sums.calculatedAGA';
-        calculatedAga.Label = 'Beregnet arbeidsgiveravgift';
-        calculatedAga.ReadOnly = true;
-        calculatedAga.Options = {
-            format: 'money'
-        };
-
-        this.fields$.next([
-            withholdingField,
-            baseVacationPay,
-            baseAga,
-            netPayment,
-            calculatedVacationPay,
-            calculatedAga
-        ]);
-    }
-
-    private generateTableConfigs(runID: number) {
-
-        this.payList = [];
+    private generateTableConfigs() {
+        const empInfoCol = new UniTableColumn('EmployeeNumber', 'Ansatt')
+            .setTemplate((row: SalaryTransaction) => `${row.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}`)
+            .setRowGroup(true);
         const wagetypeNumberCol = new UniTableColumn(
-            'WageTypeNumber', 'Lønnsart', UniTableColumnType.Number).setWidth('6rem'
-        );
+            'WageTypeNumber', 'Lønnsart', UniTableColumnType.Number);
         const wagetypenameCol = new UniTableColumn('Text', 'Navn', UniTableColumnType.Text);
-        const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate).setWidth('6rem');
-        const toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate).setWidth('6rem');
-        const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text).setWidth('4rem');
-        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money).setWidth('7rem');
-        const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('4rem');
-        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money).setWidth('7rem');
+        const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
+        const toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
+        const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Text);
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
+        const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number);
+        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money)
+            .setIsSumColumn(true)
+            .setAggFunc((rows: SalaryTransaction[]) => UniMath.round(rows
+                    .filter(row => row.Wagetype && row.Wagetype.Base_Payment)
+                    .reduce((sum, row) => sum + row.Sum, 0), 2));
         const paymentCol = new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Text)
-            .setWidth('6rem')
             .setTemplate((row: SalaryTransaction) => {
                 if (!row.Wagetype) {
                     return;
@@ -194,30 +144,59 @@ export class ControlModal implements OnInit, IUniModal {
 
         this.tableConfig = new UniTableConfig('salary.payrollrun.controlModal', false, false)
             .setColumns([
-                wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol,
+                empInfoCol, wagetypeNumberCol, wagetypenameCol, accountCol, fromdateCol,
                 toDateCol, amountCol, rateCol, sumCol, paymentCol]);
 
-        if (this.model$.getValue().salaryTransactionPay.PayList) {
-            this.model$.getValue().salaryTransactionPay.PayList.forEach((payline: SalaryTransactionPayLine) => {
+    }
 
-                const salaryTranses = this.transes
-                    .filter(x => x.EmployeeNumber === payline.EmployeeNumber && x.PayrollRunID === runID);
+    private getSums(
+        sums: SalaryTransactionSums,
+        vacationLines: VacationPayLine[] = [],
+        vacationBases: IVacationBase[] = []): ISummaryConfig[] {
+        return [
+            {
+                title: 'Grunnlag AGA',
+                value: sums && this.numberFormat.asNumber(sums.baseAGA, {decimalLength: 0}),
+            },
+            {
+                title: 'Feriepenger',
+                value: this.numberFormat.asMoney(this.calculateVacationPay(vacationLines, vacationBases)),
+                description: sums && `av ${this.numberFormat
+                        .asNumber(
+                            sums.baseVacation,
+                            {decimalLength: 0}
+                    )}`
+            },
+            {
+                title: 'Forskuddstrekk',
+                value: sums && this.numberFormat.asMoney(sums.tableTax + sums.percentTax + sums.manualTax),
+                description: sums && `av ${this.numberFormat.asMoney(sums.basePercentTax + sums.baseTableTax)}`
+            },
+            {title: 'Sum til utbetaling', value: sums && this.numberFormat.asMoney(sums.netPayment)},
+        ];
+    }
 
-                if (salaryTranses.length) {
-                    const section: PaylistSection = {
-                        employeeInfo: {
-                            number: payline.EmployeeNumber,
-                            name: payline.EmployeeName,
-                            payment: payline.NetPayment
-                        },
-                        paymentLines: salaryTranses,
-                        collapsed: true
-                    };
-                    this.payList.push(section);
-                }
-            });
+    private calculateVacationPay(vacationLines: VacationPayLine[], vacationBases: IVacationBase[]) {
+        if (!vacationLines.length || !vacationBases.length) {
+            return 0;
         }
 
+        return vacationBases
+            .reduce((sum, curr) =>
+                sum + curr.VacationBase
+                * this.getRate(vacationLines.find(l => l.EmployeeID === curr.EmployeeID)) / 100, 0);
+    }
+
+    private getRate(line: VacationPayLine) {
+
+        const age = line.Employee.BirthDate
+            ? line.Year - new Date(line.Employee.BirthDate).getFullYear()
+            : 0;
+        if (age > 59) {
+            return line.Rate60;
+        }
+
+        return line.Rate;
     }
 
     public runSettling() {
@@ -253,15 +232,6 @@ export class ControlModal implements OnInit, IUniModal {
                 this.busy = false;
                 this.errorService.handle(err);
             });
-    }
-
-    public toggleCollapsed(index: number) {
-        this.payList[index].collapsed = !this.payList[index].collapsed;
-    }
-    public closeAll() {
-        this.payList.forEach((line) => {
-            line.collapsed = true;
-        });
     }
 
     public close() {

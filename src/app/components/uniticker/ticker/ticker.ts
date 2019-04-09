@@ -428,9 +428,32 @@ export class UniTicker {
                 filter = this.ticker.Filter;
             }
 
+            if (this.ticker.DefaultTableFilter) {
+                // Use the default filter when checkbox 'active' and 'useWhenActive' have same value.
+                // Both false or both true
+                const use =
+                    (this.ticker.DefaultTableFilter.active && this.ticker.DefaultTableFilter.useWhenActive) ||
+                    (!this.ticker.DefaultTableFilter.active && !this.ticker.DefaultTableFilter.useWhenActive);
+                if (use) {
+                    filter = !!filter ? (filter + ` and ${this.ticker.DefaultTableFilter.filter}`) : this.ticker.DefaultTableFilter.filter;
+                }
+            }
+
             if (filter.indexOf(':currentaccountingyear') >= 0) {
                 this.setCurrentAccountingYearInFilter(filter, params);
             } else {
+                params.set('filter', filter);
+            }
+        } else if (this.ticker.DefaultTableFilter) {
+            let filter = urlParams.get('filter');
+
+            // Use the default filter when checkbox 'active' and 'useWhenActive' have same value.
+            // Both false or both true
+            const use =
+                (this.ticker.DefaultTableFilter.active && this.ticker.DefaultTableFilter.useWhenActive) ||
+                (!this.ticker.DefaultTableFilter.active && !this.ticker.DefaultTableFilter.useWhenActive);
+            if (use) {
+                filter = !!filter ? (filter + ` and ${this.ticker.DefaultTableFilter.filter}`) : this.ticker.DefaultTableFilter.filter;
                 params.set('filter', filter);
             }
         }
@@ -1258,11 +1281,12 @@ export class UniTicker {
                 .setSuppressMakeColumnVisibleAfterUnGroup(true)
                 .setSuppressDragLeaveHidesColumns(true)
                 .setAutoGroupColumnDef({
-                    headerName: 'Gruppering'
+                    headerName: 'Gruppering',
+                    suppressMenu: true
                 });
         }
 
-        config.groupingIsOn = this.groupingIsOn;
+        config.isGroupingTicker = this.groupingIsOn;
 
         return config;
     }

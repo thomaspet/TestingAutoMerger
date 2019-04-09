@@ -121,7 +121,7 @@ export class VariablePayrollsComponent {
                 Observable.forkJoin(
                     this.projectService.GetAll(''),
                     this.departmentService.GetAll(''),
-                    this.wageTypeService.GetAll(null, ['SupplementaryInformations']),
+                    this.wageTypeService.getOrderByWageTypeNumber('', ['SupplementaryInformations']),
                     this.payrollrunService.getEmployeesOnPayroll(
                         this.payrollRunID, ['Employments', 'BusinessRelationInfo', 'Employments.Dimensions']
                     ),

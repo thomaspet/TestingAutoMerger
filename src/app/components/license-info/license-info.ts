@@ -1,8 +1,6 @@
 import {Component} from '@angular/core';
 import {IUniTab} from '../layout/uniTabs/uniTabs';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {ElsaCustomersService, ErrorService} from '@app/services/services';
-import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'license-info',
@@ -11,18 +9,16 @@ import {AuthService} from '@app/authService';
     host: {'class': 'uni-redesign'}
 })
 export class LicenseInfo {
-    licenseOwner;
     activeTabIndex = 0;
 
     tabs: IUniTab[] = [
-        {name: 'Administratorer'},
-        {name: 'Selskaper'},
+        {name: 'Detaljer', path: 'details'},
+        {name: 'Selskaper', path: 'companies'},
+        {name: 'Brukere', path: 'users'},
+        {name: 'Fakturagrunnlag', path: 'billing'},
     ];
 
     constructor(
-        private authService: AuthService,
-        private elsaCustomerService: ElsaCustomersService,
-        private errorService: ErrorService,
         private tabService: TabService
     ) {
         this.tabService.addTab({
@@ -30,11 +26,5 @@ export class LicenseInfo {
             url: '/license-info',
             moduleID: UniModules.LicenseInfo
         });
-
-        const contractID = this.authService.currentUser.License.Company.ContractID;
-        this.elsaCustomerService.getByContractID(contractID, 'Managers').subscribe(
-            res => this.licenseOwner = res,
-            err => this.errorService.handle(err)
-        );
     }
 }

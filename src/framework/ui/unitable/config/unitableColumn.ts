@@ -115,6 +115,7 @@ export class UniTableColumn implements IUniTableColumn {
     public width: number|string;
     public sortMode: UniTableColumnSortMode;
     public isSumColumn: boolean;
+    public aggFunc: (items: any[]) => number;
 
     public filterable: boolean;
     public filterOperator: string;
@@ -372,6 +373,12 @@ export class UniTableColumn implements IUniTableColumn {
     public setIsSumColumn(isSumColumn: boolean) {
         this.isSumColumn = isSumColumn;
         return this;
+    }
+
+    public setAggFunc(aggFunc: (data: any[]) => number) {
+
+        this.aggFunc = aggFunc;
+            return this;
     }
 
     public setMaxLength(maxLength: number) {

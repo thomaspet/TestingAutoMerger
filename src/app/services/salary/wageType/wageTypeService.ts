@@ -154,6 +154,11 @@ export class WageTypeService extends BizHttp<WageType> {
         });
     }
 
+    public getOrderByWageTypeNumber(filter: string = '', expands: string[] = null) {
+        return super.GetAll(`${filter}&orderBy=WageTypeNumber`,
+            expands ? expands : this.defaultExpands);
+    }
+
     public getPrevious(wageTypeNumber: number, expands: string[] = null) {
         return super.GetAll(`filter=WageTypeNumber lt ${wageTypeNumber}&top=1&orderBy=WageTypeNumber desc`,
             expands ? expands : this.defaultExpands)
