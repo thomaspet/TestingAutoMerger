@@ -377,6 +377,33 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg kunde manuelt",
+                "Code": "select_customer",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg leverandør manuelt",
+                "Code": "select_supplier",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg hovedbokskonto manuelt",
+                "Code": "select_main_account",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "Filters": [
@@ -453,12 +480,17 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44014"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44018"
                         }
                     ]
                 }]
             },
             {
-                "Name": "Betalt ikke bokført",
+                "Name": "Betalt ingen match",
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
@@ -473,13 +505,13 @@
                         {
                             "Field": "StatusCode",
                             "Operator": "eq",
-                            "Value": "44006"
+                            "Value": "44018"
                         }
                     ]
                 }]
             },
             {
-                "Name": "Betalt og bokført",
+                "Name": "Betalt og fullført",
                 "Code": "payed_and_journaled",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
@@ -554,6 +586,11 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44011"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44018"
                         }
                     ]
                 }]
