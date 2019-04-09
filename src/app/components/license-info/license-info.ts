@@ -15,7 +15,7 @@ export class LicenseInfo {
         {name: 'Detaljer', path: 'details'},
         {name: 'Selskaper', path: 'companies'},
         {name: 'Brukere', path: 'users'},
-        {name: 'Fakturagrunnlag', path: 'billing'},
+        {name: 'Estimert forbruk', path: 'billing'},
     ];
 
     constructor(
