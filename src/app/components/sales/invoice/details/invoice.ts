@@ -1378,7 +1378,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     done(error);
                 });
             },
-            disabled: false
+            disabled: false,
+            main: !id || transitions
         });
 
         this.saveActions.push({
