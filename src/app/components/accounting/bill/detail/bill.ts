@@ -235,7 +235,7 @@ export class BillView implements OnInit {
             disabled: false
         },
         {
-            label: 'Innstilliger for smart bokføring',
+            label: 'Innstillinger for smart bokføring',
             action: (done) => { this.openSmartBookingSettingsModal(); done(); },
             main: false,
             disabled: false
