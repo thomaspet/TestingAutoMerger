@@ -191,7 +191,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         // Cost Allocation
         UniCostAllocation,
         UniCostAllocationList,
-        UniCostAllocationDetails
+        UniCostAllocationDetails,
     ],
     entryComponents: [
         HistoricVatReportModal,
@@ -270,7 +270,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
 
         // CostAllocation
         UniCostAllocation,
-        UniCostAllocationList
+        UniCostAllocationList,
     ],
     providers: [
         PeriodFilterHelper,

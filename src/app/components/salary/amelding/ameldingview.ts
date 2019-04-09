@@ -301,6 +301,8 @@ export class AMeldingView implements OnInit {
             this.errorService.handle(err);
             this.saveStatus.completeCount++;
             this.saveStatus.hasErrors = true;
+            this.checkForSaveDone(event.done);
+            this._toastService.addToast('Generering av A-melding feilet', ToastType.warn, 6);
         });
     }
 

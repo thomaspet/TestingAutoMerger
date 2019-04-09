@@ -2,9 +2,10 @@ import {Component, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {EmployeeCategory, EmployeeCategoryLink} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {EmployeeCategoryService, UniCacheService, ErrorService, EmployeeService, EmployeeOnCategoryService} from '../../../services/services';
+import {
+    EmployeeCategoryService, UniCacheService, ErrorService, EmployeeService, EmployeeOnCategoryService
+} from '../../../services/services';
 import {CategoryViewService} from './services/categoryViewService';
-import {ToastService} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 
@@ -249,8 +250,11 @@ export class CategoryView extends UniView implements OnDestroy {
     private getEmployeeCategoryLinks(categoryID: number): void {
         this.categoryService
             .getEmployeesInCategory(categoryID)
-            .map(emps => <EmployeeCategoryLink[]>emps
-                .map(emp => ({Employee: emp, EmployeeNumber: emp.EmployeeNumber, ID: emp.ID, EmployeeID: emp.ID})))
+            .pipe(
+                map(emps => <EmployeeCategoryLink[]>emps
+                    .map(emp => ({Employee: emp, EmployeeNumber: emp.EmployeeNumber, ID: emp.ID, EmployeeID: emp.ID}))),
+                map(empLinks => empLinks.sort((a, b) => a.EmployeeNumber - b.EmployeeNumber))
+            )
             .subscribe(empLinks => super.updateState(EMP_CAT_LINKS_KEY, empLinks));
     }
 

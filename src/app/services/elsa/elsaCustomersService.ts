@@ -3,35 +3,49 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaCustomer} from '@app/models';
 
-
 @Injectable()
 export class ElsaCustomersService {
     constructor(private uniHttp: UniHttp) {}
 
-    getLicenseOwner() {
+    getByContractID(contractID: number, expand?: string): Observable<ElsaCustomer> {
+        let endpoint = `/api/elsa/contracts/${contractID}/customers`;
+        if (expand) {
+            endpoint += '?expand=' + expand;
+        }
+        return this.uniHttp.asGET()
+            .usingEmptyDomain()
+            .withEndPoint(endpoint)
+            .send()
+            .map(res => res.json());
+    }
+
+    get(id: number): Observable<ElsaCustomer> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
-            .withEndPoint('/api/elsa/customers')
+            .withEndPoint(`/api/elsa/customers/${id}`)
             .send()
-            .map(req => req.json());
+            .map(res => res.json());
     }
 
-    public Get(id: number): Observable<ElsaCustomer> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/customers/${id}`)
+    getAll(expand?: string): Observable<ElsaCustomer[]> {
+        let endpoint = '/api/elsa/customers';
+        if (expand) {
+            endpoint += '?expand=' + expand;
+        }
+
+        return this.uniHttp.asGET()
+            .usingEmptyDomain()
+            .withEndPoint(endpoint)
             .send()
-            .map(req => req.json());
+            .map(res => res.json());
     }
 
-    public GetAll(): Observable<ElsaCustomer[]> {
-        return this.uniHttp
-            .asGET()
-            .usingElsaDomain()
-            .withEndPoint('/api/customers')
-            .send()
-            .map(req => req.json());
+    put(customer: ElsaCustomer) {
+        return this.uniHttp.asPUT()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/customers/${customer.ID}`)
+            .withBody(customer)
+            .send();
     }
 }

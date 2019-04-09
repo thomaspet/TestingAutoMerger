@@ -74,7 +74,6 @@ export class StatusService {
                                 let name;
                                 switch (item.StatusEntityType) {
                                     case 'CustomerInvoice':
-                                        console.log(item);
                                         name = this.customerInvoiceService.getStatusText(item.StatusStatusCode, 0);
                                         break;
                                     case 'CustomerOrder':

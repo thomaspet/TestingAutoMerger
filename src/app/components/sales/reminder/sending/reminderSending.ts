@@ -415,7 +415,10 @@ export class ReminderSending implements OnInit {
                     {Name: 'CustomerInvoiceID', value: reminder.InvoiceID},
                     {Name: 'ReminderNumber', value: reminder.ReminderNumber}
                 ];
-                this.emailService.sendEmailWithReportAttachment('Purring', email, parameters, doneHandler);
+
+                this.reportDefinitionService.GetAll(`filter=name eq 'Purring'`).subscribe(rd => {
+                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerInvoiceReminder', rd[0].ID, email, parameters, doneHandler);
+                })
             });
         });
     }

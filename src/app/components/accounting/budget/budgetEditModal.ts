@@ -87,7 +87,6 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
     file: File;
     activeCompany: any;
     token: any;
-    didTryReAuthenticate: boolean = false;
     baseUrl: string = environment.BASE_URL_FILES;
     loading$: Subject<any> = new Subject();
     departments: any[];
@@ -108,9 +107,8 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
         ) {
             this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
+            this.token = authDetails.token;
         });
-
-        authService.filesToken$.subscribe(token => this.token = token);
     }
 
     public ngOnInit() {
@@ -172,12 +170,10 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
         this.loading$.next(true);
 
         let query;
-        if (this.budgetID && !this.didTryReAuthenticate) {
+        if (this.budgetID) {
             query = this.budgetService.Put(this.budgetID, this.budget);
-        } else if (!this.didTryReAuthenticate) {
-            query = this.budgetService.Post(this.budget);
         } else {
-            query = Observable.of(this.budget);
+            query = this.budgetService.Post(this.budget);
         }
 
         query.subscribe((myBudget) => {
@@ -199,47 +195,14 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
                         });
                     });
                 }, err => {
-                    // If an error occurs, try to reauthenticate to unifiles - typically
-                    // this happens if unifiles is deployed while the user is logged in
-                    if (!this.didTryReAuthenticate) {
-                        // Run reauthentication and try to upload the file once more
-                        // so the user doesnt have to
-                        this.reauthenticate(() => {
-                            this.save();
-                        });
-                    } else {
-                        this.loading$.next(false);
-                        this.errorService.handle(err);
-                    }
+                    this.loading$.next(false);
+                    this.errorService.handle(err);
                 });
             } else {
                 this.loading$.complete();
                 this.onClose.emit(myBudget);
             }
         });
-    }
-
-    public reauthenticate(runAfterReauth) {
-        if (!this.didTryReAuthenticate) {
-            // Set flag to avoid "authentication loop" if the new authentication
-            // also throws an error
-            this.didTryReAuthenticate = true;
-
-            this.uniFilesService.checkAuthentication()
-                .then(res => {
-                    // Authentication is ok - something else caused the problem
-                }).catch(err => {
-                    // Authentication failed, try to reauthenticated
-                    this.authService.authenticateUniFiles()
-                        .then(res => {
-                            if (runAfterReauth) {
-                                runAfterReauth();
-                            }
-                        }).catch((errAuth) => {
-                            this.errorService.handle(err);
-                        });
-                });
-        }
     }
 
     public close() {

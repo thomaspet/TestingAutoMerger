@@ -1,8 +1,4 @@
 <section role="dialog" class="uni-modal">
-    <header>
-        <!-- Velkommen til Uni Economy! -->
-    </header>
-
     <article>
         <i class="material-icons check">check_circle</i>
         <h1>{{options.header}}</h1>
@@ -17,14 +13,14 @@
                 </section>
             </li>
             <li (click)="navigate('/settings/company')">
-                <i class="material-icons">settings_applications</i>
+                <i class="material-icons">settings</i>
                 <section class="link-info">
                     <strong>Firmainnstillinger</strong>
                     <span>Oppsett og innstillinger for ditt firma</span>
                 </section>
             </li>
             <li (click)="navigate('/marketplace/modules')">
-                <i class="material-icons">developer_board</i>
+                <i class="material-icons">shopping_basket</i>
                 <section class="link-info">
                     <strong>Markedsplass</strong>
                     <span>Oppdag og aktiver utvidelser og integrasjoner</span>
@@ -33,7 +29,7 @@
         </ul>
     </article>
 
-    <footer>
+    <footer class="center">
         <button class="c2a rounded" (click)="onClose.emit()">Lukk</button>
     </footer>
 </section>

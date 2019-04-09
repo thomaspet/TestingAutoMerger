@@ -1,8 +1,6 @@
 @import '~src/styles/unibase/colors/__colors.sass'
 @import '~src/styles/unibase/helpers/_zindex.sass'
 
-$red: #f53b57
-
 .uni-modal
     width: 63rem
     border-radius: 3px
@@ -12,13 +10,15 @@ $red: #f53b57
     width: 100%
     height: 100%
     background: #edeeef
+    position: absolute
+    top: 0
 
     // Overlay mode when the trial is expired
     &.overlay
         position: fixed
         width: 100%
-        height: calc(100vh - 4.75rem)
-        top: 4.75rem
+        height: calc(100vh - 2.75rem)
+        top: 2.75rem
         left: 0
         z-index: #{map-get($zindex, sidebar) + 1}
 
@@ -30,15 +30,18 @@ $red: #f53b57
         overflow: hidden
         box-sizing: border-box
 
-        .contract-activated
+        .info-message
+            margin-bottom: 5rem
             text-align: center
             font-size: 15px
-
             i.material-icons
-                color: #55BF87
                 vertical-align: middle
-                margin-bottom: 2px
-                margin-right: 2px
+                margin-bottom: 3px
+                margin-right: 3px
+                &.good
+                    color: #01A901
+                &.bad
+                    color: #F53B57
 
         .form-container
             overflow-y: auto
@@ -101,65 +104,21 @@ $red: #f53b57
         @media screen and (max-width: 1050px)
             display: none !important
 
+fieldset legend
+    padding-left: 166px
+    font-size: 18px
+    font-weight: 400
 
-form
-    fieldset
-        // Resetting existing form styling (fieldset.sass mostly)
-        position: static
-        width: 100%
-        max-width: unset
-        min-width: unset
-        box-shadow: unset
-        background: unset
-        padding: 0
-        margin: 2rem 0 0
+form label
+    font-size: 14px
 
-        legend
-            // Resetting existing form styling (fieldset.sass mostly)
-            position: static
-            height: unset
-            border: none
-            padding: 0
-
-            // New styling
-            padding-left: 170px
-            font-weight: 400
-            font-size: 18px
-            margin-bottom: 1rem
-
-    label
-        display: flex
-        margin-bottom: 1rem
-
-        span
-            flex: 0 0 150px
-            margin-right: 20px
-            font-weight: 400
-            font-size: 14px
-            text-align: right
-            line-height: 2.4rem
-
-        input, select
-            flex: 1
-            height: 2.4rem
-            border: 1px solid rgba(0, 0, 0, 0.25)
-            border-radius: 3px
-            font-size: 14px
-
-            &.ng-touched.ng-invalid,
-            &.no-brreg-match
-                border: 1px solid $red
-
-        select
-            padding-left: 4px
-
-    small.form-error
-        display: block
-        color: $red
-        margin: -10px 0 16px 170px
+small.form-error
+    display: block
+    color: #F53B57
+    margin: -10px 0 16px 170px
 
 .submit-section
-    margin-left: 170px
+    margin-left: 166px
     margin-top: 10px
 
     mat-checkbox
@@ -170,12 +129,7 @@ form
 
     button.good
         height: 2.5rem
+        color: #fff
         min-width: 10rem
         border-radius: 20px
-        color: #fff
-        text-shadow: none
-        padding: 0 1rem
         margin: 2rem 0 0
-        font-size: 14px
-        font-weight: 500
-

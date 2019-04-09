@@ -29,7 +29,7 @@ export class SelectUsersForBulkAccess {
     private initData() {
         if (this.data.customer) {
             this.elsaCompanyLicenseService.GetAllUsers(
-                this.data.customer.companyKey
+                this.data.customer.CompanyKey
             ).subscribe(
                 users => {
                     if (this.data.users && this.data.users.length) {

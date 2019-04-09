@@ -1270,7 +1270,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             });
         }
 
-        if (this.invoice.JournalEntry) {
+        if (this.invoice.JournalEntry && this.invoice.JournalEntry.JournalEntryNumber) {
             subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
                 link: `#/accounting/transquery?JournalEntryNumber=`

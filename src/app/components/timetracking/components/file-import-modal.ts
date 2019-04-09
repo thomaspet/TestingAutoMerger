@@ -74,7 +74,6 @@ export class TimeentryImportModal implements IUniModal {
             })
             .then((items: WorkItem[]) => {
                 this.workItems = items;
-                console.log(items);
                 this.fileChecked = true;
             });
     }

@@ -1,18 +1,30 @@
 <section class="activation-section">
-    <section *ngIf="!isTrialUser" class="contract-activated">
-        <i class="material-icons">check_circle</i>
+    <section *ngIf="!isDemoLicense" class="info-message">
+        <i class="material-icons good">check_circle</i>
         Kontrakt er allerede aktivert for dette selskapet
     </section>
 
-    <section *ngIf="isTrialUser" class="form-container">
+    <section *ngIf="isDemoLicense && !canActivateContract" class="info-message">
+        <i class="material-icons bad">error</i>
+        Du har ikke tilgang til å aktivere kundeforhold.
+        Dette må gjøres av lisensadministrator.
+    </section>
+
+    <section *ngIf="wrongCompanyMessage" class="info-message">
+        <i class="material-icons bad">error</i>
+        {{wrongCompanyMessage}}
+        <a *ngIf="mainCompany" (click)="goToMainCompany()">{{mainCompany.Name}}</a>
+    </section>
+
+    <section *ngIf="isDemoLicense && canActivateContract && !wrongCompanyMessage" class="form-container">
         <h1>Aktivering av kundeforhold</h1>
 
-        <form #f="ngForm" [formGroup]="licenseData">
+        <form #f="ngForm" [formGroup]="licenseData" class="uni-html-form label-align-right label-sm">
             <label>
                 <span>Organisasjonsnummer</span>
-                <input type="text"
+                <input type="search"
                     formControlName="orgNumber"
-                    [ngClass]="{'no-brreg-match': noBrRegMatch}"
+                    [ngClass]="{'invalid': noBrRegMatch}"
                 />
             </label>
 
@@ -49,7 +61,7 @@
             </label>
 
             <fieldset>
-                <legend>Brukerinformasjon</legend>
+                <legend>Kontaktinformasjon</legend>
 
                 <label>
                     <span>Navn</span>
@@ -70,13 +82,16 @@
             <section class="submit-section">
                 <mat-checkbox formControlName="hasAcceptedTerms">
                     <span class="checkbox-label">
-                        Jeg har lest og godtar <a href="https://google.com" target="_blank" rel="noopener noreferrer">vilkår for bruk</a>.
+                        Jeg har lest og godtar
+                        <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" target="_blank" rel="noopener noreferrer">
+                            lisensavtale for Uni Economy
+                        </a>
                     </span>
                 </mat-checkbox>
 
                 <button
                     type="button"
-                    class="good rounded"
+                    class="good"
                     [attr.aria-busy]="busy"
                     [disabled]="!f.form.valid || noBrRegMatch"
                     (click)="activate()">

@@ -1,9 +1,8 @@
-import {Component, Output, EventEmitter, Input, SimpleChanges} from '@angular/core';
+import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {ElsaContractService} from '@app/services/elsa/elsaContractService';
-import {ElsaCompanyLicense} from '@app/models';
+import {ElsaCompanyLicense, ElsaCompanyLicenseStatus} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
-import * as moment from 'moment';
 
 @Component({
     selector: 'select-companies-for-bulk-access',
@@ -28,19 +27,15 @@ export class SelectCompaniesForBulkAccess {
     }
 
     private initData() {
-        this.elsaContractService.GetCompanyLicenses(this.data.contract.id).subscribe(
+        this.elsaContractService.getCompanyLicenses(this.data.contract.ID).subscribe(
             companyLicenses => {
                 companyLicenses = companyLicenses.filter(companyLicense => {
-                    if (companyLicense.endDate && moment(companyLicense.endDate).isValid()) {
-                        return moment(companyLicense.endDate).isAfter(moment());
-                    } else {
-                        return true;
-                    }
+                    return companyLicense.StatusCode === ElsaCompanyLicenseStatus.Active;
                 });
 
                 if (this.data.companies && this.data.companies.length) {
                     companyLicenses.forEach(license => {
-                        if (this.data.companies.some(c => c.companyKey === license.companyKey)) {
+                        if (this.data.companies.some(c => c.CompanyKey === license.CompanyKey)) {
                             license['_selected'] = true;
                         }
                     });

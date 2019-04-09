@@ -154,8 +154,8 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                                 data: {model: model, reportType: ReportTypeEnum.ORDER, entity: order, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(
-                                        email.model.selectedForm.Name,
+                                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerOrder',
+                                        email.model.selectedForm.ID,
                                         email.model.sendEmail,
                                         email.parameters
                                     );

@@ -26,7 +26,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
-    constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
+    constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         super.disableCache();
 
@@ -166,7 +166,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'PaymentID', 'JournalEntry.JournalEntryNumber',
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber',
-            'CurrencyCodeID', 'CurrencyCode.Code');
+            'CurrencyCodeID', 'CurrencyCode.Code',
+            'ReInvoiced');
         let route = '?model=SupplierInvoice' +
             '&select=' + flds +
             '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +

@@ -18,6 +18,7 @@ import {VideoMappingService} from '@app/services/services';
             <li (click)="goToTipsAndTricks()">Tips og triks</li>
             <li (click)="goToServiceDesk()">Kundesenter</li>
             <li (click)="goToAbout()">Versjonsinformasjon</li>
+            <li (click)="goToLicenseInfo()">Lisensinformasjon</li>
         </ul>
     `,
     styleUrls: ['./help.sass'],
@@ -55,5 +56,9 @@ export class UniTabstripHelp {
 
     goToAbout() {
         this.router.navigateByUrl('/about/versions');
+    }
+
+    goToLicenseInfo() {
+        this.router.navigateByUrl('/license-info');
     }
 }

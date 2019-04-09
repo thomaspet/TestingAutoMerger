@@ -16,9 +16,6 @@ import {Observable} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
-type HashMap<T> = {
-    [key: string]: T;
-};
 @Component({
     selector: 'salary-transaction-supplement-list',
     templateUrl: './salaryTransactionSupplementsList.html'
@@ -29,7 +26,6 @@ export class SalaryTransactionSupplementList implements OnInit {
 
     public model$: Observable<SalaryTransactionSupplement[]>;
     public tableConfig$: ReplaySubject<UniTableConfig>;
-    private transactions: SalaryTransaction[];
     public saveActions: IUniSaveAction[] = [{
         action: this.save.bind(this),
         disabled: true,
@@ -101,7 +97,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                 fromDate, toDate, runCol, amountCol, sumCol])
             .setSearchable(true)
             .setChangeCallback((event) => {
-                let row = event.rowModel;
+                const row = event.rowModel;
                 if (row.WageTypeSupplement) {
                     row['_isDirty'] = true;
                     this.saveActions[0].disabled = false;
@@ -131,7 +127,6 @@ export class SalaryTransactionSupplementList implements OnInit {
         return this.transObservable(payrollRunID, year)
             .switchMap((response: [SalaryTransaction[], number[]]) => {
                 const [transes, empIDs] = response;
-                this.transactions = transes;
                 return Observable.forkJoin(
                     Observable.of(transes),
                     this.employeeObservable(empIDs));
@@ -154,7 +149,8 @@ export class SalaryTransactionSupplementList implements OnInit {
                                 supplement['_Sum'] = trans.Sum;
                                 supplement['_Name'] = (wtSupp && (wtSupp.Description || wtSupp.Name));
                                 return supplement;
-                            }))
+                            })
+                            .filter(wtS => !!wtS.WageTypeSupplement && !wtS.WageTypeSupplement.Deleted))
                     .reduce((prev, curr, arr) => [...prev, ...curr], []);
             });
     }
@@ -175,7 +171,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                 , ['Supplements.WageTypeSupplement'])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .map((transes: SalaryTransaction[]) => {
-                    let empIDs = [];
+                    const empIDs = [];
                     return [
                         transes.filter(trans => trans.Supplements && trans.Supplements.length).map(trans => {
                             if (!empIDs.some(x => x === trans.EmployeeID)) {
@@ -190,7 +186,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                 , ['transactions.Supplements.WageTypeSupplement'])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .map((payrollRuns: PayrollRun[]) => {
-                    let empIDs: number[] = [];
+                    const empIDs: number[] = [];
                     return [
                         payrollRuns
                             .map(run => run.transactions)
@@ -206,7 +202,7 @@ export class SalaryTransactionSupplementList implements OnInit {
     }
 
     private save(done: (message: string) => void) {
-        let saveStatus: { started: number, completed: number, error: number } = {
+        const saveStatus: { started: number, completed: number, error: number } = {
             started: 0,
             completed: 0,
             error: 0
@@ -270,7 +266,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                     supplement.ValueString = value;
                     break;
                 case Valuetype.Period:
-                    let dates: Date[] = value.split('-').map(date => new Date(date));
+                    const dates: Date[] = value.split('-').map(date => new Date(date));
                     if (dates.length > 0) {
                         supplement.ValueDate = dates[0];
                         supplement.ValueDate2 = dates[0];

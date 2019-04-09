@@ -178,8 +178,8 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
                                 data: {model: model, reportType: ReportTypeEnum.QUOTE, entity: quote, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(
-                                        defaultQuoteReportForm.Name,
+                                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerQuote',
+                                        defaultQuoteReportForm.ID,
                                         email.model.sendEmail,
                                         email.parameters || parameters
                                     );

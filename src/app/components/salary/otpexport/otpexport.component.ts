@@ -12,7 +12,7 @@ import { ErrorService, CompanySalaryService, PayrollrunService } from '@app/serv
 import { CompanySalary, TypeOfPaymentOtp } from '@uni-entities';
 import { Router } from '@angular/router';
 import { OtpPeriodWagetypeModalComponent } from './otp-period-wagetype-modal/otp-period-wagetype-modal.component';
-import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
+import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 
 @Component({
   selector: 'uni-otpexport',
@@ -215,7 +215,6 @@ export class OTPExportComponent implements OnInit {
     const numberCol = new UniTableColumn('Ansattnummer', 'Ansattnr', UniTableColumnType.Number);
     const nameCol = new UniTableColumn('_Fulltnavn', 'Navn', UniTableColumnType.Text);
     const birthCol = new UniTableColumn('Fodselsnummer', 'Fødselsnummer', UniTableColumnType.Text);
-    const departmentCol = new UniTableColumn('Avdeling', 'Avdeling', UniTableColumnType.Text);
     const addressCol = new UniTableColumn('Adresselinje1', 'Adresse', UniTableColumnType.Text);
     const startdateCol = new UniTableColumn('Ansattdato', 'Ansattdato', UniTableColumnType.DateTime);
     const enddateCol = new UniTableColumn('Sluttdato', 'Sluttdato', UniTableColumnType.DateTime);
@@ -243,7 +242,7 @@ export class OTPExportComponent implements OnInit {
     });
     this.otpTableConfig = new UniTableConfig('salary.otpexport.data', false, true)
       .setColumns([
-        numberCol, nameCol, birthCol, departmentCol, addressCol, startdateCol, enddateCol, paymentformCol, yearwageCol,
+        numberCol, nameCol, birthCol, addressCol, startdateCol, enddateCol, paymentformCol, yearwageCol,
         employmentpercentCol, periodsalarySumCol, periodsalaryAmountCol, statusPensionCol
       ])
       .setSearchable(true);

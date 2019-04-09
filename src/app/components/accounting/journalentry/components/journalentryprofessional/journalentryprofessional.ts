@@ -471,7 +471,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean ) {
-        let returnValue: any = {
+        const returnValue: any = {
             type: ToastType.warn
         };
 
@@ -479,10 +479,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             // Dont do anything if user has more lines!
             if (!orgNumber || (this.journalEntryLines && this.journalEntryLines.length > 1)) {
                 if (showToastIfNotRan) {
-                    returnValue.msg = orgNumber
-                    ? 'Mangler organisasjonsnummer for å finne kontofoslag'
+                    returnValue.msg = !orgNumber
+                    ? 'Mangler organisasjonsnummer for å finne kontoforslag'
                     : 'Det er allerede manuelle konteringslinjer. Slett disse for å kjøre smart bokføring';
-                    // this.toastService.addToast('Kan ikke kjøre smart bokføring', ToastType.warn, 5, errorMessage);
                 }
                resolve(returnValue);
                return;
@@ -2348,7 +2347,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (payment) {
                     item.JournalEntryPaymentData.PaymentData = res;
                     this.table.updateRow(item['_originalIndex'], item);
-                    this.rowChanged();
                 }
             });
 
@@ -2482,11 +2480,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 this.toastService.addToast('Betaling',
                                     ToastType.good, 5, 'Betaling registrert');
                                 this.table.updateRow(item['_originalIndex'], item);
-                                this.rowChanged();
                             });
                         } else {
                             this.table.updateRow(item['_originalIndex'], item);
-                            this.rowChanged();
                         }
                     }
                 });
@@ -2937,6 +2933,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private rowChanged(event?) {
+        if (!event) {
+            return;
+        }
+
         if (event.newValue && event.newValue.CustomerID && event.newValue.StatusCode === StatusCode.InActive) {
             const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {

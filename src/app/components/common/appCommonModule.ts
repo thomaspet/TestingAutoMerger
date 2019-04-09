@@ -22,6 +22,7 @@ import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {UniAutomarkModal} from './reconciliation/ledgeraccounts/uniAutomarkModal';
+import {UniMarkingDetailsModal} from './reconciliation/ledgeraccounts/markingDetails';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
@@ -36,7 +37,6 @@ import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
-import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
@@ -95,6 +95,7 @@ import {
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
         UniAutomarkModal,
+        UniMarkingDetailsModal,
 
         ReminderSettings,
         UniReminderSettingsModal,
@@ -110,7 +111,6 @@ import {
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-        UniInfo,
         BrowserWarning,
         BookPaymentManualModal,
         VacationPaySettingsModal,
@@ -139,6 +139,7 @@ import {
         ApikeyLineModal,
         UniAutomarkModal,
         UniTimeModal,
+        UniMarkingDetailsModal,
         WorkitemTransferWizard
     ],
     exports: [
@@ -175,7 +176,6 @@ import {
 
         LinkMenu,
 
-        UniInfo,
         BrowserWarning,
 
         ApiKeyComponent,

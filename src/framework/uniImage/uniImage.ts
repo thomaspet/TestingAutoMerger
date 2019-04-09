@@ -112,6 +112,7 @@ export class UniImage {
     private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
+    private uniEconomyToken: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
     private lastUrlFailed: string = null;
@@ -159,6 +160,7 @@ export class UniImage {
             takeUntil(this.onDestroy$)
         ).subscribe(token => {
             this.token = token;
+            this.uniEconomyToken = this.authService.jwt;
             this.refreshFiles();
         });
     }
@@ -723,7 +725,7 @@ export class UniImage {
 
     private uploadFile(file) {
         const data = new FormData();
-        data.append('Token', this.token);
+        data.append('Token', this.uniEconomyToken);
         data.append('Key', this.activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);

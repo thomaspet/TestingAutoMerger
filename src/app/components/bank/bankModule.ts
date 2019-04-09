@@ -16,7 +16,7 @@ import {bankRoutes} from './bankRoutes';
 
 import {
     UniPaymentEditModal,
-    UniAutobankAgreementListModal,
+    UniBankListModal,
     MatchCustomerInvoiceManual,
     MatchSubAccountManualModal,
     MatchMainAccountModal
@@ -45,7 +45,7 @@ import {
     declarations: [
         BankComponent,
         UniPaymentEditModal,
-        UniAutobankAgreementListModal,
+        UniBankListModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchSubAccountManualModal,
@@ -53,7 +53,7 @@ import {
     ],
     entryComponents: [
         UniPaymentEditModal,
-        UniAutobankAgreementListModal,
+        UniBankListModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchSubAccountManualModal,

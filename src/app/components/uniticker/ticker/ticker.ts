@@ -34,7 +34,8 @@ import {
     FinancialYearService,
     CompanySettingsService,
     ReportDefinitionParameterService,
-    CustomDimensionService
+    CustomDimensionService,
+    WageTypeService
 } from '../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
@@ -129,7 +130,8 @@ export class UniTicker {
         private financialYearService: FinancialYearService,
         private companySettingsService: CompanySettingsService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private wageTypeService: WageTypeService,
     ) {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             this.publicParams = urlParams;
@@ -944,8 +946,32 @@ export class UniTicker {
                         col.template = (rowModel) => EmploymentStatuses.workingHoursSchemeToText(rowModel[column.Alias]);
                     }
 
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.shiptype')) {
+                        col.template = (rowModel) => EmploymentStatuses.shipTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.shipreg')) {
+                        col.template = (rowModel) => EmploymentStatuses.shipRegToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.tradearea')) {
+                        col.template = (rowModel) => EmploymentStatuses.tradeAreaToText(rowModel[column.Alias]);
+                    }
+
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employeeleave.leavetype')) {
                         col.template = (rowModel) => this.employeeLeaveService.leaveTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.taxtype')) {
+                        col.template = (rowModel) => this.wageTypeService.getNameForTaxType(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.specialtaxandcontributionsrule')) {
+                        col.template = (rowModel) => this.wageTypeService.getNameForSpecialTaxAndContributionRule(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.standardwagetypefor')) {
+                        col.template = (rowModel) => this.wageTypeService.GetNameForStandardWageTypeFor(rowModel[column.Alias]);
                     }
                 }
 
@@ -1397,9 +1423,23 @@ export class UniTicker {
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
                 this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
-                    .subscribe((blob) => {
+                    .subscribe((result) => {
+                        let filename = '';
+                        // Get filename with filetype from headers
+                        if (result.headers) {
+                            const fromHeader = result.headers.get('content-disposition');
+                            if (fromHeader) {
+                                filename = fromHeader.split('=')[1];
+                            }
+                        }
+
+                        if (!filename || filename === '') {
+                            filename = 'export.xlsx';
+                        }
+
+                        const blob = new Blob([result._body], { type: 'text/csv' });
                         // download file so the user can open it
-                        saveAs(blob, 'export.xlsx');
+                        saveAs(blob, filename);
                     },
                     err => this.errorService.handle(err));
 

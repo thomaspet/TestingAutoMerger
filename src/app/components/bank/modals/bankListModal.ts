@@ -1,29 +1,31 @@
-import {Component, Input, Output, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {
     UniModalService,
     IModalOptions,
     IUniModal,
     UniConfirmModalV2,
-    ConfirmActions,
-    UniAutobankAgreementModal
+    ConfirmActions
 } from '@uni-framework/uni-modal';
 import {BankService} from '@app/services/accounting/bankService';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {FileService} from '@app/services/services';
+import {saveAs} from 'file-saver';
+
 @Component({
     selector: 'uni-autobank-agreement-list-modal',
     styles: [`.material-icons { line-height: 2; cursor: pointer}`],
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>Mine autobankavtaler</h1></header>
+            <header><h1>{{ options?.header }}</h1></header>
 
             <article>
                 <ag-grid-wrapper
                     class="transquery-grid-font-size"
-                    *ngIf="agreements"
+                    *ngIf="tableData"
                     [config]="tableConfig"
-                    [resource]="agreements">
+                    [resource]="tableData">
                 </ag-grid-wrapper>
             </article>
 
@@ -34,7 +36,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
     `
 })
 
-export class UniAutobankAgreementListModal implements IUniModal, OnInit {
+export class UniBankListModal implements IUniModal, OnInit {
 
     @Input()
     public options: IModalOptions = {};
@@ -42,25 +44,26 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
-    private table: AgGridWrapper;
-
-    public agreements: any[];
+    public tableData: any[];
     tableConfig: UniTableConfig = this.getTableConfig();
 
     constructor(
         private modalService: UniModalService,
-        private bankService: BankService
+        private bankService: BankService,
+        private fileService: FileService,
+        private toastService: ToastService
     ) { }
 
     public ngOnInit() {
-        if (this.options &&  this.options.data) {
-            this.options.data.agreements.forEach((item) => {
-                item.deleteTagged = false;
-            });
-
-            this.agreements = this.options.data.agreements;
+        switch (this.options.listkey) {
+            case 'FILE':
+                this.tableConfig = this.getFileTableConfig();
+                break;
+            case 'AGREEMENT':
+                this.tableConfig = this.getTableConfig();
+                break;
         }
+        this.tableData = this.options.list;
     }
 
     public getStatusText(code: number) {
@@ -108,6 +111,32 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
         return new UniTableConfig('autobank_agreement_list_modal', false, true, 15)
             .setColumns([ bankNameCol, emailCol, manualCol, inCol, outCol, statusCol ])
             .setColumnMenuVisible(false);
+    }
+
+    private getFileTableConfig() {
+        const bankNameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
+        const emailCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
+        const manualCol = new UniTableColumn('CreatedAt', 'Dato', UniTableColumnType.LocalDate);
+        const inCol = new UniTableColumn('', '', UniTableColumnType.Link)
+            .setLinkClick((file) => {
+                this.downloadFile(file);
+            })
+            .setAlignment('center')
+            .setTemplate(row => 'Last ned fil');
+
+        return new UniTableConfig('autobank_agreement_list_modal', false, true, 15)
+            .setColumns([ bankNameCol, emailCol, manualCol, inCol ])
+            .setColumnMenuVisible(false);
+    }
+
+    public downloadFile(file: any) {
+        this.fileService.downloadFile(file.ID, 'application/xml').subscribe((blob) => {
+            saveAs(blob, file.Name);
+        }, err => {
+            this.toastService.addToast('Noe gikk galt', ToastType.bad, ToastTime.medium,
+            'Kunne ikke laste ned fil. Prøv å last ned på nytt. Om feilen vedvarer, ta kontakt med Uni Micro kundeservice');
+            console.log(err);
+        });
     }
 
     // Not implemented yet in view

@@ -22,7 +22,9 @@ export class SelectLicenseForBulkAccess {
     ) {}
 
     ngOnInit() {
-        this.elsaCustomersService.GetAll().subscribe(
+        this.elsaCustomersService.getAll('Contracts').subscribe(res => console.log(res));
+
+        this.elsaCustomersService.getAll('Contracts').subscribe(
             (customers: ElsaCustomer[]) => {
                 this.customers = customers;
             },
@@ -31,10 +33,10 @@ export class SelectLicenseForBulkAccess {
     }
 
     selectContract(contract: ElsaContract) {
-        this.selectedContractID = contract.id;
+        this.selectedContractID = contract.ID;
 
         const selectedCustomer = this.customers.find(customer => {
-            return customer.contracts && customer.contracts.some(c => c.id === contract.id);
+            return customer.Contracts && customer.Contracts.some(c => c.ID === contract.ID);
         });
 
         this.data.customer = selectedCustomer;

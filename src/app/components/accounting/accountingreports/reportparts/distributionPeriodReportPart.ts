@@ -31,6 +31,8 @@ export class DistributionPeriodData {
     public amountPeriodYear2: number;
     public budgetPeriodYear1?: number;
     public budgetPeriodYear2?: number;
+    public balance1?: string;
+    public balance2?: string;
 }
 
 export class Period {
@@ -109,7 +111,8 @@ export class DistributionPeriodReportPart implements OnChanges {
         private errorService: ErrorService,
         private budgetService: BudgetService,
         private modalService: UniModalService,
-        private router: Router
+        private router: Router,
+        private numberFormatService: NumberFormat
     ) {
         document.onkeydown = (e) => {
             if (e.keyCode === 16) {
@@ -274,17 +277,8 @@ export class DistributionPeriodReportPart implements OnChanges {
                     });
                 }
 
-                // set real amounts based on feedback from API
-                periodDataUnordered.forEach((item) => {
-                    const periodData = distributionPeriodData.find(x => x.periodNo === item.PeriodNo);
-                    if (periodData) {
-                        if (item.PeriodAccountYear === this.accountYear1) {
-                            periodData.amountPeriodYear1 = !this.doTurnAmounts ? item.SumAmount : item.SumAmount * -1;
-                        } else {
-                            periodData.amountPeriodYear2 = !this.doTurnAmounts ? item.SumAmount : item.SumAmount * -1;
-                        }
-                    }
-                });
+                let totalEachMonth1 = 0;
+                let totalEachMonth2 = 0;
 
                 if (this.includeIncomingBalance && data[1]) {
                     const incomingBalanceDistributionData = {
@@ -295,11 +289,31 @@ export class DistributionPeriodReportPart implements OnChanges {
                             : data[1].Data[0].SumIBPeriod1 * -1,
                         amountPeriodYear2: !this.doTurnAmounts
                             ? data[1].Data[0].SumIBPeriod2
-                            : data[1].Data[0].SumIBPeriod2 * -1
+                            : data[1].Data[0].SumIBPeriod2 * -1,
+                        balance1: this.numberFormatService.asMoney(data[1].Data[0].SumIBPeriod1),
+                        balance2: this.numberFormatService.asMoney(data[1].Data[0].SumIBPeriod2)
                     };
 
                     distributionPeriodData.unshift(incomingBalanceDistributionData);
+                    totalEachMonth1 = data[1].Data[0].SumIBPeriod1;
+                    totalEachMonth2 = data[1].Data[0].SumIBPeriod2;
                 }
+
+                // set real amounts based on feedback from API
+                periodDataUnordered.forEach((item) => {
+                    const periodData = distributionPeriodData.find(x => x.periodNo === item.PeriodNo);
+                    if (periodData) {
+                        if (item.PeriodAccountYear === this.accountYear1) {
+                            totalEachMonth1 += item.SumAmount;
+                            periodData.amountPeriodYear1 = !this.doTurnAmounts ? item.SumAmount : item.SumAmount * -1;
+                            periodData.balance1 = this.numberFormatService.asMoney(totalEachMonth1);
+                        } else {
+                            totalEachMonth2 += item.SumAmount;
+                            periodData.amountPeriodYear2 = !this.doTurnAmounts ? item.SumAmount : item.SumAmount * -1;
+                            periodData.balance2 = this.numberFormatService.asMoney(totalEachMonth2);
+                        }
+                    }
+                });
 
                 const sumDistributionData = {
                     periodNo: 13,

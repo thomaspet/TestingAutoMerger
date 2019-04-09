@@ -1,37 +1,50 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {ElsaCompanyLicense, ElsaContract} from '@app/models';
+import {ElsaCompanyLicense, ElsaContract, ElsaContractType} from '@app/models';
 
 
 @Injectable()
 export class ElsaContractService {
     constructor(private uniHttp: UniHttp) {}
 
-    public Get(id: number): Observable<ElsaContract> {
+    public get(id: number): Observable<ElsaContract> {
         return this.uniHttp
             .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/contracts/${id}`)
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${id}`)
             .send()
             .map(req => req.json());
     }
 
-    public GetAll(): Observable<ElsaContract[]> {
+    public getAll(): Observable<ElsaContract[]> {
         return this.uniHttp
             .asGET()
-            .usingElsaDomain()
-            .withEndPoint('/api/contracts')
+            .usingEmptyDomain()
+            .withEndPoint('/api/elsa/contracts')
             .send()
             .map(req => req.json());
     }
 
-    public GetCompanyLicenses(contractId: number): Observable<ElsaCompanyLicense[]> {
+    public getCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
         return this.uniHttp
             .asGET()
-            .usingElsaDomain()
-            .withEndPoint(`/api/contracts/${contractId}/companylicenses`)
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses`)
             .send()
-            .map(req => req.json());
+            .map(res => res.json());
+    }
+
+    activateContract(contractID: number, isBureau: boolean = false) {
+        let endpoint = `/api/elsa/contracts/${contractID}?action=activate`;
+        if (isBureau) {
+            endpoint += `&ContractType=${ElsaContractType.Bureau}`;
+        }
+
+        return this.uniHttp
+            .asPUT()
+            .usingEmptyDomain()
+            .withEndPoint(endpoint)
+            .send();
     }
 }

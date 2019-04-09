@@ -1,0 +1,16 @@
+<section class="no-companies" *ngIf="companies?.length === 0">
+    Ingen selskaper å vise. Det er kun lisensadministratorer som har tilgang
+    til å se hvilke selskaper som inngår i en lisens.
+</section>
+
+<ng-container *ngIf="companies?.length">
+    <input type="search" placeholder="Søk" [(ngModel)]="searchValue" (ngModelChange)="filterItems()">
+
+    <cdk-virtual-scroll-viewport itemSize="56" class="list-container">
+        <section class="list-row" *cdkVirtualFor="let license of filteredCompanies">
+            <span>{{license.CompanyName}}</span>
+            <span>{{license['_orgNumberText']}}</span>
+            <!-- <i class="material-icons menu-toggle">more_vert</i> -->
+        </section>
+    </cdk-virtual-scroll-viewport>
+</ng-container>

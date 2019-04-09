@@ -25,7 +25,7 @@ import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
-import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
+import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 import { switchMap } from 'rxjs/operators';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
@@ -173,6 +173,8 @@ export class VariablePayrollsComponent {
 
         this.loading = true;
         this.selectedPayrollrun.transactions = [...createguidOnDimensionsAndSupplements, ...this.deletedLines];
+
+        this.selectedPayrollrun.transactions.forEach(trans => trans.EmploymentID = trans.EmploymentID || 0);
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
@@ -528,7 +530,7 @@ export class VariablePayrollsComponent {
                     this.checkDates(row);
                 }
 
-                if ((event.field === 'Wagetype' || event.field === 'employment')) {
+                if ((event.field === 'Wagetype' || event.field === 'employment') || (event.field === '_employee' && row.Wagetype)) {
                     obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
                 }
 

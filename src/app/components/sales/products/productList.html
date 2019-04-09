@@ -4,9 +4,10 @@
 </uni-toolbar>
 
 <section class="application">
-    <uni-table
+    <ag-grid-wrapper
+        class="transquery-grid-font-size"
         [resource]="lookupFunction"
         [config]="productTable"
-        (rowSelected)="onRowSelected($event)">
-    </uni-table>
+        (rowClick)="onRowSelected($event)">
+    </ag-grid-wrapper>
 </section>

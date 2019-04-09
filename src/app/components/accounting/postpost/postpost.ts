@@ -1,4 +1,4 @@
-import {ViewChild, Component, HostListener} from '@angular/core';
+import {ViewChild, Component} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -11,7 +11,7 @@ import {exportToFile, arrayToCsv} from '../../common/utils/utils';
 import {Observable} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
 import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
-import {StatisticsService, NumberFormat} from '../../../services/services';
+import {StatisticsService, NumberFormat, PageStateService} from '../../../services/services';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
@@ -36,6 +36,8 @@ export class PostPost {
     ];
 
     currentFilter: string = 'OPEN';
+
+    activeIndex: number = 0;
     tabs: IUniTab[] = [
         {
             name: 'Åpne poster',
@@ -50,6 +52,17 @@ export class PostPost {
         }
     ];
 
+    mainTabs: IUniTab[] = [
+        {name: 'Alle', value: 'EVERY', hidden: false},
+        {name: 'Alle med åpne poster', value: 'ALL', hidden: false},
+        {
+            name: `Differanser`,
+            value: 'DIFF',
+            hidden: true,
+            tooltip: 'Differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
+        }
+    ];
+
     accountListfilters = [
         { name: 'Kontonummer', value: 'AccountNumber', multiplier: 1, initialMulitplier: 1 },
         { name: 'Navn', value: 'AccountName', multiplier: 1, initialMulitplier: 1 },
@@ -58,10 +71,10 @@ export class PostPost {
     ];
 
     currentListFilter = this.accountListfilters[0];
-
-    mainTabs: IUniTab[] = [];
-    currentTab: IUniTab;
+    mainActiveIndex: number = 0;
     accountSearchFilterString: string = '';
+    postSearchFilterString: string = '';
+    nameFromParams: string = '';
     searchControl: FormControl = new FormControl('');
     scrollbar: PerfectScrollbar;
     activeAccount: number = 0;
@@ -77,6 +90,7 @@ export class PostPost {
     accountSearch: IAutoCompleteConfig;
     registerConfig: any;
     autolocking: boolean = true;
+    initial: boolean = true;
     private canceled: boolean = false;
     private ledgerEmitValue: LedgerTableEmitValues = LedgerTableEmitValues.InitialValue;
     private register: string = 'customer';
@@ -87,36 +101,65 @@ export class PostPost {
         private statisticsService: StatisticsService,
         private route: ActivatedRoute,
         private router: Router,
+        private pageStateService: PageStateService,
         public numberFormatService: NumberFormat
     ) {
+        this.route.queryParams.subscribe((params) => {
+            this.initial = true;
+            this.register = params['register'] || this.register;
+
+            // Fetch values from params
+            this.nameFromParams = params['name'] || '';
+            this.accountSearchFilterString = params['search'] || '';
+            this.postSearchFilterString = params['postsearch'] || '';
+            this.activeIndex = params['tabindex'] || 0;
+
+            if (this.activeIndex > this.tabs.length) {
+                this.activeIndex = 0;
+            }
+
+            // Set current filter for posts
+            this.currentFilter = this.tabs[this.activeIndex].value;
+
+            this.checkForDiff().then((hideDiff: boolean) => {
+
+                // Hide/show correct tabs
+                this.mainTabs[2].hidden = hideDiff;
+                this.mainTabs[1].hidden = this.register === 'account';
+                this.mainTabs = [...this.mainTabs];
+
+                // Wait for the tab update before settings mainTabIndex. Check that the number is not corrupt (to big)
+                this.mainActiveIndex = (params['maintabindex'] < this.mainTabs.length) ? params['maintabindex'] || 0 : 0;
+
+                this.setupShareActions();
+                this.setupToolbarConfig();
+                this.setupRegisterConfig();
+                this.reloadRegister();
+                this.setupSaveActions();
+                this.addTab();
+
+                setTimeout(() => {
+                    this.initial = false;
+                }, 500);
+            });
+        });
+    }
+
+    public addTab() {
+        this.pageStateService.setPageState('register', this.register);
+        this.pageStateService.setPageState('name', this.nameFromParams);
+        this.pageStateService.setPageState('search', this.accountSearchFilterString);
+        this.pageStateService.setPageState('postsearch', this.postSearchFilterString);
+        this.pageStateService.setPageState('tabindex', this.activeIndex.toString());
+        this.pageStateService.setPageState('maintabindex', this.mainActiveIndex.toString());
 
         this.tabService.addTab({
-            url: '/accounting/postpost',
+            url: this.pageStateService.getUrl(),
             name: 'Åpne poster',
             active: true,
             moduleID: UniModules.PostPost
         });
 
-        this.route.queryParams.subscribe((params) => {
-
-            const mode = params['mode'];
-            let toolbarModeString = 'Kunder';
-
-            this.accountSearchFilterString = params['name'] || '';
-
-            if (mode && mode !== 'kunder') {
-                this.register = mode === 'kontoer' ? 'account' : 'supplier';
-                toolbarModeString = mode === 'kontoer' ? 'Leverandører' : 'Hovedbok';
-            }
-
-            this.setMainTabs(mode || 'kunder');
-            this.checkForDiff();
-            this.setupShareActions();
-            this.setupToolbarConfig(toolbarModeString);
-            this.setupRegisterConfig();
-            this.reloadRegister();
-            this.setupSaveActions();
-        });
     }
 
     public ngOnInit() {
@@ -126,8 +169,14 @@ export class PostPost {
                 this.filteredAccounts = this.getFilteredAccounts();
                 setTimeout(() => {
                     this.scrollbar.update();
+                    this.addTab();
                 });
             });
+    }
+
+    public postpostSearchUpdated(searchString) {
+        this.postSearchFilterString = searchString;
+        this.addTab();
     }
 
     public checkForSaveKey(event) {
@@ -165,29 +214,7 @@ export class PostPost {
             });
     }
 
-    private setMainTabs(name: string, hidden: boolean = true) {
-        this.mainTabs = [ {name: 'Alle ' +  name + ' med åpne poster', value: 'ALL'} ];
-
-        if (name !== 'kontoer') {
-            this.mainTabs.unshift({name: 'Alle ' + name, value: 'EVERY'});
-        }
-
-        if (!hidden) {
-            this.mainTabs.push(
-                {
-                    name: `${(name.substr(0, 1).toUpperCase()) + (name.substr(1, name.length - 1))} med differanse`,
-                    value: 'DIFF',
-                    hidden: hidden,
-                    tooltip: 'Kunder som har differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
-                }
-            );
-        }
-        if (!this.currentTab) {
-            this.currentTab = this.mainTabs[0];
-        }
-    }
-
-    public goToAccount(event, id: number) {
+    public goToAccount(event, id: number, number?: number) {
         event.stopPropagation();
         switch (this.register) {
             case 'customer':
@@ -197,7 +224,7 @@ export class PostPost {
                 this.router.navigateByUrl(`/accounting/suppliers/${id}`);
                 break;
             case 'account':
-                this.router.navigateByUrl(`/accounting/accountsettings`);
+                this.router.navigateByUrl(`/accounting/accountquery?account=${number}`);
                 break;
         }
     }
@@ -285,8 +312,6 @@ export class PostPost {
         });
     }
 
-
-
     public autoMarkAll(done: (message: string) => void = msg => {}) {
         this.modalService.open(UniAutomarkModal, {
             data: {
@@ -365,7 +390,17 @@ export class PostPost {
         });
     }
 
-    private getFilteredAccounts() {
+    private getFilteredAccounts(isInit: boolean = false) {
+
+        let index = 0;
+
+        if (isInit && this.nameFromParams && this.accounts.length > 100) {
+            index = this.accounts.findIndex(acc => acc.AccountName === this.nameFromParams);
+            if ((index + 100) > this.accounts.length) {
+                index = this.accounts.length - 100;
+            }
+        }
+
         // Let user search for smaller/bigger than SumAmount by starting querystring with < or > and then a number..
         if (this.accountSearchFilterString.startsWith('>')) {
             const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
@@ -388,16 +423,21 @@ export class PostPost {
                 || account.AccountNumber.toString().includes(this.accountSearchFilterString.toLowerCase())) {
                 return account;
             }
-        }).slice(0, 100);
+        }).slice(index > -1 ? index : 0, index + 100);
     }
 
     private compare(propName, rev) {
         return (a, b) => a[propName] === b[propName] ? 0 : a[propName] < b[propName] ? (-1 * rev) : (1 * rev);
     }
 
-    private setupToolbarConfig(register: string = '') {
+    private setupToolbarConfig() {
+        const reg = this.registers.find(r => r.Register === this.register);
+        let title = 'Åpne poster';
+        if (reg) {
+            title += ` - ${reg._DisplayName}`;
+        }
         this.toolbarconfig = {
-            title: 'Åpne poster - ' + register,
+            title: title,
             contextmenu: [],
         };
     }
@@ -423,6 +463,7 @@ export class PostPost {
                 this.activeAccount = event.ID;
                 this.activeSubAccountID = event.SubAccountID;
                 const account = event;
+                this.nameFromParams = account.AccountName;
                 this.current$.next(account);
                 switch (this.register) {
                     case 'customer':
@@ -435,6 +476,7 @@ export class PostPost {
                         this.account$.next(account);
                         break;
                 }
+                this.addTab();
             } else {
                 this.canceled = true;
             }
@@ -442,13 +484,18 @@ export class PostPost {
     }
 
     public onFilterClick(tab: IUniTab) {
-        this.postpost.showHideEntries(tab.value);
         this.currentFilter = tab.value;
+        this.postpost.showHideEntries(this.currentFilter);
+        this.addTab();
         this.setupSaveActions();
     }
 
     public onCustomerFilterClick(tab: IUniTab) {
-        this.currentTab = tab;
+        // Dont run if tab is activated from param value. Causes double calles to reloadRegister!
+        if (this.initial) {
+            return;
+        }
+        this.addTab();
         this.reloadRegister();
     }
 
@@ -469,34 +516,63 @@ export class PostPost {
         return '';
     }
 
-    private checkForDiff() {
-         if (this.register === 'account') {
-            this.setMainTabs('kontoer', true);
-        } else {
-            this.statisticsService.GetAll(
-                'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
-                'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,count(ID) as count,' +
-                'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
-                `,SubAccount.id as SubAccountID&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id gt 0&top=` +
-                '&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
-                    this.setMainTabs((this.register === 'customer' ? 'kunder' : 'leverandører'),
-                    !(res && res.Data && res.Data.length));
-                }) ;
+    public setAccount() {
+        if (this.filteredAccounts.length) {
+            if (this.nameFromParams) {
+                const index = this.filteredAccounts.findIndex(acc => acc.AccountName === this.nameFromParams);
+                if (index !== -1) {
+                    this.onRowSelected(this.filteredAccounts[index]);
+                    setTimeout(() => {
+                        const list = document.getElementById('role-info');
+                        const listElement = document.getElementsByClassName('selected')[0];
+                        list.scrollTop = listElement['offsetTop'];
+                    });
+                } else {
+                    this.onRowSelected(this.filteredAccounts[0]);
+                }
+            } else {
+                this.onRowSelected(this.filteredAccounts[0]);
+            }
         }
+        this.scrollbar.update();
+    }
+
+    private checkForDiff() {
+        return new Promise((resolve, reject) => {
+            if (this.register === 'account') {
+                resolve(true);
+            } else {
+                this.statisticsService.GetAll(
+                    'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
+                    'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,count(ID) as count,' +
+                    'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
+                    `,SubAccount.id as SubAccountID&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id ` +
+                    'gt 0&top=&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
+                        if (res && res.Data && res.Data.length) {
+                            resolve(false);
+                        } else {
+                            resolve(true);
+                        }
+                    }, err => {
+                        resolve(true);
+                    });
+            }
+        });
     }
 
     private loadCustomers() {
-        const query = this.currentTab.value !== 'DIFF'
+        const query = this.mainTabs[this.mainActiveIndex].value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
                 `filter=SubAccount.CustomerID gt 0 ` +
-                (this.currentTab.value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
+                (this.mainTabs[this.mainActiveIndex].value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,count(ID) as count,` +
-                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as ` +
+                `SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 'expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&' +
                 `filter=SubAccountid gt 0 and subaccount.customerid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
@@ -504,26 +580,24 @@ export class PostPost {
         this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts = accounts;
-                this.filteredAccounts = this.getFilteredAccounts();
-                if (this.filteredAccounts.length) {
-                    this.onRowSelected(this.filteredAccounts[0]);
-                }
-                this.scrollbar.update();
+                this.filteredAccounts = this.getFilteredAccounts(true);
+                this.setAccount();
             });
     }
 
     private loadSuppliers() {
-        const query = this.currentTab.value !== 'DIFF'
+        const query = this.mainTabs[this.mainActiveIndex].value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
                 `filter=SubAccount.SupplierID gt 0 ` +
-                (this.currentTab.value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
+                (this.mainTabs[this.mainActiveIndex].value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,count(ID) as count,` +
-                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) ` +
+                `as SumAmount,sum(Amount) as Balance,SubAccount.id as SubAccountID&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
                 `filter=SubAccountid gt 0 and subaccount.supplierid gt 0&` +
                 'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
@@ -531,32 +605,25 @@ export class PostPost {
         this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts = accounts;
-                this.filteredAccounts = this.getFilteredAccounts();
-                if (this.filteredAccounts.length) {
-                    this.onRowSelected(this.filteredAccounts[0]);
-                }
-                this.scrollbar.update();
+                this.filteredAccounts = this.getFilteredAccounts(true);
+                this.setAccount();
             });
     }
 
     private loadAccounts() {
-        this.statisticsService.GetAllUnwrapped
-        (`model=JournalEntryLine&` +
+        this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine&` +
         `select=Account.ID as ID,Account.AccountNumber as AccountNumber,count(ID) as count,` +
         `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&expand=Account&` +
-        `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()}` +
+        `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 and (StatusCode eq 31001 or StatusCode eq 31002)` +
         `&orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts = accounts;
-                this.filteredAccounts = this.getFilteredAccounts();
-                if (this.filteredAccounts.length) {
-                    this.onRowSelected(this.filteredAccounts[0]);
-                }
-                this.scrollbar.update();
+                this.filteredAccounts = this.getFilteredAccounts(true);
+                this.setAccount();
             });
     }
 
-    private reloadRegister() {
+    public reloadRegister() {
         switch (this.register) {
             case 'customer':
                 this.loadCustomers();
@@ -571,27 +638,39 @@ export class PostPost {
     }
 
     public changeRegister(register) {
-            this.register = register;
-            switch (this.register) {
-                case 'customer':
-                    this.setupToolbarConfig('Kunder');
+        this.register = register;
+        this.mainActiveIndex = 0;
+        this.mainTabs[1].hidden = this.register === 'account';
+        this.addTab();
+        this.setupToolbarConfig();
+
+        switch (this.register) {
+            case 'customer':
+                this.checkForDiff().then((res: boolean) => {
+                    this.mainTabs[2].hidden = res;
+                    this.mainTabs = [...this.mainTabs];
                     this.supplier$.next(null);
                     this.account$.next(null);
                     this.loadCustomers();
-                    break;
-                case 'supplier':
-                    this.setupToolbarConfig('Leverandører');
+                });
+                break;
+            case 'supplier':
+                this.checkForDiff().then((res: boolean) => {
+                    this.mainTabs[2].hidden = res;
+                    this.mainTabs = [...this.mainTabs];
                     this.customer$.next(null);
                     this.account$.next(null);
                     this.loadSuppliers();
-                    break;
-                case 'account':
-                this.setupToolbarConfig('Hovedbok');
-                    this.customer$.next(null);
-                    this.supplier$.next(null);
-                    this.loadAccounts();
-                    break;
-            }
-            this.checkForDiff();
+                });
+                break;
+            case 'account':
+                this.mainTabs[1].hidden = true;
+                this.mainTabs[2].hidden = true;
+                this.mainTabs = [...this.mainTabs];
+                this.customer$.next(null);
+                this.supplier$.next(null);
+                this.loadAccounts();
+                break;
+        }
     }
 }

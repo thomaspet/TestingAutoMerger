@@ -5,6 +5,8 @@
         mode="indeterminate">
     </mat-progress-bar>
 
+    <input type="search" [(ngModel)]="searchValue" [formControl]="searchControl" style="margin-bottom: 1rem; width: 250px;" placeholder="Søk i poster"/>
+
     <table class="uni-table postpost-single-table" *ngIf="uniTableConfig">
         <thead>
             <tr>
@@ -27,8 +29,8 @@
                 <td *ngFor="let col of getVisibleFields()"
                     [ngClass]="col.conditionalCls ? col.conditionalCls(row) : col.cls ? col.cls : ''">
 
-                    <span *ngIf="!col.template" (click)="onLinkClick(col, row)"> {{ row[col.field] }} </span>
-                    <span *ngIf="col.template"> {{ col.template(row) }} </span>
+                    <span *ngIf="!col.template" (click)="onLinkClick(col, row)" title="{{ row[col.field] }}"> {{ row[col.field] }} </span>
+                    <span *ngIf="col.template" title="{{ col.template(row) }}"> {{ col.template(row) }} </span>
                 </td>
                 <td [matMenuTriggerFor]="contextMenu">
                     <ng-container>
@@ -47,7 +49,7 @@
             </tr>
         </tbody>
     </table>
-    <div class="postpost-pager" *ngIf="journalEntryLines?.length > uniTableConfig?.pageSize">
+    <div class="postpost-pager" *ngIf="filteredJournalEntryLines?.length > uniTableConfig?.pageSize">
         <span> <i class="material-icons" (click)="onPageChange('first')"> first_page </i> </span>
         <span> <i class="material-icons" (click)="onPageChange('prev')"> chevron_left </i> </span>
         <span class="page-indicator"> Side {{ page }} av {{ getNumberOfPages() }} </span>

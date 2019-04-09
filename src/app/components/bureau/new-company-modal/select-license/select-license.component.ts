@@ -43,7 +43,7 @@ export class SelectLicenseComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.elsaCustomersService.GetAll().subscribe(
+        this.elsaCustomersService.getAll('Contracts').subscribe(
             (customers: ElsaCustomer[]) => this.customers = customers,
             err => this.errorService.handle(err),
         );

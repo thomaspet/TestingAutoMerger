@@ -1,6 +1,5 @@
 .input-with-button
     display: inline-flex
-    // position: relative
     height: 36px
     background: #fff
     border: 1px solid #C3CAD9
@@ -14,18 +13,10 @@
     button
         flex: 0 0 auto
         height: 100%
-        // position: absolute
-        // top: 0
-        // right: 0
         color: rgba(0, 0, 0, 0.87)
-        // background-color: unset
         border: none
         border-left: 1px solid #C3CAD9
         border-radius: 0
-
-        // &:hover, &:focus, &[disabled]
-        //     background-color: unset !important
-            // color: #1565c0
 
 
 .uni-redesign .uni-html-form
@@ -36,10 +27,23 @@
 
         > span
             flex: 0 0 200px
-            margin: auto 0
+            margin: auto 1rem auto 0
 
-        input, textarea
+        input, textarea, select
             flex: 1
+            border: 1px solid #C3CAD9
+            border-radius: 2px
+            height: 36px
+
+            &.ng-touched.ng-invalid, &.invalid
+                border: 1px solid #F53B57
+
+
+        select
+            padding: 0 4px
+
+    &.label-align-right label > span
+        text-align: right
 
     // Label sizes
     &.label-xs label > span
@@ -63,6 +67,7 @@
         padding: 4rem 0 .5rem
 
         // Reset uniform styling
+        background: unset
         width: unset
         min-width: unset
         max-width: unset
