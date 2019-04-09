@@ -1389,12 +1389,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
-        this.saveActions.push({
-            label: 'Registrer betaling',
-            action: (done) => this.payInvoice(done),
-            disabled: !transitions || !transitions['pay'],
-            main: id > 0 && transitions['pay'] && !this.isDirty
-        });
+        if (this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
+            this.saveActions.push({
+                label: 'Registrer betaling',
+                action: (done) => this.payInvoice(done),
+                disabled: !transitions || !transitions['pay'],
+                main: id > 0 && transitions['pay'] && !this.isDirty
+            });
+        }
 
         this.saveActions.push({
             label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
