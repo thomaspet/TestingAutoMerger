@@ -30,7 +30,6 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
     currentPage: PAGE_TYPE = PAGE_TYPE.selectLicense;
 
     companyInfo = <CompanyInfo>{ companySettings: <CompanySettings>{ DefaultAddress: <Address>{} } };
-    contractID = 0;
     selectedProductsNames: string[] = [];
 
     busy = false;
@@ -90,7 +89,7 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
         this.companyService.createCompany(
             this.companyInfo.companySettings.CompanyName,
             this.companyInfo.companySettings,
-            this.contractID,
+            this.selectedContract.ID,
             this.selectedProductsNames.join()
         ).subscribe(
             (response: Company) => {
@@ -108,7 +107,10 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
                 }
                 this.onClose.emit(response);
             },
-            err => this.errorService.handle(err)
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 
