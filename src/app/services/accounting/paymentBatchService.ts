@@ -77,6 +77,17 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         return 'Ukjent status: ' + statusCode;
     }
 
+    public sendAllToPayment(model: any) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(model)
+            .withEndPoint('paymentbatches?action=create-and-send-all-to-payment')
+            .send()
+            .map(response => response.json());
+    }
+
     public SendToPayment(password: string, paymentBatchID: number): Observable<any> {
         super.invalidateCache();
         return this.http

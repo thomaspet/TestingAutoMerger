@@ -1,18 +1,16 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {
     ErrorService,
     PaymentBatchService
 } from '../../../../src/app/services/services';
 
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
+import {Subject} from 'rxjs';
 
 @Component({
     template: `
-        <section role="dialog" class="uni-modal uni-send-payment-modal">
+        <section role="dialog" class="uni-modal uni-send-payment-modal uni-redesign">
             <header>
                 <h1>{{options.header || 'Send med autobank'}}</h1>
             </header>
@@ -21,16 +19,26 @@ import {BehaviorSubject} from 'rxjs';
                     <i class="material-icons">phone_android</i>
                     <p> {{ fieldText }} </p>
                 </div>
-                <uni-form
-                    [config]="formConfig$"
-                    [fields]="formFields$"
-                    [model]="formModel$">
-                </uni-form>
+                <section class="uni-html-form bank-agreement-password-form">
+                    <label *ngIf="!isFirstStage">
+                        <span>Tilsendt kode</span>
+                        <input type="text" class="password" [(ngModel)]="model.Code">
+                    </label>
+                    <label *ngIf="isFirstStage">
+                        <span>Passord</span>
+                        <input type="text" class="password" [(ngModel)]="model.Password">
+                    </label>
+                </section>
+                <small *ngIf="msg" class="bad"> {{ msg }} </small>
+                <mat-progress-bar
+                    *ngIf="loading$ | async"
+                    class="uni-progress-bar"
+                    mode="indeterminate">
+                </mat-progress-bar>
             </article>
 
             <footer>
-                <span class="warn" *ngIf="isEmpty">Passordet kan ikke være tomt</span>
-                <button class="good" [disabled]="busy" (click)="onGoodClick()">{{ okButtonText }}</button>
+                <button class="good" [disabled]="!model.Password && !model.Code" (click)="onGoodClick()">{{ okButtonText }}</button>
                 <button class="bad" (click)="onBadClick()">Avbryt</button>
             </footer>
         </section>
@@ -43,15 +51,16 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<string> = new EventEmitter();
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-
-    public isEmpty: boolean;
-    public busy: boolean = false;
+    loading$: Subject<boolean> = new Subject();
     public isFirstStage: boolean = true;
     public okButtonText: string = 'Betale';
     public fieldText: string = 'Fyll inn passord.';
+    public msg: string = '';
+    public model: any = {
+        Password: '',
+        Code: '',
+        PaymentIds: []
+    };
 
     constructor(
         private toastService: ToastService,
@@ -65,25 +74,20 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
             this.okButtonText = 'Send passord';
             this.fieldText = 'Du har slått på 2-faktor autentisering. Vennligst skriv inn ditt valgte passord, så sender vi deg en kode.';
         }
-        this.formFields$.next(this.getFormFields());
-
-        const model: Object = {
-            Password: '',
-            Code: '',
-            PaymentIds: this.options.data.PaymentIds || []
-        };
-        this.formModel$.next(model);
+        this.model.PaymentIds = this.options.data.PaymentIds || [];
     }
 
     public onGoodClick() {
-        this.busy = true;
-        const model = this.formModel$.getValue();
-        if (model['Password']) {
+        this.msg = '';
+
+        if (this.model.Password) {
             if (this.isFirstStage) {
                 // Check if user has activated two stage authentification
                 if (this.options.data.hasTwoStage) {
+                    this.loading$.next(true);
+                    // TWO-FACTOR DOES NOT SUPPORT SENDALL ATM!
                     // Send password to the new action to start two stage authentification
-                    this.paymentBatchService.sendPasswordToTwoFactor(model['Password']).subscribe((result) => {
+                    this.paymentBatchService.sendPasswordToTwoFactor(this.model).subscribe((result) => {
                         // Code sent?
                        if (result) {
                            // Update modal to show stage 2 texts and form fields
@@ -92,56 +96,60 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                             this.fieldText = 'Vi har nå sendt en kode til nummeret du oppga da du tegnet autobank avtalen.' +
                                 ' Vennligst skriv inn kode for å fortsette.';
                             this.okButtonText = 'Fullfør betaling';
-                            this.formFields$.next(this.getFormFields(true));
-                            this.busy = false;
                        }
+                       this.loading$.next(false);
                     }, err => {
-                        this.busy = false;
+                        this.loading$.next(false);
                         this.errorService.handle(err);
                     });
                } else {
+                    this.loading$.next(true);
                    // Without two-stage authentification
-                   this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
-                       this.onClose.emit('Sendingen er fullført');
-                   }, err => {
-                    this.busy = false;
-                    this.errorService.handle(err);
-                });
+                    if (this.options.data.sendAll) {
+                        this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
+                            this.onClose.emit('Sendingen er fullført');
+                            this.loading$.next(false);
+                        }, err => {
+                            this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
+                            this.errorService.handle(err);
+                            this.loading$.next(false);
+                        });
+                    } else {
+                        this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
+                            this.loading$.next(false);
+                            this.onClose.emit('Sendingen er fullført');
+                        }, err => {
+                            this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
+                            this.errorService.handle(err);
+                            this.loading$.next(false);
+                        });
+                   }
                }
             } else {
                 // When user has written password and gotten code
                 // Check for code
-                if (model['Code']) {
+                if (this.model.Code) {
+                    this.loading$.next(true);
                     // Send PASSWORD, CODE and PAYMENTIDS as body
-                    this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
+                    this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
+                        this.loading$.next(false);
                         this.onClose.emit('Sendingen er fullført');
                     }, err => {
-                        this.busy = false;
+                        this.loading$.next(false);
                         this.errorService.handle(err);
                     });
                 } else {
                     // If code field is empty, show toast...
+                    this.msg = 'Koden kan ikke være tom';
                     this.toastService.addToast('Vennligst fyll inn koden', ToastType.bad, 5);
                 }
             }
         } else {
-            this.isEmpty = true;
-            this.busy = false;
+            this.msg = 'Fyll ut passord..';
         }
     }
 
     public onBadClick() {
         this.onClose.emit('Sending avbrutt');
-    }
-
-    private getFormFields(isStageTwo: boolean = false): UniFieldLayout[] {
-        return [
-            <any> {
-                EntityType: '',
-                Property: isStageTwo ? 'Code' : 'Password',
-                FieldType: FieldType.PASSWORD,
-                Label: isStageTwo ? 'Tilsendt kode' : 'Passord'
-            }
-        ];
     }
 }

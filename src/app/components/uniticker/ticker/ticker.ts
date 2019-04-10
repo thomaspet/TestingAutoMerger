@@ -1238,7 +1238,19 @@ export class UniTicker {
             });
         }
 
-        const config = new UniTableConfig(configStoreKey, false, true, this.groupingIsOn ? 100 : (this.ticker.Pagesize || 19))
+        let pageSize = window.innerHeight // Window size
+            - 144 // Form height
+            - 20 // Body margin and padding
+            - 32 // Application class margin
+            - 64 // Unitable pagination
+            - 91 // Unitable filter and thead
+            - 100; // Paddings and marings
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+        pageSize = pageSize > 6 ? pageSize : 6; // Lets keep a minumum of 6 rows
+
+
+        const config = new UniTableConfig(configStoreKey, false, true, this.groupingIsOn ? 100 : (this.ticker.Pagesize || pageSize))
             .setColumns(columns)
             .setEntityType(this.ticker.Model)
             .setAllowGroupFilter(true)

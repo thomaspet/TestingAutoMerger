@@ -70,6 +70,7 @@ export class AgGridWrapper {
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
+    public markedRowCount: number = 0;
     private configStoreKey: string;
     private agGridApi: GridApi;
     public rowModelType: 'clientSide' | 'infinite';
@@ -115,7 +116,9 @@ export class AgGridWrapper {
             .debounceTime(50)
             .subscribe((event: SelectionChangedEvent) => {
                 this.agGridApi.refreshHeader();
-                this.rowSelectionChange.emit(event.api.getSelectedRows());
+                const rows = event.api.getSelectedRows();
+                this.markedRowCount = rows ? rows.length : 0;
+                this.rowSelectionChange.emit(rows);
             });
 
         this.columnMoveDebouncer$
