@@ -422,7 +422,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             lastReinvoicing === null ? null : lastReinvoicing.Product,
             this.reinvoiceType === 0 ? this.supplierInvoice.TaxInclusiveAmount : this.supplierInvoice.TaxExclusiveAmount);
 
-        this.items = this.setInitialItemsData(lastReinvoicing === null ? null : lastReinvoicing.Product);
+        if (lastReinvoicing && lastReinvoicing.Product) {
+            this.items = this.setInitialItemsData(lastReinvoicing.Product);
+        } else {
+            const product = this.reinvoiceType === 0 ?
+                this.companyAccountSettings.ReInvoicingCostsharingProduct :
+                this.companyAccountSettings.ReInvoicingTurnoverProduct;
+            this.items = this.setInitialItemsData(product);
+        }
     }
 
     public setInitialCustomerData(reinvoice: ReInvoice | null, product: Product, totalAmount: number) {
@@ -439,6 +446,21 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             initialItem.Share = 100;
             return [initialItem];
         }
+
+        const vatType = product && product.VatType;
+        const today = moment(new Date());
+        let currentPercentage;
+        if (vatType && vatType.VatTypePercentages) {
+            currentPercentage =
+                vatType.VatTypePercentages.find(y =>
+                (moment(y.ValidFrom) <= today && y.ValidTo && moment(y.ValidTo) >= today)
+                || (moment(y.ValidFrom) <= today && !y.ValidTo));
+
+            if (currentPercentage) {
+                product.VatType.VatPercent = currentPercentage.VatPercent;
+            }
+        }
+        const vatPercent = (product.VatType && product.VatType.VatPercent) || 0;
 
         let copyOfItems = [new ReInvoiceItem()].concat(reinvoice.Items || []);
         copyOfItems[0].ID = 0;
@@ -458,22 +480,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             if (this.reinvoiceType === 1) {
                 item.NetAmount = UniMath.round(totalAmount * ((item && item.Share || 0) / 100));
                 const priceWithoutTaxes = (item && item.NetAmount || 0) * (1 + ((item && item.Surcharge || 0) / 100));
-                const vatType = product && product.VatType;
-                const today = moment(new Date());
-                const currentPercentage =
-                    vatType.VatTypePercentages.find(y =>
-                    (moment(y.ValidFrom) <= today && y.ValidTo && moment(y.ValidTo) >= today)
-                    || (moment(y.ValidFrom) <= today && !y.ValidTo));
-
-                if (currentPercentage) {
-                    product.VatType.VatPercent = currentPercentage.VatPercent;
-                }
-                const vatPercent = product.VatType.VatPercent;
                 item.Vat = UniMath.round(item.NetAmount * ((vatPercent || 0) / 100));
                 item.GrossAmount = UniMath.round(priceWithoutTaxes * (1 + (vatPercent / 100)));
             } else {
                 item.GrossAmount = UniMath.round(totalAmount * ((item && item.Share || 0) / 100));
-                item.NetAmount = UniMath.round(item.GrossAmount / (1 + (item && item.Share || 0) / 100));
+                item.NetAmount = UniMath.round(item.GrossAmount / (1 + (vatPercent || 0) / 100));
+                item.Vat = UniMath.round(item.NetAmount * ((vatPercent || 0) / 100));
             }
             return item;
         });
@@ -496,9 +508,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
             return [{
                 Product: product,
-                NetAmount: this.supplierInvoice.TaxExclusiveAmount,
+                NetAmount: this.calcItemNetAmount(),
                 VatType: product.VatType,
-                GrossAmount: this.supplierInvoice.TaxInclusiveAmount
+                GrossAmount: this.calcItemGrossAmount({
+                    NetAmount: this.calcItemNetAmount(),
+                    VatType: product.VatType
+                })
             }];
         } else {
             return [];
@@ -696,14 +711,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         let product;
         if (this.reinvoiceType === 0) {
             this.removeSurchargeAndVat();
-            this.updateItemsData(this.companyAccountSettings && this.companyAccountSettings.ReInvoicingCostsharingProduct);
             product = this.companyAccountSettings && this.companyAccountSettings.ReInvoicingCostsharingProduct;
             this.reinvoicingCustomers = this.setInitialCustomerData(this.currentReInvoice, product, this.supplierInvoice.TaxInclusiveAmount);
+            this.updateItemsData(this.companyAccountSettings && this.companyAccountSettings.ReInvoicingCostsharingProduct);
             this.onReinvoicingCustomerChange(null);
         } else {
-            this.updateItemsData(this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct);
             product = this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct;
             this.reinvoicingCustomers = this.setInitialCustomerData(this.currentReInvoice, product, this.supplierInvoice.TaxExclusiveAmount);
+            this.updateItemsData(this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct);
             this.onReinvoicingCustomerTurnOverChange(null);
         }
     }
@@ -763,6 +778,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         data[i].NetAmount = netAmount;
                         break;
                     case 'Share':
+                        data[i].Share = UniMath.round(data[i].Share);
                         data[i].GrossAmount = UniMath.round(total * ((data[i].Share || 0) / 100));
                         netAmount = UniMath.round(data[i].GrossAmount / (1 + vatPercent / 100));
                         data[i].NetAmount = netAmount;
@@ -815,11 +831,13 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         data[i].Share = UniMath.round(((data[i].NetAmount || 0) / total) * 100);
                         break;
                     case 'Share':
+                        data[i].Share = UniMath.round(data[i].Share);
                         data[i].NetAmount = UniMath.round(total * ((data[i].Share || 0) / 100));
                         data[i].Vat = UniMath.round((data[i].NetAmount * (1 + ((data[i].Surcharge / 100) || 0))) * (vatPercent / 100));
                         data[i].GrossAmount = UniMath.round(data[i].NetAmount  * (1 + ((data[i].Surcharge || 0) / 100)) + data[i].Vat);
                         break;
                     case 'Surcharge':
+                        data[i].Surcharge = UniMath.round(data[i].Surcharge);
                         data[i].Vat = UniMath.round((data[i].NetAmount * (1 + ((data[i].Surcharge / 100) || 0))) * (vatPercent / 100));
                         data[i].GrossAmount = UniMath.round(data[i].NetAmount * (1 + ((data[i].Surcharge / 100) || 0)) + data[i].Vat);
                         break;
