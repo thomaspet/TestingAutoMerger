@@ -64,6 +64,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         skal føres som omsetning. Den andelen som skal viderebelastes andre
         balanseføres som en fordring på motpart.
     `;
+    private hasChanges: boolean = false;
     public companyAccountSettings: CompanyAccountingSettings;
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
@@ -307,9 +308,39 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         });
     }
 
+    public closeModal() {
+        if (this.hasChanges) {
+            this.modalService.confirm({
+                header: 'Ulagrede endringer',
+                message: 'Ønsker du å lagre endringer?',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                        this.saveReinvoiceAs('');
+                        this.onClose.emit(true);
+                        break;
+                    case ConfirmActions.CANCEL:
+                        break;
+                    case ConfirmActions.REJECT:
+                    default:
+                        this.onClose.emit(true);
+                        break;
+                }
+            });            
+        } else {
+            this.onClose.emit(true);
+        }
+    }
+
     public saveReinvoiceAs(type: string) {
 
         this.isSaving = true;
+        this.hasChanges = false;
         if (!this.currentReInvoice) {
             this.currentReInvoice = new ReInvoice();
             this.currentReInvoice._createguid = getNewGuid();
@@ -655,6 +686,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     onReinvoiceTypeChange(change: MatRadioChange) {
         this.reinvoiceType = change.value;
+        this.hasChanges = true;
         if (this.reinvoiceType === 1 && !this.isSupplierInvoiceJournaled()) {
             this.toastr.addToast('', ToastType.bad, 10, 'Leverandørfakturaen må bokføres før du kan velge Viderefakturering, omsetning');
             this.reinvoiceType = 0;
@@ -685,6 +717,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     onItemChange(change) {
+        this.hasChanges = true;
         this.updateItemsData(change.newValue);
         if (this.reinvoiceType === 0) {
             this.onReinvoicingCustomerChange(null);
@@ -705,6 +738,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     onReinvoicingCustomerChange(change) {
+        this.hasChanges = true;
         const total = this.supplierInvoice && this.supplierInvoice.TaxInclusiveAmount;
         const data = [].concat(this.reinvoicingCustomers);
         if (data.length === 0) {
@@ -755,6 +789,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     onReinvoicingCustomerTurnOverChange(change) {
+        this.hasChanges = true;
         const total = this.supplierInvoice && this.supplierInvoice.TaxExclusiveAmount;
         const data = [].concat(this.reinvoicingCustomers);
         if (data.length === 0) {
