@@ -235,7 +235,7 @@ export class BillView implements OnInit {
             disabled: false
         },
         {
-            label: 'Innstilliger for smart bokføring',
+            label: 'Innstillinger for smart bokføring',
             action: (done) => { this.openSmartBookingSettingsModal(); done(); },
             main: false,
             disabled: false
@@ -2325,10 +2325,7 @@ export class BillView implements OnInit {
             }
         }).onClose.subscribe((result) => {
             if (result) {
-                this.toast.addToast('Viderefakturering lagret', ToastType.good);
-                setTimeout(() => {
-                    this.router.navigateByUrl('/accounting/bills/' + result.supplierInvoice.ID);
-                }, 500);
+                this.fetchInvoice(this.currentID, true);
             }
         });
     }
