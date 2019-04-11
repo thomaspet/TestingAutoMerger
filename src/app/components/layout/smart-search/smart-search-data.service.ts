@@ -215,11 +215,16 @@ export class SmartSearchDataService {
                 queryStringInit += `?model=${route.moduleName}&select=${selectString}`;
 
                 for (let i = 1; i < filteredSelects.length; i++) {
-                    queryStringInit += (i === 1 ? '&filter=' : '');
+                    queryStringInit += (i === 1 ? '&filter=( ' : '');
                     queryStringInit +=  `${filterValue}(${filteredSelects[i].key}, '${query}')`;
                     if (i !==  filteredSelects.length - 1) {
                         queryStringInit += ' or ';
                     }
+                }
+                queryStringInit += ' )';
+
+                if (route.predefinedFilter) {
+                    queryStringInit += queryStringInit !== '' ? ' and ' + route.predefinedFilter : route.predefinedFilter;
                 }
 
                 if (route.expands) {
