@@ -250,7 +250,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 action: () => {
                     this.saveReinvoiceAs('create-invoices-draft');
                 },
-                main: type === 0,
+                main: !type,
                 disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced
             },
             {
