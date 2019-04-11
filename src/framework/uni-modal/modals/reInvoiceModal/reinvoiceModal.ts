@@ -331,7 +331,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.onClose.emit(true);
                         break;
                 }
-            });            
+            });
         } else {
             this.onClose.emit(true);
         }
@@ -417,10 +417,19 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public setInitialConfig(lastReinvoicing: ReInvoice | null) {
         this.reinvoiceType = lastReinvoicing === null ? 0 : lastReinvoicing.ReInvoicingType;
-        this.reinvoicingCustomers = this.setInitialCustomerData(
-            lastReinvoicing === null ? null : lastReinvoicing,
-            lastReinvoicing === null ? null : lastReinvoicing.Product,
-            this.reinvoiceType === 0 ? this.supplierInvoice.TaxInclusiveAmount : this.supplierInvoice.TaxExclusiveAmount);
+        let product = null;
+        if (this.companyAccountSettings) {
+            product = this.reinvoiceType === 0
+                ? this.companyAccountSettings.ReInvoicingCostsharingProduct
+                : this.companyAccountSettings.ReInvoicingTurnoverProduct
+        }
+        if (lastReinvoicing && lastReinvoicing.Product) {
+            product = lastReinvoicing.Product;
+        }
+        const amount = this.reinvoiceType === 0
+            ? this.supplierInvoice.TaxInclusiveAmount
+            : this.supplierInvoice.TaxExclusiveAmount;
+        this.reinvoicingCustomers = this.setInitialCustomerData(lastReinvoicing, product, amount);
 
         if (lastReinvoicing && lastReinvoicing.Product) {
             this.items = this.setInitialItemsData(lastReinvoicing.Product);
@@ -460,7 +469,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 product.VatType.VatPercent = currentPercentage.VatPercent;
             }
         }
-        const vatPercent = (product.VatType && product.VatType.VatPercent) || 0;
+        const vatPercent = (product && product.VatType && product.VatType.VatPercent) || 0;
 
         let copyOfItems = [new ReInvoiceItem()].concat(reinvoice.Items || []);
         copyOfItems[0].ID = 0;
