@@ -452,7 +452,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateNetAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.NetAmountCurrency) {
-            rowModel.NetAmount = UniMath.round(rowModel.NetAmountCurrency * rowModel.CurrencyExchangeRate);
+            rowModel.NetAmount = UniMath.round(rowModel.NetAmountCurrency * (rowModel.CurrencyExchangeRate || 1));
         } else {
             rowModel.NetAmount = null;
         }
@@ -462,7 +462,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency) {
-            rowModel.Amount = UniMath.round(rowModel.AmountCurrency * rowModel.CurrencyExchangeRate);
+            rowModel.Amount = UniMath.round(rowModel.AmountCurrency * (rowModel.CurrencyExchangeRate || 1));
         } else {
             rowModel.Amount = null;
         }
