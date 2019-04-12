@@ -5,10 +5,19 @@ import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 
+import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {LayoutModule} from '../layout/layoutModule';
+
 import {LicenseInfo} from './license-info';
+import {LicenseDetails} from './details/details';
 import {CompanyList} from './company-list/company-list';
-import {AdminList} from './admin-list/admin-list';
+import {Billing} from './billing/billing';
+import {InvoiceItemDetails} from './billing/invoice-item-details/invoice-item-details';
+
+import {CellValuePipe, ListView} from './list-view/list-view';
+import {UniFrameworkModule} from '@uni-framework/frameworkModule';
+import {UserList} from './user-list/license-user-list';
+import {UserDetails} from './user-list/license-user-details/license-user-details';
 
 @NgModule({
     imports: [
@@ -19,17 +28,31 @@ import {AdminList} from './admin-list/admin-list';
         ReactiveFormsModule,
         ScrollingModule,
         LayoutModule,
+        AppPipesModule,
+        UniFrameworkModule,
 
         RouterModule.forChild([{
             path: '',
-            pathMatch: 'full',
-            component: LicenseInfo
+            component: LicenseInfo,
+            children: [
+                { path: '', pathMatch: 'full', redirectTo: 'details' },
+                { path: 'details', component: LicenseDetails },
+                { path: 'companies', component: CompanyList },
+                { path: 'users', component: UserList },
+                { path: 'billing', component: Billing },
+            ]
         }]),
     ],
     declarations: [
         LicenseInfo,
+        LicenseDetails,
         CompanyList,
-        AdminList
+        UserList,
+        UserDetails,
+        Billing,
+        InvoiceItemDetails,
+        CellValuePipe,
+        ListView
     ]
 })
 export class LicenseInfoModule {}

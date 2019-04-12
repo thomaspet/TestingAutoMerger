@@ -106,18 +106,15 @@ export class VatReportView implements OnInit, OnDestroy {
 
         if (this.currentVatReport && this.currentVatReport.JournalEntry) {
             const hasYear = !!this.currentVatReport.JournalEntry.JournalEntryNumber;
-            year = hasYear ? this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1] : null;
+            year = hasYear ? this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1] : new Date().getFullYear();
 
-            journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber;
+            journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[0];
             journalEntryID = this.currentVatReport.JournalEntryID;
         }
 
-        const journalEntryLink = journalEntryNumber && journalEntryID
-            ? `/#/accounting/transquery?JournalEntryNumber=`
-                + `${journalEntryNumber}&`
-                + `journalEntryID=${journalEntryID}&`
-                + `Period.AccountYear=${year}`
-            : undefined;
+        const journalEntryLink = journalEntryNumber
+            ? `/#/accounting/transquery?JournalEntryNumber=${journalEntryNumber}&AccountYear=${year}`
+            : '/#/accounting/transquery';
 
         this.toolbarconfig = {
             title: this.currentVatReport.TerminPeriod ? 'Termin ' + this.currentVatReport.TerminPeriod.No : '',

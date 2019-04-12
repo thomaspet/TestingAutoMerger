@@ -1099,7 +1099,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.isDirty = false;
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-        this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
+        this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft)
+            || !!invoice.AccrualID;
         this.readonlyDraft = !!invoice.AccrualID;
         this.invoiceItems = invoice.Items.sort(
             function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
@@ -1230,7 +1231,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 if (!accrual['_createguid'] && !accrual.ID) {
                     accrual['createguid'] = createGuid();
                 }
-                const accrual$ = accrual.ID ? this.accrualService.Put(accrual.ID, accrual): this.accrualService.Post(accrual);
+                const accrual$ = accrual.ID ? this.accrualService.Put(accrual.ID, accrual) : this.accrualService.Post(accrual);
                 const journalEntry$ = this.invoice.JournalEntryID ?
                     this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
                     : this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID);
@@ -1271,10 +1272,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         if (this.invoice.JournalEntry && this.invoice.JournalEntry.JournalEntryNumber) {
+            const numberAndYear = this.invoice.JournalEntry.JournalEntryNumber.split('-');
+            let url: string = `/#/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
+            if (numberAndYear.length > 1) {
+                url += numberAndYear[1];
+            } else {
+                url += this.invoice.InvoiceDate ? moment(this.invoice.InvoiceDate).year() : moment().year();
+            }
+
             subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
-                link: `#/accounting/transquery?JournalEntryNumber=`
-                    + `${this.invoice.JournalEntry.JournalEntryNumber}`
+                link: url
             });
         }
 
@@ -1559,7 +1567,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
         if (invoice.PaymentInfoTypeID) {
             if (this.paymentInfoTypes.findIndex(x => x.ID === invoice.PaymentInfoTypeID && x.StatusCode === 42000 && !x.Locked) === -1) {
-                invoice.PaymentInfoTypeID = null; //Kid innstilling fra original faktura er ikke lenger aktiv
+                invoice.PaymentInfoTypeID = null; // Kid innstilling fra original faktura er ikke lenger aktiv
             }
         }
         invoice.InvoiceReferenceID = null;
@@ -1583,12 +1591,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     public refreshInfo(invoice: CustomerInvoice): CustomerInvoice {
         if (this.currentCustomer && this.currentCustomer.Info) {
-            let info = this.currentCustomer.Info;
+            const info = this.currentCustomer.Info;
             invoice.CustomerName = info.Name;
             if (info.Addresses && info.Addresses.length > 0) {
-                var address = info.Addresses[0];
+                let address = info.Addresses[0];
                 if (info.InvoiceAddressID) {
-                    address = info.Addresses.find(x => x.ID == info.InvoiceAddressID);
+                    address = info.Addresses.find(x => x.ID === info.InvoiceAddressID);
                 }
                 invoice.InvoiceAddressLine1 = address.AddressLine1;
                 invoice.InvoiceAddressLine2 = address.AddressLine2;
@@ -1599,7 +1607,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 invoice.InvoiceCountryCode = address.CountryCode;
 
                 if (info.ShippingAddressID) {
-                    address = info.Addresses.find(x => x.ID == info.ShippingAddressID);
+                    address = info.Addresses.find(x => x.ID === info.ShippingAddressID);
                 }
                 invoice.ShippingAddressLine1 = address.AddressLine1;
                 invoice.ShippingAddressLine2 = address.AddressLine2;

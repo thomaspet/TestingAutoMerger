@@ -260,12 +260,12 @@
         {
             "Name": "JournalEntry",
             "Translated": "Bilag",
-            "Url": "/accounting/journalentry/manual;journalEntryID=:ID"
+            "Url": "/accounting/journalentry/manual;journalEntryID=:journalentryid"
         },
         {
             "Name": "JournalEntryLine",
             "Translated": "Bilagslinjer",
-            "Url": "/accounting/journalentry/manual;journalEntryID=:ID"
+            "Url": "/accounting/journalentry/manual;journalEntryID=:journalentryid"
         },
         {
             "Name": "Worker",

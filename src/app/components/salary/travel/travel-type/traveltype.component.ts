@@ -55,8 +55,8 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
 
 
     forkJoin(
-      this.wagetypeService.GetAll(''),
-      this.travelService.GetAll('')
+        this.wagetypeService.getOrderByWageTypeNumber(),
+        this.travelService.GetAll('')
     )
     .finally(() => this.busy = false)
     .catch((err, obser) => this.errorService.handleRxCatch(err, obser))

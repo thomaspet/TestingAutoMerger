@@ -11,6 +11,7 @@ export interface IModalOptions {
     class?: string;
     header?: string;
     message?: string;
+    checkboxLabel?: string;
     warning?: string;
     list?: any[];
     listkey?: string;

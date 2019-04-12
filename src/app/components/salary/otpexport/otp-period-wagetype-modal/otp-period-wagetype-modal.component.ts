@@ -61,7 +61,7 @@ export class OtpPeriodWagetypeModalComponent implements OnInit {
 
   private getData() {
     Observable.forkJoin(
-      this.wagetypeService.GetAll('orderby=WageTypeNumber'),
+      this.wagetypeService.getOrderByWageTypeNumber(),
       this.otpexportwagetypesService.GetAll('orderby=WageTypeNumber')
     )
     .subscribe((response: [WageType[], OtpExportWagetype[]]) => {

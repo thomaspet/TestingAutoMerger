@@ -7,6 +7,7 @@
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "JournalEntryLine",
+        "OrderBy": "ID desc",
         "Expand": "",
         "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
@@ -257,6 +258,15 @@
                 "Type": "dontdisplay"
             }
         ],
+        "DefaultTableFilter": {
+            "field": "StatusCode",
+            "operator": "ne",
+            "value": "31004",
+            "label": "Vis krediterte",
+            "filter": "isnull(StatusCode,0) ne 31004",
+            "active": false,
+            "useWhenActive": false
+        },
         "Actions": [
             {
                 "Name": "Nytt bilag",

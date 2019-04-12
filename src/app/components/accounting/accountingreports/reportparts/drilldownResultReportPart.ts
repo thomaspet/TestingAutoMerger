@@ -2,22 +2,14 @@ import {Component, Input, OnChanges, ViewChild, ElementRef} from '@angular/core'
 import {Observable, of as observableOf} from 'rxjs';
 import {switchMap, map, finalize} from 'rxjs/operators';
 
-import {ChartHelper} from '../chartHelper';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal, IDetailsModalInput} from '../detailsmodal/accountDetailsReportModal';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {UniHttp} from '@uni-framework/core/http/http';
+import {INumberFormat} from '@uni-framework/ui/unitable';
 import {
-    UniTableColumn,
-    UniTableConfig,
-    UniTableColumnType,
-    INumberFormat
-} from '@uni-framework/ui/unitable';
-import {
-    AccountGroupService,
     StatisticsService,
     ErrorService,
-    DimensionService,
     NumberFormat
 } from '@app/services/services';
 import * as Chart from 'chart.js';
@@ -72,11 +64,9 @@ export class DrilldownResultReportPart implements OnChanges {
     @ViewChild('chartElement1')
     private chartElement1: ElementRef;
 
-    private dimensionEntityName: string;
     private treeSummaryList: ResultSummaryData[] = [];
     private flattenedTreeSummaryList: ResultSummaryData[] = [];
-    public uniTableConfig: UniTableConfig;
-    private showPercent: boolean = true;
+    public showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
     private showBudget = true;
     public showPercentOfBudget: boolean = false;
@@ -91,12 +81,10 @@ export class DrilldownResultReportPart implements OnChanges {
     public busy = true;
     public CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
         '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
-    private percentagePeriod1: number = 0;
     private myChart: any;
-    private chart: any = {};
+
     constructor(
         private statisticsService: StatisticsService,
-        private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
         private numberFormatService: NumberFormat,
         private modalService: UniModalService,
@@ -113,12 +101,6 @@ export class DrilldownResultReportPart implements OnChanges {
             this.showBudget = this.filter.ShowBudget;
             this.showPercentOfBudget = this.filter.ShowPercentOfBudget;
             this.hideBudget = !this.filter.ShowBudget;
-        }
-
-        if (this.periodFilter1 && this.periodFilter2) {
-            if (this.dimensionType) {
-                this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.dimensionType);
-            }
         }
 
         this.loadData();
@@ -273,8 +255,6 @@ export class DrilldownResultReportPart implements OnChanges {
                 this.getBudgetToCurrentMonth(res);
                 this.flattenedTreeSummaryList = list;
                 this.calculateTreePercentages(list, null, null);
-                this.percentagePeriod1 = list.find(x => x.number === 9).percentagePeriod1;
-                this.setupTable();
                 this.setupChart();
             },
             err => this.errorService.handle(err),
@@ -394,48 +374,10 @@ export class DrilldownResultReportPart implements OnChanges {
         });
     }
 
-    private shouldTurnAmount(groupNumber): boolean {
-        if (groupNumber.toString().substring(0, 1) === '3') {
-            return true;
-        }
-
-        return false;
-    }
-
-    private shouldSkipGroupLevel(groupNumber): boolean {
-        if (groupNumber.toString().length === 3) {
-            return true;
-        }
-
-        return false;
-    }
-
     public getPaddingLeft(level) {
         if (level > 0) {
             return (level * 20).toString() + 'px';
         }
-    }
-
-    private setupTable() {
-        this.uniTableConfig = new UniTableConfig('accounting.drilldownResultReportPart', false, false)
-            .setColumnMenuVisible(true)
-            .setColumns([
-                new UniTableColumn('number', 'Konto/kontogruppe', UniTableColumnType.Text)
-                    .setWidth('50%')
-                    .setTemplate(item => item.number + ': ' + item.name),
-                new UniTableColumn('amountPeriod1', this.periodFilter1.name, UniTableColumnType.Money)
-                    .setWidth('20%').setCls('amount')
-                    .setNumberFormat(this.numberFormat),
-                new UniTableColumn('percentagePeriod1', '%', UniTableColumnType.Number)
-                    .setWidth('5%')
-                    .setCls('percentage'),
-                new UniTableColumn('amountPeriod2', this.periodFilter2.name, UniTableColumnType.Money)
-                    .setWidth('20%').setCls('percentage')
-                    .setNumberFormat(this.numberFormat),
-                new UniTableColumn('percentagePeriod2', '%', UniTableColumnType.Number)
-                    .setWidth('5%')
-                    .setCls('percentage'),
-            ]);
     }
 
     private setupChart() {
@@ -443,7 +385,6 @@ export class DrilldownResultReportPart implements OnChanges {
         const purchase = this.flattenedTreeSummaryList.find(x => x.number === 4);
         const salary = this.flattenedTreeSummaryList.find(x => x.number === 5);
         const other = this.flattenedTreeSummaryList.find(x => x.number === 6);
-        const result = this.flattenedTreeSummaryList.find(x => x.number === 9);
 
         let budget, budgetString;
 

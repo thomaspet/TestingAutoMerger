@@ -11,7 +11,11 @@ import {ElsaContractService} from '@app/services/services';
 export class CompanyList {
     companies: ElsaCompanyLicense[];
     filteredCompanies: ElsaCompanyLicense[];
-    searchValue: string = '';
+    filterValue: string;
+    columns = [
+        { header: 'Selskapsnavn', field: 'CompanyName' },
+        { header: 'Organisasjonsnummer', field: '_orgNumberText' },
+    ];
 
     constructor(
         private authService: AuthService,
@@ -46,11 +50,11 @@ export class CompanyList {
         }
     }
 
-    filterItems() {
-        const searchValue = (this.searchValue || '').toLowerCase();
-        this.filteredCompanies = (this.companies || []).filter(company => {
-            return (company.CompanyName || '').toLowerCase().includes(searchValue)
-                || (company.OrgNumber || '').toLowerCase().includes(searchValue);
+    filterCompanies() {
+        const filterValue = (this.filterValue || '').toLowerCase();
+        this.filteredCompanies = this.companies.filter(company => {
+            return (company.CompanyName || '').toLowerCase().includes(filterValue)
+                || (company['_orgNumberText'] || '').toLowerCase().includes(filterValue);
         });
     }
 }

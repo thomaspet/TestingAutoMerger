@@ -38,6 +38,13 @@
 
     <section class="ticker-data">
         <section class="data-container">
+            <mat-checkbox
+                class="ticker-default-filter"
+                *ngIf="this.ticker && this.ticker.DefaultTableFilter && this.ticker.DefaultTableFilter.label"
+                (change)="setupTableConfig()"
+                [(ngModel)]="this.ticker.DefaultTableFilter.active">
+                {{ this.ticker.DefaultTableFilter.label }}
+            </mat-checkbox>
             <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"

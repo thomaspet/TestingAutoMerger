@@ -1,22 +1,8 @@
-<section role="dialog" class="uni-modal">
+<section role="dialog" class="uni-modal large">
     <header> <h1>{{description$ | async}}</h1> </header>
     <article [attr.aria-busy]="busy" class="scrollable">
-        <section class="payrollControl_header">
-            <h3>Hovedtall for lønnsavregningen: </h3>
-            <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
-        </section>
-
-        <ol *ngIf="payList" class="payrollControl_payList">
-            <li *ngFor="let payLine of payList; let index = index" class="payrollControll_payee" [ngClass]="{'-is-expanded':!payList[index].collapsed}">
-
-                <h4 (click)="toggleCollapsed(index)">{{payLine.employeeInfo.number}}, {{payLine.employeeInfo.name}}, Netto utbetalt: {{payLine.employeeInfo.payment | unicurrency}}
-
-                </h4>
-
-                <uni-table [resource]="payLine.paymentLines" [config]="tableConfig" *ngIf="!payList[index].collapsed"></uni-table>
-
-            </li>
-        </ol>
+        <uni-summary [configs]="summary"></uni-summary>
+        <ag-grid-wrapper [resource]="transes" [config]="tableConfig"></ag-grid-wrapper>
     </article>
 
     <footer class="payrollControl_footer">

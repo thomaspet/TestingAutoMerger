@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaCustomer} from '@app/models';
+import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaUserLicense_deprecated, ElsaCustomer} from '@app/models';
 import {MatStepper} from '@angular/material';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
 
@@ -19,7 +19,7 @@ export interface GrantAccessData {
     customer: ElsaCustomer;
     contract: ElsaContract;
     companies: ElsaCompanyLicense[];
-    users: ElsaUserLicense[];
+    users: ElsaUserLicense_deprecated[];
     products: ElsaProduct[];
 }
 

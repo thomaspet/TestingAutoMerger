@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges, SimpleChange} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges, SimpleChange, OnDestroy} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
@@ -29,7 +29,7 @@ interface IBookingModel {
     templateUrl: './postingSummaryModal.html'
 })
 
-export class PostingSummaryModal implements OnInit, IUniModal {
+export class PostingSummaryModal implements OnInit, IUniModal, OnDestroy {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     public busy: boolean;
@@ -74,6 +74,10 @@ export class PostingSummaryModal implements OnInit, IUniModal {
         this.setDefaults(run);
         this.createTableConfig();
         this.createFormConfig(run);
+    }
+
+    public ngOnDestroy() {
+        this.destroy$.next();
     }
 
     private setDefaults(run: PayrollRun) {
@@ -346,8 +350,18 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             .then(() => this.close());
     }
 
-    public close() {
-        this.destroy$.next();
+    public close(link: boolean = false) {
+        if (link) {
+            const numberAndYear = this.journalNumber.split('-');
+            let url = `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
+            if (numberAndYear.length > 1) {
+                url += numberAndYear[1];
+            } else {
+                const year = this.journalDate ? moment(this.journalDate).year() : moment().year();
+                url += year;
+            }
+            this.router.navigateByUrl(url);
+        }
         this.onClose.next(true);
     }
 }

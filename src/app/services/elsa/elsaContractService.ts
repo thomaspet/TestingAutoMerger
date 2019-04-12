@@ -1,14 +1,13 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {ElsaCompanyLicense, ElsaContract, ElsaContractType} from '@app/models';
-
+import {ElsaCompanyLicense, ElsaContract, ElsaContractType, ElsaUserLicense} from '@app/models';
 
 @Injectable()
 export class ElsaContractService {
     constructor(private uniHttp: UniHttp) {}
 
-    public get(id: number): Observable<ElsaContract> {
+    get(id: number): Observable<ElsaContract> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
@@ -17,7 +16,7 @@ export class ElsaContractService {
             .map(req => req.json());
     }
 
-    public getAll(): Observable<ElsaContract[]> {
+    getAll(): Observable<ElsaContract[]> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
@@ -26,13 +25,22 @@ export class ElsaContractService {
             .map(req => req.json());
     }
 
-    public getCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
+    getCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
             .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses`)
             .send()
             .map(res => res.json());
+    }
+
+    getUserLicenses(contractID: number): Observable<ElsaUserLicense[]> {
+        return this.uniHttp
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${contractID}/userlicenses`)
+            .send()
+            .map(res => res.json())
     }
 
     activateContract(contractID: number, isBureau: boolean = false) {

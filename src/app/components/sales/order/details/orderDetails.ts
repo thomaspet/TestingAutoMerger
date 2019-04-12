@@ -152,6 +152,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Info.Addresses',
         'Info.DefaultContact.Info',
         'Info.Emails',
+        'Info.DefaultEmail',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
         'PaymentTerms',

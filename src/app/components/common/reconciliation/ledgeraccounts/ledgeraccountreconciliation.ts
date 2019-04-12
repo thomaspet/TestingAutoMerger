@@ -958,7 +958,16 @@ export class LedgerAccountReconciliation {
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Link)
                 .setWidth('7rem')
                 .setCls('table-link')
-                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`),
+                .setLinkResolver(row => {
+                    const numberAndYear = row.JournalEntryNumber.split('-');
+                    let url = `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
+                    if (numberAndYear.length > 1) {
+                        return url += numberAndYear[1];
+                    } else {
+                        const year = row.FinancialDate ? moment(row.FinancialDate).year() : moment().year();
+                        return url += year;
+                    }
+                }),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
                 .setTemplate(x => x.JournalEntryTypeName)
                 .setVisible(false),

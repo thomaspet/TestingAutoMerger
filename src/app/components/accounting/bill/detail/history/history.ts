@@ -100,7 +100,15 @@ export class BillHistoryView {
             new UniTableColumn('PaymentID', 'KID/Melding').setVisible(false)
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setVisible(true)
-                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+                .setLinkResolver(row => {
+                    const numberAndYear = row.JournalEntryJournalEntryNumber.split('-');
+                    if (numberAndYear.length > 1) {
+                        return `/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=${numberAndYear[1]}`;
+                    } else {
+                        const year = row.InvoiceDate ? new Date(row.InvoiceDate).getFullYear() : new Date().getFullYear();
+                        return `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}&AccountYear=${year}`;
+                    }
+                }),
 
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
                 .setConditionalCls(item =>

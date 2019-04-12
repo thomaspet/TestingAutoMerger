@@ -124,7 +124,7 @@ export class WageTypeSettings extends UniView {
 
     private getSources(wagetype: WageType): any {
         const source =  [
-            this.wagetypeService.specialSettingsLayout('wagetypeSettings', this.wagetypeService.GetAll(null)),
+            this.wagetypeService.specialSettingsLayout('wagetypeSettings', this.wagetypeService.getOrderByWageTypeNumber()),
             this.wagetypeService.getLimitTypes()
         ];
 

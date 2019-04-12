@@ -1,0 +1,11 @@
+<section class="list-container" (click)="$event.stopPropagation()">
+    <section class="header">
+        <h1>{{user?.UserName}}</h1>
+    </section>
+
+    <license-info-list
+        [columns]="columns"
+        [rows]="companies"
+        [orderBy]="'companyName'">
+    </license-info-list>
+</section>

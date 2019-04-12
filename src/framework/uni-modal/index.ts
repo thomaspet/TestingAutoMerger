@@ -10,6 +10,7 @@ import {UniBankAccountModal} from './modals/bankAccountModal';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniRegisterPaymentModal} from './modals/registerPaymentModal';
 import {UniActivateAPModal} from './modals/activateAPModal';
+import {UniActivateEInvoiceModal} from './modals/activateEInvoiceModal';
 import {UniActivateInvoicePrintModal} from './modals/activateInvoicePrintModal';
 import {ActivateOCRModal} from './modals/activateOcrModal';
 import {UniApproveModal} from './modals/approveModal';
@@ -29,6 +30,8 @@ import {UniFileUploadModal} from './modals/uploadFilesModal';
 import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
 import {UniReinvoiceModal} from './modals/reInvoiceModal/reinvoiceModal';
 import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
+import {UniShowReinvoiceStatus} from '@uni-framework/uni-modal/modals/reInvoiceModal/showReinvoiceStatus.pipe';
+import {UniConfirmModalWithCheckbox} from './modals/confirmWithCheckboxModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -44,6 +47,7 @@ export * from './modals/bankAccountModal';
 export * from './modals/unsavedChangesModal';
 export * from './modals/registerPaymentModal';
 export * from './modals/activateAPModal';
+export * from './modals/activateEInvoiceModal';
 export * from './modals/activateOcrModal';
 export * from './modals/activateInvoicePrintModal';
 export * from './modals/approveModal';
@@ -62,6 +66,9 @@ export * from './modals/uploadFilesModal';
 export * from './modals/company-actions-modal/company-actions-modal';
 export * from './modals/reInvoiceModal/reinvoiceModal';
 export * from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
+export * from './modals/confirmWithCheckboxModal';
+
+export { UniShowReinvoiceStatus } from '@uni-framework/uni-modal/modals/reInvoiceModal/showReinvoiceStatus.pipe';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -76,6 +83,7 @@ export const MODALS = [
     UniUnsavedChangesModal,
     UniRegisterPaymentModal,
     UniActivateAPModal,
+    UniActivateEInvoiceModal,
     ActivateOCRModal,
     UniActivateInvoicePrintModal,
     UniApproveModal,
@@ -94,6 +102,7 @@ export const MODALS = [
     CompanyActionsModal,
     MissingPurchasePermissionModal,
     UniReinvoiceModal,
-    UniCompanyAccountingSettingsModal
+    UniCompanyAccountingSettingsModal,
+    UniConfirmModalWithCheckbox
 ];
 

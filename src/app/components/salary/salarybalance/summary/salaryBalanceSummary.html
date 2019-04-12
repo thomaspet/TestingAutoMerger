@@ -13,6 +13,6 @@
         </button>
     </header>
     <section>
-        <uni-table [attr.aria-busy]="busy && !!editMode" [resource]="tableModel$ | async" [config]="tableConfig" class="salaryBalanceSummaryTable"></uni-table>
+        <ag-grid-wrapper [attr.aria-busy]="busy && !!editMode" [resource]="tableModel$ | async" [config]="tableConfig" class="salaryBalanceSummaryTable"></ag-grid-wrapper>
     </section>
 </article>

@@ -19,15 +19,18 @@
             [value]="activeYear"
             (valueChange)="onYearDropdownChange($event)">
         </uni-select>
+
+        <mat-checkbox style="display: flex; align-items: center;"
+            (change)="showCreditedChange()"
+            [(ngModel)]="showCredited">
+            Vis krediterte
+        </mat-checkbox>
+
     </section>
 
     <uni-tabs [tabs]="tabs" [(activeIndex)]="tabIndex" (activeIndexChange)="tabChange($event)"></uni-tabs>
 
     <section class="uni-container" *ngIf="tabIndex === 0">
-        <!-- <h2 class="account-details-report-header">
-            Detaljer for konto {{config.accountNumber}} - {{config.accountName}}
-        </h2> -->
-
         <distribution-period-report-part
             [accountIDs]="accountIDs"
             [subaccountIDs]="subAccountIDs"
@@ -35,6 +38,7 @@
             [accountYear2]="(periodFilter1$ | async).year"
             [showHeader]="false"
             [doTurnAmounts]="doTurnDistributionAmounts$ | async"
+            [showCredited]="showCredited"
             [includeIncomingBalance]="includeIncomingBalanceInDistributionReport$ | async"
             [dimensionType]="config.dimensionType"
             [dimensionId]="config.dimensionId"

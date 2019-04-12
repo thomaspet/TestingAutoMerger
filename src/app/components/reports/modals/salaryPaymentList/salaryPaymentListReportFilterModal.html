@@ -1,4 +1,4 @@
-<article class="report_parameter_modal report_salary_modal" *ngIf="config">
+<section *ngIf="config" role="dialog" class="uni-modal small">
     <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
     <section>
         <uni-form
@@ -12,4 +12,4 @@
             </button>
         </footer>
     </section>
-</article>
+</section>
