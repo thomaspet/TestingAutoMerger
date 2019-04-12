@@ -10,10 +10,10 @@
                 </uni-tooltip>
             </label>
             <mat-radio-group [value]="reinvoiceType" (change)="onReinvoiceTypeChange($event)">
-                <mat-radio-button [value]="0" [disabled]="currentReInvoice?.StatusCode === 30203 || !isSupplierInvoiceJournaled()">
+                <mat-radio-button [value]="0" [disabled]="currentReInvoice?.StatusCode === 30203">
                     Kostnadsdeling
                 </mat-radio-button>
-                <mat-radio-button [value]="1" [disabled]="currentReInvoice?.StatusCode === 30203 || !isSupplierInvoiceJournaled()">
+                <mat-radio-button [value]="1" [disabled]="currentReInvoice?.StatusCode === 30203">
                     Viderefakturering, omsetning
                 </mat-radio-button>
             </mat-radio-group>
