@@ -40,7 +40,7 @@ export class TransactionsPerCompany {
     getTransactionsPerCompany() {
         const transactionsPerCompany: any = {};
         this.billingData.items.forEach(item => {
-            if (item.unit === 'selskap') {
+            if (item.unit === 'selskap' || item.unit === 'stk') {
                 item.details.forEach(itemUsage => {
                     if (!transactionsPerCompany[itemUsage.name]) {
                         transactionsPerCompany[itemUsage.name] = [];
