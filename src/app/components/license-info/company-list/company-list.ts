@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {AuthService} from '@app/authService';
 import {ElsaCompanyLicense, ElsaCompanyLicenseStatus} from '@app/models';
 import {ElsaContractService} from '@app/services/services';
+import * as moment from 'moment';
 
 @Component({
     selector: 'license-info-company-list',
@@ -32,7 +33,13 @@ export class CompanyList {
             this.elsaContractService.getCompanyLicenses(contractID).subscribe(
                 licenses => {
                     this.companies = (licenses || [])
-                        .filter(license => license.StatusCode === ElsaCompanyLicenseStatus.Active)
+                        .filter(license => {
+                            if (moment(license.EndDate).isValid()) {
+                                return moment(license.EndDate).isAfter(moment(new Date()));
+                            } else {
+                                return true;
+                            }
+                        })
                         .map(license => {
                             if (license.OrgNumber) {
                                 license['_orgNumberText'] = license.OrgNumber.match(/.{1,3}/g).join(' ');

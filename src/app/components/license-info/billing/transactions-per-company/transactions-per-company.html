@@ -1,0 +1,22 @@
+<license-info-list
+    class="selection-list"
+    [columns]="companyListColumns"
+    [rows]="transactionsPerCompany"
+    [orderBy]="'companyName'"
+    (rowClick)="onRowClick($event)">
+</license-info-list>
+
+<section class="details-view" *ngIf="selectedCompany && detailsVisible" (click)="detailsVisible = false">
+    <section class="list-container" (click)="$event.stopPropagation()">
+        <section class="header">
+            <h1>Transaksjoner - {{selectedCompany.companyName}}</h1>
+        </section>
+
+        <license-info-list
+            [columns]="transactionListColumns"
+            [rows]="selectedCompany.transactions"
+            [orderBy]="'productName'">
+        </license-info-list>
+    </section>
+</section>
+
