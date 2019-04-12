@@ -554,7 +554,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     this.journalEntryLines.push(newLine);
                                 }
 
-                                this.setVatDeductionPercent(this.journalEntryLines[0]);
+                                this.journalEntryLines[0] = this.setDebitAccountProperties(this.journalEntryLines[0]);
 
                                 returnValue.msg = res.Source === 1
                                     ? 'Kontoforslag på konteringslinje er lagt til basert på ditt firmas tidligere' +
