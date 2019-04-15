@@ -6,6 +6,7 @@ export interface INavbarLink {
     moduleID?: number;
     routerLinkActiveExact?: boolean;
     isSuperSearchComponent?: boolean;
+    predefinedFilter?: string;
     moduleName?: string;
     shortcutName?: string;
     prefix?: string[];
@@ -87,6 +88,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         prefix: ['rapport'],
                         moduleName: 'ReportDefinition',
+                        predefinedFilter: `( visible ne 'false' and isstandard ne 'false' )`,
                         selects: [
                             {key: 'ID', isNumeric: false},
                             {key: 'Name', isNumeric: false},

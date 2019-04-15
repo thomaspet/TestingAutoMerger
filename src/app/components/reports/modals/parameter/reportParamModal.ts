@@ -479,7 +479,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     email.EntityType = this.getEntityTypeFromReport(this.report);
                     email.EntityID = formKey;
                     this.sendReport(
-                        this.report.Name,
+                        this.report.ID,
                         email,
                         params
                     );
@@ -487,8 +487,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             });
     }
 
-    private sendReport(name: string, details: any, parameters = null) {
-
+    private sendReport(reportID: number, details: any, parameters = null) {
         const http = this.statisticsService.GetHttp();
         const companyKey = this.report.companyKey;
         const route = 'emails/?action=send';
@@ -516,7 +515,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             CopyAddress: details.SendCopy ? details.CopyAddress : '',
             Subject: details.Subject,
             Message: details.Message,
-            ReportName: name,
+            ReportID: reportID,
             Parameters: parameters,
             EntityType: details.EntityType,
             EntityID: details.EntityID

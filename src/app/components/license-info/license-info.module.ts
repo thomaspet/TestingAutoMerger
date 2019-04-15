@@ -12,6 +12,7 @@ import {LicenseInfo} from './license-info';
 import {LicenseDetails} from './details/details';
 import {CompanyList} from './company-list/company-list';
 import {Billing} from './billing/billing';
+import {TransactionsPerCompany} from './billing/transactions-per-company/transactions-per-company';
 import {InvoiceItemDetails} from './billing/invoice-item-details/invoice-item-details';
 
 import {CellValuePipe, ListView} from './list-view/list-view';
@@ -50,6 +51,7 @@ import {UserDetails} from './user-list/license-user-details/license-user-details
         UserList,
         UserDetails,
         Billing,
+        TransactionsPerCompany,
         InvoiceItemDetails,
         CellValuePipe,
         ListView

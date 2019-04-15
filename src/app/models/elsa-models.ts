@@ -17,6 +17,7 @@ export interface ElsaCompanyLicense {
     CompanyKey: string;
     OrgNumber: string;
     StatusCode: ElsaCompanyLicenseStatus;
+    EndDate: string;
 }
 
 export interface ElsaPurchase {

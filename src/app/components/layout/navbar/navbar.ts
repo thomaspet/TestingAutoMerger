@@ -29,7 +29,7 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
             </section>
 
             <section class="navbar-right">
-                <button *ngIf="hasActiveContract" mat-icon-button (click)="openSearch()">
+                <button *ngIf="hasActiveContract" class="navbar-search" mat-icon-button (click)="openSearch()">
                     <mat-icon aria-label="Search">search</mat-icon>
                 </button>
 

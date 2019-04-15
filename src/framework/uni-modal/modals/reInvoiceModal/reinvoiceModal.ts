@@ -250,8 +250,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 action: () => {
                     this.saveReinvoiceAs('create-invoices-draft');
                 },
-                main: type === 0,
-                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced
+                main: !type,
+                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             },
             {
                 label: 'Lag faktura (Fakturert)',
@@ -259,7 +259,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                     this.saveReinvoiceAs('create-invoices');
                 },
                 main: type === 1,
-                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced
+                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             },
             {
                 label: 'Lag ordre (Registrert)',
@@ -267,14 +267,15 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                     this.saveReinvoiceAs('create-orders');
                 },
                 main: type === 2,
-                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced
+                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             },
             {
                 label: 'Slett viderefakturering',
                 action: () => {
                     this.deleteReinvoice();
                 },
-                disabled: (!this.currentReInvoice || this.currentReInvoice.ID === 0)
+                disabled: (!this.currentReInvoice || this.currentReInvoice.ID === 0),
+                main: (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             }
         ];
     }
@@ -331,7 +332,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.onClose.emit(true);
                         break;
                 }
-            });            
+            });
         } else {
             this.onClose.emit(true);
         }
@@ -375,7 +376,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             validationRequest = Observable.of(null);
         } else {
             if (!this.isSupplierInvoiceJournaled() && this.currentReInvoice.ReInvoicingType === 1) {
-                this.toastr.addToast('', ToastType.bad, 10, 'Leverandørfakturaen må være bokført før du kan lage Viderefakturering, omsetning');
+                this.toastr.addToast('', ToastType.warn, 10, 'Leverandørfakturaen må være bokført før du kan lage Viderefakturering, omsetning');
                 this.isSaving = false;
                 return;
             }
@@ -417,10 +418,19 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public setInitialConfig(lastReinvoicing: ReInvoice | null) {
         this.reinvoiceType = lastReinvoicing === null ? 0 : lastReinvoicing.ReInvoicingType;
-        this.reinvoicingCustomers = this.setInitialCustomerData(
-            lastReinvoicing === null ? null : lastReinvoicing,
-            lastReinvoicing === null ? null : lastReinvoicing.Product,
-            this.reinvoiceType === 0 ? this.supplierInvoice.TaxInclusiveAmount : this.supplierInvoice.TaxExclusiveAmount);
+        let product = null;
+        if (this.companyAccountSettings) {
+            product = this.reinvoiceType === 0
+                ? this.companyAccountSettings.ReInvoicingCostsharingProduct
+                : this.companyAccountSettings.ReInvoicingTurnoverProduct
+        }
+        if (lastReinvoicing && lastReinvoicing.Product) {
+            product = lastReinvoicing.Product;
+        }
+        const amount = this.reinvoiceType === 0
+            ? this.supplierInvoice.TaxInclusiveAmount
+            : this.supplierInvoice.TaxExclusiveAmount;
+        this.reinvoicingCustomers = this.setInitialCustomerData(lastReinvoicing, product, amount);
 
         if (lastReinvoicing && lastReinvoicing.Product) {
             this.items = this.setInitialItemsData(lastReinvoicing.Product);
@@ -460,7 +470,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 product.VatType.VatPercent = currentPercentage.VatPercent;
             }
         }
-        const vatPercent = (product.VatType && product.VatType.VatPercent) || 0;
+        const vatPercent = (product && product.VatType && product.VatType.VatPercent) || 0;
 
         let copyOfItems = [new ReInvoiceItem()].concat(reinvoice.Items || []);
         copyOfItems[0].ID = 0;
@@ -703,9 +713,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.reinvoiceType = change.value;
         this.hasChanges = true;
         if (this.reinvoiceType === 1 && !this.isSupplierInvoiceJournaled()) {
-            this.toastr.addToast('', ToastType.bad, 10, 'Leverandørfakturaen må bokføres før du kan velge Viderefakturering, omsetning');
-            this.reinvoiceType = 0;
-            this.changeDetectorRef.markForCheck();
+            this.toastr.addToast('', ToastType.warn, 10, 'Leverandørfakturaen må bokføres før du kan velge Viderefakturering, omsetning');
         }
 
         let product;
@@ -717,10 +725,11 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             this.onReinvoicingCustomerChange(null);
         } else {
             product = this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct;
-            this.reinvoicingCustomers = this.setInitialCustomerData(this.currentReInvoice, product, this.supplierInvoice.TaxExclusiveAmount);
+            this.reinvoicingCustomers = this.setInitialCustomerData(this.currentReInvoice, product, this.getNetAmountOnTurnOverReInvoice());
             this.updateItemsData(this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct);
             this.onReinvoicingCustomerTurnOverChange(null);
         }
+        this.updateActions(this.saveactions.findIndex(x => x === this.getMainAction()));
     }
 
     public isSupplierInvoiceJournaled(): boolean {
@@ -804,9 +813,34 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.updateActions(mainActionIndex);
     }
 
+    getNetAmountOnTurnOverReInvoice() {
+        if (this.supplierInvoice && this.supplierInvoice.TaxExclusiveAmount) {
+            return this.supplierInvoice.TaxExclusiveAmount;
+        }
+        const defaultProduct = this.reinvoiceType === 0
+            ? this.companyAccountSettings && this.companyAccountSettings.ReInvoicingCostsharingProduct
+            : this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct;
+        const product = this.items[0].Product || defaultProduct;
+        const vatType = product && product.VatType;
+        const today = moment(new Date());
+        let currentPercentage;
+        if (vatType && vatType.VatTypePercentages) {
+            currentPercentage =
+                vatType.VatTypePercentages.find(y =>
+                (moment(y.ValidFrom) <= today && y.ValidTo && moment(y.ValidTo) >= today)
+                || (moment(y.ValidFrom) <= today && !y.ValidTo));
+
+            if (currentPercentage) {
+                product.VatType.VatPercent = currentPercentage.VatPercent;
+            }
+        }
+        const vatPercent = (product && product.VatType && product.VatType.VatPercent) || 0;
+        return this.supplierInvoice.TaxInclusiveAmount / (1 + vatPercent / 100);
+    }
+
     onReinvoicingCustomerTurnOverChange(change) {
         this.hasChanges = true;
-        const total = this.supplierInvoice && this.supplierInvoice.TaxExclusiveAmount;
+        const total = this.getNetAmountOnTurnOverReInvoice();
         const data = [].concat(this.reinvoicingCustomers);
         if (data.length === 0) {
             return;

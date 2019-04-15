@@ -22,8 +22,9 @@
         Åpne/lukk alle grupper
     </span>
 
-    <section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
-        Antall rader: {{dataService?.totalRowCount$ | async}}
+    <section class="row-count" >
+        <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
+        <span *ngIf="config?.multiRowSelect" style="margin-left: 2rem">Antall markerte rader: {{ markedRowCount }}</span>
     </section>
 
     <table-editor *ngIf="config?.editable"

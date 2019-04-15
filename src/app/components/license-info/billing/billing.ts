@@ -35,6 +35,7 @@ export interface BillingData {
 export class Billing {
     yearSelectOptions: number[];
     periodFilter: { month: number; year: number };
+    viewMode: number = 0;
 
     billingData: BillingData;
     selectedRow: BillingDataItem;

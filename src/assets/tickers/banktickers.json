@@ -272,7 +272,8 @@
                 "Field": "Amount",
                 "FilterOperator": "contains",
                 "Alias": "Amount",
-                "DisplayField": "Amount"
+                "DisplayField": "Amount",
+                "SumColumn": true
             },
             {
                 "Header": "Betalingsdato",
@@ -325,6 +326,33 @@
         ],
         "Actions": [
             {
+                "Name": "Velg leverandør manuelt",
+                "Code": "select_supplier",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg hovedbokskonto manuelt",
+                "Code": "select_main_account",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg kunde manuelt",
+                "Code": "select_customer",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_payment_file",
                 "Type": "action",
@@ -372,33 +400,6 @@
             {
                 "Name": "Manuell bokføring",
                 "Code": "book_manual",
-                "Type": "action",
-                "ExecuteWithMultipleSelections": false,
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": false,
-                "NeedsActionOverride": true
-            },
-            {
-                "Name": "Velg kunde manuelt",
-                "Code": "select_customer",
-                "Type": "action",
-                "ExecuteWithMultipleSelections": false,
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": false,
-                "NeedsActionOverride": true
-            },
-            {
-                "Name": "Velg leverandør manuelt",
-                "Code": "select_supplier",
-                "Type": "action",
-                "ExecuteWithMultipleSelections": false,
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": false,
-                "NeedsActionOverride": true
-            },
-            {
-                "Name": "Velg hovedbokskonto manuelt",
-                "Code": "select_main_account",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,
