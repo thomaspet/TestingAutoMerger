@@ -17,7 +17,8 @@
         <ag-grid-wrapper
             [resource]="dimensionList"
             [config]="tableConfig"
-            (rowSelectionChange)="onDimensionSelected($event)">
+            (rowSelectionChange)="onDimensionSelected($event)"
+            (rowDelete)="onRowDelete($event)">
         </ag-grid-wrapper>
     </section>
 

@@ -22,6 +22,7 @@ import {
     UniTableColumn,
 } from '@uni-framework/ui/unitable';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-dimension-view',
@@ -85,7 +86,8 @@ export class UniDimensionView implements OnInit {
         private errorService: ErrorService,
         private invoiceService: CustomerInvoiceService,
         private quoteService: CustomerQuoteService,
-        private orderService: CustomerOrderService
+        private orderService: CustomerOrderService,
+        private modalService: UniModalService
     ) { }
 
     public ngOnInit () {
@@ -159,6 +161,7 @@ export class UniDimensionView implements OnInit {
         const nameCol = new UniTableColumn(nameKey, 'Navn', UniTableColumnType.Text);
 
         this.tableConfig = new UniTableConfig('dimension.custom', false)
+            .setDeleteButton(true)  //TODO kun for prosjekt(dimensjon?) som ikke har vært i bruk eller er det nok med validering når man klikker?
             .setColumns([idCol, nameCol])
             .setSearchable(true);
     }
@@ -167,6 +170,42 @@ export class UniDimensionView implements OnInit {
         this.currentItem = dimension;
         this.model$.next(this.currentItem);
         this.setUpTOFListTable(this.activeTabIndex);
+    }
+
+    public onRowDelete(row) {
+        //TODO sjekk om dimensjonen er brukt
+        const dimensionId = row.ID;
+        let dimensionName;
+        switch (this.currentDimension) {
+            case 1:
+                dimensionName = row.Name;
+                break;
+            default:
+                //TODO Er ikke implementert melding (midlertidig - bør ikke vise hvis ikke implementert)
+                this.refresh();
+                return;
+        }
+
+        const deleteModal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Bekreft sletting',
+            message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ' ' + dimensionId + ' - ' + dimensionName + '?'
+        });
+
+        deleteModal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.projectService.Remove(dimensionId).subscribe(
+                    res => {
+                        //this.toast.addToast('Filen er slettet', ToastType.good, 2);
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        this.refresh();
+                    }
+                );
+            } else {
+                this.refresh();
+            }
+        });        
     }
 
     public changeTab(index: number) {
@@ -298,6 +337,12 @@ export class UniDimensionView implements OnInit {
                 done('Lagring feilet');
             });
         }
+    }
+    public refresh() {
+        this.model$.next(this.currentItem);
+        this.getDimensionlist().subscribe((dims) => {
+            this.dimensionList = dims;
+        });
     }
 
     public updateToolbarConfig() {
