@@ -1,39 +1,25 @@
-import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {
-    UniTable,
-    UniTableColumn,
-    UniTableConfig,
-    UniTableColumnType
-} from '../../../../../framework/ui/unitable/index';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
-import {ToastService} from '../../../../../framework/uniToast/toastService';
-import {
-    JournalEntryLineService,
-    PeriodService,
-    ErrorService
-} from '../../../../services/services';
+import {JournalEntryLineService} from '../../../../services/services';
 
 @Component({
     selector: 'select-journalentryline-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 70vw">
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw">
             <header><h1>Velg faktura</h1></header>
             <article class='modal-content' *ngIf="config">
                 <p>Trykk på en av linjene under for å knytte bilagslinjen til en av fakturaene</p>
-                <uni-table
+                <ag-grid-wrapper
                     [resource]="config.journalentrylines"
                     [config]="uniTableConfig"
-                    (rowSelected)="close($event)">
-                </uni-table>
+                    (rowSelect)="close($event)">
+                </ag-grid-wrapper>
             </article>
         </section>
     `
 })
 export class SelectJournalEntryLineModal implements IUniModal {
-
-    @ViewChild(UniTable)
-    public unitable: UniTable;
 
     @Input()
     public options: IModalOptions;
@@ -42,17 +28,9 @@ export class SelectJournalEntryLineModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter<any>();
 
     public uniTableConfig: UniTableConfig;
-    private periodDateFormat: PeriodDateFormatPipe;
     public config: any = {};
 
-    constructor(
-        private periodService: PeriodService,
-        private toastService: ToastService,
-        private errorService: ErrorService,
-        private journalEntryLineService: JournalEntryLineService
-    ) {
-        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
-     }
+    constructor( private journalEntryLineService: JournalEntryLineService ) { }
 
     public ngOnInit() {
         this.config = {
@@ -65,7 +43,7 @@ export class SelectJournalEntryLineModal implements IUniModal {
     }
 
     private generateUniTableConfig() {
-        let columns = [
+        const columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
                 .setTemplate(x => x.JournalEntryTypeName)
@@ -97,13 +75,12 @@ export class SelectJournalEntryLineModal implements IUniModal {
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
         ];
 
-        let tableName = 'accounting.journalEntry.selectJournalEntryLineModal';
-        this.uniTableConfig = new UniTableConfig(tableName, false, false, 100)
+        this.uniTableConfig = new UniTableConfig('accounting.journalEntry.selectJournalEntryLineModal', false, false, 100)
             .setColumns(columns)
             .setColumnMenuVisible(true);
     }
 
     public close(data) {
-        this.onClose.emit(data.rowModel);
+        this.onClose.emit(data);
     }
 }

@@ -2,11 +2,10 @@
 
     <h2>Egendefinerte dimensjoner</h2>
 
-    <uni-table
+    <ag-grid-wrapper
+        class="transquery-grid-font-size"
         [resource]="data"
         [config]="tableConfig">
-    </uni-table>
-
-    <button (click)="addNewDimension()" class="good" style="float: right; margin: 0;" *ngIf="data?.length < 6">Ny dimensjon</button>
+    </ag-grid-wrapper>
 
 </section>

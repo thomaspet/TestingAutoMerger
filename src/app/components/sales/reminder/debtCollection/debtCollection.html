@@ -14,11 +14,12 @@
 
         <b>{{remindersToDebtCollect.length}} purringer er klar til inkasso</b><br />
 
-        <uni-table [resource]="remindersToDebtCollect"
-                   [config]="reminderToDebtCollectTable"
-                   (rowSelectionChanged)="onRowSelected($event)"
-                   (rowSelected)="onRowSelected($event)">
-        </uni-table>
+        <ag-grid-wrapper
+            class="transquery-grid-font-size"
+            [resource]="remindersToDebtCollect"
+            [config]="reminderToDebtCollectTable"
+            (rowSelectionChange)="onRowSelected($event)">
+        </ag-grid-wrapper>
         <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>

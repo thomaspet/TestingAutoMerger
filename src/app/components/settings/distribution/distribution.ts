@@ -1,6 +1,6 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable, IUniTableConfig} from '../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig} from '../../../../framework/ui/unitable/index';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {DistributionPlanService} from '@app/services/common/distributionService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
@@ -16,10 +16,6 @@ declare const _; // lodash
 })
 
 export class UniDistributionSettings {
-
-    @ViewChild(UniTable)
-    public table: UniTable;
-
     public detailsTableConfig: UniTableConfig;
     public unitableConfig: IUniTableConfig;
     public plans: DistributionPlan[];
@@ -250,8 +246,7 @@ export class UniDistributionSettings {
     private filterElementTypes(type: string, elements: any[]) {
         if (type === 'Models.Sales.CustomerInvoice') {
             return elements;
-        }
-        else if (type === 'Models.Sales.CustomerInvoiceReminder') {
+        } else if (type === 'Models.Sales.CustomerInvoiceReminder') {
             return elements.filter(res => res.ID === 2 || res.ID === 3);
         } else {
             return elements.filter(res => res.ID === 2);
@@ -260,9 +255,9 @@ export class UniDistributionSettings {
 
     public onRowSelected(event) {
         // Update local variables and update the form with new plan
-        this.planIndex = event.rowModel['_originalIndex'];
-        this.elements = _.cloneDeep(event.rowModel.Elements);
-        this.plan.next(this.mapDataModelForUniform(event.rowModel));
+        this.planIndex = event['_originalIndex'];
+        this.elements = _.cloneDeep(event.Elements);
+        this.plan.next(this.mapDataModelForUniform(event));
         this.setUpForm();
     }
 

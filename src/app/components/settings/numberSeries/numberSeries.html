@@ -1,31 +1,27 @@
-<section class="splitview">
+<section class="application" style="background-color: #fff; padding: 1rem;">
+    <mat-form-field style="width: 25rem; margin: 1rem 1rem 0 0;">
+        <mat-select placeholder="Nummerserie" [value]="currentSerie" (valueChange)="onSerieSelected($event)">
+            <mat-option *ngFor="let serie of series" [value]="serie">
+                {{ serie.Name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
 
-    <nav class ="splitview_list">
-        <uni-table *ngIf="series"
-                [config]="seriesTableConfig"
-                [resource]="series"
-                (rowSelected)="onSerieSelected($event)">
+    <fieldset style="width: 100% !important; max-width: 100%;">
+        <legend>{{currentSerie?.Name}}</legend>
+
+        <mat-slide-toggle
+            style="margin-bottom: 1rem;"
+            [(ngModel)]="allYears"
+            (change)="toggleAllYears($event)"
+            [labelPosition]="'before'">
+            Vis alle regnskapsår
+        </mat-slide-toggle>
+
+        <uni-table
+            [config]="listTableConfig"
+            [resource]="current"
+            (rowSelectionChanged)="onRowSelectionChange($event)">
         </uni-table>
-    </nav>
-
-    <main class="splitview_detail">
-        <fieldset>
-            <legend>{{currentSerie?.Name}}</legend>
-
-            <mat-slide-toggle
-                style="margin-bottom: 1rem;"
-                [(ngModel)]="allYears"
-                (change)="toggleAllYears($event)"
-                [labelPosition]="'before'">
-                Vis alle regnskapsår
-            </mat-slide-toggle>
-
-            <uni-table
-                [config]="listTableConfig"
-                [resource]="current"
-                (rowSelectionChanged)="onRowSelectionChange($event)">
-            </uni-table>
-        </fieldset>
-    </main>
-
+    </fieldset>
 </section>

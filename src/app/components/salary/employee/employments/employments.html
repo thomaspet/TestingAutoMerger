@@ -4,11 +4,11 @@
             <button class="new-button" (click)="newEmployment()" [disabled]="employee?.ID === 0 || btnDisabled()">
                 Nytt Arbeidsforhold
             </button>
-            <uni-table
+            <ag-grid-wrapper
                 [config]="tableConfig"
-                [resource]="employments"
-                (rowSelected)="onRowSelected($event)">
-            </uni-table>
+                [(resource)]="employments"
+                (rowClick)="onRowSelected($event)">
+            </ag-grid-wrapper>
             <br><small *ngIf="employee?.ID === 0">Ansatt må lagres før arbeidsforhold kan registreres</small>
         </article>
     </nav>

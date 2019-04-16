@@ -1,12 +1,13 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {
-    UniTable,
     UniTableConfig,
     UniTableColumn,
     UniTableColumnType
 } from '../../../../../framework/ui/unitable/index';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {ToastService} from '@uni-framework/uniToast/toastService';
 import {Grant, SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs';
 
@@ -16,21 +17,26 @@ import {Observable} from 'rxjs';
 })
 
 export class GrantModal implements OnInit, IUniModal {
-    @ViewChild(UniTable) private table: UniTable;
 
-    @Input() public options: IModalOptions;
-    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Input()
+    public options: IModalOptions;
+
+    @Output()
+    public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+    @ViewChild(AgGridWrapper)
+    public table: AgGridWrapper;
 
     public grantTableConfig: UniTableConfig;
     public grantData: any[] = [];
-    public infoText: string;
 
     private allSubEntities: SubEntity[];
 
     constructor(
         private _grantService: GrantService,
         private _subentityService: SubEntityService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private toast: ToastService
     ) { }
 
     public ngOnInit() {
@@ -40,7 +46,7 @@ export class GrantModal implements OnInit, IUniModal {
                 'filter=SuperiorOrganizationID gt 0', ['BusinessRelationInfo.InvoiceAddress']
             )
         ).subscribe((response: any) => {
-            let [grants, subs] = response;
+            const [grants, subs] = response;
             this.grantData = grants;
             subs.forEach(subentity => {
                 subentity['_Name'] = subentity.BusinessRelationInfo
@@ -54,30 +60,28 @@ export class GrantModal implements OnInit, IUniModal {
 
     public saveData() {
         this.grantData = this.table.getTableData();
+
         this.grantData.forEach(grant => {
-            let saver = (grant.ID > 0) ? this._grantService.Put(grant.ID, grant) : this._grantService.Post(grant);
+            const saver = (grant.ID > 0) ? this._grantService.Put(grant.ID, grant) : this._grantService.Post(grant);
             saver.subscribe((savedGrant: Grant) => {
-                this.done('Tilskudd lagret');
+                this.toast.addToast('Tilskudd lagret..', 2, 5);
+                this.close();
             },
             (err) => {
                 this.errorService.handle(err);
-                this.done(`Feil ved lagring av tilskudd: ${err}`);
+                this.toast.addToast('Lagring feilet', 1, 5, 'Lagring av tilskudd feilet. Sjekk at data er rett.');
             });
         });
     }
 
-    private done(infotext: string) {
-        this.infoText = infotext;
-    }
-
     private setTableConfig() {
-        let yesNo: any[] =
+        const yesNo: any[] =
         [
             {Text: 'Ja', Value: true},
             {Text: 'Nei', Value: false}
         ];
 
-        let subentCol = new UniTableColumn('_Subentity', 'Virksomhet', UniTableColumnType.Lookup)
+        const subentCol = new UniTableColumn('_Subentity', 'Virksomhet', UniTableColumnType.Lookup)
         .setTemplate((rowModel) => {
             let subEntity = rowModel['_Subentity'];
             if (rowModel['SubentityID']) {
@@ -100,10 +104,10 @@ export class GrantModal implements OnInit, IUniModal {
                 });
             }
         });
-        let dateCol = new UniTableColumn('FromDate', 'Dato', UniTableColumnType.LocalDate);
-        let descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
-        let agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Lookup)
+        const dateCol = new UniTableColumn('FromDate', 'Dato', UniTableColumnType.LocalDate);
+        const descCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
+        const amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money);
+        const agaCol = new UniTableColumn('AffectsAGA', 'Påvirker aga', UniTableColumnType.Lookup)
         .setTemplate((rowModel) => {
             if (rowModel['AffectsAGA'] !== null) {
                 if (rowModel['AffectsAGA'] === true) {
@@ -117,7 +121,7 @@ export class GrantModal implements OnInit, IUniModal {
         .setOptions({
             lookupFunction: (searchValue: string) => {
                 return yesNo.filter((affect) => {
-                    let text = (affect.Text || '').toLowerCase();
+                    const text = (affect.Text || '').toLowerCase();
                     return (text.indexOf(searchValue.toLowerCase()) > - 1);
                 });
             },
@@ -136,7 +140,7 @@ export class GrantModal implements OnInit, IUniModal {
                 })
             .setColumns([subentCol, dateCol, descCol, amountCol, agaCol])
             .setChangeCallback((event) => {
-                let row = event.rowModel;
+                const row = event.rowModel;
                 if (event.field === '_Subentity') {
                     const subentity = row['_Subentity'];
                     row['SubentityID'] = (subentity) ? subentity.ID : null;
@@ -154,10 +158,5 @@ export class GrantModal implements OnInit, IUniModal {
 
     public close() {
         this.onClose.next(true);
-    }
-
-    public saveAndClose() {
-        this.saveData();
-        this.close();
     }
 }

@@ -7,7 +7,10 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../..
 })
 
 export class AmeldingAgaView {
-    @Input() public currentSumUp: any;
+
+    @Input()
+    public currentSumUp: any;
+
     public agaTableConfig: UniTableConfig;
     public showTable: boolean;
 

@@ -1,10 +1,10 @@
 ﻿// tslint:disable:max-line-length
-import {Component, ViewChildren, QueryList} from '@angular/core';
+import {Component} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {SettingsService} from '../settings-service';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {ErrorService, UserService, GuidService} from '../../../services/services';
 import {Team, User, TeamPosition} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
@@ -17,14 +17,11 @@ import {IUniSaveAction} from '../../../../framework/save/save';
     templateUrl: './teams.html'
 })
 export class Teams {
-    @ViewChildren(UniTable)
-    private uniTables: QueryList<UniTable>;
-
     public teams: Team[];
     public users: User[] = [];
     public positionTypes: TeamPosition[] = Teams.toArray('0=Ikke medlem,1=Medlem,10=Lesetilgang,11=Skrivetilgang,12=Godkjenning,20=Leder');
     private deletables: Array<TeamPosition> = [];
-    public current: Team;
+    public current: any = {};
     public hasUnsavedChanges: boolean = false;
     public busy: boolean = false;
 
@@ -49,61 +46,83 @@ export class Teams {
         this.initTableConfigs();
         this.initFormConfigs();
         this.updateSaveActions();
-        this.requestTeams();
-        this.requestUsers();
-        this.onAddNew();
+        this.getData();
     }
 
+    private static toArray(value: string): Array<any> {
+        const items = value.split(',');
+        const result = [];
+        items.forEach(item => {
+            const parts = item.split('=');
+            result.push( { ID: parseInt(parts[0], 10), Name: parts[1] } );
+        });
+        return result;
+    }
     public updateSaveActions() {
-        this.settingsService.setSaveActions([{
-            label: 'Lagre team',
-            action: (done) => this.onSaveClicked(done),
-            main: true,
-            disabled: !this.hasUnsavedChanges
-        }]);
+        this.settingsService.setSaveActions([
+            {
+                label: 'Nytt team',
+                action: (done) => this.onAddNew(done),
+                main: !this.hasUnsavedChanges,
+                disabled: false
+            },
+            {
+                label: 'Lagre team',
+                action: (done) => this.onSaveClicked(done),
+                main: true,
+                disabled: !this.hasUnsavedChanges
+            },
+            {
+                label: 'Slett team',
+                action: (done) => this.onDelete(done),
+                main: false,
+                disabled: !this.current
+            }
+        ]);
     }
 
     public onTeamSelected(event) {
-        if (!event || !event.rowModel) {
+        if (!event) {
             return;
         }
-
         this.checkSave(true).then(ok => {
             if (ok) {
-                this.setCurrent(event.rowModel);
+                this.setCurrent(event);
             }
         });
     }
 
-    public onAddNew() {
+    public onAddNew(done?) {
         this.checkSave(true).then(ok => {
             if (ok) {
-                var t = new Team();
+                const t = new Team();
                 t.Positions = [];
                 this.setCurrent(t);
             }
         });
+        if (done) {
+            done('');
+        }
     }
 
     public onSaveClicked(done) {
         this.busy = true;
+
         this.save().then(x => {
             this.busy = false;
             done('Team lagret');
         }).catch(reason => done(reason));
     }
 
-    private setCurrent(t: Team) {
+    public setCurrent(t: Team) {
         if (t.Positions) {
             t.Positions.forEach( x => {
                 x['User'] = this.users.find( u => u.ID === x.UserID );
-                let pos = this.positionTypes.find( p => p.ID === x.Position  ) || { ID: 0, Name: 'Dont know!' };
+                const pos = this.positionTypes.find( p => p.ID === x.Position  ) || { ID: 0, Name: 'Dont know!' };
                 x['PositionType'] = pos;
             });
         }
-        if (this.uniTables) {
-            this.uniTables.last.blur();
-        }
+
         this.deletables = [];
         this.current = t;
         this.formModel$.next(this.current);
@@ -112,10 +131,10 @@ export class Teams {
     }
 
     public onPositionDeleted(event) {
-        var row = event.rowModel;
-        var index = row['_originalIndex'];
+        const row = event;
+        const index = row['_originalIndex'];
         if (index >= 0) {
-            var item = this.current.Positions[index];
+            const item = this.current.Positions[index];
             this.current.Positions.splice(index, 1);
             if (item && item.ID) {
                 item.Deleted = true;
@@ -136,22 +155,25 @@ export class Teams {
 
     // Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
     public onEditChange(event) {
-        var rowIndex = event.originalIndex;
-        var value = event.rowModel[event.field];
+        const rowIndex = event.originalIndex;
+        const value = event.rowModel[event.field];
 
         if (!value) {
             return event.rowModel;
         }
 
+        debugger
+
         this.hasUnsavedChanges = true;
         this.updateSaveActions();
 
-        // New row ?
-        if (rowIndex >= this.current.Positions.length) {
+        if (this.current.Positions.length <= rowIndex) {
             this.current.Positions.push(this.newPosition());
+        } else if (!this.current.Positions[rowIndex].Position) {
+            this.current.Positions[rowIndex] = this.newPosition();
         }
 
-        let localItem = <any>this.current.Positions[rowIndex];
+        const localItem = <any>this.current.Positions[rowIndex];
         switch (event.field) {
             case 'UserID':
                 this.current.Positions[rowIndex].UserID = value.ID;
@@ -212,11 +234,12 @@ export class Teams {
 
     private save(): Promise<boolean> {
         return new Promise( (resolve, reject) => {
-            var ht = this.current.ID ? this.http.asPUT() : this.http.asPOST();
-            var route = this.current.ID ? 'teams/' + this.current.ID : 'teams';
+            const ht = this.current.ID ? this.http.asPUT() : this.http.asPOST();
+            const route = this.current.ID ? 'teams/' + this.current.ID : 'teams';
             if (this.deletables) {
                 this.deletables.forEach( item => this.current.Positions.push(item) );
             }
+            this.current.Positions = this.current.Positions.filter((pos: any) => pos.ID || pos._createguid);
             ht.usingBusinessDomain()
                 .withBody(this.current)
                 .withEndPoint(route)
@@ -226,7 +249,7 @@ export class Teams {
                         this.hasUnsavedChanges = false;
                         this.updateSaveActions();
                         this.current = result;
-                        this.requestTeams();
+                        this.getData();
                         resolve(true);
                     },
                     error => {
@@ -237,9 +260,13 @@ export class Teams {
         });
     }
 
-    public onDelete() {
+    public onDelete(done?) {
         if (!this.current || !this.current.ID) {
             return;
+        }
+
+        if (done) {
+            done('');
         }
 
         this.modalService.confirm({
@@ -260,7 +287,7 @@ export class Teams {
                     .subscribe(
                         res => {
                             this.current = undefined;
-                            this.requestTeams();
+                            this.getData();
                         },
                         error => this.errorService.handle(error)
                     );
@@ -313,14 +340,13 @@ export class Teams {
                         lookupFunction: x => this.lookupItems(this.positionTypes, x)
                     })
 
-            ])
-            .setChangeCallback( x => this.onEditChange(x) );
+            ]).setChangeCallback( x => this.onEditChange(x) );
         this.positionTableConfig.deleteButton = true;
      }
 
      private lookupItems(list: Array<any>, txt: string, idField: string = 'ID', nameField: string = 'Name') {
-        var lcaseText = txt.toLowerCase();
-        var sublist = list.filter(item => {
+        const lcaseText = txt.toLowerCase();
+        const sublist = list.filter(item => {
             return (item[idField].toString() === txt || item[nameField].toLowerCase().indexOf(lcaseText) >= 0); } );
         return Observable.from([sublist]);
      }
@@ -339,47 +365,42 @@ export class Teams {
         ]);
     }
 
+    private getData() {
+        Observable.forkJoin(this.requestTeams(), this.requestUsers()).subscribe((result) => {
+            this.users = result[1];
+            this.showTeams(result[0]);
+        }, err => {
+            this.errorService.handle(err);
+        });
+    }
+
     private requestTeams() {
-        this.http.asGET()
+        return this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint('teams?hateoas=false&orderby=name&expand=positions')
-            .send().map(response => response.json())
-            .subscribe(
-                result => this.showTeams(result),
-                error => this.errorService.handle(error)
-            );
+            .send()
+            .map(response => response.json());
     }
 
     private requestUsers() {
-        this.http.asGET()
+        return this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint('users?hateoas=false&orderby=displayname')
-            .send().map(response => response.json())
-            .subscribe(
-                result => this.users = result,
-                error => this.errorService.handle(error)
-            );
+            .send()
+            .map(response => response.json());
     }
 
     private showTeams(list: Array<Team>) {
         this.teams = list;
         if (this.current && this.current.ID) {
-            let match = list.find( x => x.ID === this.current.ID);
+            const match = list.find( x => x.ID === this.current.ID);
             if (match) {
                 this.setCurrent(match);
             }
+        } else if (this.teams.length) {
+            this.setCurrent(this.teams[0]);
         } else {
             this.onAddNew();
         }
-    }
-
-    private static toArray(value: string): Array<any> {
-        var items = value.split(',');
-        var result = [];
-        items.forEach(item => {
-            let parts = item.split('=');
-            result.push( { ID: parseInt(parts[0]), Name: parts[1] } );
-        });
-        return result;
     }
 }

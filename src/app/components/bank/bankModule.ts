@@ -24,7 +24,8 @@ import {
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 
 import {
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatSelectModule
 } from '@angular/material';
 
 @NgModule({
@@ -34,6 +35,7 @@ import {
         ReactiveFormsModule,
         HttpModule,
         MatCheckboxModule,
+        MatSelectModule,
         RouterModule.forChild(bankRoutes),
 
         UniFrameworkModule,

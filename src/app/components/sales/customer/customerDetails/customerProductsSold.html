@@ -12,8 +12,9 @@
         </localdate-picker-input>
     </section>
 
-    <uni-table
+    <ag-grid-wrapper
+        class="transquery-grid-font-size"
         [config]="tableConfig"
         [resource]="(products$ | async)">
-    </uni-table>
+    </ag-grid-wrapper>
 </section>

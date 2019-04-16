@@ -1,35 +1,26 @@
-﻿<section class="splitview">
+﻿<section class="application teams-container">
+    <section style="background-color: #fff; padding: 1rem;">
+        <mat-form-field style="width: 25rem;">
+            <mat-select placeholder="Team" [value]="current" (valueChange)="setCurrent($event)">
+                <mat-option *ngFor="let team of teams" [value]="team">
+                    {{ team.Name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
 
-    <nav class ="splitview_list">
-        <uni-table
-                [config]="teamTableConfig"
-                [resource]="teams"
-                (rowSelected)="onTeamSelected($event)">
-        </uni-table>
-    </nav>
+        <uni-form
+            [config]="formConfig$"
+            [fields]="formFields$"
+            [model]="formModel$"
+            (changeEvent)="onFormChange($event)"
+            (inputEvent)="onFormInput($event)">
+        </uni-form>
 
-    <main class="splitview_detail">
-        <fieldset>
-            <legend>{{current?.Name || 'Nytt team'}}</legend>
+        <ag-grid-wrapper
+            [config]="positionTableConfig"
+            [resource]="current?.Positions"
+            (rowDelete)="onPositionDeleted($event)">
+        </ag-grid-wrapper>
+    </section>
 
-            <uni-form
-                [config]="formConfig$"
-                [fields]="formFields$"
-                [model]="formModel$"
-                (changeEvent)="onFormChange($event)"
-                (inputEvent)="onFormInput($event)">
-            </uni-form>
-
-            <button class="good" (click)="onAddNew()" [disabled]="!current?.ID">
-                Nytt team
-            </button>
-            <button [disabled]="!current?.ID" class="bad" (click)="onDelete()">Slett team</button>
-
-            <uni-table
-                [config]="positionTableConfig"
-                [resource]="current?.Positions"
-                (rowDeleted)="onPositionDeleted($event)">
-            </uni-table>
-        </fieldset>
-    </main>
 </section>

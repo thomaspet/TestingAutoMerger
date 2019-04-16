@@ -35,7 +35,6 @@ export interface ITemplate {
 })
 
 export class SideMenu {
-    @ViewChild(UniTemplateModal) public templateModal: UniTemplateModal;
     @ViewChild(UniCalendar) public calendar: UniCalendar;
 
     @Input() public periode: IFilter;
@@ -88,7 +87,8 @@ export class SideMenu {
                 data: {
                     template: template,
                     index: index
-                }
+                },
+                closeOnClickOutside: false
             }).onClose.subscribe((item: ITemplateReturnObject) => {
                 this.onTemplateModalClose(item);
             });
@@ -133,7 +133,8 @@ export class SideMenu {
                 data: {
                     template: false,
                     index: undefined
-                }
+                },
+                closeOnClickOutside: false
             }).onClose.subscribe((item: ITemplateReturnObject) => {
                 this.onTemplateModalClose(item);
             });

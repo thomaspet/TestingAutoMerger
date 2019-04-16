@@ -1,11 +1,11 @@
 <section class="distribution-splitview">
 
     <section class ="uni-container distribution-list">
-        <uni-table
+        <ag-grid-wrapper
             [config]="unitableConfig"
             [resource]="plans"
-            (rowSelected)="onRowSelected($event)">
-        </uni-table>
+            (rowClick)="onRowSelected($event)">
+        </ag-grid-wrapper>
     </section>
 
     <section class= "uni-container distribution-detail">

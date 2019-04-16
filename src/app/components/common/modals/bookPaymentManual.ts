@@ -36,12 +36,11 @@ import { Observable } from 'rxjs';
                         </option>
                     </select>
                 </label>
-                <uni-table
+                <ag-grid-wrapper
                     [resource]="journalEntryLines"
                     [config]="uniTableConfig"
-                    (rowSelected)="onRowSelected($event)"
-                    >
-                </uni-table>
+                    (rowSelect)="onRowSelected($event)">
+                </ag-grid-wrapper>
             </article>
 
             <footer>

@@ -5,11 +5,12 @@
         {{ buttonTitle }}
     </button>
 
-    <uni-table
+    <ag-grid-wrapper
+        class="transquery-grid-font-size"
         [resource]="lookupFunction"
         [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)">
-    </uni-table>
+        (rowClick)="onRowSelected($event)">
+    </ag-grid-wrapper>
 
     <a class="edit_original_link" [routerLink]="['/uniqueries/details/', queryDefinitionID]">
         Rediger uttrekket

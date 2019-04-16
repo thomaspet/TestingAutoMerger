@@ -79,7 +79,8 @@ export class CustomerProductsSold {
     private setupProductTable() {
         // Define columns to use in the table
         const numberOfItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
-            .setWidth('5rem');
+            .setWidth('4rem')
+            .setAlignment('left');
         const partNameCol = new UniTableColumn('ProductPartName', 'Produktnr',  UniTableColumnType.Link)
             .setWidth('15%')
             .setFilterOperator('contains')

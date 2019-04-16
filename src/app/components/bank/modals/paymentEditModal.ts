@@ -10,30 +10,24 @@ import {
     ConfirmActions
 } from '../../../../framework/uni-modal';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     BankAccount,
     Payment,
     PaymentCode,
-    PaymentBatch,
     LocalDate,
-    CompanySettings
 } from '../../../unientities';
 import {
     PaymentService,
     ErrorService,
     CompanySettingsService,
-    NumberFormat,
     StatisticsService,
     BankAccountService,
-    BusinessRelationService,
     PaymentCodeService,
-    PaymentBatchService,
-    FileService,
     CurrencyService,
 } from '../../../services/services';
 
@@ -42,26 +36,28 @@ import * as moment from 'moment';
 @Component({
     selector: 'uni-payment-edit-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 80vw;">
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
             <header><h1>Rediger utbetalinger</h1></header>
 
-            <article>
-                <label class="payment_filter_type">Type:
-                    <select
-                        [(ngModel)]="paymentCodeFilterValue"
-                        (change)="onPaymentCodeFilterChange($event.target.value)">
-                        <option *ngFor="let code of paymentCodes" [value]="code.ID">{{code.Name}}</option>
-                    </select>
-                </label>
-                <uni-table *ngIf="tableConfig"
+            <article style="max-height: 70vh;">
+                <mat-form-field>
+                    <mat-select [value]="paymentCodeFilterValue"
+                        (valueChange)="onPaymentCodeFilterChange($event)" placeholder="Type">
+                        <mat-option *ngFor="let code of paymentCodes" [value]="code">
+                            {{ code.Name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <ag-grid-wrapper *ngIf="tableConfig"
+                    class="transquery-grid-font-size"
                     [resource]="pendingPayments"
                     [config]="tableConfig">
-                </uni-table>
+                </ag-grid-wrapper>
             </article>
 
-            <footer>
-                <button (click)="saveAndClose()" class="good">Lagre</button>
-                <button (click)="close()" class="bad">Avbryt</button>
+            <footer class="center">
+                <button class="c2a rounded" (click)="saveAndClose()">Lagre</button>
+                <button (click)="close()">Avbryt</button>
             </footer>
         </section>
 `
@@ -75,8 +71,8 @@ export class UniPaymentEditModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
 
     public tableConfig: UniTableConfig;
     private companySettings: any;
@@ -91,10 +87,7 @@ export class UniPaymentEditModal implements IUniModal {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private bankAccountService: BankAccountService,
-        private businessRelationService: BusinessRelationService,
         private paymentCodeService: PaymentCodeService,
-        private paymentBatchService: PaymentBatchService,
-        private fileService: FileService,
         private currencyService: CurrencyService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService
@@ -103,7 +96,7 @@ export class UniPaymentEditModal implements IUniModal {
     public ngOnInit() {
         this.paymentCodeService.GetAll(null)
         .subscribe(data => {
-            let emptyPaymentCodeOption = new PaymentCode();
+            const emptyPaymentCodeOption = new PaymentCode();
             emptyPaymentCodeOption.ID = 0;
             emptyPaymentCodeOption.Name = '';
             data.unshift(emptyPaymentCodeOption);
@@ -124,8 +117,8 @@ export class UniPaymentEditModal implements IUniModal {
         }
 
     private setUpTable() {
-        let paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
-        let payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
+        const paymentDateCol = new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate);
+        const payToCol = new UniTableColumn('BusinessRelation', 'Betales til', UniTableColumnType.Lookup)
             .setTemplate(data => {
                 return data.BusinessRelationID === null && data.ToBankAccount
                 ? data.ToBankAccount.CompanySettings.CompanyName
@@ -155,20 +148,20 @@ export class UniPaymentEditModal implements IUniModal {
                 }
             });
 
-        let currencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Text, false)
+        const currencyCodeCol = new UniTableColumn('CurrencyCode', 'Valuta', UniTableColumnType.Text, false)
             .setDisplayField('CurrencyCode.Code')
             .setWidth('5%')
             .setVisible(false);
 
-        let amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
+        const amountCurrencyCol = new UniTableColumn('AmountCurrency', 'Beløp', UniTableColumnType.Money);
 
-        let amountCol = new UniTableColumn('Amount',
+        const amountCol = new UniTableColumn('Amount',
             `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money)
             .setSkipOnEnterKeyNavigation(true)
             .setVisible(false)
             .setEditable(false);
 
-        let fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
+        const fromAccountCol = new UniTableColumn('FromBankAccount', 'Konto fra', UniTableColumnType.Lookup)
             .setDisplayField('FromBankAccount.AccountNumber')
             .setOptions({
                 itemTemplate: (selectedItem) => {
@@ -180,14 +173,14 @@ export class UniPaymentEditModal implements IUniModal {
                     );
                 }
             });
-        let toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
+        const toAccountCol = new UniTableColumn('ToBankAccount', 'Konto til', UniTableColumnType.Lookup)
             .setDisplayField('ToBankAccount.AccountNumber')
             .setOptions({
                 itemTemplate: (selectedItem) => {
                     return (selectedItem.AccountNumber);
                 },
                 lookupFunction: (query: string) => {
-                    let currentRow = this.table.getCurrentRow();
+                    const currentRow = this.table.getCurrentRow();
 
                     return this.bankAccountService.GetAll(
                         `filter=BusinessRelationID eq ${currentRow.BusinessRelationID}
@@ -197,8 +190,8 @@ export class UniPaymentEditModal implements IUniModal {
                 addNewButtonVisible: true,
                 addNewButtonText: 'Legg til bankkonto',
                 addNewButtonCallback: (text) => new Promise((resolve, reject) => {
-                    let currentRow = this.table.getCurrentRow();
-                    let bankAccount = new BankAccount();
+                    const currentRow = this.table.getCurrentRow();
+                    const bankAccount = new BankAccount();
                     bankAccount.BusinessRelationID = currentRow.BusinessRelationID;
                     bankAccount['_createguide'] = this.bankAccountService.getNewGuid();
                     bankAccount.BankAccountType = '-';
@@ -224,10 +217,10 @@ export class UniPaymentEditModal implements IUniModal {
                 })
             });
 
-        let paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
-        let dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
+        const paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);
+        const dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
             .setConditionalCls(payment => moment(payment.DueDate).isBefore(moment()) ? 'payment-due' : '');
-        let paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
+        const paymentCodeCol = new UniTableColumn('PaymentCode', 'Type', UniTableColumnType.Lookup)
             .setDisplayField('PaymentCode.Name')
             .setVisible(false)
             .setOptions({
@@ -241,11 +234,11 @@ export class UniPaymentEditModal implements IUniModal {
                 }
             });
 
-        let descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+        const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
             .setVisible(false);
 
         // Setup table
-        this.tableConfig = new UniTableConfig('bank.payments.paymentList', true, true, 25)
+        this.tableConfig = new UniTableConfig('bank.payments.paymentList', true, true)
             .setColumns([
                 paymentDateCol,
                 payToCol,
@@ -269,7 +262,7 @@ export class UniPaymentEditModal implements IUniModal {
     }
 
     private paymentChangeCallback(event) {
-        var data = event.rowModel;
+        const data = event.rowModel;
 
         data._isDirty = true;
 
@@ -279,7 +272,7 @@ export class UniPaymentEditModal implements IUniModal {
             // Do some mapping because we use statistics to retrieve the data
 
             if (data.BusinessRelation) {
-                let previousId = data.BusinessRelationID;
+                const previousId = data.BusinessRelationID;
                 data.BusinessRelation.Name = data.BusinessRelation.BusinessRelationName;
                 data.BusinessRelation.ID = data.BusinessRelation.BusinessRelationID;
                 data.BusinessRelationID = data.BusinessRelation.BusinessRelationID;
@@ -345,10 +338,10 @@ export class UniPaymentEditModal implements IUniModal {
                 }
                 return row;
             });
-    };
+    }
 
     private loadData() {
-        let paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ?
+        const paymentCodeFilter = this.paymentCodeFilterValue.toString() !== '0' ?
             ` and PaymentCodeID eq ${this.paymentCodeFilterValue}` : '';
 
         this.paymentService.GetAll(`filter=IsCustomerPayment eq false and
@@ -366,10 +359,11 @@ export class UniPaymentEditModal implements IUniModal {
             );
     }
 
-    public onPaymentCodeFilterChange(newValue: number) {
+    public onPaymentCodeFilterChange(value: any) {
+        const newValue = value.ID;
         // Find dirty elements - check that there are no changes before applying filter
-        let tableData = this.table.getTableData();
-        let dirtyRows = [];
+        const tableData = this.table.getTableData();
+        const dirtyRows = [];
         tableData.forEach(x => {
             if (x._isDirty) {
                 dirtyRows.push(x);
@@ -410,14 +404,14 @@ export class UniPaymentEditModal implements IUniModal {
     }
 
     private getExternalCurrencyExchangeRate(rowModel: Payment): Promise<Payment> {
-        let rowDate = rowModel.PaymentDate || new LocalDate();
+        const rowDate = rowModel.PaymentDate || new LocalDate();
         return new Promise(done => {
             if (rowModel.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID &&
                 (rowModel.CurrencyExchangeRate === null || rowModel.CurrencyExchangeRate === 0)) {
                 rowModel.CurrencyExchangeRate = 1;
                 done(rowModel);
             } else {
-                let currencyDate = moment(rowDate).isAfter(moment()) ? new LocalDate() : rowDate;
+                const currencyDate = moment(rowDate).isAfter(moment()) ? new LocalDate() : rowDate;
                 this.currencyService.getCurrencyExchangeRate(
                     rowModel.CurrencyCodeID,
                     this.companySettings.BaseCurrencyCodeID,

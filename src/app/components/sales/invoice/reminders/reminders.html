@@ -1,7 +1,8 @@
 <section *ngIf="customerInvoice">
-    <uni-table [resource]="reminderList"
-            [config]="reminderTable">
-    </uni-table>
+    <ag-grid-wrapper
+        [resource]="reminderList"
+        [config]="reminderTable">
+    </ag-grid-wrapper>
     <aside>
         <b *ngIf="restAmountOnInvoice || sumFee" style="font-size: 14px; margin-left: .5rem">
             Restsum: {{(restAmountOnInvoice + sumFee) | uninumberformat: 'money'}}

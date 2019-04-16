@@ -754,7 +754,10 @@ export class BankComponent {
             modal.onClose.subscribe((result) => {
                 if (result && result.length > 0) {
                     this.customerInvoiceService.matchInvoicesManual(result, row.ID)
-                        .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
+                        .subscribe(() =>  {
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData()
+                        }); // refresh table);
                 }
             });
         });

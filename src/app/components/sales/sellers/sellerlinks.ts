@@ -1,15 +1,9 @@
 import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {SellerLink} from '../../../unientities';
-import {
-    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem
-} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {
-    ErrorService,
-    SellerService,
-    SellerLinkService
-} from '../../../services/services';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {ErrorService, SellerService, SellerLinkService} from '../../../services/services';
 
 declare const _;
 
@@ -18,25 +12,24 @@ declare const _;
     templateUrl: './sellerLinks.html',
 })
 export class SellerLinks implements AfterViewInit {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     @Input() public parent: any;
     @Input() public readonly: any;
     @Output() public sellerChanged: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
     @Output() public selected: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
     @Output() public deleted: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
-    @Output() public mainSellerSet: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
     public sellerTableConfig: UniTableConfig;
     public selectedSeller: SellerLink;
     public sellers: Array<SellerLink>;
 
-    constructor(private router: Router,
-                private errorService: ErrorService,
-                private toastService: ToastService,
-                private sellerService: SellerService,
-                private sellerLinkService: SellerLinkService) {
-    }
+    constructor(
+        private router: Router,
+        private errorService: ErrorService,
+        private sellerService: SellerService,
+        private sellerLinkService: SellerLinkService
+    ) { }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['parent'] && changes['parent'].currentValue) {
@@ -46,8 +39,10 @@ export class SellerLinks implements AfterViewInit {
     }
 
     public onRowDelete(event) {
-        let seller = event.rowModel;
-        if (!seller) { return; }
+        const seller = event;
+        if (!seller) {
+            return;
+        }
 
         seller.Deleted = true;
         this.sellers.splice(seller._originalIndex, 1);
@@ -56,17 +51,16 @@ export class SellerLinks implements AfterViewInit {
     }
 
     public onRowChanged(event) {
-        let seller = event.rowModel;
+        const seller = event.rowModel;
         if (!seller.ID) {
             seller['_createGuid'] = this.sellerLinkService.getNewGuid();
         }
         this.sellers[seller._originalIndex] = seller;
-
         this.sellerChanged.emit(seller);
     }
 
     public onRowSelected(event) {
-        this.selectedSeller = event.rowModel;
+        this.selectedSeller = event;
         this.selected.emit(this.selectedSeller);
     }
 
@@ -74,14 +68,14 @@ export class SellerLinks implements AfterViewInit {
         this.focusRow(0);
     }
 
-    public focusRow(index = undefined) {
+    public focusRow(index?: number) {
         if (this.table && index) {
             this.table.focusRow(index);
         }
     }
 
     private changeCallback(event) {
-        let rowModel = event.rowModel;
+        const rowModel = event.rowModel;
 
         if (event.field === 'Seller') {
             rowModel.SellerID = rowModel.Seller.ID;
@@ -92,7 +86,7 @@ export class SellerLinks implements AfterViewInit {
 
     private setupTable() {
         // Define columns to use in the table
-        let sellerCol = new UniTableColumn('Seller', 'Selger',  UniTableColumnType.Lookup)
+        const sellerCol = new UniTableColumn('Seller', 'Selger',  UniTableColumnType.Lookup)
             .setTemplate((row) => {
                 return row.Seller ? row.Seller.Name : '';
             })
@@ -109,15 +103,15 @@ export class SellerLinks implements AfterViewInit {
                 }
             });
 
-        let percentCol = new UniTableColumn('Percent', 'Prosent', UniTableColumnType.Number);
-        let amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
+        const percentCol = new UniTableColumn('Percent', 'Prosent', UniTableColumnType.Number);
+        const amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
             .setEditable(false);
 
-        let defaultRowModel = {
+        const defaultRowModel = {
             SellerID: 0
         };
 
-        let contextMenuItems: IContextMenuItem[] = [];
+        const contextMenuItems: IContextMenuItem[] = [];
         contextMenuItems.push({
             label: 'Vis selgerdetaljer',
             action: (rowModel) => {

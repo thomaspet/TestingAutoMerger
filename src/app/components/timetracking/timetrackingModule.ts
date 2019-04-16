@@ -8,7 +8,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {timetrackingRoutes} from './timetrackingRoutes';
 import {GenericDetailview} from './genericview/detail';
-import {GenericListView} from './genericview/list';
 import {TimeEntry} from './timeentry/timeentry';
 import {TimeTableReport} from './timeentry/timetable/timetable';
 import {ReportWorkflow} from './timeentry/timetable/pipes';
@@ -58,7 +57,6 @@ import {MatMenuModule} from '@angular/material';
     ],
     declarations: [
         GenericDetailview,
-        GenericListView,
         TimeEntry,
         TimeTableReport,
         RegtimeTotals,

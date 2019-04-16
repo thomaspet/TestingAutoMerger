@@ -1,18 +1,9 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component,} from '@angular/core';
 import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
-import {
-    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
-} from '../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable/index';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {
-    ErrorService,
-    ProjectService,
-    DepartmentService,
-    SellerService,
-    UserService
-} from '../../../services/services';
+import {ErrorService, SellerService} from '../../../services/services';
 import { Seller } from '../../../unientities';
 
 declare const _;
@@ -22,8 +13,6 @@ declare const _;
     templateUrl: './sellerList.html',
 })
 export class SellerList {
-    @ViewChild(UniTable) public table: UniTable;
-
     public sellerTableConfig: UniTableConfig;
     public sellers: Seller[] = [];
     private expandString = 'DefaultDimensions,DefaultDimensions.Project,'
@@ -39,12 +28,9 @@ export class SellerList {
     constructor(
         private router: Router,
         private errorService: ErrorService,
-        private toastService: ToastService,
         private tabService: TabService,
-        private projectService: ProjectService,
-        private departmentService: DepartmentService,
         private sellerService: SellerService,
-        private userService: UserService
+        private toastService: ToastService
     ) {
         this.getData();
         this.tabService.addTab({
@@ -66,7 +52,7 @@ export class SellerList {
     }
 
     public onRowSelected(event) {
-        this.router.navigateByUrl('/sales/sellers/' + event.rowModel.ID);
+        this.router.navigateByUrl('/sales/sellers/' + event.ID);
     }
 
     private setupTable() {
@@ -104,7 +90,6 @@ export class SellerList {
                     : '';
             });
 
-        // Setup table
         this.sellerTableConfig = new UniTableConfig('common.seller.sellerList', false, true, 15)
             .setSearchable(true)
             .setDeleteButton(true)
@@ -114,6 +99,7 @@ export class SellerList {
 
     public deleteSeller(event) {
         this.sellerService.Remove(event.ID).subscribe(() => {
+            this.toastService.addToast(`Selger "${event.Name}" slettet`, 2, 5);
             this.getData();
         }, (err) => { this.errorService.handle(err); });
     }

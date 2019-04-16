@@ -26,16 +26,17 @@ export enum TemplateCloseOptions {
 @Component({
     selector: 'uni-template-modal',
     template: `
-        <section role="dialog" class="uni-modal medium">
+        <section role="dialog" class="uni-modal" style="width: 80vw">
             <header><h1>Opprett ny mal</h1></header>
 
             <article>
-                <label>Navn </label><input type="text" [(ngModel)]="template.Name"><br>
-                <label>Beskrivelse </label><input type="text" [(ngModel)]="template.Description">
-                <uni-table
-                    [resource]="template?.Items"
+                <label>Navn </label><input type="text" class="template-modal-input-field" [(ngModel)]="template.Name"><br>
+                <label>Beskrivelse </label><input type="text" class="template-modal-input-field" [(ngModel)]="template.Description">
+                <ag-grid-wrapper
+                    class="transquery-grid-font-size"
+                    [(resource)]="template.Items"
                     [config]="tableConfig" style="margin: 1.2rem 0;">
-                </uni-table>
+                </ag-grid-wrapper>
             </article>
 
             <footer>
@@ -55,9 +56,6 @@ export class UniTemplateModal implements IUniModal {
 
     @Output()
     public onClose: EventEmitter<ITemplateReturnObject> = new EventEmitter();
-
-    @ViewChild(UniTable)
-    private table: UniTable;
 
     public template: ITemplate = this.getCleanTemplate();
     public tableConfig: UniTableConfig;
@@ -80,20 +78,23 @@ export class UniTemplateModal implements IUniModal {
     }
 
     private setUpTable() {
+
+        const columns = [
+            new UniTableColumn('StartTime', 'Start', UniTableColumnType.Text),
+            new UniTableColumn('EndTime', 'Slutt', UniTableColumnType.Text),
+            new UniTableColumn('LunchInMinutes', 'Lunsj', UniTableColumnType.Text),
+            new UniTableColumn('Minutes', 'Timer', UniTableColumnType.Text)
+                .setTemplate(rowModel => rowModel.Minutes && (rowModel.Minutes / 60).toFixed(1)),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                .setWidth('30%'),
+            this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x)),
+            this.createLookupColumn('Project', 'Prosjekt',
+                'Project', x => this.worker.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber'),
+        ];
+
         this.tableConfig = new UniTableConfig('timetracking.newtemplate', true, false)
             .setSearchable(false)
-            .setColumns([
-                new UniTableColumn('StartTime', 'Start'),
-                new UniTableColumn('EndTime', 'Slutt'),
-                new UniTableColumn('LunchInMinutes', 'Lunsj'),
-                new UniTableColumn('Minutes', 'Timer')
-                    .setTemplate(rowModel => rowModel.Minutes && (rowModel.Minutes / 60).toFixed(1)),
-                new UniTableColumn('Description', 'Beskrivelse')
-                    .setWidth('30%'),
-                this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x)),
-                this.createLookupColumn('Project', 'Prosjekt',
-                    'Project', x => this.worker.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber'),
-            ])
+            .setColumns(columns)
             .setChangeCallback(event => this.onEditChange(event));
         this.tableConfig.deleteButton = true;
     }
@@ -101,7 +102,7 @@ export class UniTemplateModal implements IUniModal {
     public close(src: 'save' | 'cancel' | 'delete') {
 
         if (src === 'save') {
-            this.template.Items = this.table.getTableData();
+            this.template.Items = this.template.Items.filter((row: any) => !row._isEmpty);
 
             if ((!this.template.Description || !this.template.Name)) {
                 this.toast.addToast(
@@ -174,15 +175,15 @@ export class UniTemplateModal implements IUniModal {
     }
 
     private calcMinutesOnLine(item: ITimeTrackingTemplate): number {
-        var minutes = 0;
+        let minutes = 0;
         if (item.StartTime && item.EndTime) {
-            var lunch = item.LunchInMinutes || 0;
-            let st = item.StartTime.replace(':', '');
-            let et = item.EndTime.replace(':', '');
-            let startHours = +st.slice(0, 2);
-            let startMinutes = +st.slice(2);
-            let endHours = +et.slice(0, 2);
-            let endMinutes = +et.slice(2);
+            const lunch = item.LunchInMinutes || 0;
+            const st = item.StartTime.replace(':', '');
+            const et = item.EndTime.replace(':', '');
+            const startHours = +st.slice(0, 2);
+            const startMinutes = +st.slice(2);
+            const endHours = +et.slice(0, 2);
+            const endMinutes = +et.slice(2);
 
             minutes = ((endHours - startHours) * 60) + (endMinutes - startMinutes) - lunch;
         }
@@ -201,7 +202,7 @@ export class UniTemplateModal implements IUniModal {
         let earliestHour = '23:59';
 
         items.forEach((item) => {
-            if (parseInt(item.StartTime.replace(':', '')) < parseInt(earliestHour.replace(':', ''))) {
+            if (parseInt(item.StartTime.replace(':', ''), 10) < parseInt(earliestHour.replace(':', ''), 10)) {
                 earliestHour = item.StartTime;
             }
         });
@@ -212,7 +213,7 @@ export class UniTemplateModal implements IUniModal {
         let latestHour = '00:00';
 
         items.forEach((item) => {
-            if (parseInt(item.EndTime.replace(':', '')) > parseInt(latestHour.replace(':', ''))) {
+            if (parseInt(item.EndTime.replace(':', ''), 10) > parseInt(latestHour.replace(':', ''), 10)) {
                 latestHour = item.EndTime;
             }
         });
@@ -222,7 +223,7 @@ export class UniTemplateModal implements IUniModal {
     private formatHours(value: string): string {
         let returnValue = '';
         if (value) {
-            let parsedValue: number = parseInt(value.replace(':', ''));
+            const parsedValue: number = parseInt(value.replace(':', ''), 10);
             if (typeof parsedValue === 'number' && !isNaN(parsedValue)) {
                 if (parsedValue > 0 && parsedValue < 10) {
                     returnValue = '0' + parsedValue + ':00';
@@ -232,7 +233,7 @@ export class UniTemplateModal implements IUniModal {
                     returnValue = (parsedValue < 100) ? '0' : '';
                     returnValue += Math.floor((parsedValue / 10)) + ':';
                     returnValue += (parsedValue % 10 < 6) ? parsedValue % 10 + '0' : '00';
-                }else if (parsedValue > 236 && parsedValue < 960 && (parsedValue % 100 < 60)) {
+                } else if (parsedValue > 236 && parsedValue < 960 && (parsedValue % 100 < 60)) {
                     returnValue = '0' + Math.floor(parsedValue / 100) + ':';
                     returnValue += (parsedValue % 100 > 10) ? parsedValue % 100 : '0' + parsedValue % 100;
                 } else if (parsedValue > 999 && parsedValue < 2360 && (parsedValue % 100 < 60)) {

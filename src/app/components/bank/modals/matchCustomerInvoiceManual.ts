@@ -1,7 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import { CustomerInvoiceService } from '@app/services/services';
-import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig, UniTable } from '@uni-framework/ui/unitable';
+import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig } from '@uni-framework/ui/unitable';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { ErrorService } from '@app/services/common/errorService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
@@ -10,7 +11,7 @@ import { JournalEntryLineService } from '@app/services/accounting/journalEntryLi
 @Component({
     selector: 'match-invoice-manual-modal',
     template: `
-        <section role="dialog" class="uni-modal large">
+        <section role="dialog" class="uni-modal large uni-redesign">
             <header>
                 <h1>Velg faktura</h1>
             </header>
@@ -19,22 +20,21 @@ import { JournalEntryLineService } from '@app/services/accounting/journalEntryLi
                 fra innbetalt beløp: {{paymentData.PaymentAmount}}</p>
                 <!--<p>Beskrivelse {{paymentData}} </p>-->
                 <label>Vis:
-                    <select style='width:300px'
+                    <select style="width:300px; margin-bottom: 1rem;"
                         (change)="onShowInvoicesFilterChange($event.target.value)">
                         <option value="showNotFullyPaid">kun åpen/delbetalt faktura</option>
                         <option value="showFullyPaid">alle faktura</option>
                     </select>
                 </label>
-                <uni-table
+                <ag-grid-wrapper
                     [resource]="customerInvoices"
                     [config]="uniTableConfig"
-                    (rowSelectionChanged)="onRowSelected($event)"
-                    >
-                </uni-table>
+                    (rowSelectionChange)="onRowSelected($event)">
+                </ag-grid-wrapper>
             </article>
 
             <footer>
-                <button class="good" [disabled]="!isOkEnabled" (click)="close(true)">Bruk valgt rad</button>
+                <button class="good" [disabled]="!isOkEnabled" (click)="close(true)">Bruk valgt rad(er)</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
         </section>
@@ -48,8 +48,8 @@ export class MatchCustomerInvoiceManual implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
 
     public customerInvoices: Array<any> = [];
     public uniTableConfig: UniTableConfig;
@@ -100,20 +100,15 @@ export class MatchCustomerInvoiceManual implements IUniModal {
     }
 
     public onRowSelected(selectedRows) {
-        this.isOkEnabled = this.table.getSelectedRows().length > 0;
+        this.isOkEnabled = selectedRows.length > 0;
         this.sumOfSelectedRows = 0;
-        this.table.getSelectedRows().forEach(row => {
+        selectedRows.forEach(row => {
             this.sumOfSelectedRows = this.sumOfSelectedRows + row.RestAmount;
         });
     }
 
     public close(emitValue?: boolean) {
-        const value: Array<number> = [];
-        if (emitValue) {
-            this.table.getSelectedRows().forEach(element => {
-                value.push(element.ID);
-            });
-        }
+        const value: Array<number> = emitValue ? this.table.getSelectedRows().map(row => row.ID) : [];
         this.onClose.emit(value);
     }
 
@@ -151,7 +146,11 @@ export class MatchCustomerInvoiceManual implements IUniModal {
                     .setWidth('7rem')
             ];
 
-            this.uniTableConfig = new UniTableConfig('common.modal.matchCustomerInvoiceManual', false, true, 25)
+            let pageSize = (window.innerHeight - 500);
+
+            pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+            this.uniTableConfig = new UniTableConfig('common.modal.matchCustomerInvoiceManual', false, true, pageSize)
                 .setMultiRowSelect(true)
                 .setColumns(columns)
                 .setColumnMenuVisible(true)

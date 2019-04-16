@@ -10,7 +10,7 @@ import {DimensionSettingsService} from '../../../services/common/dimensionSettin
 @Component({
     selector: 'uni-dimension-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 40vw;">
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 40vw;">
             <header><h1>{{ options.header }}</h1></header>
 
             <article>
@@ -21,9 +21,9 @@ import {DimensionSettingsService} from '../../../services/common/dimensionSettin
                 </uni-form>
             </article>
 
-            <footer>
-                <button (click)="save()" class="good">Lagre</button>
-                <button (click)="close()" class="bad">Avbryt</button>
+            <footer class="center">
+                <button (click)="save()" class="c2a rounded">Lagre</button>
+                <button (click)="close()">Avbryt</button>
             </footer>
         </section>
 `

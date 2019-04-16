@@ -9,8 +9,10 @@ import {
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {AuthService} from '../../../authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
+
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
@@ -24,14 +26,26 @@ export class UniQueryReadOnly implements OnChanges {
     // externalID is used when using this report from another component, e.g. as a sub component
     // in the customerDetails view. This way it is easy to set that the context of the uniquery
     // is a specific ID, this customers ID in this case
-    @Input() public externalID: number;
-    @Input() public queryDefinitionID: number;
-    @Input() public customerID: number;
-    @Input() public hidden: boolean;
-    @Input() public projectID: number;
-    @Input() public parentModel: string;
+    @Input()
+    public externalID: number;
 
-    @ViewChild(UniTable) public table: UniTable;
+    @Input()
+    public queryDefinitionID: number;
+
+    @Input()
+    public customerID: number;
+
+    @Input()
+    public hidden: boolean;
+
+    @Input()
+    public projectID: number;
+
+    @Input()
+    public parentModel: string;
+
+    @ViewChild(AgGridWrapper)
+    public table: AgGridWrapper;
 
     public tableConfig: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
@@ -329,7 +343,11 @@ export class UniQueryReadOnly implements OnChanges {
         const companyKey = this.authService.getCompanyKey();
         const configStoreKey = `uniQueryReadonly.${companyKey}.${this.queryDefinitionID}`;
 
-        this.tableConfig = new UniTableConfig(configStoreKey, false, true, 50)
+        let pageSize = window.innerHeight - 450;
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        this.tableConfig = new UniTableConfig(configStoreKey, false, true, pageSize)
             .setSearchable(true)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
@@ -357,7 +375,7 @@ export class UniQueryReadOnly implements OnChanges {
     }
 
     public onRowSelected(event) {
-        const selectedObject = event.rowModel;
+        const selectedObject = event;
 
         if (this.queryDefinition.ClickUrl) {
             let url = this.queryDefinition.ClickUrl;

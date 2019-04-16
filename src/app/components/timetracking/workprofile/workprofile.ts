@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {createFormField, ControlTypes} from '../../common/utils/utils';
-import {IViewConfig} from '../genericview/list';
+import {IViewConfig} from '../genericview/detail';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';

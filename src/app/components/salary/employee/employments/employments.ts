@@ -5,6 +5,7 @@ import {EmploymentService} from '../../../../services/services';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Employee, Employment} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {ReplaySubject, Subscription} from 'rxjs';
@@ -20,7 +21,7 @@ const EMPLOYEE_KEY = 'employee';
     templateUrl: './employments.html'
 })
 export class Employments extends UniView implements OnInit, OnDestroy {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     public employee: Employee;
     public employments: Employment[] = [];
@@ -42,6 +43,7 @@ export class Employments extends UniView implements OnInit, OnDestroy {
         super(router.url, cacheService);
         this.tableConfig = new UniTableConfig('salary.employee.employments', false)
             .setColumnMenuVisible(false)
+            .setAutoAddNewRow(false)
             .setDeleteButton(false)
             .setColumns([
                 new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
@@ -130,14 +132,11 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 newEmployment.SubEntityID = this.employee.SubEntityID;
 
                 newEmployment['_createguid'] = this.employmentService.getNewGuid();
+
                 this.employments.push(newEmployment);
+                this.employments = [...this.employments];
                 this.selectedEmployment$.next(newEmployment);
-                if (this.table) {
-                    if (this.table.rowCount !== this.employments.length) {
-                        this.table.addRow(newEmployment);
-                    }
-                    this.table.focusRow(this.employments.length - 1);
-                }
+                this.table.focusRow(this.employments.length - 1);
             }, err => this.errorService.handle(err));
     }
 
@@ -176,9 +175,8 @@ export class Employments extends UniView implements OnInit, OnDestroy {
     }
 
     public onRowSelected(event) {
-        const selectedIndex = event.rowModel['_originalIndex'];
+        const selectedIndex = event['_originalIndex'];
         if (selectedIndex !== this.selectedIndex) {
-            this.table.updateRow(this.selectedIndex, this.employments[this.selectedIndex]);
             this.selectedIndex = selectedIndex;
             this.selectedEmployment$.next(this.employments[this.selectedIndex]);
         }
@@ -197,17 +195,9 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 .subscribe(
                     (res) => {
                         this.employments.splice(this.selectedIndex, 1);
-                        this.table.removeRow(this.selectedIndex || 0);
+                        this.employments = [...this.employments];
                         this.selectedEmployment$.next(this.employments[0]);
-                        if (this.selectedIndex && this.selectedIndex > 0) {
-                            this.table.focusRow(this.selectedIndex - 1);
-                        } else {
-                            if (this.employments.length === 0) {
-                                this.newEmployment();
-                            } else {
-                                this.table.focusRow(0);
-                            }
-                        }
+                        this.table.focusRow(0);
                     },
                     error => this.errorService.handle(error)
                 );

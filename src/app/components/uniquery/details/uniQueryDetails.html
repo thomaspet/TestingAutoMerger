@@ -35,12 +35,14 @@
         <input type="text" [(ngModel)]="customExternalID" (change)="customExternalIdChanged()"/>
     </label>
     <section [ngClass]="{'table-container': !hideModel, 'table-container-full': hideModel}" *ngIf="tableConfig && fields.length > 0">
-        <uni-table
+        <ag-grid-wrapper
+            class="transquery-grid-font-size"
             [resource]="lookupFunction"
             [config]="tableConfig"
             (columnsChange)="onColumnsChange($event)"
             (filtersChange)="onFiltersChange($event)"
-            (rowSelected)="onRowSelected($event)"></uni-table>
+            (rowClick)="onRowSelected($event)">
+        </ag-grid-wrapper>
     </section>
 </section>
 

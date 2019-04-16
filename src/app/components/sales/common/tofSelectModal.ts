@@ -6,18 +6,15 @@ import {ErrorService} from '../../../services/services';
 @Component({
     selector: 'uni-select-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 80vw;">
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
             <header><h1>Ny basert på</h1></header>
             <article>
-                <uni-table
+                <ag-grid-wrapper
                     [resource]="lookupFunction"
                     [config]="tableData"
-                    (rowSelected)="onRowSelected($event)">
-                </uni-table>
+                    (rowSelect)="onRowSelected($event)">
+                </ag-grid-wrapper>
             </article>
-            <footer>
-                <button class="bad" (click)="close()">Lukk</button>
-            </footer>
         </section>
     `
 })
@@ -56,29 +53,29 @@ export class UniTofSelectModal implements IUniModal {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        let numberCol = new UniTableColumn(
+        const numberCol = new UniTableColumn(
             this.options.data.moduleName + 'Number', this.options.data.label,  UniTableColumnType.Text)
             .setWidth('8%')
             .setFilterOperator('contains');
 
-        let customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr',  UniTableColumnType.Text)
+        const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr',  UniTableColumnType.Text)
             .setFilterOperator('contains')
             .setWidth('8%');
 
-        let nameCol = new UniTableColumn('CustomerName', 'Kundenavn',  UniTableColumnType.Text)
+        const nameCol = new UniTableColumn('CustomerName', 'Kundenavn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
 
-        let priceIncVatCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl mva',  UniTableColumnType.Number)
+        const priceIncVatCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl mva',  UniTableColumnType.Number)
             .setFilterOperator('eq')
             .setWidth('10%')
             .setFormat('{0:n}')
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
-        let dateCol = new UniTableColumn(
+        const dateCol = new UniTableColumn(
             this.options.data.moduleName + 'Date', 'Dato',  UniTableColumnType.LocalDate);
 
-        let departmentCol = new UniTableColumn(
+        const departmentCol = new UniTableColumn(
             'DefaultDimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains')
@@ -89,7 +86,7 @@ export class UniTofSelectModal implements IUniModal {
                     : '';
             });
 
-        let projectCol = new UniTableColumn(
+        const projectCol = new UniTableColumn(
             'DefaultDimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains')
@@ -100,13 +97,16 @@ export class UniTofSelectModal implements IUniModal {
                     : '';
             });
 
-        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setWidth('15%')
             .setTemplate((data: any) => {
                 return this.statusCodeToText(data.StatusCode);
-            })
+            });
 
-        this.tableData = new UniTableConfig('common.newbasedon', false, true, 25)
+        let pageSize = window.innerHeight - 450;
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        this.tableData = new UniTableConfig('common.newbasedon', false, true, pageSize)
             .setSearchable(true)
             .setEntityType(this.options.data.moduleName)
             .setSearchListVisible(true)
@@ -127,7 +127,7 @@ export class UniTofSelectModal implements IUniModal {
     }
 
     public onRowSelected(event) {
-        this.close(event.rowModel.ID);
+        this.close(event.ID);
     }
 
     public statusCodeToText(value) {

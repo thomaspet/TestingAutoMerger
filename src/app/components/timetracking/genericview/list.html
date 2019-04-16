@@ -1,8 +1,0 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
-<section class='application'>
-    <button class="new-button" (click)="createNew()">Opprett ny</button>
-    <uni-table [resource]="lookupFunction"
-        [config]="viewconfig.tableConfig"
-        (rowSelected)="onRowSelected($event)">
-    </uni-table>
-</section>    

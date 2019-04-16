@@ -1,16 +1,39 @@
 import {Component, ViewChild, Input, Output, EventEmitter, OnInit, OnChanges} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../../common/utils/utils';
 import {ErrorService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
+
+export interface IViewConfig {
+    labels?: {
+        single?: string;
+        plural?: string;
+        createNew?: string;
+        ask_delete?: string;
+    };
+    moduleID: UniModules;
+    baseUrl: string;
+    title?: string;
+    titleProperty?: string;
+    // tab: View | { label: string, url: string };
+    data: {
+        route: string;
+        model?: string;
+        expand?: string;
+        factory?: () => {}
+        check?: (item: any) => void
+        checkObs?: (item: any) => Observable<any>
+    };
+    tableConfig?: any;
+    formFields?: Array<any>;
+}
 
 enum IAction {
     Save = 0,

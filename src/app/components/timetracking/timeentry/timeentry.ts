@@ -660,7 +660,6 @@ export class TimeEntry {
     private approvalCheck() {
         this.timesheetService.workerService.get('teams?action=my-teams')
             .subscribe( (result: Array<Team>) => {
-                console.log(result);
                 if (result && result.length > 0) {
                     this.teams = result;
                     const newKey = this.tabs.length;

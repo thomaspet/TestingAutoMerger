@@ -1,7 +1,7 @@
-<uni-table
+<ag-grid-wrapper
     [resource]="sellers"
     [config]="sellerTableConfig"
-    (rowDeleted)="onRowDelete($event)"
-    (rowChanged)="onRowChanged($event)"
-    (rowSelected)="onRowSelected($event)">
-</uni-table>
+    (rowDelete)="onRowDelete($event)"
+    (rowChange)="onRowChanged($event)"
+    (rowSelect)="onRowSelected($event)">
+</ag-grid-wrapper>

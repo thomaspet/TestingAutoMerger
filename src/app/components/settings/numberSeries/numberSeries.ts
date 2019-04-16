@@ -87,11 +87,11 @@ export class NumberSeries {
     }
 
     public onSerieSelected(event) {
-        if (!(event && event.rowModel)) { return; }
+        if (!event) { return; }
 
         this.checkSave(true).then( ok => { if (ok) {
-            this.currentSerie = event.rowModel;
-            this.setCurrent(event.rowModel);
+            this.currentSerie = event;
+            this.setCurrent(event);
         }});
     }
 

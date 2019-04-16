@@ -17,6 +17,7 @@ import {AuthService} from '../../../authService';
 import {SaveQueryDefinitionModal} from './saveQueryDefinitionModal';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService} from '../../../services/services';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
@@ -29,8 +30,11 @@ import {saveAs} from 'file-saver';
     templateUrl: './uniQueryDetails.html'
 })
 export class UniQueryDetails {
-    @ViewChild(UniTable) table: UniTable;
-    @ViewChild(SaveQueryDefinitionModal) saveQueryDefinitionModal: SaveQueryDefinitionModal;
+    @ViewChild(AgGridWrapper)
+    public table: AgGridWrapper;
+
+    @ViewChild(SaveQueryDefinitionModal)
+    public saveQueryDefinitionModal: SaveQueryDefinitionModal;
 
     // externalID is used when using this report from another component, e.g. as a sub component
     // in the customerDetails view. This way it is easy to set that the context of the uniquery
@@ -359,7 +363,11 @@ export class UniQueryDetails {
         const companyKey = this.authService.getCompanyKey();
         const configStoreKey = `uniQuery.${companyKey}.${this.queryDefinitionID}`;
 
-        this.tableConfig = new UniTableConfig(configStoreKey, false, true, 50)
+        let pageSize = window.innerHeight - 400;
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        this.tableConfig = new UniTableConfig(configStoreKey, false, true, pageSize)
             .setSearchable(true)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true, true)
@@ -469,7 +477,7 @@ export class UniQueryDetails {
     }
 
     public onRowSelected(event) {
-        const selectedObject = event.rowModel;
+        const selectedObject = event;
 
         if (this.queryDefinition.ClickUrl) {
             let url = this.queryDefinition.ClickUrl;

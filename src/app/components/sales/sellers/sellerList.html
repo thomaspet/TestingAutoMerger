@@ -3,10 +3,10 @@
     [saveactions]="toolbarActions">
 </uni-toolbar>
 <section class="application">
-    <uni-table
+    <ag-grid-wrapper
         [resource]="sellers"
         [config]="sellerTableConfig"
-        (rowSelected)="onRowSelected($event)"
-        (rowDeleted)="deleteSeller($event.rowModel)">
-    </uni-table>
+        (rowSelect)="onRowSelected($event)"
+        (rowDelete)="deleteSeller($event)">
+    </ag-grid-wrapper>
 </section>

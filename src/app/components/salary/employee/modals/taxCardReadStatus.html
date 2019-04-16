@@ -1,4 +1,7 @@
 <article *ngIf="status">
     <uni-altinn-response-status [status]="status"></uni-altinn-response-status>
-    <uni-table *ngIf="(tableModel$ | async).length" [resource]="tableModel$ | async" [config]="tableConfig"></uni-table>
+    <ag-grid-wrapper
+        [resource]="tableModel$ | async"
+        [config]="tableConfig">
+    </ag-grid-wrapper>
 </article>

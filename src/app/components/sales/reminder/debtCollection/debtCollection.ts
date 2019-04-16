@@ -4,6 +4,7 @@ import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     NumberFormat,
     CustomerInvoiceService,
@@ -11,7 +12,6 @@ import {
     CustomerInvoiceReminderService
 } from '../../../../services/services';
 import {
-    UniTable,
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
@@ -31,8 +31,9 @@ export class DebtCollection implements OnInit {
     @Input()
     public config: any;
 
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
+
     public remindersToDebtCollect: any;
     public remindersAll: any;
     public reminderToDebtCollectTable: UniTableConfig;
@@ -85,7 +86,7 @@ export class DebtCollection implements OnInit {
 
     public onRowSelected(data) {
         this.summaryData.restSumChecked = 0;
-        const selectedRows = this.table.getSelectedRows();
+        const selectedRows = data;
 
         selectedRows.forEach(x => {
             this.summaryData.restSumChecked += x.RestAmount;

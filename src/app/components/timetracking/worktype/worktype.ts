@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {createFormField, ControlTypes, filterInput, debounce} from '../../common/utils/utils';
-import {IViewConfig} from '../genericview/list';
+import {IViewConfig} from '../genericview/detail';
 import {WorkType, WageType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';

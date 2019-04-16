@@ -1,11 +1,11 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {CustomerOrderService, ErrorService} from '../../../services/services';
 import {CustomerOrder, StatusCodeCustomerOrderItem} from '../../../unientities';
 
@@ -17,10 +17,10 @@ import {CustomerOrder, StatusCodeCustomerOrderItem} from '../../../unientities';
                 <h1>{{options.header || 'Overfør til faktura'}}</h1>
             </header>
             <article>
-                <uni-table
+                <ag-grid-wrapper
                     [resource]="order?.Items"
                     [config]="tableConfig">
-                </uni-table>
+                </ag-grid-wrapper>
             </article>
 
             <footer>
@@ -31,7 +31,7 @@ import {CustomerOrder, StatusCodeCustomerOrderItem} from '../../../unientities';
     `
 })
 export class UniOrderToInvoiceModal implements IUniModal {
-    @ViewChild(UniTable) public table: UniTable;
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
     @Input() public options: IModalOptions = {};
     @Output() public onClose: EventEmitter<CustomerOrder> = new EventEmitter();
 
@@ -73,7 +73,7 @@ export class UniOrderToInvoiceModal implements IUniModal {
             return;
         }
 
-        let selectedLines = this.table.getSelectedRows();
+        const selectedLines = this.table.getSelectedRows();
         this.order.Items = selectedLines;
 
         this.onClose.emit(this.order);

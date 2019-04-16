@@ -1,7 +1,6 @@
-import {Input, Component, ViewChild} from '@angular/core';
+import {Input, Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
@@ -15,7 +14,6 @@ import {
 
 import {
     StatisticsService,
-    SellerService,
     CustomerInvoiceService,
     CustomerOrderService,
     CustomerQuoteService
@@ -26,8 +24,6 @@ import {
     templateUrl: './sellerSalesList.html',
 })
 export class SellerSalesList {
-    @ViewChild(UniTable) public table: UniTable;
-
     @Input() public mode: string;
     @Input() public sellerID: number;
 
@@ -36,7 +32,6 @@ export class SellerSalesList {
     public busy: boolean = true;
 
     constructor(
-        private router: Router,
         private statisticsService: StatisticsService,
         private invoiceService: CustomerInvoiceService,
         private orderService: CustomerOrderService,
@@ -95,12 +90,6 @@ export class SellerSalesList {
             });
             this.busy = false;
         });
-
-    }
-
-
-    public onRowSelected(event) {
-        this.router.navigateByUrl('/sales/invoices/' + event.rowModel.ID);
     }
 
     private setupTable() {
@@ -144,8 +133,12 @@ export class SellerSalesList {
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setWidth('7rem');
 
+        let pageSize = (window.innerHeight - 450);
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
         // Setup table
-        this.salesTableConfig = new UniTableConfig('common.seller.sellerSalesList', false, true, 25)
+        this.salesTableConfig = new UniTableConfig('common.seller.sellerSalesList', false, true, pageSize)
             .setSearchable(true)
             .setSortable(true)
             .setColumns([

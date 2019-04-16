@@ -1,10 +1,11 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTableConfig, UniTableColumn, UniTable, UniTableColumnType, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {DimensionSettingsService} from '../../../services/common/dimensionSettingsService';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniDimensionModal} from './dimensionModal';
 import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
+import {SettingsService} from '../settings-service';
 
 @Component({
     selector: 'uni-dimension-settings',
@@ -12,10 +13,6 @@ import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
 })
 
 export class UniDimensionSettings implements OnInit {
-
-    @ViewChild(UniTable)
-    private table: UniTable;
-
     public data: any;
     public tableConfig: UniTableConfig;
 
@@ -23,13 +20,15 @@ export class UniDimensionSettings implements OnInit {
         private service: DimensionSettingsService,
         private modalService: UniModalService,
         private router: Router,
-        private navbarService: NavbarLinkService
+        private navbarService: NavbarLinkService,
+        private settingsService: SettingsService
     ) {}
 
     public ngOnInit() {
         this.service.GetAll(null).subscribe((res) => {
             this.data = res;
             this.setUpData();
+            this.updateSaveActions();
         });
     }
 
@@ -52,7 +51,7 @@ export class UniDimensionSettings implements OnInit {
             .setSearchable(false)
             .setAutoAddNewRow(false)
             .setColumns([
-                new UniTableColumn('Dimension', 'Nummer', UniTableColumnType.Text).setWidth('10%')
+                new UniTableColumn('Dimension', 'Nummer', UniTableColumnType.Text).setWidth('4rem')
                 .setLinkResolver(row => `/dimensions/overview/${row.Dimension}`),
                 new UniTableColumn('Label', 'Tekst', UniTableColumnType.Text),
                 new UniTableColumn('IsActive', 'Aktiv', UniTableColumnType.Text)
@@ -60,22 +59,37 @@ export class UniDimensionSettings implements OnInit {
                         (item) => {
                             return item.IsActive ? 'Ja' : 'Nei';
                         })
-                    .setWidth('8%')
+                    .setWidth('4rem')
                     .setAlignment('center')
                 ])
             .setDeleteButton(false)
             .setContextMenu(contextMenuItem);
     }
 
-    public addNewDimension() {
+    public updateSaveActions() {
+        this.settingsService.setSaveActions([
+            {
+                label: 'Ny dimensjon',
+                action: (done) => this.addNewDimension(done),
+                main: true,
+                disabled: this.data.length >= 6
+            }
+        ]);
+    }
+
+    public addNewDimension(done) {
         this.modalService.open(UniDimensionModal, { header: 'Ny dimensjon' }).onClose.subscribe((result: boolean) => {
             if (result) {
                 this.service.GetAll(null).subscribe((res) => {
                     this.data = [...res];
                     this.navbarService.resetNavbar();
+                    done('Ny dimensjon opprettet');
+                    this.updateSaveActions();
                 });
+            } else {
+                done('Ingen endringer');
             }
-        });
+        }, err => done('') );
     }
 
     public editDimension(dim) {

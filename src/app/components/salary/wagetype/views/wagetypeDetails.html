@@ -10,8 +10,8 @@
 
 <ng-template [ngIf]="showSupplementaryInformations">
     <p>Valgte tilleggsopplysninger</p>
-    <uni-table
+    <ag-grid-wrapper
         [config]="tilleggspakkeConfig"
         [resource]="(wageType$ | async)?.SupplementaryInformations">
-    </uni-table>
+    </ag-grid-wrapper>
 </ng-template>

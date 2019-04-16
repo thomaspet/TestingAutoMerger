@@ -1,19 +1,11 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
-import {
-    GrantService, SubEntityService, ErrorService, FinancialYearService, PayrollrunService, AgaSumService
-} from '../../../../services/services';
+import {ErrorService, AgaSumService} from '../../../../services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {FreeAmountSummary, AGASums} from './../../../../unientities';
-interface IFreeAmountData {
-    name?: string;
-    grant?: number;
-    maxFreeAmount?: number;
-    usedFreeAmount?: number;
-}
 
 @Component({
     selector: 'free-amount-modal',
@@ -21,8 +13,13 @@ interface IFreeAmountData {
 })
 
 export class FreeAmountModal implements OnInit, IUniModal {
-    @Input() public options: IModalOptions;
-    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+    @Input()
+    public options: IModalOptions;
+
+    @Output()
+    public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+
     public freeamountTableConfig: UniTableConfig;
     public freeamountData$: BehaviorSubject<AGASums[]> = new BehaviorSubject([]);
     public freeamountModel$: BehaviorSubject<FreeAmountSummary> = new BehaviorSubject(null);
@@ -35,11 +32,10 @@ export class FreeAmountModal implements OnInit, IUniModal {
     ) {}
 
     public ngOnInit() {
-        this.getData()
-            .subscribe(() => {
-                this.setTableConfig();
-                this.setFormConfig();
-            });
+        this.getData().subscribe(() => {
+            this.setTableConfig();
+            this.setFormConfig();
+        });
     }
 
     private getData(): Observable<FreeAmountSummary> {

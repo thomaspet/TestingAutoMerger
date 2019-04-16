@@ -1,12 +1,9 @@
-<section class="uni-modal medium">
+<section class="uni-modal uni-redesign" style="width: 75vw">
     <header>
         <h1>Fribeløp pr virksomhet</h1>
     </header>
     <article>
-        <uni-table [config]="freeamountTableConfig" [resource]="freeamountData$ | async"></uni-table>
+        <ag-grid-wrapper [config]="freeamountTableConfig" [resource]="freeamountData$ | async" style="margin-bottom: 1.5rem"></ag-grid-wrapper>
         <uni-form [config]="formConfig$" [fields]="fields$" [model]="freeamountModel$"></uni-form>
     </article>
-    <footer>
-        <button class="bad" (click)="close()">Lukk</button>
-    </footer>
 </section>

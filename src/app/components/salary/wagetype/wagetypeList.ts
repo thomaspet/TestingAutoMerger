@@ -59,21 +59,25 @@ export class WagetypeList implements OnInit {
         this.busy = true;
         this.getWagetypes();
 
-        const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
-        idCol.setWidth('5rem');
+        const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number)
+            .setWidth('3rem')
+            .setAlignment('center');
 
         const nameCol = new UniTableColumn('WageTypeName', 'Navn', UniTableColumnType.Text);
-        const accountNumberCol = new UniTableColumn(
-            'AccountNumber', 'Hovedbokskonto', UniTableColumnType.Text
-        ).setWidth('10rem').setAlignment('right');
+        const accountNumberCol = new UniTableColumn('AccountNumber', 'Hovedbokskonto', UniTableColumnType.Text)
+            .setWidth('10rem')
+            .setAlignment('right');
 
         const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
 
-        const basePaymentCol = new UniTableColumn('Base_Payment', 'Utbetales').setTemplate((wageType: WageType) => {
-            return wageType.Base_Payment ? 'Ja' : 'Nei';
-        });
+        const basePaymentCol = new UniTableColumn('Base_Payment', 'Utbetales')
+            .setTemplate(wageType =>  wageType.Base_Payment ? 'Ja' : 'Nei'
+            );
 
-        this.tableConfig = new UniTableConfig('salary.wagetype.list', false, true, 15)
+        let pageSize = window.innerHeight - 350;
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        this.tableConfig = new UniTableConfig('salary.wagetype.list', false, true, pageSize)
             .setColumns([idCol, nameCol, accountNumberCol, rateCol, basePaymentCol])
             .setSearchable(true);
     }
@@ -86,7 +90,7 @@ export class WagetypeList implements OnInit {
     }
 
     public rowSelected(event) {
-        this._router.navigateByUrl('/salary/wagetypes/' + event.rowModel.ID);
+        this._router.navigateByUrl('/salary/wagetypes/' + event.ID);
     }
 
     public createWageType() {

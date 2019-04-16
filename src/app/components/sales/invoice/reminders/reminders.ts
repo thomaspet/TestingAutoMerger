@@ -7,7 +7,6 @@ import {
 } from '@app/unientities';
 
 import {
-    NumberFormat,
     CustomerInvoiceReminderService,
     StatisticsService,
     ErrorService
@@ -36,7 +35,6 @@ export class InvoiceReminders implements OnInit {
         + 'User.DisplayName as CreatedBy&orderby=ID desc&filter=customerinvoiceid%20eq%20';
 
     constructor(
-        numberFormat: NumberFormat,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
         private customerInvoiceReminderService: CustomerInvoiceReminderService
