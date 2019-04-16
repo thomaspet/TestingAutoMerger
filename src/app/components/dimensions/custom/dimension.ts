@@ -1,6 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, RequestMethod} from '@angular/http';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
@@ -180,11 +180,6 @@ export class UniDimensionView implements OnInit {
         switch (this.currentDimension) {
             case 1:
                 dimensionName = row.Name;
-                if (this.projectService.checkIfUsed(dimensionId)) {
-                    this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
-                    this.refresh();
-                    return;
-                }
                 break;
             default:
                 //TODO Er ikke implementert melding (midlertidig - bør ikke vise hvis ikke implementert)
@@ -192,27 +187,34 @@ export class UniDimensionView implements OnInit {
                 return;
         }
 
-        const deleteModal = this.modalService.open(UniConfirmModalV2, {
-            header: 'Bekreft sletting',
-            message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ' ' + dimensionId + ' - ' + dimensionName + '?'
-        });
 
-        deleteModal.onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.projectService.Remove(dimensionId).subscribe(
-                    res => {
-                        //this.toast.addToast('Filen er slettet', ToastType.good, 2);
-                        //done('Sletting vellykket');
-                    },
-                    err => {
-                        this.errorService.handle(err);
-                        this.refresh();
-                    }
-                );
-            } else {
+        this.projectService.ActionWithBody(dimensionId, null, 'is-used', RequestMethod.Get).subscribe(res => {
+            if (res === true) {
+                this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
                 this.refresh();
+                return;
             }
-        });        
+
+            const deleteModal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft sletting',
+                message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ' ' + dimensionId + ' - ' + dimensionName + '?'
+            });
+            deleteModal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.projectService.Remove(dimensionId).subscribe(
+                        res => {
+                            this.toast.addToast('Prosjektet er slettet', ToastType.good, 2);
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.refresh();
+                        }
+                    );
+                } else {
+                    this.refresh();
+                }
+            });        
+        });
     }
 
     public changeTab(index: number) {

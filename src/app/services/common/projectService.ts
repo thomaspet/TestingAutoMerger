@@ -6,7 +6,7 @@ import {BehaviorSubject} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {IToolbarConfig} from '../../components/common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, RequestMethod} from '@angular/http';
 
 @Injectable()
 export class ProjectService extends BizHttp<Project> {
@@ -47,10 +47,10 @@ export class ProjectService extends BizHttp<Project> {
         this.hasJournalEntryLineModule = false;
     }
 
-    public checkIfUsed(id: number) {
-        //TODO is-used
-        if (id === 1)
-            return true;
+    public checkIfUsed(id: number): boolean {
+        this.ActionWithBody(id, null, 'is-used', RequestMethod.Get).subscribe(res => {
+            return res;
+        });
         return false;
     }
 }
