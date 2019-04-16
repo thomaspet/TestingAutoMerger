@@ -193,16 +193,16 @@ export class UniDimensionView implements OnInit {
     public onRowDelete(row) {
         const dimensionId = row.ID;
         let dimensionName;//Dersom alle aktuelle har Name, kan row.Name brukes direkte i modalen
-        switch (this.currentDimension) {    //Project
-            case 1:
+        let service;
+        switch (this.currentDimension) {    
+            case 1: //Project
                 dimensionName = row.Name;
+                service = this.projectService;
                 break;
             case 2: // Department
-                this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
-                this.refresh();
-                return;
-//                dimensionName = row.Name;
-//                break;
+                dimensionName = row.Name;
+                service = this.departmentService;
+                break;
 
             default:
                 this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
@@ -210,35 +210,33 @@ export class UniDimensionView implements OnInit {
                 return;
         }
 
-        if (this.currentDimension == 1) {
-            this.projectService.checkIfUsed(dimensionId).subscribe(res => {
-                if (res === true) {
-                    this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
-                    this.refresh();
-                    return;
-                }
+        service.checkIfUsed(dimensionId).subscribe(res => {
+            if (res === true) {
+                this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
+                this.refresh();
+                return;
+            }
 
-                const deleteModal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Bekreft sletting',
-                    message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ' ' + dimensionId + ' - ' + dimensionName + '?'
-                });
-                deleteModal.onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.projectService.Remove(dimensionId).subscribe(
-                            res => {
-                                this.toast.addToast('Prosjektet er slettet', ToastType.good, 2);
-                            },
-                            err => {
-                                this.errorService.handle(err);
-                                this.refresh();
-                            }
-                        );
-                    } else {
-                        this.refresh();
-                    }
-                });        
+            const deleteModal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft sletting',
+                message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ' ' + dimensionId + ' - ' + dimensionName + '?'
             });
-        }
+            deleteModal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.projectService.Remove(dimensionId).subscribe(
+                        res => {
+                            this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.refresh();
+                        }
+                    );
+                } else {
+                    this.refresh();
+                }
+            });        
+        });
     }
 
     public changeTab() {
