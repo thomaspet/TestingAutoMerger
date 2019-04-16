@@ -23,6 +23,7 @@ import {
 } from '@uni-framework/ui/unitable';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import { UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-dimension-view',
@@ -87,7 +88,8 @@ export class UniDimensionView implements OnInit {
         private invoiceService: CustomerInvoiceService,
         private quoteService: CustomerQuoteService,
         private orderService: CustomerOrderService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toast: ToastService
     ) { }
 
     public ngOnInit () {
@@ -161,7 +163,7 @@ export class UniDimensionView implements OnInit {
         const nameCol = new UniTableColumn(nameKey, 'Navn', UniTableColumnType.Text);
 
         this.tableConfig = new UniTableConfig('dimension.custom', false)
-            .setDeleteButton(true)  //TODO kun for prosjekt(dimensjon?) som ikke har vært i bruk eller er det nok med validering når man klikker?
+            .setDeleteButton(true)
             .setColumns([idCol, nameCol])
             .setSearchable(true);
     }
@@ -173,12 +175,16 @@ export class UniDimensionView implements OnInit {
     }
 
     public onRowDelete(row) {
-        //TODO sjekk om dimensjonen er brukt
         const dimensionId = row.ID;
-        let dimensionName;
+        let dimensionName;//Dersom alle aktuelle har Name, kan row.Name brukes direkte i modalen
         switch (this.currentDimension) {
             case 1:
                 dimensionName = row.Name;
+                if (this.projectService.checkIfUsed(dimensionId)) {
+                    this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
+                    this.refresh();
+                    return;
+                }
                 break;
             default:
                 //TODO Er ikke implementert melding (midlertidig - bør ikke vise hvis ikke implementert)
@@ -196,6 +202,7 @@ export class UniDimensionView implements OnInit {
                 this.projectService.Remove(dimensionId).subscribe(
                     res => {
                         //this.toast.addToast('Filen er slettet', ToastType.good, 2);
+                        //done('Sletting vellykket');
                     },
                     err => {
                         this.errorService.handle(err);

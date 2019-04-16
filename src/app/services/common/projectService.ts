@@ -46,4 +46,11 @@ export class ProjectService extends BizHttp<Project> {
         this.hasSupplierInvoiceModule = false;
         this.hasJournalEntryLineModule = false;
     }
+
+    public checkIfUsed(id: number) {
+        //TODO is-used
+        if (id === 1)
+            return true;
+        return false;
+    }
 }
