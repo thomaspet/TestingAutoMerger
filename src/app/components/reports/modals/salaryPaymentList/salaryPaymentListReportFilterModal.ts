@@ -131,6 +131,7 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                         report.parameters = [{Name: 'RunID', value: model$.getValue().RunID}];
                         if (report.ID === 8) {
                             report.parameters.push({Name: 'BookingType', value: model$.getValue().BookingType});
+                            report.parameters.push({Name: 'Refresh', value: true});
                         }
                         this.modalService.open(UniPreviewModal, {
                             data: report
