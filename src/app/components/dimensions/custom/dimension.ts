@@ -182,7 +182,7 @@ export class UniDimensionView implements OnInit {
                 dimensionName = row.Name;
                 break;
             default:
-                //TODO Er ikke implementert melding (midlertidig - bør ikke vise hvis ikke implementert)
+                this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
                 this.refresh();
                 return;
         }
