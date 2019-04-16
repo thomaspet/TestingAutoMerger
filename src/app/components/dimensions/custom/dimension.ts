@@ -23,6 +23,8 @@ import {
     UniTableColumn,
 } from '@uni-framework/ui/unitable';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -90,6 +92,8 @@ export class UniDimensionView implements OnInit {
         private invoiceService: CustomerInvoiceService,
         private quoteService: CustomerQuoteService,
         private orderService: CustomerOrderService,
+        private modalService: UniModalService,
+        private toast: ToastService,
         private pageStateService: PageStateService
     ) { }
 
@@ -175,6 +179,7 @@ export class UniDimensionView implements OnInit {
         pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
 
         this.tableConfig = new UniTableConfig('dimension.custom', false, true, pageSize)
+            .setDeleteButton(true)
             .setColumns([idCol, nameCol])
             .setSearchable(true);
     }
@@ -183,6 +188,57 @@ export class UniDimensionView implements OnInit {
         this.currentItem = dimension;
         this.model$.next(this.currentItem);
         this.setUpTOFListTable(this.activeTabIndex);
+    }
+
+    public onRowDelete(row) {
+        const dimensionId = row.ID;
+        let dimensionName;//Dersom alle aktuelle har Name, kan row.Name brukes direkte i modalen
+        switch (this.currentDimension) {    //Project
+            case 1:
+                dimensionName = row.Name;
+                break;
+            case 2: // Department
+                this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
+                this.refresh();
+                return;
+//                dimensionName = row.Name;
+//                break;
+
+            default:
+                this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
+                this.refresh();
+                return;
+        }
+
+        if (this.currentDimension == 1) {
+            this.projectService.checkIfUsed(dimensionId).subscribe(res => {
+                if (res === true) {
+                    this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
+                    this.refresh();
+                    return;
+                }
+
+                const deleteModal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Bekreft sletting',
+                    message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ' ' + dimensionId + ' - ' + dimensionName + '?'
+                });
+                deleteModal.onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.projectService.Remove(dimensionId).subscribe(
+                            res => {
+                                this.toast.addToast('Prosjektet er slettet', ToastType.good, 2);
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                this.refresh();
+                            }
+                        );
+                    } else {
+                        this.refresh();
+                    }
+                });        
+            });
+        }
     }
 
     public changeTab() {
@@ -304,6 +360,12 @@ export class UniDimensionView implements OnInit {
                 done('Lagring feilet');
             });
         }
+    }
+    public refresh() {
+        this.model$.next(this.currentItem);
+        this.getDimensionlist().subscribe((dims) => {
+            this.dimensionList = dims;
+        });
     }
 
     public updateToolbarConfig() {

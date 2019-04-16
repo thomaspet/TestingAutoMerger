@@ -2,11 +2,11 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Project} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {IToolbarConfig} from '../../components/common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, RequestMethod} from '@angular/http';
 
 @Injectable()
 export class ProjectService extends BizHttp<Project> {
@@ -45,5 +45,9 @@ export class ProjectService extends BizHttp<Project> {
         this.hasOrderModule = false;
         this.hasSupplierInvoiceModule = false;
         this.hasJournalEntryLineModule = false;
+    }
+
+    public checkIfUsed(id: number): Observable<any> {
+        return this.ActionWithBody(id, null, 'is-used', RequestMethod.Get);
     }
 }

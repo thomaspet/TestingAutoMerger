@@ -385,7 +385,7 @@ export class Project {
             InitiateProject: 'Sett i tilbudsfase',
             StartProject: 'Sett som pågående',
             CompleteProject: 'Avslutt prosjekt',
-            DiscardProject: 'Slett prosjekt'
+            DiscardProject: 'Deaktiver prosjekt'
         };
         return labels[name] || name;
     }
