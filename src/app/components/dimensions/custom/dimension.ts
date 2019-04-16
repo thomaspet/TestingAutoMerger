@@ -1,6 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, RequestMethod} from '@angular/http';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
@@ -210,7 +210,7 @@ export class UniDimensionView implements OnInit {
                 return;
         }
 
-        service.checkIfUsed(dimensionId).subscribe(res => {
+        service.ActionWithBody(dimensionId, null, 'is-used', RequestMethod.Get).subscribe(res => {
             if (res === true) {
                 this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
                 this.refresh();
@@ -223,7 +223,7 @@ export class UniDimensionView implements OnInit {
             });
             deleteModal.onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.projectService.Remove(dimensionId).subscribe(
+                    service.Remove(dimensionId).subscribe(
                         res => {
                             this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
                         },
