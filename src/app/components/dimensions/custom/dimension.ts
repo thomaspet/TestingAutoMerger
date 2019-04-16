@@ -1,6 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {URLSearchParams, RequestMethod} from '@angular/http';
+import {URLSearchParams} from '@angular/http';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
@@ -188,7 +188,7 @@ export class UniDimensionView implements OnInit {
         }
 
 
-        this.projectService.ActionWithBody(dimensionId, null, 'is-used', RequestMethod.Get).subscribe(res => {
+        this.projectService.checkIfUsed(dimensionId).subscribe(res => {
             if (res === true) {
                 this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
                 this.refresh();
