@@ -1,5 +1,6 @@
-import {Component, Input, OnInit, ViewChildren, QueryList, SimpleChange} from '@angular/core';
+import {Component, Input, ViewChildren, QueryList, SimpleChange} from '@angular/core';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ActivatedRoute} from '@angular/router';
 import {SendEmail} from '../../../../models/sendEmail';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -15,7 +16,8 @@ import {
     ReportDefinitionService,
     CustomerInvoiceReminderService,
     EmailService,
-    EHFService
+    EHFService,
+    PageStateService
 } from '../../../../services/services';
 import {
     UniTable,
@@ -24,6 +26,7 @@ import {
     UniTableColumnType,
     INumberFormat
 } from '../../../../../framework/ui/unitable/index';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import * as moment from 'moment';
 
 export interface IRunNumberData {
@@ -49,7 +52,7 @@ export interface CustomReminder extends CustomerInvoiceReminder {
     selector: 'reminder-sending',
     templateUrl: './reminderSending.html'
 })
-export class ReminderSending implements OnInit {
+export class ReminderSending {
     @Input() config: any;
     @Input() modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
@@ -68,7 +71,8 @@ export class ReminderSending implements OnInit {
         + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
         + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter='
-        + 'isnull(statuscode,0) ne 41204 and (customerinvoice.collectorstatuscode ne 42505 or isnull(customerinvoice.collectorstatuscode,0) eq 0) and ';
+        + 'isnull(statuscode,0) ne 41204 and (customerinvoice.collectorstatuscode ne 42505 or '
+        + 'isnull(customerinvoice.collectorstatuscode,0) eq 0) and ';
 
     currentRunNumber: number = 0;
     currentRunNumberData: IRunNumberData;
@@ -129,24 +133,43 @@ export class ReminderSending implements OnInit {
         private reportDefinitionService: ReportDefinitionService,
         private modalService: UniModalService,
         private emailService: EmailService,
-        private ehfService: EHFService
-    ) {}
-
-    ngOnInit() {
-        this.setupReminderTable();
-        this.statisticsService.GetAllUnwrapped(
-            'model=CustomerInvoiceReminder'
-            + '&select=RunNumber as RunNumber,User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate'
-            + '&orderby=RunNumber%20desc'
-            + '&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity'
-        )
-            .subscribe((data) => {
+        private ehfService: EHFService,
+        private pageStateService: PageStateService,
+        private tabService: TabService,
+        private route: ActivatedRoute
+    ) {
+        route.queryParams.subscribe((params) => {
+            this.currentRunNumber = +params['runNumber'];
+            this.setupReminderTable();
+            this.statisticsService.GetAllUnwrapped(
+                'model=CustomerInvoiceReminder'
+                + '&select=RunNumber as RunNumber,User.DisplayName%20as%20CreatedBy,RemindedDate%20as%20RemindedDate'
+                + '&orderby=RunNumber%20desc'
+                + '&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.GlobalIdentity'
+            ).subscribe((data) => {
                 this.runNumbers = data;
+
                 if (this.runNumbers && this.runNumbers.length > 0) {
-                    this.loadRunNumber(this.runNumbers[0].RunNumber);
+                    this.currentRunNumber = this.currentRunNumber || this.runNumbers[0].RunNumber;
+                    this.loadRunNumber(this.currentRunNumber);
                 }
                 this.fields$.next(this.getLayout().Fields);
+                this.addTab();
+            }, err => {
+                this.addTab();
+                this.errorService.handle(err);
             });
+        });
+    }
+
+    public addTab() {
+        this.pageStateService.setPageState('runNumber', this.currentRunNumber + '');
+        this.tabService.addTab({
+            name: 'Purring',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.Reminders,
+            active: true
+        });
     }
 
     onRowChanged(data) {
@@ -338,6 +361,7 @@ export class ReminderSending implements OnInit {
                         this.updateToolbar();
                         this.updateReminderList(reminders);
                         this.searchParams$.next({RunNumber: runNumber});
+                        this.addTab();
                         resolve(true);
                     }
                 }, (err) => {

@@ -16,8 +16,7 @@
                 <ag-grid-wrapper #listTable
                     [config]="listTableConfig"
                     [(resource)]="paymentInfoTypes"
-                    (rowSelectionChange)="onKidSelect($event)"
-                    (dataLoaded)="listTable.focusRow(0)">
+                    (rowClick)="onKidSelect($event)">
                 </ag-grid-wrapper>
             </section>
         </nav>

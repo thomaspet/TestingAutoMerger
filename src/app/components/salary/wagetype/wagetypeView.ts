@@ -5,7 +5,7 @@ import {
     TaxType, StdWageType, GetRateFrom
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {WageTypeService, UniCacheService, ErrorService, FinancialYearService} from '../../../services/services';
+import {WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService} from '../../../services/services';
 import {WageTypeViewService} from './services/wageTypeViewService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -48,7 +48,8 @@ export class WageTypeView extends UniView implements OnDestroy {
         private errorService: ErrorService,
         private financialYearService: FinancialYearService,
         private modalService: UniModalService,
-        private wageTypeViewService: WageTypeViewService
+        private wageTypeViewService: WageTypeViewService,
+        private pageStateService: PageStateService
     ) {
 
         super(router.url, cacheService);
@@ -94,8 +95,6 @@ export class WageTypeView extends UniView implements OnDestroy {
                         add: this.newWagetype.bind(this)
                     }
                 };
-
-                this.updateTabStrip(this.wagetypeID, this.wageType);
 
                 this.checkDirty();
             }, err => this.errorService.handle(err));
@@ -154,24 +153,6 @@ export class WageTypeView extends UniView implements OnDestroy {
             });
     }
 
-    private updateTabStrip(wagetypeID, wageType: WageType, active: boolean = true) {
-        if (wageType.WageTypeNumber) {
-            this.tabService.addTab({
-                name: 'Lønnsartnr. ' + wageType.WageTypeNumber,
-                url: this.url + wageType.ID,
-                moduleID: UniModules.Wagetypes,
-                active: active
-            });
-        } else {
-            this.tabService.addTab({
-                name: 'Ny lønnsart',
-                url: this.url + wagetypeID,
-                moduleID: UniModules.Wagetypes,
-                active: active
-            });
-        }
-    }
-
     private askAndSaveWageType(done: (message: string) => void, updateView: boolean = true) {
         this.promptUserAboutSaving(done)
             .filter(result => result === ConfirmActions.ACCEPT)
@@ -181,7 +162,7 @@ export class WageTypeView extends UniView implements OnDestroy {
                     super.updateState('wagetype', wageType, false);
                     const childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
-                    done('lagring fullført');
+                    done('Lagring fullført');
                     this.saveActions[0].disabled = true;
                 }
             },
@@ -242,17 +223,12 @@ export class WageTypeView extends UniView implements OnDestroy {
         })
         .switchMap(wageType => this.wageTypeService.save(wageType))
         .do((wt: WageType) => {
-            if (updateView) {
-                return;
-            }
-
-            this.tabService
-                .activeTab$
-                .take(1)
-                .subscribe(tab => {
-                    this.updateTabStrip(wt.ID, wt, false);
-                    this.tabService.addTab(tab);
-                });
+            this.tabService.addTab({
+                name: wt.WageTypeNumber ? 'Lønnsartnr. ' + wt.WageTypeNumber : 'Ny lønnsart',
+                url: this.pageStateService.getUrl(),
+                moduleID: UniModules.Wagetypes,
+                active: true
+            });
         });
     }
 

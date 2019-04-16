@@ -165,7 +165,7 @@ export class UniQueryDetails {
 
                     this.tabService.addTab(
                         {
-                            name: this.queryDefinition.Name,
+                            name: 'Uttrekk - ' + this.queryDefinition.Name,
                             url: '/uniqueries/details/' + this.queryDefinitionID,
                             moduleID: UniModules.UniQuery,
                             active: true

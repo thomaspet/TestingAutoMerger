@@ -1,10 +1,10 @@
 import { Component, ViewChild, SimpleChanges, } from '@angular/core';
-
+import {ActivatedRoute} from '@angular/router';
 import { BehaviorSubject, } from 'rxjs';
 import { Observable, } from 'rxjs';
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { TabService, UniModules, } from '@app/components/layout/navbar/tabstrip/tabService';
-import { ErrorService, PaymentInfoTypeService, CompanySettingsService} from '@app/services/services';
+import { ErrorService, PaymentInfoTypeService, CompanySettingsService, PageStateService} from '@app/services/services';
 import { IUniSaveAction, } from '@uni-framework/save/save';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { FieldType, UniField, UniFieldLayout, UniFormError, UniForm, } from '@uni-framework/ui/uniform';
@@ -20,10 +20,11 @@ declare var _;
     templateUrl: './kidSettings.html'
 })
 export class KIDSettings {
-    @ViewChild('detailsTable') private detailsTable: AgGridWrapper;
+    @ViewChild('listTable') private detailsTable: AgGridWrapper;
     @ViewChild(UniForm) private form: UniForm;
 
     currentPaymentInfoType: PaymentInfoType;
+    currentID: number;
     detailsTableConfig: UniTableConfig;
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
@@ -51,9 +52,28 @@ export class KIDSettings {
         private paymentInfoTypeService: PaymentInfoTypeService,
         private tabService: TabService,
         private toastService: ToastService,
+        private route: ActivatedRoute,
+        private pageStateService: PageStateService
     ) {
-        this.tabService.addTab({name: 'KID-innstillinger', url: '/sales/kidsettings', moduleID: UniModules.KIDSettings, active: true});
-        this.requestData();
+        this.route.queryParams.subscribe((params) => {
+            this.currentID = +params['id'];
+            this.showInactiveInList = params['showInactiveInList'] === 'true';
+            this.initTableConfigs();
+            this.requestData();
+            this.addTab();
+        });
+    }
+
+    addTab() {
+        this.pageStateService.setPageState('id', this.currentID + '');
+        this.pageStateService.setPageState('showInactiveInList', this.showInactiveInList + '');
+
+        this.tabService.addTab({
+            name: 'KID-innstillinger',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.KIDSettings,
+            active: true
+        });
     }
 
     checkInactive() {
@@ -63,6 +83,22 @@ export class KIDSettings {
             this.paymentInfoTypes = this.paymentInfoTypes.filter(
                 paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
             );
+        }
+
+        if (this.paymentInfoTypes.length) {
+            // Check to see if previously selected KID is still in grid
+            const index = this.paymentInfoTypes.findIndex(paymentInfoType => paymentInfoType.ID === this.currentID);
+            if (index !== -1) {
+                setTimeout(() => {
+                    this.detailsTable.focusRow(index);
+                });
+            } else {
+                this.setCurrent(this.paymentInfoTypes[0]);
+                setTimeout(() => {
+                    this.detailsTable.focusRow(0);
+                });
+            }
+            this.addTab();
         }
     }
 
@@ -309,9 +345,9 @@ export class KIDSettings {
 
     private requestData() {
         Observable.forkJoin(
-        this.paymentInfoTypeService.GetAll(null),
-        this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros'),
-        this.companySettingsService.getCompanySettings(),
+            this.paymentInfoTypeService.GetAll(null),
+            this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros'),
+            this.companySettingsService.getCompanySettings(),
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
@@ -320,16 +356,31 @@ export class KIDSettings {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;
                 });
-                if (this.paymentInfoTypes.find(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
+
+                if (!this.showInactiveInList) {
+                    this.paymentInfoTypes = this.paymentInfoTypes.filter(
+                        paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
+                    );
+                }
+
+                const index = this.paymentInfoTypes.findIndex(paymentInfoType => paymentInfoType.ID === this.currentID);
+
+                if (index !== -1) {
+                    this.setCurrent(this.paymentInfoTypes[index]);
+                    setTimeout(() => {
+                        this.detailsTable.focusRow(index);
+                    });
+                } else if (this.paymentInfoTypes.find(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
                     this.setCurrent(this.paymentInfoTypes[0]);
+                    setTimeout(() => {
+                        this.detailsTable.focusRow(0);
+                    });
                 }
 
                 this.paymentInfoTypePartsMacros = response[1];
                 this.companySettings = response[2];
 
                 this.initFormConfig();
-                this.initTableConfigs();
-                this.checkInactive();
                 this.updateSaveActions();
             },
             error => this.errorService.handle(error)
@@ -385,12 +436,15 @@ export class KIDSettings {
         if (this.detailsTable) {
             this.detailsTable.finishEdit();
         }
+
         currentPaymentInfoType['_active'] = (currentPaymentInfoType.StatusCode === 42400);
         this.initialActive = currentPaymentInfoType['_active'];
         this.currentPaymentInfoType = currentPaymentInfoType;
         this.formModel$.next(this.currentPaymentInfoType);
+        this.currentID = this.currentPaymentInfoType.ID;
         this.hasUnsavedChanges = false;
         this.updateSaveActions();
+        this.addTab();
     }
 
     private updateSaveActions() {

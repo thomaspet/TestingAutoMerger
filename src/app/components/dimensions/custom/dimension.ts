@@ -1,5 +1,5 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -14,7 +14,8 @@ import {
     ErrorService,
     CustomerInvoiceService,
     CustomerQuoteService,
-    CustomerOrderService
+    CustomerOrderService,
+    PageStateService
 } from '@app/services/services';
 import {
     UniTableConfig,
@@ -22,6 +23,8 @@ import {
     UniTableColumn,
 } from '@uni-framework/ui/unitable';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'uni-dimension-view',
@@ -81,32 +84,40 @@ export class UniDimensionView implements OnInit {
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private route: ActivatedRoute,
+        private router: Router,
         private cdr: ChangeDetectorRef,
         private errorService: ErrorService,
         private invoiceService: CustomerInvoiceService,
         private quoteService: CustomerQuoteService,
-        private orderService: CustomerOrderService
+        private orderService: CustomerOrderService,
+        private pageStateService: PageStateService
     ) { }
 
     public ngOnInit () {
-        // Subscribe to routes to direct link!
-        this.route.params.subscribe((param) => {
-            this.currentDimension = +param['id'];
 
-            this.tabService.addTab({
-                url: '/dimensions/overview/' + this.currentDimension,
-                name: 'Dimensjoner',
-                active: true,
-                moduleID: UniModules.Dimensions
+        combineLatest(this.route.params, this.route.queryParams)
+            .pipe(map(results => ({params: results[0], query: results[1]})))
+            .subscribe(results => {
+                this.currentDimension = +results.params['id'];
+                this.activeTabIndex = +results.query['tabIndex'] || 0;
+                this.getDimensions();
             });
-
-            this.getDimensions();
-        });
     }
 
     ngOnDestroy() {
         this.fields$.complete();
         this.model$.complete();
+    }
+
+    public addTab() {
+        this.pageStateService.setPageState('tabIndex', this.activeTabIndex + '');
+
+        this.tabService.addTab({
+            url: this.pageStateService.getUrl(),
+            name: 'Dimensjoner',
+            active: true,
+            moduleID: UniModules.Dimensions
+        });
     }
 
     public getHeaderText(dimension): string {
@@ -132,6 +143,7 @@ export class UniDimensionView implements OnInit {
                 this.setUpListTable(this.numberKey);
                 this.cdr.markForCheck();
                 this.updateToolbarConfig();
+                this.changeTab();
             });
         });
     }
@@ -158,7 +170,11 @@ export class UniDimensionView implements OnInit {
 
         const nameCol = new UniTableColumn(nameKey, 'Navn', UniTableColumnType.Text);
 
-        this.tableConfig = new UniTableConfig('dimension.custom', false)
+        let pageSize = (window.innerHeight - 500);
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        this.tableConfig = new UniTableConfig('dimension.custom', false, true, pageSize)
             .setColumns([idCol, nameCol])
             .setSearchable(true);
     }
@@ -169,11 +185,11 @@ export class UniDimensionView implements OnInit {
         this.setUpTOFListTable(this.activeTabIndex);
     }
 
-    public changeTab(index: number) {
-        this.activeTabIndex = index;
-        if (index > 0) {
-            this.setUpTOFListTable(index);
+    public changeTab() {
+        if (this.activeTabIndex > 0) {
+            this.setUpTOFListTable(this.activeTabIndex);
         }
+        this.addTab();
     }
 
     public setUpTOFListTable(index: number) {
@@ -265,17 +281,7 @@ export class UniDimensionView implements OnInit {
 
     // Called when dimension type is changed in the dropdown
     public dimChange(item) {
-        this.currentDimension = parseInt(item, 10);
-        this.fields$.next(this.getDimensionFields());
-        this.getDimensionlist().subscribe((dims) => {
-            this.dimensionList = dims;
-            this.currentItem = dims.length > 0 ? dims[0] : this.getNewDimension();
-            this.model$.next(this.currentItem);
-            this.activeTabIndex = 0;
-            this.setUpListTable(this.numberKey);
-            this.cdr.markForCheck();
-            this.updateToolbarConfig();
-        });
+        this.router.navigateByUrl('/dimensions/overview/' + item);
     }
 
     public add() {

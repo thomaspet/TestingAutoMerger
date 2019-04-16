@@ -66,7 +66,11 @@
 
     <!-- Tabs and content -->
     <section class="uni-container amelding-container">
-        <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+        <uni-tabs
+            [tabs]="tabs"
+            [(activeIndex)]="activeTabIndex"
+            (tabClick)="addTab()">
+        </uni-tabs>
 
         <section [ngSwitch]="activeTabIndex">
             <amelding-summary-view

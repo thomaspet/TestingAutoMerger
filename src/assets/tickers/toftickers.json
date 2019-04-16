@@ -2008,7 +2008,7 @@
         },
         {
             "Name": "Inaktive",
-            "Code": "active_invoices",
+            "Code": "inactive_invoices",
             "UseAllCriterias": true,
             "FilterGroups": [
                 {

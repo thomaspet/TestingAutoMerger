@@ -16,6 +16,7 @@ import {
     PayrollrunService,
     ProjectService,
     DepartmentService,
+    PageStateService
 } from '@app/services/services';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
@@ -26,7 +27,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
-import { switchMap } from 'rxjs/operators';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare var _;
@@ -57,7 +57,11 @@ export class VariablePayrollsComponent {
     public payrollrun$: Subject<boolean> = new Subject();
     public loading: boolean = true;
     public infoMessage: string = 'Viser alle registrerte variable lønnsposter på denne lønnsavregningen';
-    public payrollrunSelectConfig: ISelectConfig;
+    public payrollrunSelectConfig: ISelectConfig = {
+        displayProperty: 'Description',
+        searchable: false,
+        hideDeleteButton: true,
+    };
     public infoConfig: IUniInfoConfig = {headline: 'Variable lønnsposter'};
 
     constructor(
@@ -75,22 +79,8 @@ export class VariablePayrollsComponent {
         private route: ActivatedRoute,
         private router: Router,
         private tabService: TabService,
+        private pageStateService: PageStateService
     ) {
-        this.tabService.addTab(
-            {
-                name: 'Variable lønnsposter',
-                url: 'salary/variablepayrolls',
-                moduleID: UniModules.VariablePayrolls,
-                active: true
-            }
-        );
-
-        this.payrollrunSelectConfig = {
-            displayProperty: 'Description',
-            searchable: false,
-            hideDeleteButton: true,
-        };
-
         this.deleteButton = {
             deleteHandler: (row: SalaryTransaction) => {
                 if (!row['_isEmpty']) {
@@ -109,6 +99,12 @@ export class VariablePayrollsComponent {
                 this.loading = true;
                 this.getsalaryTransBasedOnPayrollrun(this.payrollRunID);
             }
+            this.tabService.addTab({
+                name: 'Variable lønnsposter',
+                url: this.pageStateService.getUrl(),
+                moduleID: UniModules.VariablePayrolls,
+                active: true
+            });
         });
 
         this.payrollrunService.getAll('filter=StatusCode eq 0 or StatusCode eq null').subscribe((payrollruns) => {

@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../unientities';
-import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../services/services';
+import {ReportDefinitionService, UniQueryDefinitionService, ErrorService, PageStateService} from '../../services/services';
 import {Report} from '../../models/reports/report';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
@@ -87,14 +87,8 @@ export class UniReports implements OnInit {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private uniModalService: UniModalService,
+        private pageStateService: PageStateService
     ) {
-        this.tabService.addTab({
-            name: 'Rapportoversikt',
-            url: '/reports',
-            moduleID: UniModules.Reports,
-            active: true
-        });
-
         this.route.queryParamMap.subscribe(paramMap => {
             const category = paramMap.get('category');
             if (category) {
@@ -106,6 +100,19 @@ export class UniReports implements OnInit {
                     this.activeTabIndex = tabIndex;
                 }
             }
+            this.addTab();
+        });
+    }
+
+    public addTab() {
+
+        this.pageStateService.setPageState('category', this.mainGroups[this.activeTabIndex].name);
+
+        this.tabService.addTab({
+            name: 'Rapportoversikt',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.Reports,
+            active: true
         });
     }
 

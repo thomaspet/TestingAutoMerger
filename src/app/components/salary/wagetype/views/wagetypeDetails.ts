@@ -9,7 +9,8 @@ import {Observable} from 'rxjs';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
-import {UniCacheService, ErrorService} from '../../../../services/services';
+import {UniCacheService, ErrorService, PageStateService} from '../../../../services/services';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {BehaviorSubject} from 'rxjs';
 
 const WAGETYPE_KEY = 'wagetype';
@@ -94,7 +95,9 @@ export class WagetypeDetail extends UniView {
         private inntektService: InntektService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private wagetypeService: WageTypeService
+        private wagetypeService: WageTypeService,
+        private tabService: TabService,
+        private pageStateService: PageStateService
     ) {
 
         super(router.url, cacheService);
@@ -120,6 +123,12 @@ export class WagetypeDetail extends UniView {
                 .subscribe((wageType: WageType) => {
                     wageType['_baseOptions'] = this.getBaseOptions(wageType);
                     this.wageType$.next(wageType);
+                    this.tabService.addTab({
+                        name: wageType.WageTypeNumber ? 'Lønnsartnr. ' + wageType.WageTypeNumber : 'Ny lønnsart',
+                        url: this.pageStateService.getUrl(),
+                        moduleID: UniModules.Wagetypes,
+                        active: true
+                    });
                 }, err => this.errorService.handle(err));
         });
     }

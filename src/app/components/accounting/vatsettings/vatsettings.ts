@@ -1,5 +1,6 @@
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {Component, ViewChild} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {VatTypeList} from './vattypelist/vatTypeList';
 import {VatTypeDetails} from './vattypedetails/vattypedetails';
 import {VatType} from '../../../unientities';
@@ -8,6 +9,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {VatDeductionSettings} from './vatdeductions/vatdeductionsettings';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {PageStateService} from '../../../services/services';
 import {VatDeductionGroupSetupModal} from './modals/vatDeductionGroupSetupModal';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import { UniModalService } from '@uni-framework/uni-modal';
@@ -33,15 +35,30 @@ export class VatSettings {
         {name: 'Forholdsmessig MVA / fradrag'}
     ];
 
-    constructor(private tabService: TabService, private modalService: UniModalService, private toastService: ToastService) {
+    constructor(
+        private tabService: TabService,
+        private modalService: UniModalService,
+        private toastService: ToastService,
+        private route: ActivatedRoute,
+        private pageStateService: PageStateService
+    ) {
+
+        this.route.queryParams.subscribe((params) => {
+            this.activeTabIndex = +params['index'] || 0;
+            this.onTabIndexChange(this.activeTabIndex);
+        });
+    }
+
+    public addTab() {
+
+        this.pageStateService.setPageState('index', this.activeTabIndex + '');
+
         this.tabService.addTab({
             name: 'MVA-innstillinger',
-            url: '/accounting/vatsettings',
+            url: this.pageStateService.getUrl(),
             moduleID: UniModules.Vatsettings,
             active: true
         });
-
-        this.onTabIndexChange(0);
     }
 
     public onTabIndexChange(index: number) {
@@ -76,6 +93,7 @@ export class VatSettings {
                 title: 'Forholdsmessig MVA-innstillinger',
             };
         }
+        this.addTab();
     }
 
     public showVatDeductionGroups(completeEvent) {

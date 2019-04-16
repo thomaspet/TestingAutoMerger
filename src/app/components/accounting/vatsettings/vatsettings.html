@@ -4,7 +4,7 @@
 </uni-toolbar>
 
 <section class="application">
-    <uni-tabs [tabs]="tabs" (activeIndexChange)="onTabIndexChange($event)"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex" (activeIndexChange)="onTabIndexChange($event)"></uni-tabs>
 
     <section class="splitview" *ngIf="activeTabIndex === 0">
         <nav class="splitview_list">

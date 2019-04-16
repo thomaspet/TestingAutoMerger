@@ -73,7 +73,7 @@ export class AccountSettings {
                 if (success) {
                     this.changeRow(account);
                 }
-            })    
+            })
         }, 100);
     }
 
@@ -136,6 +136,7 @@ export class AccountSettings {
 
 
         const options: IModalOptions = {
+            header: 'Bekreft synkronisering',
             message: 'Synkronisering av kontoer vil overskrive endringer gjort i standardkontoer i kontoplanen. Vil du fortsette?'
         };
         this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {

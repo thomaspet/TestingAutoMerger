@@ -10,6 +10,6 @@
 </uni-toolbar>
 
 <article class="application" [attr.aria-busy]="busy">
-    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
+    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true" (tabClick)="onChildRouteChange()"></uni-tabs>
     <router-outlet></router-outlet>
 </article>

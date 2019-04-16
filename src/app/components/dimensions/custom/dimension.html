@@ -24,8 +24,8 @@
     <section class="dimension-details uni-container">
         <uni-tabs
             [tabs]="tabs"
-            [activeIndex]="activeTabIndex"
-            (activeIndexChange)="changeTab($event)">
+            [(activeIndex)]="activeTabIndex"
+            (tabClick)="changeTab()">
         </uni-tabs>
 
         <uni-form
