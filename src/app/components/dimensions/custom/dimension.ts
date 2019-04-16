@@ -177,11 +177,11 @@ export class UniDimensionView implements OnInit {
     public onRowDelete(row) {
         const dimensionId = row.ID;
         let dimensionName;//Dersom alle aktuelle har Name, kan row.Name brukes direkte i modalen
-        switch (this.currentDimension) {
+        switch (this.currentDimension) {    //Project
             case 1:
                 dimensionName = row.Name;
                 break;
-            default:
+            case 2: // Department
                 this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
                 this.refresh();
                 return;
