@@ -1,13 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {Component, OnInit} from '@angular/core';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
-import {IUniSaveAction} from '@uni-framework/save/save';
 import {ISummaryConfig} from '@app/components/common/summary/summary';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {
     NumberFormat,
-    CustomerInvoiceService,
-    StatisticsService,
     ErrorService,
     CustomerInvoiceReminderService
 } from '@app/services/services';
@@ -15,10 +10,10 @@ import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
-    IContextMenuItem,
     INumberFormat
 } from '@uni-framework/ui/unitable/index';
 import { CustomerInvoiceReminder } from '@uni-entities';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 declare const _;
 
@@ -50,17 +45,20 @@ export class SentToDebtCollection implements OnInit {
     };
 
     constructor(
-        private toastService: ToastService,
         private errorService: ErrorService,
-        private statisticsService: StatisticsService,
         private reminderService: CustomerInvoiceReminderService,
-        private customerInvoiceService: CustomerInvoiceService,
         private numberFormatService: NumberFormat,
-        private modalService: UniModalService
+        private tabService: TabService,
     ) {}
 
     public ngOnInit() {
         this.setupRemindersToDebtCollectTable();
+        this.tabService.addTab({
+            name: 'Purring',
+            url: 'sales/reminders/senttodebtcollect',
+            moduleID: UniModules.Reminders,
+            active: true
+        });
     }
 
     public onRowSelectionChange(selectedRows) {

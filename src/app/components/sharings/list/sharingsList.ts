@@ -1,12 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
-import {
-    ITickerActionOverride, ITickerColumnOverride
-} from '@app/services/common/uniTickerService';
-import {
-    ErrorService
-} from '@app/services/services';
+import {ITickerActionOverride, ITickerColumnOverride} from '@app/services/common/uniTickerService';
+import {PageStateService} from '@app/services/services';
 
 @Component({
     selector: 'sharings-list',
@@ -14,18 +9,14 @@ import {
 })
 export class SharingsList implements OnInit {
 
-    public actionOverrides: ITickerActionOverride[] = [];
-    public columnOverrides: ITickerColumnOverride[] = [];
-
     constructor(
-        private router: Router,
         private tabService: TabService,
-        private errorService: ErrorService
+        private pageStateService: PageStateService
     ) { }
 
     public ngOnInit() {
         this.tabService.addTab({
-            url: '/sharings',
+            url: this.pageStateService.getUrl(),
             name: 'Distribusjon',
             active: true,
             moduleID: UniModules.Sharings

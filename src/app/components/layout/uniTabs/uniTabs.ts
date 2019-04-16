@@ -86,6 +86,7 @@ export class UniTabs {
                 relativeTo: this.route,
                 queryParamsHandling: this.queryParamsHandling
             });
+            this.tabClick.emit(tab);
         } else {
             this.activeIndexChange.emit(index);
             this.tabClick.emit(tab);

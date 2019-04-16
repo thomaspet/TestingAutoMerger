@@ -2,7 +2,7 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Approval, ApprovalStatus, User} from '../../../unientities';
-import {ApprovalService, UserService, ErrorService} from '../../../services/services';
+import {ApprovalService, UserService, ErrorService, PageStateService} from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, UniApproveModal} from '../../../../framework/uni-modal';
 import {CommentService} from '../../../../framework/comments/commentService';
@@ -31,10 +31,12 @@ export class UniApprovals {
         private userService: UserService,
         private route: ActivatedRoute,
         private modalService: UniModalService,
-        private commentService: CommentService
+        private commentService: CommentService,
+        private pageStateService: PageStateService
     ) {
-        route.params.subscribe((params) => {
+        this.route.queryParams.subscribe((params) => {
             this.routeParam = +params['id'];
+            this.showCompleted = params['showCompleted'] === 'true';
         });
     }
 
@@ -66,13 +68,6 @@ export class UniApprovals {
     }
 
     public ngOnInit() {
-        this.tabService.addTab({
-            name: 'Godkjenninger',
-            url: '/assignments/approvals',
-            moduleID: UniModules.Assignments,
-            active: true
-        });
-
         Observable.forkJoin(
             this.userService.getCurrentUser(),
             this.userService.GetAll(null)
@@ -86,12 +81,34 @@ export class UniApprovals {
         );
     }
 
+    public addTab() {
+
+        if (this.routeParam) {
+            this.pageStateService.setPageState('id', this.routeParam + '');
+        }
+        this.pageStateService.setPageState('showCompleted', this.showCompleted + '');
+
+        this.tabService.addTab({
+            name: 'Godkjenninger',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.Assignments,
+            active: true
+        });
+    }
+
+    public onApprovalSelect(approval: Approval) {
+        this.selectedApproval = approval;
+        this.routeParam = approval.ID;
+        this.addTab();
+    }
+
     public loadApprovals(): void {
         this.approvalService.invalidateCache();
         let filterString = 'filter=UserID eq ' + this.currentUser.ID;
         if (!this.showCompleted) {
             filterString += ' and StatusCode eq ' + ApprovalStatus.Active;
         }
+        this.addTab();
 
         this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
             approvals => {

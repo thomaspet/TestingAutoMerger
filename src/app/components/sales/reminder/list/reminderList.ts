@@ -71,7 +71,7 @@ export class ReminderList {
     ) {
         this.tabService.addTab({
             name: 'Purring',
-            url: '/sales/reminders',
+            url: '/sales/reminders/ready',
             moduleID: UniModules.Reminders,
             active: true
         });
@@ -112,7 +112,7 @@ export class ReminderList {
     }
 
     public run(done) {
-        var selected = this.table.getSelectedRows().map((ci) => ci.CustomerInvoiceID);
+        const selected = this.table.getSelectedRows().map((ci) => ci.CustomerInvoiceID);
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
@@ -125,8 +125,8 @@ export class ReminderList {
             return;
         }
 
-        var selectedRows = this.table.getSelectedRows();
-        var selectedHasReminderStopp = false;
+        const selectedRows = this.table.getSelectedRows();
+        let selectedHasReminderStopp = false;
         selectedRows.forEach(x => {
             if (x.DontSendReminders) {
                 selectedHasReminderStopp = true;
@@ -146,7 +146,7 @@ export class ReminderList {
             return;
         }
 
-        var method = this.reminderList.length === selected.length ?
+        const method = this.reminderList.length === selected.length ?
             this.customerInvoiceReminderService.createInvoiceRemindersFromReminderRules() :
             this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist(selected);
 
@@ -240,9 +240,9 @@ export class ReminderList {
             .setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
         const customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text, false)
             .setFilterOperator('contains')
-            .setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
+            .setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`).setWidth('15%');
         const emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text, true)
-            .setFilterOperator('contains');
+            .setFilterOperator('contains').setWidth('15%');
 
         const currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
             .setFilterOperator('contains')

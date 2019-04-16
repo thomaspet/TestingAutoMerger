@@ -4,7 +4,8 @@
     <uni-tabs
         [tabs]="mainGroups"
         [labelProperty]="'label'"
-        [(activeIndex)]="activeTabIndex">
+        [(activeIndex)]="activeTabIndex"
+        (activeIndexChange)="addTab()">
     </uni-tabs>
 
     <section class="report-groups">

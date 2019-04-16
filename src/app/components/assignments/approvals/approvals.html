@@ -11,7 +11,7 @@
 
     <span class="no-approvals-message" *ngIf="!approvals?.length">Du har ingenting å godkjenne akkurat nå</span>
     <ul #approvalList>
-        <li *ngFor="let approval of approvals" (click)="selectedApproval = approval" [attr.aria-selected]="selectedApproval?.ID === approval.ID">
+        <li *ngFor="let approval of approvals" (click)="onApprovalSelect(approval)" [attr.aria-selected]="selectedApproval?.ID === approval.ID">
             <section class="assignment-info">
                 <p>{{approval.Task?.Title}}</p>
                 <small>Tildelt av {{approval._assignedBy}}</small>

@@ -8,7 +8,8 @@
     <uni-tabs
         [tabs]="childRoutes"
         [queryParamsHandling]="'preserve'"
-        [useRouterLinkTabs]="true">
+        [useRouterLinkTabs]="true"
+        (tabClick)="childRouteChange($event)">
     </uni-tabs>
 
     <section class="splitview">

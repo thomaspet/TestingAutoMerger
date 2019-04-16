@@ -30,7 +30,8 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     WageTypeService, FinancialYearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService, CompanySalaryService
+    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService, CompanySalaryService,
+    PageStateService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
@@ -166,6 +167,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private payrollRunService: PayrollrunService,
         private employeeOnCategoryService: EmployeeOnCategoryService,
         private companySalaryService: CompanySalaryService,
+        private pageStateService: PageStateService
     ) {
         super(router.url, cacheService);
 
@@ -743,6 +745,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getFinancialYearObs() {
         return this.activeYear$.asObservable().take(1);
+    }
+
+    public onChildRouteChange() {
+        // Update the tab to match childroute
+        setTimeout(() => {
+            this.tabService.addTab({
+                name: this.employeeID ?  'Ansattnr. ' + this.employeeID : 'Ny ansatt',
+                url: this.pageStateService.getUrl(),
+                moduleID: UniModules.Employees,
+                active: true
+            });
+        });
     }
 
     private checkForSaveDone(done) {

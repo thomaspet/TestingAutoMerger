@@ -2,7 +2,8 @@ import {Component, ViewChild, SimpleChanges} from '@angular/core';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {ActivatedRoute, Router} from '@angular/router';
 import {WageType, LimitType, StdWageType, SpecialAgaRule, TaxType} from '../../../../unientities';
-import {WageTypeService, UniCacheService, ErrorService} from '../../../../services/services';
+import {WageTypeService, UniCacheService, ErrorService, PageStateService} from '../../../../services/services';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
@@ -47,7 +48,9 @@ export class WageTypeSettings extends UniView {
         private router: Router,
         private wagetypeService: WageTypeService,
         private errorService: ErrorService,
-        protected cacheService: UniCacheService
+        protected cacheService: UniCacheService,
+        private tabService: TabService,
+        private pageStateService: PageStateService
     ) {
         super(router.url, cacheService);
         this.route.parent.params.subscribe(params => {
@@ -63,6 +66,12 @@ export class WageTypeSettings extends UniView {
                 })
                 .subscribe((wagetype: WageType) => {
                     this.wageType$.next(wagetype);
+                    this.tabService.addTab({
+                        name: wagetype.WageTypeNumber ? 'Lønnsartnr. ' + wagetype.WageTypeNumber : 'Ny lønnsart',
+                        url: this.pageStateService.getUrl(),
+                        moduleID: UniModules.Wagetypes,
+                        active: true
+                    });
                 });
         });
     }

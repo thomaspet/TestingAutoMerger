@@ -7,7 +7,6 @@ import {UniModalService, ConfirmActions} from '../../../../../framework/uni-moda
 import {
     NumberFormat,
     CustomerInvoiceService,
-    StatisticsService,
     ErrorService,
     CustomerInvoiceReminderService
 } from '../../../../services/services';
@@ -19,6 +18,7 @@ import {
     IContextMenuItem,
     INumberFormat
 } from '../../../../../framework/ui/unitable/index';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 declare const _;
 
@@ -66,20 +66,26 @@ export class DebtCollection implements OnInit {
     constructor(
         private toastService: ToastService,
         private errorService: ErrorService,
-        private statisticsService: StatisticsService,
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private customerInvoiceService: CustomerInvoiceService,
         private numberFormatService: NumberFormat,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private tabService: TabService,
     ) {}
 
     public ngOnInit() {
         this.setupRemindersToDebtCollectTable();
+        this.tabService.addTab({
+            name: 'Purring',
+            url: 'sales/reminders/debtcollect',
+            moduleID: UniModules.Reminders,
+            active: true
+        });
     }
 
     public onRowSelected(data) {
         this.summaryData.restSumChecked = 0;
-        let selectedRows = this.table.getSelectedRows();
+        const selectedRows = this.table.getSelectedRows();
 
         selectedRows.forEach(x => {
             this.summaryData.restSumChecked += x.RestAmount;
@@ -88,7 +94,7 @@ export class DebtCollection implements OnInit {
     }
 
     private sendRemindersToDebtCollect(donehandler: (str: string) => any): void {
-        var selected = this.table.getSelectedRows().map((ci) => ci.CustomerInvoiceID);
+        const selected = this.table.getSelectedRows().map((ci) => ci.CustomerInvoiceID);
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
@@ -101,8 +107,8 @@ export class DebtCollection implements OnInit {
             return;
         }
 
-        var selectedRows = this.table.getSelectedRows();
-        var selectedHasReminderStopp = false;
+        const selectedRows = this.table.getSelectedRows();
+        let selectedHasReminderStopp = false;
         selectedRows.forEach(x => {
             if (x.DontSendReminders) {
                 selectedHasReminderStopp = true;
@@ -131,7 +137,7 @@ export class DebtCollection implements OnInit {
             }
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                let selectedForDebtCollectionQueue = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
+                const selectedForDebtCollectionQueue = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
                 this.customerInvoiceReminderService.queueForDebtCollection(selectedForDebtCollectionQueue).subscribe(s => {
                     this.toastService.addToast(
                         'Inkasso', ToastType.good, 5, 'Merkede fakturaer ble sendt til inkasso'
@@ -143,7 +149,7 @@ export class DebtCollection implements OnInit {
                     donehandler('En feil oppstod ved sending til inkasso');
                 });
             } else if (response === ConfirmActions.CANCEL) {
-                donehandler("Sending til inkasso ble avbrutt");
+                donehandler('Sending til inkasso ble avbrutt');
             }
         });
     }

@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -16,7 +16,8 @@ import {
     SalarySumsService,
     FinancialYearService,
     ReportDefinitionService,
-    CompanySalaryService
+    CompanySalaryService,
+    PageStateService
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
@@ -42,7 +43,6 @@ export class AMeldingView implements OnInit {
     public currentAMelding: any;
     public currentSumUp: any;
     public aMeldingerInPeriod: AmeldingData[];
-    public contextMenuItems: IContextMenuItem[] = [];
     public actions: IUniSaveAction[];
     public clarifiedDate: string = '';
     public submittedDate: string = '';
@@ -74,7 +74,47 @@ export class AMeldingView implements OnInit {
     public showFinanceTax: boolean;
 
     public activeTabIndex: number = 0;
-    public tabs: IUniTab[];
+    public tabs: IUniTab[] = [
+        {name: 'Oppsummering', tooltip: this._ameldingService.getHelptext('summary')},
+        {name: 'Arbeidsgiveravgift', tooltip: this._ameldingService.getHelptext('aga')},
+        {name: 'Tilbakemelding', tooltip: this._ameldingService.getHelptext('receipt')},
+        {name: 'Periodeoppsummering', tooltip: this._ameldingService.getHelptext('period')}
+    ];
+
+    public contextMenuItems: IContextMenuItem[] = [
+        {
+            label: 'Hent a-meldingsfil',
+            action: () => {
+                this.getAMeldingFile();
+            },
+            disabled: () => !this.currentAMelding
+        },
+        {
+            label: 'Hent tilbakemeldingsfil',
+            action: () => {
+                this.getFeedbackFile();
+            },
+            disabled: () => {
+                return this.currentAMelding ? (this.currentAMelding.status <= 2 ? true : false) : true;
+            }
+        },
+        {
+            label: 'Tilleggsopplysninger',
+            action: () => this.router.navigate(['salary/supplements'])
+        },
+        {
+            label: 'Trekk og AGA rapport',
+            action: () => this.openReport()
+        },
+        {
+            label: 'Avstemming',
+            action: () => this.openReconciliation()
+        },
+        {
+            label: 'Avansert periodebehandling',
+            action: () => this.openAdminModal()
+        }
+    ];
 
     constructor(
         private _tabService: TabService,
@@ -85,77 +125,42 @@ export class AMeldingView implements OnInit {
         private financialYearService: FinancialYearService,
         private numberformat: NumberFormat,
         private router: Router,
+        private route: ActivatedRoute,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private reportDefinitionService: ReportDefinitionService,
-        private companySalaryService: CompanySalaryService
+        private companySalaryService: CompanySalaryService,
+        private pageStateService: PageStateService
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
                 this.companySalary = compSalary;
                 this.showFinanceTax = compSalary.CalculateFinancialTax;
             });
+    }
+
+    public addTab() {
+
+        this.pageStateService.setPageState('tabindex', this.activeTabIndex + '');
+        this.pageStateService.setPageState('periode', this.currentPeriod + '');
 
         this._tabService.addTab({
             name: 'A-melding',
-            url: 'salary/amelding',
+            url: this.pageStateService.getUrl(),
             moduleID: UniModules.Amelding,
             active: true
         });
-
-        this.tabs = [
-            {name: 'Oppsummering', tooltip: this._ameldingService.getHelptext('summary')},
-            {name: 'Arbeidsgiveravgift', tooltip: this._ameldingService.getHelptext('aga')},
-            {name: 'Tilbakemelding', tooltip: this._ameldingService.getHelptext('receipt')},
-            {name: 'Periodeoppsummering', tooltip: this._ameldingService.getHelptext('period')}
-        ];
-
-        this.contextMenuItems = [
-            {
-                label: 'Hent a-meldingsfil',
-                action: () => {
-                    this.getAMeldingFile();
-                },
-                disabled: () => {
-                    if (!this.currentAMelding) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            },
-            {
-                label: 'Hent tilbakemeldingsfil',
-                action: () => {
-                    this.getFeedbackFile();
-                },
-                disabled: () => {
-                    return this.currentAMelding ? (this.currentAMelding.status <= 2 ? true : false) : true;
-                }
-            },
-            {
-                label: 'Tilleggsopplysninger',
-                action: () => this.router.navigate(['salary/supplements'])
-            },
-            {
-                label: 'Trekk og AGA rapport',
-                action: () => this.openReport()
-            },
-            {
-                label: 'Avstemming',
-                action: () => this.openReconciliation()
-            },
-            {
-                label: 'Avansert periodebehandling',
-                action: () => this.openAdminModal()
-            }
-        ];
     }
 
     public ngOnInit() {
-        this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
-            this.clearAMelding();
-            this.loadYearData();
+        this.route.queryParams.subscribe(params => {
+            this.activeTabIndex = +params['tabindex'] || 0;
+            this.currentPeriod = +params['periode'];
+            this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
+                this.clearAMelding();
+                this.loadYearData();
+            });
+            this.addTab();
         });
     }
 
@@ -193,17 +198,22 @@ export class AMeldingView implements OnInit {
     private loadYearData() {
         this.activeYear = this.financialYearService.getActiveYear();
 
-        this._payrollService.getLatestSettledPeriod(1, this.activeYear)
-            .subscribe(
-                (period) => {
-                    this.currentPeriod = period;
-                    this.currentMonth = moment.months()[this.currentPeriod - 1];
-                    this.getSumsInPeriod();
-                    this.getAMeldingForPeriod();
-                    this.updateToolbar();
-                },
-                err => this.errorService.handle(err)
-            );
+        // Dont get periode if periode is set as queryparams
+        if (!this.currentPeriod) {
+            this._payrollService.getLatestSettledPeriod(1, this.activeYear)
+            .subscribe(period => {
+                this.currentPeriod = period;
+                this.currentMonth = moment.months()[this.currentPeriod - 1];
+                this.getSumsInPeriod();
+                this.getAMeldingForPeriod();
+                this.updateToolbar();
+            }, err => this.errorService.handle(err));
+        } else {
+            this.currentMonth = moment.months()[this.currentPeriod - 1];
+            this.getSumsInPeriod();
+            this.getAMeldingForPeriod();
+            this.updateToolbar();
+        }
     }
 
     public prevPeriod() {
@@ -214,6 +224,8 @@ export class AMeldingView implements OnInit {
             }
             this.clearAMelding();
             this.getAMeldingForPeriod();
+            this.activeTabIndex = 0;
+            this.addTab();
         }
     }
 
@@ -225,6 +237,8 @@ export class AMeldingView implements OnInit {
             }
             this.clearAMelding();
             this.getAMeldingForPeriod();
+            this.activeTabIndex = 0;
+            this.addTab();
         }
     }
 
@@ -234,6 +248,8 @@ export class AMeldingView implements OnInit {
             this.currentMonth = moment.months()[this.currentPeriod - 1];
             this.clearAMelding();
             this.getAMeldingForPeriod();
+            this.activeTabIndex = 0;
+            this.addTab();
         }
     }
 
@@ -316,7 +332,6 @@ export class AMeldingView implements OnInit {
     }
 
     public refresh(amelding: AmeldingData) {
-        this.activeTabIndex = 0;
         this.currentAMelding = amelding;
         this.getSumsInPeriod();
         this.getSumUpForAmelding();

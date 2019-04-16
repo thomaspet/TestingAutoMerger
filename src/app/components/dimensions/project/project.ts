@@ -1,11 +1,15 @@
-﻿import {Component, ViewChild} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+﻿import {Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Project as ProjectModel, LocalDate} from '../../../unientities';
+import {Project as ProjectModel} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
-import {ProjectService, ErrorService, UserService, UniQueryDefinitionService} from '../../../services/services';
+import {
+    ProjectService,
+    ErrorService,
+    UserService,
+    PageStateService
+} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IToolbarConfig, ICommentsConfig} from '../../common/toolbar/toolbar';
@@ -72,7 +76,7 @@ export class Project {
         private user: UserService,
         private modalService: UniModalService,
         private navbarLinkService: NavbarLinkService,
-        private uniQueryDefinitionService: UniQueryDefinitionService) {
+        private pageStateService: PageStateService) {
 
         this.init();
         this.searchControl.valueChanges
@@ -93,7 +97,7 @@ export class Project {
         this.projectService.resetBools();
         this.tabService.addTab({
             name: 'Prosjekt',
-            url: '/dimensions/projects/overview',
+            url: this.pageStateService.getUrl(),
             moduleID: UniModules.Projects,
             active: true
         });
@@ -195,6 +199,12 @@ export class Project {
             this.projectService.toolbarConfig.next(this.toolbarconfig);
             this.projectService.saveActions.next(this.saveActions);
         });
+    }
+
+    public childRouteChange(tab) {
+        setTimeout(() => {
+            this.tabService.currentActiveTab.url = this.pageStateService.getUrl();
+        }, 500);
     }
 
     private buildStatusTrack(current: ProjectModel): IStatus[] {

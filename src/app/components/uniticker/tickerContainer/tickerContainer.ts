@@ -10,6 +10,7 @@ import {
 import {Router, ActivatedRoute, ParamMap} from '@angular/router';
 import {UniTicker} from '../ticker/ticker';
 import {FinancialYearService, StatisticsService} from '@app/services/services';
+import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {AuthService} from '@app/authService';
 import {
     UniTickerService,
@@ -56,7 +57,8 @@ export class UniTickerContainer {
         private tickerService: UniTickerService,
         private router: Router,
         private route: ActivatedRoute,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private tabService: TabService
     ) {
         this.authService.authentication$.subscribe(authDetails => {
             this.currentUserGlobalIdentity = authDetails.user && authDetails.user.GlobalIdentity;
@@ -123,6 +125,13 @@ export class UniTickerContainer {
     public updateQueryParams() {
         const url = this.router.url.split('?')[0];
         const currentParams = this.route.snapshot.queryParamMap;
+
+        // Update taburl to match current code and filter, so we keep state in tab as well as browser!
+        let tabUrl = url + '?filter=' + this.selectedFilter.Code;
+        if (currentParams.get('code')) {
+            tabUrl += '&code=' + currentParams.get('code');
+        }
+        this.tabService.currentActiveTab.url = tabUrl;
 
         this.router.navigate([url], {
             queryParams: {
