@@ -5,9 +5,26 @@
             <label id="reinvoiceTypeLabel">
                 <span>Type viderefakturering</span>
                 <uni-tooltip [type]="'info'"
-                             [alignment]="'top'"
-                             [text]="infoText">
+                [alignment]="'top'"
+                [matMenuTriggerFor]="infoTypeText">
                 </uni-tooltip>
+                <mat-menu #infoTypeText="matMenu">
+                    <div class="infoToolContent">
+                        <h2>Kostnadsdeling</h2>
+                        <p>
+                            Velg kostnadsdeling dersom to eller flere har gått sammen om å anskaffe en vare/tjeneste i fellesskap.
+                            Ditt firma er mottaker av leverandørfakturaen og belaster de øvrige partene for deres andel.
+                            Den andelen av leverandørfakturaen som skal viderefaktureres må balanseføres.
+                        </p>
+                        <hr style="margin: 1.5rem 0"/>
+                        <h2>Viderefakturering, omsetning</h2>
+                        <p>
+                            Velg denne dersom leveringen av varen/tjenesten skal regnes som omsetning.
+                            Leverandørfakturaen skal her resultatføres, på samme måte som man normalt fører inngående fakturaer.
+                            Denne funksjonen krever at leverandørfakturaen er bokført, før du kan viderefakturere med denne innstillingen.
+                        </p>
+                    </div>
+                </mat-menu>
             </label>
             <mat-radio-group [value]="reinvoiceType" (change)="onReinvoiceTypeChange($event)">
                 <mat-radio-button [value]="0" [disabled]="currentReInvoice?.StatusCode === 30203">

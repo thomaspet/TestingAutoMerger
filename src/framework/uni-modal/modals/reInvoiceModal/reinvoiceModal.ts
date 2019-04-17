@@ -54,16 +54,6 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     public invoiceSum: number = 4000;
     public forReinvoice: boolean = false;
     public reinvoiceType: number = 1;
-    public infoText: string = `
-        Velg kostandsdeling dersom to eller flere har gått sammen om å anskaffe
-        en vare/tjeneste i fellesskap. Ditt firma er mottaker av leverandørfakturaen
-        og belaster de øvrige partene for deres andel. Den andelen som skal viderebelastes
-        andre balanseføres som en fordring på motpart.
-
-        Velg viderefakturering, omsetning dersom leveringen av varen/tjenesten
-        skal føres som omsetning. Den andelen som skal viderebelastes andre
-        balanseføres som en fordring på motpart.
-    `;
     private hasChanges: boolean = false;
     public companyAccountSettings: CompanyAccountingSettings;
     constructor(

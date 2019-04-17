@@ -51,7 +51,10 @@ export class UniChooseReportModal implements IUniModal {
             data => {
                 this.reports = data[0];
                 const company = data[1];
-                const defaultReportID = company[`DefaultCustomer${this.options.data.typeName}ReportID`];
+                const entity = this.options.data.entity;
+                const defaultReportID = (entity && entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`])
+                    ? entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`]
+                    : company[`DefaultCustomer${this.options.data.typeName}ReportID`];
                 const defaultReport = defaultReportID && this.reports.find(report => report.ID === defaultReportID);
 
                 this.selectedReport = defaultReport || this.reports[0];
