@@ -1,0 +1,22 @@
+<license-info-list
+    class="selection-list"
+    [columns]="userListColumns"
+    [rows]="costPerUser"
+    [orderBy]="'user'"
+    (rowClick)="onRowClick($event)">
+</license-info-list>
+
+<section class="details-view" *ngIf="selectedUser && detailsVisible" (click)="detailsVisible = false">
+    <section class="list-container" (click)="$event.stopPropagation()">
+        <section class="header">
+            <h1>{{selectedUser.user}}</h1>
+        </section>
+
+        <license-info-list
+            [columns]="productListColumns"
+            [rows]="selectedUser.transactions"
+            [orderBy]="'productName'">
+        </license-info-list>
+    </section>
+</section>
+

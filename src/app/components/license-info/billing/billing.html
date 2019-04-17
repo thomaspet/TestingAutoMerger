@@ -4,7 +4,8 @@
 
         <select class="view-mode-select" [(ngModel)]="viewMode">
             <option [value]="0">Per produkt</option>
-            <option [value]="1">Transaksjoner per selskap</option>
+            <option [value]="1">Per bruker</option>
+            <option [value]="2">Transaksjoner per selskap</option>
         </select>
 
         <select [(ngModel)]="periodFilter.month" (change)="loadInvoice()">
@@ -42,8 +43,13 @@
         (rowClick)="onRowClick($event)">
     </license-info-list>
 
-    <transactions-per-company
+    <cost-per-user
         *ngIf="+viewMode === 1"
+        [billingData]="billingData">
+    </cost-per-user>
+
+    <transactions-per-company
+        *ngIf="+viewMode === 2"
         [billingData]="billingData">
     </transactions-per-company>
 </section>
