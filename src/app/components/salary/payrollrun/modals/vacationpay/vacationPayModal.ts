@@ -491,6 +491,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 nrCol, nameCol, systemGrunnlagCol, manuellGrunnlagCol,
                 rateCol, sixthCol, vacationPayCol, earlierPayCol, payoutCol])
             .setPageable(false)
+            .setSearchable(true)
             .setMultiRowSelect(true)
             .setAutoAddNewRow(false)
             .setIsRowReadOnly((rowModel) => !rowModel.IsInCollection)
