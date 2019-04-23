@@ -230,9 +230,11 @@ export class SubCompanyComponent implements OnInit {
 
     private processLicenseList(licenses: Array<ICompanyLicense>) {
 
-        const list = licenses
-            .filter( x => x.companyKey !== this.activeCompanyKey )
-            .sort((a, b) => a.companyName.toLowerCase() > b.companyName.toLowerCase() ? 1 : a.companyName === b.companyName ? 0 : -1 );
+        const list = licenses.filter( x => x.companyKey !== this.activeCompanyKey );
+
+        if (list.length) {
+            list.sort((a, b) => a.companyName.toLowerCase() > b.companyName.toLowerCase() ? 1 : a.companyName === b.companyName ? 0 : -1 );
+        }
 
         list.forEach( ctr => {
             const tp = ContractTypes.find( x => x.id === ctr.contractType);
