@@ -1,11 +1,11 @@
 import {Component, Input, OnInit, Output, EventEmitter, ViewChild} from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { Customer } from '@uni-entities';
-import { UniHttp } from '@uni-framework/core/http/http';
-import { Observable } from 'rxjs';
-import { GuidService } from '@app/services/services';
-import { FieldType, UniForm } from '@uni-framework/ui/uniform';
-import { AuthService } from '@app/authService';
+import {BehaviorSubject} from 'rxjs';
+import {Customer} from '@uni-entities';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {GuidService} from '@app/services/services';
+import {FieldType, UniForm} from '@uni-framework/ui/uniform';
+import {AuthService} from '@app/authService';
+import {ElsaCompanyLicense} from '@app/models';
 
 export interface ISubCompany {
     ID?: number;
@@ -19,36 +19,21 @@ export interface ISubCompany {
     _createguid?: string;
 }
 
-interface ICompanyLicense {
-    id: number;
-    companyName: string;
-    companyKey: string;
-    orgNumber: string;
-    contractType: number;
-    contractTypeName?: string;
-}
-
 export enum CompanyTypeEnum {
     ChildOfBureau = 1,
     Subsidiary = 2
 }
 
-const ContractTypes = [
-    { id: 0, name: 'Demo'}, { id: 1, name: 'Intern'},
-    { id: 3, name: 'Partner'}, { id: 4, name: 'Pilot'},
-    { id: 5, name: 'Skole'}, { id: 10, name: 'Standard'},
-    { id: 11, name: 'Byrå'}, { id: 12, name: 'Lag/forening'}
-];
-
 @Component({
     selector: 'subcompanycomponent',
-    template: `<article [attr.aria-busy]="busy">
-        <uni-form [config]="config$"
-              [fields]="fields$"
-              [model]="subCompany$"
-              (changeEvent)="onChange($event)">
-        </uni-form>
-
+    template: `
+        <article [attr.aria-busy]="busy">
+            <uni-form
+                [config]="{}"
+                [fields]="fields$"
+                [model]="subCompany$"
+                (changeEvent)="onChange($event)">
+            </uni-form>
         </article>
     `
 })
@@ -58,26 +43,26 @@ export class SubCompanyComponent implements OnInit {
     @ViewChild(UniForm) private uniForm: UniForm;
 
     public subCompany$: BehaviorSubject<ISubCompany> = new BehaviorSubject(null);
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public canDelete = false;
-    public candidates: Array<ICompanyLicense> = [];
+    public candidates: ElsaCompanyLicense[] = [];
     public busy = false;
 
     private layout: { Name: string, BaseEntity: string, Fields: Array<any> };
     private activeCompanyKey = '';
     private activated = false;
-    private subCompanies: Array<any> = [];
+    private subCompanies = [];
     public currentCustomerID = 0;
+
     constructor(private http: UniHttp, private guidService: GuidService, authService: AuthService) {
-        authService.authentication$.subscribe((authDetails) => {
-            this.activeCompanyKey = authDetails.activeCompany.Key;
+        authService.authentication$.take(1).subscribe(auth => {
+            this.activeCompanyKey = auth && auth.activeCompany.Key;
         });
     }
 
-    public ngOnInit(): void {
-
-        this.initFormLayout();
+    ngOnInit(): void {
+        this.layout = this.createFormLayout();
+        this.fields$.next(this.layout.Fields);
 
         if (this.customer) {
             this.customer.subscribe( c => this.onParentCustomerChange(c) );
@@ -106,10 +91,10 @@ export class SubCompanyComponent implements OnInit {
         const value = this.subCompany$.getValue();
         const change = event['_licenseCompany'];
         if (change) {
-            const match = this.candidates.find( x => x.id === change.currentValue);
+            const match = this.candidates.find( x => x.ID === change.currentValue);
             if (match) {
-                value.CompanyKey = match.companyKey;
-                value.CompanyName = match.companyName;
+                value.CompanyKey = match.CompanyKey;
+                value.CompanyName = match.CompanyName;
                 this.subCompany$.next(value);
             }
         }
@@ -134,57 +119,43 @@ export class SubCompanyComponent implements OnInit {
         this.change.emit(item);
     }
 
-    private initFormLayout() {
-        this.layout = this.createFormLayout();
-        this.fields$.next(this.layout.Fields);
-    }
-
-
     public onParentCustomerChange(c: Customer) {
         if (!this.activated) { return; }
         if (c && c.ID && (c.ID !== this.currentCustomerID)) {
             this.busy = true;
             this.currentCustomerID = c.ID;
-            this.GET(`subcompanies?filter=customerid eq ${c.ID}`)
-                .finally( () => this.busy = false )
-                .subscribe( (list: Array<ISubCompany>) => {
-                    if (list && list.length > 0) {
-                        this.subCompanies = list;
-                    } else {
-                        this.subCompanies = [this.factory()];
+
+            this.http.asGET()
+                .usingBusinessDomain()
+                .withEndPoint(`subcompanies?filter=customerid eq ${c.ID}`)
+                .send()
+                .map(res => res.json())
+                .subscribe(
+                    res => {
+                        if (res && res.length) {
+                            this.subCompanies = res;
+                        } else {
+                            this.subCompanies = [{
+                                CompanyName: '',
+                                _createguid: this.guidService.guid()
+                            }];
+                        }
+
+
+                        this.uniForm.editMode();
+                        this.canDelete = this.subCompanies[0].ID !== undefined;
+                        this.attachLicense(this.subCompanies[0]);
+                        this.subCompany$.next(this.subCompanies[0]);
+                        this.busy = false;
+                    },
+                    err => {
+                        console.error(err);
+                        this.busy = false;
                     }
-                    this.uniForm.editMode();
-                    this.canDelete = this.subCompanies[0].ID !== undefined;
-                    this.attachLicense(this.subCompanies[0]);
-                    this.subCompany$.next(this.subCompanies[0]);
-                });
-            return;
+                );
         }
+
         this.subCompanies = this.subCompanies || [];
-    }
-
-    private factory(): ISubCompany {
-        return {
-            CompanyName: '',
-            _createguid: this.guidService.guid()
-        };
-    }
-
-    private GET(route: string, params?: any, useStatistics = false ): Observable<any> {
-        if (useStatistics) {
-            return this.http.asGET().usingStatisticsDomain()
-            .withEndPoint(route).send(params)
-            .map(response => response.json().Data);
-        }
-        return this.http.asGET().usingBusinessDomain()
-        .withEndPoint(route).send(params)
-        .map(response => response.json());
-    }
-
-    private ElsaGet(route: string, params?: any): Observable<any> {
-        return this.http.asGET().usingElsaDomain()
-        .withEndPoint(route).send(params)
-        .map(response => response.json());
     }
 
     private createFormLayout() {
@@ -192,28 +163,51 @@ export class SubCompanyComponent implements OnInit {
             Name: 'SubCompany',
             BaseEntity: 'SubCompany',
             Fields: [
-                { FieldSet: 1, Legend: 'Kobling mot underselskap', Property: '_licenseCompany',
-                    FieldType: FieldType.DROPDOWN, Label: 'Oppslag', Section: 0, ReadOnly: true, Options:  {
+                {
+                    FieldSet: 1,
+                    Legend: 'Kobling mot underselskap',
+                    Property: '_licenseCompany',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Oppslag',
+                    ReadOnly: true,
+                    Options:  {
                         source: [],
-                        valueProperty: 'id',
-                        template: item => `${item.companyName} (${item.contractTypeName})`,
+                        valueProperty: 'ID',
+                        template: (item: ElsaCompanyLicense) => item.CompanyName,
                         hideDeleteButton: false
                     }
                  },
-                { FieldSet: 1, Property: 'CompanyName',
-                    FieldType: FieldType.TEXT, Label: 'Navn', Section: 0 },
-                { FieldSet: 1, Property: 'CompanyKey',
-                    FieldType: FieldType.TEXT, Label: 'Nøkkel', Section: 0 },
-                { FieldSet: 1, Property: 'CompanyType',
-                    FieldType: FieldType.DROPDOWN, Label: 'Type', Section: 0, Options:  {
+                {
+                    FieldSet: 1,
+                    Property: 'CompanyName',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Navn',
+                },
+                {
+                    FieldSet: 1,
+                    Property: 'CompanyKey',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Nøkkel',
+                },
+                {
+                    FieldSet: 1,
+                    Property: 'CompanyType',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Type',
+                    Options:  {
                         source: [ { ID: 1, Name: 'Byråklient' }, { ID: 2, Name: 'Datterselskap' }],
                         valueProperty: 'ID',
                         template: item => item.Name,
                         hideDeleteButton: true
                     }
                  },
-                 { FieldSet: 1, Property: 'DeleteButton',
-                    FieldType: FieldType.BUTTON, Label: 'Fjern kobling', Section: 0, Options: {
+                 {
+                    FieldSet: 1,
+                    Property: 'DeleteButton',
+                    FieldType: FieldType.BUTTON,
+                    Label: 'Fjern kobling',
+                    Options: {
+                        class: 'bad',
                         click: () => {
                             this.onDelete();
                         }
@@ -224,32 +218,20 @@ export class SubCompanyComponent implements OnInit {
     }
 
     private getLicenseCustomers() {
-        this.ElsaGet('/api/companylicenses')
-            .subscribe( list => this.processLicenseList(list));
+        return this.http.asGET()
+            .usingElsaDomain()
+            .withEndPoint('/api/companylicenses')
+            .send()
+            .subscribe(
+                res => this.showLicenses(res.json()),
+                err => console.error(err)
+            );
     }
 
-    private processLicenseList(licenses: Array<ICompanyLicense>) {
-
-        const list = licenses.filter( x => x.companyKey !== this.activeCompanyKey );
-
-        if (list.length) {
-            list.sort((a, b) => a.companyName.toLowerCase() > b.companyName.toLowerCase() ? 1 : a.companyName === b.companyName ? 0 : -1 );
-        }
-
-        list.forEach( ctr => {
-            const tp = ContractTypes.find( x => x.id === ctr.contractType);
-            if (tp) {
-                ctr.contractTypeName = tp.name;
-            }
-        });
-
-        this.showLicenses(list);
-
-    }
-
-    private showLicenses(list: Array<ICompanyLicense>) {
-
-        this.candidates = list;
+    private showLicenses(list: ElsaCompanyLicense[]) {
+        this.candidates = (list || [])
+            .filter( x => x.CompanyKey !== this.activeCompanyKey )
+            .sort((a, b) => a.CompanyName.localeCompare(b.CompanyName));
 
         // Set the combo-value?
         const current = this.subCompany$.getValue();
@@ -268,8 +250,8 @@ export class SubCompanyComponent implements OnInit {
     }
 
     private attachLicense(value: ISubCompany) {
-        const match = this.candidates.find( x => x.companyKey === value.CompanyKey);
+        const match = this.candidates.find( x => x.CompanyKey === value.CompanyKey);
         value.CompanyType = value.CompanyType || 1;
-        value['_licenseCompany'] = match ? match.id : undefined;
+        value['_licenseCompany'] = match ? match.ID : undefined;
     }
 }
