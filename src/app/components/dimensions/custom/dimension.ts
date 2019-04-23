@@ -190,7 +190,7 @@ export class UniDimensionView implements OnInit {
         this.setUpTOFListTable(this.activeTabIndex);
     }
 
-    private handleDelete(res, dimensionId, dimensionNumber, dimensionName, service) {
+    private handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, custom) {
         if (res === true) {
             this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
             this.refresh();
@@ -203,15 +203,27 @@ export class UniDimensionView implements OnInit {
         });
         deleteModal.onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                service.Remove(dimensionId).subscribe(
-                    res2 => {
-                        this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
-                    },
-                    err => {
-                        this.errorService.handle(err);
-                        this.refresh();
-                    }
-                );
+                if (custom !== null) {
+                    service.Remove(custom, dimensionId).subscribe(
+                        res2 => {
+                            this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.refresh();
+                        }
+                    );
+                } else {
+                    service.Remove(dimensionId).subscribe(
+                        res2 => {
+                            this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.refresh();
+                        }
+                    );
+                }
             } else {
                 this.refresh();
             }
@@ -236,6 +248,11 @@ export class UniDimensionView implements OnInit {
                 service = this.departmentService;
                 break;
             case 5: // Custom
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
                 dimensionName = row.Name;
                 dimensionNumber = row.Number;
                 service = this.customDimensionService;
@@ -251,13 +268,13 @@ export class UniDimensionView implements OnInit {
         if (custom) {
 
             service.checkIfUsed(this.currentDimension, dimensionId).subscribe(res => {
-                this.handleDelete(res, dimensionId, dimensionNumber, dimensionName, service);
+                this.handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, this.currentDimension);
             });
 
         } else {
 
             service.ActionWithBody(dimensionId, null, 'is-used', RequestMethod.Get).subscribe(res => {
-                this.handleDelete(res, dimensionId, dimensionNumber, dimensionName, service);
+                this.handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, null);
                 /*if (res === true) {
                     this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
                     this.refresh();

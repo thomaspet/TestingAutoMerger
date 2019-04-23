@@ -69,11 +69,11 @@ export class CustomDimensionService {
             .map(res => res.json());
     }    
 
-    public Remove(/*dimension: number,*/ id: number) {
+    public Remove(dimension: number, id: number) {
         return this.http
             .asDELETE()
             .usingBusinessDomain()
-            .withEndPoint('dimension' + '5' /*dimension*/ + '/' + id)
+            .withEndPoint('dimension' + dimension + '/' + id)
             .send()
             .map(res => res.json());
     }
