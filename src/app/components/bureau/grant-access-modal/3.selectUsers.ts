@@ -34,7 +34,7 @@ export class SelectUsersForBulkAccess {
                 users => {
                     if (this.data.users && this.data.users.length) {
                         users.forEach(user => {
-                            if (this.data.users.some(u => u.userIdentity === user.userIdentity)) {
+                            if (this.data.users.some(u => u.UserIdentity === user.UserIdentity)) {
                                 user['_selected'] = true;
                             }
                         });

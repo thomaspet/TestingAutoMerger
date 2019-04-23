@@ -19,10 +19,10 @@ export class SelectProductsComponent implements OnInit {
         this.elsaProductService.GetAll()
         .subscribe(products => {
             products.map(product => {
-                product['_selected'] = !!this.selectedProductsNames.find(name => name === product.name);
+                product['_selected'] = !!this.selectedProductsNames.find(name => name === product.Name);
                 return product;
             });
-            this.products = products.filter(product => product.productType === ElsaProductType.Module);
+            this.products = products.filter(product => product.ProductType === ElsaProductType.Module);
         });
     }
 
@@ -30,7 +30,7 @@ export class SelectProductsComponent implements OnInit {
         product['_selected'] = !product['_selected'];
         const selectedProductsNames = this.products
             .filter(p => p['_selected'])
-            .map(p => p.name);
+            .map(p => p.Name);
         this.selectedProductsNamesChange.emit(selectedProductsNames);
     }
 }

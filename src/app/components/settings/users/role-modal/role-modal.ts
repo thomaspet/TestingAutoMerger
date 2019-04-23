@@ -72,7 +72,7 @@ export class UniRoleModal implements IUniModal {
 
             this.elsaPurchaseService.massUpdate([{
                 ID: null,
-                ProductID: group.product.id,
+                ProductID: group.product.ID,
                 GlobalIdentity: this.user.GlobalIdentity
             }]).subscribe(
                 () => {
@@ -82,7 +82,7 @@ export class UniRoleModal implements IUniModal {
                         let roleToActivate;
 
                         try {
-                            const defaultRoleName = group.product.listOfRoles.split(',')[0]
+                            const defaultRoleName = group.product.ListOfRoles.split(',')[0]
                                 .trim()
                                 .toLowerCase();
 
@@ -192,13 +192,13 @@ export class UniRoleModal implements IUniModal {
     private groupRolesByProducts(roles: Role[], products: ElsaProduct[]): IRoleGroup[] {
         // Create groups based on products (of type Module)
         const filteredProducts = (products || []).filter(product => {
-            return product.productTypeName === 'Module'
-                && product.name !== 'Complete';
+            return product.ProductTypeName === 'Module'
+                && product.Name !== 'Complete';
         });
 
         const groups: IRoleGroup[] = filteredProducts.map(product => {
             const purchase = this.elsaPurchases.find(p => {
-                return p.ProductID === product.id
+                return p.ProductID === product.ID
                     && p.GlobalIdentity === this.user.GlobalIdentity;
             });
 
@@ -207,7 +207,7 @@ export class UniRoleModal implements IUniModal {
             const userStatusInvited = this.user.StatusCode === 110000;
 
             return {
-                label: product.label,
+                label: product.Label,
                 roles: [],
                 product: product,
                 productPurchased: !!purchase || userStatusInvited,
@@ -226,7 +226,7 @@ export class UniRoleModal implements IUniModal {
             const roleNameLowerCase = (role.Name || '').toLowerCase();
 
             const groupsThatShouldHaveRole = groups.filter(group => {
-                const listOfRoles = group.product && group.product.listOfRoles;
+                const listOfRoles = group.product && group.product.ListOfRoles;
                 if (listOfRoles) {
                     return listOfRoles.split(',').some(roleName => {
                         return roleName && roleName.toLowerCase() === roleNameLowerCase;

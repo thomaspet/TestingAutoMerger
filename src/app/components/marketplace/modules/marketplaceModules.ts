@@ -80,9 +80,9 @@ export class MarketplaceModules implements AfterViewInit {
                 this.autobankAgreements = res[1] || [];
 
                 const products = res[2] || [];
-                this.modules = products.filter(p => p.productType === ElsaProductType.Module);
+                this.modules = products.filter(p => p.ProductType === ElsaProductType.Module);
                 this.extensions = products
-                    .filter(p => p.productType === ElsaProductType.Extension)
+                    .filter(p => p.ProductType === ElsaProductType.Extension)
                     .map(extension => {
                         this.setActivationFunction(extension);
                         return extension;
@@ -91,7 +91,7 @@ export class MarketplaceModules implements AfterViewInit {
                 this.setPurchaseInfo(res[3]);
                 this.canPurchaseProducts = res[4];
 
-                const tabs = this.modules.map(m => ({name: m.label, value: m.name}));
+                const tabs = this.modules.map(m => ({name: m.Label, value: m.Name}));
                 tabs.unshift({ name: 'Alle', value: null });
                 this.tabs = tabs;
                 this.onTabChange(this.tabs[0]);
@@ -101,7 +101,7 @@ export class MarketplaceModules implements AfterViewInit {
                     const productName = paramMap.get('productName');
                     if (productName) {
                         const product = products.find(p => {
-                            return productName.toLowerCase() === (p.name || '').toLowerCase();
+                            return productName.toLowerCase() === (p.Name || '').toLowerCase();
                         });
 
                         if (product) {
@@ -116,18 +116,18 @@ export class MarketplaceModules implements AfterViewInit {
 
     setPurchaseInfo(purchases: ElsaPurchase[]) {
         this.modules = this.modules.map(product => {
-            product['_isBought'] = purchases.some(p => p.ProductID === product.id);
+            product['_isBought'] = purchases.some(p => p.ProductID === product.ID);
             return product;
         });
 
         this.extensions = this.extensions.map(extension => {
-            extension['_isBought'] = purchases.some(p => p.ProductID === extension.id);
+            extension['_isBought'] = purchases.some(p => p.ProductID === extension.ID);
             return extension;
         });
     }
 
     private setActivationFunction(product: ElsaProduct) {
-        const name = product && product.name && product.name.toLowerCase();
+        const name = product && product.Name && product.Name.toLowerCase();
         let activationModal;
 
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated(this.companySettings)) {
@@ -168,7 +168,7 @@ export class MarketplaceModules implements AfterViewInit {
     onTabChange(tab: IUniTab) {
         if (tab.value) {
             this.filteredExtensions = this.extensions.filter(extension => {
-                return extension.parentProducts.some(pName => pName === tab.value);
+                return extension.ParentProducts.some(pName => pName === tab.value);
             });
         } else {
             this.filteredExtensions = this.extensions;
@@ -201,7 +201,7 @@ export class MarketplaceModules implements AfterViewInit {
         if (this.canPurchaseProducts) {
             const purchase: ElsaPurchase = {
                 ID: null,
-                ProductID: product.id
+                ProductID: product.ID
             };
             this.elsaPurchaseService.massUpdate([purchase]).subscribe(
                 () => product['_isBought'] = true,
