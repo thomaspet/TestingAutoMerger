@@ -1,6 +1,4 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {DimensionSettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 @Injectable()
@@ -61,4 +59,23 @@ export class CustomDimensionService {
 
 
     }
+
+    public checkIfUsed(dimension: number, id: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('dimension' + dimension + '/' + id + '?action=is-used')
+            .send()
+            .map(res => res.json());
+    }    
+
+    public Remove(/*dimension: number,*/ id: number) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('dimension' + '5' /*dimension*/ + '/' + id)
+            .send()
+            .map(res => res.json());
+    }
+
 }
