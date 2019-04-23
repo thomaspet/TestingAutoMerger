@@ -190,7 +190,15 @@ export class UniDimensionView implements OnInit {
         this.setUpTOFListTable(this.activeTabIndex);
     }
 
-    private handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, custom) {
+    private handleRemoveResponseOk() {
+        this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+    }
+    private handleRemoveResponseError(err) {
+        this.errorService.handle(err);
+        this.refresh();
+    }
+
+    private handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, customDimension) {
         if (res === true) {
             this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
             this.refresh();
@@ -203,24 +211,22 @@ export class UniDimensionView implements OnInit {
         });
         deleteModal.onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                if (custom !== null) {
-                    service.Remove(custom, dimensionId).subscribe(
+                if (customDimension !== null) {
+                    service.Remove(customDimension, dimensionId).subscribe(
                         res2 => {
-                            this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+                            this.handleRemoveResponseOk();
                         },
                         err => {
-                            this.errorService.handle(err);
-                            this.refresh();
+                            this.handleRemoveResponseError(err);
                         }
                     );
                 } else {
                     service.Remove(dimensionId).subscribe(
                         res2 => {
-                            this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+                            this.handleRemoveResponseOk();
                         },
                         err => {
-                            this.errorService.handle(err);
-                            this.refresh();
+                            this.handleRemoveResponseError(err);
                         }
                     );
                 }
