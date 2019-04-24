@@ -3151,6 +3151,9 @@ export class BillView implements OnInit {
                             }
                         });
                     }
+                    if (current.ReInvoice != null) {
+                        current.ReInvoice = null;
+                    }
                     if (!current.SupplierID
                         && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
