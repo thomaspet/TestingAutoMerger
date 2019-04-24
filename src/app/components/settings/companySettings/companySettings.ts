@@ -1272,7 +1272,7 @@ export class CompanySettingsComponent implements OnInit {
                 EntityType: 'CompanySettings',
                 Property: 'CompanyRegistered',
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Foretaksregistert',
+                Label: 'Foretaksregistrert',
                 FieldSet: 2,
                 Section: 1,
                 Sectionheader: 'Selskapsoppsett'
