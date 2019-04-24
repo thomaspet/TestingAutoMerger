@@ -900,7 +900,7 @@ export class BankComponent {
     }
 
     public openAutobankAgreementModal() {
-        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements } });
+        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements }, closeOnClickOutside: false });
     }
 
     private payAll(doneHandler: (status: string) => any, isManualPayment: boolean) {
