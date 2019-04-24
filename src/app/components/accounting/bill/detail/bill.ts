@@ -2318,14 +2318,17 @@ export class BillView implements OnInit {
     }
 
     public openReinvoiceModal() {
-        this.hasUnsavedChanges = false;
-        this.modalService.open(UniReinvoiceModal, {
-            data: {
-                supplierInvoice: this.current.getValue()
-            }
-        }).onClose.subscribe((result) => {
-            if (result) {
-                this.fetchInvoice(this.currentID, true);
+        this.checkSave().then((res: boolean) => {
+            if (res) {
+                this.modalService.open(UniReinvoiceModal, {
+                    data: {
+                        supplierInvoice: this.current.getValue()
+                    }
+                }).onClose.subscribe((result) => {
+                    if (result) {
+                        this.fetchInvoice(this.currentID, true);
+                    }
+                });
             }
         });
     }
