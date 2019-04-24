@@ -231,7 +231,7 @@ export class SubCompanyComponent implements OnInit {
     private showLicenses(list: ElsaCompanyLicense[]) {
         this.candidates = (list || [])
             .filter( x => x.CompanyKey !== this.activeCompanyKey )
-            .sort((a, b) => a.CompanyName.localeCompare(b.CompanyName));
+            .sort((a, b) => (a.CompanyName || '').localeCompare(b.CompanyName));
 
         // Set the combo-value?
         const current = this.subCompany$.getValue();
