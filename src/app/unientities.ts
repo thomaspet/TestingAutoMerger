@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -1120,6 +1120,8 @@ export class CustomerInvoiceItem extends UniEntity {
     public DiscountCurrency: number;
     public DiscountPercent: number;
     public ID: number;
+    public InvoicePeriodEndDate: LocalDate;
+    public InvoicePeriodStartDate: LocalDate;
     public ItemSourceID: number;
     public ItemText: string;
     public NumberOfItems: number;
@@ -4543,6 +4545,7 @@ export class Project extends UniEntity {
     public DimensionsID: number;
     public EndDate: LocalDate;
     public ID: number;
+    public IsUsed: boolean;
     public Name: string;
     public PlannedEnddate: LocalDate;
     public PlannedStartdate: LocalDate;
@@ -6083,6 +6086,8 @@ export class SupplierInvoiceItem extends UniEntity {
     public DiscountCurrency: number;
     public DiscountPercent: number;
     public ID: number;
+    public InvoicePeriodEndDate: LocalDate;
+    public InvoicePeriodStartDate: LocalDate;
     public ItemText: string;
     public NumberOfItems: number;
     public PriceExVat: number;
@@ -7461,6 +7466,7 @@ export class SendEmail extends UniEntity {
     public FromAddress: string;
     public Localization: string;
     public Message: string;
+    public ReportID: number;
     public ReportName: string;
     public Subject: string;
     public Attachments: Array<SendEmailAttachment>;
@@ -7636,6 +7642,12 @@ export class UpdateServiceStatusDTO extends UniEntity {
 }
 
 
+export class UpdateServiceIDDTO extends UniEntity {
+    public NewServiceID: string;
+    public ServiceID: string;
+}
+
+
 export class JournalEntryLineRequestSummary extends UniEntity {
     public SumBalance: number;
     public SumCredit: number;
@@ -7681,27 +7693,6 @@ export class JournalEntryLinePostPostData extends UniEntity {
 export class CreatePaymentBatchDTO extends UniEntity {
     public Code: string;
     public Password: string;
-}
-
-
-export class PaymentAttachmentDto extends UniEntity {
-    public CustomerNumber: number;
-    public dueAmount: string;
-    public ExternalBankAccountNumber: string;
-    public InvoiceNumber: string;
-    public JournalEntryNumber: string;
-    public JournalEntryNumberNumeric: number;
-    public KID: string;
-    public Name: string;
-    public NumberOfPayments: number;
-    public PaidAmount: string;
-    public paymentAmount: string;
-    public PaymentFileID: number;
-    public ReceiptDate: Date;
-    public RestAmount: string;
-    public SerialNumberOrAcctSvcrRef: string;
-    public TotalAmount: string;
-    public Year: number;
 }
 
 

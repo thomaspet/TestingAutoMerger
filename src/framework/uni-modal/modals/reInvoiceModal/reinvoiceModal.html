@@ -121,6 +121,6 @@
             </ul>
         </section>
         <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving || currentReInvoice?.StatusCode === 30203">Lagre</button>
-        <button (click)="this.closeModal()" class="good" [disabled]="isSaving">Lukk</button>
+        <button (click)="this.closeModal()" class="bad" [disabled]="isSaving">Lukk</button>
     </footer>
 </section>
