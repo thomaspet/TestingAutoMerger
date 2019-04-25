@@ -12,6 +12,11 @@ import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {ModulusService} from '@app/services/common/modulusService';
 
+interface IFromToFilter {
+    from: number;
+    to: number;
+}
+
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
     public debounceTime: number = 500;
@@ -123,6 +128,26 @@ export class EmployeeService extends BizHttp<Employee> {
                 break;
         }
         return helptext;
+    }
+
+    public getFromToFilter(employees: number[]): IFromToFilter[] {
+        let from = 0;
+        const ret: IFromToFilter[] = [];
+        if (!employees.length) {
+            return ret;
+        }
+        employees.forEach((empID, i) => {
+            if (!from) {
+                from = empID;
+            } else if (i > 0 && employees[i - 1] + 1 !== empID) {
+                ret.push({from: from, to: employees[i - 1]});
+                from = empID;
+            }
+        });
+
+        ret.push({from: from, to: employees[employees.length - 1]});
+
+        return ret;
     }
 
     public canAccesssEmployee(id: number): Observable<boolean> {
