@@ -338,9 +338,19 @@ export class TradeItemTable {
             .setJumpToColumn('NumberOfItems')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
-                lookupFunction: (query: string) => {
+                lookupFunction: (input: string) => {
+                    let filter = `contains(Name,'${input}') or startswith(PartName,'${input}')`;
+
+                    // Search for specific PartName with prefix =
+                    if (input && input.charAt(0) === '=') {
+                        const searchText = input.split('=')[1];
+                        if (searchText) {
+                            filter = `PartName eq '${searchText.trim()}'`;
+                        }
+                    }
+
                     return this.productService.GetAll(
-                        `filter=contains(Name,'${query}') or startswith(PartName,'${query}')&top=100`,
+                        `filter=${filter}&top=100&orderby=PartName`,
                         [
                             'Account',
                             'Dimensions',
