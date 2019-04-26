@@ -21,8 +21,8 @@ export class InvoiceItemDetails {
 
     ngOnChanges() {
         if (this.item) {
-            const countLabel = this.item.unit === 'bruker' ? 'Dager' : 'Antall';
-            let listHeader = this.item.unit;
+            const countLabel = this.item.Unit === 'bruker' ? 'Dager' : 'Antall';
+            let listHeader = this.item.Unit;
 
             // Capitalize
             if (listHeader) {
@@ -30,8 +30,8 @@ export class InvoiceItemDetails {
             }
 
             this.columns = [
-                {header: listHeader, field: 'name'},
-                {header: countLabel, field: 'counter', format: 'number', flex: '0 0 4rem'},
+                {header: listHeader, field: 'Name'},
+                {header: countLabel, field: 'Counter', format: 'number', flex: '0 0 4rem'},
             ];
         }
     }
