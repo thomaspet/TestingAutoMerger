@@ -1,5 +1,6 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of as observableOf} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {UniProductDetailsModal} from '../products/productDetailsModal';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
@@ -17,11 +18,9 @@ import {
     Department,
     Dimensions,
     LocalDate,
-    ProductCategory
 } from '../../../unientities';
 import {
     ProductService,
-    VatTypeService,
     AccountService,
     ProjectService,
     ProjectTaskService,
@@ -354,9 +353,26 @@ export class TradeItemTable {
                             'Dimensions.Dimension9',
                             'Dimensions.Dimension10'
                         ]
-                    )
+                    ).pipe(
+                        catchError(err => {
+                            this.errorService.handle(err);
+                            return observableOf([]);
+                        }),
+                        map(res => {
+                            const sorted = (res || []).sort((item1, item2) => {
+                                const item1PartName = item1.PartName || '';
+                                const item2PartName = item2.PartName || '';
 
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                                if (+item1PartName && +item2PartName) {
+                                    return +item1PartName - +item2PartName;
+                                }
+
+                                return item1PartName.localeCompare(item2PartName);
+                            });
+
+                            return sorted;
+                        })
+                    );
                 },
                 showResultAsTable: true,
                 resultTableConfig: {
@@ -704,7 +720,7 @@ export class TradeItemTable {
             if (!event.newValue) {
                 noProduct = true;
             }
-            else if (updatedRow.Product && !updatedRow.Product.Dimensions) { 
+            else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
                 triggerChangeDetection = true;
