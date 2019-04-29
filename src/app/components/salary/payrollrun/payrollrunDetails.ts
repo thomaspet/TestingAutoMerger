@@ -73,7 +73,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private disableFilter: boolean;
     public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
-    private empID: number;
+    private emp: Employee;
     private showFunctions: boolean = false;
 
     public saving: boolean;
@@ -335,8 +335,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         });
     }
 
-    setEmployeeID(employeeID: number) {
-        this.empID = employeeID;
+    setEmployee(employee: Employee) {
+        this.emp = employee;
     }
 
     toggleShowFunctions() {
@@ -345,7 +345,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     openTaxCardModal() {
         this.modalService.open(TaxCardModal, {
-            data: this.empID,
+            data: this.emp,
             modalConfig: {
                 update: () => {
                     this._employeeTaxCardService.invalidateCache();

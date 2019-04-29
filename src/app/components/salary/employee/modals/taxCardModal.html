@@ -3,7 +3,7 @@
         <h1>Elektronisk skattekort</h1>
     </header>
     <article>
-        <tax-card-request [employeeID]="employeeID" (newReceipt)="getReceipts()"></tax-card-request>
+        <tax-card-request [employee]="employee" (newReceipt)="getReceipts()"></tax-card-request>
         <read-tax-card [changeEvent]="changeEvent" (updateTax)="triggerUpdate()"></read-tax-card>
     </article>
     <footer>
