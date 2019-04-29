@@ -25,7 +25,7 @@ interface UserRoleGroup {
 }
 
 enum UserStatus {
-    Draft = 110000,
+    Invited = 110000,
     Active = 110001,
     InActive = 110002,
 }
@@ -49,6 +49,7 @@ export class UserDetails {
     roles: Role[];
     userRoles: UserRole[];
     userRoleGroups: UserRoleGroup[];
+    userStatusInvited: boolean;
 
     roleGroups: {label: string, roles: UserRole[]}[];
     products: ElsaProduct[];
@@ -73,6 +74,7 @@ export class UserDetails {
 
     ngOnChanges() {
         if (this.user && this.users) {
+            this.userStatusInvited = this.user.StatusCode === UserStatus.Invited;
             this.loadRoles();
 
             this.elsaPurchaseService.getPurchaseByProductName('Autobank')
@@ -98,7 +100,7 @@ export class UserDetails {
         const actions = [];
 
         // Invited user
-        if (this.user.StatusCode === UserStatus.Draft) {
+        if (this.user.StatusCode === UserStatus.Invited) {
             actions.push({
                 label: 'Send ny invitasjon',
                 action: () => this.resendInvite.emit(this.user),
@@ -240,7 +242,9 @@ export class UserDetails {
 
         groups.push(otherGroup);
         return groups.filter(group => {
-            return (!group.product || group.productPurchased) && group.userRoles && group.userRoles.length;
+            return (!group.product || group.productPurchased || this.userStatusInvited)
+                && group.userRoles
+                && group.userRoles.length;
         });
     }
 
