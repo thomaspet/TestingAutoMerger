@@ -36,6 +36,7 @@ import {PaycheckSenderModal} from './sending/paycheckSenderModal';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import { TaxCardModal } from '../employee/modals/taxCardModal';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 
@@ -61,7 +62,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public destroy$: Subject<void> = new Subject<void>();
 
     public payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
-    private payrollrunID: number;
+    public payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
 
@@ -72,6 +73,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private disableFilter: boolean;
     public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
+    private empID: number;
+    private showFunctions: boolean = false;
 
     public saving: boolean;
     public employees: Employee[];
@@ -260,38 +263,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
         this.contextMenuItems = [
             {
-                label: 'Generer feriepenger',
-                action: () => {
-                    this.openVacationPayModal();
-                },
-                disabled: (rowModel) => {
-                    return this.payrollrun$.getValue() && this.payrollrunID
-                        ? this.payrollrun$.getValue().StatusCode > 0
-                        : false;
-                }
-            },
-            {
-                label: 'Overfør timer til lønn',
-                action: () => {
-                    this.openTimeTransferModal();
-                },
-                disabled: (rowModel) => {
-                    return this.payrollrun$.getValue() && this.payrollrunID
-                        ? this.payrollrun$.getValue().StatusCode > 0
-                        : false;
-                }
-            },
-            {
-                label: 'Overfør reiser til lønn',
-                action: () => {
-                    this.payrollRunDetailsService.routeToTravel(this.payrollrun$.getValue());
-                },
-                disabled: () => {
-                    const run = this.payrollrun$.getValue();
-                    return run && this.payrollrunID && run.StatusCode > 0;
-                }
-            },
-            {
                 label: 'Rekalkuler skatt',
                 action: () => {
                     this.recalcTaxOnPayrun();
@@ -362,6 +333,42 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             }
         });
+    }
+
+    setEmployeeID(employeeID: number) {
+        this.empID = employeeID;
+    }
+
+    toggleShowFunctions() {
+        this.showFunctions = !this.showFunctions;
+    }
+
+    openTaxCardModal() {
+        this.modalService.open(TaxCardModal, {
+            data: this.empID,
+            modalConfig: {
+                update: () => {
+                    this._employeeTaxCardService.invalidateCache();
+                }
+            }}).onClose.subscribe(res => {
+                if (!res) { return; }
+
+                this.updateTax(this.employees);
+                this.updateSum(this.payrollrunID);
+                this.selectionList.updateSums();
+            });
+    }
+
+    transferHoursToSalary() {
+       this.openTimeTransferModal();
+    }
+
+    transferTravelsToSalary() {
+       this.payrollRunDetailsService.routeToTravel(this.payrollrun$.getValue());
+    }
+
+    generateVacationPay() {
+       this.openVacationPayModal();
     }
 
     private updateSum(runID: number) {

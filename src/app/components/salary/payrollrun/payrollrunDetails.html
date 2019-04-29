@@ -30,16 +30,27 @@
 
             <span>
                 <i class="material-icons">people</i>
-                {{employees?.length || 0}} ansatte i lønnsavregningen
+                {{employees?.length || 0}} ansatte
             </span>
 
             <span>
                 <i class="material-icons">attach_money</i>
                 Beløp til utbetaling: <strong>{{paymentSum | uninumberformat: 'money'}}</strong>
             </span>
+
+            <section class="functions collapsable" [ngClass]="{'-is-open':showFunctions}">
+                <h4 class="functionsHeader" (click)="toggleShowFunctions()">Funksjoner</h4>
+
+                <div class="collapsable-content">
+                    <a (click)="openTaxCardModal()">Skattekort</a>
+                    <a (click)="transferHoursToSalary()">Overfør timer til lønn</a>
+                    <a (click)="transferTravelsToSalary()">Overfør reiser til lønn</a>
+                    <a (click)="generateVacationPay()">Generer feriepenger</a>
+                </div>
+            </section>
         </section>
 
-        <salarytrans></salarytrans>
+        <salarytrans (employeeID)="setEmployeeID($event)"></salarytrans>
     </section>
 
 

@@ -15,6 +15,7 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
 
     public changeEvent: EventEmitter<any>;
     public employeeID: number;
+    public needsUpdate: boolean = false;
     constructor() { }
 
     public ngOnInit() {
@@ -30,7 +31,7 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
     public close() {
         this.taxCardRequest.isActive = false;
         this.taxCardRequest.close();
-        this.onClose.next();
+        this.onClose.next(this.needsUpdate);
     }
 
     public triggerUpdate() {
@@ -40,5 +41,6 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
 
     public getReceipts() {
         this.readTaxCard.getReceipts();
+        this.needsUpdate = true;
     }
 }
