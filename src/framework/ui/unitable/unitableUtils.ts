@@ -72,7 +72,8 @@ export class UniTableUtils {
                 jumpToColumn: col.jumpToColumn,
                 _originalField: col['_originalField'],
                 sumFunction: col.sumFunction,
-                alias: col.alias
+                alias: col.alias,
+                index: col.index,
             });
         });
 

@@ -132,12 +132,6 @@ export class UniTable implements OnChanges {
         }
 
         if (this.resource && this.config) {
-
-            // if index is specified for any columns, order columns by index
-            if (this.config.columns.find(x => x.index !== 0)) {
-                this.config.columns = this.config.columns.sort((a, b) => a.index - b.index);
-            }
-
             this.sortInfo = this.config.defaultOrderBy || {
                 field: '',
                 direction: 0,
@@ -151,37 +145,22 @@ export class UniTable implements OnChanges {
             }
 
             if (customColumnSetup && customColumnSetup.length) {
-                let columns = [];
-
-                // First check if config contains columns that does not exist
-                // custom setup. This means that default config has changed
-                // and we need to invalidate the user's config
-                let resetColumnConfig = !this.config.columns.every(col => {
-                    return customColumnSetup.some(customCol => customCol.field === col.field);
+                let columns = (this.config.columns || []).map(configColumn => {
+                    const savedColumn = customColumnSetup.find(col => col.field === configColumn.field);
+                    if (savedColumn) {
+                        return Object.assign({}, configColumn, savedColumn);
+                    } else {
+                        return configColumn;
+                    }
                 });
 
-                if (!resetColumnConfig) {
-                    // Extend the default column config with the custom one.
-                    // Extending because localStorage can't hold functions/components etc
-                    // So only a set of pre-defined fields are saved
-                    for (const customColumn of customColumnSetup) {
-                        const originalCol = this.config.columns.find(c => c.field === customColumn.field);
-                        if (originalCol) {
-                            columns.push(Object.assign({}, originalCol, customColumn));
-                        } else {
-                            // If we can't find an original column with the same field
-                            // it means either the default config changed or a table with the
-                            // same name and different config exists somewhere in the app.
-                            // At this point we need to reset in order to avoid crashing
-                            resetColumnConfig = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (resetColumnConfig) {
-                    columns = this.config.columns;
-                    this.utils.removeColumnSetup(this.config.configStoreKey);
+                // if index is specified for any columns, order by it
+                if (columns.find(x => x.index >= 0)) {
+                   columns = columns.sort((col1, col2) => {
+                        const col1Index = col1.index >= 0 ? col1.index : 99;
+                        const col2Index = col2.index >= 0 ? col2.index : 99;
+                        return col1Index - col2Index;
+                    });
                 }
 
                 this.tableColumns = this.utils.makeColumnsImmutable(columns);

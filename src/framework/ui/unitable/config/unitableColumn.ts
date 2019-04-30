@@ -146,7 +146,6 @@ export class UniTableColumn implements IUniTableColumn {
         this.visible = true;
         this.filterable = true;
         this.filterOperator = 'contains';
-        this.index = 0;
         this.skipOnEnterKeyNavigation = false;
         this.sortMode = UniTableColumnSortMode.Normal;
 

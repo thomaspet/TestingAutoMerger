@@ -358,8 +358,12 @@ export class AgGridWrapper {
         const index = column && this.columns.findIndex(col => col.field === column.field);
         if (index >= 0) {
             const col = this.columns.splice(index, 1)[0];
+
             this.columns.splice(event.toIndex, 0, col);
-            this.columns = [...this.columns];
+            this.columns = this.columns.map((c, i) => {
+                c.index = i;
+                return c;
+            });
 
             this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
             this.columnsChange.emit(this.columns);
@@ -563,7 +567,11 @@ export class AgGridWrapper {
                     columns = this.tableUtils.getTableColumns(this.config);
                     this.tableUtils.removeColumnSetup(this.config.configStoreKey);
                 } else {
-                    columns = res.columns;
+                    columns = res.columns.map((col, index) => {
+                        col.index = index;
+                        return col;
+                    });
+
                     this.tableUtils.saveColumnSetup(this.config.configStoreKey, columns);
                 }
 
