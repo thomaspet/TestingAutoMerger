@@ -33,7 +33,8 @@ import {
     RowClickedEvent,
     RowDragEndEvent,
     PaginationChangedEvent,
-    RowNode
+    RowNode,
+    SortChangedEvent
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
@@ -345,6 +346,15 @@ export class AgGridWrapper {
 
                 event.api.sizeColumnsToFit();
             }
+        }
+    }
+
+    public onSortChange(event: SortChangedEvent) {
+        const sortModel = event.api.getSortModel();
+        if (sortModel && sortModel[0]) {
+            this.tableUtils.saveSortModel(this.config.configStoreKey, sortModel[0]);
+        } else {
+            this.tableUtils.removeSortModel(this.config.configStoreKey);
         }
     }
 

@@ -79,6 +79,7 @@
         (columnResized)="colResizeDebouncer$.next($event)"
         (modelUpdated)="onAgModelUpdate($event)"
         (rowDragEnd)="onRowDragEnd($event)"
+        (sortChanged)="onSortChange($event)"
 
         [rowSelection]="selectionMode"
         [suppressRowClickSelection]="selectionMode === 'multiple'"

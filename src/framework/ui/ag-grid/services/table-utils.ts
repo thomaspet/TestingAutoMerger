@@ -6,32 +6,35 @@ import {ISavedSearch, ITableFilter} from '../interfaces';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-interface ColumnSetupMap {
-    [key: string]: UniTableColumn[];
-}
+interface SortModel { colId: string; sort: string; }
 
-interface SavedSearchMap {
-    [key: string]: ISavedSearch[];
-}
+interface ColumnSetupMap { [key: string]: UniTableColumn[]; }
+interface SavedSearchMap { [key: string]: ISavedSearch[]; }
+interface SortMap { [key: string]: SortModel; }
 
-const CONFIG_STORAGE_KEY: string = 'uniTable_column_configs';
-const FILTER_STORAGE_KEY: string = 'uniTable_filters';
+const CONFIG_STORAGE_KEY = 'uniTable_column_configs';
+const FILTER_STORAGE_KEY = 'uniTable_filters';
+const SORT_STORAGE_KEY = 'uniTable_sort';
 
 @Injectable()
 export class TableUtils {
     private columnSetupMap: ColumnSetupMap = {};
     private savedSearchMap: SavedSearchMap = {};
+    private sortMap: SortMap = {};
 
     constructor() {
-        try {
-            this.columnSetupMap = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
-            this.savedSearchMap = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)) || {};
-        } catch (e) {
-            console.error('Error trying to get column setup or filters (unitableUtils constructor)');
-            console.error(e);
-            this.columnSetupMap = {};
-            this.savedSearchMap = {};
-        }
+        const getSavedSettings = (key: string) => {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || {};
+            } catch (e) {
+                console.error(`Error getting ${key} in ag-grid table utils`, e);
+                return {};
+            }
+        };
+
+        this.columnSetupMap = getSavedSettings(CONFIG_STORAGE_KEY);
+        this.savedSearchMap = getSavedSettings(FILTER_STORAGE_KEY);
+        this.sortMap = getSavedSettings(SORT_STORAGE_KEY);
     }
 
     // Local sorting functions
@@ -274,5 +277,19 @@ export class TableUtils {
         }
 
         return savedSearches;
+    }
+
+    getSortModel(tableName: string): SortModel {
+        return this.sortMap[tableName];
+    }
+
+    saveSortModel(tableName: string, sortModel: SortModel): void {
+        this.sortMap[tableName] = sortModel;
+        localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(this.sortMap));
+    }
+
+    removeSortModel(tableName: string): void {
+        delete this.sortMap[tableName];
+        localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(this.sortMap));
     }
 }
