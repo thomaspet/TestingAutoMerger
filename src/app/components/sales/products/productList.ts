@@ -6,6 +6,8 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {ProductService, ErrorService} from '../../../services/services';
 import {Product} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { UniProductImportModal } from './UniProductImportModal';
 
 @Component({
     selector: 'product-list',
@@ -20,7 +22,8 @@ export class ProductList {
         private router: Router,
         private productService: ProductService,
         private tabService: TabService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService,
     ) {
         this.tabService.addTab({
             name: 'Produkter',
@@ -36,7 +39,15 @@ export class ProductList {
                 done();
                 this.router.navigateByUrl('/sales/products/0');
             }
-        }];
+        }
+            //::TODO - Create a Job Service to import products
+            //, {
+            //     label: 'Importer produkter',
+            //     action: (done) => this.openImportModal(done),
+            //     main: true,
+            //     disabled: false
+            // }
+        ];
 
         this.setupProductTable();
     }
@@ -118,5 +129,17 @@ export class ProductList {
                 projectCol,
                 descriptionCol
             ]);
+    }
+
+    public openImportModal(done = null) {
+        this.modalService.open(UniProductImportModal).onClose.subscribe((res) => {
+            if (res) {
+                
+            } else {
+                if (done) {
+                    done();
+                }
+            }
+        });
     }
 }
