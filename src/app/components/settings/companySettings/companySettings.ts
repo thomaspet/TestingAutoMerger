@@ -1522,6 +1522,38 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Label: 'Remitteringskonto innbetaling',
+                Property: 'InterrimPaymentAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                FieldSet: 6,
+                Section: 1,
+                Options: {
+                    valueProperty: 'AccountNumber',
+                    source: model => this.accountService
+                        .GetAll(`filter=AccountNumber eq ${model.InterrimPaymentAccountID}`)
+                        .map(results => results[0])
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Label: 'Remitteringskonto utbetaling',
+                Property: 'InterrimRemitAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                FieldSet: 6,
+                Section: 1,
+                Options: {
+                    valueProperty: 'AccountNumber',
+                    source: model => this.accountService
+                        .GetAll(`filter=AccountNumber eq ${model.InterrimRemitAccountID}`)
+                        .map(results => results[0])
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'TwoStageAutobankEnabled',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Autobank tofaktor autentisering',
