@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs';
-import {CompanySettings, FinancialYear, User} from '@app/unientities';
+import {CompanySettings, FinancialYear, User, Company} from '@app/unientities';
 import {UniSelect, ISelectConfig} from '@uni-framework/ui/uniform';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '@uni-framework/uni-modal';
 import {AuthService} from '@app/authService';
@@ -66,8 +66,10 @@ export class UniCompanyDropdown {
         this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {
-            displayProperty: 'Name',
-            hideDeleteButton: true
+            hideDeleteButton: true,
+            template: (company: Company) => {
+                return company.IsTemplate ? 'MAL - ' + company.Name : company.Name;
+            }
         };
 
         this.selectYearConfig = {

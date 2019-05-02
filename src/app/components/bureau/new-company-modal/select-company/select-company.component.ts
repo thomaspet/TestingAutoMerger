@@ -1,22 +1,16 @@
-import {Component, Output, EventEmitter, ViewChild, Input, AfterViewInit, OnInit} from '@angular/core';
-import {FormGroup, FormControl, Validators, AbstractControl} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs';
-
+import {Component, Output, EventEmitter, Input} from '@angular/core';
+import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {CompanySettings, Address, Company} from '@uni-entities';
 import {
     ModulusService,
     ErrorService,
     BusinessRelationService,
-    CompanyTypeService,
     CompanyService,
 } from '@app/services/services';
-import { IUniSearchConfig, UniSearch } from '@uni-framework/ui/unisearch';
-import { IBrRegCompanyInfo } from '@uni-framework/uni-modal';
-
-const MAX_RESULTS = 50;
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
+    isTemplate: boolean;
     valid: boolean;
 }
 
@@ -25,38 +19,26 @@ export interface CompanyInfo {
     templateUrl: './select-company.component.html',
     styleUrls: ['./select-company.component.sass']
 })
-export class SelectCompanyComponent implements AfterViewInit, OnInit {
+export class SelectCompanyComponent {
     @Input() companyInfo: CompanyInfo;
     @Output() companyInfoChange = new EventEmitter<CompanyInfo>();
 
-    @ViewChild('companyName') companyNameSearch: UniSearch;
-    @ViewChild('orgNo') orgNoSearch: UniSearch;
-
-    companyNameSearchConfig: IUniSearchConfig;
-    orgNumberSearchConfig: IUniSearchConfig;
-    companyData: FormGroup;
+    formGroup: FormGroup;
     orgNumberAlreadyExists = false;
-    isCompanyNameFieldTouched = false;
-    isOrgNumberFieldTouched = false;
     isOrgNumberValid = true;
+    isCompanyNameFieldTouched: boolean;
 
     private companies: Company[] = [];
 
     constructor(
         private businessRelationService: BusinessRelationService,
         private companyService: CompanyService,
-        private companyTypeService: CompanyTypeService,
         private modulusService: ModulusService,
         private errorService: ErrorService,
     ) {}
 
-    ngAfterViewInit() {
-        this.companyNameSearch.setValue(this.companyInfo.companySettings.CompanyName || '');
-        this.orgNoSearch.setValue(this.companyInfo.companySettings.OrganizationNumber || '');
-    }
-
     ngOnInit() {
-        this.companyData = new FormGroup({
+        this.formGroup = new FormGroup({
             companyName: new FormControl(this.companyInfo.companySettings.CompanyName, Validators.required),
             orgNumber: new FormControl(this.companyInfo.companySettings.OrganizationNumber),
             address: new FormControl(this.companyInfo.companySettings.DefaultAddress.AddressLine1),
@@ -64,56 +46,7 @@ export class SelectCompanyComponent implements AfterViewInit, OnInit {
             city: new FormControl(this.companyInfo.companySettings.DefaultAddress.City),
         });
 
-        this.companyNameSearchConfig = <IUniSearchConfig>{
-            lookupFn: searchTerm => {
-                return this.businessRelationService.search(searchTerm)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-            },
-            onSelect: (selectedItem: IBrRegCompanyInfo) => {
-                return this.companyTypeService.GetAll(null)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                    .map(companyTypes => {
-                        this.businessRelationService.updateCompanySettingsWithBrreg(
-                            this.companyInfo.companySettings,
-                            selectedItem,
-                            companyTypes,
-                        );
-
-                        if (selectedItem) {
-                            this.companyData.patchValue({
-                                companyName: selectedItem.navn,
-                                orgNumber: selectedItem.orgnr,
-                                address: selectedItem.forretningsadr,
-                                postalCode: selectedItem.forradrpostnr,
-                                city: selectedItem.forradrpoststed,
-                            });
-                            this.companyNameSearch.setValue(selectedItem.navn || '');
-                            this.orgNoSearch.setValue(selectedItem.orgnr || '');
-                            this.validateOrgNumber();
-                        }
-                        return this.companyInfo.companySettings;
-                    });
-            },
-            initialItem$: new BehaviorSubject(null),
-            tableHeader: ['Navn', 'Org. nr.'],
-            rowTemplateFn: (item: IBrRegCompanyInfo) => [
-                item.navn,
-                item.orgnr,
-            ],
-            inputTemplateFn: (item: CompanySettings) => item.CompanyName,
-            maxResultsLength: MAX_RESULTS,
-            disableSearchButton: true,
-        };
-
-        this.orgNumberSearchConfig = Object.assign({}, this.companyNameSearchConfig);
-        this.orgNumberSearchConfig.lookupFn = searchTerm => {
-            const orgNumber = (searchTerm || '').replace(/\ /g, '');
-            return this.businessRelationService.search(orgNumber)
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-        },
-        this.orgNumberSearchConfig.inputTemplateFn = (item: CompanySettings) => item.OrganizationNumber;
-
-        this.companyData.valueChanges.subscribe(value => {
+        this.formGroup.valueChanges.subscribe(value => {
             this.companyInfo.companySettings.CompanyName = value.companyName;
             this.companyInfo.companySettings.OrganizationNumber = value.orgNumber;
             this.companyInfo.companySettings.DefaultAddress = <Address>{
@@ -121,32 +54,55 @@ export class SelectCompanyComponent implements AfterViewInit, OnInit {
                 PostalCode: value.postalCode,
                 City: value.city
             };
-            this.companyInfo.valid = this.companyData.valid;
+
+            this.companyInfo.valid = this.formGroup.valid;
             this.companyInfoChange.emit(this.companyInfo);
         });
+
+        this.formGroup.controls['orgNumber'].valueChanges
+            .distinctUntilChanged()
+            .subscribe(orgNumber => {
+                this.validateOrgNumber();
+                if (orgNumber && this.isOrgNumberValid) {
+                    const orgNumberTrimmed = orgNumber.replace(/\ /g, '');
+                    this.businessRelationService.search(orgNumberTrimmed).subscribe(
+                        res => {
+                            const brRegInfo = res && res[0];
+                            if (brRegInfo) {
+                                this.formGroup.patchValue({
+                                    companyName: brRegInfo.navn,
+                                    address: brRegInfo.forretningsadr,
+                                    postalCode: brRegInfo.forradrpostnr,
+                                    city: brRegInfo.forradrpoststed
+                                });
+                            }
+                        },
+                        err => console.error(err)
+                    );
+                }
+            });
 
         this.companyService.GetAll().subscribe((companies: Company[]) => {
             this.companies = companies;
         }, err => this.errorService.handle(err));
     }
 
-    onKeyUp(formControlName: string) {
-        if (formControlName === 'companyName') {
-            this.companyData.controls['companyName'].setValue(this.companyNameSearch.NativeInput.value || '');
-        } else if (formControlName === 'orgNumber') {
-            const orgNumber = (this.orgNoSearch.NativeInput.value || '').replace(/\ /g, '');
-            this.companyData.controls['orgNumber'].setValue(orgNumber);
+    onIsTemplateChange() {
+        if (this.companyInfo.isTemplate) {
+            this.formGroup.disable();
+            this.formGroup.controls['companyName'].enable();
+        } else {
+            this.formGroup.enable();
         }
     }
 
     validateOrgNumber() {
-        const orgNumber = (this.companyData.controls['orgNumber'].value || '').replace(/\ /g, '');
-        this.orgNumberAlreadyExists = this.companies.some(company => company.OrganizationNumber === orgNumber);
-        if (!orgNumber || !this.modulusService.isValidOrgNr(orgNumber) || this.orgNumberAlreadyExists) {
-            this.isOrgNumberValid = false;
+        const orgNumber = (this.formGroup.controls['orgNumber'].value || '').replace(/\ /g, '');
+        if (orgNumber) {
+            this.orgNumberAlreadyExists = this.companies.some(company => company.OrganizationNumber === orgNumber);
+            this.isOrgNumberValid = !this.orgNumberAlreadyExists && this.modulusService.isValidOrgNr(orgNumber);
         } else {
             this.isOrgNumberValid = true;
         }
     }
-
 }

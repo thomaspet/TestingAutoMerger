@@ -6,6 +6,8 @@ import {UserService} from '@app/services/services';
 import {User} from '@uni-entities';
 
 import {SmartSearchService} from '../smart-search/smart-search.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-navbar',
@@ -29,6 +31,12 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
             </section>
 
             <section class="navbar-right">
+                <section *ngIf="isTemplateCompany"
+                    class="template-company-warning"
+                    matTooltip="Denne klienten er merket som mal. Det vil si at man ved oppretting av nye klienter kan kopiere data og innstillinger fra den. Man bør derfor kun registrere data som skal kopieres til nye klienter.">
+                    MALKLIENT
+                </section>
+
                 <button *ngIf="hasActiveContract" class="navbar-search" mat-icon-button (click)="openSearch()">
                     <mat-icon aria-label="Search">search</mat-icon>
                 </button>
@@ -88,14 +96,17 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNavbar {
-    public sidebarState: string;
+    sidebarState: string;
 
-    public user: User;
-    public licenseRole: string;
-    public hasActiveContract: boolean;
+    user: User;
+    licenseRole: string;
+    hasActiveContract: boolean;
+    isTemplateCompany: boolean;
 
-    public settingsLinks: any[] = [];
-    public adminLinks: any[] = [];
+    settingsLinks: any[] = [];
+    adminLinks: any[] = [];
+    
+    onDestroy$ = new Subject();
 
     constructor(
         public authService: AuthService,
@@ -105,9 +116,14 @@ export class UniNavbar {
         public cdr: ChangeDetectorRef,
         private smartSearchService: SmartSearchService,
     ) {
-        this.authService.authentication$.subscribe(auth => {
-            this.hasActiveContract = auth.hasActiveContract;
-            this.cdr.markForCheck();
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
+            if (auth && auth.activeCompany) {
+                this.hasActiveContract = auth.hasActiveContract;
+                this.isTemplateCompany = auth.activeCompany.IsTemplate;
+                this.cdr.markForCheck();
+            }
         });
     }
 
@@ -146,6 +162,11 @@ export class UniNavbar {
 
             this.cdr.markForCheck();
         });
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     openSearch() {

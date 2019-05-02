@@ -1,30 +1,15 @@
-import { Component, OnInit, Directive, Input, ElementRef, Output, EventEmitter } from '@angular/core';
-import { ElsaProductService } from '@app/services/services';
-import { ElsaProduct, ElsaProductType } from '@app/models';
+import {Component, Directive, Input, ElementRef, Output, EventEmitter} from '@angular/core';
+import {ElsaProduct} from '@app/models';
 
 @Component({
     selector: 'uni-select-products',
     templateUrl: './select-products.component.html',
     styleUrls: ['./select-products.component.sass']
 })
-export class SelectProductsComponent implements OnInit {
+export class SelectProductsComponent {
+    @Input() products: ElsaProduct[];
     @Input() selectedProductsNames: string[] = [];
     @Output() selectedProductsNamesChange = new EventEmitter<string[]>();
-
-    products: ElsaProduct[] = [];
-
-    constructor(private elsaProductService: ElsaProductService) { }
-
-    ngOnInit() {
-        this.elsaProductService.GetAll()
-        .subscribe(products => {
-            products.map(product => {
-                product['_selected'] = !!this.selectedProductsNames.find(name => name === product.Name);
-                return product;
-            });
-            this.products = products.filter(product => product.ProductType === ElsaProductType.Module);
-        });
-    }
 
     onSelectionChange(product: ElsaProduct) {
         product['_selected'] = !product['_selected'];
@@ -35,11 +20,8 @@ export class SelectProductsComponent implements OnInit {
     }
 }
 
-@Directive({
-    selector: '[matBadgeIcon]'
-})
+@Directive({ selector: '[matBadgeIcon]' })
 export class MatBadgeIconDirective {
-
     @Input() matBadgeIcon: string;
 
     constructor(private el: ElementRef) {}
