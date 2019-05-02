@@ -47,6 +47,7 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
 
     file: File;
     activeCompany: any;
+    companyName: string;
     token: any;
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
@@ -60,6 +61,7 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
     ) {
         this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
+            this.companyName = authDetails.activeCompany.Name;
             this.token = authDetails.token;
         });
     }
@@ -92,7 +94,7 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
         this.loading$.next(true);
         this.uploadFile(this.file).subscribe((res) => {
             var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/ ${res._publictoken}`;
-            this.jobService.startJob('CustomerImportJob', 0, {Url:fileURL, CompanyKey:this.activeCompany.Key}).subscribe(
+            this.jobService.startJob('CustomerImportJob', 0, {Url:fileURL, CompanyKey:this.activeCompany.Key, CompanyName: this.companyName}).subscribe(
                 res => {
                     this.loading$.complete();
                     this.close();
