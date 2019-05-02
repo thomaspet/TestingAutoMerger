@@ -62,7 +62,7 @@
                         <th>Tildelt av</th>
                     </tr>
                     <tr *ngFor="let role of group.userRoles">
-                        <td>{{role.SharedRoleName}}</td>
+                        <td>{{role.SharedRoleName | translateRole}}</td>
                         <td>{{role._assignedDate}}</td>
                         <td>{{role._assignedBy}}</td>
                     </tr>
