@@ -1551,10 +1551,30 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.TEXT,
                     Label: 'Factoring kundenr.',
                     FieldSet: 8,
-                    Legend: 'Factoring',
-                    Sectionheader: 'Factoring',
+                    Legend: 'Avtaler faktura',
                     Section: 0,
                     Hidden: false
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'AvtaleGiro',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Påmeldt AvtaleGiro',
+                    FieldSet: 8,
+                    Legend: 'Avtaler faktura',
+                    Section: 0,
+                    Tooltip: {
+                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at distribusjonsplanen for faktura (enten på Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ distribusjon som prioritet 2. Da vil alle repeterende faktura distribueres som AvtaleGiro og alle andre fakturaer distribueres med distribusjonsvalg i prioritet 2'
+                    }
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'AvtaleGiroAmount',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Beløpsgrense AvtaleGiro',
+                    FieldSet: 8,
+                    Legend: 'Avtaler faktura',
+                    Section: 0
                 }
             ]
         };
