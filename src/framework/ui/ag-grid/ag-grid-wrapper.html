@@ -105,6 +105,7 @@
         <input type="text" #pageInput
             [value]="paginationInfo.currentPage"
             (change)="paginationInputChange(pageInput.value)"
+            (keydown.enter)="$event.stopPropagation()"
         />
         av {{paginationInfo.pageCount}}
     </span>
