@@ -2304,7 +2304,17 @@ export class BillView implements OnInit {
 
     public openAddFileModal() {
         this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
-            if (file) {
+            if (!file) {
+                return;
+            }
+
+            const invoice = this.current.getValue();
+            if (invoice.ID) {
+                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).then(() => {
+                    this.numberOfDocuments++;
+                    this.uniImage.refreshFiles();
+                });
+            } else {
                 if (this.files.length) {
                     this.uniImage.fetchDocumentWithID(safeInt(file.ID));
                 } else {
@@ -3107,7 +3117,7 @@ export class BillView implements OnInit {
                 this.hasUnsavedChanges = false;
                 done('Lagret og avvist!');
 
-                this.linkFiles(res.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
+                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).then(
                     () => {
                         this.router.navigateByUrl('/accounting/bills/' + res.ID);
                     });
@@ -3178,7 +3188,7 @@ export class BillView implements OnInit {
                     this.hasUnsavedChanges = false;
                     this.commentsConfig.entityID = result.ID;
                     if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
+                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).then(
                             () => {
                                 this.resetDocuments();
                                 reload();
@@ -3793,10 +3803,10 @@ export class BillView implements OnInit {
         this.hasUnsavedChanges = true;
     }
 
-    private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
+    private linkFiles(ID: any, fileIDs: Array<any>, flagFileStatus?: any): Promise<any> {
         return new Promise((resolve, reject) => {
             fileIDs.forEach(fileID => {
-                const route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
+                const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${ID}`;
                 if (flagFileStatus) {
                     this.tagFileStatus(fileID, flagFileStatus);
                 }
