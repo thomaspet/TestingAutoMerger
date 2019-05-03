@@ -26,9 +26,8 @@
                 <h4 (click)="showSellerSection = !showSellerSection">Selgere</h4>
                 <div class="collapsable-content">
                     <seller-links style="width: 100%;"
-                        [parent]="(customer$ | async)"
-                        (sellerChanged)="onChange($event)"
-                        (deleted)="onSellerLinkDeleted($event)">
+                        [entity]="(customer$ | async)"
+                        (entityChange)="onSellersChange($event)">
                     </seller-links>
                 </div>
             </article>
