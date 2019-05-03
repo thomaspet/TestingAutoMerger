@@ -72,6 +72,7 @@ import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
 import { ReportTypeService } from '@app/services/reports/reportTypeService';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AvtaleGiroModal } from '../avtalegiro-modal/avtalegiro-modal';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -1569,6 +1570,17 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     EntityType: 'Customer',
+                    FieldType: FieldType.BUTTON,
+                    FieldSet: 8,
+                    Legend: 'Avtaler faktura',
+                    Section: 0,
+                    Label: 'Detaljer',
+                    Options: {
+                        click: () => this.openAvtaleGiroModal(),
+                    }
+                },
+                {
+                    EntityType: 'Customer',
                     Property: 'AvtaleGiroAmount',
                     FieldType: FieldType.NUMERIC,
                     Label: 'Beløpsgrense AvtaleGiro',
@@ -1604,6 +1616,11 @@ export class CustomerDetails implements OnInit {
 
         return layout;
 
+    }
+
+    public openAvtaleGiroModal() {
+        const customer = this.customer$.value;
+        this.modalService.open(AvtaleGiroModal, { data: customer.ID });
     }
 
 }

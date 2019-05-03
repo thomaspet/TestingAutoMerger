@@ -64,6 +64,7 @@ import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-
 import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule} from '@angular/material';
 import { UniCustomerImportModal } from './customer/list/customerImportModal';
 import { UniProductImportModal } from './products/UniProductImportModal';
+import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
 
 @NgModule({
     imports: [
@@ -144,7 +145,8 @@ import { UniProductImportModal } from './products/UniProductImportModal';
         KIDSettings,
         KidModalComponent,
         UniCustomerImportModal,
-        UniProductImportModal
+        UniProductImportModal,
+        AvtaleGiroModal
     ],
     entryComponents: [
         UniOrderToInvoiceModal,
@@ -158,7 +160,8 @@ import { UniProductImportModal } from './products/UniProductImportModal';
         UniChooseOrderHoursModal,
         UniRecurringInvoiceLogModal,
         UniCustomerImportModal,
-        UniProductImportModal
+        UniProductImportModal,
+        AvtaleGiroModal
     ],
     providers: [
         TradeItemHelper,
@@ -196,7 +199,8 @@ import { UniProductImportModal } from './products/UniProductImportModal';
         // SellerLinks,
         SellerDetails,
         SellerSalesList,
-        KidModalComponent
+        KidModalComponent,
+        AvtaleGiroModal
     ]
 })
 export class SalesModule {
