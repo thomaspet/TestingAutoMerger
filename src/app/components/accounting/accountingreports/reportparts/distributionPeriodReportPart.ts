@@ -81,7 +81,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
-    @Input() private filter: any;
+    @Input() filter: any;
 
     @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
     @Output() private yearChange: EventEmitter<boolean> = new EventEmitter();
