@@ -114,7 +114,6 @@ export class CustomerDetails implements OnInit {
     public showReportWithID: number;
     public commentsConfig: ICommentsConfig;
     public selectConfig: any;
-    private deletables: SellerLink[] = [];
     private sellers: Seller[];
     private distributionPlans: any[] = [];
 
@@ -231,7 +230,6 @@ export class CustomerDetails implements OnInit {
         private phoneService: PhoneService,
         private emailService: EmailService,
         private addressService: AddressService,
-        private businessRealtionService: BusinessRelationService,
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
@@ -240,10 +238,8 @@ export class CustomerDetails implements OnInit {
         private currencyCodeService: CurrencyCodeService,
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private modalService: UniModalService,
-        private http: UniHttp,
         private termsService: TermsService,
         private numberSeriesService: NumberSeriesService,
-        private sellerLinkService: SellerLinkService,
         private sellerService: SellerService,
         private bankaccountService: BankAccountService,
         private modulusService: ModulusService,
@@ -1011,19 +1007,12 @@ export class CustomerDetails implements OnInit {
         }
 
         customer['_CustomerSearchResult'] = undefined;
-
-
-        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
-        if (this.deletables) {
-            this.deletables.forEach(sellerLink => customer.Sellers.push(sellerLink));
-        }
-
         return customer;
     }
 
     private save(saveAsLead?: boolean): Observable<Customer> {
         const customer = this.preSave(this.customer$.getValue());
-
+        
         if (saveAsLead) {
             customer.StatusCode = StatusCode.Pending;
         }
@@ -1106,8 +1095,15 @@ export class CustomerDetails implements OnInit {
         this.setupSaveActions();
     }
 
+    onSellersChange(customer) {
+        this.customer$.next(customer);
+        this.isDirty = true;
+        this.setupSaveActions();
+    }
+
     public onChange(changes: SimpleChanges) {
         let customer = this.customer$.getValue();
+
         this.isDirty = true;
         if (changes['OrgNumber'] && customer.OrgNumber) {
             this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
@@ -1200,16 +1196,6 @@ export class CustomerDetails implements OnInit {
         } catch (e) {}
 
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternationalCustomer);
-    }
-
-    public onSellerLinkDeleted(sellerLink: SellerLink) {
-        const customer = this.customer$.getValue();
-        if (customer.DefaultSellerID === sellerLink.SellerID) {
-            customer.DefaultSeller = null;
-            customer.DefaultSellerID = 0;
-        }
-
-        this.customer$.next(customer);
     }
 
     private getComponentLayout(): any {

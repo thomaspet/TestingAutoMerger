@@ -69,10 +69,9 @@
 
         <section class="tof-sellers" *ngIf="activeTabIndex === indexes[3]">
             <seller-links
-                [parent]="data"
                 [readonly]="isReadOnly()"
-                (sellerChanged)="onDataChange()"
-                (deleted)="onSellerLinkDeleted($event)">
+                [(entity)]="data"
+                (entityChange)="dataChange.emit(data)">
             </seller-links>
         </section>
 

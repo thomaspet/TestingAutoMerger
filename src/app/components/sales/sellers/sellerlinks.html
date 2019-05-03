@@ -1,7 +1,6 @@
 <ag-grid-wrapper
-    [resource]="sellers"
-    [config]="sellerTableConfig"
-    (rowDelete)="onRowDelete($event)"
-    (rowChange)="onRowChanged($event)"
-    (rowSelect)="onRowSelected($event)">
+    [config]="sellerTableConfig"    
+    [(resource)]="sellerLinks"
+    (resourceChange)="onSellerLinksChange()"
+    (rowDelete)="onSellerLinkDeleted($event)">
 </ag-grid-wrapper>

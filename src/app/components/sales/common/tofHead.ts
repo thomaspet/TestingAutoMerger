@@ -82,20 +82,17 @@ export class TofHead implements OnChanges {
         }
     }
 
+    onSellersChange(sellers) {
+        this.data.Sellers = sellers;
+        this.dataChange.emit(this.data);
+    }
+
     onDataChange(data?: any) {
         const updatedEntity = data || this.data;
 
         updatedEntity.FreeTxt = this.freeTextControl.value;
         updatedEntity.Comment = this.commentControl.value;
         this.data = updatedEntity;
-        this.dataChange.emit(this.data);
-    }
-
-    onSellerLinkDeleted(sellerLink: SellerLink) {
-        if (this.data.DefaultSeller && sellerLink.SellerID === this.data.DefaultSeller.SellerID) {
-            this.data.DefaultSeller = new Seller();
-        }
-        this.sellerDelete.emit(sellerLink);
         this.dataChange.emit(this.data);
     }
 
