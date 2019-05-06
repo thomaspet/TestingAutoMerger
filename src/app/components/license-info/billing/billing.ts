@@ -40,6 +40,7 @@ export class Billing {
     billingData: BillingData;
     selectedRow: BillingDataItem;
     detailsVisible: boolean;
+    hasPermission: boolean;
 
     columns = [
         {header: 'Varenr', field: 'ProductID'},
@@ -77,11 +78,14 @@ export class Billing {
             .send()
             .subscribe(
                 res => {
+                    this.hasPermission = true;
                     this.billingData = res.json();
                 },
                 err => {
-                    this.billingData = undefined;
                     console.error(err);
+                    if (err.status === 403) {
+                        this.hasPermission = false;
+                    }
                 }
             );
     }
