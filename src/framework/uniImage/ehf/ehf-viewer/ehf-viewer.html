@@ -1,0 +1,69 @@
+<section class="ehf-header">
+    <span *ngIf="!attachmentData">{{file?.Name}}</span>
+    <span *ngIf="attachmentData" (click)="attachmentData = undefined" class="hide-attachment">
+        <i class="material-icons">keyboard_backspace</i>
+        Tilbake til EHF
+    </span>
+
+    <ng-container *ngIf="file?._ehfAttachments?.length">
+        <a class="attachments-toggle" [matMenuTriggerFor]="attachmentMenu">
+            Vedlegg
+            <i class="material-icons">expand_more</i>
+        </a>
+
+        <mat-menu #attachmentMenu="matMenu" xPosition="after">
+            <section class="attachment-menu">
+                <ul>
+                    <li *ngFor="let attachment of file?._ehfAttachments"
+                        [ngClass]="{'selectable': attachment.resourceUrl || attachment.externalUrl}">
+
+                        <!-- File -->
+                        <section *ngIf="attachment.resourceUrl" class="file" (click)="showAttachment(attachment)">
+                            <span
+                                *ngIf="getFileType(attachment); let fileType"
+                                class="file-type-indicator"
+                                [ngClass]="fileType">
+                                {{fileType}}
+                            </span>
+
+                            {{attachment.label}}
+                        </section>
+
+                        <!-- External link -->
+                        <a *ngIf="attachment.externalUrl" class="external-link" [href]="attachment.externalUrl" target="_blank">
+                            <i class="material-icons">link</i>
+                            {{attachment.label}}
+                        </a>
+
+                        <!-- Plain text -->
+                        <section *ngIf="attachment.plaintext" (click)="$event.stopPropagation()">
+                            {{attachment.label}}: {{attachment.plaintext}}
+                        </section>
+                    </li>
+                </ul>
+            </section>
+        </mat-menu>
+    </ng-container>
+
+
+    <a (click)="print()">
+        <i class="material-icons">print</i>
+    </a>
+
+    <a (click)="popout.emit()">
+        <i class="material-icons">open_in_new</i>
+    </a>
+</section>
+
+<section *ngIf="attachmentData" class="attachment-container">
+    <img *ngIf="isImage(attachmentData)" [src]="attachmentData.url" />
+
+    <object
+        *ngIf="!isImage(attachmentData)"
+        [data]="attachmentData.url"
+        [type]="attachmentData.mimeType">
+    </object>
+</section>
+
+<section *ngIf="!attachmentData" [innerHTML]="file?._ehfMarkup"></section>
+

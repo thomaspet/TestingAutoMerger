@@ -19,7 +19,13 @@ import {CompanySettingsComponent} from './companySettings/companySettings';
 import {CompanySettingsViewService} from './companySettings/services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCompanyPeriodSeriesModal';
 
-import {UserManagement, UserDetails, UniRoleModal, InviteUsersModal} from './users';
+import {
+    UserManagement,
+    UserDetails,
+    UniRoleModal,
+    InviteUsersModal,
+    RoleTranslationPipe
+} from './users';
 import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
@@ -86,6 +92,7 @@ import {SalaryModule} from '../salary/salary.module';
         UniRoleModal,
         InviteUsersModal,
         UserDetails,
+        RoleTranslationPipe,
         Teams,
         NumberSeries,
         UniTerms,

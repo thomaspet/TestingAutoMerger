@@ -61,7 +61,10 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
-import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} from '@angular/material';
+import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule} from '@angular/material';
+import { UniCustomerImportModal } from './customer/list/customerImportModal';
+import { UniProductImportModal } from './products/UniProductImportModal';
+import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
 
 @NgModule({
     imports: [
@@ -73,6 +76,7 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         MatTreeModule,
         MatTooltipModule,
         MatCardModule,
+        MatProgressBarModule,
 
         RouterModule.forChild(salesRoutes),
 
@@ -139,7 +143,10 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         SellerDetails,
         SellerSalesList,
         KIDSettings,
-        KidModalComponent
+        KidModalComponent,
+        UniCustomerImportModal,
+        UniProductImportModal,
+        AvtaleGiroModal
     ],
     entryComponents: [
         UniOrderToInvoiceModal,
@@ -151,7 +158,10 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         UniProductDetailsModal,
         KidModalComponent,
         UniChooseOrderHoursModal,
-        UniRecurringInvoiceLogModal
+        UniRecurringInvoiceLogModal,
+        UniCustomerImportModal,
+        UniProductImportModal,
+        AvtaleGiroModal
     ],
     providers: [
         TradeItemHelper,
@@ -189,7 +199,8 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         // SellerLinks,
         SellerDetails,
         SellerSalesList,
-        KidModalComponent
+        KidModalComponent,
+        AvtaleGiroModal
     ]
 })
 export class SalesModule {

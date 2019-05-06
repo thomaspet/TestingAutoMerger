@@ -71,9 +71,9 @@ export class ProductPurchasesModal implements IUniModal {
                 this.users = res[0];
                 this.purchases = res[1];
                 this.products = (res[2] || []).filter(product => {
-                    return product.productTypeName === 'Module'
-                        && product.isPerUser
-                        && product.name !== 'Complete';
+                    return product.ProductTypeName === 'Module'
+                        && product.IsPerUser
+                        && product.Name !== 'Complete';
                 });
                 this.userRoles = res[3];
                 this.roles = res[4];
@@ -96,9 +96,9 @@ export class ProductPurchasesModal implements IUniModal {
                 if (purchase['_active'] && !purchase.ID) {
                     updates.push(purchase);
 
-                    const product = this.products.find(p => p.id === purchase.ProductID);
-                    const rolesOnProduct: string[] = product && product.listOfRoles
-                        ? product.listOfRoles.split(',')
+                    const product = this.products.find(p => p.ID === purchase.ProductID);
+                    const rolesOnProduct: string[] = product && product.ListOfRoles
+                        ? product.ListOfRoles.split(',')
                         : [];
 
                     // Check if the user already has a role for the activated product
@@ -176,7 +176,7 @@ export class ProductPurchasesModal implements IUniModal {
             entry.purchases = this.products.map(product => {
                 let purchase = this.purchases.find((p) => {
                     return p.GlobalIdentity === user.GlobalIdentity
-                        && p.ProductID === product.id;
+                        && p.ProductID === product.ID;
                 });
 
                 if (purchase) {
@@ -185,7 +185,7 @@ export class ProductPurchasesModal implements IUniModal {
                     purchase = {
                         ID: null,
                         GlobalIdentity: user.GlobalIdentity,
-                        ProductID: product.id,
+                        ProductID: product.ID,
                     };
 
                     purchase['_active'] = false;

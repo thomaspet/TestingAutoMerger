@@ -5,6 +5,8 @@ import {
     ITickerColumnOverride
 } from '../../../../services/common/uniTickerService';
 import { Router } from '@angular/router';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { UniSupplierImportModal } from './supplierImportModal';
 
 @Component({
     selector: 'supplier-list',
@@ -20,9 +22,15 @@ export class SupplierList {
         action: this.newSupplier.bind(this),
         main: true,
         disabled: false
+    },
+    {
+        label: 'Importer leverandører',
+        action: (done) => this.openImportModal(done),
+        main: true,
+        disabled: false
     }];
 
-    constructor (private tabService: TabService, private router: Router) {
+    constructor (private tabService: TabService, private router: Router, private modalService: UniModalService,) {
         this.tabService.addTab({
             name: 'Leverandører',
             url: '/accounting/suppliers',
@@ -33,5 +41,17 @@ export class SupplierList {
 
     private newSupplier() {
         this.router.navigateByUrl('/accounting/suppliers/' + 0);
+    }
+
+    public openImportModal(done = null) {
+        this.modalService.open(UniSupplierImportModal).onClose.subscribe((res) => {
+            if (res) {
+                
+            } else {
+                if (done) {
+                    done();
+                }
+            }
+        });
     }
 }

@@ -7,21 +7,25 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy,
     ViewChild,
-    ElementRef
 } from '@angular/core';
 import {MatMenuTrigger} from '@angular/material';
 import {Http} from '@angular/http';
+import printJS from 'print-js';
+
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
-import {Observable, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {Observable, Subject, of as observableOf, forkJoin} from 'rxjs';
+import {takeUntil, catchError, map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uni-modal';
-import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
-import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 import {FileSplitModal} from '../fileSplit/FileSplitModal';
+import {parseEHFData, generateEHFMarkup} from './ehf';
+import {DomSanitizer} from '@angular/platform-browser';
+
+export * from './ehf';
+
 export enum UniImageSize {
     small = 150,
     medium = 700,
@@ -33,6 +37,13 @@ export interface IUploadConfig {
     disableMessage?: string;
 }
 
+export interface FileExtended extends File {
+    _thumbnailUrl?: string;
+    _imgUrls?: string[];
+    _ehfMarkup?: string;
+    _ehfAttachments?: any[];
+}
+
 @Component({
     selector: 'uni-image',
     templateUrl: './uniImage.html',
@@ -41,73 +52,27 @@ export interface IUploadConfig {
 export class UniImage {
     @ViewChild(MatMenuTrigger) ocrMenu: MatMenuTrigger;
 
-    @ViewChild('image')
-    private image: ElementRef;
+    @Input() entity: string;
+    @Input() entityID: number;
+    @Input() uploadWithoutEntity: boolean = false;
+    @Input() size: UniImageSize;
+    @Input() readonly: boolean;
+    @Input() rotateAllowed: boolean;
+    @Input() splitAllowed: boolean;
+    @Input() splitFileDialogAllowed: boolean;
+    @Input() hideToolbar: boolean;
+    @Input() singleImage: boolean;
+    @Input() expandInNewTab: boolean;
+    @Input() uploadConfig: IUploadConfig;
+    @Input() showFileID: number;
+    @Input() fileIDs: number[] = [];
+    @Input() useEhfReader: boolean;
 
-    @Input()
-    public entity: string;
-
-    @Input()
-    public entityID: number;
-
-    @Input()
-    public uploadWithoutEntity: boolean = false;
-
-    @Input()
-    public size: UniImageSize;
-
-    @Input()
-    public readonly: boolean;
-
-    @Input()
-    public rotateAllowed: boolean;
-
-    @Input()
-    public splitAllowed: boolean;
-
-    @Input()
-    public splitFileDialogAllowed: boolean;
-
-    @Input()
-    public hideToolbar: boolean;
-
-    @Input()
-    public singleImage: boolean;
-
-    @Input()
-    public expandInNewTab: boolean;
-
-    @Input()
-    public uploadConfig: IUploadConfig;
-
-    @Input()
-    public showFileID: number;
-
-    @Input()
-    public fileIDs: number[] = [];
-
-    @Output()
-    public fileListReady: EventEmitter<File[]> = new EventEmitter<File[]>();
-
-    @Output()
-    public imageLoaded: EventEmitter<File> = new EventEmitter<File>();
-
-    @Output()
-    public imageDeleted: EventEmitter<File> = new EventEmitter<File>();
-
-    @Output()
-    public imageUnlinked: EventEmitter<File> = new EventEmitter<File>();
-
-    @Output()
-    public imageClicked: EventEmitter<File> = new EventEmitter<File>();
-
-    @Output()
-    public useWord: EventEmitter<any> = new EventEmitter<any>();
-
-    @Output()
-    public fileSplitCompleted: EventEmitter<any> = new EventEmitter<any>();
-
-    public imageIsLoading: boolean = true;
+    @Output() fileListReady: EventEmitter<FileExtended[]> = new EventEmitter();
+    @Output() imageDeleted: EventEmitter<FileExtended> = new EventEmitter();
+    @Output() imageUnlinked: EventEmitter<FileExtended> = new EventEmitter();
+    @Output() useWord = new EventEmitter();
+    @Output() fileSplitCompleted = new EventEmitter();
 
     private baseUrl: string = environment.BASE_URL_FILES;
 
@@ -115,26 +80,21 @@ export class UniImage {
     private uniEconomyToken: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
-    private lastUrlFailed: string = null;
 
     public uploading: boolean;
     private keyListener: any;
 
-    public files: File[] = [];
-    public thumbnails: string[] = [];
-
-    public currentFileIndex: number;
+    public files: FileExtended[] = [];
+    public currentFile: FileExtended;
     public currentPage: number = 1;
-    public fileInfo: string;
+    public imgUrl: string;
+    public selectedEHFAttachment: any;
 
-    public imgUrl: string = '';
-    public imgUrl2x: string = '';
     public highlightStyle: any;
-
     public currentClickedWord: any;
+    public ocrWords: any[] = [];
 
     public processingPercentage: number = null;
-    public ocrWords: Array<any> = [];
 
     onDestroy$: Subject<any> = new Subject();
 
@@ -147,7 +107,7 @@ export class UniImage {
         private modalService: UniModalService,
         private authService: AuthService,
         private uniFilesService: UniFilesService,
-        private toastService: ToastService
+        public sanitizer: DomSanitizer
     ) {
         this.authService.authentication$.pipe(
             takeUntil(this.onDestroy$)
@@ -161,27 +121,28 @@ export class UniImage {
         ).subscribe(token => {
             this.token = token;
             this.uniEconomyToken = this.authService.jwt;
-            this.refreshFiles();
+            if (this.files) {
+                this.files = this.setThumbnailUrls(this.files);
+                this.showFile(this.currentFile);
+                this.setFileViewerData(this.files);
+                this.cdr.markForCheck();
+            }
         });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        this.imgUrl = this.imgUrl2x = '';
         this.removeHighlight();
         this.currentPage = 1;
+        this.currentFile = undefined;
 
-        this.thumbnails = [];
         if (this.activeCompany) {
             if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
                 this.refreshFiles();
             } else if (changes['fileIDs']) {
                 this.refreshFiles();
             } else if (changes['showFileID'] && this.files && this.files.length) {
-                this.currentFileIndex = this.getChosenFileIndex();
-                this.loadImage();
-                if (!this.singleImage) {
-                    this.loadThumbnails();
-                }
+                const file = this.files.find(f => f.ID === this.showFileID);
+                this.showFile(file);
             }
         }
     }
@@ -197,7 +158,7 @@ export class UniImage {
         window.open(
             baseUrl + '/fileviewer.html',
             'Fileviewer',
-            'menubar=0,height=950,width=965,left=0,top=8'
+            'menubar=0,scrollbars=1,height=950,width=965,left=0,top=8'
         );
     }
 
@@ -242,19 +203,20 @@ export class UniImage {
         this.ocrMenu.closeMenu();
     }
 
-    private setFileViewerData(files: File[]) {
+    private setFileViewerData(files: FileExtended[]) {
         localStorage.setItem('fileviewer-data', JSON.stringify([]));
 
         if (files) {
-            const imgUrls = [];
-            files.forEach(file => {
-                const numberOfPages = file.Pages || 1;
-                for (let pageIndex = 1; pageIndex <= numberOfPages; pageIndex++) {
-                    imgUrls.push(this.generateImageUrl(file, UniImageSize.large, pageIndex));
+            files = files.map(file => {
+                file._imgUrls = [];
+                for (let pageIndex = 1; pageIndex <= (file.Pages || 1); pageIndex++) {
+                    file._imgUrls.push(this.generateImageUrl(file, UniImageSize.large, pageIndex));
                 }
+
+                return file;
             });
 
-            localStorage.setItem('fileviewer-data', JSON.stringify(imgUrls));
+            localStorage.setItem('fileviewer-data', JSON.stringify(files));
         }
     }
 
@@ -262,72 +224,88 @@ export class UniImage {
         if (!this.token || !this.activeCompany) {
             return;
         }
-        if (this.fileIDs && this.fileIDs.length > 0 && !(this.entity && this.entityID)) {
+
+        let request;
+        if (this.fileIDs && this.fileIDs.length && !(this.entity && this.entityID)) {
             const requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
-            this.http.asGET()
+            request = this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint(`files?filter=${requestFilter}`)
-                .send()
-                .subscribe((res) => {
-                    this.files = res.json().filter(x => x !== null);
-                    this.fileListReady.emit(this.files);
-                    this.setFileViewerData(this.files);
-                    if (this.files.length) {
-                        this.currentPage = 1;
-                        this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
-                        this.loadImage();
-                        if (!this.singleImage) {
-                            this.loadThumbnails();
-                        }
-                    }
-                }, err => this.errorService.handle(err));
+                .send();
         } else if (this.entity && this.entityID) {
-            this.http.asGET()
+            request = this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint(`files/${this.entity}/${this.entityID}`)
-                .send()
-                .subscribe((res) => {
-                    this.files = res.json().filter(x => x !== null);
-                    this.fileListReady.emit(this.files);
-                    this.setFileViewerData(this.files);
-                    if (this.files.length) {
-                        this.currentPage = 1;
-                        this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
-                        this.loadImage();
-                        if (!this.singleImage) {
-                            this.loadThumbnails();
+                .send();
+        }
+
+        if (request) {
+            request.subscribe(
+                res => {
+                    res = res.json().filter(x => x !== null);
+
+                    // Get json data and generate markup for EHF files.
+                    // Resolve the rest the of the files without changes.
+                    const filesWithEHFData$ = res.map((file: FileExtended) => {
+                        const filename = (file.Name || '').toLowerCase();
+
+                        if (this.useEhfReader && filename.includes('.ehf')) {
+                            const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference).pipe(
+                                catchError(err => {
+                                    console.error('Error loading EHF data', err);
+                                    return observableOf(null);
+                                }),
+                                map(ehfData => {
+                                    if (ehfData) {
+                                        const parsed = parseEHFData(ehfData);
+                                        file._ehfMarkup = generateEHFMarkup(parsed);
+                                        file._ehfAttachments = parsed.attachments;
+                                    }
+
+                                    return file;
+                                })
+                            );
+
+                            return ehfDataRequest;
+                        } else {
+                            return observableOf(file);
                         }
-                    }
-                }, err => this.errorService.handle(err));
+                    });
+
+                    forkJoin(filesWithEHFData$).subscribe((files: FileExtended[]) => {
+                        this.files = this.setThumbnailUrls(files);
+                        this.setFileViewerData(this.files);
+                        this.fileListReady.emit(this.files);
+
+                        if (this.files.length) {
+                            this.currentPage = 1;
+                            const file = this.files.find(f => f.ID === this.showFileID);
+                            this.showFile(file);
+                        }
+                    });
+                },
+                err => this.errorService.handle(err)
+            );
         } else {
             this.files = [];
             this.setFileViewerData(this.files);
         }
     }
 
-    public finishedLoadingImage() {
-        this.imageIsLoading = false;
-        if (this.files && this.currentFileIndex) {
-            this.imageLoaded.emit(this.files[this.currentFileIndex]);
-        }
+    setThumbnailUrls(files: FileExtended[]): FileExtended[] {
+        return (files || []).map(file => {
+            file._thumbnailUrl = this.generateImageUrl(file, 100);
+            return file;
+        });
+    }
+
+    getCurrentFile() {
+        return this.currentFile;
     }
 
     public fetchDocumentWithID(id: number) {
         this.fileIDs.push(id);
         this.refreshFiles();
-    }
-
-    private getChosenFileIndex() {
-        const chosenFileIndex = this.files.findIndex(file => file.ID === this.showFileID);
-        if (chosenFileIndex > 0) {
-            return chosenFileIndex;
-        } else {
-            return 0;
-        }
-    }
-
-    public getCurrentFile(): File {
-        return this.files[this.currentFileIndex];
     }
 
     private isDefined(value: any) {
@@ -353,95 +331,67 @@ export class UniImage {
         }
     }
 
-    public thumbnailClicked(index) {
-        // make sure we are clicking on another picture beforetrying to load an image
-        if (this.currentFileIndex !== index) {
-            this.currentFileIndex = index;
-            this.loadImage();
-        }
-    }
-
     public next() {
-        if (this.files[this.currentFileIndex].Pages >= this.currentPage + 1) {
+        if (this.currentFile.Pages > this.currentPage) {
             this.currentPage++;
-            this.loadImage();
-        } else if (this.currentFileIndex < this.files.length - 1) {
-            this.currentFileIndex++;
-            this.currentPage = 1;
-            this.loadImage();
+            this.showFile(this.currentFile);
+        } else {
+            const index = this.files.findIndex(f => f.ID === this.currentFile.ID);
+            if (this.files[index + 1]) {
+                this.showFile(this.files[index + 1]);
+            }
         }
     }
 
     public previous() {
         if (this.currentPage > 1) {
             this.currentPage--;
-            this.loadImage();
-        } else if (this.currentFileIndex > 0) {
-            this.currentFileIndex--;
-            this.currentPage = 1;
-            this.loadImage();
+            this.showFile(this.currentFile);
+        } else {
+            const index = this.files.findIndex(f => f.ID === this.currentFile.ID);
+            if (this.files[index - 1]) {
+                this.showFile(this.files[index - 1]);
+            }
         }
     }
 
     public print() {
-        const currentFile = this.files[this.currentFileIndex];
-
-        // If not pdf, just print the image
-        const fileName = (currentFile.Name || '').toLowerCase();
-        if (!fileName.includes('.pdf')) {
-            this.printImage(this.imgUrl);
-            return;
-        }
-
-        this.fileService.printFile(this.files[this.currentFileIndex].ID)
-            .subscribe((res: any) => {
-                const url = JSON.parse(res._body) + '&attachment=false';
-
-                this.modalService.open(UniPrintModal, {
-                    data: { url: url }
-                }).onClose.take(1).subscribe();
-            },
-            err => this.errorService.handle(err)
-        );
-    }
-
-    private imageToPrint(source: string) {
-        return '<html><head><script>function step1(){\n' +
-            'setTimeout(\"step2()\", 10);}\n' +
-            'function step2(){window.print();window.close()}\n' +
-            '</script></head><body onload=\"step1()\">\n' +
-            '<img src=\"' + source + '\" /></body></html>';
-    }
-
-    private printImage(source: string) {
-        const pwa = window.open('_new');
-        if (pwa) {
-            pwa.document.open();
-            pwa.document.write(this.imageToPrint(source));
-            pwa.document.close();
-        } else {
-            this.toastService.addToast(
-                'Blokkert?',
-                ToastType.warn,
-                ToastTime.medium,
-                'Sjekk om du har blokkering for ny fane/vindu i nettleseren din.'
+        const fileName = (this.currentFile.Name || '').toLowerCase();
+        if (fileName.includes('.pdf')) {
+            this.fileService.printFile(this.currentFile.ID).subscribe(
+                (res: any) => {
+                    const url = JSON.parse(res._body) + '&attachment=false';
+                    try {
+                        printJS({
+                            printable: url,
+                            type: 'pdf'
+                        });
+                    } catch (e) {}
+                },
+                err => this.errorService.handle(err)
             );
+        } else {
+            try {
+                printJS({
+                    printable: this.currentFile._imgUrls[this.currentPage - 1],
+                    type: 'image'
+                });
+            } catch (e) {}
         }
     }
 
     public splitFileDialog() {
         this.modalService.open(FileSplitModal, {
-                data: this.getCurrentFile()
-            })
-            .onClose.subscribe(res => {
-                if (res === 'ok') {
-                    this.fileSplitCompleted.emit();
-                }
-            });
+            data: this.currentFile
+        }).onClose.subscribe(res => {
+            if (res === 'ok') {
+                this.fileSplitCompleted.emit();
+            }
+        });
     }
 
     public splitFile() {
-        const fileIndex = this.currentFileIndex;
+        const fileIndex = this.files.findIndex(f => f.ID === this.currentFile.ID);
 
         this.modalService.confirm({
             header: 'Bekreft oppdeling av fil',
@@ -465,13 +415,14 @@ export class UniImage {
                         ).subscribe(
                             splitResultUE => {
                                 this.files[fileIndex] = splitResultUE.FirstPart;
+                                this.setFileViewerData(this.files);
 
                                 if (this.currentPage > 1) {
                                     this.currentPage--;
                                 }
 
                                 this.checkFileStatusAndLoadImage(
-                                    splitFileResult.FirstPart.StorageReference
+                                    splitFileResult.FirstPart
                                 );
                             },
                             err => this.errorService.handle(err)
@@ -483,24 +434,24 @@ export class UniImage {
         });
     }
 
-    public rotateLeft(event) {
-        this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, false)
-            .subscribe(res => {
-                this.loadImage();
-            }, err => this.errorService.handle(err)
-        );
+    public rotateLeft() {
+        this.uniFilesService.rotate(this.currentFile.StorageReference, this.currentPage, false)
+            .subscribe(
+                () => this.showFile(this.currentFile),
+                err => this.errorService.handle(err)
+            );
     }
 
-    public rotateRight(event) {
-        this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, true)
-            .subscribe(res => {
-                this.loadImage();
-            }, err => this.errorService.handle(err)
-        );
+    public rotateRight() {
+        this.uniFilesService.rotate(this.currentFile.StorageReference, this.currentPage, true)
+            .subscribe(
+                () => this.showFile(this.currentFile),
+                err => this.errorService.handle(err)
+            );
     }
 
     public deleteImage() {
-        const oldFileID = this.files[this.currentFileIndex].ID;
+        const oldFileID = this.currentFile.ID;
         let endpoint = `files/${oldFileID}`;
 
         const buttonLabels: any = {
@@ -535,7 +486,7 @@ export class UniImage {
                     );
             } else if (response === ConfirmActions.ACCEPT) {
                 if (this.entity && this.entityID) {
-                    endpoint = `files/${this.files[this.currentFileIndex].ID}?action=unlink`
+                    endpoint = `files/${this.currentFile.ID}?action=unlink`
                         + `&entitytype=${this.entity}&entityid=${this.entityID}`;
                     this.http
                         .asPOST()
@@ -553,105 +504,68 @@ export class UniImage {
     }
 
     private removeImage(isUnlink: boolean = false) {
-        const current = this.files[this.currentFileIndex];
+        const file = this.currentFile;
+        const index = this.files.findIndex(f => f.ID === file.ID);
 
-        this.files.splice(this.currentFileIndex, 1);
-        this.currentFileIndex--;
-        if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
+        if (index >= 0) {
+            this.files.splice(index, 1);
+            this.showFile(this.files[0]);
 
-        if (this.currentFileIndex >= 0) { this.loadImage(); }
-        if (!this.singleImage) { this.loadThumbnails(); }
+            this.fileListReady.emit(this.files);
+            this.imageDeleted.emit(file);
 
-        this.fileListReady.emit(this.files);
-        this.imageDeleted.emit(current);
-
-        if (isUnlink) {
-            this.imageUnlinked.emit(current);
+            if (isUnlink) {
+                this.imageUnlinked.emit(file);
+            }
         }
     }
 
-    public onLoadImageError(error) {
+    public reauthenticate() {
         if (!this.didTryReAuthenticate) {
+            // Set flag to avoid "authentication loop" if the new authentication also throws
             this.didTryReAuthenticate = true;
-            this.reauthenticate(() => {
-                setTimeout(() => {
-                    // run in setTimeout to allow authService to update the filestoken
-                    this.refreshFiles();
-                });
-            });
+
+            this.authService.authenticateUniFiles()
+                .then(() => {
+                    // Reset re-auth flag after 10 seconds to avoid it stopping
+                    // re-auth the next time token times out
+                    setTimeout(() => {
+                        this.didTryReAuthenticate = false;
+                    }, 10000);
+                })
+                .catch(err => this.errorService.handle(err));
         }
     }
 
-    public reauthenticate(runAfterReauth) {
-        // if something failed when loading another image, we should try again
-        if (this.imgUrl2x !== this.lastUrlFailed) {
-            this.didTryReAuthenticate = false;
+    private showFile(fileToShow: FileExtended) {
+        this.selectedEHFAttachment = undefined;
+        const file = fileToShow || this.files && this.files[0];
+
+        if (file) {
+            this.removeHighlight();
+            this.ocrWords = [];
+
+            if (file !== this.currentFile) {
+                this.currentPage = 1;
+            }
+
+            this.currentFile = file;
+            if (!file._ehfMarkup) {
+                this.imgUrl = this.generateImageUrl(file, 1200, this.currentPage || 1);
+            }
+        } else {
+            this.currentFile = undefined;
+            this.imgUrl = undefined;
         }
-
-        if (!this.didTryReAuthenticate) {
-            // set flag to avoid "authentication loop" if the new authentication
-            // also throws an error
-            this.didTryReAuthenticate = true;
-            this.lastUrlFailed = this.imgUrl2x;
-
-            this.uniFilesService.checkAuthentication()
-                .then(res => {
-                    // authentication is ok - something else caused the problem,
-                    // assume it was just a glitch and retry whatever was supposed
-                    // to be done
-                    runAfterReauth();
-                }).catch(err => {
-                    // authentication failed, try to reauthenticated
-                    this.authService.authenticateUniFiles()
-                        .then(res => {
-                            if (runAfterReauth) {
-                                runAfterReauth();
-                            }
-                        }).catch((errAuth) => {
-                            this.errorService.handle(err);
-                        });
-                });
-        }
-    }
-
-    public onImageClick() {
-        const img: HTMLImageElement = this.image.nativeElement;
-        if (this.expandInNewTab && img) {
-            window.open(img.src);
-        }
-
-        this.imageClicked.emit(this.files[this.currentFileIndex]);
-    }
-
-    private loadThumbnails() {
-        this.thumbnails = this.files.map(file => this.generateImageUrl(file, 100));
-        this.cdr.markForCheck();
-    }
-
-    private loadImage() {
-        const file = this.files[this.currentFileIndex];
-        if (!file) {
-            return;
-        }
-
-        this.fileInfo = file.Name;
-        if (file.Pages > 1) {
-            this.fileInfo += ` (${this.currentPage}/${file.Pages})`;
-        }
-
-        const size = this.size || UniImageSize.medium;
-
-        this.imageIsLoading = true;
-
-        this.removeHighlight();
-
-        this.imgUrl2x = this.generateImageUrl(file, size * 2);
-        this.imgUrl = this.generateImageUrl(file, size);
 
         this.cdr.markForCheck();
     }
 
-    private generateImageUrl(file: File, width: number, pageOverride?: number): string {
+    skipSanitazion(link: string) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(link);
+    }
+
+    private generateImageUrl(file: FileExtended, width: number, pageOverride?: number): string {
         const url = `${this.baseUrl}/api/image`
             + `?key=${this.activeCompany.Key}`
             + `&token=${this.token}`
@@ -661,14 +575,6 @@ export class UniImage {
             + `&t=${Date.now()}`;
 
         return encodeURI(url);
-    }
-
-    public shorten(str: string, length: number): string {
-        if (str && str.length > length) {
-            return str.substr(0, length - 3) + '...';
-        } else {
-            return str;
-        }
     }
 
     public onDrop(event, dropData) {
@@ -748,9 +654,6 @@ export class UniImage {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
                         this.setFileViewerData(this.files);
-                        this.currentFileIndex = this.files.length - 1;
-                        this.currentPage = 1;
-                        this.removeHighlight();
 
                         // reset reauth flag after uploading, because sometimes getting new
                         // images will fail right after upload, and we need to retry to get
@@ -759,32 +662,22 @@ export class UniImage {
 
                         // check filestatus and load file/image when Uni Files is done
                         // processing it
-                        this.checkFileStatusAndLoadImage(res.StorageReference);
+                        this.checkFileStatusAndLoadImage(res);
 
                     }, err => this.errorService.handle(err));
             }, err => {
-                // if an error occurs, try to reauthenticate to unifiles - typically
-                // this happens if unifiles is deployed while the user is logged in
-                if (!this.didTryReAuthenticate) {
-                    // run reauthentication and try to upload the file once more
-                    // so the user doesnt have to
-                    this.reauthenticate(() => {
-                        this.uploadFile(file);
-                    });
-                } else {
-                    this.uploading = false;
-                    this.cdr.markForCheck();
-                    this.errorService.handle(err);
-                }
+                this.uploading = false;
+                this.cdr.markForCheck();
+                this.errorService.handle(err);
             });
     }
 
-    private checkFileStatusAndLoadImage(fileId: string, attempts: number = 0) {
+    private checkFileStatusAndLoadImage(file, attempts: number = 0) {
         if (!this.processingPercentage) {
             this.processingPercentage = 0;
         }
 
-        this.uniFilesService.getFileProcessingStatus(fileId)
+        this.uniFilesService.getFileProcessingStatus(file.StorageReference)
             .subscribe((res) => {
                 if (this.processingPercentage !== res.ProcessedPercentage) {
                     this.processingPercentage = res.ProcessedPercentage;
@@ -797,11 +690,7 @@ export class UniImage {
                     this.uploading = false;
                     this.processingPercentage = null;
 
-                    this.loadImage();
-
-                    if (!this.singleImage) {
-                        this.loadThumbnails();
-                    }
+                    this.showFile(file);
 
                     // emit change to parent component in case it is referencing the file ids
                     // (which will now have been updated)
@@ -811,7 +700,7 @@ export class UniImage {
                     // the total possible wait time will be approx 1 minute (55 sec + response time)
                     const timeout = 50 + (10 * attempts);
                     setTimeout(() => {
-                        this.checkFileStatusAndLoadImage(fileId, attempts++);
+                        this.checkFileStatusAndLoadImage(file, attempts++);
                     }, timeout);
                 }
             });
@@ -825,10 +714,6 @@ export class UniImage {
         if ((!coordinates || coordinates.length < 4) && !styleObject) {
             return;
         }
-
-        // Find the ratio between the original scanned image(height and width param) and the shown image
-        const widthRatio = (this.image.nativeElement.clientWidth || width) / width;
-        const heightRatio = (this.image.nativeElement.clientHeight || height) / height;
 
         if (styleObject) {
             this.highlightStyle = styleObject;

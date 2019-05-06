@@ -322,6 +322,18 @@
                 "Type": "attachment",
                 "Width": "40px",
                 "ExternalModel": "JournalEntry"
+            },
+            {
+                "Header": "Betalingsretur",
+                "Field": "PaymentNotificationReportFileID",
+                "Alias": "PaymentNotificationReportFileID",
+                "Type": "dontdisplay"
+            },
+            {
+                "Header": "Statusretur",
+                "Field": "PaymentStatusReportFileID",
+                "Alias": "PaymentStatusReportFileID",
+                "Type": "dontdisplay"
             }
         ],
         "Actions": [
@@ -329,6 +341,22 @@
                 "Name": "Velg leverandør manuelt",
                 "Code": "select_supplier",
                 "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Last ned avregningsretur",
+                "Code": "download_payment_notification_file",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Last ned statusretur",
+                "Code": "download_payment_status_file",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,

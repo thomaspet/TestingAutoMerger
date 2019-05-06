@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {
     WageTypeService, UniCacheService, AccountService,
-    ErrorService, SalaryTransactionSuggestedValuesService
+    ErrorService, SalaryTransactionSuggestedValuesService, SalaryTransactionService
 } from '../../../../services/services';
 import {SalaryTransViewService} from '../../sharedServices/salaryTransViewService';
 import {
@@ -15,7 +15,7 @@ import {
     SalaryTransactionSupplement, WageTypeSupplement, Account
 } from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 
@@ -44,7 +44,8 @@ export class RecurringPost extends UniView {
         private _accountService: AccountService,
         private errorService: ErrorService,
         private suggestedValuesService: SalaryTransactionSuggestedValuesService,
-        private salaryTransViewService: SalaryTransViewService
+        private salaryTransViewService: SalaryTransViewService,
+        private salaryTransService: SalaryTransactionService
     ) {
 
         super(router.url, cacheService);
@@ -282,7 +283,7 @@ export class RecurringPost extends UniView {
 
                 let obs = null;
                 if ((event.field === '_Wagetype' || event.field === '_Employment') && row['_Wagetype']) {
-                    obs = this.getRate(row);
+                    obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
                 }
 
                 if (event.field === '_Account' || event.field === '_Wagetype') {
@@ -336,7 +337,6 @@ export class RecurringPost extends UniView {
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['WageTypeID'] = wagetype.ID;
-        rowModel['Amount'] = 1;
         rowModel['Rate'] = wagetype.Rate;
 
         const supplements: SalaryTransactionSupplement[] = [];
@@ -379,14 +379,15 @@ export class RecurringPost extends UniView {
         }
     }
 
-    private getRate(rowModel: SalaryTransaction) {
-        return this.wagetypeService
-            .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID'])
-            .map(rate => {
-                rowModel['Rate'] = rate;
-                rowModel['EmployeeID'] = this.employeeID;
-                return rowModel;
-            });
+    private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
+        rowModel.EmployeeID = this.employeeID;
+        return this.salaryTransService.completeTrans(rowModel).map(trans => {
+            rowModel['Rate'] = trans.Rate;
+            rowModel['Text'] = trans.Text;
+            rowModel['Sum'] = trans.Sum;
+            rowModel['Amount'] = trans.Amount;
+            return rowModel;
+        });
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {

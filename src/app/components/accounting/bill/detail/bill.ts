@@ -2304,7 +2304,17 @@ export class BillView implements OnInit {
 
     public openAddFileModal() {
         this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
-            if (file) {
+            if (!file) {
+                return;
+            }
+
+            const invoice = this.current.getValue();
+            if (invoice.ID) {
+                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).then(() => {
+                    this.numberOfDocuments++;
+                    this.uniImage.refreshFiles();
+                });
+            } else {
                 if (this.files.length) {
                     this.uniImage.fetchDocumentWithID(safeInt(file.ID));
                 } else {
@@ -2318,14 +2328,17 @@ export class BillView implements OnInit {
     }
 
     public openReinvoiceModal() {
-        this.hasUnsavedChanges = false;
-        this.modalService.open(UniReinvoiceModal, {
-            data: {
-                supplierInvoice: this.current.getValue()
-            }
-        }).onClose.subscribe((result) => {
-            if (result) {
-                this.fetchInvoice(this.currentID, true);
+        this.checkSave().then((res: boolean) => {
+            if (res) {
+                this.modalService.open(UniReinvoiceModal, {
+                    data: {
+                        supplierInvoice: this.current.getValue()
+                    }
+                }).onClose.subscribe((result) => {
+                    if (result) {
+                        this.fetchInvoice(this.currentID, true);
+                    }
+                });
             }
         });
     }
@@ -2554,7 +2567,18 @@ export class BillView implements OnInit {
     }
 
     private journal(ask: boolean, href: string): Observable<boolean> {
+
         const current = this.current.getValue();
+        if (this.sumRemainder !== 0) {
+            this.toast.addToast('Beløp i bilag går ikke i balanse med fakturabeløp', ToastType.bad, 7);
+            return Observable.of(false);
+        }
+
+        if (current.ReInvoice && current.ReInvoice.ReInvoicingType === 0
+            && (current.ReInvoice.StatusCode === 30201 || current.ReInvoice.StatusCode === null)) {
+            this.toast.addToast('Kostnadsdelingen må settes opp før fakturaen kan bokføres.', ToastType.bad, 7);
+            return Observable.of(false);
+        }
 
         const obs = ask
             ? this.modalService.open(UniConfirmModalV2, {
@@ -2680,6 +2704,7 @@ export class BillView implements OnInit {
     }
 
     private tryJournal(url: string): Promise<ILocalValidation> {
+
         this.preSave();
         return new Promise((resolve, reject) => {
             let current = this.current.value;
@@ -2691,7 +2716,6 @@ export class BillView implements OnInit {
                     reject(validation);
                     return;
                 }
-
                 this.supplierInvoiceService.journal(current.ID).subscribe(x => {
                     this.fetchInvoice(current.ID, false);
                     resolve(result);
@@ -2731,7 +2755,7 @@ export class BillView implements OnInit {
                     JournalEntry.DraftLines.Accrual.Periods,JournalEntry.Lines`,
                     'CurrencyCode',
                     'BankAccount',
-                    'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department'
+                    'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department', 'ReInvoice'
                 ], true).finally( () => {
                 this.flagUnsavedChanged(true);
             })
@@ -3093,7 +3117,7 @@ export class BillView implements OnInit {
                 this.hasUnsavedChanges = false;
                 done('Lagret og avvist!');
 
-                this.linkFiles(res.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
+                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).then(
                     () => {
                         this.router.navigateByUrl('/accounting/bills/' + res.ID);
                     });
@@ -3137,6 +3161,9 @@ export class BillView implements OnInit {
                             }
                         });
                     }
+                    if (current.ReInvoice != null) {
+                        current.ReInvoice = null;
+                    }
                     if (!current.SupplierID
                         && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
@@ -3161,7 +3188,7 @@ export class BillView implements OnInit {
                     this.hasUnsavedChanges = false;
                     this.commentsConfig.entityID = result.ID;
                     if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
+                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).then(
                             () => {
                                 this.resetDocuments();
                                 reload();
@@ -3776,10 +3803,10 @@ export class BillView implements OnInit {
         this.hasUnsavedChanges = true;
     }
 
-    private linkFiles(ID: any, fileIDs: Array<any>, entityType: string, flagFileStatus?: any): Promise<any> {
+    private linkFiles(ID: any, fileIDs: Array<any>, flagFileStatus?: any): Promise<any> {
         return new Promise((resolve, reject) => {
             fileIDs.forEach(fileID => {
-                const route = `files/${fileID}?action=link&entitytype=${entityType}&entityid=${ID}`;
+                const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${ID}`;
                 if (flagFileStatus) {
                     this.tagFileStatus(fileID, flagFileStatus);
                 }
@@ -3833,7 +3860,7 @@ export class BillView implements OnInit {
             + ',account.AccountName as AccountName,count(id) as Counter'
             + `&filter=supplierid eq ${this.currentSupplierID} and accountgroup.groupnumber ge 300`
             + (this.currentID ? ` and id ne ${this.currentID}` : '')
-            + '&join=&expand=journalentry,journalentry.lines,journalentry.lines.account'
+            + '&join=&expand=journalentry,journalentry.lines,journalentry.lines.account,ReInvoice'
             + ',journalentry.lines.account.accountgroup&top=10&orderby=count(id) desc');
         observable.subscribe((items: Array<IJournalHistoryItem>) => {
             if (items) {

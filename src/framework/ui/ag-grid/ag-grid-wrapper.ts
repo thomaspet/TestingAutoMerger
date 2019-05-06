@@ -33,7 +33,8 @@ import {
     RowClickedEvent,
     RowDragEndEvent,
     PaginationChangedEvent,
-    RowNode
+    RowNode,
+    SortChangedEvent
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
@@ -348,6 +349,15 @@ export class AgGridWrapper {
         }
     }
 
+    public onSortChange(event: SortChangedEvent) {
+        const sortModel = event.api.getSortModel();
+        if (sortModel && sortModel[0]) {
+            this.tableUtils.saveSortModel(this.config.configStoreKey, sortModel[0]);
+        } else {
+            this.tableUtils.removeSortModel(this.config.configStoreKey);
+        }
+    }
+
     public onColumnMove(event: ColumnMovedEvent) {
         if (!event.column || !this.config || !this.config.configStoreKey || this.config.isGroupingTicker) {
             return;
@@ -358,8 +368,12 @@ export class AgGridWrapper {
         const index = column && this.columns.findIndex(col => col.field === column.field);
         if (index >= 0) {
             const col = this.columns.splice(index, 1)[0];
+
             this.columns.splice(event.toIndex, 0, col);
-            this.columns = [...this.columns];
+            this.columns = this.columns.map((c, i) => {
+                c.index = i;
+                return c;
+            });
 
             this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
             this.columnsChange.emit(this.columns);
@@ -563,7 +577,11 @@ export class AgGridWrapper {
                     columns = this.tableUtils.getTableColumns(this.config);
                     this.tableUtils.removeColumnSetup(this.config.configStoreKey);
                 } else {
-                    columns = res.columns;
+                    columns = res.columns.map((col, index) => {
+                        col.index = index;
+                        return col;
+                    });
+
                     this.tableUtils.saveColumnSetup(this.config.configStoreKey, columns);
                 }
 

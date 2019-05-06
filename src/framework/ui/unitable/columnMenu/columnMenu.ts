@@ -39,7 +39,10 @@ export class UniTableColumnMenu {
             if (res.resetAll) {
                 this.resetAll.emit(true);
             } else {
-                this.columns = res.columns;
+                this.columns = res.columns.map((col, index) => {
+                    return col.set('index', index);
+                });
+
                 this.columnsChange.emit(this.columns);
             }
         });

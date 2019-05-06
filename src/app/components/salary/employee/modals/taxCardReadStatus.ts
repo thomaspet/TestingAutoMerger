@@ -28,7 +28,6 @@ export class TaxCardReadStatusComponent implements OnInit, OnChanges {
     ) {}
 
     public ngOnInit() {
-        debugger
         const empInfoCol = new UniTableColumn('_empInfo', 'Ansatt', UniTableColumnType.Text);
         const ssnCol = new UniTableColumn('ssn', 'Fødselsnummer/Dnummer', UniTableColumnType.Text);
         const statusCol = new UniTableColumn('status', 'Status', UniTableColumnType.Text);

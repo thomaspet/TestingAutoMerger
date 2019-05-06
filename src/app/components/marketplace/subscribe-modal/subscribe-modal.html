@@ -3,17 +3,17 @@
         <button class="close-button" (click)="onClose.emit()">×</button>
 
         <section class="product-info">
-            <img [src]="product.iconReference" />
+            <img [src]="product.IconReference" />
 
             <section class="product-name">
-                <strong>{{product.label}}</strong>
-                <small>{{product.name}}</small>
+                <strong>{{product.Label}}</strong>
+                <small>{{product.Name}}</small>
             </section>
         </section>
 
         <section class="subscribe-section">
-            <a *ngIf="product.productType === elsaProductType.Integration" href="{{product.buttonLink}}" target="_blank" [matTooltip]="cannotPurchaseProductsText">
-                <button class="subscribe-button">{{product.buttonLabel || 'Aktiver produkt'}}</button>
+            <a *ngIf="product.ProductType === elsaProductType.Integration" href="{{product.ButtonLink}}" target="_blank" [matTooltip]="cannotPurchaseProductsText">
+                <button class="subscribe-button">{{product.ButtonLabel || 'Aktiver produkt'}}</button>
             </a>
 
             <div [matTooltip]="missingPermissionText">
@@ -30,16 +30,16 @@
                 Aktivert
             </span>
 
-            <span *ngIf="product.price" class="price-container">
-                <span class="price">{{product.price}} kr</span>
+            <span *ngIf="product.Price" class="price-container">
+                <span class="price">{{product.Price}} kr</span>
                 <span class="price-type">{{priceText(product)}}</span>
             </span>
         </section>
 
         <p>
-            {{product.description}}
+            {{product.Description}}
         </p>
     </header>
 
-    <article class="htmlContent" *ngIf="product.htmlContent" [innerHTML]="product.htmlContent | keepHtml"></article>
+    <article class="htmlContent" *ngIf="product.HtmlContent" [innerHTML]="product.HtmlContent | keepHtml"></article>
 </section>

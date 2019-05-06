@@ -1,5 +1,5 @@
 import {Component, HostListener, EventEmitter, Input, Output} from '@angular/core';
-import {ElsaUserLicense, ElsaCompanyLicenseStatus} from '@app/models';
+import {ElsaUserLicense, ElsaCompanyLicenseStatus, ElsaCompanyLicense} from '@app/models';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
 
@@ -12,8 +12,8 @@ export class UserDetails {
     @Input() user: ElsaUserLicense;
     @Output() close = new EventEmitter();
 
-    columns = [{ header: 'Selskap', field: 'companyName' }];
-    companies: any[]; // type me
+    columns = [{ header: 'Selskap', field: 'CompanyName' }];
+    companies: ElsaCompanyLicense[];
 
     constructor(
         private authService: AuthService,
@@ -30,8 +30,8 @@ export class UserDetails {
                 .send()
                 .subscribe(
                     res => {
-                        const companies = (res && res.json()) || [];
-                        this.companies = companies.filter(c => c.statusCode === ElsaCompanyLicenseStatus.Active);
+                        const companies: ElsaCompanyLicense[] = (res && res.json()) || [];
+                        this.companies = companies.filter(c => c.StatusCode === ElsaCompanyLicenseStatus.Active);
                     },
                     err => console.error(err)
                 );

@@ -31,15 +31,15 @@
 
         <span class="sum pull-right">
             <span class="label">Sum eks.mva. </span>
-            <span class="value">{{(billingData?.total | uninumberformat:'money') || 0}} kr</span>
+            <span class="value">{{(billingData?.Total | uninumberformat:'money') || 0}} kr</span>
         </span>
     </section>
-    
+
     <license-info-list
         *ngIf="+viewMode === 0"
         class="selection-list"
         [columns]="columns"
-        [rows]="billingData?.items"
+        [rows]="billingData?.Items"
         (rowClick)="onRowClick($event)">
     </license-info-list>
 

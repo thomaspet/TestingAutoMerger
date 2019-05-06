@@ -12,7 +12,8 @@ import {AuthService} from '../../authService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
-import {Subscription} from 'rxjs';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -20,7 +21,6 @@ import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
 import { DeleteCompanyModal } from './delete-company-modal/delete-company-modal';
-
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -53,7 +53,6 @@ export class BureauDashboard {
 
     companies: KpiCompany[];
     private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];
-    private subscription: Subscription;
 
     toolbarConfig: IToolbarConfig;
     saveActions: IUniSaveAction[];
@@ -84,6 +83,8 @@ export class BureauDashboard {
         {name: 'Lønn', path: 'salary'},
         {name: 'Time', path: 'hours'},
     ];
+
+    onDestroy$ = new Subject();
 
     constructor(
         private errorService: ErrorService,
@@ -133,11 +134,15 @@ export class BureauDashboard {
         this.groups = groups;
         this.activeGroup = this.groups.find(g => g.active) || this.groups[0];
 
-        this.authService.authentication$
-            .asObservable()
-            .filter(auth => !!auth.user)
-            .map(auth => auth.user.License.Company.Agency.Name)
-            .subscribe(name => this.toolbarConfig.title = 'Mine selskaper' + (name ? ` - ${name}` : '') );
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
+            const user = auth && auth.user;
+            if (user) {
+                const agency = user.License.Company.Agency.Name;
+                this.toolbarConfig.title = 'Mine selskaper' + (agency ? ` - ${agency}` : '');
+            }
+        });
 
         this.searchControl.valueChanges.subscribe(() => {
             this.filterCompanies();
@@ -150,6 +155,12 @@ export class BureauDashboard {
         this.router.events
             .filter((event) => event instanceof ActivationEnd)
             .subscribe((change: ActivationEnd) => this.activeTag = change.snapshot.queryParams['tag']);
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
+        this.saveUserPreferences();
     }
 
     private loadCompanies() {
@@ -235,6 +246,9 @@ export class BureauDashboard {
     private getTableConfig(): UniTableConfig {
         const companyNameCol = new UniTableColumn('Name', 'Selskap', UniTableColumnType.Link)
             .setCls('bureau-link-col')
+            .setConditionalCls(company => {
+                return company.IsTemplate ? 'template-company' : '';
+            })
             .setWidth(240);
 
         const orgnrCol = new UniTableColumn('OrganizationNumber', 'Org.nr');
@@ -329,14 +343,6 @@ export class BureauDashboard {
         } catch (e) {}
     }
 
-    public ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
-
-        this.saveUserPreferences();
-    }
-
     filterCompanies(): void {
         const filterString = this.searchControl.value || '';
 
@@ -413,14 +419,14 @@ export class BureauDashboard {
         this.uniModalService.open(UniNewCompanyModal).onClose
             .subscribe(company => {
                 if (!company) {
-                    doneCallback('Oppretting av selskap avbrutt');
+                    doneCallback('');
                 } else {
                     this.companies.unshift(company);
                     this.companies = [...this.companies];
                     this.filterCompanies();
                     this.authService.setActiveCompany(company);
                     this.uniModalService.open(CompanyActionsModal, <IModalOptions>{ header: `${company.Name} opprettet!` });
-                    doneCallback(`${company.Name} opprettet!`);
+                    doneCallback('');
                 }
             });
     }

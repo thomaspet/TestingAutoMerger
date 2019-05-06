@@ -1272,7 +1272,7 @@ export class CompanySettingsComponent implements OnInit {
                 EntityType: 'CompanySettings',
                 Property: 'CompanyRegistered',
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Foretaksregistert',
+                Label: 'Foretaksregistrert',
                 FieldSet: 2,
                 Section: 1,
                 Sectionheader: 'Selskapsoppsett'
@@ -1519,6 +1519,38 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Selskapsoppsett'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Label: 'Remitteringskonto innbetaling',
+                Property: 'InterrimPaymentAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                FieldSet: 6,
+                Section: 1,
+                Options: {
+                    valueProperty: 'AccountNumber',
+                    source: model => this.accountService
+                        .GetAll(`filter=AccountNumber eq ${model.InterrimPaymentAccountID}`)
+                        .map(results => results[0])
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Label: 'Remitteringskonto utbetaling',
+                Property: 'InterrimRemitAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                FieldSet: 6,
+                Section: 1,
+                Options: {
+                    valueProperty: 'AccountNumber',
+                    source: model => this.accountService
+                        .GetAll(`filter=AccountNumber eq ${model.InterrimRemitAccountID}`)
+                        .map(results => results[0])
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+                }
             },
             {
                 EntityType: 'CompanySettings',

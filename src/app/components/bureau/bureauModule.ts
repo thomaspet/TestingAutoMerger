@@ -6,7 +6,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {BureauDashboard} from './bureauDashboard';
-import {UniNewCompanyModal} from './new-company-modal/newCompanyModal';
 import {BureauDetails, TABS} from './detailView/bureauDetails';
 import {BureauCustomHttpService} from './bureauCustomHttpService';
 import {AppPipesModule} from '../../pipes/appPipesModule';
@@ -27,9 +26,16 @@ import {
     MatGridListModule,
     MatBadgeModule,
 } from '@angular/material';
-import { SelectLicenseComponent } from './new-company-modal/select-license/select-license.component';
-import { SelectCompanyComponent } from './new-company-modal/select-company/select-company.component';
-import { SelectProductsComponent, MatBadgeIconDirective } from './new-company-modal/select-products/select-products.component';
+
+import {
+    UniNewCompanyModal,
+    SelectLicenseComponent,
+    SelectCompanyComponent,
+    SelectTemplate,
+    SelectProductsComponent,
+    MatBadgeIconDirective,
+} from './new-company-modal';
+
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 
 @NgModule({
@@ -66,6 +72,7 @@ import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
         ...PAGES,
         SelectLicenseComponent,
         SelectCompanyComponent,
+        SelectTemplate,
         SelectProductsComponent,
         MatBadgeIconDirective,
     ],

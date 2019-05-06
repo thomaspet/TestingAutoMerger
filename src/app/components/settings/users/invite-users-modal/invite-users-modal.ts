@@ -100,12 +100,12 @@ export class InviteUsersModal implements IUniModal {
         this.adminRole = roles.find(role => role.Name === 'Administrator');
 
         const filteredProducts = products.filter(product => {
-            return product.productTypeName === 'Module' && product.name !== 'Complete';
+            return product.ProductTypeName === 'Module' && product.Name !== 'Complete';
         });
 
         const groups: RoleGroup[] = filteredProducts.map(product => {
             return {
-                label: product.label,
+                label: product.Label,
                 roles: [],
                 selectedRoles: [],
                 product: product
@@ -117,7 +117,7 @@ export class InviteUsersModal implements IUniModal {
             const roleNameLowerCase = (role.Name || '').toLowerCase();
 
             const groupsThatShouldHaveRole = groups.filter(group => {
-                const listOfRoles = group.product && group.product.listOfRoles || '';
+                const listOfRoles = group.product && group.product.ListOfRoles || '';
                 return listOfRoles.trim().split(',').some(roleName => {
                     return roleName.toLowerCase() === roleNameLowerCase;
                 });

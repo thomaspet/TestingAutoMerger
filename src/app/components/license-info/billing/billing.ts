@@ -3,28 +3,28 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
 
 export interface BillingDataItem {
-    productID: number;
-    productName: string;
-    days: number;
-    amount: number;
-    unit: string;
-    price: number;
-    discountPrc: number;
-    sum: number;
-    details: {name: string; counter: number}[];
+    ProductID: number;
+    ProductName: string;
+    Days: number;
+    Amount: number;
+    Unit: string;
+    Price: number;
+    DiscountPrc: number;
+    Sum: number;
+    Details: {Name: string; Counter: number}[];
 }
 
 export interface BillingData {
-    customerName: string;
-    customerID: number;
-    contractID: number;
-    contractType: number;
-    fromDate: string;
-    toDate: string;
-    total: number;
-    totalDiscount: number;
-    orderDays: number;
-    items: BillingDataItem[];
+    CustomerName: string;
+    CustomerID: number;
+    ContractID: number;
+    ContractType: number;
+    FromDate: string;
+    ToDate: string;
+    Total: number;
+    TotalDiscount: number;
+    OrderDays: number;
+    Items: BillingDataItem[];
 }
 
 @Component({
@@ -42,13 +42,13 @@ export class Billing {
     detailsVisible: boolean;
 
     columns = [
-        {header: 'Varenr', field: 'productID'},
-        {header: 'Varenavn', field: 'productName', flex: '2'},
-        {header: 'Antall', field: 'amount', format: 'number'},
-        {header: 'Enhet', field: 'unit', flex: '0 0 6rem'},
-        {header: 'Pris', field: 'price', format: 'money'},
-        {header: 'Rabatt', field: 'discountPrc', format: 'percent', flex: '0 0 5rem'},
-        {header: 'Sum', field: 'sum', format: 'money'},
+        {header: 'Varenr', field: 'ProductID'},
+        {header: 'Varenavn', field: 'ProductName', flex: '2'},
+        {header: 'Antall', field: 'Amount', format: 'number'},
+        {header: 'Enhet', field: 'Unit', flex: '0 0 6rem'},
+        {header: 'Pris', field: 'Price', format: 'money'},
+        {header: 'Rabatt', field: 'DiscountPrc', format: 'percent', flex: '0 0 5rem'},
+        {header: 'Sum', field: 'Sum', format: 'money'},
     ];
 
     constructor(

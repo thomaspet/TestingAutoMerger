@@ -31,10 +31,13 @@ import {
 import {YearModal, IChangeYear} from '../../../layout/navbar/company-dropdown/yearModal';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import * as moment from 'moment';
+import { ProjectService } from '@app/services/common/projectService';
+import { DepartmentService } from '@app/services/common/departmentService';
+import { resultBalanceFilter } from '@app/components/accounting/accountingreports/filter.form';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
-declare var _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'accounting-details-report',
@@ -83,11 +86,21 @@ export class AccountDetailsReport {
     selectYear: string[];
     activeYear: number;
     showCredited: boolean = false;
-
+    filterVisible = false;
     private dimensionEntityName: string;
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
-
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public filter$: BehaviorSubject<any> = new BehaviorSubject({
+        ShowPreviousAccountYear: true,
+        ShowBudget: true,
+        Decimals: 0,
+        ShowPercent: true,
+        ShowPrecentOfLastYear: false,
+        ShowPercentOfBudget: false
+    });
+    filter = this.filter$.getValue();
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
@@ -100,7 +113,9 @@ export class AccountDetailsReport {
         private periodFilterHelper: PeriodFilterHelper,
         private route: ActivatedRoute,
         private router: Router,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService
     ) {
 
         this.config = {
@@ -128,6 +143,15 @@ export class AccountDetailsReport {
             this.financialYearService.GetAll('orderby=Year desc')
         ).subscribe(data => {
             this.financialYears = data[0];
+        });
+
+        // get filter data
+        Observable.forkJoin(
+            this.projectService.GetAll(null),
+            this.departmentService.GetAll(null)
+        ).subscribe((response: Array<any>) => {
+            const [projects, departments] = response;
+            this.fields$.next(resultBalanceFilter(projects, departments));
         });
     }
 
@@ -621,5 +645,13 @@ export class AccountDetailsReport {
 
     public tabChange(event) {
         this.addTab();
+    }
+
+    public toggleFilter() {
+        this.filterVisible = !this.filterVisible;
+    }
+
+    public onFilterChange(change) {
+        this.filter = _.cloneDeep(this.filter$.getValue());
     }
 }

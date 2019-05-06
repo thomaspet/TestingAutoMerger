@@ -15,6 +15,8 @@ import {
     CustomerQuoteService,
     CustomerOrderService
 } from '../../../../services/services';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {UniCustomerImportModal} from './customerImportModal';
 
 @Component({
     selector: 'customer-list',
@@ -78,7 +80,14 @@ export class CustomerList implements OnInit {
         action: this.createCustomer.bind(this),
         main: true,
         disabled: false
-    }];
+    },
+    {
+        label: 'Importer kunder',
+        action: (done) => this.openImportModal(done),
+        main: true,
+        disabled: false
+    }
+];
 
     constructor(
         private uniHttpService: UniHttp,
@@ -90,7 +99,8 @@ export class CustomerList implements OnInit {
         private companySettingsService: CompanySettingsService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerQuoteService: CustomerQuoteService,
-        private customerOrderService: CustomerOrderService
+        private customerOrderService: CustomerOrderService,
+        private modalService: UniModalService,
     ) { }
 
     public ngOnInit() {
@@ -113,9 +123,15 @@ export class CustomerList implements OnInit {
     }
 
 
-
-
-
-
-
+    public openImportModal(done = null) {
+        this.modalService.open(UniCustomerImportModal).onClose.subscribe((res) => {
+            if (res) {
+                
+            } else {
+                if (done) {
+                    done();
+                }
+            }
+        });
+    }
 }

@@ -2,6 +2,8 @@ import {Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {TaxCardRequest} from './taxCardRequest';
 import {ReadTaxCard} from './readTaxCard';
+import { Employee } from '@uni-entities';
+
 @Component({
     selector: 'tax-card-modal',
     templateUrl: './taxCardModal.html'
@@ -14,11 +16,12 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
     @ViewChild(ReadTaxCard) private readTaxCard: ReadTaxCard;
 
     public changeEvent: EventEmitter<any>;
-    public employeeID: number;
+    public employee: Employee;
+    public needsUpdate: boolean = false;
     constructor() { }
 
     public ngOnInit() {
-        this.employeeID = this.options.data;
+        this.employee = this.options.data;
         this.changeEvent = this.options.modalConfig.changeEvent;
     }
 
@@ -30,7 +33,7 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
     public close() {
         this.taxCardRequest.isActive = false;
         this.taxCardRequest.close();
-        this.onClose.next();
+        this.onClose.next(this.needsUpdate);
     }
 
     public triggerUpdate() {
@@ -40,5 +43,6 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
 
     public getReceipts() {
         this.readTaxCard.getReceipts();
+        this.needsUpdate = true;
     }
 }

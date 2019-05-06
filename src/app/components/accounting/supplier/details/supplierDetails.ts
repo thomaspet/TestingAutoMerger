@@ -39,6 +39,7 @@ import {
     ModulusService,
     JournalEntryLineService,
     CostAllocationService,
+    PageStateService
 } from '../../../../services/services';
 
 import {
@@ -53,8 +54,9 @@ import {
 } from '../../../../../framework/uni-modal';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 declare const _; // lodash
 
@@ -172,7 +174,7 @@ export class SupplierDetails implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         private phoneService: PhoneService,
-        private emailService: EmailService,
+        private pageStateService: PageStateService,
         private addressService: AddressService,
         private bankaccountService: BankAccountService,
         private tabService: TabService,
@@ -196,8 +198,11 @@ export class SupplierDetails implements OnInit {
         ];
 
         if (!this.modalMode) {
-            this.route.params.subscribe(params => {
-                this.supplierID = +params['id'];
+            combineLatest(this.route.params, this.route.queryParams)
+                .pipe(map(results => ({params: results[0], query: results[1]})))
+                .subscribe(results => {
+                this.supplierID = +results.params['id'];
+                const index = +results.query['tabIndex']  || 0;
                 this.supplier$.getValue().ID = 0;
 
                 this.commentsConfig = {
@@ -216,6 +221,7 @@ export class SupplierDetails implements OnInit {
                             {name: 'Dokumenter'},
                             ...links
                         ];
+                        this.activeTabIndex = index;
                     },
                     err => this.errorService.handle(err)
                 );
@@ -405,25 +411,27 @@ export class SupplierDetails implements OnInit {
         if (this.modalMode) {
             return;
         }
-        const tabTitle = supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
+        this.toolbarconfig.title = supplier.ID ? supplier.Info.Name : 'Ny leverandør';
+        this.toolbarconfig.subheads = supplier.ID ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
+
+        this.addTab();
+    }
+
+    public addTab() {
+        const supplier = this.supplier$.getValue();
+        const tabTitle = supplier && supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
+
+        this.showReportWithID =
+            this.tabs && this.tabs[this.activeTabIndex] && this.tabs[this.activeTabIndex]['id'] && this.tabs[this.activeTabIndex]['id'];
+
+        this.pageStateService.setPageState('tabIndex', this.activeTabIndex + '');
+
         this.tabService.addTab({
-            url: '/accounting/suppliers/' + supplier.ID,
+            url: this.pageStateService.getUrl(),
             name: tabTitle,
             active: true,
             moduleID: UniModules.Suppliers
         });
-
-        this.toolbarconfig.title = supplier.ID ? supplier.Info.Name : 'Ny leverandør';
-        this.toolbarconfig.subheads = supplier.ID ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
-    }
-
-    public showTab(index: number) {
-        this.activeTabIndex = index;
-        const tab = this.tabs[index];
-
-        if (this.tabs[index]) {
-            this.showReportWithID = this.tabs[index]['id'];
-        }
     }
 
     public canDeactivate(): Observable<boolean> | boolean {

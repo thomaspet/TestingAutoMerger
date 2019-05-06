@@ -47,13 +47,13 @@ export class ElsaProductService {
 
     public ProductTypeToPriceText(product: ElsaProduct): string {
         const text = [''];
-        if (product.isPerUser) {
+        if (product.IsPerUser) {
             text.push('per bruker');
         }
-        if (product.isMonthly) {
+        if (product.IsMonthly) {
             text.push('per måned');
         }
-        if (product.isPerTransaction) {
+        if (product.IsPerTransaction) {
             text.push('per transaksjon');
         }
         return text.join(' / ');

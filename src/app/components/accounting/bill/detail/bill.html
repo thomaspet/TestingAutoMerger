@@ -79,15 +79,13 @@
     <section class="bill-right-side uni-container">
         <header>Dokument ({{this.files?.length || 0}})</header>
 
-        <span class="get-from-inbox" role="button"
-            *ngIf="!(current | async)?.ID"
-            (click)="openAddFileModal()">
-
+        <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
             <i class="material-icons">get_app</i>
             Hent fra innboks
         </span>
 
         <uni-image
+            [useEhfReader]="true"
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"
@@ -102,5 +100,4 @@
             (useWord)="onUseWord($event)">
         </uni-image>
     </section>
-
 </section>

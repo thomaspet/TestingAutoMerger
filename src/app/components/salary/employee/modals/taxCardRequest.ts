@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
-import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
+import {FieldLayout, AltinnReceipt, Employee} from '../../../../../app/unientities';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
 import {BehaviorSubject} from 'rxjs';
 declare const _;
@@ -19,11 +19,11 @@ export class TaxCardRequest {
     public title: string = '';
     public exitButton: string = '';
     public busy: boolean;
-    public sendAltinnVisible: boolean;
+    public sendAltinnVisible: boolean = false;
     public error: string = '';
     public isActive: boolean = false;
 
-    @Input() private employeeID: number;
+    @Input() private employee: Employee;
 
     @Output() public newReceipt: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
@@ -38,7 +38,9 @@ export class TaxCardRequest {
     constructor(
         private _altinnService: AltinnIntegrationService,
         private errorService: ErrorService
-    ) {
+    ) {}
+
+    ngOnInit() {
         this.initialize();
     }
 
@@ -59,7 +61,7 @@ export class TaxCardRequest {
             Placeholder: 'Select',
             Options: {
                 source: [
-                    { id: 1, text: 'Gjeldende ansatt' },
+                    { id: 1, text: `Gjeldende ansatt (${this.employee.BusinessRelationInfo.Name})` },
                     { id: 2, text: 'For flere ansatte' }
                 ],
                 labelProperty: 'text',
@@ -120,7 +122,7 @@ export class TaxCardRequest {
             option = 'SINGLE_EMP';
         }
 
-        this.taxRequest(option, this.employeeID, model.empsAndChanged);
+        this.taxRequest(option, this.employee.ID, model.empsAndChanged);
     }
 
     private taxRequest(option: string, empId: number = 0, empsAndChanged = false) {

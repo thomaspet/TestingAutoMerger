@@ -16,27 +16,38 @@
 
 <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
 
-    <!-- Main image -->
-    <section class="image-section" *ngIf="imgUrl.length">
+    <!-- EHF -->
+    <ehf-viewer
+        *ngIf="currentFile?._ehfMarkup"
+        [file]="currentFile"
+        (print)="print()"
+        (popout)="openFileViewer()">
+    </ehf-viewer>
+
+    <!-- Image -->
+    <section class="image-section" *ngIf="currentFile && imgUrl && !currentFile?._ehfMarkup">
         <section class="uni-image-pager" *ngIf="files?.length && !hideToolbar">
-            <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
+            <a *ngIf="files.length > 1 || currentFile.Pages > 1"
                 class="prev"
                 (click)="previous()">
             </a>
 
-            {{fileInfo}}
+            {{currentFile.Name}}
+            <span *ngIf="currentFile.Pages > 1">
+                ({{currentPage}}/{{currentFile.Pages}})
+            </span>
 
             <a class="print" (click)="print()">
                 <i class="material-icons">print</i>
             </a>
 
             <a class="split" (click)="splitFile()"
-                *ngIf="splitAllowed && !readonly && files[currentFileIndex] && currentPage > 1 && files[currentFileIndex].Pages > 1 && files[currentFileIndex].Name.toLowerCase().endsWith('.pdf')">
+                *ngIf="splitAllowed && !readonly && currentPage > 1 && currentFile.Pages > 1 && currentFile.Name.toLowerCase().endsWith('.pdf')">
                 <i class="material-icons">call_split</i>
             </a>
 
             <a class="split" (click)="splitFileDialog()"
-                *ngIf="splitFileDialogAllowed && files[currentFileIndex] && files[currentFileIndex].Pages > 1 && files[currentFileIndex].Name.toLowerCase().endsWith('.pdf')">
+                *ngIf="splitFileDialogAllowed && currentFile.Pages > 1 && currentFile.Name.toLowerCase().endsWith('.pdf')">
                 <i class="material-icons">call_split</i>
             </a>
 
@@ -56,7 +67,7 @@
                 <i class="material-icons">open_in_new</i>
             </a>
 
-            <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
+            <a *ngIf="files.length > 1 || currentFile.Pages > 1"
                 class="next"
                 (click)="next()">
             </a>
@@ -77,18 +88,15 @@
             (click)="openFileViewer()">
 
             <source
-                [attr.srcset]="imageUrl2x"
+                [attr.srcset]="imgUrl"
                 media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
 
             <img
-                #image
                 [attr.src]="imgUrl"
-                alt=""
-                (error)="onLoadImageError($event)"
-                (load)="finishedLoadingImage()"
-                *ngIf="currentFileIndex >= 0">
+                (error)="reauthenticate()"
+            />
 
-            <span *ngIf="!imageIsLoading">
+            <span *ngIf="ocrWords?.length">
                 <span *ngFor="let word of ocrWords"
                     class="image-word"
                     title="{{word.text}}"
@@ -117,12 +125,18 @@
     </section>
 
     <!-- Thumbnails -->
-    <ul class="uni-thumbnail-list" *ngIf="thumbnails?.length > 1">
-        <li *ngFor="let thumbnail of thumbnails; let idx = index">
-            <img [attr.src]="thumbnail"
-                [attr.alt]="shorten(files[idx]?.Description, 20)"
-                (click)="thumbnailClicked(idx)">
+    <ul class="uni-thumbnail-list" *ngIf="!singleImage && files?.length > 1">
+        <li *ngFor="let file of files" (click)="showFile(file)">
+
+            <img
+                *ngIf="!file._ehfMarkup"
+                [attr.src]="file._thumbnailUrl"
+                (error)="reauthenticate()"
+            />
+
+            <section *ngIf="file._ehfMarkup" class="ehf-thumbnail">
+                EHF
+            </section>
         </li>
     </ul>
-
 </article>

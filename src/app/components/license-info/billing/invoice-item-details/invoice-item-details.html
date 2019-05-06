@@ -1,16 +1,16 @@
 <section class="list-container" (click)="$event.stopPropagation()">
     <section class="header">
-        <h1>{{item?.productName}}</h1>
+        <h1>{{item?.ProductName}}</h1>
 
         <span class="sum pull-right">
             <span class="label">Sum eks.mva. </span>
-            <span class="value">{{(item?.sum | uninumberformat:'money') || 0}} kr</span>
+            <span class="value">{{(item?.Sum | uninumberformat:'money') || 0}} kr</span>
         </span>
     </section>
 
     <license-info-list
         [columns]="columns"
-        [rows]="item?.details"
-        [orderBy]="'name'">
+        [rows]="item?.Details"
+        [orderBy]="'Name'">
     </license-info-list>
 </section>

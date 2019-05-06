@@ -6,32 +6,35 @@ import {ISavedSearch, ITableFilter} from '../interfaces';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-interface ColumnSetupMap {
-    [key: string]: UniTableColumn[];
-}
+interface SortModel { colId: string; sort: string; }
 
-interface SavedSearchMap {
-    [key: string]: ISavedSearch[];
-}
+interface ColumnSetupMap { [key: string]: UniTableColumn[]; }
+interface SavedSearchMap { [key: string]: ISavedSearch[]; }
+interface SortMap { [key: string]: SortModel; }
 
-const CONFIG_STORAGE_KEY: string = 'uniTable_column_configs';
-const FILTER_STORAGE_KEY: string = 'uniTable_filters';
+const CONFIG_STORAGE_KEY = 'uniTable_column_configs';
+const FILTER_STORAGE_KEY = 'uniTable_filters';
+const SORT_STORAGE_KEY = 'uniTable_sort';
 
 @Injectable()
 export class TableUtils {
     private columnSetupMap: ColumnSetupMap = {};
     private savedSearchMap: SavedSearchMap = {};
+    private sortMap: SortMap = {};
 
     constructor() {
-        try {
-            this.columnSetupMap = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
-            this.savedSearchMap = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)) || {};
-        } catch (e) {
-            console.error('Error trying to get column setup or filters (unitableUtils constructor)');
-            console.error(e);
-            this.columnSetupMap = {};
-            this.savedSearchMap = {};
-        }
+        const getSavedSettings = (key: string) => {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || {};
+            } catch (e) {
+                console.error(`Error getting ${key} in ag-grid table utils`, e);
+                return {};
+            }
+        };
+
+        this.columnSetupMap = getSavedSettings(CONFIG_STORAGE_KEY);
+        this.savedSearchMap = getSavedSettings(FILTER_STORAGE_KEY);
+        this.sortMap = getSavedSettings(SORT_STORAGE_KEY);
     }
 
     // Local sorting functions
@@ -62,48 +65,30 @@ export class TableUtils {
     }
 
     public getTableColumns(tableConfig: UniTableConfig): UniTableColumn[] {
-        const defaultColumns = _.cloneDeep(tableConfig.columns);
+        const configColumns = _.cloneDeep(tableConfig.columns);
         const key = tableConfig.configStoreKey;
 
         const customColumnSetup = this.columnSetupMap[key];
         if (!customColumnSetup || !customColumnSetup.length) {
-            return this.fixColumnWidths(defaultColumns);
+            return this.fixColumnWidths(configColumns);
         }
 
-        // First check if config contains columns that does not exist
-        // custom setup. This means that default config has changed
-        // and we need to invalidate the user's config
-        let resetColumnConfig = !defaultColumns.every(col => {
-            return customColumnSetup.some(customCol => customCol.field === col.field);
+        const columns = configColumns.map(configColumn => {
+            const savedColumn = customColumnSetup.find(col => col.field === configColumn.field);
+            if (savedColumn) {
+                return Object.assign({}, configColumn, savedColumn);
+            } else {
+                return configColumn;
+            }
         });
 
-        let columns = [];
-        if (!resetColumnConfig) {
-            // Extend the default column config with the custom one.
-            // Extending because localStorage can't hold functions/components etc
-            // So only a set of pre-defined fields are saved
-            for (const customColumn of customColumnSetup) {
-                const originalCol = defaultColumns.find(c => c.field === customColumn.field);
-                if (originalCol) {
-                    columns.push(Object.assign({}, originalCol, customColumn));
-                } else {
-                    // If we can't find an original column with the same field
-                    // it means either the default config changed or a table with the
-                    // same name and different config exists somewhere in the app.
-                    // At this point we need to reset in order to avoid crashing
-                    resetColumnConfig = true;
-                    break;
-                }
-            }
-        }
+        const sorted = columns.sort((col1, col2) => {
+            const col1Index = col1.index >= 0 ? col1.index : 99;
+            const col2Index = col2.index >= 0 ? col2.index : 99;
+            return col1Index - col2Index;
+        });
 
-        if (resetColumnConfig) {
-            this.removeColumnSetup(key);
-            columns = tableConfig.columns;
-        }
-
-        const clone = _.cloneDeep(columns);
-        return this.fixColumnWidths(clone);
+        return this.fixColumnWidths(_.cloneDeep(sorted));
     }
 
     private fixColumnWidths(columns: UniTableColumn[]): UniTableColumn[] {
@@ -151,7 +136,8 @@ export class TableUtils {
                 _originalField: col['_originalField'],
                 sumFunction: col.sumFunction,
                 alias: col.alias,
-                width: col.width
+                width: col.width,
+                index: col.index
             });
         });
 
@@ -291,5 +277,19 @@ export class TableUtils {
         }
 
         return savedSearches;
+    }
+
+    getSortModel(tableName: string): SortModel {
+        return this.sortMap[tableName];
+    }
+
+    saveSortModel(tableName: string, sortModel: SortModel): void {
+        this.sortMap[tableName] = sortModel;
+        localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(this.sortMap));
+    }
+
+    removeSortModel(tableName: string): void {
+        delete this.sortMap[tableName];
+        localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(this.sortMap));
     }
 }

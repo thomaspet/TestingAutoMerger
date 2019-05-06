@@ -31,6 +31,14 @@
     <uni-tabs [tabs]="tabs" [(activeIndex)]="tabIndex" (activeIndexChange)="tabChange($event)"></uni-tabs>
 
     <section class="uni-container" *ngIf="tabIndex === 0">
+        <button (click)="toggleFilter()" class="leftpadding iconbutton"><i class="material-icons vertical-middle">settings</i> filter </button>
+        <uni-form
+            *ngIf="filterVisible"
+            [config]="config$"
+            [fields]="fields$"
+            [model]="filter$"
+            (changeEvent)="onFilterChange($event)">
+        </uni-form>
         <distribution-period-report-part
             [accountIDs]="accountIDs"
             [subaccountIDs]="subAccountIDs"
@@ -42,6 +50,7 @@
             [includeIncomingBalance]="includeIncomingBalanceInDistributionReport$ | async"
             [dimensionType]="config.dimensionType"
             [dimensionId]="config.dimensionId"
+            [filter]="filter"
             (periodSelected)="periodSelected($event, true)"
             (yearChange)="onYearSelected($event)">
         </distribution-period-report-part>

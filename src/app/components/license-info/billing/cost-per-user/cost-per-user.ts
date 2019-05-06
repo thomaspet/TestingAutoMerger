@@ -27,36 +27,37 @@ export class CostPerUser {
     ];
 
     ngOnChanges() {
-        if (this.billingData && this.billingData.items) {
+        if (this.billingData && this.billingData.Items) {
             this.costPerUser = this.getCostPerUser();
         }
     }
 
     onRowClick(row) {
         this.selectedUser = row;
+        console.log(this.selectedUser);
         this.detailsVisible = true;
     }
 
     getCostPerUser() {
         const costPerUser: any = {};
-        
-        this.billingData.items.forEach(item => {
-            if (item.unit === 'bruker') {
-                item.details.forEach(itemUsage => {
-                    if (!costPerUser[itemUsage.name]) {
-                        costPerUser[itemUsage.name] = [];
+
+        this.billingData.Items.forEach(item => {
+            if (item.Unit === 'bruker') {
+                item.Details.forEach(itemUsage => {
+                    if (!costPerUser[itemUsage.Name]) {
+                        costPerUser[itemUsage.Name] = [];
                     }
 
                     const transactionItem: any = {
-                        productName: item.productName,
-                        price: item.price,
-                        days: itemUsage.counter,
-                        discount: item.discountPrc
+                        productName: item.ProductName,
+                        price: item.Price,
+                        days: itemUsage.Counter,
+                        discount: item.DiscountPrc
                     };
 
                     // If user has had access for less than the full period
                     // we need to decrease the displayed sum
-                    const usageMultiplier = (transactionItem.days / item.days) || 1;
+                    const usageMultiplier = (transactionItem.days / item.Days) || 1;
 
                     let sum = transactionItem.price * usageMultiplier;
                     if (transactionItem.discount) {
@@ -64,7 +65,7 @@ export class CostPerUser {
                     }
 
                     transactionItem.sum = sum;
-                    costPerUser[itemUsage.name].push(transactionItem);
+                    costPerUser[itemUsage.Name].push(transactionItem);
                 });
             }
         });

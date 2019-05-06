@@ -4,7 +4,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig} fro
 import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {DistributionPlanService} from '@app/services/common/distributionService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
-import {DistributionPlan, DistributionPlanElementType} from '../../../unientities';
+import {DistributionPlan, DistributionPlanElementType, DistributionPlanElement} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
 import { Observable } from 'rxjs';
 import {SettingsService} from '../settings-service';
@@ -77,13 +77,12 @@ export class UniDistributionSettings {
                 main: true,
                 disabled: !this.hasUnsavedChanges
             },
-            // TODO: Implement new plan
-            // {
-            //     label: 'Ny plan',
-            //     action: (done) => this.newPlan(done),
-            //     main: false,
-            //     disabled: this.hasUnsavedChanges
-            // }
+            {
+                label: 'Ny plan',
+                action: (done) => this.newPlan(done),
+                main: false,
+                disabled: this.hasUnsavedChanges
+            }
         ]);
     }
 
@@ -93,6 +92,12 @@ export class UniDistributionSettings {
         if (!plan.Name || plan.Name === ' ') {
             this.toastService.addToast('Ikke lagret', ToastType.bad, 5, 'En plan må ha et navn');
             done('Ikke lagret, navn mangler på plan!');
+            return;
+        }
+
+        if (!plan.EntityType) {
+            this.toastService.addToast('Ikke lagret', ToastType.bad, 5, 'En plan må ha en type');
+            done('Ikke lagret, type mangler på plan!');
             return;
         }
 
@@ -116,6 +121,8 @@ export class UniDistributionSettings {
             .concat(newTypes);
 
         this.distributionPlanService.saveDistributionPlan(plan).subscribe((savedPlan) => {
+            if (!plan.ID) { this.planIndex = this.plans.length; }
+
             this.hasUnsavedChanges = false;
             this.updateSaveActions();
             this.getDistributionPlans();
@@ -124,7 +131,11 @@ export class UniDistributionSettings {
     }
 
     private newPlan(done) {
-        done('Ikke  klart');
+        let newPlan: DistributionPlan = new DistributionPlan();
+        newPlan.Elements = new Array(3);
+        this.plan.next(this.mapDataModelForUniform(newPlan));
+        this.setUpForm();
+        done();    
     }
 
     public getDistributionPlans(searchValue?: string) {
@@ -186,7 +197,7 @@ export class UniDistributionSettings {
         this.fields$.next([]);
         const plan = this.plan.getValue();
 
-        const disableForm = plan.Name.toLowerCase() === 'ingen utsendelse';
+        const disableForm = (plan.Name || '').toLowerCase() === 'ingen utsendelse';
 
         const fields: any = [
             {
@@ -204,7 +215,7 @@ export class UniDistributionSettings {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Type',
                 Placeholder: '',
-                ReadOnly: true,
+                ReadOnly: plan.ID,
                 Options: {
                     source: this.entityTypes,
                     valueProperty: 'value',
@@ -307,6 +318,8 @@ export class UniDistributionSettings {
             setTimeout(() => {
                 this.plan.next(plan);
             });
+        } else if (key === 'EntityType') {
+            this.setUpForm();
         }
     }
 

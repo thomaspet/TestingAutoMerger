@@ -1,0 +1,100 @@
+/* 
+	Not included in main css bundle because it's also used by
+	the popout-fileviewer and when printing EHF files
+*/
+.uni-ehf {
+    display: block;
+    background: #fff;
+    padding: 1rem 2rem;
+	font-size: 15px;
+	line-height: 24px;
+	font-family: 'Roboto', sans-serif;
+}
+
+.uni-ehf h1 {
+	font: 500 22px 'Roboto', sans-serif;
+	color: #0f4880;
+	margin: 5px 0;
+}
+
+.uni-ehf h4 {
+	font: 700 13px 'Roboto', sans-serif;
+	color: #0f4880;
+	margin: 5px 0;
+}
+
+.uni-ehf .invoice-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.uni-ehf .invoice-head .supplier-and-customer {
+	margin-right: 2rem;
+	margin-bottom: 1rem;
+}
+
+.uni-ehf .invoice-head .supplier-and-customer > section + section {
+	margin-top: 1rem;
+}
+
+.uni-ehf dl {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin: 0;
+}
+
+.uni-ehf table {
+	margin: 2rem 0;
+	width: 100%;
+	font-size: 14px;
+	border-collapse: collapse;
+}
+
+.uni-ehf table thead {
+	font-weight: 500;
+	border-bottom: 1px solid;
+}
+
+.uni-ehf table tr {
+	height: 1.5rem;
+	line-height: 1.5rem;
+}
+
+.uni-ehf table th,
+.uni-ehf table td {
+	text-align: left;
+	padding: 5px;
+}
+
+.uni-ehf .number {
+	text-align: right;
+}
+
+.uni-ehf table th.mva {
+	min-width: 4rem;
+}
+
+.uni-ehf table th.sum {
+	min-width: 8rem;
+}
+
+.uni-ehf .freetext {
+	padding: .75rem;
+	background: #f9f9f9;
+}
+
+.uni-ehf .summary {
+	width: 20rem;
+	margin: 3rem 0 1rem auto;
+}
+
+.uni-ehf .summary dl dd {
+	text-align: right;
+}
+
+.uni-ehf .summary dl.total {
+	font-weight: 600;
+	border-top: 1px solid;
+	border-bottom: 1px solid;
+}

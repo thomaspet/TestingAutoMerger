@@ -9,7 +9,7 @@
 </uni-toolbar>
 
 <section class="customer-details application">
-    <uni-tabs [tabs]="tabs" (activeIndexChange)="showTab($event)"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex" (tabClick)="showTab()"></uni-tabs>
 
     <!-- Details tab -->
     <ng-template [ngIf]="activeTabIndex === 0">

@@ -7,8 +7,10 @@
                 <tr style="font-weight: bold;">
                     <td>Periode</td>
                     <td style="text-align: right;">{{ accountYear2 }}</td>
+                    <td style="text-align: right;" *ngIf="filter?.ShowPercentOfBudget">{{ accountYear2 }} %</td>
                     <td style="text-align: right; cursor: pointer;" *ngIf="hasBudgetYear2" (click)="goToBudget(accountYear2)" title="Gå til budsjett">Budsjett - {{ accountYear2 }}</td>
                     <td style="text-align: right;">{{ accountYear1 }}</td>
+                    <td style="text-align: right;" *ngIf="filter?.ShowPercent">{{ accountYear1 }} %</td>
                     <td style="text-align: right; cursor: pointer;" *ngIf="hasBudgetYear1" (click)="goToBudget(accountYear1)" title="Gå til budsjett">Budsjett - {{ accountYear1 }}</td>
                 </tr>
             </thead>
@@ -19,8 +21,10 @@
                     [attr.aria-selected]="row._isSelected">
                     <td (click)="onCellClick(row, accountYear2, i)"> {{ row.periodName}} </td>
                     <td (click)="onCellClick(row, accountYear2, i)" [className]="(row.amountPeriodYear2 < 0 ? 'negative' : 'positive')" title="Saldo ved slutten av mnd: {{ row.balance2 || '-' }} ">{{ row.amountPeriodYear2 | numberAsMoney:numberFormat }} </td>
+                    <td (click)="onCellClick(row, accountYear2, i)" *ngIf="filter?.ShowPercentOfBudget"> {{ row.percentage2}} </td>
                     <td (click)="onBudgetCellClick(2)" *ngIf="hasBudgetYear2" [className]="(row.budgetPeriodYear2 < 0 ? 'negative' : 'positive')">{{ row.budgetPeriodYear2 | numberAsMoney:numberFormat }} </td>
                     <td (click)="onCellClick(row, accountYear1, i)" [className]="(row.amountPeriodYear1 < 0 ? 'negative' : 'positive')" title="Saldo ved slutten av mnd: {{ row.balance1 || '-' }} "> {{ row.amountPeriodYear1 | numberAsMoney:numberFormat }} </td>
+                    <td (click)="onCellClick(row, accountYear1, i)" *ngIf="filter?.ShowPercent"> {{ row.percentage1}} </td>
                     <td (click)="onBudgetCellClick(1)" *ngIf="hasBudgetYear1" [className]="(row.budgetPeriodYear1 < 0 ? 'negative' : 'positive')">{{ row.budgetPeriodYear1 | numberAsMoney:numberFormat }} </td>
                 </tr>
             </tbody>

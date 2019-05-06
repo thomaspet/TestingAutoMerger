@@ -51,32 +51,31 @@ export enum ElsaContractType {
 }
 
 export interface ElsaProduct {
-    bundles: ElsaBundle[];
-    buttonLabel: string;
-    buttonLink: string;
-    categoryName?: string;
-    description: string;
-    htmlContent?: string;
-    iconBackgroundColor?: string;
-    iconReference?: string;
-    id: number;
-    imageReference?: string;
-    isBundle: boolean;
-    isMonthly: boolean;
-    isPerTransaction: boolean;
-    isPerUser: boolean;
-    label: string;
-    listOfRoles: string;
-    name: string;
-    parentProducts?: string[];
-    price: number;
-    productKey: string;
-    productStatus: ElsaProductStatusCode;
-    productStatusName: string;
-    productType: ElsaProductType;
-    productTypeName: string;
-    tags: string[];
-    subProducts?: ElsaProduct[];
+    ID: number;
+    ButtonLabel: string;
+    ButtonLink: string;
+    CategoryName?: string;
+    Description: string;
+    HtmlContent?: string;
+    IconBackgroundColor?: string;
+    IconReference?: string;
+    ImageReference?: string;
+    IsBundle: boolean;
+    IsMonthly: boolean;
+    IsPerTransaction: boolean;
+    IsPerUser: boolean;
+    Label: string;
+    ListOfRoles: string;
+    Name: string;
+    ParentProducts?: string[];
+    Price: number;
+    ProductKey: string;
+    ProductStatus: ElsaProductStatusCode;
+    ProductStatusName: string;
+    ProductType: ElsaProductType;
+    ProductTypeName: string;
+    Tags: string[];
+    SubProducts?: ElsaProduct[];
 }
 
 export enum ElsaCompanyLicenseStatus {
@@ -119,27 +118,18 @@ export interface ElsaUserLicense {
 }
 
 export interface ElsaUserLicense_deprecated {
-    id: number;
+    ID: number;
     companyLicense?: any;
-    companyLicenseID: number;
-    startDate: Date;
-    endDate?: Date;
-    userLicenseKey: string;
-    userName: string;
-    userIdentity: string;
-    statusCode: number;
-    userLicenseType: number;
-    purchases?: any[];
-    agreementAcceptances?: any;
-}
-
-export interface ElsaBundle {
-    id: number;
-    name: string;
-    created: Date;
-    end: Date;
-    bundlePrice: number;
-    products: ElsaProduct[];
+    CompanyLicenseID: number;
+    StartDate: Date;
+    EndDate?: Date;
+    UserLicenseKey: string;
+    UserName: string;
+    UserIdentity: string;
+    StatusCode: number;
+    UserLicenseType: number;
+    Purchases?: any[];
+    AgreementAcceptances?: any;
 }
 
 export enum ElsaCustomerAccessRole {

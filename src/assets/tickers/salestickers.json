@@ -63,6 +63,25 @@
                 "Field": "Customer.StatusCode",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "Sist endret AvtaleGiro",
+                "Field": "getlatestauditlogtime('Customer',Customer.ID,'AvtaleGiro')",
+                "Alias": "LatestAvtaleGiro",
+                "Type": "datetime",
+                "Format": "DateWithTime",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Påmeldt AvtaleGiro",
+                "Field": "Customer.AvtaleGiro",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            },
+            {
+                "Header": "Beløpsgrense AvtaleGiro",
+                "Field": "Customer.AvtaleGiroAmount",
+                "DefaultHidden": true
             }
         ],
         "Actions": [
@@ -97,6 +116,22 @@
                                 "Value": "20001"
                             }
                         ]
+                    }
+                ]
+            },
+            {
+                "Name": "AvtaleGiro",
+                "Code": "avtalegiro_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "AvtaleGiro",
+                                "Operator": "eq",
+                                "Value": "true"
+                            }
+                        ]    
                     }
                 ]
             },

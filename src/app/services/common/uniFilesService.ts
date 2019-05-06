@@ -23,6 +23,15 @@ export class UniFilesService {
         });
     }
 
+    getEhfData(storageReference: string) {
+        const url = `${this.uniFilesBaseUrl}/api/download?format=json`
+            + `&id=${storageReference}`
+            + `&key=${this.activeCompany.Key}`
+            + `&token=${this.uniEconomyToken}`;
+
+        return this.http.get(url).map(res => res.json());
+    }
+
     public syncUniEconomyCompanySettings() {
         const options = new RequestOptions({
             headers: new Headers({

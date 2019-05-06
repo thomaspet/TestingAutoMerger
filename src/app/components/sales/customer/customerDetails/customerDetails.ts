@@ -47,7 +47,8 @@ import {
     BankAccountService,
     ModulusService,
     JournalEntryLineService,
-    DistributionPlanService
+    DistributionPlanService,
+    PageStateService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -69,6 +70,9 @@ import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
 import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
 import { ReportTypeService } from '@app/services/reports/reportTypeService';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { AvtaleGiroModal } from '../avtalegiro-modal/avtalegiro-modal';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -167,8 +171,6 @@ export class CustomerDetails implements OnInit {
         ]
     };
 
-    private customerStatisticsData: any;
-
     private expandOptions: string[] = [
         'Info',
         'Info.Phones',
@@ -247,7 +249,8 @@ export class CustomerDetails implements OnInit {
         private authService: AuthService,
         private distributionPlanService: DistributionPlanService,
         private navbarLinkService: NavbarLinkService,
-        private reportTypeService: ReportTypeService
+        private reportTypeService: ReportTypeService,
+        private pageStateService: PageStateService
     ) {}
 
     public ngOnInit() {
@@ -261,53 +264,58 @@ export class CustomerDetails implements OnInit {
         ];
 
         this.setupSaveActions();
-        this.route.params.subscribe((params) => {
-            this.customerID = +params['id'];
+        combineLatest(this.route.params, this.route.queryParams)
+            .pipe(map(results => ({params: results[0], query: results[1]})))
+            .subscribe(results => {
+                this.customerID = +results.params['id'];
+                const index = +results.query['tabIndex']  || 0;
 
-            this.commentsConfig = {
-                entityType: 'Customer',
-                entityID: this.customerID
-            };
+                this.commentsConfig = {
+                    entityType: 'Customer',
+                    entityID: this.customerID
+                };
 
-            this.selectConfig = this.numberSeriesService.getSelectConfig(
-                this.customerID, this.numberSeries, 'Customer number series'
-            );
-            this.setup();
+                this.selectConfig = this.numberSeriesService.getSelectConfig(
+                    this.customerID, this.numberSeries, 'Customer number series'
+                );
+                this.setup();
 
-            this.tabs = [
-                {name: 'Detaljer'},
-                {name: 'Åpne poster'},
-                {name: 'Produkter solgt'},
-                {name: 'Dokumenter'},
-                {name: 'Selskap'}
-            ];
-
-            if (!!this.customerID) {
-                // Add check to see if user has access to the TOF-modules before adding the tabs
-                this.navbarLinkService.linkSections$.subscribe(linkSections => {
-                    const mySections = linkSections.filter(sec => sec.name === 'Salg');
-                    if (mySections.length) {
-                        this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
-                            links => {
-                                this.reportLinks = links;
-                                const addLinks = [];
-                                links.forEach((link) => {
-                                    mySections[0].linkGroups.forEach((group) => {
-                                        group.links.forEach( (li) => {
-                                            if (li.name === link.name) {
-                                                addLinks.push(link);
-                                            }
+                if (!!this.customerID) {
+                    // Add check to see if user has access to the TOF-modules before adding the tabs
+                    this.navbarLinkService.linkSections$.subscribe(linkSections => {
+                        const mySections = linkSections.filter(sec => sec.name === 'Salg');
+                        if (mySections.length) {
+                            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                                links => {
+                                    this.reportLinks = links;
+                                    const addLinks = [];
+                                    links.forEach((link) => {
+                                        mySections[0].linkGroups.forEach((group) => {
+                                            group.links.forEach( (li) => {
+                                                if (li.name === link.name) {
+                                                    addLinks.push(link);
+                                                }
+                                            });
                                         });
                                     });
-                                });
 
-                                this.tabs = this.tabs.concat([], ...addLinks);
-                            },
-                            err => this.errorService.handle(err)
-                        );
-                    }
-                });
-            }
+                                    if (this.tabs.length === 5) {
+                                        this.tabs = this.tabs.concat([], ...addLinks);
+                                    }
+                                    this.activeTabIndex = index < this.tabs.length ? index : 0;
+                                },
+                                err => {
+                                    this.errorService.handle(err);
+                                    this.activeTabIndex = index < this.tabs.length ? index : 0;
+                                }
+                            );
+                        } else {
+                            this.activeTabIndex = index < this.tabs.length ? index : 0;
+                        }
+                    });
+                } else {
+                    this.activeTabIndex = index < this.tabs.length ? index : 0;
+                }
         });
     }
 
@@ -428,19 +436,26 @@ export class CustomerDetails implements OnInit {
         });
     }
 
-    private setTabTitle() {
+    public addTab() {
+        this.pageStateService.setPageState('tabIndex', this.activeTabIndex + '');
+
         const customer = this.customer$.getValue();
-        const tabTitle = customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
+        const tabTitle = customer && customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
         this.tabService.addTab({
-            url: '/sales/customer/' + (customer.ID || 0),
+            url: this.pageStateService.getUrl(),
             name: tabTitle,
             active: true,
             moduleID: UniModules.Customers
         });
+    }
 
+    private setTabTitle() {
+        const customer = this.customer$.getValue();
         this.toolbarconfig.title = customer.ID
             ? [customer.CustomerNumber, customer.Info.Name].join(' - ')
             : 'Ny kunde';
+
+        this.showTab();
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
@@ -484,16 +499,19 @@ export class CustomerDetails implements OnInit {
         });
     }
 
-    public showTab(index: number) {
-        this.activeTabIndex = index;
+    public showTab() {
+        const tab = this.tabs[this.activeTabIndex];
 
-        const tab = this.tabs[index];
+        if (!tab) {
+            return;
+        }
         this.showReportWithID = tab['id'];
-
 
         if (tab.name === 'Selskap') {
             this.subCompany.activate();
         }
+
+        this.addTab();
     }
 
     public setup() {
@@ -1520,10 +1538,41 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.TEXT,
                     Label: 'Factoring kundenr.',
                     FieldSet: 8,
-                    Legend: 'Factoring',
-                    Sectionheader: 'Factoring',
+                    Legend: 'Avtaler faktura',
                     Section: 0,
                     Hidden: false
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'AvtaleGiro',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Påmeldt AvtaleGiro',
+                    FieldSet: 8,
+                    Legend: 'Avtaler faktura',
+                    Section: 0,
+                    Tooltip: {
+                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at distribusjonsplanen for faktura (enten på Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ distribusjon som prioritet 2. Da vil alle repeterende faktura distribueres som AvtaleGiro og alle andre fakturaer distribueres med distribusjonsvalg i prioritet 2'
+                    }
+                },
+                {
+                    EntityType: 'Customer',
+                    FieldType: FieldType.BUTTON,
+                    FieldSet: 8,
+                    Legend: 'Avtaler faktura',
+                    Section: 0,
+                    Label: 'Detaljer',
+                    Options: {
+                        click: () => this.openAvtaleGiroModal(),
+                    }
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'AvtaleGiroAmount',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Beløpsgrense AvtaleGiro',
+                    FieldSet: 8,
+                    Legend: 'Avtaler faktura',
+                    Section: 0
                 }
             ]
         };
@@ -1553,6 +1602,11 @@ export class CustomerDetails implements OnInit {
 
         return layout;
 
+    }
+
+    public openAvtaleGiroModal() {
+        const customer = this.customer$.value;
+        this.modalService.open(AvtaleGiroModal, { data: customer.ID });
     }
 
 }
