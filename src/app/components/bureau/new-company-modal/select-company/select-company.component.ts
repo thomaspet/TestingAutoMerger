@@ -46,6 +46,11 @@ export class SelectCompanyComponent {
             city: new FormControl(this.companyInfo.companySettings.DefaultAddress.City),
         });
 
+        if (this.companyInfo && this.companyInfo.isTemplate) {
+            this.formGroup.disable();
+            this.formGroup.controls['companyName'].enable();
+        }
+
         this.formGroup.valueChanges.subscribe(value => {
             this.companyInfo.companySettings.CompanyName = value.companyName;
             this.companyInfo.companySettings.OrganizationNumber = value.orgNumber;
