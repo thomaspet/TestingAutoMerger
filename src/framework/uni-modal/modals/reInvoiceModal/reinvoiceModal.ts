@@ -703,10 +703,6 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     onReinvoiceTypeChange(change: MatRadioChange) {
         this.reinvoiceType = change.value;
         this.hasChanges = true;
-        if (this.reinvoiceType === 1 && !this.isSupplierInvoiceJournaled()) {
-            this.toastr.addToast('', ToastType.warn, 10, 'Leverandørfakturaen må bokføres før du kan velge Viderefakturering, omsetning');
-        }
-
         let product;
         if (this.reinvoiceType === 0) {
             this.removeSurchargeAndVat();
