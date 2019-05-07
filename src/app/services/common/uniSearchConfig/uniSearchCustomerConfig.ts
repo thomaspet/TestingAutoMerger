@@ -260,6 +260,8 @@ export class UniSearchCustomerConfig {
         customer.Info = new BusinessRelation();
         customer.Info.Name = statObj.Name;
         customer.Info.Addresses = [];
+        customer.Info.Phones = [];
+        customer.Info.Emails = [];
 
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
 
@@ -277,12 +279,14 @@ export class UniSearchCustomerConfig {
             const phone = new Phone();
             phone.Number = statObj.PhoneNumber;
             customer.Info.DefaultPhone = phone;
+            customer.Info.Phones.push(phone);
         }
 
         if (statObj.EmailAddress) {
             const mail = new Email();
             mail.EmailAddress = statObj.EmailAddress;
             customer.Info.DefaultEmail = mail;
+            customer.Info.Emails.push(mail);
         }
 
         return customer;
