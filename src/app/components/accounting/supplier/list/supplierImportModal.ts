@@ -93,7 +93,7 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
     public import() {
         this.loading$.next(true);
         this.uploadFile(this.file).subscribe((res) => {
-            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/ ${res._publictoken}`;
+            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
             this.jobService.startJob('SupplierImportJob', 0, {Url:fileURL, CompanyKey:this.activeCompany.Key, CompanyName: this.companyName}).subscribe(
                 res => {
                     this.loading$.complete();
