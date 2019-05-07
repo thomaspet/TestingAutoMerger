@@ -86,6 +86,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                 employeeTaxCard.loennFraBiarbeidsgiver.Percent = employeeTaxCard.loennFraBiarbeidsgiver.Percent || 0;
             }
             if (!!employeeTaxCard.pensjon) {
+                if (!employeeTaxCard.pensjonID) {
+                    employeeTaxCard.pensjon._createguid = super.getNewGuid();
+                }
                 employeeTaxCard.pensjon.Percent = employeeTaxCard.pensjon.Percent || 0;
             }
             if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger) {
