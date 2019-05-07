@@ -30,9 +30,10 @@
             <a *ngIf="files.length > 1 || currentFile.Pages > 1"
                 class="prev"
                 (click)="previous()">
+                <i class="material-icons">keyboard_arrow_left</i>
             </a>
 
-            {{currentFile.Name}}
+            <span class="file-name">{{currentFile.Name}}</span>
             <span *ngIf="currentFile.Pages > 1">
                 ({{currentPage}}/{{currentFile.Pages}})
             </span>
@@ -70,6 +71,7 @@
             <a *ngIf="files.length > 1 || currentFile.Pages > 1"
                 class="next"
                 (click)="next()">
+                <i class="material-icons">keyboard_arrow_right</i>
             </a>
         </section>
 

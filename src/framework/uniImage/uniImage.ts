@@ -422,7 +422,7 @@ export class UniImage {
                                 }
 
                                 this.checkFileStatusAndLoadImage(
-                                    splitFileResult.FirstPart
+                                    splitResultUE.FirstPart
                                 );
                             },
                             err => this.errorService.handle(err)
@@ -662,7 +662,7 @@ export class UniImage {
 
                         // check filestatus and load file/image when Uni Files is done
                         // processing it
-                        this.checkFileStatusAndLoadImage(res);
+                        this.checkFileStatusAndLoadImage(newFile);
 
                     }, err => this.errorService.handle(err));
             }, err => {
