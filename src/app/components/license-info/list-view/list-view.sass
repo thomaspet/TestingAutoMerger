@@ -17,8 +17,6 @@
         flex: 1
         .list-row
             border-bottom: 1px solid rgba(0, 0, 0, .12)
-            // &:last-of-type
-            //     border: none
 
     .list-row
         display: flex
@@ -27,11 +25,18 @@
         background: #fff
         padding: 0 1.5rem
 
-        > span
+        > .cell
             overflow: hidden
             text-overflow: ellipsis
             white-space: nowrap
-            & + span
+
+            &.clickable
+                color: #1565C0
+                cursor: pointer
+                &:hover
+                    text-decoration: underline
+
+            & + .cell
                 margin-left: 2rem
 
         &.header-row

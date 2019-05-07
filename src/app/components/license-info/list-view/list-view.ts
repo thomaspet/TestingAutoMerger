@@ -1,23 +1,32 @@
 import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
+import {NumberFormat} from '@app/services/services';
 
 import PerfectScrollbar from 'perfect-scrollbar';
 import {get} from 'lodash';
-import {NumberFormat} from '@app/services/services';
+
+export interface ListViewColumn {
+    header: string;
+    field: string;
+    numberFormat?: string;
+    flex?: string;
+    click?: (row) => void;
+    conditionalCls?: (row) => string;
+}
 
 @Pipe({name: 'cellValue'})
 export class CellValuePipe implements PipeTransform {
     constructor(private numberFormatter: NumberFormat) {}
 
-    transform(row: any, column: {header: string; field: string; format: string; }) {
+    transform(row: any, column: ListViewColumn) {
         const value = get(row, column.field, '');
 
-        if (column.format === 'money') {
+        if (column.numberFormat === 'money') {
             const numeric = parseInt(value, 10);
             if (numeric >= 0) {
                 return this.numberFormatter.asMoney(value) || '0';
             }
-        } else if (column.format === 'percent') {
+        } else if (column.numberFormat === 'percent') {
             if (value && value !== '0') {
                 return value + '%';
             }
@@ -38,14 +47,9 @@ export class ListView {
 
     @Input() orderBy: string;
     @Input() rows: any[];
-    @Input() columns: {
-        header: string;
-        field: string;
-        format?: string;
-        flex?: string;
-    }[];
+    @Input() columns: ListViewColumn[];
 
-    @Output() rowClick: EventEmitter<any> = new EventEmitter();
+    @Output() rowClick = new EventEmitter();
 
     scrollbar: PerfectScrollbar;
     sortedData: any[];
@@ -79,5 +83,27 @@ export class ListView {
         if (this.scrollbar) {
             this.scrollbar.destroy();
         }
+    }
+
+    onColumnClick(column: ListViewColumn, row) {
+        if (column.click) {
+            column.click(row);
+        }
+    }
+
+    getClass(column: ListViewColumn, row) {
+        const classList = [];
+        if (column.numberFormat) {
+            classList.push('align-right');
+        }
+
+        if (column.conditionalCls) {
+            const cls = column.conditionalCls(row);
+            if (cls) {
+                classList.push(cls);
+            }
+        }
+
+        return classList.join(' ');
     }
 }

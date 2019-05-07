@@ -8,8 +8,9 @@
 
 <cdk-virtual-scroll-viewport itemSize="50" class="list-body" #listBody>
     <section class="list-row" *cdkVirtualFor="let row of rows; templateCacheSize: 100" (click)="rowClick.emit(row)">
-        <span *ngFor="let column of columns"
-            [ngClass]="{'align-right': !!column.format}"
+        <span class="cell" *ngFor="let column of columns"
+            (click)="onColumnClick(column, row)"
+            [ngClass]="getClass(column, row)"
             [ngStyle]="{'flex': column.flex || 1}">
             {{row | cellValue: column}}
         </span>

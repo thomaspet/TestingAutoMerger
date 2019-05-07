@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {BillingData} from '../billing';
+import {ListViewColumn} from '../../list-view/list-view';
 
 @Component({
     selector: 'cost-per-user',
@@ -13,17 +14,17 @@ export class CostPerUser {
     selectedUser: any;
     detailsVisible: boolean;
 
-    userListColumns = [
+    userListColumns: ListViewColumn[] = [
         {header: 'Bruker', field: 'user'},
-        {header: 'Totalsum', field: 'sum', format: 'money'}
+        {header: 'Totalsum', field: 'sum', numberFormat: 'money'}
     ];
 
-    productListColumns = [
+    productListColumns: ListViewColumn[] = [
         {header: 'Produkt', field: 'productName'},
-        {header: 'Pris', field: 'price', format: 'money'},
-        {header: 'Dager', field: 'days', format: 'number'},
-        {header: 'Rabatt', field: 'discount', format: 'percent', flex: '0 0 3rem'},
-        {header: 'Sum', field: 'sum', format: 'money'}
+        {header: 'Pris', field: 'price', numberFormat: 'money'},
+        {header: 'Dager', field: 'days', numberFormat: 'number'},
+        {header: 'Rabatt', field: 'discount', numberFormat: 'percent', flex: '0 0 3rem'},
+        {header: 'Sum', field: 'sum', numberFormat: 'money'}
     ];
 
     ngOnChanges() {

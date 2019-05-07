@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
+import {ListViewColumn} from '../list-view/list-view';
 
 export interface BillingDataItem {
     ProductID: number;
@@ -42,14 +43,14 @@ export class Billing {
     detailsVisible: boolean;
     hasPermission: boolean;
 
-    columns = [
+    columns: ListViewColumn[] = [
         {header: 'Varenr', field: 'ProductID'},
         {header: 'Varenavn', field: 'ProductName', flex: '2'},
-        {header: 'Antall', field: 'Amount', format: 'number'},
+        {header: 'Antall', field: 'Amount', numberFormat: 'number'},
         {header: 'Enhet', field: 'Unit', flex: '0 0 6rem'},
-        {header: 'Pris', field: 'Price', format: 'money'},
-        {header: 'Rabatt', field: 'DiscountPrc', format: 'percent', flex: '0 0 5rem'},
-        {header: 'Sum', field: 'Sum', format: 'money'},
+        {header: 'Pris', field: 'Price', numberFormat: 'money'},
+        {header: 'Rabatt', field: 'DiscountPrc', numberFormat: 'percent', flex: '0 0 5rem'},
+        {header: 'Sum', field: 'Sum', numberFormat: 'money'},
     ];
 
     constructor(
