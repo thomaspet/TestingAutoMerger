@@ -488,6 +488,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/timetracking/workprofiles',
                         moduleID: UniModules.WorkProfiles
                     },
+                    {
+                        name: 'Administrer fridager',
+                        url: '/timetracking/worktimeoff',
+                        moduleID: UniModules.WorkProfiles
+                    },
                 ]
             }
         ]

@@ -162,8 +162,6 @@ export class Teams {
             return event.rowModel;
         }
 
-        debugger
-
         this.hasUnsavedChanges = true;
         this.updateSaveActions();
 

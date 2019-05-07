@@ -166,3 +166,158 @@ tr.sum td
 
     &:hover,&:focus,&:active
         background-color: darken($uni-color-good, 5%)
+
+.time-off-section
+    .timesheet-list
+        flex: 1
+        min-width: 20rem
+        background-color: white
+        padding: 1rem
+        ul
+            list-style: none
+            height: 60vh
+            overflow: auto
+            position: relative // required for scroll to work properly
+
+            li
+                height: 35px
+                display: flex
+                align-content: center
+                align-items: center
+                padding: 0 1.3rem
+                border-bottom: 1px solid $uni-color-scale9
+                font-size: .9rem
+
+                &:last-of-type
+                    border-bottom: none
+
+                &:hover
+                    background-color: #f3f3f3
+                    cursor: pointer
+
+                &.selected
+                    background-color: #D5EEF6 !important
+
+                &.timeofftoday
+                    background-color: #f3f4f9
+
+                &.isWeekEnd
+                    border-bottom: 2px solid $uni-color-scale6
+
+                &.isDayOff
+                    background-color: rgba(123, 203, 69, .7)
+
+                i
+                    vertical-align: middle
+                    font-size: .8rem
+                    color: $uni-color-good
+
+        .timeoff-month-header
+            height: 35px
+            background-color: #638ab2
+            color: white
+            display: flex
+            align-items: center
+            justify-content: center
+
+            i
+                cursor: pointer
+            span
+                flex: 1
+                text-align: center
+
+
+    .timeoff_year_view
+        display: flex
+        flex-wrap: wrap
+        justify-content: space-between
+        padding: 3.5rem 2rem 2rem 2rem
+        font-size: .9rem
+
+        .timeoff_year_view_month
+            width: 24%
+            margin-bottom: 1rem
+
+            div
+                height: 24px
+                background-color: #638ab2
+                color: white
+                display: flex
+                align-items: center
+                justify-content: center
+
+            table
+                text-align: center
+                width: 100%
+                border-collapse: collapse
+                table-layout: fixed
+
+                tbody
+                    tr
+                        &:nth-child(odd)
+                            background-color: #f3f4f9
+                        td
+                            position: relative
+                            &:hover
+                                cursor: pointer
+                            &.isDayOff
+                                background-color: rgba(123, 203, 69, .7)
+                            &.isSunday
+                                color: red
+
+                            i
+                                font-size: .8rem
+                                position: absolute
+                                right: 2px
+                                top: .5rem
+                                color: darkgreen
+
+    .timeoff-month-table
+        width: 100%
+        text-align: center
+        table-layout: fixed
+        tbody
+            tr
+                height: 2.2rem
+                td
+                    position: relative
+                    &:hover
+                        cursor: pointer
+                    &.isSunday
+                        color: red
+                    &.isDayOff
+                        background-color: rgba(123, 203, 69, .7)
+                    &.isToday
+                        font-weight: bold
+                        color: $uni-color-good
+                    &.selected
+                        background-color: #E2E6F0
+                        border-radius: 2%
+
+
+
+
+.year-navigation
+    display: flex
+    margin-top: 1.5rem
+    justify-content: center
+    span
+        font-size: .7rem
+        cursor: pointer
+
+        &:last-of-type
+            margin-left: 1rem
+        &.yearselected
+            font-size: 1.8rem
+
+.time-off-edit-container
+    div
+        align-items: center
+        margin-bottom: 1rem
+
+        label
+            width: 7rem
+
+        small
+            margin-left: 1rem
+            cursor: pointer

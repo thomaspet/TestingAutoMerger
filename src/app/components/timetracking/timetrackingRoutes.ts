@@ -9,6 +9,8 @@ import {WorktypeDetailview} from './worktype/worktype';
 import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorkprofileDetailview} from './workprofile/workprofile';
 
+import {UniWorkTimeOff} from './timeoff/timeoff';
+
 import {TimeEntry} from './timeentry/timeentry';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
@@ -56,6 +58,11 @@ export const timetrackingRoutes: Routes = [
     {
         path: 'invoice-hours',
         component: InvoiceHours,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'worktimeoff',
+        component: UniWorkTimeOff,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

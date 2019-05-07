@@ -21,6 +21,9 @@ import {WorkprofileDetailview} from './workprofile/workprofile';
 import {WorkprofileListview} from './workprofile/workprofiles';
 import {WorktypeDetailview} from './worktype/worktype';
 import {WorktypeListview} from './worktype/worktypes';
+import {UniWorkTimeOff} from './timeoff/timeoff';
+import {UniTimeOffEdit} from './timeoff/timeoffEdit';
+import {UniTimeEditModal} from './timeoff/timeEditModal';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {SideMenu} from './sidemenu/sidemenu';
@@ -35,7 +38,7 @@ import {WidgetModule} from '../widgets/widgetModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 import {MatSelectModule} from '@angular/material';
-import {MatMenuModule} from '@angular/material';
+import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -46,6 +49,8 @@ import {MatMenuModule} from '@angular/material';
         AppPipesModule,
         MatSelectModule,
         MatMenuModule,
+        MatDatepickerModule,
+        MatProgressBarModule,
 
         RouterModule.forChild(timetrackingRoutes),
 
@@ -68,6 +73,9 @@ import {MatMenuModule} from '@angular/material';
         WorkprofileListview,
         WorktypeDetailview,
         WorktypeListview,
+        UniWorkTimeOff,
+        UniTimeOffEdit,
+        UniTimeEditModal,
         VacationView,
         WorkBalancesView,
         SideMenu,
@@ -88,7 +96,8 @@ import {MatMenuModule} from '@angular/material';
         UniTemplateModal,
         TimetrackingDashboard,
         TimeApproveModal,
-        UniApproveTaskModal
+        UniApproveTaskModal,
+        UniTimeEditModal
     ]
 })
 export class TimetrackingModule {}
