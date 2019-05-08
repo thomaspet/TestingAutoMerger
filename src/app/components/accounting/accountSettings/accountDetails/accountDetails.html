@@ -5,6 +5,12 @@
         [model]="account$ | async"
         (changeEvent)="onChange($event)">
     </uni-form>
+    <uni-form
+        [config]="dimensionsConfig$ | async"
+        [fields]="dimensionsFields$ | async"
+        [model]="dimensions$ | async"
+        (changeEvent)="onDimensionsChange($event)"
+    ></uni-form>
 </div>
 <div *ngIf="!(account$ | async)">
     Velg en konto i tabellen til venstre for å vise detaljer om kontoen

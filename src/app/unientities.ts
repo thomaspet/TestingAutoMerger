@@ -943,6 +943,8 @@ export class Customer extends UniEntity {
     public _createguid: string;
     public AcceptableDelta4CustomerPayment: number;
     public AcceptableDelta4CustomerPaymentAccountID: number;
+    public AvtaleGiro: boolean;
+    public AvtaleGiroAmount: number;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3818,6 +3820,8 @@ export class CompanySettings extends UniEntity {
     public HideInActiveCustomers: boolean;
     public HideInActiveSuppliers: boolean;
     public ID: number;
+    public InterrimPaymentAccountID: number;
+    public InterrimRemitAccountID: number;
     public Localization: string;
     public LogoAlign: number;
     public LogoFileID: number;
@@ -5310,6 +5314,25 @@ export class ProcessFileLog extends UniEntity {
 }
 
 
+export class AccountManatoryDimension extends UniEntity {
+    public static RelativeUrl = 'accountmanatorydimension';
+    public static EntityType = 'AccountManatoryDimension';
+
+    public _createguid: string;
+    public AccountID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionNo: number;
+    public ID: number;
+    public ManatoryType: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class AccrualPeriod extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccrualPeriod';
@@ -5799,6 +5822,7 @@ export class Payment extends UniEntity {
     public PaymentDate: LocalDate;
     public PaymentID: string;
     public PaymentNotificationReportFileID: number;
+    public PaymentStatusReportFileID: number;
     public ReconcilePayment: boolean;
     public SerialNumberOrAcctSvcrRef: string;
     public StatusCode: number;
@@ -6290,6 +6314,7 @@ export class Account extends UniEntity {
     public Employee: Employee;
     public Dimensions: Dimensions;
     public Alias: Array<AccountAlias>;
+    public ManatoryDimensions: Array<AccountManatoryDimension>;
     public CompatibleAccountGroups: Array<AccountGroup>;
     public SubAccounts: Array<Account>;
     public UseVatDeductionGroup: VatDeductionGroup;
@@ -7243,6 +7268,7 @@ export class Forskuddstrekk extends UniEntity {
 
 
 export class TaxCardReadStatus extends UniEntity {
+    public IsJob: boolean;
     public mainStatus: string;
     public Text: string;
     public Title: string;
