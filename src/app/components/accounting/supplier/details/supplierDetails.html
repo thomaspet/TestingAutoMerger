@@ -58,7 +58,8 @@
     <section *ngIf="showReportWithID" class="uni-container">
         <uni-query-read-only
             [queryDefinitionID]="showReportWithID"
-            [externalID]="(supplier$|async)?.ID">
+            [filterValue]="(supplier$ | async)?.ID"
+            [supplierID]="(supplier$ | async)?.ID">
         </uni-query-read-only>
     </section>
 

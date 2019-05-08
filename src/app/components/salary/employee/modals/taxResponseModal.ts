@@ -44,7 +44,7 @@ export class TaxResponseModal implements OnInit, IUniModal {
                     Text: '',
                     Title: 'Feil fra Altinn',
                     employeestatus: [],
-                    IsJob: false
+                    IsJob: false,
                 }))
             .do(() => {
                 const config = this.options.modalConfig;

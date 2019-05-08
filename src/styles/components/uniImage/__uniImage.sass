@@ -68,13 +68,19 @@ uni-image
                     color: #0f4880
 
     .uni-image-pager
+        display: flex
+        align-items: center
+        justify-content: center
         width: 100%
-        font: 400 15px 'Roboto', sans-serif
         height: 2.5rem
-        line-height: 2.5rem
-        background: transparentize(#000, 0.5)
-        text-align: center
+        font: 400 15px 'Roboto', sans-serif
         color: $uni-color-negative
+        background: rgba(0, 0, 0, 0.5)
+        
+        .file-name
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
 
         i.material-icons
             cursor: pointer
@@ -85,25 +91,10 @@ uni-image
 
         .print
             margin-left: 5px
-
-        .prev, .next
-            cursor: pointer
-            &:before
-                height: 2.5rem
-                width: 2rem
-                display: block
-                content: ''
-                background: unicon-chevron-right($uni-color-negative) center center no-repeat
-                background-size: .35rem
-
-            &:hover:before
-                background-size: .45rem
-
         .prev
-            float: left
-            transform: rotate(180deg)
+            margin-right: auto
         .next
-            float: right
+            margin-left: auto
 
 uni-modal .uni-thumbnail-list
     position: static
