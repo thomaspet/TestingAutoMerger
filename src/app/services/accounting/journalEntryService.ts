@@ -491,6 +491,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         const amount: number = journalEntryData.Amount;
         const amountCurrency: number = journalEntryData.AmountCurrency;
 
+        if (journalEntryData.Dimensions) {
+            delete journalEntryData.Dimensions.ID;
+        }
+
         if (hasDebitAccount) {
             const debitAccount = journalEntryData.DebitAccount;
             const debitVatType = journalEntryData.DebitVatTypeID ? journalEntryData.DebitVatType : null;
