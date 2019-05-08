@@ -100,8 +100,7 @@
         <uni-query-read-only
             [queryDefinitionID]="showReportWithID"
             [customerID]="(customer$ | async)?.ID"
-            [externalID]="(customer$ | async)?.ID"
-            [projectID]="(customer$ | async)?.Dimensions?.ProjectID || 0">
+            [filterValue]="(customer$ | async)?.ID">
         </uni-query-read-only>
     </section>
 
