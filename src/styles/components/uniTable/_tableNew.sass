@@ -12,10 +12,14 @@ ag-grid-wrapper
         overflow: hidden
 
     .row-count
-        position: absolute
-        bottom: 5px
-        left: 5px
         display: flex
+        &.absolute
+            position: absolute
+            bottom: 5px
+            left: 5px
+
+        span + span
+            margin-left: 2rem
 
     &.small-text .uni-ag-wrapper
         font-size: 14px
