@@ -1,7 +1,10 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {FileExtended} from '../../uniImage';
 import {DomSanitizer} from '@angular/platform-browser';
+import {saveAs} from 'file-saver';
 import printJS from 'print-js';
+
+import {FileExtended} from '../../uniImage';
+import {FileService} from '@app/services/services';
 
 @Component({
     selector: 'ehf-viewer',
@@ -14,7 +17,10 @@ export class EHFViewer {
 
     attachmentData: any;
 
-    constructor(private domSanitizer: DomSanitizer) {}
+    constructor(
+        private domSanitizer: DomSanitizer,
+        private fileService: FileService
+    ) {}
 
     showAttachment(attachment) {
         this.attachmentData = undefined;
@@ -31,7 +37,7 @@ export class EHFViewer {
         if (this.attachmentData && this.attachmentData.url) {
             const type = (this.attachmentData.mimeType || '').includes('image')
                 ? 'image' : 'pdf';
-            
+
             printJS({
                 printable: this.attachmentData.printUrl,
                 type: type
@@ -39,6 +45,14 @@ export class EHFViewer {
         } else {
             this.printEHF();
         }
+    }
+
+    downloadSource() {
+        this.fileService
+            .downloadFile(this.file.ID, 'application/xml')
+            .subscribe((blob) => {
+                saveAs(blob, this.file.Name + '.xml');
+            });
     }
 
     private printEHF() {
