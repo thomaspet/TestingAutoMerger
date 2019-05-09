@@ -6,7 +6,6 @@
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Salg",
-        "DefaultTabIndex": "1",
         "Model": "Customer",
         "Expand": "Dimensions, Dimensions.Project",
         "Columns": [
@@ -104,22 +103,6 @@
         "SubTickersCodes": ["customer_details", "contact_list", "customer_invoice_list", "customer_order_list", "customer_quote_list"],
         "Filters": [
             {
-                "Name": "Lead",
-                "Code": "lead_customers",
-                "UseAllCriterias": true,
-                "FilterGroups": [
-                    {
-                        "FieldFilters": [
-                            {
-                                "Field": "StatusCode",
-                                "Operator": "eq",
-                                "Value": "20001"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
                 "Name": "Aktiv",
                 "Code": "active_customers",
                 "UseAllCriterias": true,
@@ -152,18 +135,18 @@
                 ]
             },
             {
-                "Name": "AvtaleGiro",
-                "Code": "avtalegiro_customers",
+                "Name": "Lead",
+                "Code": "lead_customers",
                 "UseAllCriterias": true,
                 "FilterGroups": [
                     {
                         "FieldFilters": [
                             {
-                                "Field": "AvtaleGiro",
+                                "Field": "StatusCode",
                                 "Operator": "eq",
-                                "Value": "true"
+                                "Value": "20001"
                             }
-                        ]    
+                        ]
                     }
                 ]
             },
