@@ -11,6 +11,8 @@
         "Columns": [{
                 "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
+                "Type": "link",
+                "LinkNavigationProperty": "ID",
                 "Width": "5rem",
                 "FilterOperator": "startswith"
             },
@@ -43,13 +45,11 @@
             },
             {
                 "Header": "E-post",
-                "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress",
-                "DefaultHidden": true
+                "Field": "BusinessRelationInfo.DefaultEmail.EmailAddress"
             },
             {
                 "Header": "Telefon",
-                "Field": "BusinessRelationInfo.DefaultPhone.Number",
-                "DefaultHidden": true
+                "Field": "BusinessRelationInfo.DefaultPhone.Number"
             }
         ],
         "Actions": [{
@@ -57,7 +57,8 @@
                 "Code": "new_employee",
                 "ExecuteWithoutSelection": true,
                 "Type": "new",
-                "DisplayForSubTickers": false
+                "DisplayForSubTickers": false,
+                "DisplayInActionBar": false
             },
             {
                 "Name": "Åpne ansatt",
