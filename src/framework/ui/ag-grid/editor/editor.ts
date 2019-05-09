@@ -357,6 +357,22 @@ export class TableEditor {
                     this.close();
                 }
             break;
+            case KeyCodes.HOME:
+                if (this.canMoveLeft(inputElement)) {
+                    const colIndex = this.getNextEditableCellIndex(0, this.currentRow);
+                    if (colIndex >= 0) {
+                        this.activate(this.currentRowIndex, colIndex);
+                    }
+                }
+            break;
+            case KeyCodes.END:
+                if (this.canMoveRight(inputElement)) {
+                    const colIndex = this.getPrevEditableCellIndex(this.visibleColumns.length - 1, this.currentRow);
+                    if (colIndex >= 0) {
+                        this.activate(this.currentRowIndex, colIndex);
+                    }
+                }
+            break;
         }
     }
 
