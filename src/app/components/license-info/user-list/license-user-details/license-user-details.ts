@@ -1,7 +1,8 @@
 import {Component, HostListener, EventEmitter, Input, Output} from '@angular/core';
-import {ElsaUserLicense, ElsaCompanyLicenseStatus} from '@app/models';
+import {ElsaUserLicense, ElsaCompanyLicense} from '@app/models';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
+import * as moment from 'moment';
 
 @Component({
     selector: 'license-user-details',
@@ -13,7 +14,7 @@ export class UserDetails {
     @Output() close = new EventEmitter();
 
     columns = [{ header: 'Selskap', field: 'companyName' }];
-    companies: any[]; // type me
+    companies: ElsaCompanyLicense[];
 
     constructor(
         private authService: AuthService,
@@ -31,7 +32,11 @@ export class UserDetails {
                 .subscribe(
                     res => {
                         const companies = (res && res.json()) || [];
-                        this.companies = companies.filter(c => c.statusCode === ElsaCompanyLicenseStatus.Active);
+                        this.companies = companies
+                            .filter(company => {
+                                return !moment(company.EndDate).isValid()
+                                    ||  moment(company.EndDate).isAfter(moment(new Date()));
+                            });
                     },
                     err => console.error(err)
                 );

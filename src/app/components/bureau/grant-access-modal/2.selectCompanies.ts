@@ -1,8 +1,9 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {ElsaContractService} from '@app/services/elsa/elsaContractService';
-import {ElsaCompanyLicense, ElsaCompanyLicenseStatus} from '@app/models';
+import {ElsaCompanyLicense} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
+import * as moment from 'moment';
 
 @Component({
     selector: 'select-companies-for-bulk-access',
@@ -30,7 +31,8 @@ export class SelectCompaniesForBulkAccess {
         this.elsaContractService.getCompanyLicenses(this.data.contract.ID).subscribe(
             companyLicenses => {
                 companyLicenses = companyLicenses.filter(companyLicense => {
-                    return companyLicense.StatusCode === ElsaCompanyLicenseStatus.Active;
+                    return !moment(companyLicense.EndDate).isValid()
+                        ||  moment(companyLicense.EndDate).isAfter(moment(new Date()));
                 });
 
                 if (this.data.companies && this.data.companies.length) {
