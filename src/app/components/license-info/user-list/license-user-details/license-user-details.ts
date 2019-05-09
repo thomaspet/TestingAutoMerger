@@ -1,7 +1,8 @@
 import {Component, HostListener, EventEmitter, Input, Output} from '@angular/core';
-import {ElsaUserLicense, ElsaCompanyLicenseStatus, ElsaCompanyLicense} from '@app/models';
+import {ElsaUserLicense, ElsaCompanyLicense} from '@app/models';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
+import * as moment from 'moment';
 
 @Component({
     selector: 'license-user-details',
@@ -30,8 +31,12 @@ export class UserDetails {
                 .send()
                 .subscribe(
                     res => {
-                        const companies: ElsaCompanyLicense[] = (res && res.json()) || [];
-                        this.companies = companies.filter(c => c.StatusCode === ElsaCompanyLicenseStatus.Active);
+                        const companies = (res && res.json()) || [];
+                        this.companies = companies
+                            .filter(company => {
+                                return !moment(company.EndDate).isValid()
+                                    ||  moment(company.EndDate).isAfter(moment(new Date()));
+                            });
                     },
                     err => console.error(err)
                 );
