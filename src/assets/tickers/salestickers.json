@@ -120,22 +120,6 @@
                 ]
             },
             {
-                "Name": "AvtaleGiro",
-                "Code": "avtalegiro_customers",
-                "UseAllCriterias": true,
-                "FilterGroups": [
-                    {
-                        "FieldFilters": [
-                            {
-                                "Field": "AvtaleGiro",
-                                "Operator": "eq",
-                                "Value": "true"
-                            }
-                        ]    
-                    }
-                ]
-            },
-            {
                 "Name": "Aktiv",
                 "Code": "active_customers",
                 "UseAllCriterias": true,
@@ -164,6 +148,22 @@
                                 "Value": "50001"
                             }
                         ]
+                    }
+                ]
+            },
+            {
+                "Name": "AvtaleGiro",
+                "Code": "avtalegiro_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "AvtaleGiro",
+                                "Operator": "eq",
+                                "Value": "true"
+                            }
+                        ]    
                     }
                 ]
             },
