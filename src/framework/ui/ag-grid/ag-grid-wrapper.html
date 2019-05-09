@@ -22,11 +22,6 @@
         Åpne/lukk alle grupper
     </span>
 
-    <section class="row-count" >
-        <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
-        <span *ngIf="config?.multiRowSelect" style="margin-left: 2rem">Antall markerte rader: {{ markedRowCount }}</span>
-    </section>
-
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"
         [config]="config"
@@ -94,6 +89,11 @@
         [frameworkComponents]="cellRendererComponents"
         [groupRowAggNodes]="aggregator">
     </ag-grid-angular>
+
+    <section class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
+        <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
+        <span *ngIf="config?.multiRowSelect">Antall markerte rader: {{ markedRowCount }}</span>
+    </section>
 </section>
 
 <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.isGroupingTicker">
