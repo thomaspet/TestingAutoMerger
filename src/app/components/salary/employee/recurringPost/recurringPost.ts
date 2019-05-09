@@ -129,10 +129,9 @@ export class RecurringPost extends UniView {
             .setTemplate((rowModel) => {
                 let employment = rowModel['_Employment'];
 
-                if (rowModel['EmploymentID']) {
+
+                if (!employment && rowModel['EmploymentID']) {
                     employment = this.employments.find(emp => emp.ID === rowModel.EmploymentID);
-                } else {
-                    return '';
                 }
 
                 return (employment) ? employment.ID + ' - ' + employment.JobName : '';
@@ -279,6 +278,10 @@ export class RecurringPost extends UniView {
 
                 if (event.field === '_Department') {
                     this.mapDepartmentToTrans(row);
+                }
+
+                if (event.field === '_Employment') {
+                    this.mapEmploymentToTrans(row);
                 }
 
                 let obs = null;
