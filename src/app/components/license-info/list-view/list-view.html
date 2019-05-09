@@ -1,6 +1,6 @@
 <section class="list-row header-row">
-    <span *ngFor="let column of columns"
-        [ngClass]="{'align-right': !!column.format}"
+    <span class="cell" *ngFor="let column of columns"
+        [ngClass]="{'align-right': !!column.numberFormat}"
         [ngStyle]="{'flex': column.flex || 1}">
         {{column.header}}
     </span>
