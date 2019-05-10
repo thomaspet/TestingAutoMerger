@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
     <link rel="stylesheet" href="./assets/ehf-viewer.css">
-    <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
+    <script src="./assets/pdfjs/pdf.js"></script>
 
     <style>
         body {
@@ -130,7 +130,7 @@
     const showPdf = (canvas, url) => {
         pdfjsLib.getDocument({url: url}).promise.then(
             function(pdf) {
-                pdf.getPage(1).then(function(page) {            
+                pdf.getPage(1).then(function(page) {
                     var scale = 1.5;
                     var viewport = page.getViewport({scale: scale});
 
@@ -142,7 +142,7 @@
                         viewport: viewport
                     });
                 });
-            }, 
+            },
             function (err) {
                 console.error(err);
             }
@@ -201,7 +201,7 @@
 
     window.onload = function() {
         var pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//${window.location.host}/assets/pdfjs/pdf.worker.js`;
 
         const zoom = localStorage.getItem('fileviewer-zoom');
         if (zoom && parseInt(zoom)) {
