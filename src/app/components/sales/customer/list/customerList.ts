@@ -1,16 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniHttp} from '../../../../../framework/core/http/http';
-import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
     ITickerActionOverride, ITickerColumnOverride
 } from '../../../../services/common/uniTickerService';
 import {
-    CustomerService,
-    ErrorService,
-    CompanySettingsService,
     CustomerInvoiceService,
     CustomerQuoteService,
     CustomerOrderService
@@ -38,6 +33,18 @@ export class CustomerList implements OnInit {
             Code: 'invoice_createcreditnote',
             CheckActionIsDisabled: (selectedRow) => this.customerInvoiceService.onCheckCreateCreditNoteDisabled(selectedRow),
             ExecuteActionHandler: (selectedRows) => this.customerInvoiceService.onCreateCreditNote(selectedRows)
+        },
+        {
+            Code: 'new_customer_invoice',
+            ExecuteActionHandler: (customer) => this.newTOFWithCustomer(customer, 'invoices')
+        },
+        {
+            Code: 'new_customer_order',
+            ExecuteActionHandler: (customer) => this.newTOFWithCustomer(customer, 'orders')
+        },
+        {
+            Code: 'new_customer_quote',
+            ExecuteActionHandler: (customer) => this.newTOFWithCustomer(customer, 'quotes')
         },
         {
             Code: 'invoice_creditcreditnote',
@@ -69,8 +76,6 @@ export class CustomerList implements OnInit {
         }
     ];
 
-    private companySettings: CompanySettings;
-
     public columnOverrides: Array<ITickerColumnOverride> = [ ];
 
     public tickercode: string = 'customer_list';
@@ -90,13 +95,9 @@ export class CustomerList implements OnInit {
 ];
 
     constructor(
-        private uniHttpService: UniHttp,
         private router: Router,
-        private customerService: CustomerService,
         private tabService: TabService,
         private toastService: ToastService,
-        private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerQuoteService: CustomerQuoteService,
         private customerOrderService: CustomerOrderService,
@@ -104,12 +105,6 @@ export class CustomerList implements OnInit {
     ) { }
 
     public ngOnInit() {
-        this.companySettingsService.Get(1)
-            .subscribe(settings => {
-                this.companySettings = settings;
-                }, err => this.errorService.handle(err)
-            );
-
         this.tabService.addTab({
             url: '/sales/customer',
             name: 'Kunde',
@@ -122,16 +117,20 @@ export class CustomerList implements OnInit {
         this.router.navigateByUrl('/sales/customer/0');
     }
 
-
-    public openImportModal(done = null) {
-        this.modalService.open(UniCustomerImportModal).onClose.subscribe((res) => {
-            if (res) {
-                
-            } else {
-                if (done) {
-                    done();
-                }
+    public newTOFWithCustomer(customer, entity: string) {
+        return new Promise(res => {
+            if (!entity || !customer || !customer.CustomerID) {
+                this.toastService.addToast('Ops, noe gikk galt', ToastType.bad, 5, 'Last inn listen på nytt og prøv igjen.');
+                res(true);
+                return;
             }
+            this.router.navigateByUrl(`/sales/${entity}/0;customerID=${customer.CustomerID}`);
+            res(true);
         });
+    }
+
+    public openImportModal(done = () => {} ) {
+        this.modalService.open(UniCustomerImportModal);
+        done();
     }
 }

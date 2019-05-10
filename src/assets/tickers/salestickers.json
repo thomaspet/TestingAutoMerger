@@ -85,7 +85,7 @@
         ],
         "Actions": [
             {
-                "Name": "Åpne Kunde",
+                "Name": "Åpne kunde",
                 "Code": "open_customer",
                 "DisplayInContextMenu": true,
                 "ExecuteWithoutSelection": true,
@@ -98,6 +98,36 @@
                 "Type": "export",
                 "ExecuteWithMultipleSelections": true,
                 "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Ny faktura",
+                "Code": "new_customer_invoice",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "ExecuteWithoutSelection": true,
+                "SendParentModel": true
+            },
+            {
+                "Name": "Ny ordre",
+                "Code": "new_customer_order",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "ExecuteWithoutSelection": true,
+                "SendParentModel": true
+            },
+            {
+                "Name": "Nytt tilbud",
+                "Code": "new_customer_quote",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "ExecuteWithoutSelection": true,
+                "SendParentModel": true
             }
         ],
         "SubTickersCodes": ["customer_details", "contact_list", "customer_invoice_list", "customer_order_list", "customer_quote_list"],
@@ -409,6 +439,16 @@
         },
         "Actions": [
             {
+                "Name": "Ny faktura",
+                "Code": "new_customer_invoice",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "ExecuteWithoutSelection": true,
+                "SendParentModel": true
+            },
+            {
                 "Name": "Registrer betaling",
                 "Code": "invoice_registerpayment",
                 "Type": "action",
@@ -581,6 +621,16 @@
         },
         "Actions": [
             {
+                "Name": "Ny ordre",
+                "Code": "new_customer_order",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "ExecuteWithoutSelection": true,
+                "SendParentModel": true
+            },
+            {
                 "Name": "Send på e-post",
                 "Code": "customer_order_sendemail",
                 "Type": "details",
@@ -729,6 +779,16 @@
             "Value": "ID"
         },
         "Actions": [
+            {
+                "Name": "Nytt tilbud",
+                "Code": "new_customer_quote",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true,
+                "ExecuteWithoutSelection": true,
+                "SendParentModel": true
+            },
             {
                 "Name": "Skriv ut/Eksporter",
                 "Code": "quote_print",

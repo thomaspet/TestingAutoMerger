@@ -667,8 +667,10 @@ export class UniTicker {
     private executeAction (action: TickerAction, actionOverride: ITickerActionOverride, selectedRows: Array<any> ) {
         if (actionOverride && actionOverride.ExecuteActionHandler !== undefined) {
             // execute overridden executionhandler instead of the standard actionhandling
-            actionOverride.ExecuteActionHandler(selectedRows)
-                .then(() => {
+
+            // Send parentmodel to executecunftion if so specified in the json config. If not, send selectedRows
+            const params = action.SendParentModel ? this.parentModel : selectedRows;
+            actionOverride.ExecuteActionHandler(params).then(() => {
                     // refresh table data after actions/transitions are executed
                     this.reloadData();
 
@@ -820,7 +822,7 @@ export class UniTicker {
                             const dimFieldNo = `Dimension${customDimension.Dimension}.Number`;
                             const colNoIndex = this.ticker.Columns.findIndex(col => col.Field.includes(dimFieldNo));
                             if (colNoIndex >= 0) {
-                                this.ticker.Columns[colNoIndex].Header = customDimension.Label + "nr.";
+                                this.ticker.Columns[colNoIndex].Header = customDimension.Label + 'nr.';
                                 this.ticker.Columns[colNoIndex].DefaultHidden = !customDimension.IsActive;
                             }
 
