@@ -6,8 +6,6 @@ import {
     PaymentBatchService
 } from '../../../../src/app/services/services';
 
-import {Subject} from 'rxjs';
-
 @Component({
     template: `
         <section role="dialog" class="uni-modal uni-send-payment-modal uni-redesign">
@@ -15,6 +13,9 @@ import {Subject} from 'rxjs';
                 <h1>{{options.header || 'Send med autobank'}}</h1>
             </header>
             <article>
+                <section *ngIf="busy" class="modal-spinner">
+                    <mat-spinner class="c2a"></mat-spinner>
+                </section>
                 <div *ngIf="options.data.hasTwoStage">
                     <i class="material-icons">phone_android</i>
                     <p> {{ fieldText }} </p>
@@ -30,11 +31,6 @@ import {Subject} from 'rxjs';
                     </label>
                 </section>
                 <small *ngIf="msg" class="bad"> {{ msg }} </small>
-                <mat-progress-bar
-                    *ngIf="loading$ | async"
-                    class="uni-progress-bar"
-                    mode="indeterminate">
-                </mat-progress-bar>
             </article>
 
             <footer>
@@ -51,11 +47,11 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<string> = new EventEmitter();
 
-    loading$: Subject<boolean> = new Subject();
     public isFirstStage: boolean = true;
     public okButtonText: string = 'Betale';
     public fieldText: string = 'Fyll inn passord.';
     public msg: string = '';
+    public busy: boolean = false;
     public model: any = {
         Password: '',
         Code: '',
@@ -79,12 +75,15 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
 
     public onGoodClick() {
         this.msg = '';
+        if (this.busy) {
+            return;
+        }
 
         if (this.model.Password) {
             if (this.isFirstStage) {
                 // Check if user has activated two stage authentification
                 if (this.options.data.hasTwoStage) {
-                    this.loading$.next(true);
+                    this.busy = true;
                     // TWO-FACTOR DOES NOT SUPPORT SENDALL ATM!
                     // Send password to the new action to start two stage authentification
                     this.paymentBatchService.sendPasswordToTwoFactor(this.model).subscribe((result) => {
@@ -97,31 +96,31 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                                 ' Vennligst skriv inn kode for å fortsette.';
                             this.okButtonText = 'Fullfør betaling';
                        }
-                       this.loading$.next(false);
+                       this.busy = false;
                     }, err => {
-                        this.loading$.next(false);
+                        this.busy = false;
                         this.errorService.handle(err);
                     });
                } else {
-                    this.loading$.next(true);
+                    this.busy = true;
                    // Without two-stage authentification
                     if (this.options.data.sendAll) {
                         this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
                             this.onClose.emit('Sendingen er fullført');
-                            this.loading$.next(false);
+                            this.busy = false;
                         }, err => {
                             this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
                             this.errorService.handle(err);
-                            this.loading$.next(false);
+                            this.busy = false;
                         });
                     } else {
                         this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
-                            this.loading$.next(false);
+                            this.busy = false;
                             this.onClose.emit('Sendingen er fullført');
                         }, err => {
                             this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
                             this.errorService.handle(err);
-                            this.loading$.next(false);
+                            this.busy = false;
                         });
                    }
                }
@@ -129,13 +128,13 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                 // When user has written password and gotten code
                 // Check for code
                 if (this.model.Code) {
-                    this.loading$.next(true);
+                    this.busy = true;
                     // Send PASSWORD, CODE and PAYMENTIDS as body
                     this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
-                        this.loading$.next(false);
+                        this.busy = false;
                         this.onClose.emit('Sendingen er fullført');
                     }, err => {
-                        this.loading$.next(false);
+                        this.busy = false;
                         this.errorService.handle(err);
                     });
                 } else {
