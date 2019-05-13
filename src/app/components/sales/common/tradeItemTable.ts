@@ -19,6 +19,7 @@ import {
     Dimensions,
     LocalDate,
     CustomerInvoiceItem,
+    AccountManatoryDimension,
 } from '../../../unientities';
 import {
     ProductService,
@@ -625,8 +626,11 @@ export class TradeItemTable {
             .setVisible(false)
             .setTemplate(() => '')
             .setTooltipResolver((row: CustomerInvoiceItem) => {
-                if (!row.Account || !row.Account.ManatoryDimensions /*|| !row.Supplements.filter(x => !x.Deleted).length || this.isOnlyAmountField(row)*/) {
-                    return;
+                if (!row.Account || !row.Account.ManatoryDimensions || !row.Account.ManatoryDimensions.filter(x => !x.Deleted).length /*|| this.isOnlyAmountField(row)*/) {
+                    return {
+                        type: 'good',
+                        text: 'No dimensions required'
+                    };
                 }
 
                 /*const transWtSupps = row.Account.ManatoryDimensions
@@ -637,10 +641,18 @@ export class TradeItemTable {
                     : row.Wagetype && row.Wagetype.SupplementaryInformations;
                 wtSupps = wtSupps || [];*/
 
-                //TODO hent verdier fra api - accountmanatorydimension, action: get-manatory-dimensions-report(row.AccountID, row.DimensionsID)
-                const text = 'Testing';//this.generateSupplementsTitle(row, wtSupps);
-                const type = 'warn';/*this.supplementService.anyUnfinished(row.Supplements, wtSupps)
-                    ? 'warn' : 'good';*/
+                const check = this.checkMandatoryDimensions(row.Account.ManatoryDimensions, row);
+                const text = this.generateMandatoryDimensionsText(row.Account.ManatoryDimensions, row);// 'Testing';//this.generateSupplementsTitle(row, wtSupps);
+                //const type = 'bad';//'warn';//this.generateMandatoryDimensionsType(row.Account.ManatoryDimensions, row);
+                /*let type = 'good'; 
+                //'warn';/*this.supplementService.anyUnfinished(row.Supplements, wtSupps)
+                //    ? 'warn' : 'good';*/
+                //if (check === 1) {
+                //    type = 'bad';
+                //} else if (check === 2) {
+                //    type = 'warn';
+                //}*/
+                const type = check === 2 ? 'warn' : 'bad';
 
                 return {
                     type: type,
@@ -756,6 +768,44 @@ export class TradeItemTable {
                 this.items = _.cloneDeep(this.items); // trigger change detection
                 this.itemsChange.emit(this.items);
             });
+    }
+
+                /*              {ID: 0, Name: 'Ikke satt'},
+                                {ID: 1, Name: 'Påkrevd'},
+                                {ID: 2, Name: 'Advarsel'}*/
+    private generateMandatoryDimensionsText(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : string {
+        const chk = this.checkMandatoryDimensions(mandatoryDimensions, row);
+        if (chk === 1) {
+            return 'Påkrevd dimensjon mangler';        
+        }
+        else if (chk === 2) {
+            return 'Påkrevd dimensjon mangler';        
+        }
+        return 'Ok';
+    }
+
+    /*private generateMandatoryDimensionsType(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : string {
+        const chk = this.checkMandatoryDimensions(mandatoryDimensions, row);
+        if (chk === 1) {
+            return 'bad';        
+        }
+        else if (chk === 2) {
+            return 'warn';        
+        }
+        return 'good';
+    }*/
+
+    private checkMandatoryDimensions(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : number {
+        const requiredDimensions = mandatoryDimensions.filter(x => !x.Deleted && x.ManatoryType == 1);
+        if (requiredDimensions.length && !row.DimensionsID) {
+            return 1;
+        }
+        const warningDimensions = mandatoryDimensions.filter(x => !x.Deleted && x.ManatoryType == 2);
+        if (warningDimensions.length) {
+            //TODO hent verdier fra api - accountmanatorydimension, action: get-manatory-dimensions-report(row.AccountID, row.DimensionsID)
+            return 2;
+        }
+        return 0;
     }
 
     private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
