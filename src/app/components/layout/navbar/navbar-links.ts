@@ -76,11 +76,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/sharings',
                         moduleID: UniModules.Sharings
                     },
-                    {
-                        name: 'Uttrekk',
-                        url: '/uniqueries',
-                        moduleID: UniModules.UniQuery
-                    },
+                    // {
+                    //     name: 'Uttrekk',
+                    //     url: '/uniqueries',
+                    //     moduleID: UniModules.UniQuery
+                    // },
                     {
                         name: 'Rapporter',
                         url: '/reports',
