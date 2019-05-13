@@ -61,6 +61,10 @@ export class TradeItemHelper  {
                     item.Dimensions = null;
                 }
 
+                if (!item.DiscountPercent) {
+                    item.DiscountPercent = 0; // backend doesnt want this to be null
+                }
+
                 return item;
             });
     }
@@ -233,7 +237,7 @@ export class TradeItemHelper  {
             const difference = theoricalTotal - total;
             const discount = difference / theoricalTotal;
             const normalizedDisccount = this.round(discount * 100, 4);
-            newRow['DiscountPercent'] = normalizedDisccount;
+            newRow['DiscountPercent'] = normalizedDisccount || 0;
         }
 
         if (!newRow.PriceIncVatCurrency) {
