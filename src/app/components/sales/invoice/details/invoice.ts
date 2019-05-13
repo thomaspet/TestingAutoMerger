@@ -193,6 +193,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Product.VatType',
         'VatType',
         'Account',
+        'Account.ManatoryDimensions',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',

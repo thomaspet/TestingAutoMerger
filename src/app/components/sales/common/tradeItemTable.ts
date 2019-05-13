@@ -18,6 +18,7 @@ import {
     Department,
     Dimensions,
     LocalDate,
+    CustomerInvoiceItem,
 } from '../../../unientities';
 import {
     ProductService,
@@ -353,6 +354,7 @@ export class TradeItemTable {
                         `filter=${filter}&top=100&orderby=PartName`,
                         [
                             'Account',
+                            'Account.ManatoryDimensions',
                             'Dimensions',
                             'Dimensions.Project',
                             'Dimensions.Department',
@@ -619,6 +621,39 @@ export class TradeItemTable {
                 }
             });
 
+        const mandatoryDimensionsCol = new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text /*Lookup*/, false)
+            .setVisible(false)
+            .setTemplate(() => '')
+            .setTooltipResolver((row: CustomerInvoiceItem) => {
+                if (!row.Account || !row.Account.ManatoryDimensions /*|| !row.Supplements.filter(x => !x.Deleted).length || this.isOnlyAmountField(row)*/) {
+                    return;
+                }
+
+                /*const transWtSupps = row.Account.ManatoryDimensions
+                    .map(supp => supp.WageTypeSupplement)
+                    .filter(wtSupp => !!wtSupp) || [];
+                let wtSupps = transWtSupps.length
+                    ? transWtSupps
+                    : row.Wagetype && row.Wagetype.SupplementaryInformations;
+                wtSupps = wtSupps || [];*/
+
+                //TODO hent verdier fra api - accountmanatorydimension, action: get-manatory-dimensions-report(row.AccountID, row.DimensionsID)
+                const text = 'Testing';//this.generateSupplementsTitle(row, wtSupps);
+                const type = 'warn';/*this.supplementService.anyUnfinished(row.Supplements, wtSupps)
+                    ? 'warn' : 'good';*/
+
+                return {
+                    type: type,
+                    text: text
+                };
+            });
+            ;
+/* ref salaryTransList
+        const supplementCol = this.salaryTransViewService
+            .createSupplementsColumn(
+                (trans) => this.onSupplementModalClose(trans),
+                () => this.payrollRun && !!this.payrollRun.StatusCode);
+*/
         const dimensionCols = [];
 
         this.dimensionTypes.forEach((type, index) => {
@@ -667,7 +702,8 @@ export class TradeItemTable {
         const allCols = [
             sortIndexCol, productCol, itemTextCol, unitCol, numItemsCol,
             exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
-            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
+            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol,
+            mandatoryDimensionsCol
         ].concat(dimensionCols);
 
         if (this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
