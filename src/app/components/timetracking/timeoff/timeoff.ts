@@ -143,13 +143,11 @@ export class UniWorkTimeOff {
                     }
                 }
             }
-            if (moment(this.timeSheet[i].Date).isSameOrBefore(timeoffClone[0].ToDate, 'day') &&
-                moment(this.timeSheet[i].Date).isSameOrAfter(timeoffClone[0].FromDate, 'day')) {
-                this.timeSheet[i].TimeOff = timeoffClone[0];
-                if (moment(timeoffClone[0].FromDate).isSame(timeoffClone[0].ToDate)
-                    || moment(timeoffClone[0].ToDate).isSame(moment(this.timeSheet[i].Date))) {
-                        timeoffClone.shift();
-                    }
+            for (let j = 0; j < timeoffClone.length; j++) {
+                if (moment(this.timeSheet[i].Date).isSameOrBefore(timeoffClone[j].ToDate, 'day') &&
+                    moment(this.timeSheet[i].Date).isSameOrAfter(timeoffClone[j].FromDate, 'day')) {
+                    this.timeSheet[i].TimeOff = timeoffClone[j];
+                }
             }
 
             base[m][index].push(this.timeSheet[i]);
