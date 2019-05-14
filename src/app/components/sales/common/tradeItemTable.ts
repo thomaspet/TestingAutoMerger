@@ -29,7 +29,8 @@ import {
     DepartmentService,
     ErrorService,
     CompanySettingsService,
-    CustomDimensionService
+    CustomDimensionService,
+    AccountManatoryDimensionService
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -85,7 +86,8 @@ export class TradeItemTable {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private accountManatoryDimensionService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -633,24 +635,32 @@ export class TradeItemTable {
                     };
                 }
 
-                /*const transWtSupps = row.Account.ManatoryDimensions
-                    .map(supp => supp.WageTypeSupplement)
-                    .filter(wtSupp => !!wtSupp) || [];
-                let wtSupps = transWtSupps.length
-                    ? transWtSupps
-                    : row.Wagetype && row.Wagetype.SupplementaryInformations;
-                wtSupps = wtSupps || [];*/
-
+                let text = 'Ok';
+                let check = 0;
+                this.accountManatoryDimensionService.getMandatoryDimensionsReport(row.AccountID, row.DimensionsID).subscribe(rep => {
+                    const reqDims = rep.MissingRequiredDimensions;
+                    if (reqDims && reqDims.length > 0) {
+                        check = 1;//type1 = 'bad';
+                        text = rep.MissingRequiredDimensonsMessage;
+                    }
+                    const warnDims = rep.MissingWarningDimensions;
+                    if (warnDims && warnDims.length > 0) {
+                        check = 2;//type1 = 'warn';
+                        text = rep.MissingOnlyWarningsDimensionsMessage
+                    }
+                    const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';//type1;
+/*
                 const check = this.checkMandatoryDimensions(row.Account.ManatoryDimensions.filter(x => !x.Deleted), row);
                 const text = check === 1 ? 'Påkrevd dimensjon mangler' : check === 2 ? 'Advarsel - dimensjon mangler' : 'Ok';
                 const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
-
-                return {
-                    type: type,
-                    text: text
-                };
+*/
+                    return {
+                        type: type,
+                        text: text
+                    };
+                });
             });
-            ;
+
 /* ref salaryTransList
         const supplementCol = this.salaryTransViewService
             .createSupplementsColumn(
@@ -768,17 +778,29 @@ export class TradeItemTable {
         {ID: 2, Name: 'Advarsel'}
         */
         const requiredDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 1);
-        if (requiredDimensions.length /*&& !row.DimensionsID*/) {
+        if (requiredDimensions.length && !row.DimensionsID) {
             return 1;
         }
-        const warningDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 2);
+/*        const warningDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 2);
         if (warningDimensions.length) {
             //if (!row.DimensionsID) {
                 return 2;
             //}
-            //TODO hent verdier fra api - accountmanatorydimension, action: get-manatory-dimensions-report(row.AccountID, row.DimensionsID)
-        }
-        return 0;
+        }*/
+        this.accountManatoryDimensionService.getMandatoryDimensionsReport(row.AccountID, row.DimensionsID).subscribe(rep => {
+            const temp = rep;
+            const reqDims = rep.MissingRequiredDimensions;
+            if (reqDims && reqDims.length > 0) {
+                return 1;
+                //MissingRequiredDimensonsMessage
+            }
+            const warnDims = rep.MissingWarningDimensions;
+            if (warnDims && warnDims.length > 0) {
+                return 2;
+                //MissingOnlyWarningsDimensionsMessage
+            }
+            return 0;
+        });
     }
 
     private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
