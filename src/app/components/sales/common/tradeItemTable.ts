@@ -641,18 +641,9 @@ export class TradeItemTable {
                     : row.Wagetype && row.Wagetype.SupplementaryInformations;
                 wtSupps = wtSupps || [];*/
 
-                const check = this.checkMandatoryDimensions(row.Account.ManatoryDimensions, row);
-                const text = this.generateMandatoryDimensionsText(row.Account.ManatoryDimensions, row);// 'Testing';//this.generateSupplementsTitle(row, wtSupps);
-                //const type = 'bad';//'warn';//this.generateMandatoryDimensionsType(row.Account.ManatoryDimensions, row);
-                /*let type = 'good'; 
-                //'warn';/*this.supplementService.anyUnfinished(row.Supplements, wtSupps)
-                //    ? 'warn' : 'good';*/
-                //if (check === 1) {
-                //    type = 'bad';
-                //} else if (check === 2) {
-                //    type = 'warn';
-                //}*/
-                const type = check === 2 ? 'warn' : 'bad';
+                const check = this.checkMandatoryDimensions(row.Account.ManatoryDimensions.filter(x => !x.Deleted), row);
+                const text = check === 1 ? 'Påkrevd dimensjon mangler' : check === 2 ? 'Advarsel - dimensjon mangler' : 'Ok';
+                const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
 
                 return {
                     type: type,
@@ -770,40 +761,22 @@ export class TradeItemTable {
             });
     }
 
-                /*              {ID: 0, Name: 'Ikke satt'},
-                                {ID: 1, Name: 'Påkrevd'},
-                                {ID: 2, Name: 'Advarsel'}*/
-    private generateMandatoryDimensionsText(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : string {
-        const chk = this.checkMandatoryDimensions(mandatoryDimensions, row);
-        if (chk === 1) {
-            return 'Påkrevd dimensjon mangler';        
-        }
-        else if (chk === 2) {
-            return 'Påkrevd dimensjon mangler';        
-        }
-        return 'Ok';
-    }
-
-    /*private generateMandatoryDimensionsType(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : string {
-        const chk = this.checkMandatoryDimensions(mandatoryDimensions, row);
-        if (chk === 1) {
-            return 'bad';        
-        }
-        else if (chk === 2) {
-            return 'warn';        
-        }
-        return 'good';
-    }*/
-
     private checkMandatoryDimensions(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : number {
-        const requiredDimensions = mandatoryDimensions.filter(x => !x.Deleted && x.ManatoryType == 1);
-        if (requiredDimensions.length && !row.DimensionsID) {
+        /*
+        {ID: 0, Name: 'Ikke satt'},
+        {ID: 1, Name: 'Påkrevd'},
+        {ID: 2, Name: 'Advarsel'}
+        */
+        const requiredDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 1);
+        if (requiredDimensions.length /*&& !row.DimensionsID*/) {
             return 1;
         }
-        const warningDimensions = mandatoryDimensions.filter(x => !x.Deleted && x.ManatoryType == 2);
+        const warningDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 2);
         if (warningDimensions.length) {
+            //if (!row.DimensionsID) {
+                return 2;
+            //}
             //TODO hent verdier fra api - accountmanatorydimension, action: get-manatory-dimensions-report(row.AccountID, row.DimensionsID)
-            return 2;
         }
         return 0;
     }
