@@ -75,6 +75,7 @@ export class TradeItemTable {
         { value: 4, label: 'Pr. kvartal' },
         { value: 5, label: 'Pr. år' }
     ];
+    mandatoryDimensionsReport: any;
 
     constructor(
         private productService: ProductService,
@@ -96,7 +97,16 @@ export class TradeItemTable {
         ).subscribe(
             res => {
                 this.settings = res[0];
-                this.initTableConfig();
+                if (this.items && this.items.length > 0) {
+                    const item = this.items[0];
+                    this.accountManatoryDimensionService.getMandatoryDimensionsReport(item.AccountID, item.DimensionsID)
+                        .subscribe(res => {
+                            this.mandatoryDimensionsReport = res;
+                            this.initTableConfig();
+                        });
+                } else {
+                    this.initTableConfig();
+                }
             },
             err => this.errorService.handle(err)
         );
@@ -637,7 +647,8 @@ export class TradeItemTable {
 
                 let text = 'Ok';
                 let check = 0;
-                this.accountManatoryDimensionService.getMandatoryDimensionsReport(row.AccountID, row.DimensionsID).subscribe(rep => {
+                const rep = this.mandatoryDimensionsReport;
+                //this.accountManatoryDimensionService.getMandatoryDimensionsReport(row.AccountID, row.DimensionsID).subscribe(rep => {
                     const reqDims = rep.MissingRequiredDimensions;
                     if (reqDims && reqDims.length > 0) {
                         check = 1;//type1 = 'bad';
@@ -648,7 +659,7 @@ export class TradeItemTable {
                         check = 2;//type1 = 'warn';
                         text = rep.MissingOnlyWarningsDimensionsMessage
                     }
-                    const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';//type1;
+                    const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';//type1;*/
 /*
                 const check = this.checkMandatoryDimensions(row.Account.ManatoryDimensions.filter(x => !x.Deleted), row);
                 const text = check === 1 ? 'Påkrevd dimensjon mangler' : check === 2 ? 'Advarsel - dimensjon mangler' : 'Ok';
@@ -659,7 +670,7 @@ export class TradeItemTable {
                         text: text
                     };
                 });
-            });
+            //});
 
 /* ref salaryTransList
         const supplementCol = this.salaryTransViewService
