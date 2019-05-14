@@ -1,100 +1,95 @@
 @import '../marketplaceSharedStyles.sass'
 
-$side-margins: 5rem
-
 .uni-modal
-    width: 42rem
+    width: 40rem
+    padding: 1.5rem 0 1rem
 
-header
+.product-header
     display: flex
-    flex-flow: column
-    padding: 2rem $side-margins 1rem
-    background-color: $bg-color
-    color: $dark-text-color
-    position: relative
+    flex-direction: row
+    margin: auto 0
 
-    .close-button
-        color: black
-        position: absolute
-        top: .5rem
-        right: 0
-        background-color: inherit
-        text-shadow: none
-        font-size: 2.2rem
+    .product-icon
+        flex: 0 0 auto
+        width: 3rem
+        height: 3rem
+        margin-right: 1rem
+        overflow: hidden
+        & img
+            width: 100%
+            margin: auto
 
-    .product-info
+    > section
+        flex: 1
         display: flex
-        flex-direction: row
-        margin: 0 0 1rem
+        flex-direction: column
+        line-height: 24px
+        justify-content: center
 
-        img
-            width: 2.75rem
-            height: 2.75rem
-
-        .product-name
-            margin: auto 1rem
-
-            strong, small
-                display: block
-                line-height: 18px
+        .name-row
+            display: flex
+            flex-direction: row
 
             strong
-                font-size: 1.25rem
+                font-weight: 500
+                font-size: 20px
 
-            small
-                color: #707d90
-
-    .subscribe-section
-        display: flex
-
-        button
-            margin-left: 0
-            text-shadow: none
-            background-color: $primary-button-color
-
-            &.is-bought
-                background-color: $good-color
-
-        span.is-purchased
-            margin: auto 2rem auto 0
-            font-size: 14px
-            color: #707d90
-            i.material-icons
-                color: $good-color
-                font-size: 21px
+            span
                 vertical-align: middle
-                margin-right: 5px
+            .is-purchased
+                margin-left: 1rem
+                font-weight: 400
+                font-size: 14px
+                color: #707d90
+                i.material-icons
+                    color: $good-color
+                    font-size: 21px
+                    vertical-align: middle
+                    margin-right: 4px
 
-        .price-container
-            margin: auto 0
-            white-space: nowrap
+        .price-row
+            color: #707d90
+            font-weight: 300
+            font-size: 13px
 
-        .price
-            font-weight: 800
-            font-size: 1.3rem
+\:host article
+    padding: 0rem 3rem 1rem
+    .product-description
+        font-size: 15px
+        margin: 1rem 0 2rem
 
-.htmlContent
-    color: $light-text-color
-    padding: 1rem $side-margins 2rem
-    ::ng-deep // <-- Fix for styling not being applied recursively
+    .html-content::ng-deep
+        font: 400 15px 'Roboto', sans-serif
+
         h1
-            color: $dark-text-color
-            font-size: 1.125rem
-            font-weight: 600
+            font: 400 22px 'Roboto', sans-serif
+
+        h2
+            font: 400 18px 'Roboto', sans-serif
+
+        h3
+            font: 500 16px 'Roboto', sans-serif
+
+        p
+            font: 400 15px 'Roboto', sans-serif
 
         ul
-            padding-bottom: 1.67rem
+            list-style: none
+            li
+                position: relative
+                padding-left: 1.25rem
+                margin-bottom: 5px
+                &:before
+                    position: absolute
+                    top: -4px
+                    left: 0
+                    content: '-'
+                    font-size: 20px
 
-        li
-            list-style-type: none
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle style="fill:#{$light-text-color};" cx="10" cy="10" r="5"/></svg>')
-            background-repeat: no-repeat
-            background-position-y: center
-            padding-left: 2rem
+        .video-container
+            margin: 2rem 0
+            iframe
+                max-width: 100%
 
         img
-            width: 100%
-            height: auto
-
-        iframe
-            width: 100%
+            max-width: 100%
