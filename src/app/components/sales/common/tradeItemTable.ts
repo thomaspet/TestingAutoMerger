@@ -828,9 +828,8 @@ export class TradeItemTable {
 
     private updateItemMandatoryDimensions(item: any) {
         this.accountManatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
-            var itemRep = this.itemsWithReport.find(x => x.ItemID = item.ID);
+            var itemRep = this.itemsWithReport.find(x => x.itemID === item.ID);
             itemRep.report = rep;
-            //TODO Rapport blir oppdatert, men symbol/text i kolonnen oppdateres ikke
             this.initTableConfig();
         });
     }
