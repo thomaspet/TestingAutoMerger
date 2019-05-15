@@ -75,7 +75,6 @@ export class TradeItemTable {
         { value: 4, label: 'Pr. kvartal' },
         { value: 5, label: 'Pr. år' }
     ];
-    mandatoryDimensionsReports: any[];
     itemsWithReport: any[];
 
     constructor(
@@ -99,15 +98,12 @@ export class TradeItemTable {
             res => {
                 this.settings = res[0];
                 if (this.items && this.items.length > 0) {
-                    this.mandatoryDimensionsReports = [];
                     this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(rep => {
-                        this.mandatoryDimensionsReports = rep;
-
                         let cnt = 0;
                         this.itemsWithReport = [];
                         this.items.forEach(item => {
                             this.itemsWithReport.push({
-                                item: item,
+                                itemID: item.ID,
                                 report: rep[cnt]
                             });
                             cnt++;
@@ -647,18 +643,13 @@ export class TradeItemTable {
 
         const mandatoryDimensionsCol = new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text /*Lookup*/, false)
             .setVisible(false)
+            .setWidth(40)   //Har ingen effekt
+            //.setResizeable(false)  - ble større!!
             .setTemplate(() => '')
             .setTooltipResolver((row: CustomerInvoiceItem) => {
-                if (!row.Account || !row.Account.ManatoryDimensions || !row.Account.ManatoryDimensions.filter(x => !x.Deleted).length /*|| this.isOnlyAmountField(row)*/) {
-                    return {
-                        type: 'good',
-                        text: 'No dimensions required'
-                    };
-                }
-
                 let text = 'Ok';
                 let check = 0;
-                var ir = this.itemsWithReport.find(x => x.item.ID === row.ID);
+                var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
                 if (ir) {
                     const rep = ir.report;
                     const reqDims = rep.MissingRequiredDimensions;
@@ -672,6 +663,7 @@ export class TradeItemTable {
                         text = rep.MissingOnlyWarningsDimensionsMessage
                     }
                 }
+                //TODO else - ikke vis ikon på ny/neste rad
                 const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
                 return {
                         type: type,
