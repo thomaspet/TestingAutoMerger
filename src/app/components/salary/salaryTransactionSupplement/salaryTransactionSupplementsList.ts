@@ -12,8 +12,7 @@ import {
     PayrollRun, SalaryTransaction, Employee,
      SalaryTransactionSupplement, Valuetype
 } from '../../../unientities';
-import {Observable} from 'rxjs';
-import {ReplaySubject} from 'rxjs';
+import {Observable, merge, ReplaySubject, forkJoin} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
 @Component({
@@ -133,6 +132,7 @@ export class SalaryTransactionSupplementList implements OnInit {
             })
             .map((result: [SalaryTransaction[], Employee[]]) => {
                 const [transes, employees] = result;
+
                 return transes
                     .map(trans =>
                         trans
@@ -155,12 +155,33 @@ export class SalaryTransactionSupplementList implements OnInit {
             });
     }
 
+    // TODO: switch to helper function when merged
     private employeeObservable(empIDs: number[]) {
-        return empIDs.length
-            ? this.employeeService
-                .GetAll(`filter=${empIDs.map(x => 'ID eq ' + x).join(' or ')}`,
-                ['BusinessRelationInfo'])
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+        const empObservables = [];
+        const empRanges = this.employeeService.getFromToFilter(empIDs);
+        let removeIdx = 50;
+
+        for (let i = 0;  i < empRanges.length; i += 50) {
+            let empFilter = 'filter=';
+            const max50Ranges = empRanges.slice(i, removeIdx);
+
+            empFilter += '(' + max50Ranges.map(({from, to}) => {
+                if (from !== to) {
+                    return `(ID ge ${from} and ID le ${to})`;
+                }
+                return `ID eq ${from}`;
+            }).join(' or ') + ') ';
+
+            empObservables.push(
+                this.employeeService.GetAll(empFilter, ['BusinessRelationInfo'])
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            );
+
+            removeIdx += 50;
+        }
+
+        return  empObservables.length
+            ? forkJoin(empObservables).map((results: Array<Employee>[]) => results.reduce((acc, curr) => [...acc, ...curr], []))
             : Observable.of([]);
     }
 

@@ -13,7 +13,7 @@ export class UserDetails {
     @Input() user: ElsaUserLicense;
     @Output() close = new EventEmitter();
 
-    columns = [{ header: 'Selskap', field: 'companyName' }];
+    columns = [{ header: 'Selskap', field: 'CompanyName' }];
     companies: ElsaCompanyLicense[];
 
     constructor(

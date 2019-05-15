@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomFields: any;
 }
 
@@ -943,6 +943,8 @@ export class Customer extends UniEntity {
     public _createguid: string;
     public AcceptableDelta4CustomerPayment: number;
     public AcceptableDelta4CustomerPaymentAccountID: number;
+    public AvtaleGiro: boolean;
+    public AvtaleGiroAmount: number;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1120,6 +1122,8 @@ export class CustomerInvoiceItem extends UniEntity {
     public DiscountCurrency: number;
     public DiscountPercent: number;
     public ID: number;
+    public InvoicePeriodEndDate: LocalDate;
+    public InvoicePeriodStartDate: LocalDate;
     public ItemSourceID: number;
     public ItemText: string;
     public NumberOfItems: number;
@@ -3816,6 +3820,8 @@ export class CompanySettings extends UniEntity {
     public HideInActiveCustomers: boolean;
     public HideInActiveSuppliers: boolean;
     public ID: number;
+    public InterrimPaymentAccountID: number;
+    public InterrimRemitAccountID: number;
     public Localization: string;
     public LogoAlign: number;
     public LogoFileID: number;
@@ -4543,6 +4549,7 @@ export class Project extends UniEntity {
     public DimensionsID: number;
     public EndDate: LocalDate;
     public ID: number;
+    public IsUsed: boolean;
     public Name: string;
     public PlannedEnddate: LocalDate;
     public PlannedStartdate: LocalDate;
@@ -5307,6 +5314,25 @@ export class ProcessFileLog extends UniEntity {
 }
 
 
+export class AccountManatoryDimension extends UniEntity {
+    public static RelativeUrl = 'accountmanatorydimension';
+    public static EntityType = 'AccountManatoryDimension';
+
+    public _createguid: string;
+    public AccountID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionNo: number;
+    public ID: number;
+    public ManatoryType: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class AccrualPeriod extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccrualPeriod';
@@ -5796,6 +5822,7 @@ export class Payment extends UniEntity {
     public PaymentDate: LocalDate;
     public PaymentID: string;
     public PaymentNotificationReportFileID: number;
+    public PaymentStatusReportFileID: number;
     public ReconcilePayment: boolean;
     public SerialNumberOrAcctSvcrRef: string;
     public StatusCode: number;
@@ -6083,6 +6110,8 @@ export class SupplierInvoiceItem extends UniEntity {
     public DiscountCurrency: number;
     public DiscountPercent: number;
     public ID: number;
+    public InvoicePeriodEndDate: LocalDate;
+    public InvoicePeriodStartDate: LocalDate;
     public ItemText: string;
     public NumberOfItems: number;
     public PriceExVat: number;
@@ -6285,6 +6314,7 @@ export class Account extends UniEntity {
     public Employee: Employee;
     public Dimensions: Dimensions;
     public Alias: Array<AccountAlias>;
+    public ManatoryDimensions: Array<AccountManatoryDimension>;
     public CompatibleAccountGroups: Array<AccountGroup>;
     public SubAccounts: Array<Account>;
     public UseVatDeductionGroup: VatDeductionGroup;
@@ -7238,6 +7268,7 @@ export class Forskuddstrekk extends UniEntity {
 
 
 export class TaxCardReadStatus extends UniEntity {
+    public IsJob: boolean;
     public mainStatus: string;
     public Text: string;
     public Title: string;
@@ -7461,6 +7492,7 @@ export class SendEmail extends UniEntity {
     public FromAddress: string;
     public Localization: string;
     public Message: string;
+    public ReportID: number;
     public ReportName: string;
     public Subject: string;
     public Attachments: Array<SendEmailAttachment>;
@@ -7636,6 +7668,12 @@ export class UpdateServiceStatusDTO extends UniEntity {
 }
 
 
+export class UpdateServiceIDDTO extends UniEntity {
+    public NewServiceID: string;
+    public ServiceID: string;
+}
+
+
 export class JournalEntryLineRequestSummary extends UniEntity {
     public SumBalance: number;
     public SumCredit: number;
@@ -7681,27 +7719,6 @@ export class JournalEntryLinePostPostData extends UniEntity {
 export class CreatePaymentBatchDTO extends UniEntity {
     public Code: string;
     public Password: string;
-}
-
-
-export class PaymentAttachmentDto extends UniEntity {
-    public CustomerNumber: number;
-    public dueAmount: string;
-    public ExternalBankAccountNumber: string;
-    public InvoiceNumber: string;
-    public JournalEntryNumber: string;
-    public JournalEntryNumberNumeric: number;
-    public KID: string;
-    public Name: string;
-    public NumberOfPayments: number;
-    public PaidAmount: string;
-    public paymentAmount: string;
-    public PaymentFileID: number;
-    public ReceiptDate: Date;
-    public RestAmount: string;
-    public SerialNumberOrAcctSvcrRef: string;
-    public TotalAmount: string;
-    public Year: number;
 }
 
 

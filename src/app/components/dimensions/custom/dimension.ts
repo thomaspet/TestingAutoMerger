@@ -1,6 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {URLSearchParams, RequestMethod} from '@angular/http';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
@@ -190,19 +190,80 @@ export class UniDimensionView implements OnInit {
         this.setUpTOFListTable(this.activeTabIndex);
     }
 
+    private handleRemoveResponseOk() {
+        this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
+    }
+    private handleRemoveResponseError(err) {
+        this.errorService.handle(err);
+        this.refresh();
+    }
+
+    private handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, customDimension) {
+        if (res === true) {
+            this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
+            this.refresh();
+            return;
+        }
+
+        const deleteModal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Bekreft sletting',
+            message: 'Vil du slette ' + this.getCurrentDimensionLabel() + ': ' + dimensionNumber + ' - ' + dimensionName + '?'
+        });
+        deleteModal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                if (customDimension !== null) {
+                    service.Remove(customDimension, dimensionId).subscribe(
+                        res2 => {
+                            this.handleRemoveResponseOk();
+                        },
+                        err => {
+                            this.handleRemoveResponseError(err);
+                        }
+                    );
+                } else {
+                    service.Remove(dimensionId).subscribe(
+                        res2 => {
+                            this.handleRemoveResponseOk();
+                        },
+                        err => {
+                            this.handleRemoveResponseError(err);
+                        }
+                    );
+                }
+            } else {
+                this.refresh();
+            }
+        });                
+    }
+
     public onRowDelete(row) {
         const dimensionId = row.ID;
         let dimensionName;//Dersom alle aktuelle har Name, kan row.Name brukes direkte i modalen
-        switch (this.currentDimension) {    //Project
-            case 1:
+        let dimensionNumber;
+        let service;
+        let custom = false;
+        switch (this.currentDimension) {    
+            case 1: //Project
                 dimensionName = row.Name;
+                dimensionNumber = row.ProjectNumber;
+                service = this.projectService;
                 break;
             case 2: // Department
-                this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
-                this.refresh();
-                return;
-//                dimensionName = row.Name;
-//                break;
+                dimensionName = row.Name;
+                dimensionNumber = row.DepartmentNumber;
+                service = this.departmentService;
+                break;
+            case 5: // Custom
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+                dimensionName = row.Name;
+                dimensionNumber = row.Number;
+                service = this.customDimensionService;
+                custom = true;
+                break;
 
             default:
                 this.toast.addToast('Sletting er ikke implementert for denne dimensjonen', ToastType.warn, 2);
@@ -210,10 +271,18 @@ export class UniDimensionView implements OnInit {
                 return;
         }
 
-        if (this.currentDimension == 1) {
-            this.projectService.checkIfUsed(dimensionId).subscribe(res => {
-                if (res === true) {
-                    this.toast.addToast('Kan ikke slette - prosjektet er i bruk', ToastType.warn, 2);
+        if (custom) {
+
+            service.checkIfUsed(this.currentDimension, dimensionId).subscribe(res => {
+                this.handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, this.currentDimension);
+            });
+
+        } else {
+
+            service.ActionWithBody(dimensionId, null, 'is-used', RequestMethod.Get).subscribe(res => {
+                this.handleDelete(res, dimensionId, dimensionNumber, dimensionName, service, null);
+                /*if (res === true) {
+                    this.toast.addToast('Kan ikke slette - dimensjonen er i bruk', ToastType.warn, 2);
                     this.refresh();
                     return;
                 }
@@ -224,9 +293,9 @@ export class UniDimensionView implements OnInit {
                 });
                 deleteModal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
-                        this.projectService.Remove(dimensionId).subscribe(
+                        service.Remove(dimensionId).subscribe( 
                             res => {
-                                this.toast.addToast('Prosjektet er slettet', ToastType.good, 2);
+                                this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
                             },
                             err => {
                                 this.errorService.handle(err);
@@ -236,7 +305,7 @@ export class UniDimensionView implements OnInit {
                     } else {
                         this.refresh();
                     }
-                });        
+                });        */
             });
         }
     }

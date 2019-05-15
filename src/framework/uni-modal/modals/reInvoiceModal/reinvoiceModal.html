@@ -68,7 +68,7 @@
                     <tbody>
                         <tr>
                             <td class="product title">Produkt</td>
-                            <td class="product value">{{companyAccountSettings?.ReInvoicingCostsharingProductID}} - {{companyAccountSettings?.ReInvoicingTurnoverProduct?.Name}}</td>
+                            <td class="product value">{{companyAccountSettings?.ReInvoicingCostsharingProductID}} - {{companyAccountSettings?.ReInvoicingCostsharingProduct?.Name}}</td>
                             <td class="account title">Konto</td>
                             <td class="account value">{{companyAccountSettings?.ReInvoicingCostsharingProduct?.Account?.AccountNumber}}</td>
                         </tr>
@@ -121,6 +121,6 @@
             </ul>
         </section>
         <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving || currentReInvoice?.StatusCode === 30203">Lagre</button>
-        <button (click)="this.closeModal()" class="good" [disabled]="isSaving">Lukk</button>
+        <button (click)="this.closeModal()" class="bad" [disabled]="isSaving">Lukk</button>
     </footer>
 </section>

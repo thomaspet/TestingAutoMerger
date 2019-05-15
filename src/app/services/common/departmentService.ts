@@ -13,4 +13,5 @@ export class DepartmentService extends BizHttp<Department> {
         this.entityType = Department.EntityType;
         this.DefaultOrderBy = null;
     }
+
 }

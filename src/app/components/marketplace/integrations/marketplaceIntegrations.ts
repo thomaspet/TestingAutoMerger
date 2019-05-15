@@ -10,11 +10,11 @@ import {ErrorService} from '@app/services/common/errorService';
 export class FilterIntegrationsPipe implements PipeTransform {
     transform(integrations: ElsaProduct[], searchText: string): ElsaProduct[] {
         return (integrations || []).filter(integration => {
-            return (integration.label || '').toLowerCase().includes(searchText.toLowerCase())
-                || (integration.categoryName || '').toLowerCase().includes(searchText.toLowerCase())
-                || (integration.tags || []).find(tag => (tag || '').toLowerCase().includes(searchText.toLowerCase()))
-                || (integration.description || '').toLowerCase().includes(searchText.toLowerCase())
-                || (integration.htmlContent || '').toLowerCase().includes(searchText.toLowerCase());
+            return (integration.Label || '').toLowerCase().includes(searchText.toLowerCase())
+                || (integration.CategoryName || '').toLowerCase().includes(searchText.toLowerCase())
+                || (integration.Tags || []).find(tag => (tag || '').toLowerCase().includes(searchText.toLowerCase()))
+                || (integration.Description || '').toLowerCase().includes(searchText.toLowerCase())
+                || (integration.HtmlContent || '').toLowerCase().includes(searchText.toLowerCase());
         });
     }
 }
@@ -43,21 +43,20 @@ export class MarketplaceIntegrations implements OnInit {
     }
 
     ngOnInit() {
-        const isIntegration = product => product.productType === ElsaProductType.Integration;
-        const isActive = product => product.productStatus === ElsaProductStatusCode.Live;
-        const isUpcoming = product => product.productStatus === ElsaProductStatusCode.SoonToBeLaunched;
-        const isCandidate = product => product.productStatus === ElsaProductStatusCode.DevelopmentCandidate;
-        this.elsaProductService.GetAll()
-            .subscribe(
-                products => {
-                    const integrations = products.filter(isIntegration);
-                    this.activeIntegrations = integrations.filter(isActive);
-                    this.upcomingIntegrations = integrations.filter(isUpcoming);
-                    this.candidateIntegrations = integrations.filter(isCandidate);
+        const isIntegration = product => product.ProductType === ElsaProductType.Integration;
+        const isActive = product => product.ProductStatus === ElsaProductStatusCode.Live;
+        const isUpcoming = product => product.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
+        const isCandidate = product => product.ProductStatus === ElsaProductStatusCode.DevelopmentCandidate;
+        this.elsaProductService.GetAll().subscribe(
+            products => {
+                const integrations = products.filter(isIntegration);
+                this.activeIntegrations = integrations.filter(isActive);
+                this.upcomingIntegrations = integrations.filter(isUpcoming);
+                this.candidateIntegrations = integrations.filter(isCandidate);
 
-                },
-                err => this.errorService.handle(err),
-            );
+            },
+            err => this.errorService.handle(err),
+        );
     }
 
     navigateToExternalUrl(url: string) {

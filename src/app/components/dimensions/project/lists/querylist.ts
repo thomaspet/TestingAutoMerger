@@ -1,32 +1,23 @@
 import {Component} from '@angular/core';
-import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {
-    ProjectService,
-    ErrorService,
-    UniQueryDefinitionService
-} from '../../../../services/services';
+import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ProjectService, UniQueryDefinitionService} from '@app/services/services';
 
 @Component({
     selector: 'project-query-list',
     templateUrl: './querylist.html'
 })
-
 export class ProjectQueryList {
-    public projectID: number = 0;
-    private reportID: number = 0;
-    private customerID: number = 0;
-    public summary: ISummaryConfig[] = [];
+    projectID: number = 0;
+    reportID: number = 0;
+    customerID: number = 0;
 
     constructor(
         private projectService: ProjectService,
-        private errorService: ErrorService,
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private route: ActivatedRoute,
         private router: Router
-    ) {
-    }
+    ) {}
 
     public ngOnInit() {
         this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Projects).subscribe((links) => {
@@ -50,14 +41,5 @@ export class ProjectQueryList {
                 }
             }
         );
-
-        // this.setSums(); // TODO: need to get the sums for each status from Statistics
-    }
-
-    public setSums() {
-        this.summary = [{
-            value: '1000',
-            title: 'Kladd'
-        }];
     }
 }

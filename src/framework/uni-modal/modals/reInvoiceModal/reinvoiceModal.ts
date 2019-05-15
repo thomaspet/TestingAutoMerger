@@ -53,7 +53,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     public itemsTableConfig = null;
     public invoiceSum: number = 4000;
     public forReinvoice: boolean = false;
-    public reinvoiceType: number = 1;
+    public reinvoiceType: number = 0;
     private hasChanges: boolean = false;
     public companyAccountSettings: CompanyAccountingSettings;
     constructor(
@@ -233,14 +233,14 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         return this.saveactions.find((item) => item.main);
     }
 
-    public updateActions(type: number) {
+    public updateActions(positionInArray: number) {
         this.saveactions = [
             {
                 label: 'Lag faktura (Kladd)',
                 action: () => {
                     this.saveReinvoiceAs('create-invoices-draft');
                 },
-                main: !type,
+                main: !positionInArray,
                 disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             },
             {
@@ -248,7 +248,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 action: () => {
                     this.saveReinvoiceAs('create-invoices');
                 },
-                main: type === 1,
+                main: positionInArray === 1,
                 disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             },
             {
@@ -256,7 +256,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                 action: () => {
                     this.saveReinvoiceAs('create-orders');
                 },
-                main: type === 2,
+                main: positionInArray === 2,
                 disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             },
             {
@@ -408,6 +408,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public setInitialConfig(lastReinvoicing: ReInvoice | null) {
         this.reinvoiceType = lastReinvoicing === null ? 0 : lastReinvoicing.ReInvoicingType;
+        this.updateActions(this.saveactions.findIndex(x => x === this.getMainAction()));
         let product = null;
         if (this.companyAccountSettings) {
             product = this.reinvoiceType === 0
@@ -425,7 +426,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         if (lastReinvoicing && lastReinvoicing.Product) {
             this.items = this.setInitialItemsData(lastReinvoicing.Product);
         } else {
-            const product = this.reinvoiceType === 0 ?
+            product = this.reinvoiceType === 0 ?
                 this.companyAccountSettings.ReInvoicingCostsharingProduct :
                 this.companyAccountSettings.ReInvoicingTurnoverProduct;
             this.items = this.setInitialItemsData(product);

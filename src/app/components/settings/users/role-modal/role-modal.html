@@ -8,6 +8,11 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
+        <small *ngIf="userStatusInvited" class="invited-user-info">
+            Produktkjøp blir automatisk utført basert på valgte roller når en
+            invitert bruker fullfører registreringen.
+        </small>
+
         <mat-accordion multi="true">
             <mat-expansion-panel #panel
                 *ngFor="let group of roleGroups; let idx = index"
@@ -15,16 +20,18 @@
                 [hideToggle]="true">
 
                 <mat-expansion-panel-header [collapsedHeight]="'45px'" [expandedHeight]="'45px'" style="background: #f0f0f0;">
-                    <mat-panel-title>{{group.label}}</mat-panel-title>
+                    <mat-panel-title>
+                        <i class="material-icons panel-toggle">
+                            {{panel.expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
+                        </i>
+                        {{group.label}}
+                    </mat-panel-title>
 
-                    <i *ngIf="!group.product || group.productPurchased" class="material-icons panel-toggle">
-                        {{panel.expanded ? 'expand_less' : 'expand_more'}}
-                    </i>
-
-                    <section class="panel-right">
-                        <button class="outline-c2a" *ngIf="group.product && !group.productPurchased"
-                            (click)="purchaseProduct(group)">
-                            Kjøp produkt
+                    <section class="panel-right" *ngIf="group.product && !userStatusInvited">
+                        <button
+                            [ngClass]="group.productPurchased ? 'outline-bad' : 'outline-c2a'"
+                            (click)="togglePurchase(group, $event)">
+                            {{group.productPurchased ? 'Deaktiver' : 'Kjøp produkt'}}
                         </button>
                     </section>
                 </mat-expansion-panel-header>
@@ -36,7 +43,7 @@
                             [checkboxPosition]="'before'"
                             [selected]="role._checked"
                             (click)="onRoleClick(group, role)">
-                            {{role.Label}}
+                            {{role.Name | translateRole}}
                         </mat-list-option>
                     </mat-selection-list>
                 </section>

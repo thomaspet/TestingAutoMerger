@@ -43,12 +43,12 @@ export class SubscribeModal implements IUniModal, OnInit {
         this.product = data.product;
         this.canPurchaseProducts = data.canPurchaseProducts;
 
-        if (this.product.productType !== ElsaProductType.Integration) {
+        if (this.product.ProductType !== ElsaProductType.Integration) {
             if (!data.canPurchaseProducts) {
                 this.missingPermissionText = 'Du må være administrator for å kjøpe produkter';
             }
 
-            if (this.product.isPerUser) {
+            if (this.product.IsPerUser) {
                 this.action = {
                     label: 'Velg brukere',
                     click: () => this.manageUserPurchases()
@@ -86,7 +86,7 @@ export class SubscribeModal implements IUniModal, OnInit {
         if (this.canPurchaseProducts) {
             const purchase: ElsaPurchase = {
                 ID: null,
-                ProductID: this.product.id
+                ProductID: this.product.ID
             };
 
             this.elsaPurchaseService.massUpdate([purchase]).subscribe(

@@ -32,19 +32,6 @@ export class FileService extends BizHttp<File> {
             .map((urlResponse: Response) => urlResponse);
     }
 
-    public downloadFileDirect(fileID: number, contentType: string) {
-        return this.http
-            .asGET()
-            .withDefaultHeaders()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${fileID}?action=download`)
-            .send()
-            .switchMap((urlResponse: Response) => {
-                const url = urlResponse['_body'].replace(/\"/g, '');
-                return this.http.http.get(url);
-            });
-    }
-
     public getDownloadUrl(fileID: number) {
         return this.http
             .asGET()
@@ -67,20 +54,6 @@ export class FileService extends BizHttp<File> {
                 return this.http.http.get(url);
             })
             .map(res => new Blob([res['_body']], { type: contentType }));
-    }
-
-    private  getQueryParams(qs) {
-        qs = qs.split('+').join(' ');
-
-        var params = {},
-            tokens,
-            re = /[?&]?([^=]+)=([^&]*)/g;
-
-        while (tokens = re.exec(qs)) {
-            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-        }
-
-        return params;
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {
@@ -132,17 +105,6 @@ export class FileService extends BizHttp<File> {
             .withDefaultHeaders()
             .usingBusinessDomain()
             .withEndPoint(`files?action=split-file-multiple&oldFileID=${oldFileID}&newFileIds=${newFileIdsString}`)
-            .send()
-            .map(response => response.json());
-    }
-
-    public create(file: File) {
-        return this.http
-            .asPOST()
-            .withDefaultHeaders()
-            .usingBusinessDomain()
-            .withEndPoint(`files`)
-            .withBody(file)
             .send()
             .map(response => response.json());
     }

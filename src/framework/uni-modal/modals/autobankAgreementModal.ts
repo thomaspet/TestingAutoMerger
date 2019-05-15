@@ -211,7 +211,7 @@ export interface IAutoBankAgreementDetails {
                         <button *ngIf="steps > 0 && steps !== 5" (click)="move(-1)" class="bank-agreement-button back-button">
                             Tilbake
                         </button>
-                        <button (click)="move(1)" class="bank-agreement-button forward-button">
+                        <button (click)="move(1)" class="bank-agreement-button forward-button" [disabled]="buttonLock">
                             {{ steps === 4 ? 'Opprett avtale' : steps === 5 || noAccounts ? 'Lukk' : 'Fortsett' }}
                         </button>
                     </div>
@@ -232,6 +232,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     private accounts: any[] = [];
     private agreements: any[] = [];
     public usedBanks: string[] = [];
+    public buttonLock: boolean = false;
 
     public steps: number = 0;
     public useTwoFactor: boolean = false;
@@ -405,9 +406,12 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     }
 
     public sendStartDataToZData() {
+        this.buttonLock = true;
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
+            this.buttonLock = false;
             this.steps++;
         }, (err) => {
+            this.buttonLock = false;
             this.errorService.handle(err);
         });
     }

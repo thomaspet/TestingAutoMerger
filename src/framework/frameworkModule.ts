@@ -6,7 +6,7 @@ import {UniModal} from './modals/modal';
 import {FileSplitModal} from './fileSplit/FileSplitModal';
 import {UniSave} from './save/save';
 import {UniUploadFileSaveAction} from './save/upload';
-import {UniImage} from './uniImage/uniImage';
+import {UniImage, EHFViewer} from './uniImage/uniImage';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
@@ -73,7 +73,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniTooltipModule,
         UniFormModule,
         UniTableModule,
-        AgGridWrapperModule
+        AgGridWrapperModule,
     ],
     declarations: [
         UniComponentLoader,
@@ -81,6 +81,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniSave,
         UniUploadFileSaveAction,
         UniImage,
+        EHFViewer,
         FileSplitModal,
         UniToast,
         UniToastList,
@@ -120,6 +121,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniSave,
         UniUploadFileSaveAction,
         UniImage,
+        EHFViewer,
         UniToast,
         UniToastList,
         UniComments,

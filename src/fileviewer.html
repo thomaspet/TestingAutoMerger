@@ -4,6 +4,9 @@
     <title>Uni Economy - Filvisning</title>
     <link rel="icon" type="image/x-icon" href="favicon.png?v=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet"href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
+    <link rel="stylesheet" href="./assets/ehf-viewer.css">
+    <script src="./assets/pdfjs/pdf.js"></script>
 
     <style>
         body {
@@ -43,25 +46,21 @@
 
         main {
             box-sizing: border-box;
-            padding: 3.5rem 25px 25px;
+            padding: 3.5rem 25px 10px;
         }
 
-        #image-container {
+        #container {
             display: block;
             margin: 0 auto;
             width: 100%;
             max-width: 1200px;
         }
 
-        #image-container img {
+        #container .file {
             display: block;
-            margin: 0 auto;
+            margin: 0 auto 16px;
             max-width: 100%;
             box-shadow: 0px 1px 4px 0 rgba(0, 0, 0, 0.14);
-        }
-
-        #image-container img + img {
-            margin-top: 16px;
         }
     </style>
 </head>
@@ -74,25 +73,25 @@
     </header>
 
     <main>
-        <section id="image-container"></section>
+        <section id="container"></section>
     </main>
 </body>
 
 <script type="application/javascript">
     window.moveTo(0, 8);
-    let zoomLevel = 70;
+    let zoomLevel = 100;
 
     const zoomLevelInfo = document.getElementById('zoom-level-info');
     const zoomInBtn = document.getElementById('zoom-in');
     const zoomOutBtn = document.getElementById('zoom-out');
-    const imageContainer = document.getElementById('image-container');
+    const container = document.getElementById('container');
 
     const updateImageZoom = () => {
         if (zoomLevelInfo) {
             zoomLevelInfo.innerText = zoomLevel + '%';
         }
 
-        const images = imageContainer.querySelectorAll('img');
+        const images = container.querySelectorAll('.file');
         images.forEach(img => {
             img.style.maxWidth = zoomLevel + '%';
         });
@@ -101,7 +100,7 @@
     }
 
     const zoomIn = () => {
-        if (imageContainer && zoomLevel < 100) {
+        if (container && zoomLevel < 100) {
             zoomLevel += 10;
             updateImageZoom();
         }
@@ -110,7 +109,7 @@
     }
 
     const zoomOut = () => {
-        if (imageContainer && zoomLevel > 10) {
+        if (container && zoomLevel > 10) {
             zoomLevel -= 10;
             updateImageZoom();
         }
@@ -128,45 +127,96 @@
         }
     });
 
-    const loadImages = function(jsonData) {
-        let imageUrls;
-        try {
-            imageUrls = JSON.parse(jsonData) || [];
-        } catch (err) {
-            imageUrls = [];
-            console.error(err);
+    const showPdf = (canvas, url) => {
+        pdfjsLib.getDocument({url: url}).promise.then(
+            function(pdf) {
+                pdf.getPage(1).then(function(page) {
+                    var scale = 1.5;
+                    var viewport = page.getViewport({scale: scale});
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    page.render({
+                        canvasContext: canvas.getContext('2d'),
+                        viewport: viewport
+                    });
+                });
+            },
+            function (err) {
+                console.error(err);
+            }
+        );
+    }
+
+    function loadData() {
+        let container = document.getElementById('container');
+        container.innerHTML = '';
+
+        const files = JSON.parse(localStorage.getItem('fileviewer-data'));
+
+        if (files && files.length) {
+            files.forEach(file => {
+                if (file._ehfMarkup) {
+                    const ehfElement = document.createElement('section');
+                    ehfElement.innerHTML = file._ehfMarkup;
+
+                    ehfElement.classList.add('file');
+                    ehfElement.style.maxWidth = zoomLevel + '%';
+                    container.appendChild(ehfElement);
+
+                    (file._ehfAttachments || []).forEach(attachment => {
+                        if (attachment.resourceUrl && attachment.mimeType) {
+                            let el;
+                            if (attachment.mimeType.includes('image')) {
+                                el = document.createElement('img');
+                                el.src = attachment.resourceUrl;
+                            } else {
+                                el = document.createElement('canvas');
+                                setTimeout(() => {
+                                    showPdf(el, attachment.resourceUrl);
+                                });
+                            }
+
+                            el.classList.add('file');
+                            el.style.maxWidth = zoomLevel + '%';
+                            container.appendChild(el);
+                        }
+                    });
+
+                } else {
+                    const imageUrls = file._imgUrls || [];
+                    imageUrls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.classList.add('file');
+                        img.style.maxWidth = zoomLevel + '%';
+
+                        container.appendChild(img);
+                    });
+                }
+            });
         }
-
-        let imageContainer = document.getElementById('image-container');
-        imageContainer.innerHTML = '';
-
-        imageUrls.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.style.maxWidth = zoomLevel + '%';
-            zoomLevelInfo.innerText = zoomLevel + '%';
-
-            imageContainer.appendChild(img);
-        });
     }
 
     window.onload = function() {
-        const data = localStorage.getItem('fileviewer-data');
+        var pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//${window.location.host}/assets/pdfjs/pdf.worker.js`;
+
         const zoom = localStorage.getItem('fileviewer-zoom');
         if (zoom && parseInt(zoom)) {
             zoomLevel = parseInt(zoom);
         }
 
-        if (data) {
-            loadImages(data);
-        }
+        zoomLevelInfo.innerText = zoomLevel + '%';
+        this.loadData();
     }
 
     window.addEventListener('storage', (event) => {
         if (event.key === 'fileviewer-data' && event.newValue && event.oldValue !== event.newValue) {
-            loadImages(event.newValue);
+            loadData();
         }
     });
-</script>
 
+</script>
 </html>

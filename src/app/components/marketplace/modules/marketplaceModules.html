@@ -7,12 +7,12 @@
         <h3>Moduler</h3>
         <section class="product-card" *ngFor="let module of modules">
             <section class="price-info">
-                <span class="price">{{module.price}} kr</span><span class="type"> {{priceText(module)}}</span>
+                <span class="price">{{module.Price}} kr</span><span class="type"> {{priceText(module)}}</span>
             </section>
 
             <section class="product-info">
-                <img class="icon" [src]="module.iconReference" />
-                <span>{{module.label}}</span>
+                <img class="icon" [src]="module.IconReference" />
+                <span>{{module.Label}}</span>
                 <i *ngIf="module._isBought" class="material-icons purchase-indicator">check_circle</i>
             </section>
 
@@ -34,12 +34,12 @@
 
         <section class="product-card" *ngFor="let extension of filteredExtensions">
             <section class="price-info">
-                <span class="price">{{extension.price}} kr</span><span class="type"> {{priceText(extension)}}</span>
+                <span class="price">{{extension.Price}} kr</span><span class="type"> {{priceText(extension)}}</span>
             </section>
 
             <section class="product-info">
-                <img class="icon" [src]="extension.iconReference" />
-                <span>{{extension.label}}</span>
+                <img class="icon" [src]="extension.IconReference" />
+                <span>{{extension.Label}}</span>
                 <i *ngIf="extension._isBought && !extension._activationFunction" class="material-icons purchase-indicator">
                     check_circle
                 </i>

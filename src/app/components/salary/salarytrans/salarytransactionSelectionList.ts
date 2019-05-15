@@ -37,6 +37,7 @@ class EmployeeWithError extends Employee {
 })
 
 export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
+    @Output() employee = new EventEmitter<Employee>();
     public salarytransSelectionTableConfig: UniTableConfig;
     public employeeList: Employee[] = [];
     public selectedIndex: number = 0;
@@ -193,6 +194,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     public rowSelected(row) {
         this.selectedIndex = row['_originalIndex'];
+        this.employee.emit(this.employeeList[this.selectedIndex]);
         this.getAga();
         this.setSums(null);
         this.setSummarySource();

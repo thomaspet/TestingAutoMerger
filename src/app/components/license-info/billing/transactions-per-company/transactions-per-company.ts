@@ -27,7 +27,7 @@ export class TransactionsPerCompany {
     ];
 
     ngOnChanges() {
-        if (this.billingData && this.billingData.items) {
+        if (this.billingData && this.billingData.Items) {
             this.transactionsPerCompany = this.getTransactionsPerCompany();
         }
     }
@@ -39,18 +39,18 @@ export class TransactionsPerCompany {
 
     getTransactionsPerCompany() {
         const transactionsPerCompany: any = {};
-        this.billingData.items.forEach(item => {
-            if (item.unit === 'selskap' || item.unit === 'stk') {
-                item.details.forEach(itemUsage => {
-                    if (!transactionsPerCompany[itemUsage.name]) {
-                        transactionsPerCompany[itemUsage.name] = [];
+        this.billingData.Items.forEach(item => {
+            if (item.Unit === 'selskap' || item.Unit === 'stk') {
+                item.Details.forEach(itemUsage => {
+                    if (!transactionsPerCompany[itemUsage.Name]) {
+                        transactionsPerCompany[itemUsage.Name] = [];
                     }
 
                     const transactionItem: any = {
-                        productName: item.productName,
-                        count: itemUsage.counter,
-                        price: item.price,
-                        discount: item.discountPrc
+                        productName: item.ProductName,
+                        count: itemUsage.Counter,
+                        price: item.Price,
+                        discount: item.DiscountPrc
                     };
 
                     let sum = transactionItem.price * transactionItem.count;
@@ -59,7 +59,7 @@ export class TransactionsPerCompany {
                     }
 
                     transactionItem.sum = sum;
-                    transactionsPerCompany[itemUsage.name].push(transactionItem);
+                    transactionsPerCompany[itemUsage.Name].push(transactionItem);
                 });
             }
         });

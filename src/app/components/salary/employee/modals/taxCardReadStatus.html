@@ -1,4 +1,5 @@
 <article *ngIf="status">
+    <p *ngIf="status.IsJob">Lesing av skattekort er startet som en jobb. Leser inn listede ansatte i bakgrunnen</p>
     <uni-altinn-response-status [status]="status"></uni-altinn-response-status>
     <ag-grid-wrapper
         [resource]="tableModel$ | async"

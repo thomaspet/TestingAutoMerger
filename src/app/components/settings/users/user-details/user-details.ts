@@ -25,7 +25,7 @@ interface UserRoleGroup {
 }
 
 enum UserStatus {
-    Draft = 110000,
+    Invited = 110000,
     Active = 110001,
     InActive = 110002,
 }
@@ -49,6 +49,7 @@ export class UserDetails {
     roles: Role[];
     userRoles: UserRole[];
     userRoleGroups: UserRoleGroup[];
+    userStatusInvited: boolean;
 
     roleGroups: {label: string, roles: UserRole[]}[];
     products: ElsaProduct[];
@@ -73,6 +74,7 @@ export class UserDetails {
 
     ngOnChanges() {
         if (this.user && this.users) {
+            this.userStatusInvited = this.user.StatusCode === UserStatus.Invited;
             this.loadRoles();
 
             this.elsaPurchaseService.getPurchaseByProductName('Autobank')
@@ -98,7 +100,7 @@ export class UserDetails {
         const actions = [];
 
         // Invited user
-        if (this.user.StatusCode === UserStatus.Draft) {
+        if (this.user.StatusCode === UserStatus.Invited) {
             actions.push({
                 label: 'Send ny invitasjon',
                 action: () => this.resendInvite.emit(this.user),
@@ -177,36 +179,36 @@ export class UserDetails {
         }
 
         const filteredProducts = this.products.filter(product => {
-            return product.productTypeName === 'Module' && product.name !== 'Complete';
+            return product.ProductTypeName === 'Module' && product.Name !== 'Complete';
         });
 
         // This can be removed when Complete is gone as a product in prod
-        const completeProduct = this.products.find(product => product.name === 'Complete');
+        const completeProduct = this.products.find(product => product.Name === 'Complete');
         const userHasComplete = !!completeProduct && this.purchases.some(purchase => {
             return purchase.GlobalIdentity === this.user.GlobalIdentity
-                && purchase.ProductID === completeProduct.id;
+                && purchase.ProductID === completeProduct.ID;
         });
         // end of removable block
 
         const groups: UserRoleGroup[] = filteredProducts.map(product => {
             let isPurchased = this.purchases.some(purchase => {
-                return purchase.ProductID === product.id
+                return purchase.ProductID === product.ID
                     && purchase.GlobalIdentity === this.user.GlobalIdentity;
             });
 
             // This can be removed when Complete is gone as a product in prod
             if (!isPurchased) {
                 isPurchased = userHasComplete && (
-                    product.name === 'Accounting'
-                    || product.name === 'Sales'
-                    || product.name === 'Payroll'
-                    || product.name === 'Timetracking'
+                    product.Name === 'Accounting'
+                    || product.Name === 'Sales'
+                    || product.Name === 'Payroll'
+                    || product.Name === 'Timetracking'
                 );
             }
             // end of removable block
 
             return {
-                label: product.label,
+                label: product.Label,
                 userRoles: [],
                 product: product,
                 productPurchased: isPurchased
@@ -223,7 +225,7 @@ export class UserDetails {
         userRoles.forEach(userRole => {
             const roleNameLowerCase = (userRole.SharedRoleName || '').toLowerCase();
             const groupsThatShouldHaveUserRole = groups.filter(group => {
-                const listOfRoles = group.product && group.product.listOfRoles;
+                const listOfRoles = group.product && group.product.ListOfRoles;
                 if (listOfRoles) {
                     return listOfRoles.split(',').some(roleName => {
                         return roleName && roleName.toLowerCase() === roleNameLowerCase;
@@ -240,7 +242,9 @@ export class UserDetails {
 
         groups.push(otherGroup);
         return groups.filter(group => {
-            return (!group.product || group.productPurchased) && group.userRoles && group.userRoles.length;
+            return (!group.product || group.productPurchased || this.userStatusInvited)
+                && group.userRoles
+                && group.userRoles.length;
         });
     }
 

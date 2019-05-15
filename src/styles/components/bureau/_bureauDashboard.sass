@@ -11,6 +11,20 @@ uni-bureau-dashboard
         // avoid ag-grid resize messing with flex layout
         overflow: hidden
 
+        .template-company
+            .table-link
+                padding-left: 2.5rem
+            &:before
+                position: absolute
+                top: 8px
+                left: 10px
+                content: 'MAL'
+                font: 400 10px 'Roboto'
+                background: #1565C0
+                color: #fff
+                padding: 3px 6px
+                border-radius: 2px
+
         .bureau-link-col .table-link
             display: inline-block
             &:hover

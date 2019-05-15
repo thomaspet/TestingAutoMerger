@@ -5,10 +5,10 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <mat-horizontal-stepper [linear]="true" (selectionChange)="onStepChange($event)" #stepper [@.disabled]="true">
-            <mat-step label="Velg lisens" [completed]="selectedContract && !companyLimitReached">
+        <mat-horizontal-stepper [linear]="true" (selectionChange)="currentStep = $event.selectedIndex" #stepper [@.disabled]="true">
+            <mat-step label="Lisens" [completed]="selectedContract && !companyLimitReached">
                 <uni-select-license
-                    *ngIf="currentPage === PageType.selectLicense"
+                    *ngIf="currentStep === steps.selectLicense"
                     [customers]="customers"
                     [(selectedContract)]="selectedContract"
                     (selectedContractChange)="onContractSelected($event)"
@@ -19,18 +19,27 @@
                 </small>
             </mat-step>
 
-            <mat-step label="Fyll inn selskapsinformasjon" [completed]="companyInfo.valid">
+            <mat-step label="Selskapsinformasjon" [completed]="companyInfo.valid">
                 <uni-select-company
-                    *ngIf="currentPage === PageType.selectCompany"
+                    *ngIf="currentStep === steps.selectCompany"
                     [(companyInfo)]="companyInfo"
+                    (companyInfoChange)="onCompanyInfoChange()"
                 ></uni-select-company>
             </mat-step>
 
-            <mat-step label="Velg produkter" [completed]="this.selectedProductsNames.length > 0">
+            <mat-step label="Produkter" [completed]="this.selectedProductsNames.length > 0">
                 <uni-select-products
-                    *ngIf="currentPage === PageType.selectProducts"
+                    *ngIf="currentStep === steps.selectProducts"
+                    [products]="products"
                     [(selectedProductsNames)]="selectedProductsNames"
                 ></uni-select-products>
+            </mat-step>
+
+            <mat-step label="Malklient" *ngIf="templateCompanies?.length && !companyInfo?.isTemplate">
+                <uni-select-template
+                    [templateCompanies]="templateCompanies"
+                    [(selectedTemplateCompany)]="selectedTemplateCompany"
+                ></uni-select-template>
             </mat-step>
         </mat-horizontal-stepper>
     </article>
@@ -38,19 +47,19 @@
     <footer>
         <button class="back"
             (click)="stepper.previous()"
-            [disabled]="currentPage === 0">
+            [disabled]="currentStep === 0">
                 Tilbake
         </button>
 
         <button class="c2a"
-            *ngIf="currentPage < PageType.selectProducts"
+            *ngIf="currentStep < lastStep"
             (click)="stepper.next()"
             [disabled]="!stepper.selected?.completed">
                 Neste
         </button>
 
         <button class="good"
-            *ngIf="currentPage === PageType.selectProducts"
+            *ngIf="currentStep === lastStep"
             (click)="createCompany()">
                 Opprett selskap
         </button>

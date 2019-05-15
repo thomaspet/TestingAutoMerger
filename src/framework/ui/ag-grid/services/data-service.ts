@@ -49,6 +49,11 @@ export class TableDataService {
 
         this.config = newConfig;
 
+        const sortModel = this.utils.getSortModel(this.config.configStoreKey);
+        if (sortModel) {
+            this.gridApi.setSortModel([sortModel]);
+        }
+
         if (configChanged) {
             this.filterString = undefined;
             const lastUsedFilters = this.utils.getLastUsedFilter(newConfig.configStoreKey);

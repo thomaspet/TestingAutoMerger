@@ -122,6 +122,16 @@ export class BankComponent {
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44001
         },
         {
+            Code: 'download_payment_notification_file',
+            ExecuteActionHandler: (selectedRows) => this.downloadWithFileID(selectedRows[0], selectedRows[0].PaymentNotificationReportFileID, 'RECEIPT'),
+            CheckActionIsDisabled: (selectedRow) => !selectedRow.PaymentNotificationReportFileID
+        },
+        {
+            Code: 'download_payment_status_file',
+            ExecuteActionHandler: (selectedRows) => this.downloadWithFileID(selectedRows[0], selectedRows[0].PaymentStatusReportFileID, 'STATUS'),
+            CheckActionIsDisabled: (selectedRow) => !selectedRow.PaymentStatusReportFileID
+        },
+        {
             Code: 'edit_payment',
             ExecuteActionHandler: (selectedRows) => this.editPayment(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44001
@@ -479,6 +489,28 @@ export class BankComponent {
                         );
                 }
             });
+        });
+    }
+
+    public downloadWithFileID(row: Payment, fileID: number, type: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (fileID) {
+                resolve();
+                this.fileService
+                .downloadFile(fileID, 'application/xml')
+                .subscribe((blob) => {
+                    var title = type == 'RECEIPT' ? 'Avregningsretur' : 'Statusretur';
+                    this.toastService.addToast(`${title} hentet`, ToastType.good, 5);
+                    // download file so the user can open it
+                    saveAs(blob, `payments_${row.ID}_${type}.xml`);
+                },
+                err => {
+                    this.errorService.handleWithMessage(err, 'Feil ved henting av fil');
+                }
+                );
+            } else {
+                reject('Fil ikke tilgjengelig');
+            }
         });
     }
 
@@ -900,7 +932,7 @@ export class BankComponent {
     }
 
     public openAutobankAgreementModal() {
-        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements } });
+        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements }, closeOnClickOutside: false });
     }
 
     private payAll(doneHandler: (status: string) => any, isManualPayment: boolean) {

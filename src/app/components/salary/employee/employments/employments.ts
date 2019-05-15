@@ -165,6 +165,8 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 employment.SeniorityDate = employment.StartDate;
             }
         }
+
+        this.selectedIndex = index;
         this.employments[index] = _.cloneDeep(employment);
         this.selectedEmployment$.next(employment);
         super.updateState(EMPLOYMENT_KEY, this.employments, true);

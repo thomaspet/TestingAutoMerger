@@ -33,6 +33,8 @@ export class DistributionPeriodData {
     public budgetPeriodYear2?: number;
     public balance1?: string;
     public balance2?: string;
+    public percentage1?: number | string;
+    public percentage2?: number | string;
 }
 
 export class Period {
@@ -79,7 +81,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
-    @Input() private filter: any;
+    @Input() filter: any;
 
     @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
     @Output() private yearChange: EventEmitter<boolean> = new EventEmitter();
@@ -130,6 +132,7 @@ export class DistributionPeriodReportPart implements OnChanges {
 
     public ngOnChanges() {
         if (this.filter) {
+            console.log(this.filter);
             this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
             this.showPercent = this.filter.ShowPercent;
             this.showPreviousAccountYear = this.filter.ShowPreviousAccountYear;
@@ -162,7 +165,7 @@ export class DistributionPeriodReportPart implements OnChanges {
 
     private setupDistributionPeriodTable() {
 
-        const distributionPeriodData: Array<DistributionPeriodData> = [];
+        let distributionPeriodData: Array<DistributionPeriodData> = [];
         moment.locale();
 
         let accountIdFilter = '';
@@ -183,11 +186,11 @@ export class DistributionPeriodReportPart implements OnChanges {
             const dimensionFilter = this.dimensionEntityName
                 ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}`
                 : '';
-            const projectFilter = this.filter && this.filter.ProjectID
-                ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
+            const projectFilter = this.filter && (this.filter.ProjectID || this.filter.ProjectNumber)
+                ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID || this.filter.ProjectNumber}`
                 : '';
-            const departmentFilter = this.filter && this.filter.DepartmentID
-                ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
+            const departmentFilter = this.filter && (this.filter.DepartmentID || this.filter.DepartmentNumber)
+                ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID || this.filter.DepartmentNumber}`
                 : '';
 
             const creditedFilter = !this.showCredited ? ` and isnull(StatusCode,0) ne '31004'` : '';
@@ -326,8 +329,19 @@ export class DistributionPeriodReportPart implements OnChanges {
                     budgetPeriodYear1:  distributionPeriodData.reduce((a, b) => a + b.budgetPeriodYear1, 0),
                     budgetPeriodYear2:  distributionPeriodData.reduce((a, b) => a + b.budgetPeriodYear2, 0)
                 };
-
                 distributionPeriodData.push(sumDistributionData);
+                distributionPeriodData = distributionPeriodData.map(item => {
+                    item.percentage1 =
+                        item.budgetPeriodYear1 === 0
+                            ? 0
+                            : this.numberFormatService.asPercentage((item.amountPeriodYear1 / item.budgetPeriodYear1) * 100, {decimalLength: 2});
+                    item.percentage2 =
+                        item.budgetPeriodYear2 === 0
+                            ? 0
+                            : this.numberFormatService.asPercentage((item.amountPeriodYear2 / item.budgetPeriodYear2) * 100, {decimalLength: 2});
+                    return item;
+                });
+                console.log(distributionPeriodData);
                 this.distributionPeriodData = distributionPeriodData;
 
                 this.setupDistributionPeriodChart();

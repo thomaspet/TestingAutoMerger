@@ -6,7 +6,6 @@
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Salg",
-        "DefaultTabIndex": "1",
         "Model": "Customer",
         "Expand": "Dimensions, Dimensions.Project",
         "Columns": [
@@ -63,6 +62,25 @@
                 "Field": "Customer.StatusCode",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "Sist endret AvtaleGiro",
+                "Field": "getlatestauditlogtime('Customer',Customer.ID,'AvtaleGiro')",
+                "Alias": "LatestAvtaleGiro",
+                "Type": "datetime",
+                "Format": "DateWithTime",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Påmeldt AvtaleGiro",
+                "Field": "Customer.AvtaleGiro",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            },
+            {
+                "Header": "Beløpsgrense AvtaleGiro",
+                "Field": "Customer.AvtaleGiroAmount",
+                "DefaultHidden": true
             }
         ],
         "Actions": [
@@ -84,22 +102,6 @@
         ],
         "SubTickersCodes": ["customer_details", "contact_list", "customer_invoice_list", "customer_order_list", "customer_quote_list"],
         "Filters": [
-            {
-                "Name": "Lead",
-                "Code": "lead_customers",
-                "UseAllCriterias": true,
-                "FilterGroups": [
-                    {
-                        "FieldFilters": [
-                            {
-                                "Field": "StatusCode",
-                                "Operator": "eq",
-                                "Value": "20001"
-                            }
-                        ]
-                    }
-                ]
-            },
             {
                 "Name": "Aktiv",
                 "Code": "active_customers",
@@ -127,6 +129,22 @@
                                 "Field": "StatusCode",
                                 "Operator": "eq",
                                 "Value": "50001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Lead",
+                "Code": "lead_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "20001"
                             }
                         ]
                     }

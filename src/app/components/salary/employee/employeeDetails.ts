@@ -326,7 +326,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 openModal: () => this.modalService.open(
                                     TaxCardModal,
                                     {
-                                        data: this.employeeID,
+                                        data: this.employee,
                                         modalConfig: {
                                             update: () => {
                                                 this.employeeTaxCardService.invalidateCache();

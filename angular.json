@@ -21,7 +21,8 @@
               "src/favicon.png",
               "src/robots.txt",
               "src/security.txt",
-              "src/fileviewer.html"
+              "src/fileviewer.html",
+              "src/ehf-print.html"
             ],
             "styles": [
               "src/styles.sass",

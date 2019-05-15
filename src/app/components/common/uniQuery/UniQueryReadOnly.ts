@@ -1,48 +1,29 @@
 import {Component, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
-import {
-    UniTable,
-    UniTableColumn,
-    UniTableConfig,
-    ITableFilter,
-    IExpressionFilterValue
-} from '../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
-import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorService} from '../../../services/services';
+
+import {UniTableColumn, UniTableConfig} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {AuthService} from '../../../authService';
-import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
-
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
-
-declare var _;
+import {AuthService} from '@app/authService';
+import {UniQueryDefinition, UniQueryField} from '@uni-entities';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {
+    StatisticsService,
+    UniQueryDefinitionService,
+    StatusService,
+    ErrorService
+} from '@app/services/services';
 
 @Component({
     selector: 'uni-query-read-only',
     templateUrl: './UniQueryReadOnly.html'
 })
 export class UniQueryReadOnly implements OnChanges {
-    // externalID is used when using this report from another component, e.g. as a sub component
-    // in the customerDetails view. This way it is easy to set that the context of the uniquery
-    // is a specific ID, this customers ID in this case
-    @Input()
-    public externalID: number;
-
-    @Input()
-    public queryDefinitionID: number;
-
-    @Input()
-    public customerID: number;
-
-    @Input()
-    public hidden: boolean;
-
-    @Input()
-    public projectID: number;
-
-    @Input()
-    public parentModel: string;
+    @Input() queryDefinitionID: number;
+    @Input() filterValue: number;
+    @Input() customerID: number;
+    @Input() supplierID: number;
+    @Input() projectID: number;
 
     @ViewChild(AgGridWrapper)
     public table: AgGridWrapper;
@@ -51,14 +32,11 @@ export class UniQueryReadOnly implements OnChanges {
     public lookupFunction: (urlParams: URLSearchParams) => any;
 
     public fields: Array<UniTableColumn>;
-    private filters: Array<ITableFilter>;
     private selects: string;
     private expands: string;
     private queryDefinition: UniQueryDefinition;
-    private buttonTitle: string;
-    private buttonAction: any;
 
-    public currentUserGlobalIdentity: string = '';
+    addNewAction: () => void;
 
     constructor(
         private router: Router,
@@ -69,11 +47,6 @@ export class UniQueryReadOnly implements OnChanges {
         private statusService: StatusService,
         private errorService: ErrorService
     ) {
-        const token = this.authService.getTokenDecoded();
-        if (token) {
-            this.currentUserGlobalIdentity = token.nameid;
-        }
-
         this.lookupFunction = (urlParams: URLSearchParams) => {
             let params = urlParams;
 
@@ -85,12 +58,10 @@ export class UniQueryReadOnly implements OnChanges {
 
             params.set('model', this.queryDefinition.MainModelName);
             params.set('select', this.selects);
+            params.set('filter', this.getFilterString(params, this.queryDefinition));
 
-            if (this.parentModel === 'project') {
-                params.set('filter', 'Project.ID eq ' + this.externalID + ' or Dimensions.ProjectID eq ' + this.externalID);
-
+            if (this.projectID) {
                 const mainModelName = this.queryDefinition.MainModelName;
-
                 if (mainModelName === 'SupplierInvoice' || mainModelName === 'CustomerInvoice') {
                     params.set('join', mainModelName + `.JournalEntryID eq JournalEntryLineDraft.JournalEntryID `
                     + `and JournalEntryLineDraft.DimensionsID eq Dimensions.ID`);
@@ -110,36 +81,66 @@ export class UniQueryReadOnly implements OnChanges {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if ((changes['hidden'] && changes['hidden'].currentValue === false) || changes['queryDefinitionID']) {
-            if ((!this.queryDefinition || this.queryDefinitionID !== this.queryDefinition.ID)) {
-                this.statusService.loadStatusCache().then(x => {
+        if (changes['queryDefinitionID']) {
+            if (!this.queryDefinition || this.queryDefinitionID !== this.queryDefinition.ID) {
+                this.statusService.loadStatusCache().then(() => {
                     this.loadQueryDefinition();
                 });
             }
+        } else {
+            this.updateAddNewAction();
+            if (this.table) {
+                this.table.refreshTableData();
+            }
         }
+    }
 
-        if (changes['externalID'] && changes['externalID'].currentValue && this.tableConfig) {
-            const expressionFilterValues: Array<IExpressionFilterValue> = [
-                {
-                    expression: 'currentuserid',
-                    value: this.currentUserGlobalIdentity
-                },
-                {
-                    expression: 'externalid',
-                    value: this.externalID.toString()
+    getFilterString(params: URLSearchParams, queryDefinition: UniQueryDefinition): string {
+        const filterStrings = [];
+
+        // QueryDefinition filters
+        if (queryDefinition && queryDefinition.UniQueryFilters) {
+            const generateFilterString = (filter) => {
+                if (filter.operator === 'contains' || filter.operator === 'startswith' || filter.operator === 'endswith') {
+                    return `${filter.operator}(${filter.field},'${filter.value}')`;
+                } else {
+                    return `${filter.field} ${filter.operator} '${filter.value}'`;
                 }
-            ];
+            };
 
-            this.tableConfig.setExpressionFilterValues(expressionFilterValues);
-            this.tableConfig = _.cloneDeep(this.tableConfig);
-            this.table.refreshTableData();
-            this.setupTableConfig();
+            queryDefinition.UniQueryFilters.forEach(filter => {
+                if (filter.Value === ':externalid') {
+                    if (this.filterValue) {
+                        filterStrings.push(generateFilterString({
+                            field: filter.Field,
+                            operator: filter.Operator,
+                            value: this.filterValue,
+                        }));
+                    }
+                } else {
+                    filterStrings.push(generateFilterString({
+                        field: filter.Field,
+                        operator: filter.Operator,
+                        value: filter.Value,
+                    }));
+                }
+            });
         }
+
+        if (this.projectID) {
+            filterStrings.push(`(Project.ID eq ${this.projectID} or Dimensions.ProjectID eq ${this.projectID})`);
+        }
+
+        // Table filter
+        if (params.get('filter')) {
+            filterStrings.push(params.get('filter'));
+        }
+
+        return filterStrings.length ? filterStrings.join(' and ') : '';
     }
 
     private loadQueryDefinition() {
         this.fields = [];
-        this.filters = [];
         this.selects = '';
         this.expands = '';
 
@@ -147,6 +148,7 @@ export class UniQueryReadOnly implements OnChanges {
             this.uniQueryDefinitionService.Get(this.queryDefinitionID, ['UniQueryFilters', 'UniQueryFields'])
                 .subscribe(res => {
                         this.queryDefinition = res;
+                        this.updateAddNewAction();
 
                         if (this.queryDefinition.UniQueryFields.filter(x => x.Index).length > 0) {
                             // Index is specified for the fields, the fields to reflect this
@@ -181,18 +183,6 @@ export class UniQueryReadOnly implements OnChanges {
                             this.fields.push(f);
                         });
 
-                        this.queryDefinition.UniQueryFilters.forEach((field: UniQueryFilter) => {
-                            const f: ITableFilter = {
-                                field: field.Field,
-                                operator: field.Operator,
-                                value: field.Value,
-                                group: field.Group,
-                                selectConfig: null
-                            };
-
-                            this.filters.push(f);
-                        });
-
                         this.setupTableConfig();
                     },
                     err => this.errorService.handle(err));
@@ -205,48 +195,33 @@ export class UniQueryReadOnly implements OnChanges {
         }
     }
 
-    private setupTableConfig() {
-        // Define columns to use in the table
-        const columns: Array<UniTableColumn> = [];
-        const expands: Array<string> = [];
-        const selects: Array<string> = [];
-        let navigateURL: string;
-        const title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
+    private updateAddNewAction() {
+        this.addNewAction = undefined;
 
-        if (this.queryDefinition.MainModelName.startsWith('Customer')) {
-            if (title === 'Quote') {
-                this.buttonTitle = 'Nytt tilbud';
-                navigateURL = `/sales/quotes/0;customerID=${this.customerID}`;
-            } else if (title === 'Order') {
-                this.buttonTitle = 'Ny ordre';
-                navigateURL = `/sales/orders/0;customerID=${this.customerID}`;
-            } else if (title === 'Invoice') {
-                this.buttonTitle = 'Ny faktura';
-                navigateURL = `/sales/invoices/0;customerID=${this.customerID}`;
+        if (this.queryDefinition && this.queryDefinition.ClickUrl) {
+            let url = this.queryDefinition.ClickUrl.split(':')[0];
+            url += '0';
+
+            if (this.customerID) {
+                url += `;customerID=${this.customerID}`;
             }
 
-            if (this.projectID > 0) {
-                navigateURL += `;projectID=${this.projectID}`;
+            if (this.supplierID) {
+                url += `;supplierID=${this.supplierID}`;
             }
 
-            this.buttonAction = () => this.router.navigateByUrl(navigateURL);
-        } else if (this.queryDefinition.MainModelName.startsWith('Supplier')) {
-            if (title === 'Invoice') {
-                this.buttonTitle = 'Ny leverandørfaktura';
-                navigateURL = `/accounting/bills/0`;
+            if (this.projectID) {
+                url += `;projectID=${this.projectID}`;
             }
 
-            if (this.queryDefinition.ModuleID === UniModules.Projects) {
-                navigateURL += `;projectID=${this.externalID}`;
-            } else {
-                navigateURL += `;supplierID=${this.externalID}`;
-            }
-
-            this.buttonAction = () => this.router.navigateByUrl(navigateURL);
-        } else {
-            this.buttonTitle = '';
-            this.buttonAction = () => {};
+            this.addNewAction = () => this.router.navigateByUrl(url);
         }
+    }
+
+    private setupTableConfig() {
+        const columns: UniTableColumn[] = [];
+        const expands: string[] = [];
+        const selects: string[] = [];
 
         for (let i = 0; i < this.fields.length; i++) {
             const field = this.fields[i];
@@ -320,26 +295,7 @@ export class UniQueryReadOnly implements OnChanges {
         this.selects = selects.join(',');
         this.expands = expands.join(',');
 
-        const expressionFilterValues: Array<IExpressionFilterValue> = [
-            {
-                expression: 'currentuserid',
-                value: this.currentUserGlobalIdentity
-            }
-        ];
 
-        // if externalID is supplied (when using uniquery as a sub component), send the expressionfiltervalue
-        if (this.externalID) {
-            expressionFilterValues.push(
-                {
-                    expression: 'externalid',
-                    value: this.externalID.toString()
-                }
-            );
-        } else {
-            this.filters = this.filters.filter(filter => filter.value !== ':externalid');
-        }
-
-        // Setup table
         const companyKey = this.authService.getCompanyKey();
         const configStoreKey = `uniQueryReadonly.${companyKey}.${this.queryDefinitionID}`;
 
@@ -351,8 +307,6 @@ export class UniQueryReadOnly implements OnChanges {
             .setSearchable(true)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
-            .setExpressionFilterValues(expressionFilterValues)
-            .setFilters(this.filters)
             .setDataMapper((data) => {
                 const tmp = data !== null ? data.Data : [];
 

@@ -90,6 +90,7 @@ import {
 import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
 import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 import { UniCostAllocationDetails } from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
+import { UniSupplierImportModal } from './supplier/list/supplierImportModal';
 
 @NgModule({
     imports: [
@@ -136,6 +137,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
+        UniSupplierImportModal,
         FileFromInboxModal,
 
         // journalentry
@@ -208,6 +210,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         SelectDraftLineModal,
         DraftLineDescriptionModal,
         UniBudgetEntryEditModal,
+        UniSupplierImportModal,
         UniBudgetEditModal,
         UniSmartBookingSettingsModal,
         UniCostAllocation,
