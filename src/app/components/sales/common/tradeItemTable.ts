@@ -98,19 +98,7 @@ export class TradeItemTable {
             res => {
                 this.settings = res[0];
                 if (this.items && this.items.length > 0) {
-                    this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(rep => {
-                        let cnt = 0;
-                        this.itemsWithReport = [];
-                        this.items.forEach(item => {
-                            this.itemsWithReport.push({
-                                itemID: item.ID,
-                                report: rep[cnt]
-                            });
-                            cnt++;
-                        });
-    
-                        this.initTableConfig();
-                    });
+                    this.getMandatoryDimensionsReports();
                 } else {
                     this.initTableConfig();
                 }
@@ -641,29 +629,30 @@ export class TradeItemTable {
                 }
             });
 
-        const mandatoryDimensionsCol = new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text /*Lookup*/, false)
+        const mandatoryDimensionsCol = new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text, false)
             .setVisible(false)
-            .setWidth(40)   //Har ingen effekt
-            //.setResizeable(false)  - ble større!!
             .setTemplate(() => '')
+            .setWidth('50px')  //'5%') //Har ingen effekt
             .setTooltipResolver((row: CustomerInvoiceItem) => {
                 let text = 'Ok';
                 let check = 0;
-                var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
-                if (ir) {
-                    const rep = ir.report;
-                    const reqDims = rep.MissingRequiredDimensions;
-                    if (reqDims && reqDims.length > 0) {
-                        check = 1;
-                        text = rep.MissingRequiredDimensonsMessage;
+                if (this.itemsWithReport) {
+                    var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
+                    if (ir) {
+                        const rep = ir.report;
+                        const reqDims = rep.MissingRequiredDimensions;
+                        if (reqDims && reqDims.length > 0) {
+                            check = 1;
+                            text = rep.MissingRequiredDimensonsMessage;
+                        }
+                        const warnDims = rep.MissingWarningDimensions;
+                        if (warnDims && warnDims.length > 0) {
+                            check = 2;
+                            text = rep.MissingOnlyWarningsDimensionsMessage
+                        }
                     }
-                    const warnDims = rep.MissingWarningDimensions;
-                    if (warnDims && warnDims.length > 0) {
-                        check = 2;
-                        text = rep.MissingOnlyWarningsDimensionsMessage
-                    }
+                    //TODO else - ikke vis ikon på ny/neste rad
                 }
-                //TODO else - ikke vis ikon på ny/neste rad
                 const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
                 return {
                         type: type,
@@ -830,6 +819,9 @@ export class TradeItemTable {
             if (!updatedRow.Product) {
                 noProduct = true;
             }
+        } else if (event.field.startsWith('Dimensions.')) {
+            //TODO updatedRow.DimensionsID = 
+            triggerChangeDetection = true;
         }
         if (noProduct) {
             updatedRow.Dimensions = null;
@@ -866,9 +858,35 @@ export class TradeItemTable {
         if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
             this.items = _.cloneDeep(this.items); // trigger change detection
+            this.updateItemMandatoryDimensions(updatedRow);//TODO Kun for endret item
         }
 
         this.itemsChange.next(this.items);
+    }
+
+    private updateItemMandatoryDimensions(item: any) {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReport(item.AccountID, item.DimensionsID).subscribe(rep => {
+            var itemRep = this.itemsWithReport.find(x => x.ItemID = item.ID);
+            itemRep.report = rep;
+
+            this.initTableConfig();
+        });
+    }
+
+    private getMandatoryDimensionsReports() {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
+            let cnt = 0;
+            this.itemsWithReport = [];
+            this.items.forEach(item => {
+                this.itemsWithReport.push({
+                    itemID: item.ID,
+                    report: reps[cnt]
+                });
+                cnt++;
+            });
+
+            this.initTableConfig();
+        });
     }
 
     private getEmptyRow() {
