@@ -253,6 +253,7 @@ export class RecurringPost extends UniView {
                         .openSupplements(row, (trans) => this.onSupplementsClose(trans), false);
                 }
             }])
+            .setDefaultRowData({IsRecurringPost: true})
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol, VatTypeCol,
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementsCol
