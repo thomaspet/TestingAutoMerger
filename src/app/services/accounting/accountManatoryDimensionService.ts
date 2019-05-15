@@ -3,6 +3,7 @@ import { AccountManatoryDimension, CustomerInvoiceItem } from "@uni-entities";
 import { UniHttp } from "@uni-framework/core/http/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { RequestMethod } from "@angular/http";
 
 @Injectable()
 export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDimension> {
@@ -15,17 +16,18 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
 
     public getMandatoryDimensionsReports(items: CustomerInvoiceItem[]): Observable<any> {
         //let params = [];
-        let expands: string[] = [];
+        let expandsAd: AccountDimension[] = [];
         items.forEach(item => {
-            //const ad = new AccountDimension();
-            //ad.AccountID = item.AccountID;
-            //ad.DimensionsID = item.DimensionsID;
+            const ad = new AccountDimension();
+            ad.AccountID = item.AccountID;
+            ad.DimensionsID = item.DimensionsID;
             //params.push(ad);///*{*/item.AccountID, item.DimensionsID/*}*/); //ad);//item.AccountID);//
-            expands.push(item.AccountID.toString());
+            expandsAd.push(ad);
         });
         //const paramsStr = JSON.stringify(params);
-        return super.GetAction(null, `get-manatory-dimensions-reports`, `expand=${expands.join(',')}`);
+        return super.ActionWithBody(null, expandsAd, `get-manatory-dimensions-reports`, RequestMethod.Post);
     }
+
     public getMandatoryDimensionsReport(accountID: number, dimensionsID: number): Observable<any> {
         return super.GetAction(null, `get-manatory-dimensions-report&accountID=${accountID}&dimensionsID=${dimensionsID}`);
     }
