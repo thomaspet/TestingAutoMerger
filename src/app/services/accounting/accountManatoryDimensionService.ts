@@ -14,18 +14,17 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
     }
 
     public getMandatoryDimensionsReports(items: CustomerInvoiceItem[]): Observable<any> {
-        let params = [];
+        //let params = [];
+        let expands: string[] = [];
         items.forEach(item => {
-            const ad = new AccountDimension();
-            ad.AccountID = item.AccountID;
-            ad.DimensionsID = item.DimensionsID;
-            params.push(ad /*{
-                AccountID: item.AccountID, 
-                DimensionsID: item.DimensionsID
-                }*/);
+            //const ad = new AccountDimension();
+            //ad.AccountID = item.AccountID;
+            //ad.DimensionsID = item.DimensionsID;
+            //params.push(ad);///*{*/item.AccountID, item.DimensionsID/*}*/); //ad);//item.AccountID);//
+            expands.push(item.AccountID.toString());
         });
-        const paramsStr = JSON.stringify(params);
-        return super.GetAction(null, `get-manatory-dimensions-reports&items=${paramsStr}`);
+        //const paramsStr = JSON.stringify(params);
+        return super.GetAction(null, `get-manatory-dimensions-reports`, `expand=${expands.join(',')}`);
     }
     public getMandatoryDimensionsReport(accountID: number, dimensionsID: number): Observable<any> {
         return super.GetAction(null, `get-manatory-dimensions-report&accountID=${accountID}&dimensionsID=${dimensionsID}`);
