@@ -4,6 +4,8 @@
         [ngStyle]="{'flex': column.flex || 1}">
         {{column.header}}
     </span>
+
+    <span class="context-menu" *ngIf="contextMenu?.length"></span>
 </section>
 
 <cdk-virtual-scroll-viewport itemSize="50" class="list-body" #listBody>
@@ -13,6 +15,17 @@
             [ngClass]="getClass(column, row)"
             [ngStyle]="{'flex': column.flex || 1}">
             {{row | cellValue: column}}
+        </span>
+
+        <span class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu">
+            <i class="material-icons">more_horiz</i>
+            <mat-menu #menu="matMenu" xPosition="before">
+                <button mat-menu-item
+                    *ngFor="let item of contextMenu"
+                    (click)="item.action(row)">
+                    {{item.label}}
+                </button>
+            </mat-menu>
         </span>
     </section>
 </cdk-virtual-scroll-viewport>

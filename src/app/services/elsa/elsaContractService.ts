@@ -40,7 +40,10 @@ export class ElsaContractService {
             .usingEmptyDomain()
             .withEndPoint(`/api/elsa/contracts/${contractID}/userlicenses`)
             .send()
-            .map(res => res.json())
+            .map(res => {
+                const users = res.json() || [];
+                return users.filter(user => user.UserName !== 'System User');
+            });
     }
 
     activateContract(contractID: number, isBureau: boolean = false) {

@@ -30,8 +30,7 @@ export class UserList {
     ) {
         const contractID = this.authService.currentUser.License.Company.ContractID;
         this.elsaContractService.getUserLicenses(contractID).subscribe(
-            res => {
-                const users = (res || []).filter(user => user.UserName !== 'System User');
+            users => {
                 this.users = users.map(user => {
                     switch (user.UserLicenseType) {
                         case ElsaUserLicenseType.Standard:
@@ -48,7 +47,7 @@ export class UserList {
                     return user;
                 });
 
-                this.filteredUsers = res;
+                this.filteredUsers = this.users;
             },
             err => this.errorService.handle(err)
         );

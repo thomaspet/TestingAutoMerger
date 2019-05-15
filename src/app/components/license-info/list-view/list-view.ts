@@ -48,6 +48,7 @@ export class ListView {
     @Input() orderBy: string;
     @Input() rows: any[];
     @Input() columns: ListViewColumn[];
+    @Input() contextMenu: {label: string; action: (row) => void}[];
 
     @Output() rowClick = new EventEmitter();
 

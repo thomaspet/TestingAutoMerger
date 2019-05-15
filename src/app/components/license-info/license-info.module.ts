@@ -4,6 +4,7 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {MatListModule} from '@angular/material';
 
 import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {LayoutModule} from '../layout/layoutModule';
@@ -20,6 +21,7 @@ import {CellValuePipe, ListView} from './list-view/list-view';
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {UserList} from './user-list/license-user-list';
 import {UserDetails} from './user-list/license-user-details/license-user-details';
+import {AddAdminModal} from './add-admin-modal/add-admin-modal';
 
 @NgModule({
     imports: [
@@ -29,6 +31,7 @@ import {UserDetails} from './user-list/license-user-details/license-user-details
         FormsModule,
         ReactiveFormsModule,
         ScrollingModule,
+        MatListModule,
         LayoutModule,
         AppPipesModule,
         UniFrameworkModule,
@@ -56,7 +59,9 @@ import {UserDetails} from './user-list/license-user-details/license-user-details
         CostPerUser,
         InvoiceItemDetails,
         CellValuePipe,
-        ListView
-    ]
+        ListView,
+        AddAdminModal
+    ],
+    entryComponents: [AddAdminModal]
 })
 export class LicenseInfoModule {}
