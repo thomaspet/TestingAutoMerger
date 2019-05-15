@@ -86,6 +86,7 @@ import {
     MatTooltipModule,
     MatProgressBarModule,
     MatMenuModule,
+    MatOptionModule,
 } from '@angular/material';
 import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
 import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
@@ -100,6 +101,7 @@ import { UniSupplierImportModal } from './supplier/list/supplierImportModal';
         MatTooltipModule,
         MatProgressBarModule,
         MatMenuModule,
+        MatOptionModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,

@@ -61,7 +61,7 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
-import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule} from '@angular/material';
+import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule, MatSelectModule, MatOptionModule} from '@angular/material';
 import { UniCustomerImportModal } from './customer/list/customerImportModal';
 import { UniProductImportModal } from './products/UniProductImportModal';
 import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
@@ -77,6 +77,8 @@ import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
         MatTooltipModule,
         MatCardModule,
         MatProgressBarModule,
+        MatSelectModule,
+        MatOptionModule,
 
         RouterModule.forChild(salesRoutes),
 

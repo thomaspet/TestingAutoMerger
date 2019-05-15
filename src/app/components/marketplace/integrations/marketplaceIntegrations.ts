@@ -2,9 +2,10 @@ import {Component, OnInit, Pipe, PipeTransform} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
-import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
-import {ErrorService} from '@app/services/common/errorService';
+import {UserRoleService, ElsaProductService, ErrorService, ElsaPurchaseService} from '@app/services/services';
+import { forkJoin } from 'rxjs';
+import { AuthService } from '@app/authService';
 
 @Pipe({name: 'filterIntegrations'})
 export class FilterIntegrationsPipe implements PipeTransform {
@@ -25,16 +26,19 @@ export class FilterIntegrationsPipe implements PipeTransform {
     styleUrls: ['./marketplaceIntegrations.sass'],
 })
 export class MarketplaceIntegrations implements OnInit {
-
     activeIntegrations: ElsaProduct[];
     upcomingIntegrations: ElsaProduct[];
     candidateIntegrations: ElsaProduct[];
     searchText: string = '';
+    canPurchaseProducts: boolean;
 
     constructor(
         tabService: TabService,
+        private authService: AuthService,
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
+        private elsaPurchaseService: ElsaPurchaseService,
+        private userRoleService: UserRoleService,
         private errorService: ErrorService,
     ) {
         tabService.addTab({
@@ -43,29 +47,42 @@ export class MarketplaceIntegrations implements OnInit {
     }
 
     ngOnInit() {
-        const isIntegration = product => product.ProductType === ElsaProductType.Integration;
-        const isActive = product => product.ProductStatus === ElsaProductStatusCode.Live;
-        const isUpcoming = product => product.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
-        const isCandidate = product => product.ProductStatus === ElsaProductStatusCode.DevelopmentCandidate;
-        this.elsaProductService.GetAll().subscribe(
-            products => {
-                const integrations = products.filter(isIntegration);
-                this.activeIntegrations = integrations.filter(isActive);
-                this.upcomingIntegrations = integrations.filter(isUpcoming);
-                this.candidateIntegrations = integrations.filter(isCandidate);
+        forkJoin(
+            this.userRoleService.hasAdminRole(this.authService.currentUser.ID),
+            this.elsaPurchaseService.getAll(),
+            this.elsaProductService.GetAll()
+        ).subscribe(
+            res => {
+                this.canPurchaseProducts = res[0];
 
+                const purchases = res[1] || [];
+                const integrations = (res[2] || [])
+                    .filter(p => p.ProductType === ElsaProductType.Integration)
+                    .map(integration => {
+                        integration['_isBought'] = purchases.some(p => p.ProductID === integration.ID);
+                        return integration;
+                    });
+
+                this.activeIntegrations = integrations.filter(i => {
+                    return i.ProductStatus === ElsaProductStatusCode.Live;
+                });
+
+                this.upcomingIntegrations = integrations.filter(i => {
+                    return i.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
+                });
+
+                this.candidateIntegrations = integrations.filter(i => {
+                    return i.ProductStatus === ElsaProductStatusCode.DevelopmentCandidate;
+                });
             },
-            err => this.errorService.handle(err),
+            err => this.errorService.handle(err)
         );
-    }
-
-    navigateToExternalUrl(url: string) {
-        window.location.href = url;
     }
 
     openSubscribeModal(integrationItem: ElsaProduct) {
         return this.modalService.open(SubscribeModal, {
             data: {
+                canPurchaseProducts: this.canPurchaseProducts,
                 product: integrationItem
             }
         });

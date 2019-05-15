@@ -5,10 +5,11 @@ import {
     UniModalService,
     ProductPurchasesModal,
 } from '@uni-framework/uni-modal';
-import {ElsaProduct, ElsaProductType} from '@app/models';
+import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaPurchaseService, ErrorService} from '@app/services/services';
 import {ElsaPurchase} from '@app/models';
+import {parse} from 'marked';
 
 @Component({
     selector: 'uni-product-subscribe-modal',
@@ -17,14 +18,17 @@ import {ElsaPurchase} from '@app/models';
 })
 export class SubscribeModal implements IUniModal, OnInit {
     options: IModalOptions = {};
-    onClose: EventEmitter<void> = new EventEmitter<void>();
+    onClose: EventEmitter<any> = new EventEmitter();
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
     missingPermissionText: string;
+    busy: boolean;
 
-    extensionBoughtAndActivated: boolean;
-    elsaProductType = ElsaProductType;
+    htmlContent: string;
+    videoMarkup: string;
+
+    isIntegration: boolean;
 
     action: {
         label: string,
@@ -43,21 +47,43 @@ export class SubscribeModal implements IUniModal, OnInit {
         this.product = data.product;
         this.canPurchaseProducts = data.canPurchaseProducts;
 
-        if (this.product.ProductType !== ElsaProductType.Integration) {
-            if (!data.canPurchaseProducts) {
-                this.missingPermissionText = 'Du må være administrator for å kjøpe produkter';
-            }
+        this.isIntegration = this.product.ProductType === ElsaProductType.Integration;
 
-            if (this.product.IsPerUser) {
-                this.action = {
-                    label: 'Velg brukere',
-                    click: () => this.manageUserPurchases()
-                };
+        if (this.product.MarkdownContent) {
+            try {
+                const decoded = decodeURI(this.product.MarkdownContent);
+                this.htmlContent = parse(decoded) || '';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        if (this.product.VideoUrl) {
+            this.videoMarkup = this.getVideoMarkup(this.product.VideoUrl);
+        }
+
+        if (!data.canPurchaseProducts) {
+            this.missingPermissionText = 'Du må være administrator for å kjøpe produkter';
+        }
+
+        if (this.product.IsPerUser) {
+            this.action = {
+                label: 'Velg brukere',
+                click: () => this.manageUserPurchases()
+            };
+        } else {
+            if (this.product['_isBought']) {
+                this.action = this.product['_activationFunction'];
             } else {
-                if (this.product['_isBought']) {
-                    this.action = this.product['_activationFunction'];
-                    if (!this.action) {
-                        this.extensionBoughtAndActivated = true;
+                if (this.product.ProductType === ElsaProductType.Integration) {
+                    const purchasable = this.product.ProductStatus === ElsaProductStatusCode.Live
+                        && this.product.ClientID;
+
+                    if (purchasable) {
+                        this.action = {
+                            label: 'Aktiver integrasjon',
+                            click: () => this.purchaseProduct()
+                        };
                     }
                 } else {
                     this.action = {
@@ -83,7 +109,8 @@ export class SubscribeModal implements IUniModal, OnInit {
     }
 
     purchaseProduct() {
-        if (this.canPurchaseProducts) {
+        if (!this.busy && this.canPurchaseProducts) {
+            this.busy = true;
             const purchase: ElsaPurchase = {
                 ID: null,
                 ProductID: this.product.ID
@@ -91,18 +118,55 @@ export class SubscribeModal implements IUniModal, OnInit {
 
             this.elsaPurchaseService.massUpdate([purchase]).subscribe(
                 () => {
+                    this.busy = false;
                     this.product['_isBought'] = true;
                     this.action = this.product['_activationFunction'];
                     if (this.action) {
                         this.action.click();
                     }
                 },
-                err => this.errorService.handle(err)
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                }
             );
         }
     }
 
     priceText(product: ElsaProduct): string {
         return this.elsaProductService.ProductTypeToPriceText(product);
+    }
+
+    private getVideoMarkup(videoUrl: string) {
+        try {
+            let videoCode;
+            if (videoUrl.includes('youtu.be/')) {
+                videoCode = videoUrl.split('youtu.be/')[1];
+            } else if (videoUrl.includes('v=')) {
+                const codePart = videoUrl.split('v=')[1];
+                videoCode = codePart.split('&')[0];
+            } else if (videoUrl.includes('/embed/')) {
+                videoCode = videoUrl.split('/embed/')[1];
+            }
+
+            if (videoCode) {
+                return `
+                    <iframe
+                        src="https://www.youtube.com/embed/${videoCode}"
+                        width="560"
+                        height="315"
+                        frameborder="0"
+                        allow="accelerometer;
+                        autoplay;
+                        encrypted-media;
+                        gyroscope;
+                        picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
+        } catch (err) {
+            console.error(err);
+        }
     }
 }
