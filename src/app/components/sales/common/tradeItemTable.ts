@@ -770,38 +770,6 @@ export class TradeItemTable {
             });
     }
 
-    private checkMandatoryDimensions(mandatoryDimensions: Array<AccountManatoryDimension>, row: any) : number {
-        /*
-        {ID: 0, Name: 'Ikke satt'},
-        {ID: 1, Name: 'Påkrevd'},
-        {ID: 2, Name: 'Advarsel'}
-        */
-        const requiredDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 1);
-        if (requiredDimensions.length && !row.DimensionsID) {
-            return 1;
-        }
-/*        const warningDimensions = mandatoryDimensions.filter(x => x.ManatoryType === 2);
-        if (warningDimensions.length) {
-            //if (!row.DimensionsID) {
-                return 2;
-            //}
-        }*/
-        this.accountManatoryDimensionService.getMandatoryDimensionsReport(row.AccountID, row.DimensionsID).subscribe(rep => {
-            const temp = rep;
-            const reqDims = rep.MissingRequiredDimensions;
-            if (reqDims && reqDims.length > 0) {
-                return 1;
-                //MissingRequiredDimensonsMessage
-            }
-            const warnDims = rep.MissingWarningDimensions;
-            if (warnDims && warnDims.length > 0) {
-                return 2;
-                //MissingOnlyWarningsDimensionsMessage
-            }
-            return 0;
-        });
-    }
-
     private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
         let triggerChangeDetection = false;
         let noProduct = false;
@@ -820,7 +788,6 @@ export class TradeItemTable {
                 noProduct = true;
             }
         } else if (event.field.startsWith('Dimensions.')) {
-            //TODO updatedRow.DimensionsID = 
             triggerChangeDetection = true;
         }
         if (noProduct) {
