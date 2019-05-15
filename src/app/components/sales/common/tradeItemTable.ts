@@ -18,6 +18,8 @@ import {
     Department,
     Dimensions,
     LocalDate,
+    CustomerInvoiceItem,
+    AccountManatoryDimension,
 } from '../../../unientities';
 import {
     ProductService,
@@ -27,7 +29,8 @@ import {
     DepartmentService,
     ErrorService,
     CompanySettingsService,
-    CustomDimensionService
+    CustomDimensionService,
+    AccountManatoryDimensionService
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -72,6 +75,7 @@ export class TradeItemTable {
         { value: 4, label: 'Pr. kvartal' },
         { value: 5, label: 'Pr. år' }
     ];
+    itemsWithReport: any[];
 
     constructor(
         private productService: ProductService,
@@ -83,7 +87,8 @@ export class TradeItemTable {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private accountManatoryDimensionService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -92,7 +97,11 @@ export class TradeItemTable {
         ).subscribe(
             res => {
                 this.settings = res[0];
-                this.initTableConfig();
+                if (this.items && this.items.length > 0) {
+                    this.getMandatoryDimensionsReports();
+                } else {
+                    this.initTableConfig();
+                }
             },
             err => this.errorService.handle(err)
         );
@@ -353,6 +362,7 @@ export class TradeItemTable {
                         `filter=${filter}&top=100&orderby=PartName`,
                         [
                             'Account',
+                            'Account.ManatoryDimensions',
                             'Dimensions',
                             'Dimensions.Project',
                             'Dimensions.Department',
@@ -619,6 +629,38 @@ export class TradeItemTable {
                 }
             });
 
+        const mandatoryDimensionsCol = new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text, false)
+            .setVisible(false)
+            .setTemplate(() => '')
+            .setWidth('50px')  //'5%') //Har ingen effekt
+            .setTooltipResolver((row: CustomerInvoiceItem) => {
+                let text = 'Ok';
+                let check = 0;
+                if (this.itemsWithReport) {
+                    var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
+                    if (ir) {
+                        const rep = ir.report;
+                        const reqDims = rep.MissingRequiredDimensions;
+                        if (reqDims && reqDims.length > 0) {
+                            check = 1;
+                            text = rep.MissingRequiredDimensonsMessage;
+                        }
+                        const warnDims = rep.MissingWarningDimensions;
+                        if (warnDims && warnDims.length > 0) {
+                            check = 2;
+                            text = rep.MissingOnlyWarningsDimensionsMessage
+                        }
+                    }
+                    //TODO else - ikke vis ikon på ny/neste rad
+                }
+                const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
+                
+                return {
+                        type: type,
+                        text: text
+                    };
+                });
+
         const dimensionCols = [];
 
         this.dimensionTypes.forEach((type, index) => {
@@ -667,7 +709,8 @@ export class TradeItemTable {
         const allCols = [
             sortIndexCol, productCol, itemTextCol, unitCol, numItemsCol,
             exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
-            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
+            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol,
+            mandatoryDimensionsCol
         ].concat(dimensionCols);
 
         if (this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
@@ -739,6 +782,8 @@ export class TradeItemTable {
             if (!updatedRow.Product) {
                 noProduct = true;
             }
+        } else if (event.field.startsWith('Dimensions.')) {
+            triggerChangeDetection = true;
         }
         if (noProduct) {
             updatedRow.Dimensions = null;
@@ -775,9 +820,35 @@ export class TradeItemTable {
         if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
             this.items = _.cloneDeep(this.items); // trigger change detection
+            this.updateItemMandatoryDimensions(updatedRow);
         }
 
         this.itemsChange.next(this.items);
+    }
+
+    private updateItemMandatoryDimensions(item: any) {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReport(item.AccountID, item.DimensionsID).subscribe(rep => {
+            var itemRep = this.itemsWithReport.find(x => x.ItemID = item.ID);
+            itemRep.report = rep;
+
+            this.initTableConfig();
+        });
+    }
+
+    private getMandatoryDimensionsReports() {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
+            let cnt = 0;
+            this.itemsWithReport = [];
+            this.items.forEach(item => {
+                this.itemsWithReport.push({
+                    itemID: item.ID,
+                    report: reps[cnt]
+                });
+                cnt++;
+            });
+
+            this.initTableConfig();
+        });
     }
 
     private getEmptyRow() {
