@@ -654,18 +654,13 @@ export class TradeItemTable {
                     //TODO else - ikke vis ikon på ny/neste rad
                 }
                 const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
+                
                 return {
                         type: type,
                         text: text
                     };
                 });
 
-/* ref salaryTransList
-        const supplementCol = this.salaryTransViewService
-            .createSupplementsColumn(
-                (trans) => this.onSupplementModalClose(trans),
-                () => this.payrollRun && !!this.payrollRun.StatusCode);
-*/
         const dimensionCols = [];
 
         this.dimensionTypes.forEach((type, index) => {
@@ -825,7 +820,7 @@ export class TradeItemTable {
         if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
             this.items = _.cloneDeep(this.items); // trigger change detection
-            this.updateItemMandatoryDimensions(updatedRow);//TODO Kun for endret item
+            this.updateItemMandatoryDimensions(updatedRow);
         }
 
         this.itemsChange.next(this.items);
