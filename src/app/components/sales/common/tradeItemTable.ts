@@ -848,8 +848,8 @@ export class TradeItemTable {
                     report: rep
                 });
             }
-            this.refreshMandatoryDimensionsCol();            
-            //this.initTableConfig();
+            //this.refreshMandatoryDimensionsCol();            
+            this.initTableConfig();
         });
     }
 
