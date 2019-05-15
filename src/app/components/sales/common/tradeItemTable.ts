@@ -629,37 +629,7 @@ export class TradeItemTable {
                 }
             });
 
-        const mandatoryDimensionsCol = new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text, false)
-            .setVisible(false)
-            .setTemplate(() => '')
-            .setWidth('50px')  //'5%') //Har ingen effekt
-            .setTooltipResolver((row: CustomerInvoiceItem) => {
-                let text = 'Ok';
-                let check = 0;
-                if (this.itemsWithReport) {
-                    var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
-                    if (ir) {
-                        const rep = ir.report;
-                        const reqDims = rep.MissingRequiredDimensions;
-                        if (reqDims && reqDims.length > 0) {
-                            check = 1;
-                            text = rep.MissingRequiredDimensonsMessage;
-                        }
-                        const warnDims = rep.MissingWarningDimensions;
-                        if (warnDims && warnDims.length > 0) {
-                            check = 2;
-                            text = rep.MissingOnlyWarningsDimensionsMessage
-                        }
-                    }
-                    //TODO else - ikke vis ikon på ny/neste rad
-                }
-                const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
-                
-                return {
-                        type: type,
-                        text: text
-                    };
-                });
+        const mandatoryDimensionsCol = this.createMandatoryDimensionsCol();
 
         const dimensionCols = [];
 
@@ -765,6 +735,47 @@ export class TradeItemTable {
             });
     }
 
+    private createMandatoryDimensionsCol() : UniTableColumn {
+        return new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text, false)
+        .setVisible(false)
+        .setTemplate(() => '')
+        .setWidth('50px')  //'5%') //Har ingen effekt
+        .setTooltipResolver((row: CustomerInvoiceItem) => {
+            let text = 'Ok';
+            let check = 0;
+            if (this.itemsWithReport) {
+                var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
+                if (ir) {
+                    const rep = ir.report;
+                    const reqDims = rep.MissingRequiredDimensions;
+                    if (reqDims && reqDims.length > 0) {
+                        check = 1;
+                        text = rep.MissingRequiredDimensonsMessage;
+                    }
+                    const warnDims = rep.MissingWarningDimensions;
+                    if (warnDims && warnDims.length > 0) {
+                        check = 2;
+                        text = rep.MissingOnlyWarningsDimensionsMessage
+                    }
+                }
+                //TODO else - ikke vis ikon på ny/neste rad
+            }
+            const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
+            
+            return {
+                    type: type,
+                    text: text
+                };
+            });
+    }
+    private refreshMandatoryDimensionsCol() {
+        const mandatoryDimensionsCol = this.createMandatoryDimensionsCol();
+
+        const index = this.tableConfig.columns.findIndex(x => x.field === 'Account.ManatoryDimensions');
+        this.tableConfig.columns[index] = mandatoryDimensionsCol;
+        //TODO refresh this.tableConfig?
+    }
+
     private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
         let triggerChangeDetection = false;
         let noProduct = false;
@@ -829,8 +840,16 @@ export class TradeItemTable {
     private updateItemMandatoryDimensions(item: any) {
         this.accountManatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
             var itemRep = this.itemsWithReport.find(x => x.itemID === item.ID);
-            itemRep.report = rep;
-            this.initTableConfig();
+            if (itemRep) {
+                itemRep.report = rep;
+            } else {
+                this.itemsWithReport.push({
+                    itemID: item.ID,
+                    report: rep
+                });
+            }
+            this.refreshMandatoryDimensionsCol();            
+            //this.initTableConfig();
         });
     }
 
