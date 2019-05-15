@@ -827,10 +827,10 @@ export class TradeItemTable {
     }
 
     private updateItemMandatoryDimensions(item: any) {
-        this.accountManatoryDimensionService.getMandatoryDimensionsReport(item.AccountID, item.DimensionsID).subscribe(rep => {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
             var itemRep = this.itemsWithReport.find(x => x.ItemID = item.ID);
             itemRep.report = rep;
-
+            //TODO Rapport blir oppdatert, men symbol/text i kolonnen oppdateres ikke
             this.initTableConfig();
         });
     }
