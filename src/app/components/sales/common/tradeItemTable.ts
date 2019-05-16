@@ -75,7 +75,7 @@ export class TradeItemTable {
         { value: 4, label: 'Pr. kvartal' },
         { value: 5, label: 'Pr. år' }
     ];
-    itemsWithReport: any[];
+    itemsWithReport: any[] = [];
 
     constructor(
         private productService: ProductService,
@@ -736,10 +736,10 @@ export class TradeItemTable {
     }
 
     private createMandatoryDimensionsCol() : UniTableColumn {
-        return new UniTableColumn('Account.ManatoryDimensions', '...', UniTableColumnType.Text, false)
+        return new UniTableColumn('...', '...', UniTableColumnType.Text, false)
         .setVisible(false)
         .setTemplate(() => '')
-        .setWidth('50px')  //'5%') //Har ingen effekt
+        .setWidth('50px')
         .setTooltipResolver((row: CustomerInvoiceItem) => {
             let text = 'Ok';
             let check = 0;
@@ -757,23 +757,24 @@ export class TradeItemTable {
                         check = 2;
                         text = rep.MissingOnlyWarningsDimensionsMessage
                     }
-                }
-                //TODO else - ikke vis ikon på ny/neste rad
-            }
-            const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
             
-            return {
-                    type: type,
-                    text: text
-                };
-            });
+                }
+                if (row.AccountID) {
+                    const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
+                    return {
+                        type: type,
+                        text: text
+                    };
+                }
+            }
+        });
     }
+
     private refreshMandatoryDimensionsCol() {
         const mandatoryDimensionsCol = this.createMandatoryDimensionsCol();
 
         const index = this.tableConfig.columns.findIndex(x => x.field === 'Account.ManatoryDimensions');
         this.tableConfig.columns[index] = mandatoryDimensionsCol;
-        //TODO refresh this.tableConfig?
     }
 
     private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
@@ -794,6 +795,7 @@ export class TradeItemTable {
                 noProduct = true;
             }
         } else if (event.field.startsWith('Dimensions.')) {
+            updatedRow.DimensionsID = 0;
             triggerChangeDetection = true;
         }
         if (noProduct) {
@@ -830,7 +832,6 @@ export class TradeItemTable {
         }
         if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
-            this.items = _.cloneDeep(this.items); // trigger change detection
             this.updateItemMandatoryDimensions(updatedRow);
         }
 
@@ -848,8 +849,12 @@ export class TradeItemTable {
                     report: rep
                 });
             }
-            //this.refreshMandatoryDimensionsCol();            
-            this.initTableConfig();
+            this.refreshMandatoryDimensionsCol();
+            this.items = _.cloneDeep(this.items); // trigger change detection
+        },
+        err => { 
+            this.errorService.handle(err);
+            this.items = _.cloneDeep(this.items);
         });
     }
 
@@ -866,6 +871,10 @@ export class TradeItemTable {
             });
 
             this.initTableConfig();
+        },
+        err => { 
+            this.errorService.handle(err);
+            this.initTableConfig(); 
         });
     }
 

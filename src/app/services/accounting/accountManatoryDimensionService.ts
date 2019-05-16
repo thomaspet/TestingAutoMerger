@@ -26,7 +26,6 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
     }
 
     public getMandatoryDimensionsReportByDimension(accountID: number, dimensions: Dimensions): Observable<any> {
-        dimensions.ID = 0;
         return super.ActionWithBody(null, dimensions, `get-manatory-dimensions-report-by-dimensions&accountID=${accountID}`, RequestMethod.Put);
     }
 
