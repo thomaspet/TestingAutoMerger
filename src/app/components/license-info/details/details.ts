@@ -39,7 +39,7 @@ export class LicenseDetails {
         this.elsaCustomerService.getByContractID(this.contractID, 'Managers').subscribe(
             res => {
                 this.licenseOwner = res;
-                this.filteredManagers = this.licenseOwner.Managers || [];
+                this.filterManagers();
 
                 this.isAdmin = this.authService.currentUser.License.CustomerAgreement.CanAgreeToLicense;
                 if (this.isAdmin) {
@@ -76,10 +76,14 @@ export class LicenseDetails {
 
     filterManagers() {
         const filterValue = (this.filterValue || '').toLowerCase();
-        this.filteredManagers = (this.licenseOwner.Managers || []).filter(manager => {
-            return (manager.User.Name || '').toLowerCase().includes(filterValue)
-                || (manager.User.Email || '').toLowerCase().includes(filterValue)
-                || (manager.User.Phone || '').toLowerCase().includes(filterValue);
-        });
+        if (this.filterValue) {
+            this.filteredManagers = (this.licenseOwner.Managers || []).filter(manager => {
+                return (manager.User.Name || '').toLowerCase().includes(filterValue)
+                    || (manager.User.Email || '').toLowerCase().includes(filterValue)
+                    || (manager.User.Phone || '').toLowerCase().includes(filterValue);
+            });
+        } else {
+            this.filteredManagers = this.licenseOwner.Managers || [];
+        }
     }
 }
