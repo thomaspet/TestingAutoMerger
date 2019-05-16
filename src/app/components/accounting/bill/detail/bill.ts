@@ -2569,10 +2569,13 @@ export class BillView implements OnInit {
     private journal(ask: boolean, href: string): Observable<boolean> {
 
         const current = this.current.getValue();
+
+        /* TODO: Rewrite this validationRule or check if we need it, removed it because of troubles in production
         if (this.sumRemainder !== 0) {
             this.toast.addToast('Beløp i bilag går ikke i balanse med fakturabeløp', ToastType.bad, 7);
             return Observable.of(false);
         }
+        */
 
         if (current.ReInvoice && current.ReInvoice.ReInvoicingType === 0
             && (current.ReInvoice.StatusCode === 30201 || current.ReInvoice.StatusCode === null)) {
