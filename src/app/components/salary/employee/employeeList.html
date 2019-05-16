@@ -2,18 +2,10 @@
     [config]="{title: 'Ansatte'}"
     [saveactions]="toolbarActions">
 </uni-toolbar>
-
-<uni-ticker-wrapper
-    [tickerCode]="'employee_list'"
-    [showFiltersAsNavbar]="true"
-    [actionOverrides]="[]"
-    [columnOverrides]="[]">
-</uni-ticker-wrapper>
-
-<!-- <section class="application">
-    <ag-grid-wrapper class="selection-list"
-        [resource]="employees$ | async"
+<section class="application">
+    <ag-grid-wrapper
+        [resource]="lookupFunction"
         [config]="employeeTableConfig"
-        (rowSelectionChange)="employeeSelected($event)">
+        (rowClick)="employeeSelected($event)">
     </ag-grid-wrapper>
-</section> -->
+</section>
