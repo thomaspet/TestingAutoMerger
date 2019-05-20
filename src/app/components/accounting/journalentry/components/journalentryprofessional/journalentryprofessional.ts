@@ -16,7 +16,8 @@ import {
     UniTableColumnType,
     UniTableConfig,
     ICellClickEvent,
-    IContextMenuItem
+    IContextMenuItem,
+    IColumnTooltip
 } from '../../../../../../framework/ui/unitable/index';
 import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
@@ -61,6 +62,7 @@ import {
     CustomerService,
     UserService,
     CostAllocationService,
+    AccountManatoryDimensionService,
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -119,6 +121,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
+    private dimsReport: any[];
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -126,7 +129,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
-
+    private maDimensions: any[] = [];
     private lastImageDisplayFor: string = '';
 
     private defaultAccountPayments: Account = null;
@@ -198,6 +201,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private userService: UserService,
         private paymentService: PaymentService,
         private costAllocationService: CostAllocationService,
+        private accountManatoryDimensioinService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -210,6 +214,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (changes['currentFinancialYear'] && this.currentFinancialYear) {
             this.setupJournalEntryNumbers(false);
         }
+
 
         if (changes['journalEntryLines'] && this.journalEntryLines && this.journalEntryLines.length > 0) {
             // when the journalEntryLines changes, we need to update the sameornew alternatives,
@@ -1156,6 +1161,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+
         const invoiceNoTextCol = new UniTableColumn(
             'InvoiceNumber', 'Fakturanr', UniTableColumnType.Text
         )
@@ -1195,6 +1201,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return this.openNewAccountModal(this.table.getCurrentRow(), text);
                 }
             });
+
+        const manDimReportCol = new UniTableColumn('', '...', UniTableColumnType.Text)
+        .setVisible(false)
+        .setTemplate(() => '')
+        .setWidth('50px')  //'5%') //Har ingen effekt
+        .setTooltipResolver( (rowModel) => {
+            let msgText = '';
+            let iconType = 0;
+            let debRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.DebitReport;
+            let creRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.CreditReport;
+
+            if (debRep && debRep.MissingRequiredDimensonsMessage) { msgText = debRep.MissingRequiredDimensonsMessage + '\n'; }
+            if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
+            if (msgText !== '') { iconType = 1; }
+
+            if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) { msgText += debRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
+            if (creRep && creRep.MissingOnlyWarningsDimensionsMessage) { msgText += creRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
+            if (iconType !== 1 && msgText !== '') { iconType = 2; }
+
+            const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
+
+            return {
+                type: type  ,
+                text: msgText
+            };
+        });
 
         const debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
             .setDisplayField('DebitVatType.VatCode')
@@ -1634,7 +1666,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 costAllocationCol,
                 addedPaymentCol,
-                fileCol
+                fileCol,
+                manDimReportCol
             ];
 
             if (dimensionCols.length) {
@@ -2196,7 +2229,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         }
 
-        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+        const accs = this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+        return accs;
     }
 
     private projectSearch(searchValue): Observable<any> {
@@ -2934,6 +2968,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return true;
     }
 
+
+
     private rowChanged(event?) {
         if (!event) {
             return;
@@ -2955,6 +2991,60 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return;
             });
         }
+
+
+        const strF = event.field + "";
+
+        if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))) {
+
+            if (!event.rowModel.ManatoryDimensionsValidation) {
+                event.rowModel.ManatoryDimensionsValidation = {};
+            }
+
+            const checkDebit: boolean = event.field === 'DebitAccount' || strF.startsWith('Dimensions.');
+            const checkCredit: boolean = event.field === 'CreditAccount' || strF.startsWith('Dimensions.');
+
+
+            if (!event.newValue || event.newValue === null) {
+                if (event.field === 'DebitAccount') {event.rowModel.ManatoryDimensionsValidation['DebitReport'] = null; }
+                if (event.field === 'CreditAccount') {event.rowModel.ManatoryDimensionsValidation['CreditReport'] = null; }
+                this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                setTimeout(() => {
+                    const data = this.table.getTableData();
+                    this.dataChanged.emit(data);
+                }, 0);
+            }
+
+            if ( event.newValue !== null || strF.startsWith('Dimensions.')) {
+
+                if (checkDebit) {
+                    this.accountManatoryDimensioinService
+                    .getMandatoryDimensionsReportByDimension(event.rowModel.DebitAccountID, event.rowModel.Dimensions)
+                    .subscribe((report) => {
+                            event.rowModel.ManatoryDimensionsValidation['DebitReport'] = report;
+                            this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                            setTimeout(() => {
+                            const data = this.table.getTableData();
+                            this.dataChanged.emit(data);
+                        }, 0);
+                    });
+                }
+
+                if (checkCredit) {
+                    this.accountManatoryDimensioinService
+                    .getMandatoryDimensionsReportByDimension(event.rowModel.CreditAccountID, event.rowModel.Dimensions)
+                    .subscribe((report) => {
+                            event.rowModel.ManatoryDimensionsValidation['CreditReport'] = report;
+                            this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                            setTimeout(() => {
+                                const data = this.table.getTableData();
+                                this.dataChanged.emit(data);
+                        }, 0);
+                    });
+                }
+            }
+        }
+
 
         if (event.newValue && event.newValue.SupplierID && event.newValue.StatusCode === StatusCode.InActive) {
             const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};

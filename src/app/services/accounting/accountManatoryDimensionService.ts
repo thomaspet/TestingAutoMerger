@@ -1,9 +1,11 @@
+
 import { BizHttp } from "@uni-framework/core/http/BizHttp";
 import { AccountManatoryDimension, CustomerInvoiceItem, Dimensions } from "@uni-entities";
 import { UniHttp } from "@uni-framework/core/http/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { RequestMethod } from "@angular/http";
+
 
 @Injectable()
 export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDimension> {
@@ -13,6 +15,7 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
         this.relativeURL = AccountManatoryDimension.RelativeUrl;
         this.entityType = AccountManatoryDimension.EntityType;
     }
+
 
     public getMandatoryDimensionsReports(items: CustomerInvoiceItem[]): Observable<any> {
         let params: AccountDimension[] = [];
@@ -40,4 +43,5 @@ export class AccountDimension {
     public AccountID: number;
     public DimensionsID: number;
 }
+
 

@@ -48,6 +48,7 @@ import {
     VatTypeService,
     CostAllocationService,
     AccountService,
+    AccountManatoryDimensionService,
     SupplierService,
     DimensionService,
 } from '../../../../services/services';
@@ -155,6 +156,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private accountService: AccountService,
         private supplierService: SupplierService,
         private dimensionService: DimensionService,
+        private accountManatoryDimensionService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
