@@ -178,7 +178,45 @@ export class AccountDetails implements OnInit {
 
     public setDimensionsForm() {
         this.dimensionSettingsService.GetAll('filter=isActive eq true').subscribe((dimensionSettings: DimensionSettings[]) => {
-            const fields = dimensionSettings.map(dimensionSetting => {
+            const defaultFields = [
+                <UniFieldLayout> {
+                    FieldSet: 1,
+                    Legend: 'Påkrevde dimensjoner',
+                    Property: 'dim1',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Prosjekt',
+                    Options: {
+                        hideDeleteButton: true,
+                        searchable: false,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        source: [
+                            {ID: 0, Name: 'Ikke satt'},
+                            {ID: 1, Name: 'Påkrevd'},
+                            {ID: 2, Name: 'Advarsel'}
+                        ]
+                    }
+                },
+                <UniFieldLayout> {
+                    FieldSet: 1,
+                    Legend: 'Påkrevde dimensjoner',
+                    Property: 'dim2',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Avdeling',
+                    Options: {
+                        hideDeleteButton: true,
+                        searchable: false,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        source: [
+                            {ID: 0, Name: 'Ikke satt'},
+                            {ID: 1, Name: 'Påkrevd'},
+                            {ID: 2, Name: 'Advarsel'}
+                        ]
+                    }
+                }
+            ];
+            const fields = defaultFields.concat(dimensionSettings.map(dimensionSetting => {
                 return <UniFieldLayout> {
                         FieldSet: 1,
                         Legend: 'Påkrevde dimensjoner',
@@ -197,7 +235,7 @@ export class AccountDetails implements OnInit {
                             ]
                         }
                     };
-            });
+            }));
             this.dimensionsFields$.next(fields);
             if(this.account$.getValue()) {
                 const dimensions = {};

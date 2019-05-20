@@ -60,4 +60,19 @@ export class AccountService extends BizHttp<Account> {
 
         return accounts;
     }
+
+    public addManatoryDimensions(data: any) {
+        const urldata = [
+            'FromAccountNo=' + data.FromAccountNo,
+            'ToAccountNo=' + data.ToAccountNo,
+            'DimensionNo=' + data.DimensionNo,
+            'ManatoryType=' + data.ManatoryType,
+        ]
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('accountmanatorydimension?action=add-accounts-manatory-dimensions&' + urldata.join('&'))
+            .send()
+            .map(res => res.json());
+    }
 }

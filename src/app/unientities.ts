@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomFields: any;
 }
 
@@ -5101,6 +5101,8 @@ export class ApiKey extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public Encrypt: boolean;
+    public ExternalId: string;
     public FilterDate: LocalDate;
     public ID: number;
     public IntegrationKey: string;
@@ -7484,6 +7486,12 @@ export class A07Response extends UniEntity {
 }
 
 
+export class SetIntegrationDataDto extends UniEntity {
+    public ExternalId: string;
+    public IntegrationKey: string;
+}
+
+
 export class SendEmail extends UniEntity {
     public CopyAddress: string;
     public EntityID: number;
@@ -7587,6 +7595,33 @@ export class EHFActivate extends UniEntity {
     public orgphone: string;
     public outgoingInvoice: boolean;
     public outgoingInvoicePrint: boolean;
+}
+
+
+export class ManatoryDimensionAccountReport extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ManatoryDimensionAccountReport';
+
+    public AccountID: number;
+    public AccountNumber: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public ID: number;
+    public journalEntryLineDraftID: number;
+    public MissingOnlyWarningsDimensionsMessage: string;
+    public MissingRequiredDimensonsMessage: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class AccountDimension extends UniEntity {
+    public AccountID: number;
+    public DimensionsID: number;
 }
 
 
@@ -8461,6 +8496,7 @@ export enum Type{
 
 export enum TypeOfIntegration{
     TravelAndExpenses = 1,
+    Aprila = 2,
 }
 
 

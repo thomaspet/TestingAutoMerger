@@ -1,0 +1,17 @@
+<section role="dialog" class="uni-modal medium">
+    <header>
+        <h1>Påkrevde dimensjoner</h1>
+        <!-- <h3>Sett påkrevde dimensjoner på hovedbokskontoer</h3> -->
+    </header>
+    <article>
+        <uni-form
+            [config]="{autofocus: true}"
+            [model]="model"
+            [fields]="fields"
+        ></uni-form>
+    </article>
+    <footer>
+        <button (click)="save()" class="good">Lagre</button>
+        <button (click)="close()" class="bad">Avbryt</button>
+    </footer>
+</section>
