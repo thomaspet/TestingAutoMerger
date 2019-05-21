@@ -1,4 +1,4 @@
-import {Component, Directive, Input, ElementRef, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {ElsaProduct} from '@app/models';
 
 @Component({
@@ -17,17 +17,5 @@ export class SelectProductsComponent {
             .filter(p => p['_selected'])
             .map(p => p.Name);
         this.selectedProductsNamesChange.emit(selectedProductsNames);
-    }
-}
-
-@Directive({ selector: '[matBadgeIcon]' })
-export class MatBadgeIconDirective {
-    @Input() matBadgeIcon: string;
-
-    constructor(private el: ElementRef) {}
-
-    ngOnInit() {
-        const badge = this.el.nativeElement.querySelector('.mat-badge-content');
-        badge.innerHTML = `<i class="material-icons" style="font-size: 20px; background-color: #3f76db">${this.matBadgeIcon}</i>`;
     }
 }

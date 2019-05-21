@@ -2,7 +2,7 @@ import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {ElsaCustomer, ElsaContractType, ElsaContract} from '@app/models';
 import {ElsaCustomersService} from '@app/services/elsa/elsaCustomersService';
 import {ErrorService} from '@app/services/common/errorService';
-import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
+import {GrantAccessData} from './grant-access-modal';
 
 @Component({
     selector: 'select-license-for-bulk-access',

@@ -1,5 +1,5 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
-import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
+import {GrantAccessData} from './grant-access-modal';
 import {ElsaProduct} from '@app/models';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ErrorService} from '@app/services/common/errorService';

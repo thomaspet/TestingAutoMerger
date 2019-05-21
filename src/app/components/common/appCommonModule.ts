@@ -60,6 +60,10 @@ import {
     MatCheckboxModule
 } from '@angular/material';
 
+import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
+import {DeleteCompanyModal} from './modals/company-modals/delete-company-modal/delete-company-modal';
+import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -72,7 +76,7 @@ import {
 
         MatProgressBarModule,
         MatMenuModule,
-        MatCheckboxModule
+        MatCheckboxModule,
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -125,7 +129,13 @@ import {
         WorkitemTransferWizardFilter,
         WorkitemTransferWizardPreview,
         WorkitemTransferWizardProducts,
-        InvoiceHours
+        InvoiceHours,
+
+        DeleteCompanyModal,
+        UniNewCompanyModal,
+        ...NEW_COMPANY_VIEWS,
+        GrantAccessModal,
+        ...GRANT_ACCESS_VIEWS,
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -140,7 +150,10 @@ import {
         UniAutomarkModal,
         UniTimeModal,
         UniMarkingDetailsModal,
-        WorkitemTransferWizard
+        WorkitemTransferWizard,
+        GrantAccessModal,
+        UniNewCompanyModal,
+        DeleteCompanyModal,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -188,7 +201,7 @@ import {
         WorkitemTransferWizardFilter,
         WorkitemTransferWizardPreview,
         WorkitemTransferWizardProducts,
-        InvoiceHours
+        InvoiceHours,
     ]
 })
 export class AppCommonModule {}

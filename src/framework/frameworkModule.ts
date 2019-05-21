@@ -144,7 +144,8 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         MatMenuModule,
         MatProgressSpinnerModule,
         MatStepperModule,
-        MatListModule
+        MatListModule,
+        ScrollingModule
     ]
 })
 export class UniFrameworkModule {}

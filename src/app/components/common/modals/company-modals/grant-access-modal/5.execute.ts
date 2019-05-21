@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
+import {GrantAccessData} from './grant-access-modal';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
 import {Observable} from 'rxjs';
 
