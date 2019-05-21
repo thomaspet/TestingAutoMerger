@@ -1,5 +1,5 @@
 ﻿import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {Component, ViewChild} from '@angular/core';
+import { Component, SimpleChanges, ViewChild } from '@angular/core';
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
@@ -90,7 +90,16 @@ export class AccountSettings {
         this.hasChanges = false;
     }
 
-    public change(account: Account) {
+    public change(event: SimpleChanges) {
+        this.accountService.checkLinkedBankAccounts(this.account.AccountNumber).subscribe(hasLinkedBankAccounts => {
+            if (hasLinkedBankAccounts || event && event.UsePostPost && event.UsePostPost.currentValue) {
+                this.toastService.addToast(
+                    'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
+                    ToastType.warn,
+                    ToastTime.medium,
+                    'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.');
+            }
+        });
         this.hasChanges = true;
     }
 

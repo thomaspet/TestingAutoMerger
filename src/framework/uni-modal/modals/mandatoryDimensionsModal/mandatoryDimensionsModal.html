@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal medium">
+<section role="dialog" class="uni-modal medium" style="width: 35vw">
     <header>
         <h1>Påkrevde dimensjoner</h1>
         <!-- <h3>Sett påkrevde dimensjoner på hovedbokskontoer</h3> -->
@@ -8,10 +8,11 @@
             [config]="{autofocus: true}"
             [model]="model"
             [fields]="fields"
+            (changeEvent)="onChange($event)"
         ></uni-form>
     </article>
     <footer>
-        <button (click)="save()" class="good">Lagre</button>
+        <button (click)="save()" class="good" [disabled]="!isModelComplete() && !checkingBankAccounts">Lagre</button>
         <button (click)="close()" class="bad">Avbryt</button>
     </footer>
 </section>

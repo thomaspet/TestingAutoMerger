@@ -101,7 +101,7 @@ export class AccountDetails implements OnInit {
     }
 
     public onChange(event) {
-        this.changeEvent.emit();
+        this.changeEvent.emit(event);
     }
 
     private extendFormConfig() {
@@ -143,19 +143,19 @@ export class AccountDetails implements OnInit {
         accountNumber.Options = {
             events: {
                 blur: () => {
-                    const account = this.account$.getValue();
+                    const currentAccount = this.account$.getValue();
                     if (
-                        (!account.ID || account.ID === 0 || !account.AccountGroupID)
-                        && account.AccountNumber && account.AccountNumber.toString().length > 3
+                        (!currentAccount.ID || currentAccount.ID === 0 || !currentAccount.AccountGroupID)
+                        && currentAccount.AccountNumber && currentAccount.AccountNumber.toString().length > 3
                     ) {
-                        const expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
+                        const expectedAccountGroupNo =  currentAccount.AccountNumber.toString().substring(0, 3);
 
                         const defaultAccountGroup = this.accountGroups.find(
                             x => x.GroupNumber === expectedAccountGroupNo
                         );
 
                         if (defaultAccountGroup) {
-                            account.AccountGroupID = defaultAccountGroup.ID;
+                            currentAccount.AccountGroupID = defaultAccountGroup.ID;
                         } else {
                             const defAccountGroup =
                                 this.accountGroups
@@ -163,11 +163,11 @@ export class AccountDetails implements OnInit {
                                     .sort((a, b) => b.GroupNumber.localeCompare(a.GroupNumber))
                                     .find(x => x.GroupNumber < expectedAccountGroupNo);
                             if (defAccountGroup) {
-                                account.AccountGroupID = defAccountGroup.ID;
+                                currentAccount.AccountGroupID = defAccountGroup.ID;
                             }
                         }
 
-                        this.account$.next(account);
+                        this.account$.next(currentAccount);
                     }
                 }
             }
@@ -237,7 +237,7 @@ export class AccountDetails implements OnInit {
                     };
             }));
             this.dimensionsFields$.next(fields);
-            if(this.account$.getValue()) {
+            if (this.account$.getValue()) {
                 const dimensions = {};
                 this.account$.getValue().ManatoryDimensions.forEach(md => {
                     dimensions['dim' + md.DimensionNo] = md.ManatoryType;
@@ -311,7 +311,7 @@ export class AccountDetails implements OnInit {
                     ToastType.bad,
                     ToastTime.medium,
                     'Du må velge minimum kontonummer, navn og velge en kontogruppe før du kan lagre');
-                if (done) { done('Lagring feilet'); }   //completeEvent('Lagring feilet');
+                if (done) { done('Lagring feilet'); }   // completeEvent('Lagring feilet');
                 resolve(false);
                 return;
             }
@@ -321,12 +321,12 @@ export class AccountDetails implements OnInit {
                     .Put(account.ID, account)
                     .subscribe(
                         (response) => {
-                            //completeEvent('Lagret');
+                            // completeEvent('Lagret');
                             resolve(true);
                             this.accountSaved.emit(account);
                         },
                         (err) => {
-                            //completeEvent('Feil ved lagring');
+                            // completeEvent('Feil ved lagring');
                             resolve(false);
                             this.errorService.handle(err);
                         }
@@ -336,12 +336,12 @@ export class AccountDetails implements OnInit {
                     .Post(account)
                     .subscribe(
                         (response) => {
-                            //completeEvent('Lagret');
+                            // completeEvent('Lagret');
                             resolve(true);
                             this.accountSaved.emit(account);
                         },
                         (err) => {
-                            //completeEvent('Feil ved lagring');
+                            // completeEvent('Feil ved lagring');
                             resolve(false);
                             this.errorService.handle(err);
                         }

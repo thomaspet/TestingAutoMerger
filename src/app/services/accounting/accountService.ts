@@ -3,6 +3,8 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Account, VatType, AccountGroup} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {StatisticsService} from '../common/statisticsService';
+import { map, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class AccountService extends BizHttp<Account> {
@@ -28,8 +30,10 @@ export class AccountService extends BizHttp<Account> {
             `Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,` +
             `Account.UseVatDeductionGroupID as AccountUseVatDeductionGroupID,Supplier.StatusCode as SupplierStatusCode,` +
             `Customer.StatusCode as CustomerStatusCode`)
-            .map(x => x.Data ? x.Data : [])
-            .map(x => this.mapStatisticsToAccountObjects(x));
+        .pipe(
+                map(x => x.Data ? x.Data : []),
+                map(x => this.mapStatisticsToAccountObjects(x))
+        );
     }
 
     private mapStatisticsToAccountObjects(statisticsData: any[]): Account[] {
@@ -67,12 +71,22 @@ export class AccountService extends BizHttp<Account> {
             'ToAccountNo=' + data.ToAccountNo,
             'DimensionNo=' + data.DimensionNo,
             'ManatoryType=' + data.ManatoryType,
-        ]
+        ];
         return this.http
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint('accountmanatorydimension?action=add-accounts-manatory-dimensions&' + urldata.join('&'))
-            .send()
-            .map(res => res.json());
+            .send().pipe(map(res => res.json()));
+    }
+
+    public checkLinkedBankAccounts(FromAccountNumber: any, ToAccountNumber?: any) {
+        if (!ToAccountNumber) {
+            ToAccountNumber = FromAccountNumber;
+        }
+        return this.statisticsService.GetAll(
+                `model=Account`
+                + `&select=account.*,bankaccount.ID,bankaccount.AccountNumber`
+                + `&filter=Accountnumber ge ${FromAccountNumber} and  Accountnumber le ${ToAccountNumber} and bankaccount.ID gt 0`
+                + `&join=Account.id eq Bankaccount.accountid`).pipe(map(data => data.Data.length > 0));
     }
 }

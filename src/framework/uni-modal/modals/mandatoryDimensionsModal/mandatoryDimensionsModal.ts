@@ -2,7 +2,6 @@ import {
     Component, Input, Output, EventEmitter, OnInit
 } from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
-import { ErrorService } from '@app/services/services';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { Observable } from 'rxjs/Observable';
 import { StatusCode } from '@app/components/sales/salesHelper/salesEnums';
@@ -10,6 +9,7 @@ import { AccountService } from '@app/services/accounting/accountService';
 import { Account, DimensionSettings } from '@app/unientities';
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
 import { map } from 'rxjs/operators';
+import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-mandatory-dimensions-modal',
@@ -22,11 +22,12 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
 
     fields;
     model;
+    checkingBankAccounts = false;
 
     constructor(
         private dimensionSettingsService: DimensionSettingsService,
         private accountService: AccountService,
-        private errorService: ErrorService
+        private toastService: ToastService
     ) {}
 
     public ngOnInit() {
@@ -41,6 +42,29 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
 
     save() {
         this.onClose.emit(this.model);
+    }
+
+    onChange(event: any) {
+        if (this.model.FromAccountNo && this.model.ToAccountNo) {
+            this.checkingBankAccounts = true;
+            this.accountService.checkLinkedBankAccounts(this.model.FromAccountNo, this.model.ToAccountNo).subscribe(hasLinkedBankAccounts => {
+                this.checkingBankAccounts = false;
+                if (hasLinkedBankAccounts) {
+                    this.toastService.addToast(
+                        'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
+                        ToastType.warn,
+                        ToastTime.medium,
+                        'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.');
+                }
+            });
+        }
+    }
+
+    isModelComplete() {
+        return this.model.FromAccountNo
+            && this.model.ToAccountNo
+            && (this.model.ManatoryType || this.model.ManatoryType === 0)
+            && this.model.DimensionNo;
     }
 
     formFields() {
