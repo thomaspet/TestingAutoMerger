@@ -1528,9 +1528,9 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Options: {
-                    valueProperty: 'AccountNumber',
+                    valueProperty: 'ID',
                     source: model => this.accountService
-                        .GetAll(`filter=AccountNumber eq ${model.InterrimPaymentAccountID}`)
+                        .GetAll(`filter=ID eq ${model.InterrimPaymentAccountID}`)
                         .map(results => results[0])
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
@@ -1544,9 +1544,9 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Options: {
-                    valueProperty: 'AccountNumber',
+                    valueProperty: 'ID',
                     source: model => this.accountService
-                        .GetAll(`filter=AccountNumber eq ${model.InterrimRemitAccountID}`)
+                        .GetAll(`filter=ID eq ${model.InterrimRemitAccountID}`)
                         .map(results => results[0])
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
