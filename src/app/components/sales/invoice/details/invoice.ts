@@ -1116,6 +1116,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.invoice = _.cloneDeep(invoice);
         this.updateCurrency(invoice, true);
         this.recalcDebouncer.next(invoice.Items);
+        if (this.tradeItemTable) {
+            this.tradeItemTable.getMandatoryDimensionsReports();
+        }
         this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
@@ -1707,7 +1710,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                                 (res) => this.selectConfig = undefined,
-                                (err) => this.errorService.handle(err),
+                                (err) => {
+                                    done('Feil oppstod!');
+                                    this.errorService.handle(err);
+                                },
                                 () => {
                                     this.getInvoice(invoice.ID).subscribe(res => {
                                         this.refreshInvoice(res);

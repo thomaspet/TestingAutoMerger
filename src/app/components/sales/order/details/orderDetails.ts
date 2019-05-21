@@ -809,6 +809,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 this.order = _.cloneDeep(order);
                 this.updateCurrency(order, true);
                 this.recalcItemSums(order.Items);
+                if (this.tradeItemTable) {
+                    this.tradeItemTable.getMandatoryDimensionsReports();
+                }
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();

@@ -22,7 +22,11 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
         items.forEach(item => {
             const ad = new AccountDimension();
             ad.AccountID = item.AccountID;
-            ad.DimensionsID = item.DimensionsID;
+            if (item.DimensionsID && item.DimensionsID > 0) {
+                ad.DimensionsID = item.DimensionsID;
+            } else {
+                ad.Dimensions = item.Dimensions;
+            }
             params.push(ad);
         });
         return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
@@ -42,6 +46,7 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
 export class AccountDimension {
     public AccountID: number;
     public DimensionsID: number;
+    public Dimensions: Dimensions;
 }
 
 
