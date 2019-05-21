@@ -1205,27 +1205,30 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const manDimReportCol = new UniTableColumn('', '...', UniTableColumnType.Text)
         .setVisible(false)
         .setTemplate(() => '')
-        .setWidth('50px')  //'5%') //Har ingen effekt
+        .setResizeable(false)
+        .setWidth('40px')  //'5%') //Har ingen effekt
         .setTooltipResolver( (rowModel) => {
             let msgText = '';
             let iconType = 0;
             let debRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.DebitReport;
             let creRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.CreditReport;
 
-            if (debRep && debRep.MissingRequiredDimensonsMessage) { msgText = debRep.MissingRequiredDimensonsMessage + '\n'; }
-            if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
-            if (msgText !== '') { iconType = 1; }
+            if (debRep || creRep) {
 
-            if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) { msgText += debRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
-            if (creRep && creRep.MissingOnlyWarningsDimensionsMessage) { msgText += creRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
-            if (iconType !== 1 && msgText !== '') { iconType = 2; }
+                if (debRep && debRep.MissingRequiredDimensonsMessage) { msgText = debRep.MissingRequiredDimensonsMessage + '\n'; }
+                if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
+                if (msgText !== '') { iconType = 1; }
 
-            const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
+                if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) { msgText += debRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
+                if (creRep && creRep.MissingOnlyWarningsDimensionsMessage) { msgText += creRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
+                if (iconType !== 1 && msgText !== '') { iconType = 2; }
 
-            return {
-                type: type  ,
-                text: msgText
-            };
+                const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
+                return {
+                    type: type  ,
+                    text: msgText,
+                };
+            }
         });
 
         const debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
@@ -3025,6 +3028,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                             const data = this.table.getTableData();
+                            const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                            if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
+
                             this.dataChanged.emit(data);
                         }, 0);
                     });
@@ -3038,13 +3044,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                                 const data = this.table.getTableData();
+                                const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
                                 this.dataChanged.emit(data);
                         }, 0);
                     });
                 }
             }
         }
-
 
         if (event.newValue && event.newValue.SupplierID && event.newValue.StatusCode === StatusCode.InActive) {
             const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
