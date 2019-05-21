@@ -1,8 +1,8 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
-import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
-import {ElsaUserLicense_deprecated} from '@app/models';
+import {ElsaUserLicense} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
+import {ElsaContractService} from '@app/services/services';
 
 @Component({
     selector: 'select-users-for-bulk-access',
@@ -13,10 +13,10 @@ export class SelectUsersForBulkAccess {
     @Input() data: GrantAccessData;
     @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
-    users: ElsaUserLicense_deprecated[];
+    users: ElsaUserLicense[];
 
     constructor(
-        private elsaCompanyLicenseService: ElsaCompanyLicenseService,
+        private elsaContractService: ElsaContractService,
         private errorService: ErrorService,
     ) {}
 
@@ -28,8 +28,8 @@ export class SelectUsersForBulkAccess {
 
     private initData() {
         if (this.data.customer) {
-            this.elsaCompanyLicenseService.GetAllUsers(
-                this.data.customer.CompanyKey
+            this.elsaContractService.getUserLicenses(
+                this.data.contract.ID
             ).subscribe(
                 users => {
                     if (this.data.users && this.data.users.length) {

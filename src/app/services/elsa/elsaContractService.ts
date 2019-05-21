@@ -37,8 +37,8 @@ export class ElsaContractService {
     getUserLicenses(contractID: number): Observable<ElsaUserLicense[]> {
         return this.uniHttp
             .asGET()
-            .usingEmptyDomain()
-            .withEndPoint(`/api/elsa/contracts/${contractID}/userlicenses`)
+            .usingElsaDomain()
+            .withEndPoint(`/api/contracts/${contractID}/userlicense-summary`)
             .send()
             .map(res => {
                 const users = res.json() || [];

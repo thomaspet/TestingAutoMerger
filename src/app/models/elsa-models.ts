@@ -121,21 +121,6 @@ export interface ElsaUserLicense {
     Email: string;
 }
 
-export interface ElsaUserLicense_deprecated {
-    ID: number;
-    companyLicense?: any;
-    CompanyLicenseID: number;
-    StartDate: Date;
-    EndDate?: Date;
-    UserLicenseKey: string;
-    UserName: string;
-    UserIdentity: string;
-    StatusCode: number;
-    UserLicenseType: number;
-    Purchases?: any[];
-    AgreementAcceptances?: any;
-}
-
 export enum ElsaCustomerAccessRole {
     Read = 0,
     Manage = 1,
