@@ -743,12 +743,11 @@ export class TradeItemTable {
     }
 
     private createMandatoryDimensionsCol() : UniTableColumn {
-        return new UniTableColumn('...', '...'/*Påkrevde dimensjoner'*/, UniTableColumnType.Text, false)
+        return new UniTableColumn('...', 'Påkrevde dimensjoner', UniTableColumnType.Text, false)
         .setVisible(false)
+        .setWidth(40)
+        .setResizeable(false)
         .setTemplate(() => '')
-        .setWidth('50px')
-        //.setWidth(40)
-        //.setResizeable(false)
         .setTooltipResolver((row: any) => {
             let text = 'Ok';
             let check = 0;
