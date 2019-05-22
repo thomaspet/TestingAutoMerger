@@ -1202,16 +1202,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
-        const manDimReportCol = new UniTableColumn('', '...', UniTableColumnType.Text)
+        const manDimReportCol = new UniTableColumn('', '...', UniTableColumnType.Text, false)
         .setVisible(false)
         .setTemplate(() => '')
         .setResizeable(false)
-        .setWidth('40px')  //'5%') //Har ingen effekt
+        .setWidth('40px')  // '5%') //Har ingen effekt
         .setTooltipResolver( (rowModel) => {
             let msgText = '';
             let iconType = 0;
-            let debRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.DebitReport;
-            let creRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.CreditReport;
+            const debRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.DebitReport;
+            const creRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.CreditReport;
 
             if (debRep || creRep) {
 
@@ -1219,8 +1219,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
                 if (msgText !== '') { iconType = 1; }
 
-                if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) { msgText += debRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
-                if (creRep && creRep.MissingOnlyWarningsDimensionsMessage) { msgText += creRep.MissingOnlyWarningsDimensionsMessage + '\n'; }
+                if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) {
+                    msgText += debRep.MissingOnlyWarningsDimensionsMessage + '\n';
+                }
+                if (creRep && creRep.MissingOnlyWarningsDimensionsMessage) {
+                    msgText += creRep.MissingOnlyWarningsDimensionsMessage + '\n';
+                }
                 if (iconType !== 1 && msgText !== '') { iconType = 2; }
 
                 const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
@@ -1374,6 +1378,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setDisplayField('Project.ProjectNumber')
+            .setVisible(false)
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
                     const project = rowModel.Dimensions.Project;
@@ -1393,6 +1398,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
             .setWidth('12%')
+            .setVisible(false)
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Department && rowModel.Dimensions.Department.Name) {
                     const dep = rowModel.Dimensions.Department;
@@ -1457,11 +1463,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 itemValue: (item) => {
                     return item ? item.Description : '';
                 }
-            });
+            })
+            .setWidth('200px');
 
         const addedPaymentCol = new UniTableColumn('JournalEntryPaymentData', '$', UniTableColumnType.Text, false)
             .setTemplate(line => line.JournalEntryPaymentData ? '$' : '')
-            .setWidth('30px');
+            .setWidth('30px')
+            .setVisible(false);
 
         const fileCol = new UniTableColumn(
             'ID', PAPERCLIP, UniTableColumnType.Text, false
@@ -1491,7 +1499,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setWidth('12%')
+            .setWidth('100px')
             .setOptions({
                 itemTemplate: (item) => {
                     return (item.ID + ' - ' + item.Name);
@@ -1500,7 +1508,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return this.costAllocationService.search(searchValue);
                 }
             })
-            .setVisible(true);
+            .setVisible(false);
 
         let defaultRowData = {
             Dimensions: {},
@@ -2996,7 +3004,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
 
-        const strF = event.field + "";
+        const strF = event.field + '';
 
         if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))) {
 
