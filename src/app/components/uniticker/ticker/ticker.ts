@@ -1264,24 +1264,6 @@ export class UniTicker {
             .setContextMenu(contextMenuItems, true, false)
             .setShowTotalRowCount(true)
             .setSearchable(true)
-            .setDataMapper((data) => {
-                if (this.ticker.Model) {
-                    const tmp = data !== null ? data.Data : [];
-
-                    if (data !== null && data.Message !== null && data.Message !== '') {
-                        this.toastService.addToast('Feil ved henting av data, ' + data.Message,
-                            ToastType.bad);
-                    }
-
-                    return tmp;
-                } else {
-                    if (this.ticker.ListObject && this.ticker.ListObject !== '') {
-                        return data[this.ticker.ListObject];
-                    }
-
-                    return data;
-                }
-            })
             .setIsRowReadOnly(row => {
                 if (!this.ticker.ReadOnlyCases) {
                     return false;
