@@ -544,10 +544,6 @@ export class AccountDetailsReport {
                     return 'journal-entry-credited';
                 }
             })
-            .setDataMapper((data) => {
-                const tmp = data !== null ? data.Data : [];
-                return tmp;
-            })
             .setColumns(columns));
     }
 
