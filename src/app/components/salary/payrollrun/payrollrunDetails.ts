@@ -23,7 +23,6 @@ import {UniView} from '../../../../framework/core/uniView';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
@@ -36,7 +35,6 @@ import {PaycheckSenderModal} from './sending/paycheckSenderModal';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { TaxCardModal } from '../employee/modals/taxCardModal';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 
@@ -893,16 +891,32 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public openControlModal(done) {
-        this.payrollrun$
-            .asObservable()
-            .take(1)
-            .subscribe(run => this.modalService.open(ControlModal, {
-                data: run,
-                modalConfig: {
-                    update: () => this.getPayrollRun()
+        this.statisticsService.GetAll(`model=SalaryTransaction&filter=PayrollRunID eq ${this.payrollrun$.value.ID}`)
+            .subscribe(res => {
+                const count = res.Data[0].countid;
+
+                if (count > 1000) {
+                    done('');
+                    return this._toastService.addToast(
+                        'Kan ikke åpne kontroll modal',
+                        ToastType.warn,
+                        0,
+                        'Lønnsavregningen inneholder mange lønnsposter. Vi anbefaler at du benytter Oversikt' +
+                        ' - Lønnsposter, her kan du benytte filtre for å begrense datamengden',
+
+                    );
                 }
-            }));
-        done('');
+                this.payrollrun$
+                    .asObservable()
+                    .take(1)
+                    .subscribe(run => this.modalService.open(ControlModal, {
+                        data: run,
+                        modalConfig: {
+                            update: () => this.getPayrollRun()
+                        }
+                    }));
+                done('');
+            });
     }
 
     public openVacationPayModal() {
