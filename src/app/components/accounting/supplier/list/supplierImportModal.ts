@@ -22,19 +22,10 @@ import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialo
                     </label>
                 </form>
                 
-                <div class="type-filter">
-                    <span>File Type</span>
-                    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
-                        <mat-option *ngFor="let filter of filters" [value]="filter">
-                            {{ filter.label }}
-                        </mat-option>
-                    </mat-select>
-                </div>
-
                 <div>
                     <span>Filimport</span>
                     <div class="supplier-file-import">
-                        <input type="file" (change)="uploadFileChange($event)">
+                        <input type="file" (change)="uploadFileChange($event)" accept=".xlsx, .txt">
                     </div>
                 </div>
                 <mat-progress-bar *ngIf="loading$ | async" class="uni-progress-bar" mode="indeterminate">
@@ -62,8 +53,7 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
 
-    filters: Array<IFilter>;
-    currentFilter: IFilter;
+    errorMessage = 'Please select a file';
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
     importModel: ImportDialogModel;
 
@@ -79,11 +69,6 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
             this.companyName = authDetails.activeCompany.Name;
             this.token = authDetails.token;
         });
-        this.filters = [
-            { name: ImportFileType.StandardizedExcelFormat.toString(), label: 'Standardized Excel Format', interval: ItemInterval.all },
-            { name: ImportFileType.StandardUniFormat.toString(), label: 'Standard Uni Format', interval: ItemInterval.all },
-        ];
-        this.currentFilter = this.filters[0];
         this.fileType = ImportFileType.StandardizedExcelFormat;
     }
 
@@ -92,11 +77,16 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
         if (source.files && source.files.length) {
-            this.file = source.files[0];
+            let type = source.files[0].name.split(/[.]+/).pop();
+            if (type == 'txt' || type == 'xlsx') {
+                this.file = source.files[0];
+                this.fileType = type == 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat
+            } else {
+                this.errorMessage = 'Selected file format dose not support!';
+                this.errorService.handle(this.errorMessage);
+            }
         }
     }
-
-
 
     private uploadFile(file: File) {
         const data = new FormData();
@@ -112,31 +102,30 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
     }
 
     public import() {
-        this.loading$.next(true);
-        this.uploadFile(this.file).subscribe((res) => {
-            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
-            this.importModel = {
-                CompanyKey: this.activeCompany.Key,
-                CompanyName: this.companyName,
-                Url: fileURL,
-                ImportFileType: this.fileType
-            }
-            this.jobService.startJob('SupplierImportJob', 0, this.importModel).subscribe(
-                res => {
-                    this.loading$.complete();
-                    this.close();
-                },
-                err => this.errorService.handle(err)
-            );
-        }, err => {
-            this.loading$.next(false);
-            this.errorService.handle(err);
-        });
-    }
-
-    public onFilterClick(filter: IFilter) {
-        this.currentFilter = filter;
-        this.fileType = Number(this.currentFilter.name);
+        if (!this.file)
+            this.errorService.handle(this.errorMessage);
+        else {
+            this.loading$.next(true);
+            this.uploadFile(this.file).subscribe((res) => {
+                var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
+                this.importModel = {
+                    CompanyKey: this.activeCompany.Key,
+                    CompanyName: this.companyName,
+                    Url: fileURL,
+                    ImportFileType: this.fileType
+                }
+                this.jobService.startJob('SupplierImportJob', 0, this.importModel).subscribe(
+                    res => {
+                        this.loading$.complete();
+                        this.close();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }, err => {
+                this.loading$.next(false);
+                this.errorService.handle(err);
+            });
+        }
     }
 
     public close() {
