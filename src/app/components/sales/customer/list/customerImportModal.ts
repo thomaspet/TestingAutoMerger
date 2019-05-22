@@ -1,7 +1,7 @@
 import { Component, Output, OnInit, EventEmitter } from '@angular/core';
 import { Http } from '@angular/http';
 import { IUniModal } from '@uni-framework/uni-modal';
-import { ErrorService, JobService, IFilter, ItemInterval } from '@app/services/services';
+import { ErrorService, JobService } from '@app/services/services';
 import { File } from '@app/unientities';
 import { AuthService } from '@app/authService';
 import { Subject } from 'rxjs';
@@ -23,19 +23,10 @@ import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialo
                     </label>
                 </form>
 
-                <div class="type-filter">
-                    <span>File Type</span>
-                    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
-                        <mat-option *ngFor="let filter of filters" [value]="filter">
-                            {{ filter.label }}
-                        </mat-option>
-                    </mat-select>
-                </div>
-
                 <div>
                     <span>Filimport</span>
                     <div class="customer-file-import">
-                        <input type="file" (change)="uploadFileChange($event)" accept=".xlsx, .txt"> 
+                        <input type="file" (change)="uploadFileChange($event)" accept=".xlsx, .txt">
                     </div>
                 </div>
                 <mat-progress-bar *ngIf="loading$ | async" class="uni-progress-bar" mode="indeterminate">
@@ -86,10 +77,10 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
         if (source.files && source.files.length) {
-            let type = source.files[0].name.split(/[.]+/).pop();
-            if (type == 'txt' || type == 'xlsx') {
+            const type = source.files[0].name.split(/[.]+/).pop();
+            if (type === 'txt' || type === 'xlsx') {
                 this.file = source.files[0];
-                this.fileType = type == 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat
+                this.fileType = type === 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat;
             } else {
                 this.errorMessage = 'Selected file format dose not support!';
                 this.errorService.handle(this.errorMessage);
@@ -111,20 +102,21 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
     }
 
     public import() {
-        if (!this.file)
+        if (!this.file) {
             this.errorService.handle(this.errorMessage);
-        else {
-            this.loading$.next(true); 
+        } else {
+            this.loading$.next(true);
             this.uploadFile(this.file).subscribe((res) => {
-                var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
+                const fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
                 this.importModel = {
                     CompanyKey: this.activeCompany.Key,
                     CompanyName: this.companyName,
                     Url: fileURL,
                     ImportFileType: this.fileType
-                }
+                };
+
                 this.jobService.startJob('CustomerImportJob', 0, this.importModel).subscribe(
-                    res => {
+                    () => {
                         this.loading$.complete();
                         this.close();
                     },
@@ -135,7 +127,6 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
                 this.errorService.handle(err);
             });
         }
-
     }
 
     public close() {
