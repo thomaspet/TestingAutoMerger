@@ -253,6 +253,19 @@ export class AccountDetails implements OnInit {
     public onDimensionsChange(change: SimpleChange) {
         const dimensions = this.dimensions$.getValue();
         const account = this.account$.getValue();
+        const key = _.keys(change)[0];
+        if (change[key].currentValue !== 0) {
+            this.accountService.checkLinkedBankAccounts(account.AccountNumber).subscribe(hasLinkedBankAccounts => {
+                if (hasLinkedBankAccounts) {
+                    this.toastService.addToast(
+                        'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
+                        ToastType.warn,
+                        ToastTime.medium,
+                        'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.'
+                    );
+                }
+            });
+        }
         _.each(dimensions, (value, property) => {
             const dim = parseInt(property.split('dim')[1], 10);
             const manatoryDimensions = account.ManatoryDimensions;

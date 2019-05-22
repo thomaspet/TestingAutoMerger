@@ -45,7 +45,7 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
     }
 
     onChange(event: any) {
-        if (this.model.FromAccountNo && this.model.ToAccountNo) {
+        if (this.model.FromAccountNo && this.model.ToAccountNo && this.model.ManatoryType !== 0) {
             this.checkingBankAccounts = true;
             this.accountService.checkLinkedBankAccounts(this.model.FromAccountNo, this.model.ToAccountNo).subscribe(hasLinkedBankAccounts => {
                 this.checkingBankAccounts = false;
@@ -54,7 +54,8 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
                         'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
                         ToastType.warn,
                         ToastTime.medium,
-                        'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.');
+                        'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.'
+                    );
                 }
             });
         }
