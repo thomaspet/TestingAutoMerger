@@ -35,6 +35,7 @@ import {PaycheckSenderModal} from './sending/paycheckSenderModal';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
+import { TaxCardModal } from '../employee/modals/taxCardModal';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 
