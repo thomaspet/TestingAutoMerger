@@ -1065,22 +1065,23 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.sendPaymentList();
+                    this.sendPaymentList(done);
                 } else {
                     done('Utbetaling avbrutt');
                 }
             });
         } else {
-            this.sendPaymentList();
+            this.sendPaymentList(done);
         }
     }
 
-    public sendPaymentList() {
+    public sendPaymentList(done) {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
             .subscribe((response: boolean) => {
                 this.router.navigateByUrl('/bank');
             },
             (err) => {
+                done('');
                 this.errorService.handle(err);
             });
     }
