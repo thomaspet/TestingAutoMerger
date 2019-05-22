@@ -1,29 +1,31 @@
-import {Component, OnInit, ViewChild, Type, Input, OnDestroy} from '@angular/core';
+import {Component, OnInit, ViewChild, Type, Input, OnDestroy, SimpleChange} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {
     ReportDefinitionParameterService,
     ErrorService,
     PayrollrunService,
-    FinancialYearService
+    BrowserStorageService
 } from '../../../../services/services';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniPreviewModal} from '../preview/previewModal';
-import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniFieldLayout, FieldType, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
 
-type ModalConfig = {
-    report: any,
-    title: string,
-    actions: {text: string, class?: string, method: () => void}[]
-};
+interface ModalConfig {
+    report: any;
+    title: string;
+    actions: {text: string, class?: string, method: () => void}[];
+}
 
 interface IWitholdingAndAGAReportModel {
     FromPeriod: number;
     ToPeriod: number;
     Year: number;
+    rememberChoice: boolean;
+    isTerm: boolean;
 }
 
 @Component({
@@ -31,37 +33,119 @@ interface IWitholdingAndAGAReportModel {
     templateUrl: './salaryWithholdingAndAGAReportFilterModal.html'
 })
 export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
-    @Input() public config: ModalConfig;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<IWitholdingAndAGAReportModel> =
-    new BehaviorSubject({FromPeriod: 1, ToPeriod: 2, Year: new Date().getFullYear()});
+    @Input() config: ModalConfig;
+    config$: BehaviorSubject<any> = new BehaviorSubject({});
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    model$: BehaviorSubject<IWitholdingAndAGAReportModel> =
+    new BehaviorSubject({FromPeriod: null, ToPeriod: null, Year: null, rememberChoice: false, isTerm: null});
+
     constructor(
         private payrollRunService: PayrollrunService,
-        private financialYearService: FinancialYearService
+        private browserStorage: BrowserStorageService,
     ) {}
 
-    public ngOnInit() {
+    ngOnInit() {
         this.config$.next(this.config);
         this.fields$.next(this.getLayout(this.config.report.parameters));
         this.payrollRunService
             .getLatestSettledRun()
             .subscribe(payrollRun => this.model$.next({
-                FromPeriod: moment(payrollRun.PayDate).month(),
-                ToPeriod: moment(payrollRun.PayDate).month(),
-                Year: moment(payrollRun.PayDate).year()
+                FromPeriod: (payrollRun && payrollRun.PayDate) ? moment(payrollRun.PayDate ).month() : null,
+                ToPeriod: (payrollRun && payrollRun.PayDate) ? moment(payrollRun.PayDate).month() : null,
+                Year: (payrollRun && payrollRun.PayDate) ? moment(payrollRun.PayDate).year() : moment().year(),
+                rememberChoice: false,
+                isTerm: this.browserStorage.getItem('rememberChoiceAGAReport') || false
             }));
     }
 
-    private getLayout(reportParameters: ReportDefinitionParameter[]): UniFieldLayout[] {
-        return reportParameters.map(param => <UniFieldLayout>{
-            FieldType: FieldType.NUMERIC,
-            Label: param.Label,
-            Property: param.Name,
-        });
+    validateTerm = (term: number, field: UniFieldLayout): UniFormError | null => {
+        if (!term || (term > 0 && term <= 6)) {
+            return null;
+        }
+
+        return {
+            value: term,
+            errorMessage:
+                'Termin er ikke gyldig. Termin kan kun inneholde tall fra 1-6',
+            field: field,
+            isWarning: true
+        };
     }
 
-    public getParams() {
+    validatePeriod = (period: number, field: UniFieldLayout): UniFormError | null => {
+        if (!period || (period > 0 && period <= 12)) {
+            return null;
+        }
+
+        return {
+            value: period,
+            errorMessage:
+                'Periode er ikke gyldig. Periode kan kun inneholde tall fra 1-12',
+            field: field,
+            isWarning: true
+        };
+    }
+
+    validateTermOrPeriod = (period: number, field: UniFieldLayout): UniFormError | null => {
+        if (this.model$.value.isTerm) {
+            return this.validateTerm(period, field);
+        }
+        return this.validatePeriod(period, field);
+    }
+
+    changes = (event: SimpleChange) => {
+        if (event['isTerm']) {
+            this.model$.next({
+                ToPeriod: null,
+                FromPeriod: null,
+                Year: this.model$.value.Year,
+                rememberChoice: this.model$.value.rememberChoice,
+                isTerm: this.model$.value.isTerm
+            });
+        }
+    }
+
+    private getLayout(reportParameters: ReportDefinitionParameter[]): UniFieldLayout[] {
+        return [
+            <UniFieldLayout>{
+                Property: 'isTerm',
+                FieldType: FieldType.RADIOGROUP,
+                Label: '',
+                Options: {
+                    source: [
+                        {isTerm: false, text: 'Periode'},
+                        {isTerm: true, text: 'Termin'}
+                    ],
+                    labelProperty: 'text',
+                    valueProperty: 'isTerm',
+                }
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'Fra',
+                Property: reportParameters[0].Name,
+                Validations: [this.validateTermOrPeriod]
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'Til',
+                Property: reportParameters[1].Name,
+                Validations: [this.validateTermOrPeriod]
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.NUMERIC,
+                Label: 'År',
+                Property: reportParameters[2].Name
+            },
+            <UniFieldLayout>{
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Husk utvalg',
+                Property: 'rememberChoice'
+            },
+        ];
+    }
+
+    getParams() {
         return this.model$.getValue();
     }
 }
@@ -76,18 +160,19 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    public modalConfig: ModalConfig;
-    public type: Type<any> = SalaryWithholdingAndAGAReportFilterModalContent;
+    modalConfig: ModalConfig;
+    type: Type<any> = SalaryWithholdingAndAGAReportFilterModalContent;
     private subscriptions: any[] = [];
-    public inActive: boolean;
+    inActive: boolean;
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private browserStorage: BrowserStorageService,
     ) {}
 
-    public ngOnInit() {
+    ngOnInit() {
         this.modalConfig = {
             title: 'Parametre',
             report: new ReportDefinition(),
@@ -101,11 +186,18 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                                 .fromPromise(this.modal.getContent())
                                 .do(() => this.close())
                                 .subscribe((component: SalaryWithholdingAndAGAReportFilterModalContent) => {
+                                    const params = component.getParams();
+
+                                    if (params['isTerm']) {
+                                        params['FromPeriod'] = this.convertToPeriod(params['FromPeriod']) - 1;
+                                        params['ToPeriod'] = this.convertToPeriod(params['ToPeriod']);
+                                    }
+                                    this.setSelectedChoice(params);
                                     this.modalService
                                         .open(UniPreviewModal, {
                                             data: this.updateParamsOnReport(
                                                 component.config.report,
-                                                component.getParams())
+                                                params)
                                         });
                                 })
                         );
@@ -119,11 +211,15 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
         };
     }
 
-    public ngOnDestroy() {
+    ngOnDestroy() {
         this.subscriptions.map(sub => sub.unsubscribe());
     }
 
-    public open(report: ReportDefinition) {
+    convertToPeriod(term: number): number {
+        return term * 2;
+    }
+
+    open(report: ReportDefinition) {
         this.modalConfig.title = report.Name;
         this.modalConfig.report = report;
 
@@ -134,7 +230,13 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
             }, err => this.errorService.handle(err));
     }
 
-    public close() {
+    setSelectedChoice(params: any) {
+        if (params['rememberChoice']) {
+            this.browserStorage.setItem('rememberChoiceAGAReport', params['isTerm']);
+        }
+    }
+
+    close() {
         this.modal.close();
         this.refresh();
     }
