@@ -131,7 +131,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private lastUsedJournalEntryNumber: string = '';
     private maDimensions: any[] = [];
     private lastImageDisplayFor: string = '';
-
+    private numberOfAccountsWithManatoryDimensions: number = 0;
     private defaultAccountPayments: Account = null;
     private groupConfig: IGroupConfig = {
         groupKey: 'VatCodeGroupingValue',
@@ -269,6 +269,31 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (!row.NetAmountCurrency) {
                     this.calculateNetAmountAndNetAmountCurrency(row);
                 }
+
+                if (this.numberOfAccountsWithManatoryDimensions > 0) {
+
+                    if (!row.ManatoryDimensionsValidation) {row.ManatoryDimensionsValidation = {}; }
+                    const checkDebit: boolean = row.DebitAccountID;
+                    const checkCredit: boolean = row.CreditAccountID;
+
+                    if (checkDebit) {
+                        this.accountManatoryDimensioinService
+                        .getMandatoryDimensionsReportByDimension(row.DebitAccountID, row.Dimensions)
+                        .subscribe((report) => {
+                                row.ManatoryDimensionsValidation['DebitReport'] = report;
+                                this.table.updateRow(row['_originalIndex'], row);
+                        });
+                    }
+
+                    if (checkCredit) {
+                        this.accountManatoryDimensioinService
+                        .getMandatoryDimensionsReportByDimension(row.CreditAccountID, row.Dimensions)
+                        .subscribe((report) => {
+                                row.ManatoryDimensionsValidation['CreditReport'] = report;
+                                this.table.updateRow(row['_originalIndex'], row);
+                        });
+                    }
+                }
             });
         }
 
@@ -309,7 +334,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.Get(1),
             this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
-            this.customDimensionService.getMetadata()
+            this.customDimensionService.getMetadata(),
+            this.accountManatoryDimensioinService.GetNumberOfAccountsWithManatoryDimensions()
         ).subscribe(
             (data) => {
                 if (this.companySettings
@@ -325,7 +351,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.companySettings = data[1];
                 this.predefinedDescriptions = data[2] || [];
                 this.dimensionTypes = data[3];
-
+                this.numberOfAccountsWithManatoryDimensions = (data[4] && data[4].Data[0]) ? data[4].Data[0].countID : 0;
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
             },
@@ -1202,7 +1228,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
-        const manDimReportCol = new UniTableColumn('', '...', UniTableColumnType.Text, false)
+        const manDimReportCol = new UniTableColumn('', 'Påkrevde dimensjoner', UniTableColumnType.Text)
         .setVisible(false)
         .setTemplate(() => '')
         .setResizeable(false)
@@ -1565,6 +1591,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 createdAtCol,
                 createdByCol,
+                manDimReportCol,
                 addedPaymentCol,
                 fileCol
             ].map(col => {
@@ -1619,7 +1646,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 netAmountCol,
                 amountCurrencyCol,
-                costAllocationCol
+                costAllocationCol,
+                manDimReportCol
             ];
 
             if (dimensionCols.length) {
@@ -3006,7 +3034,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const strF = event.field + '';
 
-        if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))) {
+        if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))
+        && this.numberOfAccountsWithManatoryDimensions > 0) {
 
             if (!event.rowModel.ManatoryDimensionsValidation) {
                 event.rowModel.ManatoryDimensionsValidation = {};

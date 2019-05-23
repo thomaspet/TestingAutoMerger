@@ -1,16 +1,22 @@
 
 import { BizHttp } from "@uni-framework/core/http/BizHttp";
-import { AccountManatoryDimension, CustomerInvoiceItem, Dimensions } from "@uni-entities";
+import { AccountManatoryDimension, CustomerInvoiceItem, Dimensions, Account } from "@uni-entities";
 import { UniHttp } from "@uni-framework/core/http/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { RequestMethod } from "@angular/http";
+import {StatisticsService} from '../common/statisticsService';
+import { StatisticsResponse } from "@app/models/StatisticsResponse";
+import { errorHandler } from "@angular/platform-browser/src/browser";
 
 
 @Injectable()
 export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDimension> {
 
-    constructor(http: UniHttp) {
+    constructor(
+        http: UniHttp,
+        private statisticsService: StatisticsService
+    ) {
         super(http);
         this.relativeURL = AccountManatoryDimension.RelativeUrl;
         this.entityType = AccountManatoryDimension.EntityType;
@@ -40,6 +46,9 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
         return super.GetAction(null, `get-manatory-dimensions-report&accountID=${accountID}&dimensionsID=${dimensionsID}`);
     }
 
+    public GetNumberOfAccountsWithManatoryDimensions (): Observable<any> {
+        return this.statisticsService.GetAll('model=AccountManatoryDimension&select=count(ID)');
+    }
 }
 
 //Flytte til?
