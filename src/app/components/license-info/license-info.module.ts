@@ -22,6 +22,7 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {UserList} from './user-list/license-user-list';
 import {UserDetails} from './user-list/license-user-details/license-user-details';
 import {AddAdminModal} from './add-admin-modal/add-admin-modal';
+import {AppCommonModule} from '../common/appCommonModule';
 
 @NgModule({
     imports: [
@@ -34,6 +35,7 @@ import {AddAdminModal} from './add-admin-modal/add-admin-modal';
         MatListModule,
         LayoutModule,
         AppPipesModule,
+        AppCommonModule,
         UniFrameworkModule,
 
         RouterModule.forChild([{

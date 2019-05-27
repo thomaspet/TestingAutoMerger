@@ -1,18 +1,23 @@
 <input type="search" [formControl]="filterControl" placeholder="Filtrer">
 
-<mat-checkbox
-    *ngIf="filteredItems"
-    class="check-all"
-    [(ngModel)]="checkAll"
-    (change)="onCheckAllChange()">
+<section class="check-all" (click)="onCheckAllChange()">
+    <i class="material-icons" [ngClass]="{'selected': checkAll}">
+        {{checkAll ? 'check_box' : 'check_box_outline_blank'}}
+    </i>
 
-    Velg alle <strong>({{filteredItems?.length}})</strong>
-</mat-checkbox>
+    Velg alle <strong *ngIf="filteredItems?.length">({{filteredItems?.length}})</strong>
+</section>
 
-<cdk-virtual-scroll-viewport itemSize="35" class="scrolling-viewport">
-    <section *cdkVirtualFor="let item of filteredItems" class="selection-list-item">
-        <mat-checkbox [(ngModel)]="item['_selected']" (change)="onItemSelectionChange(item)">
+<ul class="uni-selection-list">
+    <cdk-virtual-scroll-viewport itemSize="55" class="scrolling-viewport">
+        <li *cdkVirtualFor="let item of filteredItems"
+            (click)="onItemSelectionChange(item)"
+            [ngClass]="{'selected': item['_selected']}">
+            <i class="material-icons">
+                {{item['_selected'] ? 'check_box' : 'check_box_outline_blank'}}
+            </i>
+
             {{item[labelProperty]}}
-        </mat-checkbox>
-    </section>
-</cdk-virtual-scroll-viewport>
+        </li>
+    </cdk-virtual-scroll-viewport>
+</ul>

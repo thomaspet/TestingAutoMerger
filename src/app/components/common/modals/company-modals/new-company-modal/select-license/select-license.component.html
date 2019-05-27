@@ -1,4 +1,4 @@
-<ul class="selection-list">
+<ul class="uni-selection-list">
     <ng-container *ngFor="let customer of customers">
         <li *ngFor="let contract of customer.Contracts"
             (click)="selectedContractChange.emit(contract)"

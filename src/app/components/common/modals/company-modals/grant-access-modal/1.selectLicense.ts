@@ -10,6 +10,7 @@ import {GrantAccessData} from './grant-access-modal';
     styleUrls: ['./grant-access-modal.sass']
 })
 export class SelectLicenseForBulkAccess {
+    @Input() initData;
     @Input() data: GrantAccessData;
     @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
@@ -22,11 +23,18 @@ export class SelectLicenseForBulkAccess {
     ) {}
 
     ngOnInit() {
-        this.elsaCustomersService.getAll('Contracts').subscribe(res => console.log(res));
-
         this.elsaCustomersService.getAll('Contracts').subscribe(
             (customers: ElsaCustomer[]) => {
                 this.customers = customers;
+
+                if (this.initData && this.initData.contractID) {
+                    this.customers.forEach(customer => {
+                        const contract = customer.Contracts.find(c => c.ID === this.initData.contractID);
+                        if (contract) {
+                            this.selectContract(contract);
+                        }
+                    });
+                }
             },
             err => this.errorService.handle(err),
         );

@@ -77,6 +77,18 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
         ).subscribe(
             res => {
                 this.customers = res[0] || [];
+
+                const modalData = this.options && this.options.data || {};
+                if (modalData.contractID) {
+                    this.customers.forEach(customer => {
+                        const contract = customer.Contracts.find(c => c.ID === modalData.contractID);
+                        if (contract) {
+                            this.selectedContract = contract;
+                            this.onContractSelected(contract);
+                        }
+                    });
+                }
+
                 this.templateCompanies = (res[1] || []).filter(c => c.IsTemplate);
                 this.busy = false;
             },

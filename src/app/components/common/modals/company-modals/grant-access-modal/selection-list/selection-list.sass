@@ -1,24 +1,35 @@
-@import '~src/styles/unibase/colors/__colors.sass'
-
 input[type=search]
     height: 2.5rem
     min-width: 20rem
     margin-bottom: 1.5rem
 
-mat-checkbox
+mat-checkbox.check-all
     display: block
     padding-left: .5rem
-
-    &.check-all
-        padding-bottom: .5rem
-        border-bottom: 1px solid $uni-color-scale8
+    padding-bottom: .75rem
+    border-bottom: 1px solid #eee
 
 .scrolling-viewport
-    height: calc(100vh - 35rem)
+    height: 23rem
 
-.selection-list-item
+li
+    margin-right: .5rem
+
+
+.check-all
     display: flex
-    height: 35px
-    align-items: center
+    cursor: pointer
+    margin: 0 .5rem .5rem 0
+    padding: 0 1rem .75rem
+    border-bottom: 1px solid #eee
+    font-size: 15px
 
+    strong
+        margin-left: 5px
 
+    i.material-icons
+        margin-right: .5rem
+        color: #8C97AB
+        user-select: none
+        &.selected
+            color: #1565c0

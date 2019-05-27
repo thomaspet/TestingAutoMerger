@@ -35,11 +35,14 @@ export class GrantAccessSelectionList {
     }
 
     onCheckAllChange() {
+        this.checkAll = !this.checkAll;
         this.items.forEach(item => item['_selected'] = this.checkAll);
         this.itemsChange.emit(this.items);
     }
 
     onItemSelectionChange(item) {
+        item['_selected'] = !item['_selected'];
+
         this.checkAll = !!item['_selected']
             ? this.items.every(i => !!i['_selected'])
             : false;

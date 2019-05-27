@@ -1,12 +1,20 @@
 <h1>Velg lisensen du vil legge til brukere i</h1>
 
-<section class="license-container" *ngFor="let customer of customers">
-    <section class="license"
-        *ngFor="let contract of customer.Contracts"
-        [ngClass]="{'selected': selectedContractID === contract.ID}"
-        (click)="selectContract(contract)">
+<ul class="uni-selection-list">
+    <ng-container *ngFor="let customer of customers">
+        <li *ngFor="let contract of customer.Contracts"
+            (click)="selectContract(contract)"
+            [ngClass]="{'selected': selectedContractID === contract.ID}">
 
-        <strong>{{customer.Name}}</strong>
-        <span>Lisens: {{contractTypeToText(contract.ContractType)}}</span>
-    </section>
-</section>
+            <i class="material-icons">
+                {{selectedContractID === contract.ID ? 'radio_button_checked' : 'radio_button_unchecked'}}
+            </i>
+
+            <span>{{customer.Name}}</span>
+            <span class="pull-right">
+                Lisenstype:
+                {{contractTypeToText(contract.ContractType)}}
+            </span>
+        </li>
+    </ng-container>
+</ul>

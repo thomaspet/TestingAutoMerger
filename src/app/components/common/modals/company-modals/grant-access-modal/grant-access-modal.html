@@ -1,10 +1,15 @@
-<section role="dialog" class="uni-modal">
+<section role="dialog" class="uni-modal uni-redesign">
     <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
         <mat-horizontal-stepper *ngIf="!showReceipt" [linear]="true" (selectionChange)="onStepChange($event)" #stepper [@.disabled]="true">
             <mat-step label="Lisens" [completed]="licenseSelected">
                 <select-license-for-bulk-access
                     *ngIf="currentPage === PageType.selectLicense"
                     [data]="grantAccessData"
+                    [initData]="initData"
                     (stepComplete)="licenseSelected = true"
                 ></select-license-for-bulk-access>
             </mat-step>

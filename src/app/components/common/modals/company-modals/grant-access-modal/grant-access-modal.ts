@@ -40,8 +40,8 @@ export class GrantAccessModal implements IUniModal {
     lastCompletedPage: PAGE_TYPE = PAGE_TYPE.selectLicense;
 
     grantAccessData: GrantAccessData = <any>{};
-
-    showProgressBar = true;
+    initData;
+    busy: boolean;
 
     // Stepper
     licenseSelected: boolean;
@@ -57,6 +57,10 @@ export class GrantAccessModal implements IUniModal {
         private errorService: ErrorService
     ) {}
 
+    ngOnInit() {
+        this.initData = this.options.data || {};
+    }
+
     onStepChange(event) {
         this.currentPage = event.selectedIndex;
     }
@@ -68,8 +72,10 @@ export class GrantAccessModal implements IUniModal {
         massInvite.UserLicenses = this.grantAccessData.users;
         massInvite.Products = this.grantAccessData.products;
 
+        this.busy = true;
         this.jobService.startJob('MassInviteBureau', 0, massInvite).subscribe(
             res => {
+                this.busy = false;
                 this.hangfireID = res;
                 this.showReceipt = true;
             },
