@@ -154,8 +154,8 @@ export class WageTypeService extends BizHttp<WageType> {
         });
     }
 
-    public getOrderByWageTypeNumber(filter: string = '', expands: string[] = null) {
-        return super.GetAll(`${filter}&orderBy=WageTypeNumber`,
+    public getOrderByWageTypeNumber(filter: string = '', expands: string[] = null, orderby: string = '') {
+        return super.GetAll(`${filter}&orderBy=WageTypeNumber${orderby}`,
             expands ? expands : this.defaultExpands);
     }
 
@@ -250,7 +250,7 @@ export class WageTypeService extends BizHttp<WageType> {
                         {
                             EntityType: 'wagetype',
                             Property: 'WageTypeNumber',
-                            FieldType: FieldType.TEXT,
+                            FieldType: FieldType.NUMERIC,
                             ReadOnly: true,
                             Label: 'Nr',
                             FieldSet: 1,
