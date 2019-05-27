@@ -1500,6 +1500,15 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'IgnorePaymentsWithoutEndToEndID',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Bokfør kun utbet. fra UE',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Bankkontoer'
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'BankChargeAccountID',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Konto for bankgebyr',
