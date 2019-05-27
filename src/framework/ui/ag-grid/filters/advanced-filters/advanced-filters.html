@@ -5,7 +5,9 @@
         <section class="filters">
             <section #filterRow class="filter" *ngFor="let filter of filters; let idx = index">
 
-                <select #columnPicker [(ngModel)]="filter.field" (change)="onColumnSelected(filter)">
+                <input *ngIf="filter['_readonlyField']" disabled [value]="filter.field" type="text">
+
+                <select *ngIf="!filter['_readonlyField']" [(ngModel)]="filter.field" (change)="onColumnSelected(filter)">
                     <option *ngFor="let column of columns" [value]="column.field">
                         {{column.header}}
                     </option>

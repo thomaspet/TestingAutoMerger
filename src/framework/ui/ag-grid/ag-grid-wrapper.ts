@@ -887,6 +887,10 @@ export class AgGridWrapper {
         return this.dataService.loadedRowCount;
     }
 
+    getFilterString() {
+        return this.dataService.filterString;
+    }
+
     public finishEdit(): Promise<any> {
         return this.editor
             ? this.editor.emitAndClose()

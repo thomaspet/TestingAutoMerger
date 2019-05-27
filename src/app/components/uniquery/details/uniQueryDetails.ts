@@ -431,36 +431,38 @@ export class UniQueryDetails {
         this.selects = selects.join(',');
         this.expands = expands.join(',');
         const headers = this.fields.map(x => x.header).join(',');
+        const filterString = this.table.getFilterString();
 
         // execute request to create Excel file
-        this.statisticsService
-            .GetExportedExcelFile(
-                    this.queryDefinition.MainModelName,
-                    this.selects,
-                    this.filterObject.filter,
-                    this.expands, headers, null, false)
-                .subscribe((result) => {
-
-                    let filename = '';
-                    // Get filename with filetype from headers
-                    if (result.headers) {
-                        const fromHeader = result.headers.get('content-disposition');
-                        if (fromHeader) {
-                            filename = fromHeader.split('=')[1];
-                        }
+        this.statisticsService.GetExportedExcelFile(
+            this.queryDefinition.MainModelName,
+            this.selects,
+            filterString,
+            this.expands, headers, null, false
+        ).subscribe(
+            result => {
+                let filename = '';
+                // Get filename with filetype from headers
+                if (result.headers) {
+                    const fromHeader = result.headers.get('content-disposition');
+                    if (fromHeader) {
+                        filename = fromHeader.split('=')[1];
                     }
+                }
 
-                    if (!filename || filename === '') {
-                        filename = 'export.xlsx';
-                    }
+                if (!filename || filename === '') {
+                    filename = 'export.xlsx';
+                }
 
-                    const blob = new Blob([result._body], { type: 'text/csv' });
-                    // download file so the user can open it
-                    saveAs(blob, filename);
-                },
-                err => this.errorService.handle(err));
-
-        completeEvent('Eksport kjørt');
+                const blob = new Blob([result._body], { type: 'text/csv' });
+                // download file so the user can open it
+                saveAs(blob, filename);
+            },
+            err => {
+                this.errorService.handle(err);
+                completeEvent('Eksport kjørt');
+            }
+        );
     }
 
     private isFunction(field: string): boolean {
@@ -531,8 +533,6 @@ export class UniQueryDetails {
     }
 
     public onFiltersChange(newFilters) {
-        this.filterObject = newFilters;
-
         // table may not be fully initialized yet, so run on next cycle to make sure this.table exists
         setTimeout(() => {
             if (this.table) {
