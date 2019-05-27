@@ -63,6 +63,7 @@ import {
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {DeleteCompanyModal} from './modals/company-modals/delete-company-modal/delete-company-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
+import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
 
 @NgModule({
     imports: [
@@ -123,6 +124,8 @@ import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new
         ApikeyLine,
         ApikeyLineModal,
 
+        ImportCentralTemplateModal,
+
         WorkEditor,
         UniTimeModal,
         WorkitemTransferWizard,
@@ -154,6 +157,7 @@ import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new
         GrantAccessModal,
         UniNewCompanyModal,
         DeleteCompanyModal,
+        ImportCentralTemplateModal
     ],
     exports: [
         PredefinedDescriptionList,

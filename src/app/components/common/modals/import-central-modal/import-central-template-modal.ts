@@ -1,35 +1,39 @@
-import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
-import { Http } from '@angular/http';
-import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
-import { environment } from 'src/environments/environment';
-import { ErrorService, FileService, UniFilesService, BudgetService, JobService, IFilter, ItemInterval } from '@app/services/services';
-import { File } from '@app/unientities';
-import { AuthService } from '@app/authService';
-import { Subject, Observable } from 'rxjs';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialogModel';
+import { Subject } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { AuthService } from '@app/authService';
+import { FileService, ErrorService, JobService } from '@app/services/services';
+import { Http } from '@angular/http';
+
 
 @Component({
-    selector: 'uni-product-import-modal',
-    template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 25vw; min-width: 35rem">
+    selector: 'import-central-template-modal',
+    template:
+        `<section role="dialog" class="uni-modal uni-redesign" style="width: 25vw; min-width: 35rem">
             <header>
-                <h1>Importer produkter</h1>
+                <h1>{{options.header}}</h1>
             </header>
             <article>
                 <form class="uni-html-form">
                     <label>
-                    Om et produkt med likt produktnummer finnes fra før, vil det importerte produktet ikke lagres
+                    {{options.message}}
                     </label>
+                    <label class="upload-input">
+                        <i class="material-icons">cloud_download</i>
+                    <a href="{{options.data.downloadTemplateUrl}}">Download Template</a>
+                </label>
                 </form>
-
                 <div>
                     <span>Filimport</span>
-                    <div class="product-file-import">
+                    <div class="supplier-file-import">
                         <input type="file" (change)="uploadFileChange($event)" accept=".xlsx, .txt">
                     </div>
                 </div>
-                <mat-progress-bar *ngIf="loading$ | async" class="uni-progress-bar" mode="indeterminate">
-                </mat-progress-bar>
+                <section *ngIf="loading$ | async" class="modal-spinner">
+                    <mat-spinner></mat-spinner>
+                </section>
             </article>
 
             <footer class="center">
@@ -38,13 +42,15 @@ import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialo
             </footer>
         </section>
     `,
-    styleUrls: ['./productList.sass']
+    styleUrls: ['./import-central-template-modal.sass']
 })
-
-export class UniProductImportModal implements OnInit, IUniModal {
+export class ImportCentralTemplateModal implements OnInit, IUniModal {
+    @Input()
+    public options: IModalOptions = {};
 
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
+
 
     file: File;
     activeCompany: any;
@@ -77,10 +83,10 @@ export class UniProductImportModal implements OnInit, IUniModal {
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
         if (source.files && source.files.length) {
-            let type = source.files[0].name.split(/[.]+/).pop();
-            if (type == 'txt' || type == 'xlsx') {
+            const type = source.files[0].name.split(/[.]+/).pop();
+            if (type === 'txt' || type === 'xlsx') {
                 this.file = source.files[0];
-                this.fileType = type == 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat
+                this.fileType = type === 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat;
             } else {
                 this.errorMessage = 'Selected file format dose not support!';
                 this.errorService.handle(this.errorMessage);
@@ -88,21 +94,18 @@ export class UniProductImportModal implements OnInit, IUniModal {
         }
     }
 
-
-
     private uploadFile(file: File) {
         const data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
-        data.append('EntityType', 'Product');
-        data.append('Description', 'Import central - product');
+        data.append('EntityType', 'Supplier');
+        data.append('Description', 'Import central - supplier');
         data.append('WithPublicAccessToken', 'true');
         data.append('File', <any>file);
 
         return this.http.post(this.baseUrl + '/api/file', data)
             .map(res => res.json());
     }
-
 
     public import() {
         if (!this.file)
@@ -111,14 +114,13 @@ export class UniProductImportModal implements OnInit, IUniModal {
             this.loading$.next(true);
             this.uploadFile(this.file).subscribe((res) => {
                 var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
-
                 this.importModel = {
                     CompanyKey: this.activeCompany.Key,
                     CompanyName: this.companyName,
                     Url: fileURL,
                     ImportFileType: this.fileType
                 }
-                this.jobService.startJob('ProductImportJob', 0, this.importModel).subscribe(
+                this.jobService.startJob(this.options.data.jobName, 0, this.importModel).subscribe(
                     res => {
                         this.loading$.complete();
                         this.close();
@@ -135,4 +137,5 @@ export class UniProductImportModal implements OnInit, IUniModal {
     public close() {
         this.onClose.emit();
     }
+
 }

@@ -11,7 +11,7 @@ import {
     CustomerOrderService
 } from '../../../../services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {UniCustomerImportModal} from './customerImportModal';
+import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 
 @Component({
     selector: 'customer-list',
@@ -130,7 +130,13 @@ export class CustomerList implements OnInit {
     }
 
     public openImportModal(done = () => {} ) {
-        this.modalService.open(UniCustomerImportModal);
+        this.modalService.open(ImportCentralTemplateModal,
+            {
+                header: 'Importer Kunder',
+                message: 'Om en kunde med likt kundenummer finnes fra før, vil den importerte kunden ikke lagres. Om kundenumrene ikke passer inn i valgt kundenummerserie vil de avvises',
+                data: { jobName: 'CustomerImportJob', downloadTemplateUrl: 'https://dev-unifiles.unieconomy.no/api/externalfile/b5fa10ae-d6c8-4d02-a5df-795ef91c26a4/453c99f7-a66a-4e8a-9eb1-f229fbf0dd59/P3N2PTIwMTctMDQtMTcmc3I9YiZzaWc9QVh6MlM2U1FWTGMlMkJSbGdwTHdYJTJCOE1icFJTMEI0SDE1Vk1lOUluYU54REUlM0Qmc2U9MjAxOS0wNy0yNlQwNCUzQTEyJTNBMDVaJnNwPXI=' }
+            }
+        );
         done();
     }
 }

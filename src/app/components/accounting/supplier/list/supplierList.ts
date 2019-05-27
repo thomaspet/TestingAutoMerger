@@ -1,12 +1,12 @@
-import {Component} from '@angular/core';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import { Component } from '@angular/core';
+import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
 import {
     ITickerActionOverride,
     ITickerColumnOverride
 } from '../../../../services/common/uniTickerService';
 import { Router } from '@angular/router';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { UniSupplierImportModal } from './supplierImportModal';
+import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 
 @Component({
     selector: 'supplier-list',
@@ -14,8 +14,8 @@ import { UniSupplierImportModal } from './supplierImportModal';
 })
 export class SupplierList {
 
-    public columnOverrides: Array<ITickerColumnOverride> = [ ];
-    public actionOverrides: Array<ITickerActionOverride> = [ ];
+    public columnOverrides: Array<ITickerColumnOverride> = [];
+    public actionOverrides: Array<ITickerActionOverride> = [];
 
     public toolbarActions = [{
         label: 'Ny leverandør',
@@ -30,7 +30,7 @@ export class SupplierList {
         disabled: false
     }];
 
-    constructor (private tabService: TabService, private router: Router, private modalService: UniModalService,) {
+    constructor(private tabService: TabService, private router: Router, private modalService: UniModalService, ) {
         this.tabService.addTab({
             name: 'Leverandører',
             url: '/accounting/suppliers',
@@ -44,9 +44,15 @@ export class SupplierList {
     }
 
     public openImportModal(done = null) {
-        this.modalService.open(UniSupplierImportModal).onClose.subscribe((res) => {
+        this.modalService.open(ImportCentralTemplateModal,
+            {
+                header: 'Importer leverandører',
+                message: 'Om en leverandør med likt leverandørnummer finnes fra før, vil den importerte leverandøren ikke lagres. Om leverandørnumrene ikke passer inn i valgt leverandørnummerserie vil de avvises',
+                data: { jobName: 'SupplierImportJob', downloadTemplateUrl: ''}
+            }
+        ).onClose.subscribe((res) => {
             if (res) {
-                
+
             } else {
                 if (done) {
                     done();
