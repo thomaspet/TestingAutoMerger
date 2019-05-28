@@ -42,8 +42,8 @@
         <distribution-period-report-part
             [accountIDs]="accountIDs"
             [subaccountIDs]="subAccountIDs"
-            [accountYear1]="(periodFilter1$ | async).year - 1"
-            [accountYear2]="(periodFilter1$ | async).year"
+            [accountYear1]="activeYear - 1"
+            [accountYear2]="activeYear"
             [showHeader]="false"
             [doTurnAmounts]="doTurnDistributionAmounts$ | async"
             [showCredited]="showCredited"
@@ -51,19 +51,22 @@
             [dimensionType]="config.dimensionType"
             [dimensionId]="config.dimensionId"
             [filter]="filter"
-            (periodSelected)="periodSelected($event, true)"
-            (yearChange)="onYearSelected($event)">
+            (periodSelected)="periodSelected($event, true)">
         </distribution-period-report-part>
     </section>
 
     <section class="uni-container" *ngIf="tabIndex === 1">
-        <h2 class="account-details-report-header">
-            Transaksjoner i perioden
-            <period-picker class="accountquery_selector"
-                [periodFilter]="periodFilter3$.getValue()"
-                (periodFilterChanged)="onPeriodFilterChanged($event)">
-            </period-picker>
-        </h2>
+        <div style="display: flex; align-items: center; padding: .5rem 1rem !important;">
+            <h2 style="margin: 0; font-size: 1.2rem; margin-right: .5rem; font: 500 15px 'Roboto', sans-serif; color: rgba(0,0,0,.75);"> Transaksjoner for datoutvalg: </h2>
+            <uni-date-selector class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
+            <uni-select
+                class="date-field-selector"
+                [config]="selectDateFieldConfig"
+                [items]="dateFields"
+                [value]="currentDateField.label"
+                (valueChange)="onDateForSelectionChange($event)">
+            </uni-select>
+        </div>
 
         <ag-grid-wrapper
             class="transquery-grid-font-size"

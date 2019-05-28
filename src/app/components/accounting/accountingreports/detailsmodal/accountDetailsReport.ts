@@ -15,7 +15,6 @@ import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
-import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {FinancialYear, Account} from '../../../../unientities';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniSearchAccountConfig} from '../../../../services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -63,9 +62,6 @@ export class AccountDetailsReport {
     searchConfig = this.uniSearchAccountConfig.generateAllAccountsConfig();
     uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
-    periodFilter1$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
-    periodFilter2$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
-    periodFilter3$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
     accountIDs: Array<number> = [];
     subAccountIDs: Array<number> = [];
     includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
@@ -84,10 +80,22 @@ export class AccountDetailsReport {
         searchable: false,
         hideDeleteButton: true
     };
+    selectDateFieldConfig = {
+        template: (item) => item.label,
+        searchable: false,
+        hideDeleteButton: true
+    };
     selectYear: string[];
     activeYear: number;
+    dateFields: any[] = [
+        { label: 'Regnskapsdato', value: 'JournalEntryLine.FinancialDate' },
+        { label: 'Mva-dato', value: 'JournalEntryLine.VatDate' }
+    ];
+    currentDateField: any;
     showCredited: boolean = false;
     filterVisible = false;
+    toDate: any;
+    fromDate: any;
     private dimensionEntityName: string;
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
@@ -111,7 +119,6 @@ export class AccountDetailsReport {
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private tabService: TabService,
         private modalService: UniModalService,
-        private periodFilterHelper: PeriodFilterHelper,
         private route: ActivatedRoute,
         private router: Router,
         private pageStateService: PageStateService,
@@ -131,10 +138,6 @@ export class AccountDetailsReport {
             periodFilter2: null,
             filter: null
         };
-
-        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
-        this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, null));
 
         this.setupTransactionsTable();
 
@@ -159,30 +162,25 @@ export class AccountDetailsReport {
     public ngOnInit() {
         if (!this.config.modalMode) {
             this.route.queryParams.subscribe(params => {
+
                 const accountParam = +params['account'];
+                let dateFieldIndex: number = +params['dateFieldIndex'] || 0;
                 this.tabIndex = +params['tabIndex'] || 0;
                 this.showCredited = params['showCredited'] === 'true';
                 this.accountNumber = accountParam;
 
-                const item = {
-                    year: +params['year'] || this.activeFinancialYear.Year,
-                    fromPeriodNo: +params['fromPeriodNo'] || 1,
-                    toPeriodNo: +params['toPeriodNo'] || 12,
-                    name: ''
-                };
-                this.activeYear = item.year;
+                dateFieldIndex = dateFieldIndex < this.dateFields.length ? dateFieldIndex : 0;
+                this.currentDateField = this.dateFields[dateFieldIndex];
+
+                this.activeYear = +params['year'] || this.activeFinancialYear.Year;
                 this.selectYear = this.getYearComboSelection(this.activeYear);
 
-                item.name = this.periodFilterHelper.getFilterName(item);
-
-                this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
-                this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-                this.periodFilter3$.next(item);
-
-                this.config.periodFilter1 = item;
-                if (!this.config.periodFilter2) {
-                    this.config.periodFilter2 = item;
-                }
+                this.fromDate = {
+                    Date: moment(params['fromDate'] ? params['fromDate'] : this.activeYear + '-01-01')
+                };
+                this.toDate = {
+                    Date: moment(params['toDate'] ? params['toDate'] : this.activeYear + '-12-31')
+                };
 
                 this.accountService.searchAccounts(accountParam ? 'AccountNumber eq ' + accountParam : 'Visible eq 1', 1)
                 .subscribe(data => {
@@ -216,6 +214,14 @@ export class AccountDetailsReport {
             this.filter$.next(this.filter);
             this.activeYear = this.activeFinancialYear.Year;
             this.selectYear = this.getYearComboSelection(this.activeYear);
+            this.currentDateField = this.dateFields[0];
+
+            this.fromDate = {
+                Date: moment(this.activeYear + '-01-01')
+            };
+            this.toDate = {
+                Date: moment(this.activeYear + '-12-31')
+            };
 
             this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
                 this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -235,7 +241,7 @@ export class AccountDetailsReport {
     public onFilterAccountChange(account: Account) {
         if (account && account.ID) {
             this.setAccountConfig(account);
-            this.loadData(false);
+            this.loadData();
             this.setupLookupTransactions();
             this.accountNumber = account.AccountNumber;
             this.addTab();
@@ -247,19 +253,6 @@ export class AccountDetailsReport {
         }
     }
 
-    public onPeriodFilterChanged(item) {
-        // Update the year drowdown when changing periode filter
-        this.activeYear = item.year;
-        this.selectYear = this.getYearComboSelection(this.activeYear);
-
-        if (item.fromPeriodNo === item.toPeriodNo) {
-            this.periodSelected({periodNo: item.toPeriodNo, year: item.year});
-        } else {
-            const periode = (parseInt(item.fromPeriodNo, 10) * 100) + parseInt(item.toPeriodNo, 10);
-            this.periodSelected({periodNo: periode, year: item.year});
-        }
-    }
-
     private setAccountConfig(account: Account) {
         this.config.accountID = account.ID;
         this.config.accountName = account.AccountName;
@@ -267,6 +260,26 @@ export class AccountDetailsReport {
         this.config.isSubAccount = account.AccountID > 0;
     }
 
+    public periodChange(event) {
+        this.fromDate = event.fromDate;
+        this.toDate = event.toDate;
+
+        // Set year to match period selected and update the year dropdown values..
+        this.activeYear = moment(event.fromDate.Date).year();
+        this.selectYear = this.getYearComboSelection(this.activeYear);
+        this.addTab();
+
+        this.setupLookupTransactions();
+    }
+
+    public onDateForSelectionChange(event) {
+        // Only run if another value is selected
+        if (event.label !== this.currentDateField.label) {
+            this.currentDateField = event;
+            this.addTab();
+            this.setupLookupTransactions();
+        }
+    }
 
     public doTurnAndInclude() {
         // include incoming balance for balance accounts
@@ -290,14 +303,17 @@ export class AccountDetailsReport {
         if (this.config.modalMode) {
             return;
         }
-        const f = this.periodFilter3$.getValue();
+
+        const dateFieldIndex = this.dateFields.findIndex(df => df.label === this.currentDateField.label);
 
         // Set page state service to make sure browser navigatio works
         this.pageStateService.setPageState('tabIndex', this.tabIndex + '');
-        this.pageStateService.setPageState('fromPeriodNo', f.fromPeriodNo + '');
-        this.pageStateService.setPageState('toPeriodNo', f.toPeriodNo + '');
-        this.pageStateService.setPageState('year', f.year + '');
+        this.pageStateService.setPageState('fromDate', moment(this.fromDate.Date).format('YYYY-MM-DD'));
+        this.pageStateService.setPageState('toDate', moment(this.toDate.Date).format('YYYY-MM-DD'));
+        this.pageStateService.setPageState('year', this.activeYear + '');
         this.pageStateService.setPageState('showCredited', this.showCredited + '');
+        this.pageStateService.setPageState('dateFieldIndex', dateFieldIndex !== -1 ? dateFieldIndex + '' : '0');
+
         if (!!this.accountNumber) {
             this.pageStateService.setPageState('account', this.accountNumber + '');
         }
@@ -319,7 +335,7 @@ export class AccountDetailsReport {
                     this.setAccountConfig(account);
                     this.searchConfig.initialItem$.next(account);
 
-                    this.loadData(false);
+                    this.loadData();
                     this.setupLookupTransactions();
                 } else {
                     this.toastService.addToast('Første konto', ToastType.warn, 5, 'Du har nådd Første konto');
@@ -336,7 +352,7 @@ export class AccountDetailsReport {
                     this.setAccountConfig(account);
                     this.searchConfig.initialItem$.next(account);
 
-                    this.loadData(false);
+                    this.loadData();
                     this.setupLookupTransactions();
                 } else {
                     this.toastService.addToast('Siste konto', ToastType.warn, 5, 'Du har nådd siste konto');
@@ -346,20 +362,7 @@ export class AccountDetailsReport {
 
     // modal is reused if multiple accounts are viewed, and the
     // loadData will be called from the accountDetailsReportModal when opening the modal
-    public loadData(shouldChangeFilters: boolean = true) {
-        if (shouldChangeFilters) {
-            if (this.config.periodFilter1 !== null && this.config.periodFilter2 !== null) {
-                this.periodFilter1$.next(this.config.periodFilter1);
-                this.periodFilter2$.next(this.config.periodFilter2);
-                this.periodFilter3$.next(this.config.periodFilter1);
-            } else {
-                // get default period filters
-                this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
-                this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-                this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, null));
-            }
-        }
-
+    public loadData() {
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
         this.subAccountIDs = this.config.isSubAccount ? [this.config.accountID] : null;
 
@@ -384,9 +387,8 @@ export class AccountDetailsReport {
             filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
         }
 
-        filters.push(`Period.AccountYear eq ${this.periodFilter3$.getValue().year}`);
-        filters.push(`Period.No ge ${this.periodFilter3$.getValue().fromPeriodNo}`);
-        filters.push(`Period.No le ${this.periodFilter3$.getValue().toPeriodNo}`);
+        filters.push(`${this.currentDateField.value} ge '${moment(this.fromDate.Date).format('YYYY-MM-DD')}'`);
+        filters.push(`${this.currentDateField.value} le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
 
         if (this.dimensionEntityName) {
             filters.push(`isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.config.dimensionId}`);
@@ -417,6 +419,7 @@ export class AccountDetailsReport {
             'AmountCurrency as AmountCurrency,' +
             'Description as Description,' +
             'StatusCode as StatusCode,' +
+            'VatDate as VatDate,' +
             'VatType.VatCode,' +
             'Amount as Amount,' +
             'VatDeductionPercent as VatDeductionPercent,' +
@@ -442,14 +445,6 @@ export class AccountDetailsReport {
 
         this.columnSumResolver = (urlParams: URLSearchParams) =>
             this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-    }
-
-    public switchPeriods() {
-        const tmp = this.periodFilter1$.getValue();
-        this.periodFilter1$.next(this.periodFilter2$.getValue());
-        this.periodFilter2$.next(tmp);
-        this.periodFilter3$.next(this.periodFilter2$.getValue());
-        this.setupLookupTransactions();
     }
 
     public onCellClick(event: ICellClickEvent) {
@@ -494,6 +489,10 @@ export class AccountDetailsReport {
             new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                 .setFilterOperator('eq')
                 .setTemplate(line => line.VatTypeVatCode),
+            new UniTableColumn('VatDate', 'Mva-dato', UniTableColumnType.LocalDate)
+                .setFilterOperator('contains')
+                .setFormat('DD.MM.YYYY')
+                .setTemplate(line => line.JournalEntryLineFinancialDate),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setFilterOperator('eq')
                 .setIsSumColumn(true),
@@ -562,44 +561,20 @@ export class AccountDetailsReport {
     }
 
     public periodSelected(row, shouldGoToTransactions: boolean = false) {
-        const filter = new PeriodFilter();
-        if (row.periodNo === 0) {
-            this.toastService.addToast(
-                'Ikke støttet',
-                ToastType.warn,
-                3,
-                'Drilldown på inngående balanse ikke støttet');
-            return;
-        } else if (row.periodNo < 13) {
-            filter.fromPeriodNo = row.periodNo;
-            filter.toPeriodNo = row.periodNo;
-        } else if (row.periodNo > 13 && row.periodNo <= 1113) {
-            // FORMULA FOR PERIODE SELECTION:
-            // (FROMMONTH * 100) + TOMONTH => Febuary till November = (2 * 100) + 11 = 211
-            filter.toPeriodNo = row.periodNo % 100;
-            filter.fromPeriodNo = (row.periodNo - filter.toPeriodNo) / 100;
-        } else { // Default filter if clicking on total
-            if (this.includeIncomingBalanceInDistributionReport$.getValue()) {
-                this.toastService.addToast(
-                    'Ikke støttet',
-                    ToastType.warn,
-                    3,
-                    'Drilldown på utgående balanse ikke støttet');
-                return;
-            } else {
-                filter.fromPeriodNo = 1;
-                filter.toPeriodNo = 12;
-            }
-        }
+        this.activeYear = row.year;
+        this.selectYear = this.getYearComboSelection(this.activeYear);
 
-        filter.year = row.year;
-        filter.name = this.periodFilterHelper.getFilterName(filter);
+        this.fromDate = {
+            Date: moment(moment(`${this.activeYear}-${row.periodNo}-15`).startOf('month'))
+        };
 
-        this.periodFilter3$.next(filter);
+        this.toDate = {
+            Date: moment(moment(`${this.activeYear}-${row.periodNo}-15`).endOf('month'))
+        };
+
         this.setupLookupTransactions();
-        if (shouldGoToTransactions) {
-            this.tabIndex = 1;
-        }
+        this.tabIndex = 1;
+
         this.addTab();
     }
 
@@ -615,21 +590,19 @@ export class AccountDetailsReport {
         if (value === '...') {
             this.openYearModal();
         } else {
-            const filter = this.periodFilter3$.getValue();
-            filter.year = value;
             this.activeYear = value;
-            this.selectYear = this.getYearComboSelection(value);
-            this.periodFilter1$.next(filter);
-            this.onPeriodFilterChanged(filter);
-        }
-    }
 
-    public onYearSelected(event) {
-        const tmp = this.periodFilter1$.getValue();
-        this.periodFilter1$.next(this.periodFilter2$.getValue());
-        this.periodFilter2$.next(tmp);
-        this.periodFilter3$.next(this.periodFilter2$.getValue());
-        this.setupLookupTransactions();
+            this.fromDate = {
+                Date: moment(`${this.activeYear}-01-01`)
+            };
+
+            this.toDate = {
+                Date: moment(`${this.activeYear}-12-31`)
+            };
+
+            this.selectYear = this.getYearComboSelection(value);
+            this.setupLookupTransactions();
+        }
     }
 
     public openYearModal()  {
