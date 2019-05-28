@@ -33,7 +33,6 @@ export class AdvancedFilters {
     tableName: string;
     searchName: string = '';
 
-
     savedSearches: ISavedSearch[];
     filteredSavedSearches: ISavedSearch[];
 
@@ -57,9 +56,11 @@ export class AdvancedFilters {
         }
 
         this.filters = filters.map(filter => {
-            const column = filter.field && this.columns.find(col => col.field === filter.field);
-            if (!column) {
-                filter['_readonlyField'] = true;
+            if (filter.field) {
+                const column = this.columns.find(col => col.field === filter.field);
+                if (!column) {
+                    filter['_readonlyField'] = true;
+                }
             }
 
             filter = this.setFilterOperators(filter);
