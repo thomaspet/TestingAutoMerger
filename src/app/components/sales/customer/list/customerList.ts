@@ -80,13 +80,14 @@ export class CustomerList implements OnInit {
         action: this.createCustomer.bind(this),
         main: true,
         disabled: false
-    },
-    {
-        label: 'Importer kunder',
-        action: (done) => this.openImportModal(done),
-        main: true,
-        disabled: false
     }
+    // ,
+    // {
+    //     label: 'Importer kunder',
+    //     action: (done) => this.openImportModal(done),
+    //     main: true,
+    //     disabled: false
+    // }
 ];
 
     constructor(
