@@ -3820,6 +3820,7 @@ export class CompanySettings extends UniEntity {
     public HideInActiveCustomers: boolean;
     public HideInActiveSuppliers: boolean;
     public ID: number;
+    public IgnorePaymentsWithoutEndToEndID: boolean;
     public InterrimPaymentAccountID: number;
     public InterrimRemitAccountID: number;
     public Localization: string;
@@ -5092,6 +5093,88 @@ export class Responsible extends UniEntity {
 }
 
 
+export class Contract extends UniEntity {
+    public static RelativeUrl = 'contracts';
+    public static EntityType = 'Contract';
+
+    public _createguid: string;
+    public ContractCode: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Parameters: Array<ContractParameter>;
+    public Triggers: Array<ContractTrigger>;
+    public RunLogs: Array<ContractRunLog>;
+    public CustomFields: any;
+}
+
+
+export class ContractParameter extends UniEntity {
+    public static RelativeUrl = 'contractparameters';
+    public static EntityType = 'ContractParameter';
+
+    public _createguid: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public Contract: Contract;
+    public CustomFields: any;
+}
+
+
+export class ContractRunLog extends UniEntity {
+    public static RelativeUrl = 'contractrunlogs';
+    public static EntityType = 'ContractRunLog';
+
+    public _createguid: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Message: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public CustomFields: any;
+}
+
+
+export class ContractTrigger extends UniEntity {
+    public static RelativeUrl = 'contracttriggers';
+    public static EntityType = 'ContractTrigger';
+
+    public _createguid: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EventPlanID: number;
+    public ID: number;
+    public StatusCode: number;
+    public Type: ContractTriggerType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public Eventplan: Eventplan;
+    public CustomFields: any;
+}
+
+
 export class ApiKey extends UniEntity {
     public static RelativeUrl = 'apikeys';
     public static EntityType = 'ApiKey';
@@ -5817,6 +5900,8 @@ export class Payment extends UniEntity {
     public InvoiceNumber: string;
     public IsCustomerPayment: boolean;
     public IsExternal: boolean;
+    public IsPaymentCancellationRequest: boolean;
+    public IsPaymentClaim: boolean;
     public JournalEntryID: number;
     public OcrPaymentStrings: string;
     public PaymentBatchID: number;
@@ -6492,11 +6577,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public IncomingAccount: Account;
     public OutgoingAccount: Account;
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
-    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -6802,9 +6887,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7536,6 +7621,14 @@ export class RssItem extends UniEntity {
     public Link: string;
     public PubDate: string;
     public Title: string;
+    public Enclosure: Enclosure;
+}
+
+
+export class Enclosure extends UniEntity {
+    public Length: string;
+    public Type: string;
+    public Url: string;
 }
 
 
@@ -7622,6 +7715,7 @@ export class ManatoryDimensionAccountReport extends UniEntity {
 export class AccountDimension extends UniEntity {
     public AccountID: number;
     public DimensionsID: number;
+    public Dimensions: Dimensions;
 }
 
 
@@ -8494,6 +8588,13 @@ export enum Type{
 }
 
 
+export enum ContractTriggerType{
+    UE = 0,
+    Blockchain = 1,
+    Cron = 2,
+}
+
+
 export enum TypeOfIntegration{
     TravelAndExpenses = 1,
     Aprila = 2,
@@ -8752,6 +8853,19 @@ export enum StatusCodeAltinnSigning{
     Signed = 43003,
     AlreadySigned = 43004,
     Failed = 43005,
+}
+
+
+export enum StatusCodeContract{
+    Draft = 120000,
+    Running = 120001,
+}
+
+
+export enum StatusCodeContractRunLog{
+    Started = 120100,
+    Completed = 120101,
+    Failed = 120102,
 }
 
 

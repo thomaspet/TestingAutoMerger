@@ -47,7 +47,7 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
     onChange(event: any) {
         if (this.model.FromAccountNo && this.model.ToAccountNo && this.model.ManatoryType !== 0) {
             this.checkingBankAccounts = true;
-            this.accountService.checkLinkedBankAccounts(this.model.FromAccountNo, this.model.ToAccountNo).subscribe(hasLinkedBankAccounts => {
+            this.accountService.checkLinkedBankAccountsAndPostPost(this.model.FromAccountNo, this.model.ToAccountNo).subscribe(hasLinkedBankAccounts => {
                 this.checkingBankAccounts = false;
                 if (hasLinkedBankAccounts) {
                     this.toastService.addToast(

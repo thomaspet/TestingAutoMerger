@@ -79,7 +79,7 @@ export class AccountService extends BizHttp<Account> {
             .send().pipe(map(res => res.json()));
     }
 
-    public checkLinkedBankAccounts(FromAccountNumber: any, ToAccountNumber?: any) {
+    public checkLinkedBankAccountsAndPostPost(FromAccountNumber: any, ToAccountNumber?: any) {
         if (!ToAccountNumber) {
             ToAccountNumber = FromAccountNumber;
         }
@@ -87,6 +87,16 @@ export class AccountService extends BizHttp<Account> {
                 `model=Account`
                 + `&select=account.*,bankaccount.ID,bankaccount.AccountNumber`
                 + `&filter=Accountnumber ge ${FromAccountNumber} and  Accountnumber le ${ToAccountNumber} and bankaccount.ID gt 0`
-                + `&join=Account.id eq Bankaccount.accountid`).pipe(map(data => data.Data.length > 0));
+                + `&join=Account.id eq Bankaccount.accountid`).pipe(
+                    map(data => {
+                        let usePostPost = false;
+                        data.Data.forEach(item => {
+                            if (item.UsePostPost === true) {
+                                usePostPost = true;
+                            }
+                        });
+                        return (usePostPost || data.Data.length > 0);
+                    })
+        );
     }
 }

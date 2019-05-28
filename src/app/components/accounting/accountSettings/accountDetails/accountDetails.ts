@@ -255,8 +255,8 @@ export class AccountDetails implements OnInit {
         const account = this.account$.getValue();
         const key = _.keys(change)[0];
         if (change[key].currentValue !== 0) {
-            this.accountService.checkLinkedBankAccounts(account.AccountNumber).subscribe(hasLinkedBankAccounts => {
-                if (hasLinkedBankAccounts) {
+            this.accountService.checkLinkedBankAccountsAndPostPost(account.AccountNumber).subscribe(hasLinkedBankAccounts => {
+                if (hasLinkedBankAccounts || this.account$.getValue().UsePostPost === true) {
                     this.toastService.addToast(
                         'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
                         ToastType.warn,
