@@ -22,13 +22,15 @@ export class SupplierList {
         action: this.newSupplier.bind(this),
         main: true,
         disabled: false
-    },
-    {
-        label: 'Importer leverandører',
-        action: (done) => this.openImportModal(done),
-        main: true,
-        disabled: false
-    }];
+    }
+    // ,
+    // {
+    //     label: 'Importer leverandører',
+    //     action: (done) => this.openImportModal(done),
+    //     main: true,
+    //     disabled: false
+    // }
+];
 
     constructor(private tabService: TabService, private router: Router, private modalService: UniModalService, ) {
         this.tabService.addTab({

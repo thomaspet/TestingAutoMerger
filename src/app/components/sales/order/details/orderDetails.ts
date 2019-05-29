@@ -1324,23 +1324,12 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private saveOrder(): Promise<CustomerOrder> {
         this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
 
-        if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
-            this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
-        }
-
-        if (this.order.DefaultSeller && this.order.DefaultSeller.ID > 0) {
-            this.order.DefaultSellerID = this.order.DefaultSeller.ID;
-        }
-
-        if (this.order.DefaultSeller && this.order.DefaultSeller.ID === null) {
-            this.order.DefaultSeller = null;
-            this.order.DefaultSellerID = null;
-        }
-
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
         if (this.deletables) {
             this.deletables.forEach(sellerLink => this.order.Sellers.push(sellerLink));
         }
+
+        this.order = this.tofHelper.beforeSave(this.order);
 
         return new Promise((resolve, reject) => {
             const saveRequest = ((this.order.ID > 0)
