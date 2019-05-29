@@ -74,7 +74,7 @@ export class UniOperatingProfitWidget {
     cost: string;
     sum: string;
     resultText: string = '';
-    showAccumulatedResult: boolean = true;
+    showAccumulatedResult: boolean = false;
     accumulatedResult: any[] = [];
     runningResult: any[] = [];
 
