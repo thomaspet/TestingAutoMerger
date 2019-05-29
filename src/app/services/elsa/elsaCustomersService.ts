@@ -48,4 +48,21 @@ export class ElsaCustomersService {
             .withBody(customer)
             .send();
     }
+
+    addAdmin(customerID: number, email: string) {
+        return this.uniHttp.asPOST()
+            .usingElsaDomain()
+            .withEndPoint(`/api/customers/${customerID}/customer-access`)
+            .withBody(email)
+            .send()
+            .map(res => res.json());
+    }
+
+    removeAdmin(customerID: number, id: number) {
+        return this.uniHttp.asDELETE()
+            .usingElsaDomain()
+            .withEndPoint(`/api/customers/${customerID}/customer-access/${id}`)
+            .send()
+            .map(res => res.json());
+    }
 }

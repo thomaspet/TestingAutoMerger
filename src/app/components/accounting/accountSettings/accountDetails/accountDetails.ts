@@ -3,7 +3,10 @@ import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {Account, VatType, AccountGroup, VatDeductionGroup, CostAllocation} from '../../../../unientities';
+import {
+    Account, VatType, AccountGroup, VatDeductionGroup, CostAllocation,
+    DimensionSettings, AccountManatoryDimension
+} from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {
@@ -15,6 +18,9 @@ import {
     VatDeductionGroupService,
     CostAllocationService
 } from '../../../../services/services';
+import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
+import * as _ from 'lodash';
+import { getNewGuid } from '@app/components/common/utils/utils';
 
 @Component({
     selector: 'account-details',
@@ -26,12 +32,15 @@ export class AccountDetails implements OnInit {
     @Output() public changeEvent: EventEmitter<Account> = new EventEmitter<Account>();
 
     public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
+    public dimensions$: BehaviorSubject<any> = new BehaviorSubject({});
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
     private vatDeductionGroups: VatDeductionGroup[];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
+    public dimensionsConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public dimensionsFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     constructor(
         private accountService: AccountService,
@@ -41,7 +50,8 @@ export class AccountDetails implements OnInit {
         private errorService: ErrorService,
         private toastService: ToastService,
         private vatDeductionGroupService: VatDeductionGroupService,
-        private costAllocationService: CostAllocationService
+        private costAllocationService: CostAllocationService,
+        private dimensionSettingsService: DimensionSettingsService
     ) {}
 
     public ngOnInit() {
@@ -65,6 +75,7 @@ export class AccountDetails implements OnInit {
                 this.vatDeductionGroups = dataset[3];
 
                 this.extendFormConfig();
+                this.setDimensionsForm();
             },
             err => this.errorService.handle(err)
         );
@@ -82,6 +93,7 @@ export class AccountDetails implements OnInit {
                 dataset => {
                     this.account$.next(dataset);
                     this.extendFormConfig();
+                    this.setDimensionsForm();
                 },
                 err => this.errorService.handle(err)
             );
@@ -164,8 +176,66 @@ export class AccountDetails implements OnInit {
         this.fields$.next(fields);
     }
 
+    public setDimensionsForm() {
+        this.dimensionSettingsService.GetAll('filter=isActive eq true').subscribe((dimensionSettings: DimensionSettings[]) => {
+            const fields = dimensionSettings.map(dimensionSetting => {
+                return <UniFieldLayout> {
+                        FieldSet: 1,
+                        Legend: 'Påkrevde dimensjoner',
+                        Property: 'dim' + dimensionSetting.Dimension,
+                        FieldType: FieldType.DROPDOWN,
+                        Label: dimensionSetting.Label,
+                        Options: {
+                            hideDeleteButton: true,
+                            searchable: false,
+                            valueProperty: 'ID',
+                            displayProperty: 'Name',
+                            source: [
+                                {ID: 0, Name: 'Ikke satt'},
+                                {ID: 1, Name: 'Påkrevd'},
+                                {ID: 2, Name: 'Advarsel'}
+                            ]
+                        }
+                    };
+            });
+            this.dimensionsFields$.next(fields);
+            if(this.account$.getValue()) {
+                const dimensions = {};
+                this.account$.getValue().ManatoryDimensions.forEach(md => {
+                    dimensions['dim' + md.DimensionNo] = md.ManatoryType;
+                });
+                this.dimensions$.next(dimensions);
+            } else {
+                this.dimensions$.next({});
+            }
+
+        });
+    }
+
+    public onDimensionsChange(change: SimpleChange) {
+        const dimensions = this.dimensions$.getValue();
+        const account = this.account$.getValue();
+        _.each(dimensions, (value, property) => {
+            const dim = parseInt(property.split('dim')[1], 10);
+            const manatoryDimensions = account.ManatoryDimensions;
+            const manatoryDimension = _.find(manatoryDimensions, (md: AccountManatoryDimension) => md.DimensionNo === dim);
+            if (manatoryDimension) {
+                manatoryDimension.ManatoryType = value;
+            } else {
+                const newManatoryDimension = new AccountManatoryDimension();
+                newManatoryDimension._createguid = getNewGuid();
+                newManatoryDimension.ManatoryType = value;
+                newManatoryDimension.DimensionNo = dim;
+                newManatoryDimension.AccountID = account.ID;
+                account.ManatoryDimensions.push(newManatoryDimension);
+            }
+        });
+    }
+
     private setSynchronizeVisibility(account: Account, fields) {
-        if (!account) return;
+        if (!account) {
+            return;
+        }
         const doSynchronize: UniFieldLayout = fields.find(x => x.Property === 'DoSynchronize');
         if (account.AccountSetupID) {
             doSynchronize.Hidden = false;
@@ -184,7 +254,8 @@ export class AccountDetails implements OnInit {
                 'Dimensions.Project',
                 'Dimensions.Region',
                 'Dimensions.Responsible',
-                'Dimensions.Department'
+                'Dimensions.Department',
+                'ManatoryDimensions'
             ]);
     }
 

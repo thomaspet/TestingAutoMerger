@@ -57,10 +57,14 @@ export interface ElsaProduct {
     CategoryName?: string;
     Description: string;
     HtmlContent?: string;
+    MarkdownContent?: string;
+    VideoUrl?: string;
     IconBackgroundColor?: string;
     IconReference?: string;
     ImageReference?: string;
+    ClientID: string;
     IsBundle: boolean;
+    IsBillable: boolean;
     IsMonthly: boolean;
     IsPerTransaction: boolean;
     IsPerUser: boolean;

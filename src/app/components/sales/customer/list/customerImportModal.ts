@@ -1,11 +1,12 @@
 import { Component, Output, OnInit, EventEmitter } from '@angular/core';
 import { Http } from '@angular/http';
 import { IUniModal } from '@uni-framework/uni-modal';
-import { ErrorService, JobService } from '@app/services/services';
+import { ErrorService, JobService, IFilter, ItemInterval } from '@app/services/services';
 import { File } from '@app/unientities';
 import { AuthService } from '@app/authService';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialogModel';
 
 @Component({
     selector: 'uni-customer-import-modal',
@@ -21,6 +22,16 @@ import { environment } from 'src/environments/environment';
                         passer inn i valgt kundenummerserie vil de avvises
                     </label>
                 </form>
+
+                <div class="type-filter">
+                    <span>File Type</span>
+                    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
+                        <mat-option *ngFor="let filter of filters" [value]="filter">
+                            {{ filter.label }}
+                        </mat-option>
+                    </mat-select>
+                </div>
+
                 <div>
                     <span>Filimport</span>
                     <div class="customer-file-import">
@@ -52,6 +63,10 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
 
+    filters: Array<IFilter>;
+    currentFilter: IFilter;
+    fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
+    importModel: ImportDialogModel;
 
     constructor(
         private authService: AuthService,
@@ -64,6 +79,12 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
             this.companyName = authDetails.activeCompany.Name;
             this.token = authDetails.token;
         });
+        this.filters = [
+            { name: ImportFileType.StandardizedExcelFormat.toString(), label: 'Standardized Excel Format', interval: ItemInterval.all},
+            { name: ImportFileType.StandardUniFormat.toString(), label: 'Standard Uni Format', interval: ItemInterval.all},
+        ];
+        this.currentFilter = this.filters[0];
+        this.fileType = ImportFileType.StandardizedExcelFormat;
     }
 
     public ngOnInit() { }
@@ -74,8 +95,6 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
             this.file = source.files[0];
         }
     }
-
-
 
     private uploadFile(file: File) {
         const data = new FormData();
@@ -93,8 +112,14 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
     public import() {
         this.loading$.next(true);
         this.uploadFile(this.file).subscribe((res) => {
-            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/ ${res._publictoken}`;
-            this.jobService.startJob('CustomerImportJob', 0, {Url:fileURL, CompanyKey:this.activeCompany.Key, CompanyName: this.companyName}).subscribe(
+            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
+            this.importModel = {
+                CompanyKey: this.activeCompany.Key,
+                CompanyName: this.companyName,
+                Url: fileURL,
+                ImportFileType: this.fileType
+            }
+            this.jobService.startJob('CustomerImportJob', 0, this.importModel).subscribe(
                 res => {
                     this.loading$.complete();
                     this.close();
@@ -107,7 +132,13 @@ export class UniCustomerImportModal implements OnInit, IUniModal {
         });
     }
 
+    public onFilterClick(filter: IFilter) {
+        this.currentFilter = filter;
+       this.fileType =  Number(this.currentFilter.name);
+    }
+
     public close() {
         this.onClose.emit();
     }
 }
+

@@ -1106,6 +1106,7 @@ export class TickerAction {
     public DisplayInActionBar?: boolean = true;
     public DisplayForSubTickers?: boolean = true;
     public NeedsActionOverride?: boolean = false;
+    public SendParentModel?: boolean = false;
     public Options: TickerActionOptions;
     public Route?: String;
 }

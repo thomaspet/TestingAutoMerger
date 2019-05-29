@@ -33,10 +33,8 @@ export class AdvancedFilters {
     tableName: string;
     searchName: string = '';
 
-
     savedSearches: ISavedSearch[];
     filteredSavedSearches: ISavedSearch[];
-    // unsavedChanges: boolean = true;
 
     constructor(private utils: TableUtils) {}
 
@@ -57,7 +55,17 @@ export class AdvancedFilters {
             });
         }
 
-        this.filters = filters.map(filter => this.setFilterOperators(filter));
+        this.filters = filters.map(filter => {
+            if (filter.field) {
+                const column = this.columns.find(col => col.field === filter.field);
+                if (!column) {
+                    filter['_readonlyField'] = true;
+                }
+            }
+
+            filter = this.setFilterOperators(filter);
+            return filter;
+        });
 
         this.tableName = this.config.configStoreKey;
         this.savedSearches = this.utils.getSavedSearches(this.tableName);

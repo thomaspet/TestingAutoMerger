@@ -72,7 +72,7 @@ export class AccountList implements OnInit, AfterViewInit {
                 params.set('filter', '( ' + params.get('filter') + ' ) and AccountID eq null');
             }
 
-            params.set('expand', 'AccountGroup,VatType');
+            params.set('expand', 'AccountGroup,VatType,ManatoryDimensions');
 
             return this.accountService.GetAllByUrlSearchParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));

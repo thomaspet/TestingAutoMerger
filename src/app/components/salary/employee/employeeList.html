@@ -3,9 +3,9 @@
     [saveactions]="toolbarActions">
 </uni-toolbar>
 <section class="application">
-    <ag-grid-wrapper class="selection-list"
-        [resource]="employees$ | async"
+    <ag-grid-wrapper
+        [resource]="lookupFunction"
         [config]="employeeTableConfig"
-        (rowSelectionChange)="employeeSelected($event)">
+        (rowClick)="employeeSelected($event)">
     </ag-grid-wrapper>
 </section>

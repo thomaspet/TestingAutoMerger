@@ -23,7 +23,7 @@
     "start.prod": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=prod-serve --proxy-config proxy/prod.proxy.json",
     "start.local": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=local --proxy-config proxy/local.proxy.json",
     "start.cheap": "npm run start.dev.cheap",
-    "start.dev.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=dev-serve --eval-source-map=true --proxy-config proxy/dev.proxy.json",
+    "start.dev.cheap": "npm run prebuild && npm run high-memory-serve -- serve --poll 1000 --port=3000 --configuration=dev-serve --eval-source-map=true --proxy-config proxy/dev.proxy.json",
     "start.test.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=test-serve --eval-source-map=true --proxy-config proxy/test.proxy.json",
     "start.rc.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=rc-serve --eval-source-map=true --proxy-config proxy/rc.proxy.json",
     "start.prod.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=prod-serve --eval-source-map=true --proxy-config proxy/prod.proxy.json",
@@ -62,7 +62,8 @@
     "rxjs": "6.3.3",
     "rxjs-compat": "6.3.3",
     "zone.js": "^0.8.26",
-    "applicationinsights-js": "1.0.20"
+    "applicationinsights-js": "1.0.20",
+    "marked": "^0.6.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.10.2",
@@ -71,6 +72,7 @@
     "@angular/language-service": "^7.0.0",
     "@types/lodash": "^4.14.118",
     "@types/applicationinsights-js": "1.0.9",
+    "@types/marked": "^0.6.1",
     "archiver": "^3.0.0",
     "codelyzer": "^4.5.0",
     "jasmine-core": "~2.99.1",

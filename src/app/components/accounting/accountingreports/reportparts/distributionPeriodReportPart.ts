@@ -132,7 +132,6 @@ export class DistributionPeriodReportPart implements OnChanges {
 
     public ngOnChanges() {
         if (this.filter) {
-            console.log(this.filter);
             this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
             this.showPercent = this.filter.ShowPercent;
             this.showPreviousAccountYear = this.filter.ShowPreviousAccountYear;

@@ -2,10 +2,11 @@ import { Component, Output, OnInit, EventEmitter } from '@angular/core';
 import { Http } from '@angular/http';
 import { IUniModal } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
-import { ErrorService, FileService, JobService } from '@app/services/services';
+import { ErrorService, FileService, JobService, IFilter, ItemInterval } from '@app/services/services';
 import { File } from '@app/unientities';
 import { AuthService } from '@app/authService';
 import { Subject } from 'rxjs';
+import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialogModel';
 
 @Component({
     selector: 'uni-supplier-import-modal',
@@ -20,6 +21,16 @@ import { Subject } from 'rxjs';
                     Om en leverandør med likt leverandørnummer finnes fra før, vil den importerte leverandøren ikke lagres. Om leverandørnumrene ikke passer inn i valgt leverandørnummerserie vil de avvises
                     </label>
                 </form>
+                
+                <div class="type-filter">
+                    <span>File Type</span>
+                    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
+                        <mat-option *ngFor="let filter of filters" [value]="filter">
+                            {{ filter.label }}
+                        </mat-option>
+                    </mat-select>
+                </div>
+
                 <div>
                     <span>Filimport</span>
                     <div class="supplier-file-import">
@@ -51,6 +62,10 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
 
+    filters: Array<IFilter>;
+    currentFilter: IFilter;
+    fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
+    importModel: ImportDialogModel;
 
     constructor(
         private authService: AuthService,
@@ -64,6 +79,12 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
             this.companyName = authDetails.activeCompany.Name;
             this.token = authDetails.token;
         });
+        this.filters = [
+            { name: ImportFileType.StandardizedExcelFormat.toString(), label: 'Standardized Excel Format', interval: ItemInterval.all },
+            { name: ImportFileType.StandardUniFormat.toString(), label: 'Standard Uni Format', interval: ItemInterval.all },
+        ];
+        this.currentFilter = this.filters[0];
+        this.fileType = ImportFileType.StandardizedExcelFormat;
     }
 
     public ngOnInit() { }
@@ -83,7 +104,7 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
         data.append('Key', this.activeCompany.Key);
         data.append('EntityType', 'Supplier');
         data.append('Description', 'Import central - supplier');
-        data.append('WithPublicAccessToken', 'true'); 
+        data.append('WithPublicAccessToken', 'true');
         data.append('File', <any>file);
 
         return this.http.post(this.baseUrl + '/api/file', data)
@@ -93,8 +114,14 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
     public import() {
         this.loading$.next(true);
         this.uploadFile(this.file).subscribe((res) => {
-            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/ ${res._publictoken}`;
-            this.jobService.startJob('SupplierImportJob', 0, {Url:fileURL, CompanyKey:this.activeCompany.Key, CompanyName: this.companyName}).subscribe(
+            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
+            this.importModel = {
+                CompanyKey: this.activeCompany.Key,
+                CompanyName: this.companyName,
+                Url: fileURL,
+                ImportFileType: this.fileType
+            }
+            this.jobService.startJob('SupplierImportJob', 0, this.importModel).subscribe(
                 res => {
                     this.loading$.complete();
                     this.close();
@@ -105,6 +132,11 @@ export class UniSupplierImportModal implements OnInit, IUniModal {
             this.loading$.next(false);
             this.errorService.handle(err);
         });
+    }
+
+    public onFilterClick(filter: IFilter) {
+        this.currentFilter = filter;
+        this.fileType = Number(this.currentFilter.name);
     }
 
     public close() {

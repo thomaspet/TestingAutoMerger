@@ -348,7 +348,7 @@ export class TransqueryDetails implements OnInit {
             const form = this.searchParams$.getValue();
 
             if (input['JournalEntryNumber']) {
-                form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
+                form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue.trim();
             }
 
             if (input['AccountNumber']) {

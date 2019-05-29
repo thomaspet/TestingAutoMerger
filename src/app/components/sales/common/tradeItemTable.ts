@@ -18,6 +18,7 @@ import {
     Department,
     Dimensions,
     LocalDate,
+    CustomerInvoiceItem
 } from '../../../unientities';
 import {
     ProductService,
@@ -27,7 +28,8 @@ import {
     DepartmentService,
     ErrorService,
     CompanySettingsService,
-    CustomDimensionService
+    CustomDimensionService,
+    AccountManatoryDimensionService
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -72,6 +74,8 @@ export class TradeItemTable {
         { value: 4, label: 'Pr. kvartal' },
         { value: 5, label: 'Pr. år' }
     ];
+    itemsWithReport: any[] = [];
+    showMandatoryDimensionsColumn = false;
 
     constructor(
         private productService: ProductService,
@@ -83,7 +87,8 @@ export class TradeItemTable {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private accountManatoryDimensionService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -92,7 +97,16 @@ export class TradeItemTable {
         ).subscribe(
             res => {
                 this.settings = res[0];
-                this.initTableConfig();
+                if (this.configStoreKey === 'sales.invoice.tradeitemTable' || 
+                    this.configStoreKey === 'sales.order.tradeitemTable' || 
+                    this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
+                    this.showMandatoryDimensionsColumn = true;
+                }
+                if (this.showMandatoryDimensionsColumn && this.items && this.items.length > 0) {
+                    this.getMandatoryDimensionsReports();
+                } else {
+                    this.initTableConfig();
+                }
             },
             err => this.errorService.handle(err)
         );
@@ -353,6 +367,7 @@ export class TradeItemTable {
                         `filter=${filter}&top=100&orderby=PartName`,
                         [
                             'Account',
+                            'Account.ManatoryDimensions',
                             'Dimensions',
                             'Dimensions.Project',
                             'Dimensions.Department',
@@ -669,6 +684,9 @@ export class TradeItemTable {
             exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
             projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
         ].concat(dimensionCols);
+        if (this.showMandatoryDimensionsColumn) {
+            allCols.push(this.createMandatoryDimensionsCol());
+        }
 
         if (this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
             allCols.splice(6, 0, pricingSourceCol, timefactorCol);
@@ -722,6 +740,41 @@ export class TradeItemTable {
             });
     }
 
+    private createMandatoryDimensionsCol() : UniTableColumn {
+        return new UniTableColumn('...', '...', UniTableColumnType.Text, false)
+        .setVisible(false)
+        .setTemplate(() => '')
+        .setWidth('50px')
+        .setTooltipResolver((row: CustomerInvoiceItem) => {
+            let text = 'Ok';
+            let check = 0;
+            if (this.itemsWithReport) {
+                var ir = this.itemsWithReport.find(x => x.itemID === row.ID);
+                if (ir) {
+                    const rep = ir.report;
+                    const reqDims = rep.MissingRequiredDimensions;
+                    if (reqDims && reqDims.length > 0) {
+                        check = 1;
+                        text = rep.MissingRequiredDimensonsMessage;
+                    }
+                    const warnDims = rep.MissingWarningDimensions;
+                    if (warnDims && warnDims.length > 0) {
+                        check = 2;
+                        text = rep.MissingOnlyWarningsDimensionsMessage
+                    }
+            
+                }
+                if (row.AccountID) {
+                    const type = check === 1 ? 'bad' : check === 2 ? 'warn' : 'good';
+                    return {
+                        type: type,
+                        text: text
+                    };
+                }
+            }
+        });
+    }
+
     private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
         let triggerChangeDetection = false;
         let noProduct = false;
@@ -739,6 +792,9 @@ export class TradeItemTable {
             if (!updatedRow.Product) {
                 noProduct = true;
             }
+        } else if (event.field.startsWith('Dimensions.')) {
+            updatedRow.DimensionsID = 0;
+            triggerChangeDetection = true;
         }
         if (noProduct) {
             updatedRow.Dimensions = null;
@@ -774,10 +830,53 @@ export class TradeItemTable {
         }
         if (triggerChangeDetection) {
             this.items[updatedIndex] = updatedRow;
-            this.items = _.cloneDeep(this.items); // trigger change detection
+            if (this.showMandatoryDimensionsColumn) {
+                this.updateItemMandatoryDimensions(updatedRow);
+            } else {
+                this.items = _.cloneDeep(this.items); // trigger change detection
+            }
         }
 
         this.itemsChange.next(this.items);
+    }
+
+    private updateItemMandatoryDimensions(item: any) {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
+            var itemRep = this.itemsWithReport.find(x => x.itemID === item.ID);
+            if (itemRep) {
+                itemRep.report = rep;
+            } else {
+                this.itemsWithReport.push({
+                    itemID: item.ID,
+                    report: rep
+                });
+            }
+            this.items = _.cloneDeep(this.items); // trigger change detection
+        },
+        err => { 
+            this.errorService.handle(err);
+            this.items = _.cloneDeep(this.items);
+        });
+    }
+
+    private getMandatoryDimensionsReports() {
+        this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
+            let cnt = 0;
+            this.itemsWithReport = [];
+            this.items.forEach(item => {
+                this.itemsWithReport.push({
+                    itemID: item.ID,
+                    report: reps[cnt]
+                });
+                cnt++;
+            });
+
+            this.initTableConfig();
+        },
+        err => { 
+            this.errorService.handle(err);
+            this.initTableConfig(); 
+        });
     }
 
     private getEmptyRow() {

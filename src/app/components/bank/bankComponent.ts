@@ -123,12 +123,14 @@ export class BankComponent {
         },
         {
             Code: 'download_payment_notification_file',
-            ExecuteActionHandler: (selectedRows) => this.downloadWithFileID(selectedRows[0], selectedRows[0].PaymentNotificationReportFileID, 'RECEIPT'),
+            ExecuteActionHandler: (selectedRows) =>
+                this.downloadWithFileID(selectedRows[0], selectedRows[0].PaymentNotificationReportFileID, 'RECEIPT'),
             CheckActionIsDisabled: (selectedRow) => !selectedRow.PaymentNotificationReportFileID
         },
         {
             Code: 'download_payment_status_file',
-            ExecuteActionHandler: (selectedRows) => this.downloadWithFileID(selectedRows[0], selectedRows[0].PaymentStatusReportFileID, 'STATUS'),
+            ExecuteActionHandler: (selectedRows) =>
+                this.downloadWithFileID(selectedRows[0], selectedRows[0].PaymentStatusReportFileID, 'STATUS'),
             CheckActionIsDisabled: (selectedRow) => !selectedRow.PaymentStatusReportFileID
         },
         {
@@ -499,7 +501,7 @@ export class BankComponent {
                 this.fileService
                 .downloadFile(fileID, 'application/xml')
                 .subscribe((blob) => {
-                    var title = type == 'RECEIPT' ? 'Avregningsretur' : 'Statusretur';
+                    const title = type === 'RECEIPT' ? 'Avregningsretur' : 'Statusretur';
                     this.toastService.addToast(`${title} hentet`, ToastType.good, 5);
                     // download file so the user can open it
                     saveAs(blob, `payments_${row.ID}_${type}.xml`);
@@ -788,7 +790,7 @@ export class BankComponent {
                     this.customerInvoiceService.matchInvoicesManual(result, row.ID)
                         .subscribe(() =>  {
                             this.tickerContainer.getFilterCounts();
-                            this.tickerContainer.mainTicker.reloadData()
+                            this.tickerContainer.mainTicker.reloadData();
                         }); // refresh table);
                 }
             });
@@ -862,11 +864,13 @@ export class BankComponent {
                                         }
                                         this.tickerContainer.getFilterCounts();
                                         this.tickerContainer.mainTicker.reloadData();
+                                        done();
                                     });
                                 } else {
                                     this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
                                     this.tickerContainer.getFilterCounts();
                                     this.tickerContainer.mainTicker.reloadData();
+                                    done();
                                 }
                             });
                         } else {

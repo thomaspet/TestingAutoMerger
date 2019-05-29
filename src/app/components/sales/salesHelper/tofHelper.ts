@@ -1,10 +1,46 @@
 import {Injectable} from '@angular/core';
 import {AddressService, SellerLinkService} from '../../../services/services';
-import {Customer} from '../../../unientities';
+import {Customer, BusinessRelation} from '../../../unientities';
 
 @Injectable()
 export class TofHelper {
-    constructor(private addressService: AddressService, private sellerLinkService: SellerLinkService) {}
+    constructor(
+        private addressService: AddressService,
+        private sellerLinkService: SellerLinkService
+    ) {}
+
+    // Warning: this runs before save on quote, order and invoice.
+    // Don't put logic specific to one of the entities here.
+    beforeSave(entity) {
+        if (entity.DefaultDimensions && !entity.DefaultDimensions.ID) {
+            entity.DefaultDimensions._createguid = this.addressService.getNewGuid();
+        }
+
+        if (entity.DefaultSeller && entity.DefaultSeller.ID > 0) {
+            entity.DefaultSellerID = entity.DefaultSeller.ID;
+        }
+
+        if (entity.DefaultSeller && entity.DefaultSeller.ID === null) {
+            entity.DefaultSeller = null;
+            entity.DefaultSellerID = null;
+        }
+
+        // Hacky fix for backend error that occurs when a new unsaved
+        // address exists in both Addresses and InvoiceAddress or ShippingAddress.
+        // Should be solved on the api.
+        const info: BusinessRelation = entity.Customer && entity.Customer.Info;
+        if (info) {
+            if (info.InvoiceAddress && info.InvoiceAddress._createguid) {
+                info.Addresses = (info.Addresses || []).filter(a => a._createguid !== info.InvoiceAddress._createguid);
+            }
+
+            if (info.ShippingAddress && info.ShippingAddress._createguid) {
+                info.Addresses = (info.Addresses || []).filter(a => a._createguid !== info.ShippingAddress._createguid);
+            }
+        }
+
+        return entity;
+    }
 
     // Without mapping the customer to entity here, creating a new TOF from customer
     // will not bring along all the attributes that are needed in the TOF

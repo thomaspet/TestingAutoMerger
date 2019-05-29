@@ -1,0 +1,49 @@
+<div *ngIf="currentDay" class="uni-redesign time-off-edit-container">
+
+    <div style="display: flex">
+        <label> Dato </label>
+        <input [(ngModel)]="currentDay.dateText" type="text" [readonly]="true">
+        <small (click)="showEndDate = !showEndDate">Flere dager fri på rad? Klikk her for å legge til sluttdato</small>
+    </div>
+
+    <div style="display: flex" *ngIf="showEndDate">
+        <label> Sluttdato </label>
+        <input
+            [(ngModel)]="timeOff.ToDate"
+            type="text"
+            [matDatepicker]="picker"
+            #dateInput
+            (keydown.enter)="dateInput.blur();dateInput.focus();">
+
+        <button class="icon-button calendar-toggle" (click)="picker.open()">
+            <i class="material-icons">date_range</i>
+        </button>
+
+        <mat-datepicker #picker></mat-datepicker>
+    </div>
+    <div style="display: flex">
+        <label> Halv dag </label>
+        <input [(ngModel)]="timeOff.IsHalfDay" type="checkbox" [readonly]="showEndDate">
+    </div>
+    <div style="display: flex">
+        <label> Beskrivelse</label>
+        <textarea [(ngModel)]="timeOff.Description"> </textarea>
+    </div>
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+    <small *ngIf="errorMsg" class="bad">
+        {{ errorMsg }}
+    </small> <br />
+
+    <div style="display: flex;">
+        <button  class="rounded good" style="margin-top: 1rem" (click)="saveTimeOff()">
+            Lagre fridag
+        </button>
+        <button [disabled]="!timeOff.ID" class="rounded bad" style="margin: 1rem 0 0 1rem" (click)="deleteTimeOff()">
+            {{ getButtonText() }}
+        </button>
+    </div>
+</div>

@@ -71,7 +71,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
     private expandRow(summaryData: BalanceSummaryData) {
 
         if (summaryData.isAccount) {
-            let data: IDetailsModalInput = {
+            const data: IDetailsModalInput = {
                 modalMode: true,
                 accountID: summaryData.id,
                 subaccountID: null,
@@ -81,7 +81,8 @@ export class DrilldownBalanceReportPart implements OnChanges {
                 dimensionId: null,
                 periodFilter1: this.periodFilter1,
                 periodFilter2: this.periodFilter2,
-                close: null
+                close: null,
+                filter: null
             };
             this.modalService.open(AccountDetailsReportModal, { data: data });
 
@@ -89,9 +90,9 @@ export class DrilldownBalanceReportPart implements OnChanges {
             summaryData.expanded = !summaryData.expanded;
 
             if (summaryData.expanded) {
-                let index = this.flattenedTreeSummaryList.indexOf(summaryData);
+                const index = this.flattenedTreeSummaryList.indexOf(summaryData);
                 if (summaryData.children.length > 0) {
-                    let childrenWithData = summaryData.children.filter(
+                    const childrenWithData = summaryData.children.filter(
                         x => x.rowCount > 0 || x.amountIBPeriod1 !== 0 || x.amountIBPeriod2 !== 0
                     );
                     this.flattenedTreeSummaryList = this.flattenedTreeSummaryList
@@ -101,7 +102,7 @@ export class DrilldownBalanceReportPart implements OnChanges {
                 }
             } else {
                 // hide child and subchildren if multiple levels are expanded
-                let childrenWithData = this.getChildrenWithDataDeep(summaryData);
+                const childrenWithData = this.getChildrenWithDataDeep(summaryData);
                 this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.filter(
                     x => !childrenWithData.find(y => x === y)
                 );
@@ -122,20 +123,20 @@ export class DrilldownBalanceReportPart implements OnChanges {
     }
 
     private loadData() {
-        let period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} `
+        const period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} `
             + `and Period.No ge ${this.periodFilter1.fromPeriodNo} and Period.No le ${this.periodFilter1.toPeriodNo}`;
-        let period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} `
+        const period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} `
             + `and Period.No ge ${this.periodFilter2.fromPeriodNo} and Period.No le ${this.periodFilter2.toPeriodNo}`;
-        let period1IBFilterExpression = `(Period.AccountYear eq ${this.periodFilter1.year} `
+        const period1IBFilterExpression = `(Period.AccountYear eq ${this.periodFilter1.year} `
             + `and Period.No lt ${this.periodFilter1.fromPeriodNo}) `
             + `or (Period.AccountYear lt ${this.periodFilter1.year})`;
-        let period2IBFilterExpression = `(Period.AccountYear eq ${this.periodFilter2.year} `
+        const period2IBFilterExpression = `(Period.AccountYear eq ${this.periodFilter2.year} `
             + `and Period.No lt ${this.periodFilter2.fromPeriodNo}) `
             + `or (Period.AccountYear lt ${this.periodFilter2.year})`;
-        let projectFilter = this.filter && this.filter.ProjectID
+        const projectFilter = this.filter && this.filter.ProjectID
             ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
             : '';
-        let departmentFilter = this.filter && this.filter.DepartmentID
+        const departmentFilter = this.filter && this.filter.DepartmentID
             ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
             : '';
 
@@ -162,26 +163,26 @@ export class DrilldownBalanceReportPart implements OnChanges {
                 + `sum(casewhen(${period2IBFilterExpression}\\,JournalEntryLine.Amount\\,0)) as amountIBPeriod2`
             )
         ).subscribe(data => {
-            let accountGroups = data[0].Data;
-            let accounts = data[1].Data;
-            let journalEntries = data[2].Data;
+            const accountGroups = data[0].Data;
+            const accounts = data[1].Data;
+            const journalEntries = data[2].Data;
 
-            let summaryDataList: BalanceSummaryData[] = [];
-            let treeSummaryList: BalanceSummaryData[] = [];
+            const summaryDataList: BalanceSummaryData[] = [];
+            const treeSummaryList: BalanceSummaryData[] = [];
 
             // build treestructure and calculations based on groups and accounts
             accountGroups.forEach(group => {
-                if (group.GroupNumber && parseInt(group.GroupNumber.toString().substring(0, 1)) <= 2) {
+                if (group.GroupNumber && parseInt(group.GroupNumber.toString().substring(0, 1), 10) <= 2) {
 
-                    let summaryData: BalanceSummaryData = new BalanceSummaryData();
+                    const summaryData: BalanceSummaryData = new BalanceSummaryData();
 
                     summaryData.isAccount = false;
                     summaryData.name = group.Name;
-                    summaryData.number = parseInt(group.GroupNumber);
+                    summaryData.number = parseInt(group.GroupNumber, 10);
                     summaryData.id = group.ID;
 
                     if (group.MainGroupID) {
-                        let mainGroupSummaryData: BalanceSummaryData = summaryDataList.find(
+                        const mainGroupSummaryData: BalanceSummaryData = summaryDataList.find(
                             x => !x.isAccount && x.id === group.MainGroupID
                         );
 
@@ -197,16 +198,16 @@ export class DrilldownBalanceReportPart implements OnChanges {
                         summaryData.name = this.accountGroupService.getTopLevelGroupName(summaryData.number);
                     }
 
-                    let accountsForGroup = accounts.filter(x => x.AccountGroupID === group.ID);
+                    const accountsForGroup = accounts.filter(x => x.AccountGroupID === group.ID);
 
                     accountsForGroup.forEach(account => {
-                        let accountSummaryData: BalanceSummaryData = new BalanceSummaryData();
+                        const accountSummaryData: BalanceSummaryData = new BalanceSummaryData();
                         accountSummaryData.isAccount = true;
                         accountSummaryData.name = account.AccountName;
                         accountSummaryData.number = account.AccountNumber;
                         accountSummaryData.id = account.ID;
 
-                        let accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
+                        const accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
 
                         if (accountJournalEntryData) {
                             accountSummaryData.amountIBPeriod1 = this.shouldTurnAmount(accountSummaryData.number)

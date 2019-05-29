@@ -55,7 +55,8 @@ export class AccountDetailsReport {
         dimensionId: number,
         isSubAccount: boolean,
         periodFilter1: PeriodFilter,
-        periodFilter2: PeriodFilter
+        periodFilter2: PeriodFilter,
+        filter: any
     };
 
     toolbarconfig: IToolbarConfig;
@@ -117,7 +118,6 @@ export class AccountDetailsReport {
         private projectService: ProjectService,
         private departmentService: DepartmentService
     ) {
-
         this.config = {
             close: () => {},
             modalMode: false,
@@ -128,7 +128,8 @@ export class AccountDetailsReport {
             dimensionId: 0,
             dimensionType: 0,
             periodFilter1: null,
-            periodFilter2: null
+            periodFilter2: null,
+            filter: null
         };
 
         this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
@@ -211,7 +212,8 @@ export class AccountDetailsReport {
 
             });
         } else {
-
+            this.filter = this.config.filter;
+            this.filter$.next(this.filter);
             this.activeYear = this.activeFinancialYear.Year;
             this.selectYear = this.getYearComboSelection(this.activeYear);
 

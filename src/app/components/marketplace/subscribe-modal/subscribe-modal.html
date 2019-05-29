@@ -1,45 +1,62 @@
-<section class="subscribe-modal" role="dialog" class="uni-modal">
-    <header>
-        <button class="close-button" (click)="onClose.emit()">×</button>
+<section class="uni-modal uni-redesign subscribe-modal" role="dialog">
+    <header class="subscribe-modal-header">
 
-        <section class="product-info">
-            <img [src]="product.IconReference" />
+        <section class="product-header">
+            <section class="product-icon">
+                <img src="{{product.IconReference}}" />
+            </section>
 
-            <section class="product-name">
-                <strong>{{product.Label}}</strong>
-                <small>{{product.Name}}</small>
+            <section>
+                <section class="name-row">
+                    <strong>{{product.Label}}</strong>
+
+                    <section class="is-purchased" *ngIf="product['_isBought'] && !action">
+                        <i class="material-icons">check_circle</i>
+                        <span>Aktivert</span>
+                    </section>
+                </section>
+
+                <section class="price-row" *ngIf="product.Price">
+                    <strong>{{product.Price}} kr</strong>
+                    {{priceText(product)}}
+                </section>
             </section>
         </section>
-
-        <section class="subscribe-section">
-            <a *ngIf="product.ProductType === elsaProductType.Integration" href="{{product.ButtonLink}}" target="_blank" [matTooltip]="cannotPurchaseProductsText">
-                <button class="subscribe-button">{{product.ButtonLabel || 'Aktiver produkt'}}</button>
-            </a>
-
-            <div [matTooltip]="missingPermissionText">
-                <button *ngIf="action"
-                    class="per-user"
-                    (click)="action.click()"
-                    [disabled]="!canPurchaseProducts">
-                        {{action.label}}
-                </button>
-            </div>
-
-            <span class="is-purchased" *ngIf="extensionBoughtAndActivated && !action">
-                <i class="material-icons">check_circle</i>
-                Aktivert
-            </span>
-
-            <span *ngIf="product.Price" class="price-container">
-                <span class="price">{{product.Price}} kr</span>
-                <span class="price-type">{{priceText(product)}}</span>
-            </span>
-        </section>
-
-        <p>
-            {{product.Description}}
-        </p>
     </header>
 
-    <article class="htmlContent" *ngIf="product.HtmlContent" [innerHTML]="product.HtmlContent | keepHtml"></article>
+    <article class="scrollable">
+        <section class="product-description">{{product.Description}}</section>
+
+        <!-- New markdown CMS -->
+        <section *ngIf="htmlContent" class="html-content">
+
+            <section class="product-information" [innerHTML]="htmlContent"></section>
+            <section
+                *ngIf="videoMarkup"
+                class="video-container"
+                [innerHTML]="videoMarkup | keepHtml">
+            </section>
+
+            <small *ngIf="action && isIntegration">NB! Vi gjør oppmerksom på at du ved å aktivere integrasjonen gir samtykke til at 3.part får tilgang til dine data.</small>
+        </section>
+
+        <!-- Old CMS  -->
+        <ng-container *ngIf="!htmlContent">
+            <!-- <p>{{product.Description}}</p> -->
+            <section *ngIf="!htmlContent && product.HtmlContent" [innerHTML]="product.HtmlContent | keepHtml"></section>
+        </ng-container>
+
+    </article>
+
+    <footer class="center" *ngIf="action">
+        <div [matTooltip]="missingPermissionText">
+            <button class="c2a rounded"
+                (click)="action.click()"
+                [disabled]="!canPurchaseProducts">
+                {{action.label}}
+            </button>
+        </div>
+
+        <button (click)="onClose.emit()" style="margin-left: 10px;">Lukk</button>
+    </footer>
 </section>

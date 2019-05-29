@@ -1,4 +1,9 @@
-<section class="list-container">
+<!-- Check specifically for false so the message doesn't show while loading -->
+<section class="missing-permissions" *ngIf="hasPermission === false">
+    Det er kun lisensadministratorer som har tilgang til å se estimert forbruk på en lisens.
+</section>
+
+<section class="list-container" *ngIf="hasPermission">
     <section class="header">
         <h1>Estimert forbruk</h1>
 

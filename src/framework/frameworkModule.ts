@@ -34,6 +34,7 @@ import {Logger} from './core/logger';
 import { UniModalService, MODALS, UniShowReinvoiceStatus } from './uni-modal';
 
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
+import {UniDateselectorpModule} from './ui/dateselector/dateselector.module';
 import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 
 import {
@@ -71,6 +72,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniPipesModule,
         UniSearchModule,
         UniTooltipModule,
+        UniDateselectorpModule,
         UniFormModule,
         UniTableModule,
         AgGridWrapperModule,
@@ -113,6 +115,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniFormModule,
         UniTableModule,
         UniTooltipModule,
+        UniDateselectorpModule,
         AgGridWrapperModule,
         ClickOutsideModule,
 

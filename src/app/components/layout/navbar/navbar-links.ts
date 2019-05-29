@@ -77,7 +77,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Sharings
                     },
                     {
-                        name: 'Uttrekk',
+                        name: 'Uttrekk [BETA]',
                         url: '/uniqueries',
                         moduleID: UniModules.UniQuery
                     },
@@ -486,6 +486,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Stillingsmaler',
                         url: '/timetracking/workprofiles',
+                        moduleID: UniModules.WorkProfiles
+                    },
+                    {
+                        name: 'Administrer fridager',
+                        url: '/timetracking/worktimeoff',
                         moduleID: UniModules.WorkProfiles
                     },
                 ]

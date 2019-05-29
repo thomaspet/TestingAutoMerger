@@ -209,6 +209,8 @@ export class UniSearchSupplierConfig {
         supplier.Info = new BusinessRelation();
         supplier.Info.Name = statObj.Name;
         supplier.Info.Addresses = [];
+        supplier.Info.Phones = [];
+        supplier.Info.Emails = [];
 
         if (statObj.AddressLine1 || statObj.City || statObj.CountryCode || statObj.PostalCode) {
 
@@ -226,12 +228,14 @@ export class UniSearchSupplierConfig {
             const phone = new Phone();
             phone.Number = statObj.PhoneNumber;
             supplier.Info.DefaultPhone = phone;
+            supplier.Info.Phones.push(phone);
         }
 
         if (statObj.EmailAddress) {
             const mail = new Email();
             mail.EmailAddress = statObj.EmailAddress;
             supplier.Info.DefaultEmail = mail;
+            supplier.Info.Emails.push(mail);
         }
 
         return supplier;

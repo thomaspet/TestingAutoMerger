@@ -1,0 +1,128 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="[]">
+</uni-toolbar>
+<div class="application">
+    <div class="time-off-section">
+        <div style="display: flex;">
+            <section class="timesheet-list" *ngIf="currentView.value === 'list'">
+                <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 1rem;">
+                    <label>Vis bare fridager</label>
+                    <i class="material-icons" style="margin-left: 1rem; font-size: 1.2rem; cursor: pointer; color:#0e4880" (click)="changeListView()">
+                        {{ showOnlyTimeOff ? 'check_box' : 'check_box_outline_blank' }}
+                    </i>
+                </div>
+                <input type="search" [(ngModel)]="filterString" [formControl]="searchControl" />
+                <ul id="role-info">
+                    <li *ngFor="let day of filteredTimeSheet"
+                    title="{{ day.TimeOff?.Description }}"
+                    [class.selected]="day.Date === currentDay.Date"
+                    [class.timeofftoday]="day.WeekDay >= 6"
+                    [class.isWeekEnd]="day.WeekDay === 7 && !showOnlyTimeOff"
+                    [class.isDayOff]="!!day.TimeOff"
+                    (click)="onDaySelect(day)">
+                        <span style="width: 5.5rem;"> {{ day.dayText }} </span>
+                        <span style="flex: 1;"> {{ day.dateText }} </span>
+                        <span> <i class="material-icons"> {{ getIcon(day) }} </i> </span>
+                    </li>
+                </ul>
+
+                <div class="year-navigation">
+                    <span (click)="yearSelect(thisYear)" [class.yearselected]="thisYear === currentYear" title="Se kalenderår {{ thisYear }}"> {{ thisYear }} </span>
+                    <span (click)="yearSelect(nextYear)" [class.yearselected]="nextYear === currentYear" title="Se kalenderår {{ nextYear }}"> {{ nextYear }} </span>
+                </div>
+            </section>
+
+            <section class="timesheet-list" *ngIf="currentView.value === 'month'">
+                <div>
+                    <div class="timeoff-month-header">
+                        <i class="material-icons" (click)="monthChange(-1)"> chevron_left </i>
+                        <span>
+                            {{ _MONTHS[currentMonth] }}
+                        </span>
+                        <i class="material-icons" (click)="monthChange(1)"> chevron_right </i>
+                    </div>
+                    <table class="timeoff-month-table">
+                        <thead>
+                            <tr>
+                                <th *ngFor="let day of _DAYS">{{ day.substr(0,2) }}</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let week of months[currentMonth]">
+                                <td *ngFor="let weekday of week"
+                                    (click)="onDaySelect(weekday)"
+                                    [class.selected]="weekday.Date === currentDay.Date"
+                                    [class.isToday]="isToday(weekday)"
+                                    [class.isDayOff]="!!weekday.TimeOff && weekday.WeekDay !== 7"
+                                    [class.isSunday]="weekday.WeekDay === 7"
+                                    title="{{ weekday.TimeOff?.Description }}">
+                                    {{ weekday.calenderText }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="year-navigation">
+                        <span (click)="yearSelect(thisYear)" [class.yearselected]="thisYear === currentYear" title="Se kalenderår {{ thisYear }}"> {{ thisYear }} </span>
+                        <span (click)="yearSelect(nextYear)" [class.yearselected]="nextYear === currentYear" title="Se kalenderår {{ nextYear }}"> {{ nextYear }} </span>
+                    </div>
+                </div>
+            </section>
+
+            <section style="flex: 5; padding: 0 1rem; background-color: white; margin-left: 1rem;">
+                <mat-form-field style="position: absolute; right: 4rem; top: 6.5rem;">
+                    <mat-select [value]="currentView" (valueChange)="viewChange($event)" placeholder="Visning">
+                        <mat-option *ngFor="let view of views" [value]="view">
+                            {{ view.label }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+
+                <section *ngIf="currentView.value !== 'year'" style="padding-top: 1rem">
+                    <h4 style="font-size: 1.6rem; font-weight: 400; margin: 0 0 4rem 0; flex: 1;" *ngIf="currentView.value !== 'year'">
+                        {{ getHeaderText() }}
+                    </h4>
+
+                    <uni-timeoff-edit [currentDay]="currentDay" (dataChanged)="getData()"> </uni-timeoff-edit>
+                </section>
+
+                <div *ngIf="currentView.value === 'year'" >
+                    <div class="year-navigation">
+                        <span (click)="yearSelect(thisYear)" [class.yearselected]="thisYear === currentYear" title="Se kalenderår {{ thisYear }}"> {{ thisYear }} </span>
+                        <span (click)="yearSelect(nextYear)" [class.yearselected]="nextYear === currentYear" title="Se kalenderår {{ nextYear }}"> {{ nextYear }} </span>
+                    </div>
+
+                    <div class="timeoff_year_view">
+                        <div *ngFor="let month of months; let i = index;" class="timeoff_year_view_month">
+                            <div> {{ _MONTHS[i] }} </div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th *ngFor="let day of _DAYS">{{ day.substr(0,3) }}</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr *ngFor="let week of month">
+                                        <td *ngFor="let weekday of week"
+                                            (click)="onDaySelect(weekday)"
+                                            [class.isSunday]="weekday.WeekDay === 7"
+                                            [class.isDayOff]="!!weekday.TimeOff && weekday.WeekDay !== 7"
+                                            title="{{ weekday.TimeOff?.Description }}">
+                                            {{ weekday.calenderText }}
+                                            <i class="material-icons"> {{ getIcon(weekday) }} </i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </div>
+
+</div>

@@ -40,13 +40,12 @@ export class ProductList {
                 this.router.navigateByUrl('/sales/products/0');
             }
         }
-            //::TODO - Create a Job Service to import products
-            //, {
-            //     label: 'Importer produkter',
-            //     action: (done) => this.openImportModal(done),
-            //     main: true,
-            //     disabled: false
-            // }
+        , {
+            label: 'Importer produkter',
+            action: (done) => this.openImportModal(done),
+            main: true,
+            disabled: false
+        }
         ];
 
         this.setupProductTable();

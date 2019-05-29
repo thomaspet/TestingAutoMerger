@@ -17,8 +17,6 @@
         flex: 1
         .list-row
             border-bottom: 1px solid rgba(0, 0, 0, .12)
-            // &:last-of-type
-            //     border: none
 
     .list-row
         display: flex
@@ -27,12 +25,41 @@
         background: #fff
         padding: 0 1.5rem
 
-        > span
+        > .cell
             overflow: hidden
             text-overflow: ellipsis
             white-space: nowrap
-            & + span
+
+            &.clickable
+                color: #1565C0
+                cursor: pointer
+                &:hover
+                    text-decoration: underline
+
+            & + .cell
                 margin-left: 2rem
+
+            .status-indicator
+                display: inline-block
+                width: 7px
+                height: 7px
+                margin-bottom: 1px
+                margin-right: 5px
+                border-radius: 50%
+                &.good
+                    background: #01A901
+                &.bad
+                    background: #F53B57
+                &.warn
+                    background: #F5A623
+
+        .context-menu
+            display: flex
+            height: 100%
+            width: 3rem
+            cursor: pointer
+            align-items: center
+            justify-content: center
 
         &.header-row
             background: #F5F6FA

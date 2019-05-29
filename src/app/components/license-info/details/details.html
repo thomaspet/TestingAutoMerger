@@ -28,19 +28,26 @@
     <section class="header">
         <h1>Administratorer</h1>
 
-        <input
-            class="pull-right"
-            type="search"
-            placeholder="Søk"
-            [(ngModel)]="filterValue"
-            (ngModelChange)="filterManagers()"
-        />
+        <div class="pull-right">
+            <button *ngIf="isAdmin" (click)="addAdmin()" class="outline-c2a add-admin">
+                Legg til administrator
+            </button>
+
+            <input
+                type="search"
+                placeholder="Søk"
+                [(ngModel)]="filterValue"
+                (ngModelChange)="filterManagers()"
+            />
+        </div>
+
     </section>
 
     <license-info-list
         *ngIf="filteredManagers?.length"
         [columns]="columns"
         [rows]="filteredManagers"
-        [orderBy]="'User.Name'">
+        [orderBy]="'User.Name'"
+        [contextMenu]="contextMenu">
     </license-info-list>
 </section>

@@ -1,17 +1,38 @@
 <section class="list-row header-row">
-    <span *ngFor="let column of columns"
-        [ngClass]="{'align-right': !!column.format}"
+    <span class="cell" *ngFor="let column of columns"
+        [ngClass]="{'align-right': !!column.numberFormat}"
         [ngStyle]="{'flex': column.flex || 1}">
         {{column.header}}
     </span>
+
+    <span class="context-menu" *ngIf="contextMenu?.length"></span>
 </section>
 
 <cdk-virtual-scroll-viewport itemSize="50" class="list-body" #listBody>
     <section class="list-row" *cdkVirtualFor="let row of rows; templateCacheSize: 100" (click)="rowClick.emit(row)">
-        <span *ngFor="let column of columns"
-            [ngClass]="{'align-right': !!column.format}"
+        <span class="cell" *ngFor="let column of columns"
+            (click)="onColumnClick(column, row)"
+            [ngClass]="getClass(column, row)"
             [ngStyle]="{'flex': column.flex || 1}">
+
+            <span
+                *ngIf="column.statusIndicator"
+                [ngClass]="column.statusIndicator(row)"
+                class="status-indicator">
+            </span>
+
             {{row | cellValue: column}}
+        </span>
+
+        <span class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu">
+            <i class="material-icons">more_horiz</i>
+            <mat-menu #menu="matMenu" xPosition="before">
+                <button mat-menu-item
+                    *ngFor="let item of contextMenu"
+                    (click)="item.action(row)">
+                    {{item.label}}
+                </button>
+            </mat-menu>
         </span>
     </section>
 </cdk-virtual-scroll-viewport>

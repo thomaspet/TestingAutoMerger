@@ -14,6 +14,7 @@ export interface IDetailsModalInput {
     dimensionType: number;
     dimensionId: number;
     close: any;
+    filter: any;
 }
 
 @Component({
@@ -63,6 +64,7 @@ export class AccountDetailsReportModal implements IUniModal {
             dimensionType: this.options.data.dimensionType,
             periodFilter1: this.options.data.periodFilter1,
             periodFilter2: this.options.data.periodFilter2,
+            filter: this.options.data.filter
         };
     }
 }

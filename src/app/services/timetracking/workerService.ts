@@ -98,6 +98,45 @@ export class WorkerService extends BizHttp<Worker> {
         });
     }
 
+    public getTimeSheetWithDates(id: number, fromDate: string, toDate: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`workrelations/${id}?action=timesheet&fromdate=${fromDate}&todate=${toDate}`)
+            .send()
+            .map(res => res.json());
+    }
+
+    public getWorkTimeOff(year: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`WorkTimeOff?filter=FromDate ge '${year}-01-01' and ToDate le '${year}-12-31'&orderby=FromDate`)
+            .send()
+            .map(res => res.json());
+    }
+
+    public saveTimeOff(timeoff: any) {
+        let query = this.http.asPOST().withEndPoint('WorkTimeOff');
+        if (timeoff.ID) {
+            query = this.http.asPUT().withEndPoint('WorkTimeOff/' + timeoff.ID);
+        }
+        return query
+            .usingBusinessDomain()
+            .withBody(timeoff)
+            .send()
+            .map(res => res.json());
+    }
+
+    public deleteTimeOff(id: number) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('WorkTimeOff/' + id)
+            .send()
+            .map(res => res.json())
+    }
+
     public getWorkerFromUser(userid: number): Observable<Worker> {
         return super.PostAction<Worker>(null, 'create-worker-from-user', 'userid=' + userid);
     }

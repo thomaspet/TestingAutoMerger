@@ -20,7 +20,13 @@ export class UserList {
     columns = [
         { header: 'Navn', field: 'UserName' },
         { header: 'Epost', field: 'Email' },
-        { header: 'Lisenstype', field: '_typeText', flex: '0 0 10rem' }
+        { header: 'Lisenstype', field: '_typeText', flex: '0 0 10rem' },
+        {
+            header: 'Status',
+            field: '_status',
+            flex: '0 0 7rem',
+            statusIndicator: row => row.StatusCode === 11 ? 'bad' : 'good'
+        },
     ];
 
     constructor(
@@ -30,9 +36,10 @@ export class UserList {
     ) {
         const contractID = this.authService.currentUser.License.Company.ContractID;
         this.elsaContractService.getUserLicenses(contractID).subscribe(
-            res => {
-                const users = (res || []).filter(user => user.UserName !== 'System User');
+            users => {
                 this.users = users.map(user => {
+                    user['_status'] = user.StatusCode === 11 ? 'Deaktivert' : 'Aktiv';
+
                     switch (user.UserLicenseType) {
                         case ElsaUserLicenseType.Standard:
                             user['_typeText'] = 'Standard';
@@ -48,7 +55,7 @@ export class UserList {
                     return user;
                 });
 
-                this.filteredUsers = res;
+                this.filteredUsers = this.users;
             },
             err => this.errorService.handle(err)
         );

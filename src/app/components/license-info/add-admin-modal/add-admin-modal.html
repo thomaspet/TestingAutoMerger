@@ -1,0 +1,36 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Legg til administratorer</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <input
+            type="search"
+            placeholder="Søk"
+            [(ngModel)]="filterValue"
+            (ngModelChange)="filterUsers()"
+        />
+
+        <mat-selection-list>
+            <cdk-virtual-scroll-viewport itemSize="50" class="selection-list">
+                <mat-list-option
+                    *ngFor="let user of filteredUsers"
+                    checkboxPosition="before"
+                    (click)="user._selected = !user._selected">
+
+                    <section class="list-item">
+                        <span>{{user.UserName}}</span>
+                        <span class="email"> ({{user.Email}})</span>
+                    </section>
+                </mat-list-option>
+            </cdk-virtual-scroll-viewport>
+        </mat-selection-list>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="save()">Bekreft</button>
+        <button (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</section>

@@ -1,5 +1,6 @@
 import {Component, Input, HostListener, Output, EventEmitter} from '@angular/core';
 import {BillingDataItem} from '../billing';
+import {ListViewColumn} from '../../list-view/list-view';
 
 @Component({
     selector: 'invoice-item-details',
@@ -12,7 +13,7 @@ export class InvoiceItemDetails {
 
     listHeader: string;
     countLabel: string;
-    columns: any[];
+    columns: ListViewColumn[];
 
     @HostListener('click')
     onBackdropClick() {
@@ -31,7 +32,7 @@ export class InvoiceItemDetails {
 
             this.columns = [
                 {header: listHeader, field: 'Name'},
-                {header: countLabel, field: 'Counter', format: 'number', flex: '0 0 4rem'},
+                {header: countLabel, field: 'Counter', numberFormat: 'number', flex: '0 0 4rem'},
             ];
         }
     }

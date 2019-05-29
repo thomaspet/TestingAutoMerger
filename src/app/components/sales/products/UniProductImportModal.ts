@@ -2,10 +2,11 @@ import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { Http } from '@angular/http';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
-import { ErrorService, FileService, UniFilesService, BudgetService, JobService } from '@app/services/services';
+import { ErrorService, FileService, UniFilesService, BudgetService, JobService, IFilter, ItemInterval } from '@app/services/services';
 import { File } from '@app/unientities';
 import { AuthService } from '@app/authService';
 import { Subject, Observable } from 'rxjs';
+import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialogModel';
 
 @Component({
     selector: 'uni-product-import-modal',
@@ -20,6 +21,16 @@ import { Subject, Observable } from 'rxjs';
                     Om et produkt med likt produktnummer finnes fra før, vil det importerte produktet ikke lagres
                     </label>
                 </form>
+
+                <div class="type-filter">
+                    <span>File Type</span>
+                    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
+                        <mat-option *ngFor="let filter of filters" [value]="filter">
+                            {{ filter.label }}
+                        </mat-option>
+                    </mat-select>
+                </div>
+
                 <div>
                     <span>Filimport</span>
                     <div class="product-file-import">
@@ -51,6 +62,10 @@ export class UniProductImportModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
 
+    filters: Array<IFilter>;
+    currentFilter: IFilter;
+    fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
+    importModel: ImportDialogModel;
 
     constructor(
         private authService: AuthService,
@@ -64,6 +79,12 @@ export class UniProductImportModal implements OnInit, IUniModal {
             this.companyName = authDetails.activeCompany.Name;
             this.token = authDetails.token;
         });
+        this.filters = [
+            { name: ImportFileType.StandardizedExcelFormat.toString(), label: 'Standardized Excel Format', interval: ItemInterval.all },
+            { name: ImportFileType.StandardUniFormat.toString(), label: 'Standard Uni Format', interval: ItemInterval.all },
+        ];
+        this.currentFilter = this.filters[0];
+        this.fileType = ImportFileType.StandardizedExcelFormat;
     }
 
     public ngOnInit() { }
@@ -94,8 +115,15 @@ export class UniProductImportModal implements OnInit, IUniModal {
     public import() {
         this.loading$.next(true);
         this.uploadFile(this.file).subscribe((res) => {
-            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/ ${res._publictoken}`;
-            this.jobService.startJob('<<product_import_job_name>>', 0, {Url:fileURL, CompanyKey:this.activeCompany.Key, CompanyName: this.companyName}).subscribe(
+            var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
+            
+            this.importModel = {
+                CompanyKey: this.activeCompany.Key,
+                CompanyName: this.companyName,
+                Url: fileURL,
+                ImportFileType: this.fileType
+            }
+            this.jobService.startJob('ProductImportJob', 0, this.importModel).subscribe(
                 res => {
                     this.loading$.complete();
                     this.close();
@@ -106,6 +134,11 @@ export class UniProductImportModal implements OnInit, IUniModal {
             this.loading$.next(false);
             this.errorService.handle(err);
         });
+    }
+
+    public onFilterClick(filter: IFilter) {
+        this.currentFilter = filter;
+        this.fileType = Number(this.currentFilter.name);
     }
 
     public close() {
