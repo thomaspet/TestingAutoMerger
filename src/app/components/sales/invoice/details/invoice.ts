@@ -1450,23 +1450,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private saveInvoice(done = (msg: string) => {}): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
-        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID > 0) {
-            this.invoice.DefaultSellerID = this.invoice.DefaultSeller.ID;
-        }
-
-        if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID === null) {
-            this.invoice.DefaultSeller = null;
-            this.invoice.DefaultSellerID = null;
-        }
-
-        if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
-            this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
-        }
-
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
         if (this.deletables) {
             this.deletables.forEach(sellerLink => this.invoice.Sellers.push(sellerLink));
         }
+
+        this.invoice = this.tofHelper.beforeSave(this.invoice);
 
         return new Promise((resolve, reject) => {
             const saveRequest = (this.invoice.ID > 0)

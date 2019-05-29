@@ -1253,23 +1253,12 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             this.quote.Sellers.forEach(seller => seller.CustomerQuoteID = null);
         }
 
-        if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
-            this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
-        }
-
-        if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID > 0) {
-            this.quote.DefaultSellerID = this.quote.DefaultSeller.ID;
-        }
-
-        if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID === null) {
-            this.quote.DefaultSeller = null;
-            this.quote.DefaultSellerID = null;
-        }
-
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
         if (this.deletables) {
             this.deletables.forEach(sellerLink => this.quote.Sellers.push(sellerLink));
         }
+
+        this.quote = this.tofHelper.beforeSave(this.quote);
 
         return new Promise((resolve, reject) => {
             // create observable but dont subscribe - resolve it in the promise
