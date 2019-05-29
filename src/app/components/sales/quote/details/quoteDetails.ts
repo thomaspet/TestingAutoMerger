@@ -13,7 +13,6 @@ import {
     LocalDate,
     Project,
     Seller,
-    SellerLink,
     StatusCodeCustomerQuote,
     Terms,
     NumberSeries,
@@ -21,7 +20,7 @@ import {
     Department,
     User,
     ReportDefinition,
-} from '../../../../unientities';
+} from '@uni-entities';
 
 import {
     CompanySettingsService,
@@ -45,7 +44,7 @@ import {
     CustomDimensionService,
     DepartmentService,
     ModulusService,
-} from '../../../../services/services';
+} from '@app/services/services';
 
 import {
     UniModalService,
@@ -53,13 +52,13 @@ import {
     IModalOptions,
     UniConfirmModalV2,
     UniChooseReportModal,
-} from '../../../../../framework/uni-modal';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+} from '@uni-framework/uni-modal';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
@@ -75,7 +74,7 @@ import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
-declare var _;
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'quote-details',
@@ -94,7 +93,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private printStatusPrinted: string = '200';
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
 
-    private deletables: SellerLink[] = [];
     private numberSeries: NumberSeries[];
     private projectID: number;
 
@@ -465,7 +463,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
                 this.currentQuoteDate = quote.QuoteDate;
 
-                this.quote = _.cloneDeep(quote);
+                this.quote = cloneDeep(quote);
                 this.updateCurrency(quote, true);
                 this.recalcItemSums(quote.Items);
                 this.updateTab();
@@ -708,7 +706,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                                 this.recalcItemSums(this.quoteItems);
 
                                 // update the model
-                                this.quote = _.cloneDeep(quote);
+                                this.quote = cloneDeep(quote);
                             });
 
                         } else if (this.quoteItems && this.quoteItems.length > 0) {
@@ -729,13 +727,13 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                             this.recalcItemSums(this.quoteItems);
 
                             // update the model
-                            this.quote = _.cloneDeep(quote);
+                            this.quote = cloneDeep(quote);
                         } else {
                             // update
                             this.recalcItemSums(this.quoteItems);
 
                             // update the model
-                            this.quote = _.cloneDeep(quote);
+                            this.quote = cloneDeep(quote);
                         }
                     } else {
                         this.recalcItemSums(this.quoteItems);
@@ -743,10 +741,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 }, err => this.errorService.handle(err)
                 );
         }
-    }
-
-    onSellerDelete(sellerLink: SellerLink) {
-        this.deletables.push(sellerLink);
     }
 
     private setUpDims(dims) {
@@ -1251,11 +1245,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
         if (this.quote.Sellers && this.quote.ID === 0) {
             this.quote.Sellers.forEach(seller => seller.CustomerQuoteID = null);
-        }
-
-        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
-        if (this.deletables) {
-            this.deletables.forEach(sellerLink => this.quote.Sellers.push(sellerLink));
         }
 
         this.quote = this.tofHelper.beforeSave(this.quote);

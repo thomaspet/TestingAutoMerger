@@ -8,7 +8,7 @@ import {
     IModalOptions,
     UniConfirmModalV2,
     UniChooseReportModal,
-} from '../../../../../framework/uni-modal';
+} from '@uni-framework/uni-modal';
 import {
     CompanySettings,
     CurrencyCode,
@@ -19,7 +19,6 @@ import {
     LocalDate,
     Project,
     Seller,
-    SellerLink,
     StatusCodeCustomerOrder,
     Terms,
     NumberSeries,
@@ -27,7 +26,7 @@ import {
     Department,
     User,
     ReportDefinition,
-} from '../../../../unientities';
+} from '@uni-entities';
 import {
     CompanySettingsService,
     CurrencyCodeService,
@@ -52,14 +51,14 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     InvoiceHourService,
-} from '../../../../services/services';
+} from '@app/services/services';
 
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {IContextMenuItem} from '@uni-framework/ui/unitable';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
@@ -76,10 +75,11 @@ import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
-import * as moment from 'moment';
-import { UniChooseOrderHoursModal } from '@app/components/sales/order/modal/chooseOrderHoursModal';
+import {UniChooseOrderHoursModal} from '@app/components/sales/order/modal/chooseOrderHoursModal';
 import {AuthService} from '@app/authService';
-declare var _;
+
+import * as moment from 'moment';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'order-details',
@@ -99,7 +99,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private deletables: SellerLink[] = [];
 
     newOrderItem: CustomerOrderItem;
     order: CustomerOrder;
@@ -735,7 +734,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                                 this.recalcItemSums(this.orderItems);
 
                                 // update the model
-                                this.order = _.cloneDeep(order);
+                                this.order = cloneDeep(order);
                             });
 
                         } else if (this.orderItems && this.orderItems.length > 0) {
@@ -756,22 +755,18 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             this.recalcItemSums(this.orderItems);
 
                             // update the model
-                            this.order = _.cloneDeep(order);
+                            this.order = cloneDeep(order);
                         } else {
                             // update
                             this.recalcItemSums(this.orderItems);
 
                             // update the model
-                            this.order = _.cloneDeep(order);
+                            this.order = cloneDeep(order);
                         }
                     }
                 }, err => this.errorService.handle(err)
                 );
         }
-    }
-
-    onSellerDelete(sellerLink: SellerLink) {
-        this.deletables.push(sellerLink);
     }
 
     private refreshOrder(order?: CustomerOrder): Promise<boolean> {
@@ -806,7 +801,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.nonTransferredHoursOnOrderCount = res[1][0]['SumNotTransfered'] / 60;
                 }
 
-                this.order = _.cloneDeep(order);
+                this.order = cloneDeep(order);
                 this.updateCurrency(order, true);
                 this.recalcItemSums(order.Items);
                 if (this.tradeItemTable) {
@@ -1323,12 +1318,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
     private saveOrder(): Promise<CustomerOrder> {
         this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
-
-        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
-        if (this.deletables) {
-            this.deletables.forEach(sellerLink => this.order.Sellers.push(sellerLink));
-        }
-
         this.order = this.tofHelper.beforeSave(this.order);
 
         return new Promise((resolve, reject) => {

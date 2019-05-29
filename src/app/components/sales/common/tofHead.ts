@@ -37,7 +37,6 @@ export class TofHead implements OnChanges {
     @Input() currentUser: User;
 
     @Output() dataChange: EventEmitter<any> = new EventEmitter();
-    @Output() sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
     tabs: IUniTab[];
     activeTabIndex: number = 0;
