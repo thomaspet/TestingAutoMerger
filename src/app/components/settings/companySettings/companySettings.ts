@@ -387,8 +387,17 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
-            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal).onClose.subscribe(
+            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal, {
+                data: {
+                    PeriodSeriesAccountID: (changes['PeriodSeriesAccountID'] && changes['PeriodSeriesAccountID'].previousValue) || null,
+                    PeriodSeriesVatID: (changes['PeriodSeriesVatID'] && changes['PeriodSeriesVatID'].previousValue) || null
+                }
+            }).onClose.subscribe(
                 result => {
+                    const companySettings = this.companySettings$.getValue();
+                    companySettings.PeriodSeriesAccountID = result.PeriodSeriesAccountID;
+                    companySettings.PeriodSeriesVatID = result.PeriodSeriesVatID;
+                    this.companySettings$.next(_.cloneDeep(companySettings));
                     this.router.navigateByUrl('/settings/company');
                 }, err => this.errorService.handle
             );
