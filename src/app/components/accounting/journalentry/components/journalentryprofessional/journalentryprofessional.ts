@@ -2048,7 +2048,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 AgioAccountID: 0,
                 BankChargeAccountID: 0,
                 AgioAmount: 0,
-                PaymentID: null
+                PaymentID: null,
+                DimensionsID: null
             };
 
             const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`

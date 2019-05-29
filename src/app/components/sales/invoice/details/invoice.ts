@@ -2152,7 +2152,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             AgioAccountID: null,
             BankChargeAccountID: 0,
             AgioAmount: 0,
-            PaymentID: null
+            PaymentID: null,
+            DimensionsID: this.invoice.DefaultDimensionsID
         };
 
         const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2161,12 +2162,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             modalConfig: {
                 entityName: 'CustomerInvoice',
                 currencyCode: this.currencyCodeID ? this.getCurrencyCode(this.currencyCodeID) : '',
-                currencyExchangeRate: this.invoice.CurrencyExchangeRate
+                currencyExchangeRate: this.invoice.CurrencyExchangeRate,
+                entityID: this.currentCustomer.ID
             }
         });
 
         paymentModal.onClose.subscribe((payment) => {
             if (payment) {
+
                 this.customerInvoiceService.ActionWithBody(this.invoice.ID, payment, 'payInvoice').subscribe(
                     res => {
                         done('Betaling vellykket');
