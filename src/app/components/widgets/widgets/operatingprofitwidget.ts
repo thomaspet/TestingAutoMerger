@@ -132,7 +132,8 @@ export class UniOperatingProfitWidget {
             'model=JournalEntryLine&select=Period.No,multiply(-1,sum(amount)) as Sum,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber eq 3\,amount\,0))) as Income,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber ge 4\,amount\,0))) as Cost' +
-            `&filter=TopLevelAccountGroup.GroupNumber ge 3 and Period.No ge 1 and Period.No le 12 and ` +
+            `&filter=TopLevelAccountGroup.GroupNumber ge 3 and TopLevelAccountGroup.GroupNumber lt 8 ` + 
+            `and Period.No ge 1 and Period.No le 12 and ` +
             `Period.AccountYear eq ${this.currentYear}&join=&orderby=Period.No&Range=PeriodNo` +
             '&expand=Period,Account.TopLevelAccountGroup')
         .subscribe(result => {
