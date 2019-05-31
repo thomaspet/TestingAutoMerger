@@ -9,7 +9,9 @@ export function parseEHFData(data) {
 
     if (data.StandardBusinessDocument) {
         isCreditNote = !!data.StandardBusinessDocument.CreditNote;
-        invoiceData = data.StandardBusinessDocument.Invoice || data.StandardBusinessDocument.CreditNote;
+        invoiceData = data.StandardBusinessDocument.Invoice
+            || data.StandardBusinessDocument['inv:Invoice']
+            || data.StandardBusinessDocument.CreditNote;
     } else {
         isCreditNote = !!data.CreditNote;
         invoiceData = data.Invoice || data.CreditNote;
