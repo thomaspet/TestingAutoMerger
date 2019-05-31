@@ -49,7 +49,7 @@ import {SharingType, StatusCodeSharing} from '../../../unientities';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
-
+import { map } from 'rxjs/operators';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare const _;
 
@@ -112,6 +112,7 @@ export class UniTicker {
     public groupFilter: string = '';
 
     public busy: boolean = false;
+    public customDimensionsMetadata = [];
 
     constructor(
         private router: Router,
@@ -133,13 +134,27 @@ export class UniTicker {
         private customDimensionService: CustomDimensionService,
         private wageTypeService: WageTypeService,
     ) {
+        this.customDimensionService.getMetadata().subscribe(res => this.customDimensionsMetadata = res);
         this.lookupFunction = (urlParams: URLSearchParams) => {
             this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
                     .GetAllByUrlSearchParams(params, this.ticker.Distinct || false)
-                    .catch(() => Observable.empty()); // fail silently
+                    .catch(() => Observable.empty()) // fail silently
+                    .pipe(
+                        map(data => {
+                            if (this.ticker.Expand.indexOf('ManatoryDimensions') > -1) {
+                                const body = JSON.parse(data['_body']);
+                                const list = body.Data;
+                                const grouppedList = this.groupMandatoryDimensions(list);
+                                console.log(grouppedList);
+                                data['_body'] = JSON.stringify(grouppedList);
+                                return data;
+                            }
+                            return data;
+                        })
+                    );
             } else if (this.ticker.ApiUrl) {
                 return this.http
                     .get(this.ticker.ApiUrl)
@@ -187,6 +202,29 @@ export class UniTicker {
                 .map(res => res.json())
                 .map(res => (res.Data && res.Data[0]) || []);
         };
+    }
+
+    public groupMandatoryDimensions(list: any[]) {
+        const data = [];
+        for (let i = 0; i < list.length; i++) {
+            const item = data.find(x => x.ID === list[i].ID);
+            if (item) {
+                // add mandatory dimension
+                item.ManatoryDimensions.push({
+                    DimensionNo: list[i].ManatoryDimensions_DimensionNo,
+                    ManatoryType: list[i].ManatoryDimensions_ManatoryType
+                });
+            } else {
+                // push new item to data and add mandatory dimension
+                data.push(list[i]);
+                list[i].ManatoryDimensions = [];
+                list[i].ManatoryDimensions.push({
+                    DimensionNo: list[i].ManatoryDimensions_DimensionNo,
+                    ManatoryType: list[i].ManatoryDimensions_ManatoryType
+                });
+            }
+        }
+        return data;
     }
 
     public turnGroupingOnOff() {
@@ -865,7 +903,11 @@ export class UniTicker {
                 // Set the expand needed for selected columns
                 this.setExpand(column);
 
-                selects.push(column.SelectableFieldName + ' as ' + column.Alias);
+                if (column.Field === 'ManatoryDimensions') {
+                    selects.push('ManatoryDimensions.*');
+                } else {
+                    selects.push(column.SelectableFieldName + ' as ' + column.Alias);
+                }
 
                 if (column.SubFields) {
                     column.SubFields.forEach(subColumn => {
@@ -1109,6 +1151,40 @@ export class UniTicker {
                     }
                 }
 
+                // update column template to display mandatory and optional dimensions
+                if (this.ticker.Code === 'accounts_list' && col.field === 'Account.ManatoryDimensions') {
+                    let manatoryType = 0;
+                    if (col.header.includes('Påkrevde')) {
+                        manatoryType = 1;
+                    }
+                    if (col.header.includes('Advarsel')) {
+                        manatoryType = 2;
+                    }
+
+                    col.setTemplate(rowModel => {
+                        const dimensions = rowModel.ManatoryDimensions;
+                        const result = [];
+                        dimensions.forEach(dim => {
+                            if (dim.ManatoryType === manatoryType) {
+                                if (dim.DimensionNo !== 1 && dim.DimensionNo !== 2) {
+                                    this.customDimensionsMetadata.forEach(dimMetaData => {
+                                        if (dim.DimensionNo === dimMetaData.Dimension) {
+                                            result.push(dimMetaData.Label);
+                                        }
+                                    });
+                                }
+                                if (dim.DimensionNo === 1) {
+                                    result.push('Prosjekt');
+                                }
+                                if (dim.DimensionNo === 2) {
+                                    result.push('Avdeling');
+                                }
+                            }
+                        });
+                        return result.join(',');
+                    });
+                }
+
                 // Add functionality to only show fields on given Filters
                 // Dont add columns that have filter lock and is not visible (filter is not correct)
                 if (!column.ShowOnlyOnThisFilter || (column.ShowOnlyOnThisFilter &&
@@ -1300,6 +1376,9 @@ export class UniTicker {
     }
 
     private setExpand(column: TickerColumn) {
+        if (column.Field === 'ManatoryDimensions') {
+            this.ticker.Expand += ',ManatoryDimensions';
+        }
         let field = column.Field;
 
         // if no field, or column is overwritten to not expand, don't expand
@@ -1411,17 +1490,24 @@ export class UniTicker {
         } else {
             this.ticker.Columns.forEach((col)  => {
                 if (!col.DefaultHidden) {
-                    stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    if (col.Field === 'ManatoryDimensions') {
+                        stringSelect.push('ManatoryDimensions.*');
+                    } else {
+                        stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    }
                     headers.push(col.Header);
                 }
             });
         }
-
         // add "dontdisplay" columns to query as well, needed to make some of the
         // lists distinct if sum is used
         this.ticker.Columns.forEach((col)  => {
             if (col.Type === 'dontdisplay') {
-                stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                if (col.Field === 'ManatoryDimensions') {
+                    stringSelect.push('ManatoryDimensions.*');
+                } else {
+                    stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                }
                 headers.push(col.Header);
             }
         });
