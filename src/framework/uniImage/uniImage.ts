@@ -258,8 +258,10 @@ export class UniImage {
                                 map(ehfData => {
                                     if (ehfData) {
                                         const parsed = parseEHFData(ehfData);
-                                        file._ehfMarkup = generateEHFMarkup(parsed);
-                                        file._ehfAttachments = parsed.attachments;
+                                        if (parsed) {
+                                            file._ehfMarkup = generateEHFMarkup(parsed);
+                                            file._ehfAttachments = parsed.attachments;
+                                        }
                                     }
 
                                     return file;

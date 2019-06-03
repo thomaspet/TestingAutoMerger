@@ -9,7 +9,9 @@ export function parseEHFData(data) {
 
     if (data.StandardBusinessDocument) {
         isCreditNote = !!data.StandardBusinessDocument.CreditNote;
-        invoiceData = data.StandardBusinessDocument.Invoice || data.StandardBusinessDocument.CreditNote;
+        invoiceData = data.StandardBusinessDocument.Invoice
+            || data.StandardBusinessDocument['inv:Invoice']
+            || data.StandardBusinessDocument.CreditNote;
     } else {
         isCreditNote = !!data.CreditNote;
         invoiceData = data.Invoice || data.CreditNote;
@@ -29,7 +31,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         isCreditNote: isCreditNote,
         invoiceNumber: get(data, 'cbc:ID', ''),
         invoiceDate: getDateText(get(data, 'cbc:IssueDate', '')),
-        dueDate: getDateText(get(data, 'cbc:DueDate')),
+        dueDate: getDueDate(data),
         note: get(data, 'cbc:Note.#text', ''),
         customerNumber: get(data, 'cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.#text', ''),
         customer: getCompanyInfo(get(data, 'cac:AccountingCustomerParty.cac:Party', {})),
@@ -71,17 +73,40 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
     return ehfData;
 }
 
-
 function getPriceText(amountData, isCreditNote?: boolean) {
     const numberFormatted = formatNumber(amountData['#text'], isCreditNote, true);
     return numberFormatted + ' ' + (amountData['@currencyID'] || '');
 }
 
 function getDateText(dateString) {
-    if (moment(dateString).isValid()) {
+    if (dateString && moment(dateString).isValid()) {
         return moment(dateString).format('DD.MM.YYYY');
     } else {
         return dateString;
+    }
+}
+
+function getDueDate(data) {
+    const ehf3DueDate = get(data, 'cbc:DueDate');
+    if (ehf3DueDate) {
+        return getDateText(ehf3DueDate);
+    } else {
+        let ehf2DueDate;
+        let paymentInfo = get(data, 'cac:PaymentMeans', []);
+        if (paymentInfo && !Array.isArray(paymentInfo)) {
+            paymentInfo = [paymentInfo];
+        }
+
+        paymentInfo.forEach(info => {
+            const date = get(info, 'cbc:PaymentDueDate');
+            if (date && moment(date).isValid()) {
+                if (!ehf2DueDate || moment(ehf2DueDate).isAfter(moment(date))) {
+                    ehf2DueDate = date;
+                }
+            }
+        });
+
+        return getDateText(ehf2DueDate);
     }
 }
 
@@ -110,13 +135,8 @@ function getPaymentInfo(paymentData: any[]) {
     }
 
     (paymentData || []).forEach(row => {
-        const dueDate = getDateText(get(row, 'cbc:PaymentDueDate', ''));
         const kid = get(row, 'cbc:PaymentID', '');
         const accountNumber = get(row, 'cac:PayeeFinancialAccount.cbc:ID', {'@schemeID': ''});
-
-        if (dueDate) {
-            paymentInfo.dueDate = dueDate;
-        }
 
         if (kid) {
             paymentInfo.KID = kid;
