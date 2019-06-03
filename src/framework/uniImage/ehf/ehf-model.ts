@@ -56,13 +56,20 @@ export interface EHFData {
     };
 
     amountSummary?: {
-        taxPercent: string;
         taxAmount: string;
         taxExclusiveAmount: string;
         taxInclusiveAmount: string;
+        chargeAmount?: string;
         prepaidAmount: string;
+        payableRoundingAmount?: string;
         payableAmount: string;
     };
+
+    taxSummary?: {
+        taxPercent: string;
+        taxableAmount: string;
+        taxAmount: string;
+    }[];
 
     invoiceLines?: {
         productNumber: string;

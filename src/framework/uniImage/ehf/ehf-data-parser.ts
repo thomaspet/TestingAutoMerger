@@ -38,16 +38,10 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         supplier: getCompanyInfo(get(data, 'cac:AccountingSupplierParty.cac:Party', {})),
         paymentInfo: getPaymentInfo(get(data, 'cac:PaymentMeans', [])),
         yourReference: getYourReference(data),
-        amountSummary: {
-            taxPercent: formatNumber(get(data, 'cac:TaxTotal.cac:TaxSubtotal.cac:TaxCategory.cbc:Percent', '')),
-            taxAmount: getPriceText(get(data, 'cac:TaxTotal.cbc:TaxAmount', ''), isCreditNote),
-            taxExclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxExclusiveAmount', ''), isCreditNote),
-            taxInclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxInclusiveAmount', ''), isCreditNote),
-            prepaidAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PrepaidAmount', ''), isCreditNote),
-            payableAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PayableAmount', ''))
-        },
+        amountSummary: getAmountSummary(data, isCreditNote),
         delivery: getDeliveryInfo(get(data, 'cac:Delivery', {})),
-        invoiceLines: getInvoiceLines(data, isCreditNote)
+        invoiceLines: getInvoiceLines(data, isCreditNote),
+        taxSummary: getTaxSummary(get(data, 'cac:TaxTotal.cac:TaxSubtotal'), isCreditNote)
     };
 
     if (isCreditNote) {
@@ -65,7 +59,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         ehfData.creditNoteNumber = get(ehfData.creditNoteNumber, '#text', '');
     }
 
-    const additionalDocRefs = get(data, 'cac:AdditionalDocumentReference');
+    const additionalDocRefs = get(data, 'AdditionalDocumentReference') || get(data, 'cac:AdditionalDocumentReference');
     if (additionalDocRefs) {
         ehfData.attachments = getAttachments(additionalDocRefs);
     }
@@ -166,6 +160,29 @@ function getPaymentInfo(paymentData: any[]) {
     return paymentInfo;
 }
 
+function getTaxSummary(taxData, isCreditNote: boolean) {
+    if (!taxData) {
+        return [];
+    }
+
+    if (taxData && !Array.isArray(taxData)) {
+        taxData = [taxData];
+    }
+
+    return taxData.map(subTotal => {
+        let percent = get(subTotal, 'cac:TaxCategory.cbc:Percent');
+        if (get(percent, '#text')) {
+            percent = get(percent, '#text', 0);
+        }
+
+        return {
+            taxPercent: (parseFloat(percent)) + '%',
+            taxableAmount: getPriceText(get(subTotal, 'cbc:TaxableAmount'), isCreditNote),
+            taxAmount: getPriceText(get(subTotal, 'cbc:TaxAmount'), isCreditNote)
+        };
+    });
+}
+
 function getDeliveryInfo(deliveryData) {
     return {
         date: getDateText(get(deliveryData, 'cbc:ActualDeliveryDate', '')),
@@ -180,6 +197,7 @@ function getDeliveryInfo(deliveryData) {
 
 function getInvoiceLines(data, isCreditNote) {
     let invoiceLines = get(data, 'InvoiceLine') || get(data, 'cac:InvoiceLine') || get(data, 'CreditNoteLine') || get(data, 'cac:CreditNoteLine') || [];
+
     // If theres only one line its sent as an object instead of an array
     if (invoiceLines && !Array.isArray(invoiceLines)) {
         invoiceLines = [invoiceLines];
@@ -207,6 +225,35 @@ function getInvoiceLines(data, isCreditNote) {
             vatExclusiveAmount: isCommentLine ? '' : getPriceText(amount, isCreditNote),
         };
     });
+}
+
+function getAmountSummary(data, isCreditNote: boolean) {
+    const amountSummary: any = {
+        taxAmount: getPriceText(get(data, 'cac:TaxTotal.cbc:TaxAmount', ''), isCreditNote),
+        taxExclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxExclusiveAmount', ''), isCreditNote),
+        taxInclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxInclusiveAmount', ''), isCreditNote),
+        payableAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PayableAmount', ''))
+    };
+
+    const chargeAmount = get(data, 'cac:LegalMonetaryTotal.cbc:ChargeTotalAmount');
+    if (chargeAmount) {
+        amountSummary.chargeAmount = getPriceText(chargeAmount);
+    }
+
+    const prepaidAmount = get(data, 'cac:LegalMonetaryTotal.cbc:PrepaidAmount', '');
+    if (prepaidAmount && !isCreditNote) {
+        const formatted = getPriceText(prepaidAmount, isCreditNote);
+        if (formatted !== '0,00 NOK') {
+            amountSummary.prepaidAmount = formatted;
+        }
+    }
+
+    const roundingAmount = get(data, 'cac:LegalMonetaryTotal.cbc:PayableRoundingAmount');
+    if (roundingAmount) {
+        amountSummary.payableRoundingAmount = getPriceText(roundingAmount, isCreditNote);
+    }
+
+    return amountSummary;
 }
 
 function formatNumber(value: string, isCreditNote?: boolean, forceTwoDecimals?: boolean): string {
@@ -254,6 +301,10 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
 
         if (attachmentRef) {
             let label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType') || get(docRef, 'cbc:ID');
+            if (get(label, '#text')) {
+                label = get(label, '#text');
+            }
+
             const embeddedDocument = get(attachmentRef, 'cbc:EmbeddedDocumentBinaryObject');
             const externalRef = get(attachmentRef, 'cac:ExternalReference');
 
@@ -284,8 +335,16 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
             }
         } else {
             // Plaintext
-            const label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType');
-            const value = get(docRef, 'cbc:ID');
+            let label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType');
+            if (get(label, '#text')) {
+                label = get(label, '#text');
+            }
+
+            let value = get(docRef, 'cbc:ID');
+            if (get(value, '#text')) {
+                value = get(value, '#text');
+            }
+
             if (label && value) {
                 attachments.push({
                     label: label,
