@@ -8,6 +8,7 @@ import {Product} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'product-list',
@@ -17,6 +18,8 @@ export class ProductList {
     public productTable: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
     public saveActions: IUniSaveAction[];
+
+    productTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
 
     constructor(
         private router: Router,
@@ -39,8 +42,8 @@ export class ProductList {
                 done();
                 this.router.navigateByUrl('/sales/products/0');
             }
-        }
-        , {
+        },
+        {
             label: 'Importer produkter',
             action: (done) => this.openImportModal(done),
             main: true,
@@ -134,16 +137,23 @@ export class ProductList {
         this.modalService.open(ImportCentralTemplateModal,
             {
                 header: 'Importer produkter',
-                message: 'Om et produkt med likt produktnummer finnes fra før, vil det importerte produktet ikke lagres',
-                data: { jobName: 'ProductImportJob', downloadTemplateUrl: ''}
-            }).onClose.subscribe((res) => {
-            if (res) {
-                
-            } else {
-                if (done) {
-                    done();
+                data: {
+                    jobName: 'ProductImportJob',
+                    entityType: 'Product',
+                    description: 'Import central - product',
+                    conditionalStatement: 'Hvis produktnummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret.',
+                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)',
+                    downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
+                    downloadTemplateUrl: this.productTemplateUrl
                 }
-            }
-        });
+            }).onClose.subscribe((res) => {
+                if (res) {
+
+                } else {
+                    if (done) {
+                        done();
+                    }
+                }
+            });
     }
 }

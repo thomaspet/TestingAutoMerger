@@ -12,6 +12,7 @@ import {
 } from '../../../../services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
 import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'customer-list',
@@ -85,15 +86,16 @@ export class CustomerList implements OnInit {
         action: this.createCustomer.bind(this),
         main: true,
         disabled: false
+    },
+    {
+        label: 'Importer kunder',
+        action: (done) => this.openImportModal(done),
+        main: true,
+        disabled: false
     }
-    // ,
-    // {
-    //     label: 'Importer kunder',
-    //     action: (done) => this.openImportModal(done),
-    //     main: true,
-    //     disabled: false
-    // }
 ];
+
+    customerTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER;
 
     constructor(
         private router: Router,
@@ -134,8 +136,14 @@ export class CustomerList implements OnInit {
         this.modalService.open(ImportCentralTemplateModal,
             {
                 header: 'Importer Kunder',
-                message: 'Om en kunde med likt kundenummer finnes fra før, vil den importerte kunden ikke lagres. Om kundenumrene ikke passer inn i valgt kundenummerserie vil de avvises',
-                data: { jobName: 'CustomerImportJob', downloadTemplateUrl: 'https://dev-unifiles.unieconomy.no/api/externalfile/b5fa10ae-d6c8-4d02-a5df-795ef91c26a4/453c99f7-a66a-4e8a-9eb1-f229fbf0dd59/P3N2PTIwMTctMDQtMTcmc3I9YiZzaWc9QVh6MlM2U1FWTGMlMkJSbGdwTHdYJTJCOE1icFJTMEI0SDE1Vk1lOUluYU54REUlM0Qmc2U9MjAxOS0wNy0yNlQwNCUzQTEyJTNBMDVaJnNwPXI=' }
+                data: { 
+                    jobName: 'CustomerImportJob',
+                    entityType: 'Customer',
+                    description: 'Import central - customer',
+                    conditionalStatement:'Hvis kundenummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
+                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
+                    downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system', 
+                    downloadTemplateUrl: this.customerTemplateUrl }
             }
         );
         done();

@@ -7,6 +7,7 @@ import {
 import { Router } from '@angular/router';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'supplier-list',
@@ -22,15 +23,16 @@ export class SupplierList {
         action: this.newSupplier.bind(this),
         main: true,
         disabled: false
+    },
+    {
+        label: 'Importer leverandører',
+        action: (done) => this.openImportModal(done),
+        main: true,
+        disabled: false
     }
-    // ,
-    // {
-    //     label: 'Importer leverandører',
-    //     action: (done) => this.openImportModal(done),
-    //     main: true,
-    //     disabled: false
-    // }
 ];
+
+    supplierTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER;
 
     constructor(private tabService: TabService, private router: Router, private modalService: UniModalService, ) {
         this.tabService.addTab({
@@ -49,8 +51,15 @@ export class SupplierList {
         this.modalService.open(ImportCentralTemplateModal,
             {
                 header: 'Importer leverandører',
-                message: 'Om en leverandør med likt leverandørnummer finnes fra før, vil den importerte leverandøren ikke lagres. Om leverandørnumrene ikke passer inn i valgt leverandørnummerserie vil de avvises',
-                data: { jobName: 'SupplierImportJob', downloadTemplateUrl: ''}
+                data: {
+                    jobName: 'SupplierImportJob',
+                    entityType: 'Supplier',
+                    description: 'Import central - supplier',
+                    conditionalStatement: 'Hvis leverandørnummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret.Leverandørnumrene blir validert mot leverandørnummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
+                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.',
+                    downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
+                    downloadTemplateUrl: this.supplierTemplateUrl
+                }
             }
         ).onClose.subscribe((res) => {
             if (res) {
