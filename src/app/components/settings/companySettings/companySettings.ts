@@ -1512,6 +1512,9 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'IgnorePaymentsWithoutEndToEndID',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Bokfør kun utbet. fra UE',
+                Tooltip: {
+                    Text: 'Utbetalinger som ikke er sendt fra Uni Economy (som ikke har EndToEndID) blir ikke bokført'
+                },
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer'
