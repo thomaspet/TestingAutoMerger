@@ -760,6 +760,11 @@ export class TradeItemTable {
                     };
                 }
                 var ir = row.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === row.ID) : this.itemsWithReport.find(x => x.createguid === row._createguid);
+                if (!ir) {
+                    if (row.ID === 0) {
+                        ir = this.itemsWithReport.find(x => x.itemID === row.ID);
+                    }
+                }
                 if (ir) {
                     const rep = ir.report;
                     const reqDims = rep.MissingRequiredDimensions;
