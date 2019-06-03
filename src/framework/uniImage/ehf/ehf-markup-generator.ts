@@ -38,8 +38,14 @@ export function generateEHFMarkup(invoice: EHFData) {
                     ` : ''
                 }
 
-                <section class="summary">
-                    ${getInvoiceSums(invoice)}
+                <section class="summary-row">
+                    <section class="tax-summary">
+                        ${getTaxSummary(invoice)}
+                    </section>
+
+                    <section class="summary">
+                        ${getInvoiceSums(invoice)}
+                    </section>
                 </section>
             </section>
         `;
@@ -161,29 +167,72 @@ function getTableMarkup(invoice: EHFData) {
     `;
 }
 
+function getTaxSummary(invoice: EHFData) {
+    if (!invoice.taxSummary || !invoice.taxSummary.length) {
+        return '';
+    }
+
+    const rows = invoice.taxSummary.map(subTotal => {
+        return `
+            <tr>
+                <td>${subTotal.taxPercent}</td>
+                <td>${subTotal.taxableAmount}</td>
+                <td>${subTotal.taxAmount}</td>
+            </tr>
+        `;
+    }).join('');
+
+    return `
+        <table>
+            <thead>
+                <tr>
+                    <th>Mva. sats</th>
+                    <th>Grunnlag</th>
+                    <th>Sum mva.</th>
+                </tr>
+            </thead>
+
+            ${rows}
+        </table>
+    `;
+}
+
 function getInvoiceSums(invoice: EHFData) {
     if (!invoice.amountSummary) {
         return '';
     }
 
     const sums = invoice.amountSummary;
-
     return `
         <dl>
             <dt>Sum eks. mva.</dt>
             <dd>${sums.taxExclusiveAmount}</dd>
 
-            <dt>Mva ${+sums.taxPercent ? sums.taxPercent + '%' : ''}</dt>
+            ${
+                sums.chargeAmount ? `
+                    <dt>Gebyr</dt>
+                    <dd>${sums.chargeAmount}</dd>
+                ` : ''
+            }
+
+            <dt>Mva</dt>
             <dd>${sums.taxAmount}</dd>
 
             <dt>Sum inkl. mva.</dt>
             <dd>${sums.taxInclusiveAmount}</dd>
 
             ${
-                invoice.isCreditNote ? '' : `
+                sums.prepaidAmount ? `
                     <dt>Forhåndsbetalt</dt>
                     <dd>${sums.prepaidAmount}</dd>
-                `
+                ` : ''
+            }
+
+            ${
+                sums.payableRoundingAmount ? `
+                    <dt>Øreavrunding</dt>
+                    <dd>${sums.payableRoundingAmount}</dd>
+                ` : ''
             }
         </dl>
         <dl class="total">

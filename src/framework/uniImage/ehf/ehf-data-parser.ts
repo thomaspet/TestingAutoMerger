@@ -37,17 +37,11 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         customer: getCompanyInfo(get(data, 'cac:AccountingCustomerParty.cac:Party', {})),
         supplier: getCompanyInfo(get(data, 'cac:AccountingSupplierParty.cac:Party', {})),
         paymentInfo: getPaymentInfo(get(data, 'cac:PaymentMeans', [])),
-        yourReference: get(data, 'cac:AccountingCustomerParty.cac:Party.cac:Contact.cbc:ID', '') || get(data, 'cbc:BuyerReference', ''),
-        amountSummary: {
-            taxPercent: formatNumber(get(data, 'cac:TaxTotal.cac:TaxSubtotal.cac:TaxCategory.cbc:Percent', '')),
-            taxAmount: getPriceText(get(data, 'cac:TaxTotal.cbc:TaxAmount', ''), isCreditNote),
-            taxExclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxExclusiveAmount', ''), isCreditNote),
-            taxInclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxInclusiveAmount', ''), isCreditNote),
-            prepaidAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PrepaidAmount', ''), isCreditNote),
-            payableAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PayableAmount', ''))
-        },
+        yourReference: getYourReference(data),
+        amountSummary: getAmountSummary(data, isCreditNote),
         delivery: getDeliveryInfo(get(data, 'cac:Delivery', {})),
-        invoiceLines: getInvoiceLines(data, isCreditNote)
+        invoiceLines: getInvoiceLines(data, isCreditNote),
+        taxSummary: getTaxSummary(get(data, 'cac:TaxTotal.cac:TaxSubtotal'), isCreditNote)
     };
 
     if (isCreditNote) {
@@ -65,12 +59,22 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         ehfData.creditNoteNumber = get(ehfData.creditNoteNumber, '#text', '');
     }
 
-    const additionalDocRefs = get(data, 'cac:AdditionalDocumentReference');
+    const additionalDocRefs = get(data, 'AdditionalDocumentReference') || get(data, 'cac:AdditionalDocumentReference');
     if (additionalDocRefs) {
         ehfData.attachments = getAttachments(additionalDocRefs);
     }
 
     return ehfData;
+}
+
+function getYourReference(data) {
+    const buyerRef = get(data, 'cbc:BuyerReference.#text') || get(data, 'cbc:BuyerReference', '');
+    if (buyerRef) {
+        return buyerRef;
+    } else {
+        const contact = get(data, 'cac:AccountingCustomerParty.cac:Party.cac:Contact.cbc:ID', '');
+        return get(contact, '#text') || contact;
+    }
 }
 
 function getPriceText(amountData, isCreditNote?: boolean) {
@@ -114,17 +118,21 @@ function getCompanyInfo(companyData) {
     const orgNumber = get(companyData, 'cbc:EndpointID.#text', '');
     const legalOrgNumber = get(companyData, 'cac:PartyLegalEntity.cbc:CompanyID.#text', '');
 
+    const partyName = get(companyData, 'cac:PartyName', '');
+    const postalAddress = get(companyData, 'cac:PostalAddress', {});
+    const contact = get(companyData, 'cac:Contact', {});
+
     return {
-        name: get(companyData, 'cac:PartyName.cbc:Name', ''),
+        name: get(partyName, 'cbc:Name.#text') || get(partyName, 'cbc:Name', ''),
         orgNumber: orgNumber || legalOrgNumber,
         address: {
-            addressLine: get(companyData, 'cac:PostalAddress.cbc:StreetName', ''),
-            city: get(companyData, 'cac:PostalAddress.cbc:CityName', ''),
-            postalCode: get(companyData, 'cac:PostalAddress.cbc:PostalZone', ''),
-            country: get(companyData, 'cac:PostalAddress.cac:Country.cbc:IdentificationCode.#text', ''),
+            addressLine: get(postalAddress, 'cbc:StreetName.#text') || get(postalAddress, 'cbc:StreetName', ''),
+            city: get(postalAddress, 'cbc:CityName.#text') || get(postalAddress, 'cbc:CityName', ''),
+            postalCode: get(postalAddress, 'cbc:PostalZone.#text') || get(postalAddress, 'cbc:PostalZone', ''),
+            country: get(postalAddress, 'cac:Country.cbc:IdentificationCode.#text', ''),
         },
-        email: get(companyData, 'cac:Contact.cbc:ElectronicMail', ''),
-        phone: get(companyData, 'cac:Contact.cbc:Telephone', '')
+        email: get(contact, 'cbc:ElectronicMail.#text') || get(contact, 'cbc:ElectronicMail', ''),
+        phone: get(contact, 'cbc:Telephone.#text') || get(contact, 'cbc:Telephone', '')
     };
 }
 
@@ -135,7 +143,7 @@ function getPaymentInfo(paymentData: any[]) {
     }
 
     (paymentData || []).forEach(row => {
-        const kid = get(row, 'cbc:PaymentID', '');
+        const kid = get(row, 'cbc:PaymentID.#text') || get(row, 'cbc:PaymentID', '');
         const accountNumber = get(row, 'cac:PayeeFinancialAccount.cbc:ID', {'@schemeID': ''});
 
         if (kid) {
@@ -152,6 +160,29 @@ function getPaymentInfo(paymentData: any[]) {
     return paymentInfo;
 }
 
+function getTaxSummary(taxData, isCreditNote: boolean) {
+    if (!taxData) {
+        return [];
+    }
+
+    if (taxData && !Array.isArray(taxData)) {
+        taxData = [taxData];
+    }
+
+    return taxData.map(subTotal => {
+        let percent = get(subTotal, 'cac:TaxCategory.cbc:Percent');
+        if (get(percent, '#text')) {
+            percent = get(percent, '#text', 0);
+        }
+
+        return {
+            taxPercent: (parseFloat(percent)) + '%',
+            taxableAmount: getPriceText(get(subTotal, 'cbc:TaxableAmount'), isCreditNote),
+            taxAmount: getPriceText(get(subTotal, 'cbc:TaxAmount'), isCreditNote)
+        };
+    });
+}
+
 function getDeliveryInfo(deliveryData) {
     return {
         date: getDateText(get(deliveryData, 'cbc:ActualDeliveryDate', '')),
@@ -165,7 +196,8 @@ function getDeliveryInfo(deliveryData) {
 }
 
 function getInvoiceLines(data, isCreditNote) {
-    let invoiceLines = get(data, 'cac:InvoiceLine') || get(data, 'cac:CreditNoteLine') || [];
+    let invoiceLines = get(data, 'InvoiceLine') || get(data, 'cac:InvoiceLine') || get(data, 'CreditNoteLine') || get(data, 'cac:CreditNoteLine') || [];
+
     // If theres only one line its sent as an object instead of an array
     if (invoiceLines && !Array.isArray(invoiceLines)) {
         invoiceLines = [invoiceLines];
@@ -173,19 +205,55 @@ function getInvoiceLines(data, isCreditNote) {
 
     return invoiceLines.map(line => {
         const quantity = get(line, 'cbc:InvoicedQuantity.#text', '') || get(line, 'cbc:CreditedQuantity.#text', '');
-        const vatPercent = get(line, 'cac:Item.cac:ClassifiedTaxCategory.cbc:Percent', '');
+        let vatPercent = get(line, 'cac:Item.cac:ClassifiedTaxCategory.cbc:Percent', '');
+        if (get(vatPercent, '#text')) {
+            vatPercent = get(vatPercent, '#text');
+        }
+
         const amount = get(line, 'cbc:LineExtensionAmount', '');
 
         const isCommentLine = !parseFloat(quantity) && !parseFloat(vatPercent) && !parseFloat(amount);
 
+        const productNumber = get(line, 'cac:Item.cac:SellersItemIdentification.cbc:ID', '');
+        const productName = get(line, 'cac:Item.cbc:Name', '');
+
         return {
-            productNumber: get(line, 'cac:Item.cac:SellersItemIdentification.cbc:ID', ''),
-            productName: get(line, 'cac:Item.cbc:Name', ''),
+            productNumber: get(productNumber, '#text') || productNumber,
+            productName: get(productName, '#text') || productName,
             quantity: isCommentLine ? '' : formatNumber(quantity, isCreditNote),
             vatPercent: isCommentLine ? '' : formatNumber(vatPercent),
             vatExclusiveAmount: isCommentLine ? '' : getPriceText(amount, isCreditNote),
         };
     });
+}
+
+function getAmountSummary(data, isCreditNote: boolean) {
+    const amountSummary: any = {
+        taxAmount: getPriceText(get(data, 'cac:TaxTotal.cbc:TaxAmount', ''), isCreditNote),
+        taxExclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxExclusiveAmount', ''), isCreditNote),
+        taxInclusiveAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:TaxInclusiveAmount', ''), isCreditNote),
+        payableAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PayableAmount', ''))
+    };
+
+    const chargeAmount = get(data, 'cac:LegalMonetaryTotal.cbc:ChargeTotalAmount');
+    if (chargeAmount) {
+        amountSummary.chargeAmount = getPriceText(chargeAmount);
+    }
+
+    const prepaidAmount = get(data, 'cac:LegalMonetaryTotal.cbc:PrepaidAmount', '');
+    if (prepaidAmount && !isCreditNote) {
+        const formatted = getPriceText(prepaidAmount, isCreditNote);
+        if (formatted !== '0,00 NOK') {
+            amountSummary.prepaidAmount = formatted;
+        }
+    }
+
+    const roundingAmount = get(data, 'cac:LegalMonetaryTotal.cbc:PayableRoundingAmount');
+    if (roundingAmount) {
+        amountSummary.payableRoundingAmount = getPriceText(roundingAmount, isCreditNote);
+    }
+
+    return amountSummary;
 }
 
 function formatNumber(value: string, isCreditNote?: boolean, forceTwoDecimals?: boolean): string {
@@ -233,6 +301,10 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
 
         if (attachmentRef) {
             let label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType') || get(docRef, 'cbc:ID');
+            if (get(label, '#text')) {
+                label = get(label, '#text');
+            }
+
             const embeddedDocument = get(attachmentRef, 'cbc:EmbeddedDocumentBinaryObject');
             const externalRef = get(attachmentRef, 'cac:ExternalReference');
 
@@ -263,8 +335,16 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
             }
         } else {
             // Plaintext
-            const label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType');
-            const value = get(docRef, 'cbc:ID');
+            let label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType');
+            if (get(label, '#text')) {
+                label = get(label, '#text');
+            }
+
+            let value = get(docRef, 'cbc:ID');
+            if (get(value, '#text')) {
+                value = get(value, '#text');
+            }
+
             if (label && value) {
                 attachments.push({
                     label: label,

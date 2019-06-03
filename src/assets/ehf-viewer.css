@@ -1,4 +1,4 @@
-/* 
+/*
 	Not included in main css bundle because it's also used by
 	the popout-fileviewer and when printing EHF files
 */
@@ -6,7 +6,7 @@
     display: block;
     background: #fff;
     padding: 1rem 2rem;
-	font-size: 15px;
+	font-size: 14px;
 	line-height: 24px;
 	font-family: 'Roboto', sans-serif;
 }
@@ -47,13 +47,13 @@
 .uni-ehf table {
 	margin: 2rem 0;
 	width: 100%;
-	font-size: 14px;
+	font-size: 13px;
 	border-collapse: collapse;
 }
 
 .uni-ehf table thead {
 	font-weight: 500;
-	border-bottom: 1px solid;
+	border-bottom: 1px solid #ccc;
 }
 
 .uni-ehf table tr {
@@ -84,9 +84,37 @@
 	background: #f9f9f9;
 }
 
+.uni-ehf .summary-row {
+	display: flex;
+	margin: 2rem 0 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #ccc;
+}
+
+.uni-ehf .tax-summary table {
+	font-size: 12px;
+	margin: 0;
+}
+
+.uni-ehf .tax-summary table thead {
+	border: none;
+}
+
+.uni-ehf .tax-summary table tr {
+	height: 1.25rem;
+	line-height: 1.25rem;
+}
+
+.uni-ehf .tax-summary th + th,
+.uni-ehf .tax-summary td + td {
+	text-align: right;
+	padding-left: 1rem;
+}
+
 .uni-ehf .summary {
 	width: 20rem;
-	margin: 3rem 0 1rem auto;
+	margin: 5px 0 0 auto;
+	font-size: 13px;
 }
 
 .uni-ehf .summary dl dd {
