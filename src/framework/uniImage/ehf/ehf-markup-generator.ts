@@ -95,7 +95,7 @@ function getInvoiceDetailsMarkup(invoice: EHFData) {
             <dd>${invoice.invoiceDate || ''}</dd>
 
             <dt>Forfallsdato</dt>
-            <dd>${invoice.dueDate || paymentInfo.dueDate || ''}</dd>
+            <dd>${invoice.dueDate || ''}</dd>
 
             ${
                 invoice.delivery.date ? `
