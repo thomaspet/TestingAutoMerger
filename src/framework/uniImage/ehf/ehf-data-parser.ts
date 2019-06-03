@@ -37,7 +37,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         customer: getCompanyInfo(get(data, 'cac:AccountingCustomerParty.cac:Party', {})),
         supplier: getCompanyInfo(get(data, 'cac:AccountingSupplierParty.cac:Party', {})),
         paymentInfo: getPaymentInfo(get(data, 'cac:PaymentMeans', [])),
-        yourReference: get(data, 'cac:AccountingCustomerParty.cac:Party.cac:Contact.cbc:ID', '') || get(data, 'cbc:BuyerReference', ''),
+        yourReference: getYourReference(data),
         amountSummary: {
             taxPercent: formatNumber(get(data, 'cac:TaxTotal.cac:TaxSubtotal.cac:TaxCategory.cbc:Percent', '')),
             taxAmount: getPriceText(get(data, 'cac:TaxTotal.cbc:TaxAmount', ''), isCreditNote),
@@ -71,6 +71,16 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
     }
 
     return ehfData;
+}
+
+function getYourReference(data) {
+    const buyerRef = get(data, 'cbc:BuyerReference.#text') || get(data, 'cbc:BuyerReference', '');
+    if (buyerRef) {
+        return buyerRef;
+    } else {
+        const contact = get(data, 'cac:AccountingCustomerParty.cac:Party.cac:Contact.cbc:ID', '');
+        return get(contact, '#text') || contact;
+    }
 }
 
 function getPriceText(amountData, isCreditNote?: boolean) {
@@ -114,17 +124,21 @@ function getCompanyInfo(companyData) {
     const orgNumber = get(companyData, 'cbc:EndpointID.#text', '');
     const legalOrgNumber = get(companyData, 'cac:PartyLegalEntity.cbc:CompanyID.#text', '');
 
+    const partyName = get(companyData, 'cac:PartyName', '');
+    const postalAddress = get(companyData, 'cac:PostalAddress', {});
+    const contact = get(companyData, 'cac:Contact', {});
+
     return {
-        name: get(companyData, 'cac:PartyName.cbc:Name', ''),
+        name: get(partyName, 'cbc:Name.#text') || get(partyName, 'cbc:Name', ''),
         orgNumber: orgNumber || legalOrgNumber,
         address: {
-            addressLine: get(companyData, 'cac:PostalAddress.cbc:StreetName', ''),
-            city: get(companyData, 'cac:PostalAddress.cbc:CityName', ''),
-            postalCode: get(companyData, 'cac:PostalAddress.cbc:PostalZone', ''),
-            country: get(companyData, 'cac:PostalAddress.cac:Country.cbc:IdentificationCode.#text', ''),
+            addressLine: get(postalAddress, 'cbc:StreetName.#text') || get(postalAddress, 'cbc:StreetName', ''),
+            city: get(postalAddress, 'cbc:CityName.#text') || get(postalAddress, 'cbc:CityName', ''),
+            postalCode: get(postalAddress, 'cbc:PostalZone.#text') || get(postalAddress, 'cbc:PostalZone', ''),
+            country: get(postalAddress, 'cac:Country.cbc:IdentificationCode.#text', ''),
         },
-        email: get(companyData, 'cac:Contact.cbc:ElectronicMail', ''),
-        phone: get(companyData, 'cac:Contact.cbc:Telephone', '')
+        email: get(contact, 'cbc:ElectronicMail.#text') || get(contact, 'cbc:ElectronicMail', ''),
+        phone: get(contact, 'cbc:Telephone.#text') || get(contact, 'cbc:Telephone', '')
     };
 }
 
@@ -135,7 +149,7 @@ function getPaymentInfo(paymentData: any[]) {
     }
 
     (paymentData || []).forEach(row => {
-        const kid = get(row, 'cbc:PaymentID', '');
+        const kid = get(row, 'cbc:PaymentID.#text') || get(row, 'cbc:PaymentID', '');
         const accountNumber = get(row, 'cac:PayeeFinancialAccount.cbc:ID', {'@schemeID': ''});
 
         if (kid) {
@@ -165,7 +179,7 @@ function getDeliveryInfo(deliveryData) {
 }
 
 function getInvoiceLines(data, isCreditNote) {
-    let invoiceLines = get(data, 'cac:InvoiceLine') || get(data, 'cac:CreditNoteLine') || [];
+    let invoiceLines = get(data, 'InvoiceLine') || get(data, 'cac:InvoiceLine') || get(data, 'CreditNoteLine') || get(data, 'cac:CreditNoteLine') || [];
     // If theres only one line its sent as an object instead of an array
     if (invoiceLines && !Array.isArray(invoiceLines)) {
         invoiceLines = [invoiceLines];
@@ -178,9 +192,12 @@ function getInvoiceLines(data, isCreditNote) {
 
         const isCommentLine = !parseFloat(quantity) && !parseFloat(vatPercent) && !parseFloat(amount);
 
+        const productNumber = get(line, 'cac:Item.cac:SellersItemIdentification.cbc:ID', '');
+        const productName = get(line, 'cac:Item.cbc:Name', '');
+
         return {
-            productNumber: get(line, 'cac:Item.cac:SellersItemIdentification.cbc:ID', ''),
-            productName: get(line, 'cac:Item.cbc:Name', ''),
+            productNumber: get(productNumber, '#text') || productNumber,
+            productName: get(productName, '#text') || productName,
             quantity: isCommentLine ? '' : formatNumber(quantity, isCreditNote),
             vatPercent: isCommentLine ? '' : formatNumber(vatPercent),
             vatExclusiveAmount: isCommentLine ? '' : getPriceText(amount, isCreditNote),
