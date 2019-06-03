@@ -187,7 +187,11 @@ function getInvoiceLines(data, isCreditNote) {
 
     return invoiceLines.map(line => {
         const quantity = get(line, 'cbc:InvoicedQuantity.#text', '') || get(line, 'cbc:CreditedQuantity.#text', '');
-        const vatPercent = get(line, 'cac:Item.cac:ClassifiedTaxCategory.cbc:Percent', '');
+        let vatPercent = get(line, 'cac:Item.cac:ClassifiedTaxCategory.cbc:Percent', '');
+        if (get(vatPercent, '#text')) {
+            vatPercent = get(vatPercent, '#text');
+        }
+
         const amount = get(line, 'cbc:LineExtensionAmount', '');
 
         const isCommentLine = !parseFloat(quantity) && !parseFloat(vatPercent) && !parseFloat(amount);
