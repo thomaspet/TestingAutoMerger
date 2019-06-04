@@ -70,7 +70,7 @@ declare const _; // lodash
 
 export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
-    @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
 
     public periodSeriesConfig: ISelectConfig;
     public currentAccountYear: number;
@@ -149,7 +149,17 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     }
 
     private cancelAndClose() {
-        this.onClose.emit(false);
+        const periodSeriesAccountID = this.options.data.PeriodSeriesAccountID === null
+            ? null
+            : this.periodSeriesAccountList.find(x => x.ID === this.options.data.PeriodSeriesAccountID).ID;
+        const periodSeriesVatID = this.options.data.PeriodSeriesVatID === null
+            ? null
+            : this.periodSeriesVatList.find(x => x.ID === this.options.data.PeriodSeriesVatID).ID;
+        const data = {
+            PeriodSeriesAccountID: periodSeriesAccountID,
+            PeriodSeriesVatID: periodSeriesVatID
+        };
+        this.onClose.emit(data);
     }
 
     private changeCompanySettingsPeriodSeriesAndClose() {
@@ -158,7 +168,10 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
             .changeCompanySettingsPeriodSeriesSettings(this.periodSeriesVat.ID, this.currentAccountYear)
                 .subscribe(res => {
                     this.isSaving = false;
-                    this.onClose.emit(false);
+                    this.onClose.emit({
+                        PeriodSeriesAccountID: this.periodSeriesAccount.ID,
+                        PeriodSeriesVatID: this.periodSeriesVat.ID
+                    });
                 }, err => {
                     this.isSaving = false;
                     this.errorService.handle(err);

@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -392,8 +392,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Role: Role;
     public Permission: Permission;
+    public Role: Role;
     public CustomFields: any;
 }
 
@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomFields: any;
 }
 
@@ -912,6 +912,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public DebtCollectionFeeCurrency: number;
     public Deleted: boolean;
     public Description: string;
+    public DimensionsID: number;
     public DueDate: LocalDate;
     public EmailAddress: string;
     public ID: number;
@@ -2395,9 +2396,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
+    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
-    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -3820,6 +3821,7 @@ export class CompanySettings extends UniEntity {
     public HideInActiveCustomers: boolean;
     public HideInActiveSuppliers: boolean;
     public ID: number;
+    public IgnorePaymentsWithoutEndToEndID: boolean;
     public InterrimPaymentAccountID: number;
     public InterrimRemitAccountID: number;
     public Localization: string;
@@ -5092,6 +5094,88 @@ export class Responsible extends UniEntity {
 }
 
 
+export class Contract extends UniEntity {
+    public static RelativeUrl = 'contracts';
+    public static EntityType = 'Contract';
+
+    public _createguid: string;
+    public ContractCode: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Parameters: Array<ContractParameter>;
+    public Triggers: Array<ContractTrigger>;
+    public RunLogs: Array<ContractRunLog>;
+    public CustomFields: any;
+}
+
+
+export class ContractParameter extends UniEntity {
+    public static RelativeUrl = 'contractparameters';
+    public static EntityType = 'ContractParameter';
+
+    public _createguid: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public Contract: Contract;
+    public CustomFields: any;
+}
+
+
+export class ContractRunLog extends UniEntity {
+    public static RelativeUrl = 'contractrunlogs';
+    public static EntityType = 'ContractRunLog';
+
+    public _createguid: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Message: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public CustomFields: any;
+}
+
+
+export class ContractTrigger extends UniEntity {
+    public static RelativeUrl = 'contracttriggers';
+    public static EntityType = 'ContractTrigger';
+
+    public _createguid: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EventPlanID: number;
+    public ID: number;
+    public StatusCode: number;
+    public Type: ContractTriggerType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public Eventplan: Eventplan;
+    public CustomFields: any;
+}
+
+
 export class ApiKey extends UniEntity {
     public static RelativeUrl = 'apikeys';
     public static EntityType = 'ApiKey';
@@ -5101,6 +5185,8 @@ export class ApiKey extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public Encrypt: boolean;
+    public ExternalId: string;
     public FilterDate: LocalDate;
     public ID: number;
     public IntegrationKey: string;
@@ -5815,6 +5901,8 @@ export class Payment extends UniEntity {
     public InvoiceNumber: string;
     public IsCustomerPayment: boolean;
     public IsExternal: boolean;
+    public IsPaymentCancellationRequest: boolean;
+    public IsPaymentClaim: boolean;
     public JournalEntryID: number;
     public OcrPaymentStrings: string;
     public PaymentBatchID: number;
@@ -6895,6 +6983,7 @@ export class InvoicePaymentData extends UniEntity {
     public BankChargeAmount: number;
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
+    public DimensionsID: number;
     public PaymentDate: LocalDate;
     public PaymentID: string;
 }
@@ -7484,6 +7573,12 @@ export class A07Response extends UniEntity {
 }
 
 
+export class SetIntegrationDataDto extends UniEntity {
+    public ExternalId: string;
+    public IntegrationKey: string;
+}
+
+
 export class SendEmail extends UniEntity {
     public CopyAddress: string;
     public EntityID: number;
@@ -7528,6 +7623,14 @@ export class RssItem extends UniEntity {
     public Link: string;
     public PubDate: string;
     public Title: string;
+    public Enclosure: Enclosure;
+}
+
+
+export class Enclosure extends UniEntity {
+    public Length: string;
+    public Type: string;
+    public Url: string;
 }
 
 
@@ -7587,6 +7690,34 @@ export class EHFActivate extends UniEntity {
     public orgphone: string;
     public outgoingInvoice: boolean;
     public outgoingInvoicePrint: boolean;
+}
+
+
+export class ManatoryDimensionAccountReport extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ManatoryDimensionAccountReport';
+
+    public AccountID: number;
+    public AccountNumber: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public ID: number;
+    public journalEntryLineDraftID: number;
+    public MissingOnlyWarningsDimensionsMessage: string;
+    public MissingRequiredDimensonsMessage: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class AccountDimension extends UniEntity {
+    public AccountID: number;
+    public DimensionsID: number;
+    public Dimensions: Dimensions;
 }
 
 
@@ -8459,8 +8590,16 @@ export enum Type{
 }
 
 
+export enum ContractTriggerType{
+    UE = 0,
+    Blockchain = 1,
+    Cron = 2,
+}
+
+
 export enum TypeOfIntegration{
     TravelAndExpenses = 1,
+    Aprila = 2,
 }
 
 
@@ -8716,6 +8855,19 @@ export enum StatusCodeAltinnSigning{
     Signed = 43003,
     AlreadySigned = 43004,
     Failed = 43005,
+}
+
+
+export enum StatusCodeContract{
+    Draft = 120000,
+    Running = 120001,
+}
+
+
+export enum StatusCodeContractRunLog{
+    Started = 120100,
+    Completed = 120101,
+    Failed = 120102,
 }
 
 

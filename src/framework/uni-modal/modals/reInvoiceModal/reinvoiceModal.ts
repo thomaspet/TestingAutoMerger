@@ -644,7 +644,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                     return '';
                 },
                 lookupFunction: (query) => {
-                    return this.customerService.GetAll(`contains(Info.Name,${query}&top=50`, ['Info']);
+                    return this.customerService.GetAll(`filter=contains(Info.Name,'${query}')&top=50`, ['Info']);
                 },
             });
         const shareColumn = new UniTableColumn('Share', 'Andel', UniTableColumnType.Percent, true)

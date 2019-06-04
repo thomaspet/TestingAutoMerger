@@ -185,7 +185,7 @@ export class WageTypeView extends UniView implements OnDestroy {
 
                 return this.modalService.confirm({
                     header: 'Bekreft lagring',
-                    message: 'Åpne lønnsposter tilknyttet denne lønnsarten vil oppdateres. Ønsker du å lagre?',
+                    message: 'Dersom du har faste lønnsposter tilknyttet denne lønnsarten vil de oppdateres. Ønsker du å lagre?',
                     buttonLabels: {
                         accept: 'Lagre',
                         cancel: 'Avbryt'

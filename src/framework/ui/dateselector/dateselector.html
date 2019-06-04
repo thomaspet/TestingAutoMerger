@@ -1,6 +1,10 @@
-<button [matMenuTriggerFor]="contextMenu" title="Vis periodevelger"> {{ getPeriodeText() }} <i class="material-icons"> date_range </i> </button>
+<button #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu" title="Vis periodevelger"> {{ getPeriodeText() }} <i class="material-icons"> date_range </i> </button>
 <mat-menu #contextMenu="matMenu">
     <div class="date-selector-main-container" (click)="$event.stopPropagation();">
+        <div style="display: flex; height: 36px;">
+            <div style="flex: 1;"></div>
+            <i class="material-icons" style="font-size: 1.4rem; vertical-align: middle; cursor: pointer;" title="Lukk periodevelger" (click)="menuTrigger.closeMenu()"> close </i>
+        </div>
         <div class="periode-selector-container">
             <div class="standard-period-filters">
                 <div *ngFor="let array of periodFilters" class="period-select-row">
@@ -9,56 +13,38 @@
                     </div>
                 </div>
             </div>
-            <div class="period-dropdown-container">
-                <div>
-                    <span> Velg uke </span>
-                    <select (change)="onWeekSelected($event.target.value)">
-                        <option *ngFor="let week of weeks">
-                            {{ week }}
-                        </option>
-                    </select>
-                </div>
-                <div>
-                    <span> Velg måned </span>
-                    <select (change)="onMonthSelected($event.target.value)">
-                        <option *ngFor="let month of _MONTHS">
-                            {{ month }}
-                        </option>
-                    </select>
-                </div>
-            </div>
         </div>
-        <hr />
-        <div class="date-selector-container">
-        <div class="calander-selection-container">
-                <span> Fra dato: </span>
-                <div *ngIf="fromDate">
-                    <div class="calender-select-month-header">
-                        <i class="material-icons" (click)="monthChange(true, -1)"> chevron_left </i>
-                        <span>
-                            {{ _MONTHS[currentFromMonth + 1] }} {{ currentFromYear }}
-                        </span>
-                        <i class="material-icons" (click)="monthChange(true, 1)"> chevron_right </i>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th *ngFor="let day of _DAYS">{{ day.substr(0,2) }}</th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-                            <tr *ngFor="let week of fromMonths[currentFromMonth]">
-                                <td *ngFor="let weekday of week" [class.selected]="weekday.DateFormatted === fromDate.DateFormatted" (click)="calenderDateSelected(true, weekday)">
-                                    {{ weekday.calenderText }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-        </div>
-        <div class="calander-selection-container">
-                <span> Til dato: </span>
+        <div class="date-selector-container">
+            <div class="calander-selection-container">
+                    <span> Fra: </span>
+                    <div *ngIf="fromDate">
+                        <div class="calender-select-month-header">
+                            <i class="material-icons" (click)="monthChange(true, -1)"> chevron_left </i>
+                            <span>
+                                {{ _MONTHS[currentFromMonth + 1] }} {{ currentFromYear }}
+                            </span>
+                            <i class="material-icons" (click)="monthChange(true, 1)"> chevron_right </i>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th *ngFor="let day of _DAYS">{{ day.substr(0,2) }}</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let week of fromMonths[currentFromMonth]">
+                                    <td *ngFor="let weekday of week" [class.selected]="weekday.DateFormatted === fromDate.DateFormatted" (click)="calenderDateSelected(true, weekday)">
+                                        {{ weekday.calenderText }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <div class="calander-selection-container">
+                <span> Til: </span>
                 <div *ngIf="toDate">
                     <div class="calender-select-month-header">
                         <i class="material-icons" (click)="monthChange(false, -1)"> chevron_left </i>

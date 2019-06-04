@@ -1,5 +1,5 @@
 ﻿import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {Component, ViewChild} from '@angular/core';
+import { Component, SimpleChanges, ViewChild } from '@angular/core';
 import {AccountList} from './accountList/accountList';
 import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
@@ -7,7 +7,10 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {AccountService, VatTypeService, ErrorService} from '../../../services/services';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {UniModalService, UniConfirmModalV2, ConfirmActions, IModalOptions} from '../../../../framework/uni-modal';
+import {
+    UniModalService, UniConfirmModalV2, ConfirmActions, IModalOptions,
+    UniMandatoryDimensionsModal
+} from '../../../../framework/uni-modal';
 
 @Component({
     selector: 'account-settings',
@@ -33,7 +36,12 @@ export class AccountSettings {
             {
                 label: 'Synkroniser kontoplan NS4102',
                 action: () => this.SynchronizeNS4102()
-            }]
+            },
+            {
+                label: 'Sett påkrevde dimensjoner',
+                action: () => this.openMandatoryDimensionsModal()
+            }
+        ]
     };
 
     public saveactions: IUniSaveAction[] = [
@@ -73,7 +81,7 @@ export class AccountSettings {
                 if (success) {
                     this.changeRow(account);
                 }
-            })
+            });
         }, 100);
     }
 
@@ -82,7 +90,16 @@ export class AccountSettings {
         this.hasChanges = false;
     }
 
-    public change(account: Account) {
+    public change(event: SimpleChanges) {
+        this.accountService.checkLinkedBankAccountsAndPostPost(this.account.AccountNumber).subscribe(hasLinkedBankAccounts => {
+            if (hasLinkedBankAccounts || event && event.UsePostPost && event.UsePostPost.currentValue) {
+                this.toastService.addToast(
+                    'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
+                    ToastType.warn,
+                    ToastTime.medium,
+                    'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.');
+            }
+        });
         this.hasChanges = true;
     }
 
@@ -158,12 +175,19 @@ export class AccountSettings {
             }
             return;
         });
+    }
 
-
-
-
-
-
-
+    public openMandatoryDimensionsModal() {
+        this.modalService.open(UniMandatoryDimensionsModal, {
+            header: 'Bekreft synkronisering',
+            message: 'Synkronisering av kontoer vil overskrive endringer gjort i standardkontoer i kontoplanen. Vil du fortsette?'
+        }).onClose.subscribe(data => {
+            if (data) {
+                this.accountService.addManatoryDimensions(data).subscribe(res => {
+                    this.toastService.addToast(`Påkrevde dimensjoner ble satt på kontoer mellom ${data.FromAccountNo} og ${data.ToAccountNo}`,
+                        ToastType.good, 5);
+                });
+            }
+        });
     }
 }

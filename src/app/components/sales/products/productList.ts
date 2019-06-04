@@ -7,7 +7,7 @@ import {ProductService, ErrorService} from '../../../services/services';
 import {Product} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { UniProductImportModal } from './UniProductImportModal';
+import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 
 @Component({
     selector: 'product-list',
@@ -131,7 +131,12 @@ export class ProductList {
     }
 
     public openImportModal(done = null) {
-        this.modalService.open(UniProductImportModal).onClose.subscribe((res) => {
+        this.modalService.open(ImportCentralTemplateModal,
+            {
+                header: 'Importer produkter',
+                message: 'Om et produkt med likt produktnummer finnes fra før, vil det importerte produktet ikke lagres',
+                data: { jobName: 'ProductImportJob', downloadTemplateUrl: ''}
+            }).onClose.subscribe((res) => {
             if (res) {
                 
             } else {

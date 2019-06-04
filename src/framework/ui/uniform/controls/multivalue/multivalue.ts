@@ -108,7 +108,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         const startsWithMatch = this.filteredRows
             .find(row => this.getDisplayValue(row).toLowerCase().startsWith(this.filter.toLowerCase()));
 
-        if (exactMatch >= 0) {
+        if (!!exactMatch) {
             this.focusedRow = exactMatch;
         } else {
             this.focusedRow = startsWithMatch;

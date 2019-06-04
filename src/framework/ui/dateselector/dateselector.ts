@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnChanges} from '@angular/core';
 import { LocalDate } from '@uni-entities';
 import * as moment from 'moment';
 
@@ -12,7 +12,7 @@ export interface IDateSelectorEmitValue {
     templateUrl: './dateselector.html',
     styleUrls: ['./dateselector.sass']
 })
-export class UniDateSelector {
+export class UniDateSelector implements OnChanges {
     @Input()
     public toDate: any;
 
@@ -22,7 +22,6 @@ export class UniDateSelector {
     @Output()
     public dateChange = new EventEmitter<IDateSelectorEmitValue>();
 
-    weeks: any[] = [];
     _MONTHS = ['', 'Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
     _DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
     months: any[] = [];
@@ -34,50 +33,55 @@ export class UniDateSelector {
     currentFromYear: number;
     currentToYear: number;
 
-    currentFilter: any;
-
     periodFilters: any = [];
+    initialDataLoaded: boolean = false;
 
     constructor() { }
 
     ngOnInit() {
-        this.weeks = this.getWeeks();
         this.periodFilters = this.generatePeriodFilters();
         this.setFromAndToDate(this.fromDate ? this.fromDate.Date : new Date(), this.toDate ? this.toDate.Date : new Date());
+        this.initialDataLoaded = true;
+    }
+
+    public ngOnChanges() {
+        if (this.initialDataLoaded) {
+            this.setFromAndToDate(this.fromDate ? this.fromDate.Date : new Date(), this.toDate ? this.toDate.Date : new Date());
+        }
     }
 
     selectFilter(filter) {
-        if (this.currentFilter) {
-            this.currentFilter.selected = false;
-        }
+        this.periodFilters.forEach(array => {
+            array.forEach(f => {
+                f.selected = false;
+            });
+        });
 
         filter.selected = true;
-        this.currentFilter = filter;
-        this.setFromAndToDate(this.currentFilter.from, this.currentFilter.to, true);
-    }
-
-    getWeeks() {
-        const weeks = [''];
-
-        for (let i = 1; i <= 52; i++) {
-            weeks.push('Uke: ' + i);
-        }
-
-        return weeks;
+        this.setFromAndToDate(filter.from, filter.to, true);
     }
 
     public setFromAndToDate(from: any, to: any, isChange: boolean = false) {
         this.toDate = {
             Date: moment(to),
-            DateFormatted: moment(to).format('DDMMYYYY')
+            DateFormatted: moment(to).format('YYYY.MM.DD')
         };
 
         this.fromDate = {
             Date: moment(from),
-            DateFormatted: moment(from).format('DDMMYYYY')
+            DateFormatted: moment(from).format('YYYY.MM.DD')
         };
 
         this.setMonthAndYear();
+
+        // Lets see if we can highlight a periodfilter because of match
+        this.periodFilters.forEach(array => {
+            array.forEach(filter => {
+                if (filter.from === this.fromDate.DateFormatted && filter.to === this.toDate.DateFormatted ) {
+                    filter.selected = true;
+                }
+            });
+        });
 
         if (isChange) {
             this.dateChange.emit({ fromDate: this.fromDate, toDate: this.toDate });
@@ -96,23 +100,23 @@ export class UniDateSelector {
 
     public calenderDateSelected(isFrom: boolean = false, day) {
         // Remove selector marking on period filter when user selects custom dates
-        if (this.currentFilter) {
-            this.currentFilter.selected = false;
-            this.currentFilter = null;
-        }
+        this.periodFilters.forEach(array => {
+            array.forEach(filter => {
+                filter.selected = false;
+            });
+        });
 
         if (isFrom) {
-            this.fromDate = day;
             if (moment(this.toDate.Date).isBefore(moment(day.Date))) {
                 this.toDate = day;
             }
+            this.setFromAndToDate(day.Date, this.toDate.Date, true);
         } else {
-            this.toDate = day;
             if (moment(this.fromDate.Date).isAfter(moment(day.Date))) {
                 this.fromDate = day;
             }
+            this.setFromAndToDate(this.fromDate.Date, day.Date, true);
         }
-        this.setMonthAndYear();
     }
 
     public monthChange(isFrom: boolean, direction: number) {
@@ -143,28 +147,6 @@ export class UniDateSelector {
         }
     }
 
-    public onMonthSelected(month: any) {
-        if (this.currentFilter) {
-            this.currentFilter.selected = false;
-            this.currentFilter = null;
-        }
-        if (month) {
-            const index = this._MONTHS.findIndex(m => m === month) - 1;
-            this.setFromAndToDate(moment(moment().month(index).startOf('month')), moment(moment().month(index).endOf('month')), true);
-        }
-    }
-
-    public onWeekSelected(week: any) {
-        if (this.currentFilter) {
-            this.currentFilter.selected = false;
-            this.currentFilter = null;
-        }
-        if (week) {
-            const index = this.weeks.findIndex(w => w === week);
-            this.setFromAndToDate(moment(moment().week(index).startOf('week')), moment(moment().week(index).endOf('week')), true);
-        }
-    }
-
     // Generate year
     private createYearArray(year) {
         let counterDate = moment(year + '-01-01');
@@ -176,7 +158,7 @@ export class UniDateSelector {
                 Date: counterDate,
                 WeekDay: moment(counterDate).isoWeekday(),
                 calenderText: moment(counterDate).format('DD'),
-                DateFormatted: moment(counterDate).format('DDMMYYYY')
+                DateFormatted: moment(counterDate).format('YYYY.MM.DD')
             });
             counterDate = moment(counterDate).add(1, 'days');
         }
@@ -272,6 +254,32 @@ export class UniDateSelector {
             ],
             [
                 {
+                    label: '1. kvartal',
+                    value: 'QUARTER1',
+                    from: moment().month(0).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(2).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: '2. kvartal',
+                    value: 'QUARTER2',
+                    from: moment().month(3).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(5).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: '3. kvartal',
+                    value: 'QUARTER3',
+                    from: moment().month(6).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(8).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: '4. kvartal',
+                    value: 'QUARTER4',
+                    from: moment().month(9).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(11).endOf('month').format('YYYY.MM.DD')
+                },
+            ],
+            [
+                {
                     label: '1. termin',
                     value: 'TERMIN1',
                     from: moment().month(0).startOf('month').format('YYYY.MM.DD'),
@@ -310,29 +318,77 @@ export class UniDateSelector {
             ],
             [
                 {
-                    label: '1. kvartal',
-                    value: 'QUARTER1',
+                    label: 'Jan',
+                    value: 'MONTH1',
                     from: moment().month(0).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(0).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Feb',
+                    value: 'MONTH1',
+                    from: moment().month(1).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(1).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Mar',
+                    value: 'MONTH1',
+                    from: moment().month(2).startOf('month').format('YYYY.MM.DD'),
                     to: moment().month(2).endOf('month').format('YYYY.MM.DD')
                 },
                 {
-                    label: '2. kvartal',
-                    value: 'QUARTER2',
+                    label: 'Apr',
+                    value: 'MONTH1',
                     from: moment().month(3).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(3).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Mai',
+                    value: 'MONTH1',
+                    from: moment().month(4).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(4).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Juni',
+                    value: 'MONTH1',
+                    from: moment().month(5).startOf('month').format('YYYY.MM.DD'),
                     to: moment().month(5).endOf('month').format('YYYY.MM.DD')
                 },
                 {
-                    label: '3. kvartal',
-                    value: 'QUARTER3',
+                    label: 'Juli',
+                    value: 'MONTH1',
                     from: moment().month(6).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(6).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Aug',
+                    value: 'MONTH1',
+                    from: moment().month(7).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(7).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Sep',
+                    value: 'MONTH1',
+                    from: moment().month(8).startOf('month').format('YYYY.MM.DD'),
                     to: moment().month(8).endOf('month').format('YYYY.MM.DD')
                 },
                 {
-                    label: '4. kvartal',
-                    value: 'QUARTER4',
+                    label: 'Okt',
+                    value: 'MONTH1',
                     from: moment().month(9).startOf('month').format('YYYY.MM.DD'),
-                    to: moment().month(11).endOf('month').format('YYYY.MM.DD')
+                    to: moment().month(9).endOf('month').format('YYYY.MM.DD')
                 },
+                {
+                    label: 'Nov',
+                    value: 'MONTH1',
+                    from: moment().month(10).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(10).endOf('month').format('YYYY.MM.DD')
+                },
+                {
+                    label: 'Des',
+                    value: 'MONTH1',
+                    from: moment().month(11).startOf('month').format('YYYY.MM.DD'),
+                    to: moment().month(11).endOf('month').format('YYYY.MM.DD')
+                }
             ]
         ];
     }

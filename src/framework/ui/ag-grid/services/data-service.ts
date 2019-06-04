@@ -64,7 +64,13 @@ export class TableDataService {
         }
 
         if (Array.isArray(resource)) {
-            this.originalData = this.setMetadata(resource);
+            let rows = resource || [];
+            if (this.config.dataMapper) {
+                rows = this.config.dataMapper(rows);
+            }
+
+            this.originalData = this.setMetadata(rows);
+
             // Don't filter locally when ticker grouping is on!
             const filteredData = this.config.isGroupingTicker ? this.originalData  : this.filterLocalData(this.originalData);
             this.loadedRowCount = filteredData.length;
@@ -161,21 +167,16 @@ export class TableDataService {
                         let totalRowCount, data;
                         if (res.json) {
                             data = res.json();
-                            totalRowCount = res.headers && res.headers.get('count');
-                            this.totalRowCount$.next(totalRowCount);
 
-                            if (data.Data) {
-                                data.Data.forEach(item => {
-                                    if (item.ID === 3223) {
-                                        console.log({item});
-                                    }
-                                });
-                            }
                             if (!totalRowCount) {
                                 totalRowCount = data.length;
                             }
                         } else {
                             data = res;
+                        }
+                        totalRowCount = res.headers && res.headers.get('count');
+                        if (totalRowCount) {
+                            this.totalRowCount$.next(totalRowCount);
                         }
 
                         // Dont update remote row count after first load (skip = 0)
@@ -184,8 +185,12 @@ export class TableDataService {
                             this.rowCountOnRemote = totalRowCount;
                         }
 
-                        const unwrapped = data.Data ? data.Data : data;
-                        const rows = this.setMetadata(unwrapped, this.loadedRowCount);
+                        let rows = data.Data ? data.Data : data; // unwrap statistics
+                        if (this.config.dataMapper) {
+                            rows = this.config.dataMapper(rows || []);
+                        }
+
+                        rows = this.setMetadata(rows, this.loadedRowCount);
                         this.loadedRowCount = params.startRow + rows.length;
 
                         params.successCallback(rows, this.rowCountOnRemote);

@@ -1,15 +1,18 @@
-<article class="report_parameter_modal report_salary_modal" *ngIf="config">
-    <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
-    <section>
+<section role="dialog" class="uni-modal small" *ngIf="config">
+    <header>
+        <h1 class="modal-title" *ngIf="config.title">{{config.title}}</h1>
+    </header>
+    <article>
         <uni-form
                 [config]="config$"
                 [fields]="fields$"
-                [model]="model$">
+                [model]="model$"
+                (changeEvent)=changes($event)>
         </uni-form>
         <footer>
             <button *ngFor="let action of config.actions" (click)="action.method()" [ngClass]="action.class" type="button">
                 {{action.text}}
             </button>
         </footer>
-    </section>
-</article>
+    </article>
+</section>

@@ -710,15 +710,6 @@ export class TransqueryDetails implements OnInit {
             .setConditionalRowCls((row) => {
                 return (row && row.StatusCode === 31004) ? 'journal-entry-credited' : '';
             })
-            .setDataMapper((data) => {
-                const tmp = data !== null ? data.Data : [];
-
-                if (data !== null && data.Message !== null && data.Message !== '') {
-                    this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
-                }
-
-                return tmp;
-            })
             .setContextMenu([
                 {
                     action: (item) => this.creditJournalEntry(item),

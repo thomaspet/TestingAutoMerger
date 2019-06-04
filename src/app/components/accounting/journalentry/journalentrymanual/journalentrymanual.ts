@@ -48,6 +48,7 @@ import {
     VatTypeService,
     CostAllocationService,
     AccountService,
+    AccountManatoryDimensionService,
     SupplierService,
     DimensionService,
 } from '../../../../services/services';
@@ -110,7 +111,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private openPostsForSelectedRow: Array<JournalEntryLine> = null;
     private openPostTableConfig: UniTableConfig = null;
     private openPostRetrievingDataInProgress: boolean = false;
-
+    private numberOfAccountsWithManatoryDimensions: number = 0;
     public validationResult: ValidationResult;
     public summary: ISummaryConfig[] = [];
     public journalEntrySettings: JournalEntrySettings;
@@ -155,6 +156,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private accountService: AccountService,
         private supplierService: SupplierService,
         private dimensionService: DimensionService,
+        private accountManatoryDimensionService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -166,7 +168,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.vatDeductionService.GetAll(null),
             this.companySettingsService.Get(1),
             this.vatTypeService.GetAll('orderby=VatCode'),
-            this.numberSeriesService.getActiveNumberSeries('JournalEntry', this.currentFinancialYear.Year)
+            this.numberSeriesService.getActiveNumberSeries('JournalEntry', this.currentFinancialYear.Year),
+            this.accountManatoryDimensionService.GetNumberOfAccountsWithManatoryDimensions()
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.vatDeductions = data[1];
@@ -175,6 +178,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
                 const series = data[4];
                 this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(series);
+                this.numberOfAccountsWithManatoryDimensions = (data[5] && data[5].Data[0]) ? data[5].Data[0].countID : 0;
                 if (!this.hasLoadedData) {
                     this.loadData();
                 }
@@ -626,12 +630,35 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 newline.isDirty = true;
                 newline['_costAllocationTime'] = (new Date()).getTime();
 
+                if (this.numberOfAccountsWithManatoryDimensions > 0) {
+                    if (!newline.ManatoryDimensionsValidation) {newline.ManatoryDimensionsValidation = {}; }
+                    if (newline.DebitAccountID) {
+                        this.accountManatoryDimensionService
+                        .getMandatoryDimensionsReportByDimension(newline.DebitAccountID, newline.Dimensions)
+                        .subscribe((report) => {
+                                newline.ManatoryDimensionsValidation['DebitReport'] = report;
+                        });
+                    }
+                }
+
                 if (this.mode == JournalEntryMode.Manual) {
                     this.switchDebetAndCredit(newline, creditAllocation);
-                    this.setDebetOrCreditToNull(newline, creditAllocation)
+                    this.setDebetOrCreditToNull(newline, creditAllocation);
                     newline.JournalEntryNo = currentLine.JournalEntryNo;
                     newline.FinancialDate = currentLine.FinancialDate;
                     newline.VatDate = currentLine.VatDate;
+
+                    if (this.numberOfAccountsWithManatoryDimensions > 0) {
+                        if (!newline.ManatoryDimensionsValidation) {newline.ManatoryDimensionsValidation = {}; }
+                        if (newline.CreditAccountID) {
+                            this.accountManatoryDimensionService
+                            .getMandatoryDimensionsReportByDimension(newline.CreditAccountID, newline.Dimensions)
+                            .subscribe((report) => {
+                                    newline.ManatoryDimensionsValidation['CreditReport'] = report;
+                            });
+                        }
+                    }
+
                 }
 
                 if (first && keepCurrentLine) {

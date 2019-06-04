@@ -6,13 +6,22 @@
     <section class="header">
         <h1>Selskaper på lisensen</h1>
 
-        <input
-            class="pull-right"
-            type="search"
-            placeholder="Søk"
-            [(ngModel)]="filterValue"
-            (ngModelChange)="filterCompanies()"
-        />
+        <div class="actions">
+            <button (click)="createCompany()" class="outline-c2a">
+                Opprett selskap
+            </button>
+
+            <button (click)="grantAccess()" class="outline-c2a">
+                Gi tilgang til selskaper
+            </button>
+
+           <input
+                type="search"
+                placeholder="Søk"
+                [(ngModel)]="filterValue"
+                (ngModelChange)="filterCompanies()"
+            />
+        </div>
     </section>
 
     <license-info-list

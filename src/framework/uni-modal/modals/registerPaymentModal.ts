@@ -9,6 +9,8 @@ import {
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
 import { CurrencyService } from '@app/services/common/currencyService';
+import { AccountManatoryDimensionService} from '@app/services/accounting/accountManatoryDimensionService';
+import { StatisticsService } from '@app/services/common/statisticsService';
 import { UniSearchAccountConfig } from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
     IModalOptions,
@@ -39,8 +41,8 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
                     [model]="formModel$"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
+                <FONT color="#FF0000"><label> {{ mandatoryDimensionMessage }}</label></FONT>
             </article>
-
             <footer>
                 <button class="good" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
@@ -61,7 +63,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public formModel$: BehaviorSubject<any> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-
+    public mandatoryDimensionMessage: string = '';
     private config: any; // typeme
     private companySettings: CompanySettings;
     private isMainCurrency: boolean;
@@ -73,7 +75,9 @@ export class UniRegisterPaymentModal implements IUniModal {
         private errorService: ErrorService,
         private currencyService: CurrencyService,
         private toastService: ToastService,
-        private uniSearchAccountConfig: UniSearchAccountConfig
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private accountManatoryDimensionService: AccountManatoryDimensionService,
+        private statisticsService: StatisticsService
     ) {}
 
     public ngOnInit() {
@@ -93,7 +97,8 @@ export class UniRegisterPaymentModal implements IUniModal {
             'AgioGainAccount',
             'AgioLossAccount',
             'BankChargeAccount',
-            'BaseCurrencyCode'
+            'BaseCurrencyCode',
+            'CompanyBankAccount'
         ]).subscribe(
             (settings: CompanySettings) => {
                 this.companySettings = settings;
@@ -101,6 +106,37 @@ export class UniRegisterPaymentModal implements IUniModal {
                 this.formFields$.next(this.getFormFields());
 
                 paymentData.BankChargeAccountID = this.companySettings.BankChargeAccountID;
+
+                let msg: string = '';
+                if (this.companySettings.CompanyBankAccount) {
+                    this.accountManatoryDimensionService.getMandatoryDimensionsReport(
+                        this.companySettings.CompanyBankAccount.AccountID,
+                        paymentData.DimensionsID).subscribe((report) => {
+                            if (report && report.MissingRequiredDimensonsMessage !== '') {
+                                msg = '  ! ' +  report.MissingRequiredDimensonsMessage;
+                                this.mandatoryDimensionMessage = msg;
+                        }
+                        const filterField = this.config.entityName === 'CustomerInvoice' ? 'CustomerID' : 'SupplierID';
+                        const selectStatement = `model=Account&Select=ID&filter=${filterField} eq ${this.config.entityID}`;
+                        this.statisticsService.GetAll(selectStatement).subscribe((res) => {
+                            this.accountManatoryDimensionService.getMandatoryDimensionsReport(res.Data[0].AccountID, paymentData.DimensionsID)
+                            .subscribe((report2) => {
+                                if (report2 && report2.MissingRequiredDimensonsMessage !== '') {
+                                    msg += '\n  ! ' +  report2.MissingRequiredDimensonsMessage;
+                                }
+                                if (msg !== '') {
+                                    this.mandatoryDimensionMessage = msg;
+                                    this.toastService.addToast('Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.', ToastType.warn, 5);
+                                }
+                                if (report && report.RequiredDimensions === [] && report2.RequiredDimensions === []) {
+                                    paymentData.DimensionsID = null;
+                                }
+
+
+                            });
+                        });
+                    });
+                }
 
                 this.calculateAmount(paymentData).subscribe((result) => {
                     this.calculateAgio(result);
@@ -114,6 +150,12 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     public close(emitValue?: boolean) {
         setTimeout(() => {
+            if (this.mandatoryDimensionMessage !== '' && emitValue) {
+                this.toastService
+                    .addToast('Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.', ToastType.bad, 5);
+                return;
+            }
+
             if (!emitValue) {
                 this.onClose.emit(undefined);
                 return;

@@ -30,8 +30,8 @@ import {UniFileUploadModal} from './modals/uploadFilesModal';
 import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
 import {UniReinvoiceModal} from './modals/reInvoiceModal/reinvoiceModal';
 import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
-import {UniShowReinvoiceStatus} from '@uni-framework/uni-modal/modals/reInvoiceModal/showReinvoiceStatus.pipe';
 import {UniConfirmModalWithCheckbox} from './modals/confirmWithCheckboxModal';
+import { UniMandatoryDimensionsModal } from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -67,8 +67,8 @@ export * from './modals/company-actions-modal/company-actions-modal';
 export * from './modals/reInvoiceModal/reinvoiceModal';
 export * from './modals/companyAccountingSettingsModal/companyAccountingSettingsModal';
 export * from './modals/confirmWithCheckboxModal';
-
-export { UniShowReinvoiceStatus } from '@uni-framework/uni-modal/modals/reInvoiceModal/showReinvoiceStatus.pipe';
+export * from './modals/reInvoiceModal/showReinvoiceStatus.pipe';
+export * from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -103,6 +103,7 @@ export const MODALS = [
     MissingPurchasePermissionModal,
     UniReinvoiceModal,
     UniCompanyAccountingSettingsModal,
-    UniConfirmModalWithCheckbox
+    UniConfirmModalWithCheckbox,
+    UniMandatoryDimensionsModal
 ];
 

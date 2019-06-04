@@ -51,6 +51,12 @@ export interface IColumnTooltip {
     alignment?: 'left'|'right';
 }
 
+export interface FilterSelectConfig {
+    options: any[];
+    displayField: string;
+    valueField: string;
+}
+
 export interface IUniTableColumn {
     header: string;
     field: string;
@@ -119,7 +125,7 @@ export class UniTableColumn implements IUniTableColumn {
 
     public filterable: boolean;
     public filterOperator: string;
-    public filterSelectConfig: {options: Array<any>, displayField: string, valueField: string};
+    public filterSelectConfig: FilterSelectConfig;
 
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
@@ -346,6 +352,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setFilterOperator(operator: string) {
         this.filterOperator = operator;
+        return this;
+    }
+
+    public setFilterSelectConfig(config: FilterSelectConfig) {
+        this.filterSelectConfig = config;
         return this;
     }
 

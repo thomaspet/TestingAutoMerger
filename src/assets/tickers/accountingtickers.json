@@ -1373,6 +1373,16 @@
                 "Header": "Gruppe",
                 "Field": "AccountGroup.Name",
                 "Type": "boolean"
+            },
+            {
+                "Header": "Påkrevde Dimensjoner",
+                "Field": "ManatoryDimensions",
+                "Type": "Text"
+            },
+            {
+                "Header": "Advarsel Dimensjoner",
+                "Field": "ManatoryDimensions",
+                "Type": "Text"
             }
         ],
         "Actions": [],

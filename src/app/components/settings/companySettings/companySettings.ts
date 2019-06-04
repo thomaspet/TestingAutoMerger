@@ -387,8 +387,17 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
-            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal).onClose.subscribe(
+            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal, {
+                data: {
+                    PeriodSeriesAccountID: (changes['PeriodSeriesAccountID'] && changes['PeriodSeriesAccountID'].previousValue) || null,
+                    PeriodSeriesVatID: (changes['PeriodSeriesVatID'] && changes['PeriodSeriesVatID'].previousValue) || null
+                }
+            }).onClose.subscribe(
                 result => {
+                    const companySettings = this.companySettings$.getValue();
+                    companySettings.PeriodSeriesAccountID = result.PeriodSeriesAccountID;
+                    companySettings.PeriodSeriesVatID = result.PeriodSeriesVatID;
+                    this.companySettings$.next(_.cloneDeep(companySettings));
                     this.router.navigateByUrl('/settings/company');
                 }, err => this.errorService.handle
             );
@@ -1497,6 +1506,15 @@ export class CompanySettingsComponent implements OnInit {
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
                 Hidden: this.hideXtraPaymentOrgXmlTagValue
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'IgnorePaymentsWithoutEndToEndID',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Bokfør kun utbet. fra UE',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Bankkontoer'
             },
             {
                 EntityType: 'CompanySettings',

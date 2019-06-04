@@ -66,7 +66,7 @@ export class UniCompanyAccountingSettingsModal implements OnInit, IUniModal {
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 200,
-                    template: (obj: Product) => obj ? `${obj.ID} - ${obj.Name}` : '',
+                    template: (obj: Product) => obj ? `${obj.PartName} - ${obj.Name}` : '',
                     search: (query) => {
                         return this.productService.GetAll(`filter=startswith(ID,'${query}') or contains(Name,'${query}')&top=50`);
                     },
@@ -92,9 +92,9 @@ export class UniCompanyAccountingSettingsModal implements OnInit, IUniModal {
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 200,
-                    template: (obj: Product) => obj ? `${obj.ID} - ${obj.Name}` : '',
+                    template: (obj: Product) => obj ? `${obj.PartName} - ${obj.Name}` : '',
                     search: (query) => {
-                        return this.productService.GetAll(`filter=startswith(ID,'${query}') or contains(Name,'${query}')&top=50`);
+                        return this.productService.GetAll(`filter=startswith(PartName,'${query}') or contains(Name,'${query}')&top=50`);
                     },
                     getDefaultData: () => {
                         return this.companyAccountSettingsService.GetAll('', ['ReInvoicingTurnoverProduct'])

@@ -1,4 +1,4 @@
-<section class="coverView" [attr.aria-busy]="saving">
+<section class="coverView" [attr.aria-busy]="creatingRun">
 
     <uni-toolbar
         [config]="toolbarconfig"
@@ -50,7 +50,7 @@
             </section>
         </section>
 
-        <salarytrans (employee)="setEmployee($event)"></salarytrans>
+        <salarytrans></salarytrans>
     </section>
 
 

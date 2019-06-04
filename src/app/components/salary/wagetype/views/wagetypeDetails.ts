@@ -70,6 +70,7 @@ export class WagetypeDetail extends UniView {
         }
     });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public busy: boolean;
 
     @ViewChild(UniForm) public uniform: UniForm;
 
@@ -622,6 +623,24 @@ export class WagetypeDetail extends UniView {
                 const [wageType, fields] = result;
 
                 this.handleAmeldingEvents(wageType, changes);
+
+                if (changes['WageTypeNumber']) {
+                    if (!isNaN(changes['WageTypeNumber'].currentValue)) {
+                        this.busy = true;
+
+                        this.wagetypeService.getOrderByWageTypeNumber(
+                            `filter=WageTypeNumber eq ${changes['WageTypeNumber'].currentValue}`
+                            + `&top=1&hateoas=false`, null, '&ValidYear desc')
+                            .finally(() => this.busy = false)
+                            .subscribe(wts => {
+                                const wt = wts[0];
+                                if (!!wt) {
+                                    super.updateState(WAGETYPE_KEY, wt, false);
+                                    this.router.navigateByUrl(`/salary/wagetypes/${wt.ID}`);
+                                }
+                            });
+                    }
+                }
 
                 if (changes['taxtype'] || changes['Base_Payment']) {
                     this.checkHideFromPaycheck(wageType);

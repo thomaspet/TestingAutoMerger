@@ -1,0 +1,26 @@
+ul.uni-selection-list
+    list-style: none
+    li
+        display: flex
+        height: 55px
+        align-items: center
+        cursor: pointer
+        background: #f7f7f7
+        padding: 0 1rem
+        font-size: 14px
+        border-radius: 2px
+
+        + li
+            margin-top: .5rem
+
+        i.material-icons
+            margin-right: .5rem
+            color: #8C97AB
+            user-select: none
+
+        &.selected
+            i.material-icons
+                color: #1565c0
+
+        .pull-right
+            margin-left: auto

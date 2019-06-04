@@ -728,6 +728,81 @@ uni-counters-widget
                 font-size: 30px
                 line-height: 30px
 
+.dropdown-list-result-view
+    margin: 0
+    padding: 0
+    list-style: none
+    width: 20rem
+
+    li
+        height: 2.4rem
+        padding-left: 1rem
+        display: flex
+        align-items: center
+        cursor: pointer
+        font-size: .9rem
+
+        &:first-of-type
+            border-bottom: 1px solid #638ab2
+
+        &:hover
+            color: white
+            background-color: #638ab2
+
+uni-operating-chart
+    .uni-operatiing-profit-years-container
+        display: flex
+        color: #638ab2
+
+        .year-button
+            width: 4rem
+            height: 2rem
+            margin-right: .5rem
+            display: flex
+            font-weight: 400
+            align-items: center
+            justify-content: center
+            border: 1px solid #638ab2
+            border-radius: 3px
+            cursor: pointer
+
+            &:hover,
+            &.selected
+                color: white
+                background-color: #638ab2
+
+        .operating-profit-result-view-dropdown
+            display: flex
+            align-items: center
+
+            i
+                cursor: pointer
+
+    .uni-operating-profit-number-container
+        display: flex
+        justify-content: center
+        margin-top: 1.5rem
+
+        div
+            width: 12rem
+            color: $uni-color-scale4
+            font-weight: 600
+            height: 2rem
+            display: flex
+            align-items: center
+            justify-content: center
+
+            &.operating-profif-income
+                border-bottom: 4px solid rgba(42,143,252, .5)
+                margin-right: 2rem
+
+            &.operating-profif-cost
+                border-bottom: 4px solid rgba(250,165,38, .5)
+                margin-right: 2rem
+
+            &.operating-profif-result
+                border-bottom: 4px solid rgba(9,112,84, .5)
+
 uni-kpi-widget
     display: flex
     width: 100%

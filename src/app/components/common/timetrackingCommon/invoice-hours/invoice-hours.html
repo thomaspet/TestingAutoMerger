@@ -1,25 +1,12 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar
+    [config]="{title: 'Fakturere/overføre timer'}"
+    [saveactions]="saveactions">
+</uni-toolbar>
 
-<section class='application less-margin'>
-    <input type="search" placeholder="Søk" [formControl]="searchControl">
-    <br><br>
-
-    <article [attr.aria-busy]="busy" [class.wait-cursor]="working" >
-
-        <ag-grid-wrapper
-            [resource]="dataSource"
-            [config]="tableConfig"
-            (rowSelectionChange)="onRowSelected($event)">
-        </ag-grid-wrapper>
-
-        <footer *ngIf="limitRows>0 && limitRows<=rowCount">De {{rowCount}} første
-            <button (click)="onShowAllClick(true)">Vis alle</button>
-        </footer>
-
-        <footer *ngIf="limitRows===0">{{rowCount}} stk.
-            <button (click)="onShowAllClick(false)">Vis de {{this.pageSize}} første</button>
-        </footer>
-
-    </article>
-
+<section class="application">
+    <ag-grid-wrapper
+        [resource]="dataSource"
+        [config]="tableConfig"
+        (rowSelectionChange)="onRowSelected($event)">
+    </ag-grid-wrapper>
 </section>
