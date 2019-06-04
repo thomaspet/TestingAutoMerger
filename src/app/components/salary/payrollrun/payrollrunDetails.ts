@@ -3,7 +3,7 @@ import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account,
     CompanySalary, Project, Department, TaxDrawFactor, EmployeeCategory,
-    JournalEntry, StdSystemType, EmployeeTaxCard, SubEntity
+    JournalEntry, StdSystemType, EmployeeTaxCard, SubEntity, AccountDimension
 } from '../../../unientities';
 import {Observable, BehaviorSubject, Subject, of} from 'rxjs';
 import {tap, take, switchMap, filter, finalize, map, catchError, takeUntil} from 'rxjs/operators';
@@ -28,7 +28,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
-    SalarySumsService, StatisticsService, SubEntityService
+    SalarySumsService, StatisticsService, SubEntityService, AccountManatoryDimensionService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -134,6 +134,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private supplementService: SupplementService,
         private statisticsService: StatisticsService,
         private subEntityService: SubEntityService,
+        private accountMandatoryDimensionService: AccountManatoryDimensionService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -1130,8 +1131,29 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .subscribe((salaryTransactions: SalaryTransaction[]) => {
                 if (salaryTransactions !== undefined) {
                     super.updateState('salaryTransactions', salaryTransactions, false);
+
+                    //Ved lagring på lønnsavregningen kan man få opp toast dersom en eller flere kontoer har påkrevd dimensjon (advarsel/påkrevd).
+                    let msg: string = '';
+                    this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(salaryTransactions)
+                    .subscribe((reports) => {
+                        if (reports) {
+                            const report = reports[0];
+                            if (report.MissingRequiredDimensonsMessage !== '') {
+                                msg += '\r\n  ! ' +  report.MissingRequiredDimensonsMessage;
+                            }
+                            //TODO linjeskift virker ikke
+                            if (report.MissingOnlyWarningsDimensionsMessage) {
+                                msg += '\r\n  ' +  report.MissingOnlyWarningsDimensionsMessage;
+                            }
+                            if (msg !== '') {
+                                this._toastService.addToast(msg, ToastType.warn, 5);
+                            }
+                        }
+                    });
                 }
                 this.toggleDetailsView(false);
+
+                
                 done('Lagret');
             },
             (err) => {

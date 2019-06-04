@@ -1,6 +1,6 @@
 
 import { BizHttp } from "@uni-framework/core/http/BizHttp";
-import { AccountManatoryDimension, CustomerInvoiceItem, Dimensions, Account } from "@uni-entities";
+import { AccountManatoryDimension, CustomerInvoiceItem, Dimensions, Account, SalaryTransaction } from "@uni-entities";
 import { UniHttp } from "@uni-framework/core/http/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -38,6 +38,24 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
         return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
     }
 
+    public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
+        let params: AccountDimension[] = [];
+        salaryTransactions.forEach(item => {
+            const ad = new AccountDimension();
+            ad.AccountNumber = item.Account;
+            if (item.DimensionsID && item.DimensionsID > 0) {
+                ad.DimensionsID = item.DimensionsID;
+            } else {
+                ad.Dimensions = item.Dimensions;
+            }
+            //TODO kun om den ikke allerede finnes
+            //if (!params.find(x => x.AccountNumber == ad.AccountNumber && x.DimensionsID )) {
+                params.push(ad);
+            //}
+        });
+        return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
+    }
+
     public getMandatoryDimensionsReportByDimension(accountID: number, dimensions: Dimensions): Observable<any> {
         return super.ActionWithBody(null, dimensions, `get-manatory-dimensions-report-by-dimensions&accountID=${accountID}`, RequestMethod.Put);
     }
@@ -54,6 +72,7 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
 //Flytte til?
 export class AccountDimension {
     public AccountID: number;
+    public AccountNumber: number;
     public DimensionsID: number;
     public Dimensions: Dimensions;
 }
