@@ -751,7 +751,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         // Update the tab to match childroute
         setTimeout(() => {
             this.tabService.addTab({
-                name: this.employeeID ?  'Ansattnr. ' + this.employeeID : 'Ny ansatt',
+                name: this.employee.EmployeeNumber ?  'Ansattnr. ' + this.employee.EmployeeNumber : 'Ny ansatt',
                 url: this.pageStateService.getUrl(),
                 moduleID: UniModules.Employees,
                 active: true
