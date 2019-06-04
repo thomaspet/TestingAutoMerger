@@ -176,6 +176,7 @@ export class VariablePayrollsComponent {
             this.salaryTransService.invalidateCache();
 
             this.getsalaryTransBasedOnPayrollrun(payrollrun.ID, true);
+            //TODO Toast-melding ved lagring dersom en eller flere kontoer mangler påkrevd dimensjon (advarsel/påkrevd)
             done('Lagring vellykket');
         }, err => {
             this.loading = false;

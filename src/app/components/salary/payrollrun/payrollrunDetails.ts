@@ -1120,6 +1120,26 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.router.navigateByUrl(this.url + payrollRun.ID);
                         return Observable.of(undefined);
                     }
+                    if (payrollRun.transactions) {
+                        let msg: string = '';
+                        this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(payrollRun.transactions)
+                        .subscribe((reports) => {
+                            if (reports) {
+                                reports.forEach(report => {
+                                    if (report.MissingRequiredDimensonsMessage !== '') {
+                                        msg += '\n! ' +  report.MissingRequiredDimensonsMessage + '\n';
+                                    }
+                                    //linjeskift virker ikke
+                                    if (report.MissingOnlyWarningsDimensionsMessage) {
+                                        msg += '\n ' +  report.MissingOnlyWarningsDimensionsMessage + '\n';
+                                    }
+                                });
+                                if (msg !== '') {
+                                    this._toastService.addToast(msg, ToastType.warn, 5);
+                                }
+                            }
+                        });
+                    }
                     return this.cleanAndGetTranses();
                 }),
                 finalize(() => {
@@ -1131,28 +1151,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .subscribe((salaryTransactions: SalaryTransaction[]) => {
                 if (salaryTransactions !== undefined) {
                     super.updateState('salaryTransactions', salaryTransactions, false);
-
-                    //Ved lagring på lønnsavregningen kan man få opp toast dersom en eller flere kontoer har påkrevd dimensjon (advarsel/påkrevd).
-                    let msg: string = '';
-                    this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(salaryTransactions)
-                    .subscribe((reports) => {
-                        if (reports) {
-                            const report = reports[0];
-                            if (report.MissingRequiredDimensonsMessage !== '') {
-                                msg += '\r\n  ! ' +  report.MissingRequiredDimensonsMessage;
-                            }
-                            //TODO linjeskift virker ikke
-                            if (report.MissingOnlyWarningsDimensionsMessage) {
-                                msg += '\r\n  ' +  report.MissingOnlyWarningsDimensionsMessage;
-                            }
-                            if (msg !== '') {
-                                this._toastService.addToast(msg, ToastType.warn, 5);
-                            }
-                        }
-                    });
                 }
                 this.toggleDetailsView(false);
-
                 
                 done('Lagret');
             },
