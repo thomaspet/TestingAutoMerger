@@ -36,8 +36,6 @@
                 class="video-container"
                 [innerHTML]="videoMarkup | keepHtml">
             </section>
-
-            <small *ngIf="action && isIntegration">NB! Vi gjør oppmerksom på at du ved å aktivere integrasjonen gir samtykke til at 3.part får tilgang til dine data.</small>
         </section>
 
         <!-- Old CMS  -->
@@ -46,6 +44,9 @@
             <section *ngIf="!htmlContent && product.HtmlContent" [innerHTML]="product.HtmlContent | keepHtml"></section>
         </ng-container>
 
+        <a *ngIf="product?.ButtonLink" [href]="product.ButtonLink" target="_blank" class="read-more-link">
+            {{product.ButtonLabel || 'Les mer'}}
+        </a>
     </article>
 
     <footer class="center" *ngIf="action">
