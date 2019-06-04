@@ -9,7 +9,7 @@ import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaPurchaseService, ErrorService} from '@app/services/services';
 import {ElsaPurchase} from '@app/models';
-import {parse} from 'marked';
+import * as marked from 'marked';
 
 @Component({
     selector: 'uni-product-subscribe-modal',
@@ -40,7 +40,15 @@ export class SubscribeModal implements IUniModal, OnInit {
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
         private elsaPurchaseService: ElsaPurchaseService
-    ) {}
+    ) {
+        const renderer = new marked.Renderer();
+        renderer.link = function(href, title, text) {
+            const link = marked.Renderer.prototype.link.apply(this, arguments);
+            return link.replace('<a', '<a target="_blank"');
+        };
+
+        marked.setOptions({renderer: renderer});
+    }
 
     ngOnInit() {
         const data = this.options.data || {};
@@ -52,7 +60,7 @@ export class SubscribeModal implements IUniModal, OnInit {
         if (this.product.MarkdownContent) {
             try {
                 const decoded = decodeURI(this.product.MarkdownContent);
-                this.htmlContent = parse(decoded) || '';
+                this.htmlContent = marked.parse(decoded) || '';
             } catch (e) {
                 console.error(e);
             }
