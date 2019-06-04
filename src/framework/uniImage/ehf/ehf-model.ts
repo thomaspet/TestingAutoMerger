@@ -59,7 +59,7 @@ export interface EHFData {
         taxAmount: string;
         taxExclusiveAmount: string;
         taxInclusiveAmount: string;
-        chargeAmount?: string;
+        allowanceCharges?: any[];
         prepaidAmount: string;
         payableRoundingAmount?: string;
         payableAmount: string;

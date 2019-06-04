@@ -77,8 +77,8 @@ function getYourReference(data) {
     }
 }
 
-function getPriceText(amountData, isCreditNote?: boolean) {
-    const numberFormatted = formatNumber(amountData['#text'], isCreditNote, true);
+function getPriceText(amountData, invertNumber?: boolean) {
+    const numberFormatted = formatNumber(amountData['#text'], invertNumber, true);
     return numberFormatted + ' ' + (amountData['@currencyID'] || '');
 }
 
@@ -235,9 +235,30 @@ function getAmountSummary(data, isCreditNote: boolean) {
         payableAmount: getPriceText(get(data, 'cac:LegalMonetaryTotal.cbc:PayableAmount', ''))
     };
 
-    const chargeAmount = get(data, 'cac:LegalMonetaryTotal.cbc:ChargeTotalAmount');
-    if (chargeAmount) {
-        amountSummary.chargeAmount = getPriceText(chargeAmount);
+    let allowanceCharges = get(data, 'cac:AllowanceCharge');
+    if (allowanceCharges) {
+        if (!Array.isArray(allowanceCharges)) {
+            allowanceCharges = [allowanceCharges];
+        }
+
+        if (allowanceCharges.length) {
+            allowanceCharges = allowanceCharges.map(ac => {
+                const chargeIndicator = get(ac, 'cbc:ChargeIndicator');
+                const isCharge = chargeIndicator && chargeIndicator !== 'false'; // can be string some times..
+
+                const percent = parseFloat(get(ac, 'cbc:MultiplierFactorNumeric', 0));
+                const amount = getPriceText(get(ac, 'cbc:Amount'), !isCharge && !isCreditNote);
+
+
+                return {
+                    label: isCharge ? 'Gebyr' : 'Godtgjørelse',
+                    value: percent ? percent + '%' : amount,
+                    description: get(ac, 'cbc:AllowanceChargeReason', '')
+                };
+            });
+
+            amountSummary.allowanceCharges = allowanceCharges;
+        }
     }
 
     const prepaidAmount = get(data, 'cac:LegalMonetaryTotal.cbc:PrepaidAmount', '');
@@ -256,14 +277,14 @@ function getAmountSummary(data, isCreditNote: boolean) {
     return amountSummary;
 }
 
-function formatNumber(value: string, isCreditNote?: boolean, forceTwoDecimals?: boolean): string {
+function formatNumber(value: string, invertNumber?: boolean, forceTwoDecimals?: boolean): string {
     if (!parseFloat(value)) {
         return forceTwoDecimals ? '0,00' : '0';
     }
 
     let [int, decimal] = value.split('.');
 
-    if (isCreditNote) {
+    if (invertNumber) {
         int = (parseInt(int, 10) * -1).toString();
     }
 
