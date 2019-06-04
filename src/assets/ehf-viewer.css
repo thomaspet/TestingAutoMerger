@@ -89,6 +89,11 @@
 	margin: 2rem 0 1rem;
 	padding-top: 1rem;
 	border-top: 1px solid #ccc;
+	page-break-inside: avoid;
+}
+
+.uni-ehf .tax-summary {
+	margin-right: 2rem;
 }
 
 .uni-ehf .tax-summary table {
@@ -112,7 +117,6 @@
 }
 
 .uni-ehf .summary {
-	width: 20rem;
 	margin: 5px 0 0 auto;
 	font-size: 13px;
 }

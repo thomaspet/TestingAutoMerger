@@ -203,35 +203,47 @@ function getInvoiceSums(invoice: EHFData) {
     }
 
     const sums = invoice.amountSummary;
+
+    let allowanceCharges = '';
+    if (sums.allowanceCharges) {
+        allowanceCharges = sums.allowanceCharges.map(ac => {
+            return `
+                <dt>${ac.label} ${ac.description ? `(${ac.description})` : ''}</dt>
+                <dd>${ac.value}</dd>
+            `;
+        }).join('');
+    }
+
     return `
         <dl>
+            ${allowanceCharges}
+
             <dt>Sum eks. mva.</dt>
             <dd>${sums.taxExclusiveAmount}</dd>
 
-            ${
-                sums.chargeAmount ? `
-                    <dt>Gebyr</dt>
-                    <dd>${sums.chargeAmount}</dd>
-                ` : ''
-            }
-
             <dt>Mva</dt>
             <dd>${sums.taxAmount}</dd>
-
-            <dt>Sum inkl. mva.</dt>
-            <dd>${sums.taxInclusiveAmount}</dd>
-
-            ${
-                sums.prepaidAmount ? `
-                    <dt>Forhåndsbetalt</dt>
-                    <dd>${sums.prepaidAmount}</dd>
-                ` : ''
-            }
 
             ${
                 sums.payableRoundingAmount ? `
                     <dt>Øreavrunding</dt>
                     <dd>${sums.payableRoundingAmount}</dd>
+                ` : ''
+            }
+
+            ${
+                // Only show if there is a prepaid amount.
+                // If not, this will be the same as "Beløp til betaling/tilgode"
+                sums.prepaidAmount ? `
+                    <dt>Sum inkl. mva.</dt>
+                    <dd>${sums.taxInclusiveAmount}</dd>
+                ` : ''
+            }
+
+            ${
+                sums.prepaidAmount ? `
+                    <dt>Forhåndsbetalt</dt>
+                    <dd>${sums.prepaidAmount}</dd>
                 ` : ''
             }
         </dl>
