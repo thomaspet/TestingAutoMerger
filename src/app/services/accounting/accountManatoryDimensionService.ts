@@ -48,10 +48,9 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
             } else {
                 ad.Dimensions = item.Dimensions;
             }
-            //TODO kun om den ikke allerede finnes
-            //if (!params.find(x => x.AccountNumber == ad.AccountNumber && x.DimensionsID )) {
+            if (!params.find(x => x.AccountNumber == ad.AccountNumber && x.DimensionsID == ad.DimensionsID)) {
                 params.push(ad);
-            //}
+            }
         });
         return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
     }
