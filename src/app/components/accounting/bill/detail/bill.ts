@@ -3435,6 +3435,7 @@ export class BillView implements OnInit {
                 const completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
                     if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
                         item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
+                        item.VatDate = current.InvoiceDate || current.DeliveryDate;
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                         item.Description = item.Description
                             || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
