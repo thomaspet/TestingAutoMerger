@@ -119,6 +119,7 @@ export class UniNumericInput extends BaseControl implements OnChanges {
 
         const decimals = value.toString().split('.')[1];
         let formatNumberOfDecimals = this.options.decimalLength;
+        let formatThousandSeparator = this.options.thousandSeparator;
 
         if (this.options.format === 'money') {
             // On format 'money' we dont want to force fewer decimals, only fill with 0s if
@@ -130,10 +131,16 @@ export class UniNumericInput extends BaseControl implements OnChanges {
             }
         }
 
+        if (this.options.format === 'integer') {
+            formatThousandSeparator = '';
+            formatNumberOfDecimals = 0;
+        }
+
         const parsed = this._parseValue((value || '').toString());
         let formatted = this.numberFormatter.asNumber(parsed, {
             decimalLength: formatNumberOfDecimals,
-            thousandSeparator: this.options.thousandSeparator
+            // thousandSeparator: this.options.thousandSeparator,
+            thousandSeparator: formatThousandSeparator
         });
 
         if (this.options.format === 'percent') {

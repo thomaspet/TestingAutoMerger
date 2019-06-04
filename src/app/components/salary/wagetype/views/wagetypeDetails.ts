@@ -626,10 +626,12 @@ export class WagetypeDetail extends UniView {
 
                 if (changes['WageTypeNumber']) {
                     if (!isNaN(changes['WageTypeNumber'].currentValue)) {
+                        const currVal = Math.abs(Math.floor(changes['WageTypeNumber'].currentValue));
+                        wageType.WageTypeNumber = currVal;
                         this.busy = true;
 
                         this.wagetypeService.getOrderByWageTypeNumber(
-                            `filter=WageTypeNumber eq ${changes['WageTypeNumber'].currentValue}`
+                            `filter=WageTypeNumber eq ${currVal}`
                             + `&top=1&hateoas=false`, null, '&ValidYear desc')
                             .finally(() => this.busy = false)
                             .subscribe(wts => {
