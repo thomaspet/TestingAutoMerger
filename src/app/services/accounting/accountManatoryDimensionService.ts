@@ -23,18 +23,9 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
     }
 
 
-    public getMandatoryDimensionsReports(items: CustomerInvoiceItem[]): Observable<any> {
     public getMandatoryDimensionsReports(items: any[]): Observable<any> {
         let params: AccountDimension[] = [];
-        const uniqueADs = Array.from(new Set(items.map(x => x.AccountID)))
-            .map(AccountID => {
-                return {
-                    AccountID: AccountID,
-                    DimensionsID: items.find(x => x.AccountID === AccountID).DimensionsID,
-                    Dimensions: items.find(x => x.AccountID === AccountID).Dimensions
-                }
-            });
-        uniqueADs.forEach(item => {
+        items.forEach(item => {
             const ad = new AccountDimension();
             ad.AccountID = item.AccountID;
             if (item.DimensionsID && item.DimensionsID > 0) {
@@ -46,13 +37,13 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
         });
         return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
     }
-    //TODO test begge
 
     public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
         let params: AccountDimension[] = [];
         const uniqueADs = Array.from(new Set(salaryTransactions.map(x => x.Account)))
             .map(Account => {
                 return {
+                    Account: Account,
                     DimensionsID: salaryTransactions.find(x => x.Account === Account).DimensionsID,
                     Dimensions: salaryTransactions.find(x => x.Account === Account).Dimensions
                 }
