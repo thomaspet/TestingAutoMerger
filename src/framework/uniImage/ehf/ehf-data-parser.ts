@@ -331,9 +331,14 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
 
             // Base64 encoded document
             if (embeddedDocument) {
-                const base64Data = get(embeddedDocument, '#text');
+                let base64Data = get(embeddedDocument, '#text');
                 const mimeCode = get(embeddedDocument, '@mimeCode');
+
                 if (base64Data && mimeCode) {
+                    // Apparently telenor likes to format their base64 strings
+                    // with whitespace. Needs to be removed before we can make
+                    // a byte array of it..
+                    base64Data = base64Data.replace(/\s/g, '');
                     const bytes = toByteArray(base64Data);
                     const blob = new Blob([bytes], {type: mimeCode});
 
