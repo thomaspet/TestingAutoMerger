@@ -1127,15 +1127,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             if (reports) {
                                 reports.forEach(report => {
                                     if (report.MissingRequiredDimensonsMessage !== '') {
-                                        msg += '! ' +  report.MissingRequiredDimensonsMessage + '\n';
+                                        msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
                                     }
-                                    //linjeskift virker ikke i Toast (iallefall ikke på denne måten, som virker i tooltip)
                                     if (report.MissingOnlyWarningsDimensionsMessage) {
-                                        msg += report.MissingOnlyWarningsDimensionsMessage + '\n';
+                                        msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
                                     }
                                 });
                                 if (msg !== '') {
-                                    this._toastService.addToast(msg, ToastType.warn, 5);
+                                    this._toastService.toast({
+                                        title: 'Dimensjon(er) mangler',
+                                        message: msg,
+                                        type: ToastType.warn,
+                                        duration: 3
+                                    });
                                 }
                             }
                         });
