@@ -40,24 +40,47 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
 
     public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
         let params: AccountDimension[] = [];
-        const uniqueADs = Array.from(new Set(salaryTransactions.map(x => x.Account)))
+        //TODO dette virker ikke som forventet, kun 1 rad per Account, selv om dim er ulike
+        //const uniqueADs = Array.from(new Set(salaryTransactions.map((item: any) => item)));
+        /*const uniqueADs = Array.from(new Set(salaryTransactions.map(x => x.Account)))
             .map(Account => {
                 return {
                     Account: Account,
                     DimensionsID: salaryTransactions.find(x => x.Account === Account).DimensionsID,
                     Dimensions: salaryTransactions.find(x => x.Account === Account).Dimensions
                 }
-            });
-        uniqueADs.forEach(item => {
+            });*/
+        /*const uniqueADs = Array.from(new Set(salaryTransactions
+            .map((trans: SalaryTransaction) => {
+                return {
+                    AccountNumber: Account,
+                    DimensionsID: trans.DimensionsID,
+                    Dimensions: trans.Dimensions
+                }
+            })));
+        const unique = (value, index, self) => {
+            return self.indexOf(value) === index
+        }*/
+        //const uniqueADsFiltered = uniqueADs./*map((item: any) => {item.AccountNumber, item.DimensionsID}).*/filter(unique);
+
+        salaryTransactions
+        //uniqueADs
+        .forEach(item => {
             const ad = new AccountDimension();
             ad.AccountNumber = item.Account;
+            //ad.AccountNumber = item.AccountNumber;
             if (item.DimensionsID && item.DimensionsID > 0) {
                 ad.DimensionsID = item.DimensionsID;
             } else {
                 ad.Dimensions = item.Dimensions;
             }
-            params.push(ad);
+            if (!params.find(x => x.AccountNumber === ad.AccountNumber && x.DimensionsID === ad.DimensionsID && x.Dimensions === ad.Dimensions)) {
+                params.push(ad);
+            }
         });
+        //const uparams = Array.from(new Set(params.map((item: any) => item)));
+          
+        //const uniqueParams = params.map((item: AccountDimension) => {item.AccountNumber, item.DimensionsID}).filter(unique);
         return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
     }
 
