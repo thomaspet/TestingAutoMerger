@@ -813,6 +813,8 @@ export class TradeItemTable {
         } else if (event.field.startsWith('Dimensions.')) {
             updatedRow.DimensionsID = 0;
             triggerChangeDetection = true;
+        } else if (event.field == 'Account') {
+            triggerChangeDetection = true;
         }
         if (noProduct) {
             updatedRow.Dimensions = null;
