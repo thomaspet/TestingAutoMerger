@@ -1127,11 +1127,11 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             if (reports) {
                                 reports.forEach(report => {
                                     if (report.MissingRequiredDimensonsMessage !== '') {
-                                        msg += '\n! ' +  report.MissingRequiredDimensonsMessage + '\n';
+                                        msg += '! ' +  report.MissingRequiredDimensonsMessage + '\n';
                                     }
-                                    //linjeskift virker ikke
+                                    //linjeskift virker ikke i Toast (iallefall ikke på denne måten, som virker i tooltip)
                                     if (report.MissingOnlyWarningsDimensionsMessage) {
-                                        msg += '\n ' +  report.MissingOnlyWarningsDimensionsMessage + '\n';
+                                        msg += report.MissingOnlyWarningsDimensionsMessage + '\n';
                                     }
                                 });
                                 if (msg !== '') {
