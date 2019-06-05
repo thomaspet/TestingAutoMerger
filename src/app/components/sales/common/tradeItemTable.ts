@@ -775,10 +775,10 @@ export class TradeItemTable {
                     const warnDims = rep.MissingWarningDimensions;
                     if (warnDims && warnDims.length > 0) {
                         if (check === 1) {
-                            text += '\n' + rep.MissingOnlyWarningsDimensionsMessage
+                            text += '\n' + rep.MissingOnlyWarningsDimensionsMessage;
                         } else {
                             check = 2;
-                            text = rep.MissingOnlyWarningsDimensionsMessage
+                            text = rep.MissingOnlyWarningsDimensionsMessage;
                         }
                     }
                 }
@@ -812,6 +812,8 @@ export class TradeItemTable {
             }
         } else if (event.field.startsWith('Dimensions.')) {
             updatedRow.DimensionsID = 0;
+            triggerChangeDetection = true;
+        } else if (event.field === 'Account') {
             triggerChangeDetection = true;
         }
         if (noProduct) {

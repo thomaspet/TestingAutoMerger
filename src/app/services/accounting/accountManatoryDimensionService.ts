@@ -1,13 +1,11 @@
 
 import { BizHttp } from "@uni-framework/core/http/BizHttp";
-import { AccountManatoryDimension, CustomerInvoiceItem, Dimensions, Account } from "@uni-entities";
+import { AccountManatoryDimension, Dimensions, SalaryTransaction } from "@uni-entities";
 import { UniHttp } from "@uni-framework/core/http/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { RequestMethod } from "@angular/http";
 import {StatisticsService} from '../common/statisticsService';
-import { StatisticsResponse } from "@app/models/StatisticsResponse";
-import { errorHandler } from "@angular/platform-browser/src/browser";
 
 
 @Injectable()
@@ -23,7 +21,7 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
     }
 
 
-    public getMandatoryDimensionsReports(items: CustomerInvoiceItem[]): Observable<any> {
+    public getMandatoryDimensionsReports(items: any[]): Observable<any> {
         let params: AccountDimension[] = [];
         items.forEach(item => {
             const ad = new AccountDimension();
@@ -34,6 +32,24 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
                 ad.Dimensions = item.Dimensions;
             }
             params.push(ad);
+        });
+        return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
+    }
+
+    public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
+        let params: AccountDimension[] = [];
+        salaryTransactions
+        .forEach(item => {
+            const ad = new AccountDimension();
+            ad.AccountNumber = item.Account;
+            if (item.DimensionsID && item.DimensionsID > 0) {
+                ad.DimensionsID = item.DimensionsID;
+            } else {
+                ad.Dimensions = item.Dimensions;
+            }
+            if (!params.find(x => x.AccountNumber === ad.AccountNumber && x.DimensionsID === ad.DimensionsID && x.Dimensions === ad.Dimensions)) {
+                params.push(ad);
+            }
         });
         return super.ActionWithBody(null, params, `get-manatory-dimensions-reports`, RequestMethod.Put);
     }
@@ -54,6 +70,7 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
 //Flytte til?
 export class AccountDimension {
     public AccountID: number;
+    public AccountNumber: number;
     public DimensionsID: number;
     public Dimensions: Dimensions;
 }
