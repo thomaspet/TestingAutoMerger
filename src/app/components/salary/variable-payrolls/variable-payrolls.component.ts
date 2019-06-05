@@ -16,7 +16,8 @@ import {
     PayrollrunService,
     ProjectService,
     DepartmentService,
-    PageStateService
+    PageStateService,
+    AccountManatoryDimensionService
 } from '@app/services/services';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
@@ -27,6 +28,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare var _;
@@ -79,7 +81,9 @@ export class VariablePayrollsComponent {
         private route: ActivatedRoute,
         private router: Router,
         private tabService: TabService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private toastService: ToastService,
+        private accountMandatoryDimensionService: AccountManatoryDimensionService
     ) {
         this.deleteButton = {
             deleteHandler: (row: SalaryTransaction) => {
@@ -176,7 +180,30 @@ export class VariablePayrollsComponent {
             this.salaryTransService.invalidateCache();
 
             this.getsalaryTransBasedOnPayrollrun(payrollrun.ID, true);
-            //TODO Toast-melding ved lagring dersom en eller flere kontoer mangler påkrevd dimensjon (advarsel/påkrevd)
+            if (payrollrun.transactions) {
+                let msg: string = '';
+                this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(payrollrun.transactions)
+                .subscribe((reports) => {
+                    if (reports) {
+                        reports.forEach(report => {
+                            if (report.MissingRequiredDimensonsMessage !== '') {
+                                msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
+                            }
+                            if (report.MissingOnlyWarningsDimensionsMessage) {
+                                msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                            }
+                        });
+                        if (msg !== '') {
+                            this.toastService.toast({
+                                title: 'Dimensjon(er) mangler',
+                                message: msg,
+                                type: ToastType.warn,
+                                duration: 3
+                            });
+                        }
+            }
+                });
+            }
             done('Lagring vellykket');
         }, err => {
             this.loading = false;
