@@ -103,8 +103,8 @@ export class TradeItemTable {
                 const resultManDims = res[1];
                 const numberOfAccountsWithManatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
                     resultManDims.Data[0].countID : 0;
-
                 this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithManatoryDimensions > 0;
+                
                 this.settings = res[0];
                 if (this.accountsWithMandatoryDimensionsIsUsed && this.configStoreKey === 'sales.invoice.tradeitemTable' || 
                     this.configStoreKey === 'sales.order.tradeitemTable' /*|| 
