@@ -855,6 +855,7 @@ export class BankComponent {
                                 if (res && res.ProgressUrl) {
                                     this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
                                     'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
+                                    done();
                                     this.paymentBatchService.waitUntilJobCompleted(res.ID).subscribe(jobResponse => {
                                         if (jobResponse && !jobResponse.HasError) {
                                             this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
@@ -864,7 +865,6 @@ export class BankComponent {
                                         }
                                         this.tickerContainer.getFilterCounts();
                                         this.tickerContainer.mainTicker.reloadData();
-                                        done();
                                     });
                                 } else {
                                     this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
