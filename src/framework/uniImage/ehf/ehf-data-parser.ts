@@ -1,7 +1,18 @@
 import {EHFData, EHFAttachment} from './ehf-model';
-import {get} from 'lodash';
+import {get as lodashGet} from 'lodash';
 import {toByteArray } from 'base64-js';
 import * as moment from 'moment';
+
+function get(data, path, defaultValue?) {
+    let value = lodashGet(data, path);
+    if (!value) {
+        let newPath = path.split('cbc:').join('');
+        newPath = newPath.split('cac:').join('');
+        value = lodashGet(data, newPath);
+    }
+
+    return value || defaultValue;
+}
 
 export function parseEHFData(data) {
     let invoiceData;
@@ -344,9 +355,14 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
 
             // Base64 encoded document
             if (embeddedDocument) {
-                const base64Data = get(embeddedDocument, '#text');
+                let base64Data = get(embeddedDocument, '#text');
                 const mimeCode = get(embeddedDocument, '@mimeCode');
+
                 if (base64Data && mimeCode) {
+                    // Apparently telenor likes to format their base64 strings
+                    // with whitespace. Needs to be removed before we can make
+                    // a byte array of it..
+                    base64Data = base64Data.replace(/\s/g, '');
                     const bytes = toByteArray(base64Data);
                     const blob = new Blob([bytes], {type: mimeCode});
 
