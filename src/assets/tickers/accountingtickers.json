@@ -1376,13 +1376,15 @@
             },
             {
                 "Header": "Påkrevde Dimensjoner",
-                "Field": "ManatoryDimensions",
-                "Type": "Text"
+                "Field": "ManatoryDimensions1",
+                "Type": "Text",
+                "DefaultHidden": true
             },
             {
                 "Header": "Advarsel Dimensjoner",
-                "Field": "ManatoryDimensions",
-                "Type": "Text"
+                "Field": "ManatoryDimensions2",
+                "Type": "Text",
+                "DefaultHidden": true
             }
         ],
         "Actions": [],
