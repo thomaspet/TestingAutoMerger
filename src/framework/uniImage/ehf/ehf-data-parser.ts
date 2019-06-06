@@ -144,17 +144,30 @@ function getPaymentInfo(paymentData: any[]) {
 
     (paymentData || []).forEach(row => {
         const kid = get(row, 'cbc:PaymentID.#text') || get(row, 'cbc:PaymentID', '');
-        const accountNumber = get(row, 'cac:PayeeFinancialAccount.cbc:ID', {'@schemeID': ''});
+
+        const institutionBranch = get(row, 'cac:PayeeFinancialAccount.cac:FinancialInstitutionBranch');
+        const accountNumber = get(row, 'cac:PayeeFinancialAccount.cbc:ID', {});
 
         if (kid) {
             paymentInfo.KID = kid;
         }
 
-        if (accountNumber['@schemeID'].includes('IBAN')) {
-            paymentInfo.IBAN = accountNumber['#text'];
+        if (accountNumber['@schemeID'] || accountNumber['#text']) {
+            if (accountNumber['@schemeID'] && accountNumber['@schemeID'].includes('IBAN')) {
+                paymentInfo.IBAN = accountNumber['#text'];
+            } else {
+                paymentInfo.accountNumber = accountNumber['#text'];
+            }
         } else {
-            paymentInfo.accountNumber = accountNumber['#text'];
+            const accNo = get(accountNumber, '#text') || accountNumber;
+            if (institutionBranch) {
+                paymentInfo.IBAN = accNo;
+            } else {
+                paymentInfo.accountNumber = accNo;
+            }
         }
+
+
     });
 
     return paymentInfo;
