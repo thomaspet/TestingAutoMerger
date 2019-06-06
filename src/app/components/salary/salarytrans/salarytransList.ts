@@ -1,6 +1,6 @@
-import {Component, Input, OnChanges, EventEmitter, Output, ViewChild, OnInit, OnDestroy} from '@angular/core';
+import {Component, Input, OnChanges, EventEmitter, Output, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable, Subject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {
     UniTableColumnType,
     UniTableColumn,
@@ -10,42 +10,43 @@ import {
 } from '@uni-framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
-    WageType, PayrollRun, SalaryTransaction, Project, Department,
+    Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Valuetype, StdSystemType
 } from '../../../unientities';
 import {
-    AccountService, UniCacheService,
-    ErrorService, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService
+    AccountService, ReportDefinitionService, UniCacheService,
+    ErrorService, NumberFormat, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService
 } from '../../../services/services';
+import {UniForm} from '../../../../framework/ui/uniform/index';
 
 import {UniView} from '../../../../framework/core/uniView';
 import {ImageModal, IUpdatedFileListEvent} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
-import {tap, takeUntil} from 'rxjs/operators';
-import {IEmployee} from './salarytransactionSelectionList';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-const BUSY_KEY = 'transes_busy';
-const SALARY_TRANS_KEY: string = 'salaryTransactions';
 
 @Component({
     selector: 'salary-transactions-employee',
     templateUrl: './salarytransList.html'
 })
 
-export class SalaryTransactionEmployeeList extends UniView implements OnChanges, OnInit, OnDestroy {
+export class SalaryTransactionEmployeeList extends UniView implements OnChanges {
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(UniForm) public uniform: UniForm;
 
-    @Input() private employee: IEmployee;
+    @Input() private employee: Employee;
 
-    private destroy$: Subject<any> = new Subject();
+    @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     public salarytransEmployeeTableConfig: UniTableConfig;
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
 
+    public config: any = {};
     private employeeID: number;
 
     private payrollRun: PayrollRun;
@@ -88,11 +89,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             super.updateCacheKey(router.url);
             this.salaryTransactions = [];
 
-            const payrollRunSubject = super.getStateSubject('payrollRun').takeUntil(this.destroy$);
-            const wagetypesSubject = super.getStateSubject('wagetypes').takeUntil(this.destroy$);
-            const salaryTransactionsSubject = super.getStateSubject(SALARY_TRANS_KEY).takeUntil(this.destroy$);
-            const projectSubject = super.getStateSubject('projects').takeUntil(this.destroy$);
-            const departmentSubject = super.getStateSubject('departments').takeUntil(this.destroy$);
+            const payrollRunSubject = super.getStateSubject('payrollRun');
+            const wagetypesSubject = super.getStateSubject('wagetypes');
+            const salaryTransactionsSubject = super.getStateSubject('salaryTransactions');
+            const projectSubject = super.getStateSubject('projects');
+            const departmentSubject = super.getStateSubject('departments');
 
             this.wageTypeService.getOrderByWageTypeNumber('').subscribe(wagetypes => {
                 this.wagetypes = wagetypes;
@@ -129,12 +130,12 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             });
 
             if (!this.salarytransEmployeeTableConfig) {
-                super.updateState(BUSY_KEY, true, false);
+                this.busy = true;
                 Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject,
                     payrollRunSubject)
                     .take(1).subscribe((response) => {
                         this.createTableConfig();
-                        super.updateState(BUSY_KEY, false, false);
+                        this.busy = false;
                     });
             }
         });
@@ -147,22 +148,20 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 this.filteredTranses = this.salaryTransactions
                     .filter(x => !x.Deleted && x.EmployeeID === this.employee.ID);
             }
+            if (this.salarytransEmployeeTableConfig) {
+                this.salarytransEmployeeTableConfig.columns.find(x => x.field === 'employment').options = {
+                    resource: this.employee.Employments,
+                    itemTemplate: (item) => {
+                        return item ? item.ID + ' - ' + item.JobName : '';
+                    }
+                };
+
+                // Trigger change detection in unitable
+                this.salarytransEmployeeTableConfig = _.cloneDeep(this.salarytransEmployeeTableConfig);
+            }
         } else {
             this.filteredTranses = [];
         }
-    }
-
-    public ngOnInit() {
-        super.getStateSubject(BUSY_KEY)
-            .pipe(
-                tap(busy => this.busy = busy),
-                takeUntil(this.destroy$)
-            )
-            .subscribe();
-    }
-
-    public ngOnDestroy() {
-        this.destroy$.next();
     }
 
     private createTableConfig() {
@@ -190,7 +189,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 return employment ? employment.ID + ' - ' + employment.JobName : '';
             })
             .setOptions({
-                resource: (row) => this.employee && this.employee.Employments,
+                resource: this.employee ? this.employee.Employments : null,
                 itemTemplate: (item) => {
                     return item ? item.ID + ' - ' + item.JobName : '';
                 }
@@ -348,6 +347,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 if (event.field === 'employment') {
                     this.mapEmploymentToTrans(row);
                 }
+
+
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
@@ -669,9 +670,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
     }
 
     public setEditable(isEditable: boolean) {
-        if (!this.salarytransEmployeeTableConfig) {
-            return;
-        }
         this.salarytransEmployeeTableConfig.setEditable(isEditable);
     }
 
