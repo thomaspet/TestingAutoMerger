@@ -1,7 +1,18 @@
 import {EHFData, EHFAttachment} from './ehf-model';
-import {get} from 'lodash';
+import {get as lodashGet} from 'lodash';
 import {toByteArray } from 'base64-js';
 import * as moment from 'moment';
+
+function get(data, path, defaultValue?) {
+    let value = lodashGet(data, path);
+    if (!value) {
+        let newPath = path.split('cbc:').join('');
+        newPath = newPath.split('cac:').join('');
+        value = lodashGet(data, newPath);
+    }
+
+    return value || defaultValue;
+}
 
 export function parseEHFData(data) {
     let invoiceData;
