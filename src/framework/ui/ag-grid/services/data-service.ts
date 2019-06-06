@@ -167,16 +167,14 @@ export class TableDataService {
                         let totalRowCount, data;
                         if (res.json) {
                             data = res.json();
+                            totalRowCount = res.headers && res.headers.get('count');
+                            this.totalRowCount$.next(totalRowCount);
 
                             if (!totalRowCount) {
                                 totalRowCount = data.length;
                             }
                         } else {
                             data = res;
-                        }
-                        totalRowCount = res.headers && res.headers.get('count');
-                        if (totalRowCount) {
-                            this.totalRowCount$.next(totalRowCount);
                         }
 
                         // Dont update remote row count after first load (skip = 0)

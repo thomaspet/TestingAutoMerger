@@ -276,7 +276,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             : Observable.of([]);
     }
 
-    public getEmployeesOnPayroll(id: number, expands: string[]): Observable<Employee[]> {
+    public getEmployeesOnPayroll(id: number, expands: string[]) {
         return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
