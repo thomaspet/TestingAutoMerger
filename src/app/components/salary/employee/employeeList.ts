@@ -43,18 +43,9 @@ export class EmployeeList {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             const params = urlParams || new URLSearchParams();
 
-            // Use split to get filter value and the custom create filter string with Number and Name fields
-            const filterValue = urlParams.get('filter');
-            const filterSplit = filterValue ? filterValue.split(`'`) : filterValue;
-            let filterString = '';
-            if (filterSplit && filterSplit.length) {
-                filterString = `contains(EmployeeNumber,'${filterSplit[1]}') or contains(BusinessRelationInfo.Name,'${filterSplit[1]}')`;
-            }
-
             params.set('model', 'Employee');
             params.set('select', 'ID as ID,EmployeeNumber as EmployeeNumber,BirthDate as BirthDate,BusinessRelationInfo.Name as BRName' +
             ',InvoiceAddress.AddressLine1 as Address,DefaultEmail.EmailAddress as email,sb.Name as SubEntityName');
-            params.set('filter', filterString);
             params.set('join', 'SubEntity.BusinessRelationID eq BusinessRelation.ID as sb');
             params.set('expand', 'BusinessRelationInfo.DefaultEmail,SubEntity,BusinessRelationInfo.InvoiceAddress');
 
@@ -66,25 +57,26 @@ export class EmployeeList {
             .setWidth(90)
             .setAlignment('center');
 
-        const nameCol = new UniTableColumn('BRName', 'Navn', UniTableColumnType.Text)
-            .setWidth(300)
-            .setFilterable(false);
+        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text)
+            .setAlias('BRName')
+            .setWidth(300);
 
-        const emailCol = new UniTableColumn('email', 'E-post', UniTableColumnType.Link)
+        const emailCol = new UniTableColumn('DefaultEmail.EmailAddress', 'E-post', UniTableColumnType.Link)
+            .setAlias('email')
             .setLinkResolver(employee => {
                 return (!employee || !employee.email) ? '' : `mailto:${employee.email}`;
-            })
-            .setFilterable(false);
+            });
 
-        const addressCol = new UniTableColumn('Address', 'Addresse', UniTableColumnType.Text)
-            .setFilterable(false);
+        const addressCol = new UniTableColumn('InvoiceAddress.AddressLine1', 'Addresse', UniTableColumnType.Text)
+            .setAlias('Address');
 
-        const birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.LocalDate)
-            .setFilterable(false);
+        const birthDateCol = new UniTableColumn('BirthDate', 'Fødselsdato', UniTableColumnType.LocalDate);
 
         const subEntityCol = new UniTableColumn(
-            'SubEntityName', 'Virksomhet', UniTableColumnType.Text
-        ).setWidth(350)
+            'sb.Name', 'Virksomhet', UniTableColumnType.Text
+        )
+        .setAlias('SubEntityName')
+        .setWidth(350)
         .setFilterable(false);
 
         this.employeeTableConfig = new UniTableConfig('salary.employee.employeeList', false)
