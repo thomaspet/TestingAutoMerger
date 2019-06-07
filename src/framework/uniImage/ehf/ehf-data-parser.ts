@@ -93,11 +93,11 @@ function getPriceText(amountData, invertNumber?: boolean) {
     return numberFormatted + ' ' + (amountData['@currencyID'] || '');
 }
 
-function getDateText(dateString) {
+function getDateText(date) {
+    const dateString = get(date, '#text') ? get(date, '#text') : date;
+
     if (dateString && moment(dateString).isValid()) {
         return moment(dateString).format('DD.MM.YYYY');
-    } else {
-        return dateString;
     }
 }
 
@@ -106,14 +106,18 @@ function getDueDate(data) {
     if (ehf3DueDate) {
         return getDateText(ehf3DueDate);
     } else {
-        let ehf2DueDate;
         let paymentInfo = get(data, 'cac:PaymentMeans', []);
         if (paymentInfo && !Array.isArray(paymentInfo)) {
             paymentInfo = [paymentInfo];
         }
 
+        let ehf2DueDate;
         paymentInfo.forEach(info => {
-            const date = get(info, 'cbc:PaymentDueDate');
+            let date = get(info, 'cbc:PaymentDueDate');
+            if (get(date, '#text')) {
+                date = get(date, '#text');
+            }
+
             if (date && moment(date).isValid()) {
                 if (!ehf2DueDate || moment(ehf2DueDate).isAfter(moment(date))) {
                     ehf2DueDate = date;
