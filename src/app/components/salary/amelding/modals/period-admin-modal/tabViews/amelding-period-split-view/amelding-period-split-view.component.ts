@@ -83,7 +83,9 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                         .postAMelding(row.period, AmeldingType.Nullstilling, row.year, null, row.messageID)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => row.type === AmeldingType.Nullstilling || row.altinnStatus === 'erstattet'
+                    disabled: (row: AmeldingData) => row.type === AmeldingType.Nullstilling
+                        || row.altinnStatus === 'erstattet'
+                        || row.altinnStatus === 'avvist'
                 },
                 {
                     label: 'Erstatt melding',
