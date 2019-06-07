@@ -829,6 +829,9 @@ export class UniRecurringInvoice implements OnInit {
         this.invoice = _.cloneDeep(invoice);
         this.updateCurrency(invoice, true);
         this.recalcDebouncer.next(invoice.Items);
+        if (this.tradeItemTable) {
+            this.tradeItemTable.getMandatoryDimensionsReports();
+        }
         this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
