@@ -138,11 +138,13 @@ function getTableMarkup(invoice: EHFData) {
         return '';
     }
 
+    const hasProductNumber = invoice.invoiceLines.some(line => !!line.productNumber);
+
     return `
         <table>
             <thead>
                 <tr>
-                    <th>Varenummer</th>
+                    ${hasProductNumber ? '<th>Varenummer</th>' : ''}
                     <th>Tekst</th>
                     <th class="number">Antall</th>
                     <th class="number mva">Mva</th>
@@ -154,7 +156,7 @@ function getTableMarkup(invoice: EHFData) {
                 ${
                     invoice.invoiceLines.map(line => `
                         <tr>
-                            <td>${line.productNumber}</td>
+                            ${hasProductNumber ? `<td>${line.productNumber}</td>` : ''}
                             <td>${line.productName}</td>
                             <td class="number">${line.quantity}</td>
                             <td class="number">${line.vatPercent ? line.vatPercent + '%' : ''}</td>
