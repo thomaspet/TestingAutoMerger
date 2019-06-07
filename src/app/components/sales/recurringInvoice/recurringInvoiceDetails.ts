@@ -977,6 +977,7 @@ export class UniRecurringInvoice implements OnInit {
                         res => {
                             this.updateTab(res);
                             resolve(res);
+                            this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.invoiceItems);
                             done('Lagring fullført');
                         },
                         err => reject(err));
