@@ -913,7 +913,7 @@ export class TradeItemTable {
 
     public showWarningIfMissingMandatoryDimensions(items: any[]) {
         const mdCol = this.table.columns.find(x => x.field === 'MandatoryDimensions');
-        if (!mdCol.visible) {
+        if (mdCol && !mdCol.visible) {
             if (this.accountsWithMandatoryDimensionsIsUsed && items) {
                 let msg: string = '';
                 this.itemsWithReport.forEach(item => {
