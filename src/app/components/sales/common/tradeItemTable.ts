@@ -107,8 +107,8 @@ export class TradeItemTable {
                 
                 this.settings = res[0];
                 if (this.accountsWithMandatoryDimensionsIsUsed && this.configStoreKey === 'sales.invoice.tradeitemTable' || 
-                    this.configStoreKey === 'sales.order.tradeitemTable' /*|| 
-                    this.configStoreKey === 'sales.recurringinvoice.tradeitemTable'*/) {
+                    this.configStoreKey === 'sales.order.tradeitemTable' || 
+                    this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
                     this.showMandatoryDimensionsColumn = true;
                     this.itemsWithReport = [];
                 }
