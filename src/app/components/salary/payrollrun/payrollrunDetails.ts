@@ -85,6 +85,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private categories: EmployeeCategory[];
     private journalEntry: JournalEntry;
     private paymentStatus: PayrollRunPaymentStatus;
+    private accountsWithMandatoryDimensionsIsUsed = true;
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
@@ -256,6 +257,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
             super.getStateSubject('departments').takeUntil(this.destroy$).subscribe((departments) => {
                 this.departments = departments;
+            });
+
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithManatoryDimensions().subscribe((res) => {
+                const resultManDims = res;
+                const numberOfAccountsWithManatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
+                    resultManDims.Data[0].countID : 0;
+                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithManatoryDimensions > 0;
             });
 
             this.updateTabStrip(this.payrollrunID);
@@ -1142,7 +1150,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.router.navigateByUrl(this.url + payrollRun.ID);
                         return Observable.of(undefined);
                     }
-                    if (payrollRun.transactions) {
+                    if (this.accountsWithMandatoryDimensionsIsUsed && payrollRun.transactions) {
                         let msg: string = '';
                         this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(payrollRun.transactions)
                         .subscribe((reports) => {
