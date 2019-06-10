@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -392,8 +392,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Permission: Permission;
     public Role: Role;
+    public Permission: Permission;
     public CustomFields: any;
 }
 
@@ -2396,9 +2396,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
-    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -5107,6 +5107,7 @@ export class Contract extends UniEntity {
     public ID: number;
     public Name: string;
     public StatusCode: number;
+    public TeamsUri: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Parameters: Array<ContractParameter>;
@@ -5147,7 +5148,9 @@ export class ContractRunLog extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public Message: string;
+    public RunTime: string;
     public StatusCode: number;
+    public Type: EventType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Contract: Contract;
@@ -5164,14 +5167,15 @@ export class ContractTrigger extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
-    public EventPlanID: number;
+    public ExpressionFilter: string;
     public ID: number;
+    public ModelFilter: string;
+    public OperationFilter: string;
     public StatusCode: number;
-    public Type: ContractTriggerType;
+    public Type: EventType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Contract: Contract;
-    public Eventplan: Eventplan;
     public CustomFields: any;
 }
 
@@ -5894,6 +5898,7 @@ export class Payment extends UniEntity {
     public CurrencyExchangeRate: number;
     public Deleted: boolean;
     public Description: string;
+    public DimensionsID: number;
     public DueDate: LocalDate;
     public ExternalBankAccountNumber: string;
     public FromBankAccountID: number;
@@ -6888,9 +6893,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -8590,10 +8595,12 @@ export enum Type{
 }
 
 
-export enum ContractTriggerType{
-    UE = 0,
-    Blockchain = 1,
-    Cron = 2,
+export enum EventType{
+    Deploy = 1,
+    Kill = 2,
+    UE = 100,
+    Cron = 101,
+    Crypto = 102,
 }
 
 
@@ -8861,6 +8868,7 @@ export enum StatusCodeAltinnSigning{
 export enum StatusCodeContract{
     Draft = 120000,
     Running = 120001,
+    Killed = 120002,
 }
 
 
@@ -8868,6 +8876,16 @@ export enum StatusCodeContractRunLog{
     Started = 120100,
     Completed = 120101,
     Failed = 120102,
+}
+
+
+export enum StatusCodeApiKey{
+    Active = 80000,
+    InProgress = 80010,
+    WaitingForApproval = 80020,
+    Approved = 80030,
+    Denied = 80040,
+    InActive = 80050,
 }
 
 
