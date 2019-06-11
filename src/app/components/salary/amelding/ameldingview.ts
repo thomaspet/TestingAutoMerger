@@ -85,7 +85,7 @@ export class AMeldingView implements OnInit {
         {
             label: 'Hent a-meldingsfil',
             action: () => {
-                this.getAMeldingFile();
+                this.getAmeldingZipFile();
             },
             disabled: () => !this.currentAMelding
         },
@@ -253,29 +253,30 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    public getAMeldingFile() {
-        if (this.currentAMelding) {
-            this._ameldingService.getAMeldingFile(this.currentAMelding.ID)
-                .subscribe(amldfile => {
-                    const a = document.createElement('a');
-                    const dataURI = 'data:text/xml;base64,' + btoa(amldfile);
-                    a.href = dataURI;
-                    const prd: string = this.currentPeriod < 10
-                        ? '0' + this.currentPeriod.toString()
-                        : this.currentPeriod.toString();
-                    a['download'] = `amelding_${prd}_${this.currentAMelding.ID}.xml`;
-
-                    const e = document.createEvent('MouseEvents');
-                    e.initMouseEvent(
-                        'click', true, false, document.defaultView,
-                        0, 0, 0, 0, 0, false, false, false, false, 0 , null
-                    );
-
-                    a.dispatchEvent(e);
-                    a.remove();
-
-                }, err => this.errorService.handle(err));
+    public getAmeldingZipFile() {
+        if (!this.currentAMelding) {
+            return;
         }
+        this._ameldingService
+            .getAMeldingFile(this.currentAMelding.ID)
+            .subscribe(amldfile => {
+                const a = document.createElement('a');
+                const dataURI = 'data:application/zip;base64,' + amldfile;
+                a.href = dataURI;
+                const prd: string = this.currentPeriod < 10
+                    ? '0' + this.currentPeriod.toString()
+                    : this.currentPeriod.toString();
+                a['download'] = `amelding_${prd}_${this.currentAMelding.ID}.zip`;
+
+                const e = document.createEvent('MouseEvents');
+                e.initMouseEvent(
+                    'click', true, false, document.defaultView,
+                    0, 0, 0, 0, 0, false, false, false, false, 0 , null
+                );
+
+                a.dispatchEvent(e);
+                a.remove();
+            });
     }
 
     public getFeedbackFile() {
@@ -283,12 +284,12 @@ export class AMeldingView implements OnInit {
             this._ameldingService.getAmeldingFeedbackFile(this.currentAMelding.ID)
                 .subscribe(feedbackfile => {
                     const a = document.createElement('a');
-                    const dataURI = 'data:text/xml;base64,' + btoa(feedbackfile);
+                    const dataURI = 'data:application/zip;base64,' + feedbackfile;
                     a.href = dataURI;
                     const prd: string = this.currentPeriod < 10
                         ? '0' + this.currentPeriod.toString()
                         : this.currentPeriod.toString();
-                    a['download'] = `tilbakemelding_${prd}_${this.currentAMelding.ID}.xml`;
+                    a['download'] = `tilbakemelding_${prd}_${this.currentAMelding.ID}.zip`;
 
                     const e = document.createEvent('MouseEvents');
                     e.initMouseEvent(
