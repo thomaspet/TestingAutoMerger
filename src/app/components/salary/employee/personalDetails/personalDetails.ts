@@ -403,7 +403,7 @@ export class PersonalDetails extends UniView {
                     model.CountryCode = selectedItem.CountryCode;
                 }
             },
-            valueProperty: 'Name',
+            valueProperty: 'CountryCode',
             displayProperty: 'Name',
         };
 
