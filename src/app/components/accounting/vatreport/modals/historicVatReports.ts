@@ -140,7 +140,11 @@ export class HistoricVatReportModal implements IUniModal {
     }
 
     public close(vatReport: VatReport) {
-        this.onClose.emit(this.mapVatReport(vatReport));
+        if (vatReport) {
+            this.onClose.emit(this.mapVatReport(vatReport));
+        } else {
+            this.onClose.emit();
+        }
     }
 
     public mapVatReport(object: any): VatReport {
