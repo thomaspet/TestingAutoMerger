@@ -105,10 +105,13 @@ export class VatReportView implements OnInit, OnDestroy {
         let year;
 
         if (this.currentVatReport && this.currentVatReport.JournalEntry) {
-            const hasYear = !!this.currentVatReport.JournalEntry.JournalEntryNumber;
-            year = hasYear ? this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1] : new Date().getFullYear();
+            if (this.currentVatReport.JournalEntry.JournalEntryNumber) {
+                year = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1];
+                journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[0];
+            } else {
+                year = new Date().getFullYear();
+            }
 
-            journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[0];
             journalEntryID = this.currentVatReport.JournalEntryID;
         }
 
@@ -403,14 +406,20 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private showList() {
-        this.modalService.open(HistoricVatReportModal, {}).onClose
-            .subscribe(vatReport => this.historicVatReportSelected(vatReport));
+        this.modalService.open(HistoricVatReportModal, {}).onClose.subscribe(vatReport => {
+            if (vatReport) {
+                this.historicVatReportSelected(vatReport);
+            }
+        });
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        if (vatReport && !vatReport.ExternalRefNo && vatReport.StatusCode === 32005) {
-            this.toastService.addToast('Kunne ikke vise MVA-melding', ToastType.bad, 200,
-                'Historikk er ikke tilgjengelig siden MVA-meldingen ble korrigert uten å sendes inn til Altinn først');
+        if (!vatReport || !vatReport.ExternalRefNo && vatReport.StatusCode === 32005) {
+            this.toastService.addToast(
+                'Kunne ikke vise MVA-melding',
+                ToastType.bad, 200,
+                'Historikk er ikke tilgjengelig siden MVA-meldingen ble korrigert uten å sendes inn til Altinn først'
+            );
         } else {
             this.setVatreport(vatReport);
         }
