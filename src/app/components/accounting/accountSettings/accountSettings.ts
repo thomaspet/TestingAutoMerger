@@ -184,6 +184,14 @@ export class AccountSettings {
         }).onClose.subscribe(data => {
             if (data) {
                 this.accountService.addManatoryDimensions(data).subscribe(res => {
+                    if (res) {
+                        this.toastService.toast({
+                            title: 'Repeterende faktura(er) mangler dimensjon(er)',
+                            message: res,
+                            type: ToastType.warn,
+                            duration: 5
+                        });
+                    }
                     this.toastService.addToast(`Påkrevde dimensjoner ble satt på kontoer mellom ${data.FromAccountNo} og ${data.ToAccountNo}`,
                         ToastType.good, 5);
                 });
