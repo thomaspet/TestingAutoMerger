@@ -1,0 +1,50 @@
+<!-- Has agreement permission -->
+<section *ngIf="canAgreeToLicense" role="dialog" class="uni-modal has-agreement-permission">
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+
+    <header>
+        Lisensavtale
+        <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" target="_blank">
+            Åpne i ny fane
+        </a>
+    </header>
+
+    <object data="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" type="application/pdf">
+        alt : <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf">License.pdf</a>
+    </object>
+
+    <footer>
+        <mat-checkbox [(ngModel)]="hasAgreed">Godta lisensavtale</mat-checkbox>
+        <button class="c2a" (click)="confirmAgreement()" [disabled]="!hasAgreed">Bekreft</button>
+    </footer>
+</section>
+
+<!-- Does not have agreement permission -->
+<section *ngIf="!canAgreeToLicense" role="dialog" class="uni-modal missing-agreement-permission">
+    <header>Lisensavtale</header>
+
+    <article>
+        Lisensavtale for {{customer?.Name}} må godkjennes for at hele systemet skal låses opp.
+        <br>Dette må gjøres av en lisensadministrator.
+
+        <section *ngIf="customer?.Managers?.length === 0" style="margin-top: 2rem;">
+            Vi fant ingen administratorer på lisensen.
+            Vennligst kontakt <a href="mailto:support@unieconomy.no">support@unieconomy.no</a>.
+        </section>
+
+        <ul>
+            <li *ngFor="let manager of customer?.Managers">
+                <span>{{manager.User?.Name || '-'}}</span>
+                <a *ngIf="manager.User?.Email" href="mailto:{{manager.User.Email}}">
+                    {{manager.User.Email}}
+                </a>
+            </li>
+        </ul>
+    </article>
+
+    <footer class="center">
+        <button (click)="onClose.emit()" class="c2a rounded">Lukk</button>
+    </footer>
+</section>

@@ -3,11 +3,12 @@ import {NavbarLinkService} from './navbar-link-service';
 import {AuthService} from '@app/authService';
 import {TabService} from './tabstrip/tabService';
 import {UserService} from '@app/services/services';
-import {User} from '@uni-entities';
+import {User, ContractLicenseType} from '@uni-entities';
 
 import {SmartSearchService} from '../smart-search/smart-search.service';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-navbar',
@@ -31,6 +32,15 @@ import {takeUntil} from 'rxjs/operators';
             </section>
 
             <section class="navbar-right">
+                <section *ngIf="isDemo && !demoExpired" class="demo-company-notifier" routerLink="/contract-activation">
+                    {{demoText}}
+                    <a>Aktiver nå</a>
+                </section>
+
+                <section *ngIf="isDemo && demoExpired" class="demo-company-notifier expired">
+                    Prøveperiode utløpt
+                </section>
+
                 <section *ngIf="isTemplateCompany"
                     class="template-company-warning"
                     matTooltip="Denne klienten er merket som mal. Det vil si at man ved oppretting av nye klienter kan kopiere data og innstillinger fra den. Man bør derfor kun registrere data som skal kopieres til nye klienter.">
@@ -103,9 +113,13 @@ export class UniNavbar {
     hasActiveContract: boolean;
     isTemplateCompany: boolean;
 
+    isDemo: boolean;
+    demoExpired: boolean;
+    demoText: string;
+
     settingsLinks: any[] = [];
     adminLinks: any[] = [];
-    
+
     onDestroy$ = new Subject();
 
     constructor(
@@ -122,6 +136,20 @@ export class UniNavbar {
             if (auth && auth.activeCompany) {
                 this.hasActiveContract = auth.hasActiveContract;
                 this.isTemplateCompany = auth.activeCompany.IsTemplate;
+                this.isDemo = auth.isDemo;
+
+                if (auth.isDemo) {
+                    const contract = (auth.user.License && auth.user.License.ContractType) || <ContractLicenseType> {};
+                    const daysRemaining = moment(contract.TrialExpiration).diff(moment(), 'days');
+                    if (daysRemaining > 0) {
+                        const daysWording = daysRemaining === 1 ? 'dag' : 'dager';
+                        this.demoText = `Demo (${daysRemaining} ${daysWording} igjen)`;
+                    } else {
+                        this.demoExpired = true;
+                        this.demoText = '';
+                    }
+                }
+
                 this.cdr.markForCheck();
             }
         });
