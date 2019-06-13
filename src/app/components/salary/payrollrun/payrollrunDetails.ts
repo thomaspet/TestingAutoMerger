@@ -28,7 +28,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
-    SalarySumsService, StatisticsService, SubEntityService, AccountManatoryDimensionService
+    SalarySumsService, StatisticsService, SubEntityService, AccountMandatoryDimensionService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -129,7 +129,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private supplementService: SupplementService,
         private statisticsService: StatisticsService,
         private subEntityService: SubEntityService,
-        private accountMandatoryDimensionService: AccountManatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -259,11 +259,11 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this.departments = departments;
             });
 
-            this.accountMandatoryDimensionService.GetNumberOfAccountsWithManatoryDimensions().subscribe((res) => {
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((res) => {
                 const resultManDims = res;
-                const numberOfAccountsWithManatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
+                const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
                     resultManDims.Data[0].countID : 0;
-                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithManatoryDimensions > 0;
+                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithMandatoryDimensions > 0;
             });
 
             this.updateTabStrip(this.payrollrunID);

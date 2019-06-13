@@ -17,7 +17,7 @@ import {
     ProjectService,
     DepartmentService,
     PageStateService,
-    AccountManatoryDimensionService
+    AccountMandatoryDimensionService
 } from '@app/services/services';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
@@ -83,7 +83,7 @@ export class VariablePayrollsComponent {
         private tabService: TabService,
         private pageStateService: PageStateService,
         private toastService: ToastService,
-        private accountMandatoryDimensionService: AccountManatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
         this.deleteButton = {
             deleteHandler: (row: SalaryTransaction) => {

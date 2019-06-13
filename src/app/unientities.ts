@@ -5404,9 +5404,9 @@ export class ProcessFileLog extends UniEntity {
 }
 
 
-export class AccountManatoryDimension extends UniEntity {
-    public static RelativeUrl = 'accountmanatorydimension';
-    public static EntityType = 'AccountManatoryDimension';
+export class AccountMandatoryDimension extends UniEntity {
+    public static RelativeUrl = 'accountmandatorydimension';
+    public static EntityType = 'AccountMandatoryDimension';
 
     public _createguid: string;
     public AccountID: number;
@@ -5415,7 +5415,7 @@ export class AccountManatoryDimension extends UniEntity {
     public Deleted: boolean;
     public DimensionNo: number;
     public ID: number;
-    public ManatoryType: number;
+    public MandatoryType: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -6407,7 +6407,7 @@ export class Account extends UniEntity {
     public Employee: Employee;
     public Dimensions: Dimensions;
     public Alias: Array<AccountAlias>;
-    public ManatoryDimensions: Array<AccountManatoryDimension>;
+    public MandatoryDimensions: Array<AccountMandatoryDimension>;
     public CompatibleAccountGroups: Array<AccountGroup>;
     public SubAccounts: Array<Account>;
     public UseVatDeductionGroup: VatDeductionGroup;
@@ -7698,9 +7698,9 @@ export class EHFActivate extends UniEntity {
 }
 
 
-export class ManatoryDimensionAccountReport extends UniEntity {
+export class MandatoryDimensionAccountReport extends UniEntity {
     public static RelativeUrl = '';
-    public static EntityType = 'ManatoryDimensionAccountReport';
+    public static EntityType = 'MandatoryDimensionAccountReport';
 
     public AccountID: number;
     public AccountNumber: string;

@@ -144,7 +144,7 @@ export class UniTicker {
                     .catch(() => Observable.empty()) // fail silently
                     .pipe(
                         map(data => {
-                            if (this.ticker.Expand.indexOf('ManatoryDimensions') > -1) {
+                            if (this.ticker.Expand.indexOf('MandatoryDimensions') > -1) {
                                 const body = JSON.parse(data['_body']);
                                 const list = body.Data;
                                 const grouppedList = this.groupMandatoryDimensions(list);
@@ -209,17 +209,17 @@ export class UniTicker {
             const item = data.find(x => x.ID === list[i].ID);
             if (item) {
                 // add mandatory dimension
-                item.ManatoryDimensions.push({
-                    DimensionNo: list[i].ManatoryDimensionsDimensionNo,
-                    ManatoryType: list[i].ManatoryDimensionsManatoryType
+                item.MandatoryDimensions.push({
+                    DimensionNo: list[i].MandatoryDimensionsDimensionNo,
+                    MandatoryType: list[i].MandatoryDimensionsMandatoryType
                 });
             } else {
                 // push new item to data and add mandatory dimension
                 data.push(list[i]);
-                list[i].ManatoryDimensions = [];
-                list[i].ManatoryDimensions.push({
-                    DimensionNo: list[i].ManatoryDimensionsDimensionNo,
-                    ManatoryType: list[i].ManatoryDimensionsManatoryType
+                list[i].MandatoryDimensions = [];
+                list[i].MandatoryDimensions.push({
+                    DimensionNo: list[i].MandatoryDimensionsDimensionNo,
+                    MandatoryType: list[i].MandatoryDimensionsMandatoryType
                 });
             }
         }
@@ -447,14 +447,14 @@ export class UniTicker {
             } else if (this.ticker.OrderBy) {
                 params.set('orderby', this.ticker.OrderBy);
             }
-        } else { // Hack for ManatoryDimensions
+        } else { // Hack for MandatoryDimensions
             const orderbyParams: string = params.get('orderby');
-            if (orderbyParams.includes('ManatoryDimensions')) {
+            if (orderbyParams.includes('MandatoryDimensions')) {
                 const direction = orderbyParams.includes('asc') ? 'asc' : 'desc';
-                const newOrderByManatoryType = 'ManatoryDimensions.ManatoryType '
-                    + (orderbyParams.includes('ManatoryType') ? 'desc' : 'asc');
-                const newOrderByDimension = 'ManatoryDimensions.DimensionNo ' + direction;
-                params.set('orderby', [newOrderByDimension, newOrderByManatoryType].join(','));
+                const newOrderByMandatoryType = 'MandatoryDimensions.MandatoryType '
+                    + (orderbyParams.includes('MandatoryType') ? 'desc' : 'asc');
+                const newOrderByDimension = 'MandatoryDimensions.DimensionNo ' + direction;
+                params.set('orderby', [newOrderByDimension, newOrderByMandatoryType].join(','));
             }
         }
 
@@ -911,9 +911,9 @@ export class UniTicker {
                 // Set the expand needed for selected columns
                 this.setExpand(column);
 
-                if (column.Field.includes('ManatoryDimensions')) {
-                    selects.push('ManatoryDimensions.ManatoryType');
-                    selects.push('ManatoryDimensions.DimensionNo');
+                if (column.Field.includes('MandatoryDimensions')) {
+                    selects.push('MandatoryDimensions.MandatoryType');
+                    selects.push('MandatoryDimensions.DimensionNo');
                 } else {
                     selects.push(column.SelectableFieldName + ' as ' + column.Alias);
                 }
@@ -1160,20 +1160,20 @@ export class UniTicker {
                 }
 
                 // update column template to display mandatory and optional dimensions
-                if (this.ticker.Code === 'accounts_list' && col.field.includes('ManatoryDimensions')) {
-                    let manatoryType = 0;
+                if (this.ticker.Code === 'accounts_list' && col.field.includes('MandatoryDimensions')) {
+                    let mandatoryType = 0;
                     if (col.header.includes('Påkrevde')) {
-                        manatoryType = 1;
+                        mandatoryType = 1;
                     }
                     if (col.header.includes('Advarsel')) {
-                        manatoryType = 2;
+                        mandatoryType = 2;
                     }
 
                     col.setTemplate(rowModel => {
-                        const dimensions = rowModel.ManatoryDimensions;
+                        const dimensions = rowModel.MandatoryDimensions;
                         const result = [];
                         dimensions.forEach(dim => {
-                            if (dim.ManatoryType === manatoryType) {
+                            if (dim.MandatoryType === mandatoryType) {
                                 if (dim.DimensionNo !== 1 && dim.DimensionNo !== 2) {
                                     this.customDimensionsMetadata.forEach(dimMetaData => {
                                         if (dim.DimensionNo === dimMetaData.Dimension) {
@@ -1384,8 +1384,8 @@ export class UniTicker {
     }
 
     private setExpand(column: TickerColumn) {
-        if (column.Field.includes('ManatoryDimensions')) {
-            this.ticker.Expand += ',ManatoryDimensions';
+        if (column.Field.includes('MandatoryDimensions')) {
+            this.ticker.Expand += ',MandatoryDimensions';
         }
         let field = column.Field;
 
@@ -1498,8 +1498,8 @@ export class UniTicker {
         } else {
             this.ticker.Columns.forEach((col)  => {
                 if (!col.DefaultHidden) {
-                    if (col.Field.includes('ManatoryDimensions')) {
-                        stringSelect.push('ManatoryDimensions.DimensionNo,ManatoryDimensions.ManatoryType');
+                    if (col.Field.includes('MandatoryDimensions')) {
+                        stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
                     } else {
                         stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
                     }
@@ -1511,8 +1511,8 @@ export class UniTicker {
         // lists distinct if sum is used
         this.ticker.Columns.forEach((col)  => {
             if (col.Type === 'dontdisplay') {
-                if (col.Field.includes('ManatoryDimensions')) {
-                    stringSelect.push('ManatoryDimensions.DimensionNo,ManatoryDimensions.ManatoryType');
+                if (col.Field.includes('MandatoryDimensions')) {
+                    stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
                 } else {
                     stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
                 }

@@ -28,7 +28,7 @@ import {
     ErrorService,
     CompanySettingsService,
     CustomDimensionService,
-    AccountManatoryDimensionService
+    AccountMandatoryDimensionService
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -90,20 +90,20 @@ export class TradeItemTable {
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
         private customDimensionService: CustomDimensionService,
-        private accountManatoryDimensionService: AccountManatoryDimensionService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private toastService: ToastService
     ) {}
 
     public ngOnInit() {
         Observable.forkJoin(
             this.companySettingsService.Get(1),
-            this.accountManatoryDimensionService.GetNumberOfAccountsWithManatoryDimensions()
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions()
         ).subscribe(
             res => {
                 const resultManDims = res[1];
-                const numberOfAccountsWithManatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
+                const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
                     resultManDims.Data[0].countID : 0;
-                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithManatoryDimensions > 0;
+                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithMandatoryDimensions > 0;
                 
                 this.settings = res[0];
                 if (this.accountsWithMandatoryDimensionsIsUsed && this.configStoreKey === 'sales.invoice.tradeitemTable' || 
@@ -377,7 +377,7 @@ export class TradeItemTable {
                         `filter=${filter}&top=100&orderby=PartName`,
                         [
                             'Account',
-                            'Account.ManatoryDimensions',
+                            'Account.MandatoryDimensions',
                             'Dimensions',
                             'Dimensions.Project',
                             'Dimensions.Department',
@@ -869,7 +869,7 @@ export class TradeItemTable {
     }
 
     private updateItemMandatoryDimensions(item: any) {
-        this.accountManatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
+        this.accountMandatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
             var itemRep = item.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === item.ID) : this.itemsWithReport.find(x => x.itemID === item.ID && x.createguid === item._createguid);
             if (itemRep) {
                 itemRep.report = rep;
@@ -890,7 +890,7 @@ export class TradeItemTable {
 
     public getMandatoryDimensionsReports() {
         if (this.accountsWithMandatoryDimensionsIsUsed) {
-            this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
+            this.accountMandatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
                 let cnt = 0;
                 this.itemsWithReport = [];
                 this.items.forEach(item => {

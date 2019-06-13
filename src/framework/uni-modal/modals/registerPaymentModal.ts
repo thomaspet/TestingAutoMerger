@@ -9,7 +9,7 @@ import {
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
 import { CurrencyService } from '@app/services/common/currencyService';
-import { AccountManatoryDimensionService} from '@app/services/accounting/accountManatoryDimensionService';
+import { AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { UniSearchAccountConfig } from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
@@ -76,7 +76,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         private currencyService: CurrencyService,
         private toastService: ToastService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
-        private accountManatoryDimensionService: AccountManatoryDimensionService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private statisticsService: StatisticsService
     ) {}
 
@@ -109,7 +109,7 @@ export class UniRegisterPaymentModal implements IUniModal {
 
                 let msg: string = '';
                 if (this.companySettings.CompanyBankAccount) {
-                    this.accountManatoryDimensionService.getMandatoryDimensionsReport(
+                    this.accountMandatoryDimensionService.getMandatoryDimensionsReport(
                         this.companySettings.CompanyBankAccount.AccountID,
                         paymentData.DimensionsID).subscribe((report) => {
                             if (report && report.MissingRequiredDimensonsMessage !== '') {
@@ -119,7 +119,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                         const filterField = this.config.entityName === 'CustomerInvoice' ? 'CustomerID' : 'SupplierID';
                         const selectStatement = `model=Account&Select=ID&filter=${filterField} eq ${this.config.entityID}`;
                         this.statisticsService.GetAll(selectStatement).subscribe((res) => {
-                            this.accountManatoryDimensionService.getMandatoryDimensionsReport(res.Data[0].AccountID, paymentData.DimensionsID)
+                            this.accountMandatoryDimensionService.getMandatoryDimensionsReport(res.Data[0].AccountID, paymentData.DimensionsID)
                             .subscribe((report2) => {
                                 if (report2 && report2.MissingRequiredDimensonsMessage !== '') {
                                     msg += '\n  ! ' +  report2.MissingRequiredDimensonsMessage;

@@ -183,7 +183,7 @@ export class AccountSettings {
             message: 'Synkronisering av kontoer vil overskrive endringer gjort i standardkontoer i kontoplanen. Vil du fortsette?'
         }).onClose.subscribe(data => {
             if (data) {
-                this.accountService.addManatoryDimensions(data).subscribe(res => {
+                this.accountService.addMandatoryDimensions(data).subscribe(res => {
                     if (res) {
                         this.toastService.toast({
                             title: 'Repeterende faktura(er) mangler dimensjon(er)',

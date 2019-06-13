@@ -28,7 +28,7 @@ import {BudgetService} from './accounting/budgetService';
 import {CostAllocationService} from './accounting/costAllocationService';
 import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
-import { AccountManatoryDimensionService } from './accounting/accountManatoryDimensionService';
+import { AccountMandatoryDimensionService } from './accounting/accountMandatoryDimensionService';
 
 
 export * from './accounting/accountGroupService';
@@ -60,7 +60,7 @@ export * from './accounting/budgetService';
 export * from './accounting/costAllocationService';
 export * from './accounting/ReInvoicingService';
 export * from './accounting/companyAccountingSettingsService';
-export * from './accounting/accountManatoryDimensionService';
+export * from './accounting/accountMandatoryDimensionService';
 
 @NgModule()
 export class AccountingServicesModule {
@@ -97,7 +97,7 @@ export class AccountingServicesModule {
                 CostAllocationService,
                 ReInvoicingService,
                 CompanyAccountingSettingsService,
-                AccountManatoryDimensionService
+                AccountMandatoryDimensionService
             ]
         };
     }
