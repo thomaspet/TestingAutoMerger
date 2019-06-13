@@ -2547,6 +2547,7 @@ export class BillView implements OnInit {
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
+                supplierID: bill.SupplierID,
                 currencyCode: bill.CurrencyCode.Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate,
                 isSendForPayment: true

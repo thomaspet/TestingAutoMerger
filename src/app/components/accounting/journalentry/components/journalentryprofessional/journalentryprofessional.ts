@@ -2060,6 +2060,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 data: paymentData,
                 modalConfig: {
                     entityName: CustomerInvoice.EntityType,
+                    customerID: customerInvoice.CustomerID,
                     currencyCode: customerInvoice.CurrencyCode.Code,
                     currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
                     hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
