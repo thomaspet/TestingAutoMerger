@@ -16,7 +16,8 @@ import {
     CurrencyCodeService,
     AccountService,
     VatDeductionGroupService,
-    CostAllocationService
+    CostAllocationService,
+    AccountManatoryDimensionService
 } from '../../../../services/services';
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
 import * as _ from 'lodash';
@@ -51,7 +52,8 @@ export class AccountDetails implements OnInit {
         private toastService: ToastService,
         private vatDeductionGroupService: VatDeductionGroupService,
         private costAllocationService: CostAllocationService,
-        private dimensionSettingsService: DimensionSettingsService
+        private dimensionSettingsService: DimensionSettingsService,
+        private accountMandatoryDimensionService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -337,6 +339,7 @@ export class AccountDetails implements OnInit {
                             // completeEvent('Lagret');
                             resolve(true);
                             this.accountSaved.emit(account);
+                            this.checkRecurringInvoices(account.ID);
                         },
                         (err) => {
                             // completeEvent('Feil ved lagring');
@@ -390,6 +393,7 @@ export class AccountDetails implements OnInit {
                     (response) => {
                         completeEvent('Lagret');
                         this.accountSaved.emit(account);
+                        this.checkRecurringInvoices(account.ID);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
@@ -410,6 +414,19 @@ export class AccountDetails implements OnInit {
                     }
                 );
         }
+    }
+
+    private checkRecurringInvoices(accountID: number) {
+        this.accountMandatoryDimensionService.checkRecurringInvoices(accountID).subscribe((res) => {
+            if (res) {
+                this.toastService.toast({
+                    title: 'Repeterende faktura(er) mangler dimensjon(er)',
+                    message: res,
+                    type: ToastType.warn,
+                    duration: 5
+                });
+            }
+        });
     }
 
     // TODO: change to 'ComponentLayout' when object respects the interface

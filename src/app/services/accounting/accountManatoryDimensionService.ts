@@ -65,6 +65,10 @@ export class AccountManatoryDimensionService extends BizHttp<AccountManatoryDime
     public GetNumberOfAccountsWithManatoryDimensions (): Observable<any> {
         return this.statisticsService.GetAll('model=AccountManatoryDimension&select=count(ID)');
     }
+
+    public checkRecurringInvoices(accountID: number) : Observable<any> {
+        return super.GetAction(null, `check-recurringinvoices&accountID=${accountID}`);
+    }
 }
 
 //Flytte til?
