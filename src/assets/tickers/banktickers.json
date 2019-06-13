@@ -638,6 +638,7 @@
         "OrderBy":"ID desc",
         "Group": "Bank",
         "Model": "PaymentBatch",
+        "Expand":"",
         "Columns": [
             {
                 "Header": "ID",
