@@ -1,11 +1,14 @@
 import {Component} from '@angular/core';
+import {forkJoin} from 'rxjs';
+import * as moment from 'moment';
+
 import {AuthService} from '@app/authService';
 import {ElsaCompanyLicense} from '@app/models';
 import {ElsaContractService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
-import * as moment from 'moment';
-import {forkJoin} from 'rxjs';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {GrantAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 
 @Component({
     selector: 'license-info-company-list',
@@ -13,6 +16,7 @@ import {forkJoin} from 'rxjs';
     styleUrls: ['./company-list.sass']
 })
 export class CompanyList {
+    contractID: number;
     companies: ElsaCompanyLicense[];
     filteredCompanies: ElsaCompanyLicense[];
     filterValue: string;
@@ -35,19 +39,22 @@ export class CompanyList {
 
     constructor(
         private authService: AuthService,
+        private modalService: UniModalService,
         private elsaContractService: ElsaContractService,
         private companyService: CompanyService
     ) {
-        let contractID;
         try {
-            contractID = this.authService.currentUser.License.Company.ContractID;
+            this.contractID = this.authService.currentUser.License.Company.ContractID;
+            this.loadData();
         } catch (e) {
             console.error(e);
         }
+    }
 
-        if (contractID) {
+    loadData() {
+        if (this.contractID) {
             forkJoin(
-                this.elsaContractService.getCompanyLicenses(contractID),
+                this.elsaContractService.getCompanyLicenses(this.contractID),
                 this.companyService.GetAll()
             ).subscribe(
                 res => {
@@ -81,6 +88,18 @@ export class CompanyList {
         this.filteredCompanies = this.companies.filter(company => {
             return (company.CompanyName || '').toLowerCase().includes(filterValue)
                 || (company['_orgNumberText'] || '').toLowerCase().includes(filterValue);
+        });
+    }
+
+    grantAccess() {
+        this.modalService.open(GrantAccessModal, {
+            data: { contractID: this.contractID }
+        });
+    }
+
+    createCompany() {
+        this.modalService.open(UniNewCompanyModal, {
+            data: { contractID: this.contractID }
         });
     }
 }

@@ -1,4 +1,4 @@
-<dialog role="dialog" class="uni-modal" style="position: relative;">
+<section role="dialog" class="uni-modal uni-redesign" style="position: relative;">
     <article>
         <section class="bureau-group-split-view">
             <!-- List-->
@@ -53,12 +53,10 @@
                 </ng-template>
             </section>
         </section>
-
-
     </article>
 
-    <footer>
-        <button class="button-clean save-groups" (click)="submitChanges()">Lagre endringer</button>
-        <button class="button-clean" (click)="onClose.emit()">Avbryt</button>
+    <footer class="center">
+        <button class="c2a rounded" (click)="submitChanges()">Lagre endringer</button>
+        <button (click)="onClose.emit()">Avbryt</button>
     </footer>
-</dialog>
+</section>

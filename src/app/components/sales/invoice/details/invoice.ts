@@ -14,7 +14,6 @@ import {
     LocalDate,
     Project,
     Seller,
-    SellerLink,
     StatusCodeCustomerInvoice,
     Terms,
     NumberSeries,
@@ -24,7 +23,7 @@ import {
     ReportDefinition,
     StatusCodeCustomerInvoiceReminder,
     StatusCodeSharing
-} from '../../../../unientities';
+} from '@uni-entities';
 
 import {
     CompanySettingsService,
@@ -55,7 +54,9 @@ import {
     DepartmentService,
     PaymentInfoTypeService,
     ModulusService,
-} from '../../../../services/services';
+    AccrualService,
+    createGuid
+} from '@app/services/services';
 
 import {
     UniModalService,
@@ -65,14 +66,14 @@ import {
     IModalOptions,
     UniChooseReportModal,
     UniSendVippsInvoiceModal,
-} from '../../../../../framework/uni-modal';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+} from '@uni-framework/uni-modal';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {InvoiceTypes} from '../../../../models/sales/invoiceTypes';
-import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
+import {InvoiceTypes} from '@app/models/sales/invoiceTypes';
+import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {StatusTrack, IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
@@ -90,10 +91,8 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import { AccrualModal } from '@app/components/common/modals/accrualModal';
-import { createGuid } from '@app/services/common/dimensionService';
-import { AccrualService } from '@app/services/common/accrualService';
 
-declare const _;
+import {cloneDeep} from 'lodash';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -120,7 +119,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
-    private deletables: SellerLink[] = [];
 
     readonly: boolean;
     readonlyDraft: boolean;
@@ -793,7 +791,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.recalcItemSums(this.invoiceItems);
 
                         // update the model
-                        this.invoice = _.cloneDeep(invoice);
+                        this.invoice = cloneDeep(invoice);
                     });
 
                 } else if (this.invoiceItems && this.invoiceItems.length > 0) {
@@ -814,21 +812,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.recalcItemSums(this.invoiceItems);
 
                     // update the model
-                    this.invoice = _.cloneDeep(invoice);
+                    this.invoice = cloneDeep(invoice);
                 } else {
                     // update
                     this.recalcItemSums(this.invoiceItems);
 
                     // update the model
-                    this.invoice = _.cloneDeep(invoice);
+                    this.invoice = cloneDeep(invoice);
                 }
             }
         },
         err => this.errorService.handle(err));
-    }
-
-    onSellerDelete(sellerLink: SellerLink) {
-        this.deletables.push(sellerLink);
     }
 
     private didCustomerChange(invoice: CustomerInvoice): boolean {
@@ -1113,9 +1107,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.currentInvoiceDate = invoice.InvoiceDate;
 
-        this.invoice = _.cloneDeep(invoice);
+        this.invoice = cloneDeep(invoice);
         this.updateCurrency(invoice, true);
         this.recalcDebouncer.next(invoice.Items);
+        if (this.tradeItemTable) {
+            this.tradeItemTable.getMandatoryDimensionsReports();
+        }
         this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
@@ -1449,12 +1446,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private saveInvoice(done = (msg: string) => {}): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
-
-        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
-        if (this.deletables) {
-            this.deletables.forEach(sellerLink => this.invoice.Sellers.push(sellerLink));
-        }
-
         this.invoice = this.tofHelper.beforeSave(this.invoice);
 
         return new Promise((resolve, reject) => {
@@ -1696,7 +1687,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                                 (res) => this.selectConfig = undefined,
-                                (err) => this.errorService.handle(err),
+                                (err) => {
+                                    done('Feil oppstod!');
+                                    this.errorService.handle(err);
+                                },
                                 () => {
                                     this.getInvoice(invoice.ID).subscribe(res => {
                                         this.refreshInvoice(res);
@@ -2146,7 +2140,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             AgioAccountID: null,
             BankChargeAccountID: 0,
             AgioAmount: 0,
-            PaymentID: null
+            PaymentID: null,
+            DimensionsID: this.invoice.DefaultDimensionsID
         };
 
         const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2154,13 +2149,15 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             data: invoicePaymentData,
             modalConfig: {
                 entityName: 'CustomerInvoice',
+                customerID: this.currentCustomer.ID,
                 currencyCode: this.currencyCodeID ? this.getCurrencyCode(this.currencyCodeID) : '',
-                currencyExchangeRate: this.invoice.CurrencyExchangeRate
+                currencyExchangeRate: this.invoice.CurrencyExchangeRate,
             }
         });
 
         paymentModal.onClose.subscribe((payment) => {
             if (payment) {
+
                 this.customerInvoiceService.ActionWithBody(this.invoice.ID, payment, 'payInvoice').subscribe(
                     res => {
                         done('Betaling vellykket');

@@ -84,6 +84,14 @@ export const CHARTS = [
         }
     },
     {
+        id: 'operatingprofit',
+        description: 'Driftsresultat',
+        permissions: ['ui_accounting_accountingreports'],
+        width: 7,
+        height: 4,
+        widgetType: 'operatingprofit',
+    },
+    {
         id: 'chart_employees_per_employment',
         description: 'Ansatte per stillingskode',
         permissions: ['ui_salary'],

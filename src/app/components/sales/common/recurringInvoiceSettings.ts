@@ -156,6 +156,26 @@ export class UniRecurringInvoiceSettingsView implements OnInit {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Ingen kredittdager',
                 Section: 0,
+            },
+            <any> {
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                EntityType: this.entityType,
+                ReadOnly: true,
+                Property: 'Customer.AvtaleGiroAmount',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Beløpsgrense AvtaleGiro',
+                Section: 0,                
+            },
+            <any> {
+                FieldSet: 1,
+                FieldSetColumn: 2,
+                EntityType: this.entityType,
+                ReadOnly: true,
+                Property: 'Customer.AvtaleGiro',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Påmeldt AvtaleGiro',
+                Section: 0,                
             }
         ];
     }

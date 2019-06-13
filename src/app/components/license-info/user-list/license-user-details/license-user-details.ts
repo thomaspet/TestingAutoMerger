@@ -3,6 +3,7 @@ import {ElsaUserLicense, ElsaCompanyLicense} from '@app/models';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
 import * as moment from 'moment';
+import {ElsaContractService} from '@app/services/services';
 
 @Component({
     selector: 'license-user-details',

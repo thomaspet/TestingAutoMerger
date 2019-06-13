@@ -101,7 +101,7 @@ export class AccountDetails implements OnInit {
     }
 
     public onChange(event) {
-        this.changeEvent.emit();
+        this.changeEvent.emit(event);
     }
 
     private extendFormConfig() {
@@ -143,19 +143,19 @@ export class AccountDetails implements OnInit {
         accountNumber.Options = {
             events: {
                 blur: () => {
-                    const account = this.account$.getValue();
+                    const currentAccount = this.account$.getValue();
                     if (
-                        (!account.ID || account.ID === 0 || !account.AccountGroupID)
-                        && account.AccountNumber && account.AccountNumber.toString().length > 3
+                        (!currentAccount.ID || currentAccount.ID === 0 || !currentAccount.AccountGroupID)
+                        && currentAccount.AccountNumber && currentAccount.AccountNumber.toString().length > 3
                     ) {
-                        const expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
+                        const expectedAccountGroupNo =  currentAccount.AccountNumber.toString().substring(0, 3);
 
                         const defaultAccountGroup = this.accountGroups.find(
                             x => x.GroupNumber === expectedAccountGroupNo
                         );
 
                         if (defaultAccountGroup) {
-                            account.AccountGroupID = defaultAccountGroup.ID;
+                            currentAccount.AccountGroupID = defaultAccountGroup.ID;
                         } else {
                             const defAccountGroup =
                                 this.accountGroups
@@ -163,11 +163,11 @@ export class AccountDetails implements OnInit {
                                     .sort((a, b) => b.GroupNumber.localeCompare(a.GroupNumber))
                                     .find(x => x.GroupNumber < expectedAccountGroupNo);
                             if (defAccountGroup) {
-                                account.AccountGroupID = defAccountGroup.ID;
+                                currentAccount.AccountGroupID = defAccountGroup.ID;
                             }
                         }
 
-                        this.account$.next(account);
+                        this.account$.next(currentAccount);
                     }
                 }
             }
@@ -178,7 +178,45 @@ export class AccountDetails implements OnInit {
 
     public setDimensionsForm() {
         this.dimensionSettingsService.GetAll('filter=isActive eq true').subscribe((dimensionSettings: DimensionSettings[]) => {
-            const fields = dimensionSettings.map(dimensionSetting => {
+            const defaultFields = [
+                <UniFieldLayout> {
+                    FieldSet: 1,
+                    Legend: 'Påkrevde dimensjoner',
+                    Property: 'dim1',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Prosjekt',
+                    Options: {
+                        hideDeleteButton: true,
+                        searchable: false,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        source: [
+                            {ID: 0, Name: 'Ikke satt'},
+                            {ID: 1, Name: 'Påkrevd'},
+                            {ID: 2, Name: 'Advarsel'}
+                        ]
+                    }
+                },
+                <UniFieldLayout> {
+                    FieldSet: 1,
+                    Legend: 'Påkrevde dimensjoner',
+                    Property: 'dim2',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Avdeling',
+                    Options: {
+                        hideDeleteButton: true,
+                        searchable: false,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        source: [
+                            {ID: 0, Name: 'Ikke satt'},
+                            {ID: 1, Name: 'Påkrevd'},
+                            {ID: 2, Name: 'Advarsel'}
+                        ]
+                    }
+                }
+            ];
+            const fields = defaultFields.concat(dimensionSettings.map(dimensionSetting => {
                 return <UniFieldLayout> {
                         FieldSet: 1,
                         Legend: 'Påkrevde dimensjoner',
@@ -197,9 +235,9 @@ export class AccountDetails implements OnInit {
                             ]
                         }
                     };
-            });
+            }));
             this.dimensionsFields$.next(fields);
-            if(this.account$.getValue()) {
+            if (this.account$.getValue()) {
                 const dimensions = {};
                 this.account$.getValue().ManatoryDimensions.forEach(md => {
                     dimensions['dim' + md.DimensionNo] = md.ManatoryType;
@@ -215,6 +253,19 @@ export class AccountDetails implements OnInit {
     public onDimensionsChange(change: SimpleChange) {
         const dimensions = this.dimensions$.getValue();
         const account = this.account$.getValue();
+        const key = _.keys(change)[0];
+        if (change[key].currentValue !== 0) {
+            this.accountService.checkLinkedBankAccountsAndPostPost(account.AccountNumber).subscribe(hasLinkedBankAccounts => {
+                if (hasLinkedBankAccounts || this.account$.getValue().UsePostPost === true) {
+                    this.toastService.addToast(
+                        'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
+                        ToastType.warn,
+                        ToastTime.medium,
+                        'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.'
+                    );
+                }
+            });
+        }
         _.each(dimensions, (value, property) => {
             const dim = parseInt(property.split('dim')[1], 10);
             const manatoryDimensions = account.ManatoryDimensions;
@@ -273,7 +324,7 @@ export class AccountDetails implements OnInit {
                     ToastType.bad,
                     ToastTime.medium,
                     'Du må velge minimum kontonummer, navn og velge en kontogruppe før du kan lagre');
-                if (done) { done('Lagring feilet'); }   //completeEvent('Lagring feilet');
+                if (done) { done('Lagring feilet'); }   // completeEvent('Lagring feilet');
                 resolve(false);
                 return;
             }
@@ -283,12 +334,12 @@ export class AccountDetails implements OnInit {
                     .Put(account.ID, account)
                     .subscribe(
                         (response) => {
-                            //completeEvent('Lagret');
+                            // completeEvent('Lagret');
                             resolve(true);
                             this.accountSaved.emit(account);
                         },
                         (err) => {
-                            //completeEvent('Feil ved lagring');
+                            // completeEvent('Feil ved lagring');
                             resolve(false);
                             this.errorService.handle(err);
                         }
@@ -298,12 +349,12 @@ export class AccountDetails implements OnInit {
                     .Post(account)
                     .subscribe(
                         (response) => {
-                            //completeEvent('Lagret');
+                            // completeEvent('Lagret');
                             resolve(true);
                             this.accountSaved.emit(account);
                         },
                         (err) => {
-                            //completeEvent('Feil ved lagring');
+                            // completeEvent('Feil ved lagring');
                             resolve(false);
                             this.errorService.handle(err);
                         }
@@ -409,14 +460,6 @@ export class AccountDetails implements OnInit {
                     Label: 'Valuta',
                 },
                 // Fieldset 2 (details)
-                {
-                    FieldSet: 2,
-                    Legend: 'Detaljer',
-                    EntityType: 'Account',
-                    Property: 'Alias',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Alias',
-                },
                 {
                     FieldSet: 2,
                     Legend: 'Detaljer',

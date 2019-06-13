@@ -61,7 +61,7 @@ export class Dashboard {
             {
                 x: 0,
                 y: 2,
-                widgetID: 'chart_operating_profits',
+                widgetID: 'operatingprofit',
             },
             {
                 x: 7,

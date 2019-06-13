@@ -16,7 +16,8 @@ import {
     UniTableColumnType,
     UniTableConfig,
     ICellClickEvent,
-    IContextMenuItem
+    IContextMenuItem,
+    IColumnTooltip
 } from '../../../../../../framework/ui/unitable/index';
 import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
@@ -61,6 +62,7 @@ import {
     CustomerService,
     UserService,
     CostAllocationService,
+    AccountManatoryDimensionService,
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -119,6 +121,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
+    private dimsReport: any[];
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -126,9 +129,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private firstAvailableJournalEntryNumber: string = '';
     private lastUsedJournalEntryNumber: string = '';
-
+    private maDimensions: any[] = [];
     private lastImageDisplayFor: string = '';
-
+    private numberOfAccountsWithManatoryDimensions: number = 0;
     private defaultAccountPayments: Account = null;
     private groupConfig: IGroupConfig = {
         groupKey: 'VatCodeGroupingValue',
@@ -198,6 +201,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private userService: UserService,
         private paymentService: PaymentService,
         private costAllocationService: CostAllocationService,
+        private accountManatoryDimensioinService: AccountManatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -210,6 +214,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (changes['currentFinancialYear'] && this.currentFinancialYear) {
             this.setupJournalEntryNumbers(false);
         }
+
 
         if (changes['journalEntryLines'] && this.journalEntryLines && this.journalEntryLines.length > 0) {
             // when the journalEntryLines changes, we need to update the sameornew alternatives,
@@ -264,6 +269,31 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (!row.NetAmountCurrency) {
                     this.calculateNetAmountAndNetAmountCurrency(row);
                 }
+
+                if (this.numberOfAccountsWithManatoryDimensions > 0) {
+
+                    if (!row.ManatoryDimensionsValidation) {row.ManatoryDimensionsValidation = {}; }
+                    const checkDebit: boolean = row.DebitAccountID;
+                    const checkCredit: boolean = row.CreditAccountID;
+
+                    if (checkDebit) {
+                        this.accountManatoryDimensioinService
+                        .getMandatoryDimensionsReportByDimension(row.DebitAccountID, row.Dimensions)
+                        .subscribe((report) => {
+                                row.ManatoryDimensionsValidation['DebitReport'] = report;
+                                this.table.updateRow(row['_originalIndex'], row);
+                        });
+                    }
+
+                    if (checkCredit) {
+                        this.accountManatoryDimensioinService
+                        .getMandatoryDimensionsReportByDimension(row.CreditAccountID, row.Dimensions)
+                        .subscribe((report) => {
+                                row.ManatoryDimensionsValidation['CreditReport'] = report;
+                                this.table.updateRow(row['_originalIndex'], row);
+                        });
+                    }
+                }
             });
         }
 
@@ -304,7 +334,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.Get(1),
             this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
-            this.customDimensionService.getMetadata()
+            this.customDimensionService.getMetadata(),
+            this.accountManatoryDimensioinService.GetNumberOfAccountsWithManatoryDimensions()
         ).subscribe(
             (data) => {
                 if (this.companySettings
@@ -320,7 +351,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.companySettings = data[1];
                 this.predefinedDescriptions = data[2] || [];
                 this.dimensionTypes = data[3];
-
+                this.numberOfAccountsWithManatoryDimensions = (data[4] && data[4].Data[0]) ? data[4].Data[0].countID : 0;
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
             },
@@ -1156,6 +1187,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+
         const invoiceNoTextCol = new UniTableColumn(
             'InvoiceNumber', 'Fakturanr', UniTableColumnType.Text
         )
@@ -1195,6 +1227,39 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return this.openNewAccountModal(this.table.getCurrentRow(), text);
                 }
             });
+
+        const manDimReportCol = new UniTableColumn('', 'Påkrevde dimensjoner', UniTableColumnType.Text)
+        .setVisible(false)
+        .setTemplate(() => '')
+        .setResizeable(false)
+        .setWidth('40px')  // '5%') //Har ingen effekt
+        .setTooltipResolver( (rowModel) => {
+            let msgText = '';
+            let iconType = 0;
+            const debRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.DebitReport;
+            const creRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.CreditReport;
+
+            if (debRep || creRep) {
+
+                if (debRep && debRep.MissingRequiredDimensonsMessage) { msgText = debRep.MissingRequiredDimensonsMessage + '\n'; }
+                if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
+                if (msgText !== '') { iconType = 1; }
+
+                if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) {
+                    msgText += debRep.MissingOnlyWarningsDimensionsMessage + '\n';
+                }
+                if (creRep && creRep.MissingOnlyWarningsDimensionsMessage) {
+                    msgText += creRep.MissingOnlyWarningsDimensionsMessage + '\n';
+                }
+                if (iconType !== 1 && msgText !== '') { iconType = 2; }
+
+                const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
+                return {
+                    type: type  ,
+                    text: msgText,
+                };
+            }
+        });
 
         const debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
             .setDisplayField('DebitVatType.VatCode')
@@ -1339,6 +1404,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setDisplayField('Project.ProjectNumber')
+            .setVisible(false)
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
                     const project = rowModel.Dimensions.Project;
@@ -1358,6 +1424,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
             .setWidth('12%')
+            .setVisible(false)
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Department && rowModel.Dimensions.Department.Name) {
                     const dep = rowModel.Dimensions.Department;
@@ -1422,11 +1489,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 itemValue: (item) => {
                     return item ? item.Description : '';
                 }
-            });
+            })
+            .setWidth('200px');
 
         const addedPaymentCol = new UniTableColumn('JournalEntryPaymentData', '$', UniTableColumnType.Text, false)
             .setTemplate(line => line.JournalEntryPaymentData ? '$' : '')
-            .setWidth('30px');
+            .setWidth('30px')
+            .setVisible(false);
 
         const fileCol = new UniTableColumn(
             'ID', PAPERCLIP, UniTableColumnType.Text, false
@@ -1456,7 +1525,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
-            .setWidth('12%')
+            .setWidth('100px')
             .setOptions({
                 itemTemplate: (item) => {
                     return (item.ID + ' - ' + item.Name);
@@ -1465,7 +1534,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return this.costAllocationService.search(searchValue);
                 }
             })
-            .setVisible(true);
+            .setVisible(false);
 
         let defaultRowData = {
             Dimensions: {},
@@ -1522,6 +1591,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 createdAtCol,
                 createdByCol,
+                manDimReportCol,
                 addedPaymentCol,
                 fileCol
             ].map(col => {
@@ -1576,7 +1646,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 netAmountCol,
                 amountCurrencyCol,
-                costAllocationCol
+                costAllocationCol,
+                manDimReportCol
             ];
 
             if (dimensionCols.length) {
@@ -1634,7 +1705,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 costAllocationCol,
                 addedPaymentCol,
-                fileCol
+                fileCol,
+                manDimReportCol
             ];
 
             if (dimensionCols.length) {
@@ -1976,7 +2048,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 AgioAccountID: 0,
                 BankChargeAccountID: 0,
                 AgioAmount: 0,
-                PaymentID: null
+                PaymentID: null,
+                DimensionsID: null
             };
 
             const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
@@ -1987,6 +2060,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 data: paymentData,
                 modalConfig: {
                     entityName: CustomerInvoice.EntityType,
+                    customerID: customerInvoice.CustomerID,
                     currencyCode: customerInvoice.CurrencyCode.Code,
                     currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
                     hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
@@ -2196,7 +2270,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         }
 
-        return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+        const accs = this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+        return accs;
     }
 
     private projectSearch(searchValue): Observable<any> {
@@ -2934,6 +3009,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return true;
     }
 
+
+
     private rowChanged(event?) {
         if (!event) {
             return;
@@ -2954,6 +3031,65 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return;
             });
+        }
+
+
+        const strF = event.field + '';
+
+        if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))
+        && this.numberOfAccountsWithManatoryDimensions > 0) {
+
+            if (!event.rowModel.ManatoryDimensionsValidation) {
+                event.rowModel.ManatoryDimensionsValidation = {};
+            }
+
+            const checkDebit: boolean = event.field === 'DebitAccount' || strF.startsWith('Dimensions.');
+            const checkCredit: boolean = event.field === 'CreditAccount' || strF.startsWith('Dimensions.');
+
+
+            if (!event.newValue || event.newValue === null) {
+                if (event.field === 'DebitAccount') {event.rowModel.ManatoryDimensionsValidation['DebitReport'] = null; }
+                if (event.field === 'CreditAccount') {event.rowModel.ManatoryDimensionsValidation['CreditReport'] = null; }
+                this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                setTimeout(() => {
+                    const data = this.table.getTableData();
+                    this.dataChanged.emit(data);
+                }, 0);
+            }
+
+            if ( event.newValue !== null || strF.startsWith('Dimensions.')) {
+
+                if (checkDebit) {
+                    this.accountManatoryDimensioinService
+                    .getMandatoryDimensionsReportByDimension(event.rowModel.DebitAccountID, event.rowModel.Dimensions)
+                    .subscribe((report) => {
+                            event.rowModel.ManatoryDimensionsValidation['DebitReport'] = report;
+                            this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                            setTimeout(() => {
+                            const data = this.table.getTableData();
+                            const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                            if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
+
+                            this.dataChanged.emit(data);
+                        }, 0);
+                    });
+                }
+
+                if (checkCredit) {
+                    this.accountManatoryDimensioinService
+                    .getMandatoryDimensionsReportByDimension(event.rowModel.CreditAccountID, event.rowModel.Dimensions)
+                    .subscribe((report) => {
+                            event.rowModel.ManatoryDimensionsValidation['CreditReport'] = report;
+                            this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                            setTimeout(() => {
+                                const data = this.table.getTableData();
+                                const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
+                                this.dataChanged.emit(data);
+                        }, 0);
+                    });
+                }
+            }
         }
 
         if (event.newValue && event.newValue.SupplierID && event.newValue.StatusCode === StatusCode.InActive) {

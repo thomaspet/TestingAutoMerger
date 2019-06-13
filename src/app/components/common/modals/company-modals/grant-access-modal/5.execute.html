@@ -1,0 +1,31 @@
+<section class="grant-access-review-section">
+    <section>
+        <strong>Inviter brukere ({{data.users.length}})</strong>
+
+        <ul>
+            <li *ngFor="let user of data.users">
+                <small>{{user.UserName}}</small>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <strong>Til selskaper ({{data.companies.length}})</strong>
+
+        <ul>
+            <li *ngFor="let company of data.companies">
+                <small>{{company.CompanyName}}</small>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <strong>Med produkttilganger ({{data.products.length}})</strong>
+
+        <ul>
+            <li *ngFor="let product of data.products">
+                <small>{{product.Label}}</small>
+            </li>
+        </ul>
+    </section>
+</section>

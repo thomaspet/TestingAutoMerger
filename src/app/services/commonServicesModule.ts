@@ -132,6 +132,7 @@ export * from './common/apikeyService';
 export * from './common/distributionService';
 export * from './common/userRoleService';
 export * from './common/eventplan.service';
+export * from './common/accrualService';
 
 @NgModule({})
 export class CommonServicesModule {

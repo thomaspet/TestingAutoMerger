@@ -14,6 +14,7 @@ import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
 import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
+import {AccountManatoryDimensionService} from './accountManatoryDimensionService';
 
 export enum JournalEntryMode {
     Manual,
@@ -62,6 +63,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         public authService: AuthService,
         private numberFormat: NumberFormat,
         private invoiceService: CustomerInvoiceService,
+        private accountManatoryDimensionService: AccountManatoryDimensionService,
     ) {
         super(http);
         // Anders 25.09
@@ -642,6 +644,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     row.JournalEntryNo = '';
                 });
             }
+
 
             const dblPaymentsInvoiceNo: Array<string> = [];
             journalDataEntries.forEach(row => {

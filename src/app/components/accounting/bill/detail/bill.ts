@@ -2533,7 +2533,8 @@ export class BillView implements OnInit {
             AgioAccountID: 0,
             BankChargeAccountID: 0,
             AgioAmount: 0,
-            PaymentID: null
+            PaymentID: null,
+            DimensionsID: null
         };
 
         if (this.sumOfPayments && this.sumOfPayments.Amount && this.sumOfPayments.AmountCurrency) {
@@ -2546,6 +2547,7 @@ export class BillView implements OnInit {
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
+                supplierID: bill.SupplierID,
                 currencyCode: bill.CurrencyCode.Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate,
                 isSendForPayment: true
@@ -3491,7 +3493,8 @@ export class BillView implements OnInit {
             AgioAccountID: 0,
             BankChargeAccountID: 0,
             AgioAmount: 0,
-            PaymentID: null
+            PaymentID: null,
+            DimensionsID: bill.DefaultDimensionsID
         };
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
@@ -3500,7 +3503,8 @@ export class BillView implements OnInit {
             modalConfig: {
                 entityName: 'SupplierInvoice',
                 currencyCode: bill.CurrencyCode.Code,
-                currencyExchangeRate: bill.CurrencyExchangeRate
+                currencyExchangeRate: bill.CurrencyExchangeRate,
+                entityID: bill.SupplierID
             }
         });
 

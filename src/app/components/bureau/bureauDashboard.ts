@@ -3,8 +3,6 @@ import {FormControl} from '@angular/forms';
 import {Router, ActivationEnd} from '@angular/router';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {UniNewCompanyModal} from './new-company-modal/newCompanyModal';
-import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
 import {BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
 import {UniEditFieldModal} from '@uni-framework/uni-modal/modals/editFieldModal';
@@ -20,7 +18,8 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
-import { DeleteCompanyModal } from './delete-company-modal/delete-company-modal';
+
+import {UniNewCompanyModal, DeleteCompanyModal, GrantAccessModal} from '@app/components/common/modals/company-modals';
 
 enum KPI_STATUS {
     StatusUnknown = 0,

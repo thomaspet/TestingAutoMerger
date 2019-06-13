@@ -10,6 +10,7 @@ import {UniInfoShortcutWidget} from './infoShortcut';
 import {UniCurrencyWidget} from './currency';
 import {UniTopTenWidget} from './topten';
 import {UniIntegrationCounterWidget} from './integrationCounter';
+import {UniOperatingProfitWidget} from './operatingprofitwidget';
 
 import {UniCountersWidget} from './counters';
 import {UniShortcutWidget} from './shortcuts';
@@ -31,6 +32,7 @@ export const UNI_WIDGETS = [
     UniCurrencyWidget,
     UniTopTenWidget,
     UniIntegrationCounterWidget,
+    UniOperatingProfitWidget
 ];
 
 export * from './counters';
@@ -48,4 +50,5 @@ export * from './infoShortcut';
 export * from './currency';
 export * from './topten';
 export * from './integrationCounter';
+export * from './operatingprofitwidget';
 
