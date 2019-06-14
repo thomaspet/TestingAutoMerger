@@ -92,6 +92,12 @@ export class CustomerList implements OnInit {
         action: (done) => this.openImportModal(done),
         main: true,
         disabled: false
+    },
+    {
+        label: 'Import Logs',
+        action: this.importLogs.bind(this),
+        main: true,
+        disabled: false
     }
 ];
 
@@ -147,5 +153,9 @@ export class CustomerList implements OnInit {
             }
         );
         done();
+    }
+
+    private importLogs() {
+        this.router.navigateByUrl('/admin/jobs');
     }
 }

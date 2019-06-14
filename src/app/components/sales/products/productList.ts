@@ -48,6 +48,12 @@ export class ProductList {
             action: (done) => this.openImportModal(done),
             main: true,
             disabled: false
+        },
+        {
+            label: 'Import Logs',
+            action: this.importLogs.bind(this),
+            main: true,
+            disabled: false
         }
         ];
 
@@ -155,5 +161,9 @@ export class ProductList {
                     }
                 }
             });
+    }
+
+    private importLogs() {
+        this.router.navigateByUrl('/admin/jobs');
     }
 }

@@ -29,8 +29,14 @@ export class SupplierList {
         action: (done) => this.openImportModal(done),
         main: true,
         disabled: false
+    },
+    {
+        label: 'Import Logs',
+        action: this.importLogs.bind(this),
+        main: true,
+        disabled: false
     }
-];
+    ];
 
     supplierTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER;
 
@@ -70,5 +76,9 @@ export class SupplierList {
                 }
             }
         });
+    }
+
+    private importLogs() {
+        this.router.navigateByUrl('/admin/jobs');
     }
 }
