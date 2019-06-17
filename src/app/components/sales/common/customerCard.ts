@@ -12,6 +12,7 @@ import {
     StatisticsService,
     StatusService
 } from '../../../services/services';
+import {TofHelper} from '../salesHelper/tofHelper';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
 import * as moment from 'moment';
@@ -104,6 +105,12 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         'DefaultSeller.Seller',
         'Dimensions.Project',
         'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10',
         'Sellers',
         'Sellers.Seller',
         'PaymentTerms',
@@ -121,7 +128,8 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         private sellerLinkService: SellerLinkService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
-        private statusService: StatusService
+        private statusService: StatusService,
+        private tofHelper: TofHelper,
     ) { }
 
     ngOnInit() {
@@ -384,57 +392,16 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
     }
 
     customerSelected(customer: Customer) {
-        if (customer) {
-            this.entity.CustomerID = customer.ID || null;
-            if (customer.Info) {
-                this.entity.CustomerName = customer.Info.Name;
-                this.mapAddressesToEntity(customer, customer.Info.Addresses || []);
-            } else {
-                this.entity.CustomerName = null;
-            }
-        }
-
-        this.mapProjectToEntity(customer, this.entity);
-        this.mapTermsToEntity(customer, this.entity);
-
-        this.entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name
-            ? customer.Info.DefaultContact.Info.Name : this.entity.YourReference;
-        this.entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress
-            ? customer.Info.DefaultEmail.EmailAddress : this.entity.EmailAddress;
-
-        // map sellers to entity
-        const sellers = [];
-        if (this.entity.Sellers.length === 0 && customer.ID > 0) {
-            customer.Sellers.forEach((seller: SellerLink) => {
-                sellers.push({
-                    Percent: seller.Percent,
-                    SellerID: seller.SellerID,
-                    Seller: seller.Seller,
-                    _createguid: this.sellerLinkService.getNewGuid(),
-                });
-            });
-            this.entity.Sellers = sellers;
-        }
-
-        if (customer.DefaultSellerID) {
-            this.entity.DefaultSellerID = customer.DefaultSellerID;
-            this.entity.DefaultSeller = customer.DefaultSeller || null;
-        } else {
-            this.entity.DefaultSellerID = null;
-            this.entity.DefaultSeller = null;
-        }
-
-        this.entity.Customer = customer;
+        this.entity = this.tofHelper.mapCustomerToEntity(customer, this.entity);
 
         this.showDefaultBadgeForCustomer(customer);
-
         this.entity = _.cloneDeep(this.entity);
         this.entityChange.emit(this.entity);
     }
 
-    private mapProjectToEntity(customer: Customer, entity: any) {
-        if (entity.DefaultDimensions && customer.Dimensions && customer.Dimensions.ProjectID) {
-            entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
+    private mapDimensionsToEntity(customer: Customer, entity: any) {
+        if (entity.DefaultDimensions && customer.Dimensions) {
+            entity.DefaultDimensions = customer.Dimensions;
         }
     }
 

@@ -496,38 +496,19 @@ export class UniRecurringInvoice implements OnInit {
                 invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
         }
 
-        // refresh items if project changed
-        if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = invoice.DefaultDimensions.ProjectID;
-
-            if (this.invoiceItems.length) {
-                this.modalService.confirm({
-                    header: `Endre prosjekt på alle varelinjer?`,
-                    message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
-                    buttonLabels: {
-                        accept: 'Ja',
-                        reject: 'Nei'
-                    }
-                }).onClose.subscribe(response => {
-                    const replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable
-                        .setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, replaceItemsProject);
-                });
-            } else {
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, true);
-            }
-        }
-
-        // If the update comes from dimension view
         if (invoice['_updatedField']) {
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, false);
+            this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
+
             const dimension = invoice['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
                 this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]]);
             } else {
-                // Department, Region and Reponsibility hits here!
+                // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
             }
         }

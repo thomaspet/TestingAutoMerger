@@ -48,7 +48,9 @@ import {
     ModulusService,
     JournalEntryLineService,
     DistributionPlanService,
-    PageStateService
+    PageStateService,
+    CustomDimensionService,
+    UniSearchDimensionConfig
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -114,6 +116,7 @@ export class CustomerDetails implements OnInit {
     public emptyEmail: Email;
     public emptyAddress: Address;
     public reportLinks: IReference[];
+    private customDimensions: any[] = [];
 
     public showReportWithID: number;
     public commentsConfig: ICommentsConfig;
@@ -250,7 +253,9 @@ export class CustomerDetails implements OnInit {
         private distributionPlanService: DistributionPlanService,
         private navbarLinkService: NavbarLinkService,
         private reportTypeService: ReportTypeService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private customDimensionService: CustomDimensionService,
+        private uniSearchDimensionConfig: UniSearchDimensionConfig
     ) {}
 
     public ngOnInit() {
@@ -517,9 +522,6 @@ export class CustomerDetails implements OnInit {
     public setup() {
         this.showReportWithID = null;
         if (!this.formIsInitialized) {
-            const layout: ComponentLayout = this.getComponentLayout(); // results
-            this.fields$.next(layout.Fields);
-
             Observable.forkJoin(
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
@@ -540,7 +542,8 @@ export class CustomerDetails implements OnInit {
                     ['NumberSeriesType']
                 ),
                 this.sellerService.GetAll(null),
-                this.distributionPlanService.GetAll(null)
+                this.distributionPlanService.GetAll(null),
+                this.customDimensionService.getMetadata()
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.emptyPhone = response[3];
@@ -552,6 +555,10 @@ export class CustomerDetails implements OnInit {
                 this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[9]);
                 this.sellers = response[10];
                 this.distributionPlans = response[11];
+                this.customDimensions = response[12];
+
+                const layout: ComponentLayout = this.getComponentLayout(); // results
+                this.fields$.next(layout.Fields);
 
                 const customer: Customer = response[2];
 
@@ -1030,7 +1037,7 @@ export class CustomerDetails implements OnInit {
 
     private save(saveAsLead?: boolean): Observable<Customer> {
         const customer = this.preSave(this.customer$.getValue());
-        
+
         if (saveAsLead) {
             customer.StatusCode = StatusCode.Pending;
         }
@@ -1413,7 +1420,8 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.TEXT,
                     Label: 'KID-Identifikator',
                     Tooltip: {
-                        Text: 'Fyll kun ut verdi i dette feltet dersom du ønsker at kundenummer-del av KID skal erstattes av dette nummeret.'
+                        Text: 'Fyll kun ut verdi i dette feltet dersom du ønsker at ' +
+                        'kundenummer-del av KID skal erstattes av dette nummeret.'
                     },
                     Validations: [
                         // check if value is a valid number
@@ -1551,7 +1559,10 @@ export class CustomerDetails implements OnInit {
                     Legend: 'Avtaler faktura',
                     Section: 0,
                     Tooltip: {
-                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at distribusjonsplanen for faktura (enten på Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ distribusjon som prioritet 2. Da vil alle repeterende faktura distribueres som AvtaleGiro og alle andre fakturaer distribueres med distribusjonsvalg i prioritet 2'
+                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at distribusjonsplanen for faktura (enten på' +
+                        ' Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ distribusjon' +
+                        ' som prioritet 2. Da vil alle repeterende faktura distribueres som AvtaleGiro og alle andre fakturaer' +
+                        ' distribueres med distribusjonsvalg i prioritet 2'
                     }
                 },
                 {
@@ -1599,6 +1610,28 @@ export class CustomerDetails implements OnInit {
                 return modal.onClose.take(1).toPromise();
             }
         };
+
+        const dims = [];
+        this.customDimensions.forEach((dim) => {
+            dims.push(
+                <any>{
+                    FieldSet: 4,
+                    Legend: 'Dimensjoner',
+                    Section: 0,
+                    EntityType: 'Project',
+                    Property: `Dimensions.Dimension${dim.Dimension}ID`,
+                    FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: !dim.IsActive,
+                    Options: {
+                        uniSearchConfig: this.uniSearchDimensionConfig.generateDimensionConfig(dim.Dimension, this.customDimensionService),
+                        valueProperty: 'ID'
+                    },
+                    Label: dim.Label
+                }
+            );
+        });
+
+        layout.Fields.splice.apply(layout.Fields, [15, 0].concat(dims));
 
         return layout;
 

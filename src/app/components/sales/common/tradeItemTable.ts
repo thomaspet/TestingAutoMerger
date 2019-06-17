@@ -101,13 +101,14 @@ export class TradeItemTable {
         ).subscribe(
             res => {
                 const resultManDims = res[1];
-                const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
+                const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ?
                     resultManDims.Data[0].countID : 0;
                 this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithMandatoryDimensions > 0;
-                
+
                 this.settings = res[0];
-                if (this.accountsWithMandatoryDimensionsIsUsed && this.configStoreKey === 'sales.invoice.tradeitemTable' || 
-                    this.configStoreKey === 'sales.order.tradeitemTable' || 
+                if (this.accountsWithMandatoryDimensionsIsUsed &&
+                    this.configStoreKey === 'sales.invoice.tradeitemTable' ||
+                    this.configStoreKey === 'sales.order.tradeitemTable' ||
                     this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
                     this.showMandatoryDimensionsColumn = true;
                     this.itemsWithReport = [];
@@ -232,25 +233,16 @@ export class TradeItemTable {
         }
     }
 
-    public setDefaultProjectAndRefreshItems(projectID: number, updateTableData: boolean) {
-        if (this.projects) {
-            this.defaultProject = this.projects.find(project => project.ID === projectID);
-        }
-
-        this.defaultTradeItem.Dimensions.ProjectID = projectID;
-        this.defaultTradeItem.Dimensions.Project = this.defaultProject;
+    public setDefaultProjectAndRefreshItems(dims: any, updateTableData: boolean) {
+        this.defaultTradeItem.Dimensions = dims;
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
 
-        if (updateTableData) {
-            this.items = this.items.map(item => {
-                if (item.Product) {
-                    item.Dimensions = item.Dimensions || new Dimensions();
-                    item.Dimensions.ProjectID = projectID;
-                    item.Dimensions.Project = this.defaultProject;
-                }
-                return item;
-            });
-        }
+        this.items = this.items.map(item => {
+            if ((updateTableData && item.Product) || (!updateTableData && !item.Product)) {
+                item.Dimensions = dims;
+            }
+            return item;
+        });
     }
 
     public setNonCustomDimsOnTradeItems(entity: string, id: number) {
@@ -264,12 +256,9 @@ export class TradeItemTable {
                 }
         });
 
-        // let currentDimArray = entity.substr(0, entity.length - 2) === '' ? this.departments : []; // [] to be replaced with regions
-        // currentDimArray = entity.substr(0, entity.length - 2) === 'Region'
-        // ? currentDimArray : []; // [] to be replaced with this.responsibilities
-
-        // Should get from departments, regions or responsibilities!
-        const defaultDim = this.departments.find(dep => dep.ID === id);
+        const defaultDim = entity === 'ProjectID'
+            ? this.projects.find(project => project.ID === id)
+            : this.departments.find(dep => dep.ID === id);
 
         // Change default trade item when dimension is changed
         this.defaultTradeItem.Dimensions[entity] = id;
@@ -750,7 +739,7 @@ export class TradeItemTable {
             });
     }
 
-    private createMandatoryDimensionsCol() : UniTableColumn {
+    private createMandatoryDimensionsCol(): UniTableColumn {
         return new UniTableColumn('MandatoryDimensions', 'Påkrevde dimensjoner', UniTableColumnType.Text, false)
         .setVisible(false)
         .setWidth(40)
@@ -767,7 +756,9 @@ export class TradeItemTable {
                         text: text
                     };
                 }
-                var ir = row.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === row.ID) : this.itemsWithReport.find(x => x.createguid === row._createguid);
+                let ir = row.ID !== 0
+                    ? this.itemsWithReport.find(x => x.itemID === row.ID)
+                    : this.itemsWithReport.find(x => x.createguid === row._createguid);
                 if (!ir) {
                     if (row.ID === 0) {
                         ir = this.itemsWithReport.find(x => x.itemID === row.ID);
@@ -803,18 +794,18 @@ export class TradeItemTable {
         let triggerChangeDetection = false;
         let noProduct = false;
 
-        if (event.field == 'Product') {
+
+        if (event.field === 'Product') {
             if (!event.newValue) {
                 noProduct = true;
-            }
-            else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
+            } else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
                 triggerChangeDetection = true;
             } else if (updatedRow.Product) {
                 triggerChangeDetection = true;
             }
-        } else if (event.field == 'ItemText') {
+        } else if (event.field === 'ItemText') {
             if (!updatedRow.Product) {
                 noProduct = true;
             }
@@ -834,7 +825,6 @@ export class TradeItemTable {
     public onRowChange(event: IRowChangeEvent) {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
-
         let triggerChangeDetection = this.updateDimensions(event, updatedRow);
 
         // If freetext on row is more than 250 characters we need
@@ -870,7 +860,9 @@ export class TradeItemTable {
 
     private updateItemMandatoryDimensions(item: any) {
         this.accountMandatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
-            var itemRep = item.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === item.ID) : this.itemsWithReport.find(x => x.itemID === item.ID && x.createguid === item._createguid);
+            const itemRep = item.ID !== 0
+                ? this.itemsWithReport.find(x => x.itemID === item.ID)
+                : this.itemsWithReport.find(x => x.itemID === item.ID && x.createguid === item._createguid);
             if (itemRep) {
                 itemRep.report = rep;
             } else {
@@ -882,7 +874,7 @@ export class TradeItemTable {
             }
             this.items = _.cloneDeep(this.items); // trigger change detection
         },
-        err => { 
+        err => {
             this.errorService.handle(err);
             this.items = _.cloneDeep(this.items);
         });
@@ -904,9 +896,9 @@ export class TradeItemTable {
 
                 this.initTableConfig();
             },
-            err => { 
+            err => {
                 this.errorService.handle(err);
-                this.initTableConfig(); 
+                this.initTableConfig();
             });
         }
     }
@@ -937,7 +929,7 @@ export class TradeItemTable {
                         duration: 3
                     });
                 }
-            }        
+            }
         }
     }
 

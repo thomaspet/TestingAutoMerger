@@ -76,9 +76,8 @@ export class TofHelper {
         entity.DefaultSellerID = customer.DefaultSellerID || null;
         entity.DefaultSeller = customer.DefaultSeller || null;
 
-        if (customer.Dimensions && customer.Dimensions.ProjectID) {
-            entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
-            entity.DefaultDimensions.Project = customer.Dimensions.Project;
+        if (customer.Dimensions) {
+            entity.DefaultDimensions = customer.Dimensions;
         }
 
         if (customer.PaymentTermsID) {

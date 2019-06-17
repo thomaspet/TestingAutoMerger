@@ -137,18 +137,17 @@ export class ProductDetails {
                 this.departmentService.GetAll(null),
                 this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
                 this.customDimensionService.getMetadata()
-            )
-                .subscribe((response: Array<any>) => {
-                    this.vatTypes = response[0];
-                    this.projects = response[1];
-                    this.departments = response[2];
-                    this.defaultSalesAccount = response[3].DefaultSalesAccount;
-                    this.customDimensions = response[4];
-                    this.formIsInitialized = true;
-                    this.fields$.next(this.getComponentLayout().Fields);
-                    this.extendFormConfig();
-                    this.loadProduct();
-                }, err => this.errorService.handle(err));
+            ).subscribe((response: Array<any>) => {
+                this.vatTypes = response[0];
+                this.projects = response[1];
+                this.departments = response[2];
+                this.defaultSalesAccount = response[3].DefaultSalesAccount;
+                this.customDimensions = response[4];
+                this.formIsInitialized = true;
+                this.fields$.next(this.getComponentLayout().Fields);
+                this.extendFormConfig();
+                this.loadProduct();
+            }, err => this.errorService.handle(err));
         } else {
             this.loadProduct();
         }

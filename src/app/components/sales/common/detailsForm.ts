@@ -47,6 +47,9 @@ export class TofDetailsForm {
     onFormChange(changes: SimpleChanges) {
         const keys = Object.keys(changes);
         keys.forEach(key => {
+            if (key.includes('ProjectID')) {
+                this.entity['_updatedField'] = Object.keys(changes)[0];
+            }
             _.set(this.entity, key, changes[key].currentValue);
         });
 
