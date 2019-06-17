@@ -107,34 +107,54 @@ export class UniRegisterPaymentModal implements IUniModal {
 
                 paymentData.BankChargeAccountID = this.companySettings.BankChargeAccountID;
 
-                let msg: string = '';
                 if (this.companySettings.CompanyBankAccount) {
                     this.accountMandatoryDimensionService.getMandatoryDimensionsReport(
                         this.companySettings.CompanyBankAccount.AccountID,
-                        paymentData.DimensionsID).subscribe((report) => {
-                            if (report && report.MissingRequiredDimensonsMessage !== '') {
-                                msg = '  ! ' +  report.MissingRequiredDimensonsMessage;
-                                this.mandatoryDimensionMessage = msg;
+                        paymentData.DimensionsID
+                    ).subscribe((report) => {
+                        let msg: string = '';
+                        if (report && report.MissingRequiredDimensonsMessage !== '') {
+                            msg = '  ! ' +  report.MissingRequiredDimensonsMessage;
+                            this.mandatoryDimensionMessage = msg;
                         }
-                        const filterField = this.config.entityName === 'CustomerInvoice' ? 'CustomerID' : 'SupplierID';
-                        const selectStatement = `model=Account&Select=ID&filter=${filterField} eq ${this.config.entityID}`;
-                        this.statisticsService.GetAll(selectStatement).subscribe((res) => {
-                            this.accountMandatoryDimensionService.getMandatoryDimensionsReport(res.Data[0].AccountID, paymentData.DimensionsID)
-                            .subscribe((report2) => {
-                                if (report2 && report2.MissingRequiredDimensonsMessage !== '') {
-                                    msg += '\n  ! ' +  report2.MissingRequiredDimensonsMessage;
-                                }
-                                if (msg !== '') {
-                                    this.mandatoryDimensionMessage = msg;
-                                    this.toastService.addToast('Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.', ToastType.warn, 5);
-                                }
-                                if (report && report.RequiredDimensions === [] && report2.RequiredDimensions === []) {
-                                    paymentData.DimensionsID = null;
-                                }
 
+                        let filter = '';
+                        if (this.config.supplierID) {
+                            filter = `SupplierID eq ${this.config.supplierID}`;
+                        } else if (this.config.customerID) {
+                            filter = `CustomerID eq ${this.config.customerID}`;
+                        }
 
+                        if (filter) {
+                            this.statisticsService.GetAll(`model=Account&Select=ID&filter=${filter}`).subscribe(res => {
+                                const data = (res && res.Data && res.Data[0]) || {};
+
+                                this.accountMandatoryDimensionService.getMandatoryDimensionsReport(
+                                    data.AccountID,
+                                    paymentData.DimensionsID
+                                ).subscribe(report2 => {
+                                    if (report2 && report2.MissingRequiredDimensonsMessage !== '') {
+                                        msg += '\n  ! ' +  report2.MissingRequiredDimensonsMessage;
+                                    }
+                                    if (msg !== '') {
+                                        this.mandatoryDimensionMessage = msg;
+                                        this.toastService.addToast(
+                                            'Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.', //tslint:disable-line
+                                            ToastType.warn, 5
+                                        );
+                                    }
+                                    if (report && report.RequiredDimensions === [] && report2.RequiredDimensions === []) {
+                                        paymentData.DimensionsID = null;
+                                    }
+                                });
                             });
-                        });
+                        } else if (msg) {
+                            this.mandatoryDimensionMessage = msg;
+                            this.toastService.addToast(
+                                'Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.', //tslint:disable-line
+                                ToastType.warn, 5
+                            );
+                        }
                     });
                 }
 
@@ -151,8 +171,10 @@ export class UniRegisterPaymentModal implements IUniModal {
     public close(emitValue?: boolean) {
         setTimeout(() => {
             if (this.mandatoryDimensionMessage !== '' && emitValue) {
-                this.toastService
-                    .addToast('Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.', ToastType.bad, 5);
+                this.toastService.addToast(
+                    'Betaling kan ikke registreres før påkrevde dimensjoner er satt, sett nødvendige dimensjoner på fakturahode.',
+                    ToastType.bad, 5
+                );
                 return;
             }
 

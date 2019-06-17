@@ -2139,9 +2139,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             data: invoicePaymentData,
             modalConfig: {
                 entityName: 'CustomerInvoice',
+                customerID: this.currentCustomer.ID,
                 currencyCode: this.currencyCodeID ? this.getCurrencyCode(this.currencyCodeID) : '',
                 currencyExchangeRate: this.invoice.CurrencyExchangeRate,
-                entityID: this.currentCustomer.ID
             }
         });
 
