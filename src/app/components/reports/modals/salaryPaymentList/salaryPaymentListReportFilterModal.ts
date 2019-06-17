@@ -52,7 +52,11 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
                     this.fields$.next(this.getLayout(payrollRun));
                     this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0, BookingType: SalaryBookingType.Dimensions });
                 }),
-                switchMap(run => this.payrollRunService.getPostingSummaryDraft(run.ID)),
+                switchMap(run => {
+                    return run && run.ID
+                        ? this.payrollRunService.getPostingSummaryDraft(run.ID)
+                        : Observable.of(null);
+                }),
             )
             .subscribe(draft => {
                 const model = this.model$.value;

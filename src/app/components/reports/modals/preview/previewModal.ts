@@ -110,6 +110,7 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
                 this.onClose
             ).subscribe(
                 () => {
+                    console.log(this.modalConfig);
                     this.actionButtonDisabled = false;
                     this.busy = false;
                     this.cdr.markForCheck();
@@ -126,7 +127,7 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
         this.reportService.generateReportFormat(format, this.modalConfig.reportDefinition);
     }
 
-    public close(saveBeforeClosing?: boolean) {
+    public close() {
         this.onClose.emit();
     }
 }
