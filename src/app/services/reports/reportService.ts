@@ -2,19 +2,15 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {RequestMethod} from '@angular/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin} from 'rxjs';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ErrorService} from '../common/errorService';
 import {EmailService} from '../common/emailService';
-import {ReportDefinitionService} from '../reports/reportDefinitionService';
 import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {environment} from 'src/environments/environment';
-import {AuthService} from '../../authService';
 import {BehaviorSubject} from 'rxjs';
-import {ReportStep} from '@app/components/reports/report-step';
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
 @Injectable()
@@ -34,52 +30,30 @@ export class ReportService extends BizHttp<string> {
         private reportGenerator: StimulsoftReportWrapper,
         private emailService: EmailService,
         private toastService: ToastService,
-        private reportDefinitionService: ReportDefinitionService,
-        private authService: AuthService,
-        private modalService: UniModalService,
         private statisticsService: StatisticsService
     ) {
         super(http);
-
         this.relativeURL = 'report';
         this.entityType = null;
         this.DefaultOrderBy = null;
     }
 
-    //
-    // Get report template and datasources
-    //
+    getDataSources(reportDefinitionID) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`report-definition-data-sources?filter=reportdefinitionid eq ${reportDefinitionID}`)
+            .send()
+            .map(res => res.json());
+    }
 
-    public getReportTemplate(reportId) {
+    getReportTemplate(reportID: number) {
         return this.http.asGET()
             .usingRootDomain()
-            .withEndPoint(`${this.relativeURL}/${reportId}`)
+            .withEndPoint(`${this.relativeURL}/${reportID}`)
             .send()
             .map(response => response.json());
     }
 
-    public getReportData(reportId, properties, companyKey?: string) {
-        // Map to object if its a property list
-        if (properties instanceof Array) {
-            const params = properties;
-            properties = {};
-            params.forEach(param => {
-                properties[param.Name] = param.value;
-            });
-        }
-
-        if (companyKey) { this.http.appendHeaders( { CompanyKey: companyKey }); }
-        return this.http.asPOST()
-            .usingRootDomain()
-            .withEndPoint(`${this.relativeURL}/${reportId}`)
-            .withBody(properties)
-            .send(undefined, undefined, !companyKey)
-            .map(response => response.json());
-    }
-
-    //
-    // Generate report
-    //
 
     public generateReportFormat(format: string, report: ReportDefinition, doneHandler: (msg: string) => void = null) {
         this.format = format;
@@ -88,68 +62,6 @@ export class ReportService extends BizHttp<string> {
         this.sendemail = null;
 
         this.generateReport(doneHandler);
-    }
-
-    public generateReportHtml(report: ReportDefinition, target: any, doneHandler: (msg: string) => void = null) {
-        this.format = 'html';
-        this.report = <Report>report;
-        this.target = target;
-        this.sendemail = null;
-
-        this.generateReport(doneHandler); // startReportProccess()
-    }
-
-    public generateReportPdf(report: ReportDefinition, doneHandler: (msg: string) => void = null) {
-        this.format = 'pdf';
-        this.report = <Report>report;
-        this.target = null;
-        this.sendemail = null;
-
-        this.generateReport(doneHandler);
-    }
-
-    public generateReportPdfFile(report: ReportDefinition): Observable<string> {
-        this.report = <Report>report;
-        return this.generateReportObservable()
-            .switchMap(dataSources => this.getDataSourcesObservable())
-            .switchMap((response: { dataSources: any }) =>
-                this.reportGenerator.printReport(
-                    this.report.templateJson,
-                    this.report.dataSources,
-                    this.report.parameters,
-                    false, 'pdf',
-                    this.report.localization
-                )
-            );
-    }
-
-    public generateReportSendEmail(name: string, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
-        if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
-            this.toastService.addToast(
-                'Sending feilet',
-                ToastType.bad, 3,
-                'Sending av e-post feilet grunnet manglende e-postadresse'
-            );
-
-            if (doneHandler) {
-                doneHandler('Sending feilet');
-            }
-        } else {
-            this.emailtoast = this.toastService.addToast(
-                'Sender e-post til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject
-            );
-
-            this.reportDefinitionService.getReportByName(name).subscribe((report) => {
-                report.parameters = [{ Name: 'Id', value: sendemail.EntityID }];
-                if (parameters) { report.parameters = report.parameters.concat(parameters); }
-
-                this.format = sendemail.Format;
-                this.report = <Report>report;
-                this.target = null;
-                this.sendemail = sendemail;
-                this.generateReport(doneHandler);
-            }, err => this.errorService.handle(err));
-        }
     }
 
     private generateReport(doneHandler: (msg: string) => void = null) {
@@ -185,45 +97,27 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.json());
     }
 
-    public distribute(id, type) {
+    public distribute(id, entityType) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(`distributions?action=distribute&id=${id}&entityType=${type}`)
+            .withEndPoint(`distributions?action=distribute&id=${id}&entityType=${entityType}`)
             .send()
             .map(res => res.json());
     }
 
-    public distributeWithType(id, type, disttype) {
+    public distributeWithType(id, entityType, distributionType) {
+        const endpoint = `distributions?action=distribute-with-type`
+            + `&id=${id}&distributiontype=${distributionType}&entityType=${entityType}`;
+
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(`distributions?action=distribute-with-type&id=${id}&distributiontype=${disttype}&entityType=${type}`)
+            .withEndPoint(endpoint)
             .send()
             .map(res => res.json());
     }
 
-    public distributeWithTypeAndBody(id, type, disttype, body) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(`distributions?action=distribute-with-type&id=${id}&distributiontype=${disttype}&entityType=${type}`)
-            .withBody(body)
-            .send()
-            .map(res => res.json());
-    }
-
-    private renderHtml(report) {
-        return new Promise((resolve, reject) => {
-            if (!report) {
-                reject();
-            }
-            if (this.parentModalIsClosed) {
-                reject();
-            }
-            this.reportGenerator.renderHtml(report, resolve);
-        });
-    }
 
     public startReportProcess(reportDefinition, target: any, closeEmitter: EventEmitter<boolean>) {
         this.parentModalIsClosed = false;
@@ -233,8 +127,6 @@ export class ReportService extends BizHttp<string> {
         this.sendemail = null;
         const s = closeEmitter.subscribe(() => {
             this.parentModalIsClosed = true;
-            const styleNode = document.getElementById('StiViewerStyles');
-            styleNode.parentNode.removeChild(styleNode);
             s.unsubscribe();
         });
 
@@ -264,6 +156,75 @@ export class ReportService extends BizHttp<string> {
             .map(template => {
                 this.report.templateJson = template;
             });
+    }
+
+    private getDataSourcesObservable(): Observable<any> {
+        // REVISIT: quickfix for getting report data client side
+        // instead of the api having to worry about it.
+        // This function (the entire service tbh) should be refactored.
+        return this.getDataSources(this.report.ID).switchMap(ds => {
+            const datasources = ds || [];
+            const params = this.report.parameters || [];
+
+            const companyKey = this.report['companyKey'];
+            if (companyKey) {
+                this.http.appendHeaders({CompanyKey: companyKey});
+            }
+
+            const getData = (name, endpoint) => {
+                return this.http.asGET()
+                    .usingEmptyDomain()
+                    .withEndPoint(endpoint)
+                    .send(undefined, undefined, !companyKey)
+                    .catch(err => {
+                        console.error(err);
+                        return Observable.of([]);
+                    })
+                    .map(res => {
+                        return {
+                            name: name,
+                            data: res.json ? res.json() : res
+                        };
+                    });
+            };
+
+            const requests = datasources.map(datasource => {
+                let endpoint = datasource.DataSourceUrl;
+                params.forEach(param => {
+                    if (endpoint.includes(`{${param.Name}}`)) {
+                        endpoint = endpoint.split(`{${param.Name}}`).join(param.value);
+                    }
+                });
+
+                return getData(datasource.Name, endpoint);
+            });
+
+            return forkJoin(requests)
+                .map(response => {
+                    const data: any = {};
+                    (response || []).forEach((obj: any) => {
+                        data[obj.name] = obj.data;
+                    });
+
+                    this.report.dataSources = data;
+                    if (!this.report.localization) {
+                        this.getLocalizationOverride();
+                    }
+                })
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        });
+    }
+
+    private renderHtml(report) {
+        return new Promise((resolve, reject) => {
+            if (!report) {
+                reject();
+            }
+            if (this.parentModalIsClosed) {
+                reject();
+            }
+            this.reportGenerator.renderHtml(report, resolve);
+        });
     }
 
     private getCustomerLocalizationOverride(entity: string) {
@@ -302,17 +263,6 @@ export class ReportService extends BizHttp<string> {
         ['CustomerInvoice', 'CustomerOrder', 'CustomerQuote'].forEach(entity => {
             this.getCustomerLocalizationOverride(entity);
         });
-    }
-
-    private getDataSourcesObservable(): Observable<any> {
-        return this.getReportData(this.report.ID, this.report.parameters, this.report['companyKey'])
-            .map(dataSources => {
-                this.report.dataSources = dataSources;
-                if (!this.report.localization) {
-                    this.getLocalizationOverride();
-                }
-            })
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public onDataFetched(dataSources: any, doneHandler: (msg: string) => void = null) {
@@ -362,7 +312,7 @@ export class ReportService extends BizHttp<string> {
 
     private addLogoUrl() {
         if (this.report.parameters) {
-            const logoKeyParam = new CustomReportDefinitionParameter();
+            const logoKeyParam = <ReportParameter> {};
             logoKeyParam.Name = 'LogoUrl';
             logoKeyParam.value = environment.BASE_URL_FILES + '/api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
             this.report.parameters.push(logoKeyParam);
@@ -370,21 +320,13 @@ export class ReportService extends BizHttp<string> {
     }
 }
 
-class ReportDataSource extends ReportDefinitionDataSource {
-
+export interface ReportParameter extends ReportDefinitionParameter {
+    value: string;
 }
 
-class CustomReportDefinitionParameter extends ReportDefinitionParameter {
-    public value: any;
-}
-
-export class ReportParameter extends ReportDefinitionParameter {
-    public value: string;
-}
-
-export class Report extends ReportDefinition {
-    public parameters: ReportParameter[];
-    public dataSources: ReportDataSource[];
-    public templateJson: string;
-    public localization: string;
+export interface Report extends ReportDefinition {
+    parameters: ReportParameter[];
+    dataSources: ReportDefinitionDataSource[];
+    templateJson: string;
+    localization: string;
 }

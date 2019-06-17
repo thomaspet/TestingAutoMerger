@@ -414,9 +414,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         this.commentConfig.companyKey = this.report.companyKey;
         const query = `model=comment&select=id as ID,text as Text&filter=entitytype eq '${filter}' and entityid eq '${id}'`;
         this.statisticsService.GetAllForCompany(query, this.report.companyKey)
-            .subscribe( x => {
-                x.Data.map(cm => cm.Text = decodeURI(cm.Text));
-                this.comments = x.Data;
+            .subscribe(res => {
+                this.comments = res.Data;
             });
     }
 

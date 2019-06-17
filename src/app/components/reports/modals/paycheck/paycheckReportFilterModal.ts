@@ -74,7 +74,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                 .next({
                     EmpFrom: 1,
                     EmpTo: employee.EmployeeNumber || 1,
-                    RunID: payrollRun.ID,
+                    RunID: payrollRun && payrollRun.ID,
                     Grouping: false,
                 });
         });
