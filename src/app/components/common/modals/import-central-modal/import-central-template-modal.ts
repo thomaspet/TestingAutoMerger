@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { ImportFileType, ImportDialogModel } from '@app/models/sales/ImportDialogModel';
+import { ImportFileType, ImportDialogModel } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
@@ -18,7 +18,13 @@ import { Http } from '@angular/http';
             <article>
                 <form class="uni-html-form">
                     <label>
-                    {{options.message}}
+                        {{options.data.conditionalStatement}}
+                    </label>
+                    <label>
+                        {{options.data.formatStatement}}
+                    </label>
+                    <label>
+                        {{options.data.downloadStatement}}
                     </label>
                     <label class="upload-input">
                         <i class="material-icons">cloud_download</i>
@@ -59,7 +65,7 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
 
-    errorMessage = 'Please select a file';
+    errorMessage = 'Velg fil';
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
     importModel: ImportDialogModel;
 
@@ -88,7 +94,7 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
                 this.file = source.files[0];
                 this.fileType = type === 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat;
             } else {
-                this.errorMessage = 'Selected file format dose not support!';
+                this.errorMessage = 'Valgt fil har et filformat som ikke er støttet';
                 this.errorService.handle(this.errorMessage);
             }
         }
@@ -98,11 +104,10 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
         const data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
-        data.append('EntityType', 'Supplier');
-        data.append('Description', 'Import central - supplier');
+        data.append('EntityType', this.options.data.entityType);
+        data.append('Description', this.options.data.description);
         data.append('WithPublicAccessToken', 'true');
         data.append('File', <any>file);
-
         return this.http.post(this.baseUrl + '/api/file', data)
             .map(res => res.json());
     }

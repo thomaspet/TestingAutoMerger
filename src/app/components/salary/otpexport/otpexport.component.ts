@@ -147,7 +147,7 @@ export class OTPExportComponent implements OnInit {
       .open(OtpPeriodWagetypeModalComponent)
       .onClose
       .subscribe(modalresponse => {
-        if (modalresponse && modalresponse.runupdate) {
+        if (this.runs && modalresponse && modalresponse.runupdate) {
           this.getData();
         }
       });

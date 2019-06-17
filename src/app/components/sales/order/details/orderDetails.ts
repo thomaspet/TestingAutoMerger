@@ -1332,6 +1332,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             if (res.OrderNumber) { this.selectConfig = undefined; }
                             this.updateTab(res);
                             resolve(res);
+                            this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.orderItems);
                         },
                         err => reject(err)
                     );

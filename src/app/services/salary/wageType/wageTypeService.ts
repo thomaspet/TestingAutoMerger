@@ -256,7 +256,10 @@ export class WageTypeService extends BizHttp<WageType> {
                             FieldSet: 1,
                             Legend: 'Lønnsart',
                             Section: 0,
-                            Placeholder: 'La stå tom for neste ledige'
+                            Placeholder: 'La stå tom for neste ledige',
+                            Options: {
+                                format: 'integer'
+                            }
                         },
                         {
                             EntityType: 'wagetype',

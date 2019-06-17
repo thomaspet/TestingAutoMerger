@@ -191,7 +191,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Product.VatType',
         'VatType',
         'Account',
-        'Account.ManatoryDimensions',
+        'Account.MandatoryDimensions',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -1443,7 +1443,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-
     private saveInvoice(done = (msg: string) => {}): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
         this.invoice = this.tofHelper.beforeSave(this.invoice);
@@ -1465,6 +1464,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                             if (res.InvoiceNumber) { this.selectConfig = undefined; }
                             resolve(res);
+                            this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.invoiceItems);
                             done('Lagring fullført');
                         },
                         err => reject(err));

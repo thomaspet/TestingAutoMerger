@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
-import {ApiKeyService, ErrorService} from '@app/services/services';
-import {ApiKey} from '@uni-entities';
-import {ApikeyLineModal} from './modals/apikey-modal';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import { Component, OnInit } from '@angular/core';
+import { UniTableConfig, UniTableColumn,UniTableColumnType } from '@uni-framework/ui/unitable';
+import { ApiKeyService, ErrorService } from '@app/services/services';
+import { ApiKey } from '@uni-entities';
+import { ApikeyLineModal } from './modals/apikey-modal';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'apikey-component',
@@ -18,7 +18,7 @@ export class ApiKeyComponent implements OnInit {
         private apikeyService: ApiKeyService,
         private modalService: UniModalService,
         private errorService: ErrorService
-    ) {}
+    ) { }
 
     public ngOnInit() {
         this.getData();
@@ -73,11 +73,14 @@ export class ApiKeyComponent implements OnInit {
         const typeCol = new UniTableColumn('IntegrationType', 'Type').setTemplate((apikey: ApiKey) => {
             return this.apikeyService.getIntegrationTypeText(apikey);
         });
-
+        const statusCol = new UniTableColumn('StatusCode', 'Status').setTemplate((apiKey: ApiKey) => {
+            return this.apikeyService.getStatusCodeText(apiKey);
+        });
+        const dateCol = new UniTableColumn('CreatedAt', 'Created Date', UniTableColumnType.DateTime);
         this.apikeysConfig = new UniTableConfig('common.apikey.apikeyIntegrationsList', false)
             .setDeleteButton(true)
             .setColumns([
-                descCol, urlCol, typeCol
+                descCol, urlCol, typeCol, statusCol, dateCol
             ]);
     }
 

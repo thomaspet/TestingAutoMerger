@@ -65,17 +65,17 @@ export class AccountService extends BizHttp<Account> {
         return accounts;
     }
 
-    public addManatoryDimensions(data: any) {
+    public addMandatoryDimensions(data: any) {
         const urldata = [
             'FromAccountNo=' + data.FromAccountNo,
             'ToAccountNo=' + data.ToAccountNo,
             'DimensionNo=' + data.DimensionNo,
-            'ManatoryType=' + data.ManatoryType,
+            'MandatoryType=' + data.MandatoryType,
         ];
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint('accountmanatorydimension?action=add-accounts-manatory-dimensions&' + urldata.join('&'))
+            .withEndPoint('accountmandatorydimension?action=add-accounts-mandatory-dimensions&' + urldata.join('&'))
             .send().pipe(map(res => res.json()));
     }
 

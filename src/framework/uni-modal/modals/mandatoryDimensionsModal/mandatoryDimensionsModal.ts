@@ -45,7 +45,7 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
     }
 
     onChange(event: any) {
-        if (this.model.FromAccountNo && this.model.ToAccountNo && this.model.ManatoryType !== 0) {
+        if (this.model.FromAccountNo && this.model.ToAccountNo && this.model.MandatoryType !== 0) {
             this.checkingBankAccounts = true;
             this.accountService.checkLinkedBankAccountsAndPostPost(this.model.FromAccountNo, this.model.ToAccountNo).subscribe(hasLinkedBankAccounts => {
                 this.checkingBankAccounts = false;
@@ -64,7 +64,7 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
     isModelComplete() {
         return this.model.FromAccountNo
             && this.model.ToAccountNo
-            && (this.model.ManatoryType || this.model.ManatoryType === 0)
+            && (this.model.MandatoryType || this.model.MandatoryType === 0)
             && this.model.DimensionNo;
     }
 
@@ -97,7 +97,7 @@ export class UniMandatoryDimensionsModal implements OnInit, IUniModal {
                         }
                     },
                     {
-                        Property: 'ManatoryType',
+                        Property: 'MandatoryType',
                         FieldType: FieldType.DROPDOWN,
                         Label: 'Type',
                         Options: {

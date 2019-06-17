@@ -17,8 +17,7 @@ import {
     Project,
     Department,
     Dimensions,
-    LocalDate,
-    CustomerInvoiceItem
+    LocalDate
 } from '../../../unientities';
 import {
     ProductService,
@@ -29,11 +28,12 @@ import {
     ErrorService,
     CompanySettingsService,
     CustomDimensionService,
-    AccountManatoryDimensionService
+    AccountMandatoryDimensionService
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { isNullOrUndefined } from 'util';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-tradeitem-table',
@@ -77,6 +77,7 @@ export class TradeItemTable {
     ];
     itemsWithReport: any[] = [];
     showMandatoryDimensionsColumn = false;
+    accountsWithMandatoryDimensionsIsUsed = true;
 
     constructor(
         private productService: ProductService,
@@ -89,18 +90,25 @@ export class TradeItemTable {
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
         private customDimensionService: CustomDimensionService,
-        private accountManatoryDimensionService: AccountManatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private toastService: ToastService
     ) {}
 
     public ngOnInit() {
         Observable.forkJoin(
-            this.companySettingsService.Get(1)
+            this.companySettingsService.Get(1),
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions()
         ).subscribe(
             res => {
+                const resultManDims = res[1];
+                const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
+                    resultManDims.Data[0].countID : 0;
+                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithMandatoryDimensions > 0;
+                
                 this.settings = res[0];
-                if (this.configStoreKey === 'sales.invoice.tradeitemTable' || 
-                    this.configStoreKey === 'sales.order.tradeitemTable' /*|| 
-                    this.configStoreKey === 'sales.recurringinvoice.tradeitemTable'*/) {
+                if (this.accountsWithMandatoryDimensionsIsUsed && this.configStoreKey === 'sales.invoice.tradeitemTable' || 
+                    this.configStoreKey === 'sales.order.tradeitemTable' || 
+                    this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
                     this.showMandatoryDimensionsColumn = true;
                     this.itemsWithReport = [];
                 }
@@ -369,7 +377,7 @@ export class TradeItemTable {
                         `filter=${filter}&top=100&orderby=PartName`,
                         [
                             'Account',
-                            'Account.ManatoryDimensions',
+                            'Account.MandatoryDimensions',
                             'Dimensions',
                             'Dimensions.Project',
                             'Dimensions.Department',
@@ -743,7 +751,7 @@ export class TradeItemTable {
     }
 
     private createMandatoryDimensionsCol() : UniTableColumn {
-        return new UniTableColumn('...', 'Påkrevde dimensjoner', UniTableColumnType.Text, false)
+        return new UniTableColumn('MandatoryDimensions', 'Påkrevde dimensjoner', UniTableColumnType.Text, false)
         .setVisible(false)
         .setWidth(40)
         .setResizeable(false)
@@ -760,6 +768,11 @@ export class TradeItemTable {
                     };
                 }
                 var ir = row.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === row.ID) : this.itemsWithReport.find(x => x.createguid === row._createguid);
+                if (!ir) {
+                    if (row.ID === 0) {
+                        ir = this.itemsWithReport.find(x => x.itemID === row.ID);
+                    }
+                }
                 if (ir) {
                     const rep = ir.report;
                     const reqDims = rep.MissingRequiredDimensions;
@@ -770,10 +783,10 @@ export class TradeItemTable {
                     const warnDims = rep.MissingWarningDimensions;
                     if (warnDims && warnDims.length > 0) {
                         if (check === 1) {
-                            text += '\n' + rep.MissingOnlyWarningsDimensionsMessage
+                            text += '\n' + rep.MissingOnlyWarningsDimensionsMessage;
                         } else {
                             check = 2;
-                            text = rep.MissingOnlyWarningsDimensionsMessage
+                            text = rep.MissingOnlyWarningsDimensionsMessage;
                         }
                     }
                 }
@@ -807,6 +820,8 @@ export class TradeItemTable {
             }
         } else if (event.field.startsWith('Dimensions.')) {
             updatedRow.DimensionsID = 0;
+            triggerChangeDetection = true;
+        } else if (event.field === 'Account') {
             triggerChangeDetection = true;
         }
         if (noProduct) {
@@ -854,7 +869,7 @@ export class TradeItemTable {
     }
 
     private updateItemMandatoryDimensions(item: any) {
-        this.accountManatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
+        this.accountMandatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
             var itemRep = item.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === item.ID) : this.itemsWithReport.find(x => x.itemID === item.ID && x.createguid === item._createguid);
             if (itemRep) {
                 itemRep.report = rep;
@@ -874,24 +889,56 @@ export class TradeItemTable {
     }
 
     public getMandatoryDimensionsReports() {
-        this.accountManatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
-            let cnt = 0;
-            this.itemsWithReport = [];
-            this.items.forEach(item => {
-                this.itemsWithReport.push({
-                    createguid: isNullOrUndefined(item._createguid) ? item.ID : item._createguid,
-                    itemID: item.ID,
-                    report: reps[cnt]
+        if (this.accountsWithMandatoryDimensionsIsUsed) {
+            this.accountMandatoryDimensionService.getMandatoryDimensionsReports(this.items).subscribe(reps => {
+                let cnt = 0;
+                this.itemsWithReport = [];
+                this.items.forEach(item => {
+                    this.itemsWithReport.push({
+                        createguid: isNullOrUndefined(item._createguid) ? item.ID : item._createguid,
+                        itemID: item.ID,
+                        report: reps[cnt]
+                    });
+                    cnt++;
                 });
-                cnt++;
-            });
 
-            this.initTableConfig();
-        },
-        err => { 
-            this.errorService.handle(err);
-            this.initTableConfig(); 
-        });
+                this.initTableConfig();
+            },
+            err => { 
+                this.errorService.handle(err);
+                this.initTableConfig(); 
+            });
+        }
+    }
+
+    public showWarningIfMissingMandatoryDimensions(items: any[]) {
+        const mdCol = this.table.columns.find(x => x.field === 'MandatoryDimensions');
+        if (mdCol && !mdCol.visible) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && items) {
+                let msg: string = '';
+                this.itemsWithReport.forEach(item => {
+                    const report = item.report;
+                    if (report.MissingRequiredDimensonsMessage !== '') {
+                        if (!msg.includes(report.MissingRequiredDimensonsMessage)) {
+                            msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
+                        }
+                    }
+                    if (report.MissingOnlyWarningsDimensionsMessage) {
+                        if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
+                            msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                        }
+                    }
+                });
+                if (msg !== '') {
+                    this.toastService.toast({
+                        title: 'Dimensjon(er) mangler',
+                        message: msg + '<br/>Legg til kolonnen Påkrevde dimensjoner for å se mer informasjon.',
+                        type: ToastType.warn,
+                        duration: 3
+                    });
+                }
+            }        
+        }
     }
 
     private getEmptyRow() {

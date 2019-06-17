@@ -27,25 +27,11 @@ export class JobLog {
         private jobService: JobService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-        this.tabService.addTab({ url: '/admin/jobs/', name: 'Jobber', active: true, moduleID: UniModules.Jobs });
+        this.tabService.addTab({ url: '/admin/jobs', name: 'Jobber', active: true, moduleID: UniModules.Jobs });
     }
 
     public ngOnInit() {
         this.initLog();
-    }
-
-    private updateTabTitle() {
-        let url = '/admin/job-log';
-        if (this.jobName) {
-            url += `?jobName=${this.jobName}`;
-        }
-
-        this.tabService.addTab({
-            url: url,
-            name: 'Jobb log',
-            active: true,
-            moduleID: UniModules.Jobs,
-        });
     }
 
     private updateToolBar() {
@@ -72,8 +58,6 @@ export class JobLog {
                         this.log = jobRun ? jobRun.JobRunLogs : [];
                         this.progress = jobRun ? jobRun.Progress : [];
 
-
-                        this.updateTabTitle();
                         this.updateToolBar();
                     },
                     err => this.errorMessage$.next(err)

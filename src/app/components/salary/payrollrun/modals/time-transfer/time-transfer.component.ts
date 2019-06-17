@@ -121,7 +121,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
         const employeeCol = new UniTableColumn('WorkRelation.Worker.Employee.BusinessRelationInfo', 'Ansatt',
             UniTableColumnType.Text, false)
             .setTemplate(dataItem =>
-                dataItem.WorkItems[0].WorkRelation.Worker.EmployeeID + ' - ' +
+                dataItem.WorkItems[0].WorkRelation.Worker.Employee.EmployeeNumber + ' - ' +
                 dataItem.WorkItems[0].WorkRelation.Worker.Employee.BusinessRelationInfo.Name);
         const employmentCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Text, false)
             .setTemplate(dataItem => !!dataItem.Employment &&

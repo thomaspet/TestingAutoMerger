@@ -5,7 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     Account, VatType, AccountGroup, VatDeductionGroup, CostAllocation,
-    DimensionSettings, AccountManatoryDimension
+    DimensionSettings, AccountMandatoryDimension
 } from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
@@ -16,7 +16,8 @@ import {
     CurrencyCodeService,
     AccountService,
     VatDeductionGroupService,
-    CostAllocationService
+    CostAllocationService,
+    AccountMandatoryDimensionService
 } from '../../../../services/services';
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
 import * as _ from 'lodash';
@@ -51,7 +52,8 @@ export class AccountDetails implements OnInit {
         private toastService: ToastService,
         private vatDeductionGroupService: VatDeductionGroupService,
         private costAllocationService: CostAllocationService,
-        private dimensionSettingsService: DimensionSettingsService
+        private dimensionSettingsService: DimensionSettingsService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -239,8 +241,8 @@ export class AccountDetails implements OnInit {
             this.dimensionsFields$.next(fields);
             if (this.account$.getValue()) {
                 const dimensions = {};
-                this.account$.getValue().ManatoryDimensions.forEach(md => {
-                    dimensions['dim' + md.DimensionNo] = md.ManatoryType;
+                this.account$.getValue().MandatoryDimensions.forEach(md => {
+                    dimensions['dim' + md.DimensionNo] = md.MandatoryType;
                 });
                 this.dimensions$.next(dimensions);
             } else {
@@ -268,17 +270,17 @@ export class AccountDetails implements OnInit {
         }
         _.each(dimensions, (value, property) => {
             const dim = parseInt(property.split('dim')[1], 10);
-            const manatoryDimensions = account.ManatoryDimensions;
-            const manatoryDimension = _.find(manatoryDimensions, (md: AccountManatoryDimension) => md.DimensionNo === dim);
-            if (manatoryDimension) {
-                manatoryDimension.ManatoryType = value;
+            const mandatoryDimensions = account.MandatoryDimensions;
+            const mandatoryDimension = _.find(mandatoryDimensions, (md: AccountMandatoryDimension) => md.DimensionNo === dim);
+            if (mandatoryDimension) {
+                mandatoryDimension.MandatoryType = value;
             } else {
-                const newManatoryDimension = new AccountManatoryDimension();
-                newManatoryDimension._createguid = getNewGuid();
-                newManatoryDimension.ManatoryType = value;
-                newManatoryDimension.DimensionNo = dim;
-                newManatoryDimension.AccountID = account.ID;
-                account.ManatoryDimensions.push(newManatoryDimension);
+                const newMandatoryDimension = new AccountMandatoryDimension();
+                newMandatoryDimension._createguid = getNewGuid();
+                newMandatoryDimension.MandatoryType = value;
+                newMandatoryDimension.DimensionNo = dim;
+                newMandatoryDimension.AccountID = account.ID;
+                account.MandatoryDimensions.push(newMandatoryDimension);
             }
         });
     }
@@ -306,7 +308,7 @@ export class AccountDetails implements OnInit {
                 'Dimensions.Region',
                 'Dimensions.Responsible',
                 'Dimensions.Department',
-                'ManatoryDimensions'
+                'MandatoryDimensions'
             ]);
     }
 
@@ -337,6 +339,7 @@ export class AccountDetails implements OnInit {
                             // completeEvent('Lagret');
                             resolve(true);
                             this.accountSaved.emit(account);
+                            this.checkRecurringInvoices(account.ID);
                         },
                         (err) => {
                             // completeEvent('Feil ved lagring');
@@ -389,7 +392,8 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
-                        this.accountSaved.emit(account);
+                        this.accountSaved.emit(response);
+                        this.checkRecurringInvoices(account.ID);
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
@@ -410,6 +414,19 @@ export class AccountDetails implements OnInit {
                     }
                 );
         }
+    }
+
+    private checkRecurringInvoices(accountID: number) {
+        this.accountMandatoryDimensionService.checkRecurringInvoices(accountID).subscribe((res) => {
+            if (res) {
+                this.toastService.toast({
+                    title: 'Repeterende faktura(er) mangler dimensjon(er)',
+                    message: res,
+                    type: ToastType.warn,
+                    duration: 5
+                });
+            }
+        });
     }
 
     // TODO: change to 'ComponentLayout' when object respects the interface

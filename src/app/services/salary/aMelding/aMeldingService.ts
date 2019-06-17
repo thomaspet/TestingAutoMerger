@@ -125,7 +125,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.json());
     }
 
-    public getAMeldingFile(id: number) {
+    public getAMeldingFile(id: number): Observable<string> {
         return this.http
             .asGET()
             .usingBusinessDomain()
