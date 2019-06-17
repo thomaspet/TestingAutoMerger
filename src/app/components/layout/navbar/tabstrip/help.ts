@@ -14,9 +14,11 @@ import {VideoMappingService} from '@app/services/services';
         </section>
 
         <ul class="toolbar-dropdown-list" [attr.aria-expanded]="isExpanded">
+            <li (click)="goToServiceDesk()">Kundesenter</li>
+            <li (click)="goToMySupportCases()">Mine supportsaker</li>
+            <li (click)="goToTeamviewer()">Teamviewer nedlasting</li>
             <li [attr.aria-disabled]="!videoURL?.length" (click)="goToVideo()">Opplæringsvideo for skjermbilde</li>
             <li (click)="goToTipsAndTricks()">Tips og triks</li>
-            <li (click)="goToServiceDesk()">Kundesenter</li>
             <li (click)="goToAbout()">Versjonsinformasjon</li>
             <li (click)="goToLicenseInfo()">Lisensinformasjon</li>
         </ul>
@@ -51,7 +53,15 @@ export class UniTabstripHelp {
     }
 
     goToServiceDesk() {
-        window.open('https://unimicro.atlassian.net/servicedesk/customer/portal/3', '_blank');
+        window.open('https://komigang.unieconomy.no/', '_blank');
+    }
+
+    goToMySupportCases() {
+        window.open('https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open', '_blank');
+    }
+
+    goToTeamviewer() {
+        window.open('ftp://ftp.unimicro.biz/teknisk/umtt.exe', '_blank');
     }
 
     goToAbout() {
