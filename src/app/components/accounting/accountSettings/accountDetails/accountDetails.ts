@@ -392,7 +392,7 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
-                        this.accountSaved.emit(account);
+                        this.accountSaved.emit(response);
                         this.checkRecurringInvoices(account.ID);
                     },
                     (err) => {
