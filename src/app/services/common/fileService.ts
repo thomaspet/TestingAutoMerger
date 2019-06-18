@@ -80,11 +80,19 @@ export class FileService extends BizHttp<File> {
             .map(response => response.json());
     }
 
-    public getLinkedEntityID(entityType: string, fileID: number) {
-        return fileID > 0
-            ? this.getStatistics(`model=fileentitylink&select=entityid as entityID&filter=deleted eq 0 and entitytype eq '${entityType}' and fileid eq ${fileID}&orderby=entityid desc`).
-              map(response => response.Data)
-            : Observable.of([]);
+    public getLinkedEntityID(fileID: number, entityType?: string) {
+        if (fileID) {
+            let filter = `deleted eq 0 and fileid eq ${fileID}`;
+            if (entityType) {
+                filter +=  ` and entitytype eq '${entityType}'`;
+            }
+
+            return this.getStatistics(
+                `model=fileentitylink&select=entityid as entityID,entityType as entityType&filter=${filter}&orderby=entityid desc`
+            ).map(response => response.Data);
+        } else {
+            return Observable.of([]);
+        }
     }
 
     public splitFile(oldFileID: number, newFileID1: number, newFileID2: number) {
