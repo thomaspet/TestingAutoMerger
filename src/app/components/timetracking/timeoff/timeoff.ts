@@ -78,7 +78,7 @@ export class UniWorkTimeOff {
         this.createYearArray();
         this.workerService.getWorkTimeOff(this.currentYear).subscribe(result => {
             this.timeSheet = this.createYearArray();
-            this.timeoff = result;
+            this.timeoff = result ? result.Data : [];
             this.months = this.getFormattedMonths();
             this.filteredTimeSheet = this.getFilteredTimeSheet();
 
