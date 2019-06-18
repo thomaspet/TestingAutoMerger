@@ -1400,7 +1400,7 @@ export class BillView implements OnInit {
         try {
             this.onFormChanged(change);
         } catch (err) {
-            console.log('onFormChange-Error', err);
+            this.errorService.handle(err);
         }
     }
 
@@ -1435,7 +1435,8 @@ export class BillView implements OnInit {
                     });
                 } else {
                     if (lines.filter(line => line.Dimensions && line.Dimensions['Dimension' + dim.Dimension] &&
-                            line.Dimensions['Dimension' + dim.Dimension + 'ID'] !== model.DefaultDimensions['Dimension' + dim.Dimension + 'ID']
+                            line.Dimensions['Dimension' + dim.Dimension + 'ID']
+                            !== model.DefaultDimensions['Dimension' + dim.Dimension + 'ID']
                         ).length) {
                         this.modalService.open(UniConfirmModalV2, {
                             buttonLabels: {
@@ -1557,7 +1558,7 @@ export class BillView implements OnInit {
                     .subscribe(res => {
                             model.CurrencyExchangeRate = res.ExchangeRate;
 
-                            this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+                            this.updateJournalEntryAmountsWhenCurrencyChanges(lines);
 
                             this.current.next(model);
                             this.flagUnsavedChanged();
@@ -1603,13 +1604,13 @@ export class BillView implements OnInit {
                     model.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, model.InvoiceDate
                 ).subscribe(res => {
                     model.CurrencyExchangeRate = res.ExchangeRate;
-                    this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+                    this.updateJournalEntryAmountsWhenCurrencyChanges(lines);
 
                     this.current.next(model);
                     this.flagUnsavedChanged();
                 }, err => this.errorService.handle(err));
             } else {
-                this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+                this.updateJournalEntryAmountsWhenCurrencyChanges(lines);
                 this.current.next(model);
             }
         }
@@ -1618,7 +1619,9 @@ export class BillView implements OnInit {
             if ( model.ReInvoiceID != null ) {
                 this.reinvoicingService.Get(model.ReInvoiceID).subscribe( reInv => {
                     if (  reInv.StatusCode === 30203 ) {
-                        this.toast.addToast('', ToastType.bad, 10, 'Du har knyttet en viderefakturering som er gjennomført til denne leverandørfakturaen. Viderefaktureringen må slettes og settes opp på nytt igjen for å viderefakturere med korrekt beløp.');
+                        this.toast.addToast('', ToastType.bad, 10,
+                        'Du har knyttet en viderefakturering som er gjennomført til denne leverandørfakturaen. '
+                        + 'Viderefaktureringen må slettes og settes opp på nytt igjen for å viderefakturere med korrekt beløp.');
                     }
                 });
             }
@@ -1627,7 +1630,7 @@ export class BillView implements OnInit {
 
         if (change['TaxInclusiveAmountCurrency']) {
 
-            this.updateJournalEntryAmountsWhenCurrencyChanges(model);
+            this.updateJournalEntryAmountsWhenCurrencyChanges(lines);
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
             }
@@ -1794,19 +1797,22 @@ export class BillView implements OnInit {
         this.flagUnsavedChanged();
     }
 
-    private updateJournalEntryAmountsWhenCurrencyChanges(model: SupplierInvoice) {
-        if (model.JournalEntry && model.JournalEntry.DraftLines) {
-            model.JournalEntry.DraftLines.forEach(line => {
-                line.CurrencyCodeID = model.CurrencyCodeID;
+    private updateJournalEntryAmountsWhenCurrencyChanges(lines: any[]) {
+        const current = this.current.getValue();
 
+        if (lines && lines.length) {
+            lines.forEach(line => {
+                line.CurrencyCodeID = current.CurrencyCodeID;
+                line.CurrencyCode = current.CurrencyCode;
                 if (!line.CurrencyCodeID || line.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID) {
                     line.CurrencyExchangeRate = 1;
                 } else {
-                    line.CurrencyExchangeRate = model.CurrencyExchangeRate;
+                    line.CurrencyExchangeRate = current.CurrencyExchangeRate;
                 }
 
                 line.Amount = UniMath.round(line.AmountCurrency * line.CurrencyExchangeRate);
             });
+            this.journalEntryManual.setJournalEntryData(lines);
         }
     }
 
@@ -1840,6 +1846,13 @@ export class BillView implements OnInit {
 
             if (result.CurrencyCodeID) {
                 current.CurrencyCodeID = result.CurrencyCodeID;
+                const currencyDate: LocalDate = current.InvoiceDate ? current.InvoiceDate : new LocalDate();
+                this.currencyService.getCurrencyExchangeRate(
+                    current.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate
+                ).subscribe(res => {
+                    current.CurrencyExchangeRate = res.ExchangeRate;
+                    this.current.next(current);
+                }, err => this.errorService.handle(err));
             } else {
                 current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
@@ -2852,6 +2865,10 @@ export class BillView implements OnInit {
                 line.Dimensions = {};
             }
 
+            line.CurrencyCodeID = current.CurrencyCodeID;
+            line.CurrencyCode = current.CurrencyCode;
+            line.CurrencyExchangeRate = current.CurrencyExchangeRate;
+
             if (!line.Dimensions.Project && current.DefaultDimensions && current.DefaultDimensions.Project) {
                 line.Dimensions.Project = current.DefaultDimensions.Project;
                 line.Dimensions.ProjectID = current.DefaultDimensions.ProjectID;
@@ -3355,9 +3372,8 @@ export class BillView implements OnInit {
                 current.JournalEntry.DraftLines = draftlines;
                 current.JournalEntry['_createguid'] = current.JournalEntry['_createguid'] || this.journalEntryService.getNewGuid();
             }
-        } else {
-            console.log('dont process journalentry');
         }
+
         /// NumberSeriesTask
 
         // Clean up the ocrData, e.g. if the user has changed the values manually,
