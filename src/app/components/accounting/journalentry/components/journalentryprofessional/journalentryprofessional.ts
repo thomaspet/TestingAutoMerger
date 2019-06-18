@@ -1646,6 +1646,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 netAmountCol,
                 amountCurrencyCol,
+                currencyExchangeRate,
                 costAllocationCol,
                 manDimReportCol
             ];

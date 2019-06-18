@@ -842,6 +842,16 @@ export class BillView implements OnInit {
                 this.orgNumber = invoice.Supplier.OrgNumber;
             }
 
+            if (invoice.CurrencyCodeID) {
+                const currencyDate: LocalDate = invoice.InvoiceDate ? invoice.InvoiceDate : new LocalDate();
+                this.currencyService.getCurrencyExchangeRate(
+                    invoice.CurrencyCodeID, this.companySettings.BaseCurrencyCodeID, currencyDate
+                ).subscribe(res => {
+                    invoice.CurrencyExchangeRate = res.ExchangeRate;
+                    this.current.next(invoice);
+                }, err => this.errorService.handle(err));
+            }
+
             this.tryAddCostAllocation('EHF');
 
             // CHECK IF CUSTOMER IS BLOCKED!!
