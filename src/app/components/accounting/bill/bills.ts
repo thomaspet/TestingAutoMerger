@@ -259,28 +259,37 @@ export class BillsView implements OnInit {
 
     public onRowDelete(row) {
         if (this.currentFilter.name === 'Inbox') {
-            this.currentFilter.count--;
+
             const fileId = row.ID;
             if (fileId) {
-                // Is file allready used for supplier invoice?
-                this.fileService.getLinkedEntityID('SupplierInvoice', fileId).subscribe(links => {
-                    if (links.length > 0) {
-                        const completedModal = this.modalService.open(UniConfirmModalV2, {
-                            header: 'Bekreft fjerning fra innboks',
-                            message: 'Det finnes leverandørfaktura på ' + row.Name + ', fjerne fra innboksen?'
-                        });
+                this.currentFilter.count--;
 
-                        completedModal.onClose.subscribe(response => {
-                            if (response === ConfirmActions.ACCEPT) {
-                                if (this.fileID && this.fileID[0] === fileId) {
-                                    this.previewVisible = false;
-                                    this.fileID = null;
-                                }
+                // Check if file is already linked to an entity
+                this.fileService.getLinkedEntityID(fileId).subscribe(links => {
+                    let modalMessage = 'Vennligst bekreft sletting av fil';
+
+                    if (links.length) {
+                        modalMessage = 'Filen er allerede brukt i bilagsføring eller på en leverandørfaktura og kan derfor ikke slettes. '
+                            + 'Ønsker du å markere som brukt slik at den forsvinner fra innboks?';
+                    }
+
+                    this.modalService.confirm({
+                        header: 'Slett fil',
+                        message: modalMessage
+                    }).onClose.subscribe(res => {
+                        if (res !== ConfirmActions.ACCEPT) {
+                            this.refreshList();
+                            return;
+                        }
+
+                        this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
+                            () => this.toast.addToast('Fil slettet', ToastType.good, 2),
+                            () => {
                                 // tslint:disable-next-line:max-line-length
                                 this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileId  + ' and ' + this.inboxTagNamesFilter).subscribe(
                                     tags => {
-                                        this.fileService.tag(fileId, tags.Data[0].tagname, StatusCode.Completed).subscribe(() => {
-                                            this.toast.addToast('Filen er fjernet fra innboks', ToastType.good, 2);
+                                        this.fileService.tag(fileId, tags.Data[0].tagname, 90000).subscribe(() => {
+                                            this.toast.addToast('Fil fjernet fra innboks', ToastType.good, 2);
                                         }, err => {
                                             this.errorService.handle(err);
                                             this.refreshList(this.currentFilter);
@@ -290,36 +299,9 @@ export class BillsView implements OnInit {
                                         this.refreshList(this.currentFilter);
                                     }
                                 );
-                            } else {
-                                this.refreshList(this.currentFilter);
                             }
-                        });
-                    } else {
-                        const deleteModal = this.modalService.open(UniConfirmModalV2, {
-                            header: 'Bekreft sletting',
-                            message: 'Slett aktuell fil: ' + row.Name
-                        });
-
-                        deleteModal.onClose.subscribe(response => {
-                            if (response === ConfirmActions.ACCEPT) {
-                                if (this.fileID && this.fileID[0] === fileId) {
-                                    this.previewVisible = false;
-                                    this.fileID = null;
-                                }
-                                this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
-                                    res => {
-                                        this.toast.addToast('Filen er slettet', ToastType.good, 2);
-                                    },
-                                    err => {
-                                        this.errorService.handle(err);
-                                        this.refreshList(this.currentFilter);
-                                    }
-                                );
-                            } else {
-                                this.refreshList(this.currentFilter);
-                            }
-                        });
-                    }
+                        );
+                    });
                 });
             }
         }

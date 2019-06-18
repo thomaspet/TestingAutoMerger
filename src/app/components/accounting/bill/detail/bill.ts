@@ -335,7 +335,7 @@ export class BillView implements OnInit {
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
                 this.customDimensionService.getMetadata(),
-                this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid),
+                this.fileService.getLinkedEntityID(pageParams.fileid, 'SupplierInvoice'),
                 this.vatDeductionService.GetAll(null),
                 this.bankService.getBankPayments(id),
                 this.bankService.getRegisteredPayments(id),
