@@ -90,8 +90,8 @@ export class TofHelper {
         }
 
         // map sellers to entity
-        let sellers = [];
-        if (!entity.Sellers.length) {
+        const sellers = [];
+        if (!entity.Sellers.length && customer.Sellers) {
             customer.Sellers.forEach((seller) => {
                 sellers.push({
                     Percent: seller.Percent,
