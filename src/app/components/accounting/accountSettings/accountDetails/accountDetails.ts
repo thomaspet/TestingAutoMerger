@@ -338,6 +338,7 @@ export class AccountDetails implements OnInit {
                         (response) => {
                             // completeEvent('Lagret');
                             resolve(true);
+                            this.account$.next(response);
                             this.accountSaved.emit(account);
                             this.checkRecurringInvoices(account.ID);
                         },
@@ -392,7 +393,8 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
-                        this.accountSaved.emit(response);
+                        this.account$.next(response);
+                        this.accountSaved.emit(account);
                         this.checkRecurringInvoices(account.ID);
                     },
                     (err) => {
