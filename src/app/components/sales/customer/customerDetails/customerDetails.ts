@@ -260,20 +260,22 @@ export class CustomerDetails implements OnInit {
 
     public ngOnInit() {
         this.modulusService.orgNrValidationUniForm(null, null, false);
-        this.tabs = [
-            {name: 'Detaljer'},
-            {name: 'Åpne poster'},
-            {name: 'Produkter solgt'},
-            {name: 'Dokumenter'},
-            {name: 'Selskap'},
-        ];
 
         this.setupSaveActions();
         combineLatest(this.route.params, this.route.queryParams)
             .pipe(map(results => ({params: results[0], query: results[1]})))
             .subscribe(results => {
+                this.isDirty = false;
                 this.customerID = +results.params['id'];
                 const index = +results.query['tabIndex']  || 0;
+
+                this.tabs = [
+                    {name: 'Detaljer'},
+                    {name: 'Åpne poster'},
+                    {name: 'Produkter solgt'},
+                    {name: 'Dokumenter'},
+                    {name: 'Selskap'},
+                ];
 
                 this.commentsConfig = {
                     entityType: 'Customer',
@@ -412,7 +414,11 @@ export class CustomerDetails implements OnInit {
     public addCustomer() {
         this.formIsInitialized = false;
         this.activeTabIndex = 0;
-        this.router.navigateByUrl('/sales/customer/0');
+        if (this.customerID) {
+            this.router.navigateByUrl('/sales/customer/0');
+        } else {
+            this.setup();
+        }
     }
 
     private deleteCustomer(id: number) {
