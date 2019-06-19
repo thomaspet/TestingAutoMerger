@@ -82,7 +82,7 @@ import { PaymentService } from '@app/services/accounting/paymentService';
 import { RequestMethod } from '@angular/http';
 import {JournalEntryMode} from '../../../../../services/accounting/journalEntryService';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-declare const _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'journal-entry-professional',
@@ -1232,12 +1232,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         .setVisible(false)
         .setTemplate(() => '')
         .setResizeable(false)
+        .setEditable(() => false)
         .setWidth('40px')  // '5%') //Har ingen effekt
         .setTooltipResolver( (rowModel) => {
             let msgText = '';
             let iconType = 0;
             const debRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.DebitReport;
             const creRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.CreditReport;
+            
+            let showTooltip = false;
+            if (
+                rowModel.MandatoryDimensionsValidation
+                && rowModel.MandatoryDimensionsValidation.CreditReport
+                && rowModel.MandatoryDimensionsValidation.DebitReport
+            ) {
+                if (
+                   !_.isEmpty(rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions)
+                    || !_.isEmpty(rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions)
+                ) {
+                    showTooltip = true;
+                }
+            }
 
             if (debRep || creRep) {
 
@@ -1254,6 +1269,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (iconType !== 1 && msgText !== '') { iconType = 2; }
 
                 const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
+                if (type === 'good') {
+                    msgText = 'Påkrevde dimensjoner registrert ok';
+                }
+                if (!showTooltip) {
+                    return null;
+                }
                 return {
                     type: type  ,
                     text: msgText,
