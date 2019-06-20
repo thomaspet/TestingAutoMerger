@@ -30,4 +30,8 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
     public completeTrans(trans: SalaryTransaction): Observable<SalaryTransaction> {
         return super.ActionWithBody(null, trans, 'complete-trans', RequestMethod.Post);
     }
+
+    public removeTransaction(id: number) {
+        return super.Remove(id);
+    }
 }

@@ -109,7 +109,7 @@ export class SalaryTransViewService {
             .setWidth(40)
             .setResizeable(false)
             .setOnCellClick((rowModel: SalaryTransaction) => {
-                if (!rowModel.Supplements || !rowModel.Supplements.filter(x => !x.Deleted).length) {
+                if (!rowModel || !rowModel.Supplements || !rowModel.Supplements.filter(x => !x.Deleted).length) {
                     return;
                 }
 
@@ -117,7 +117,7 @@ export class SalaryTransViewService {
             })
             .setTemplate(() => '')
             .setTooltipResolver((row: SalaryTransaction) => {
-                if (!row.Supplements || !row.Supplements.filter(x => !x.Deleted).length || this.isOnlyAmountField(row)) {
+                if (!row || !row.Supplements || !row.Supplements.filter(x => !x.Deleted).length || this.isOnlyAmountField(row)) {
                     return;
                 }
 
