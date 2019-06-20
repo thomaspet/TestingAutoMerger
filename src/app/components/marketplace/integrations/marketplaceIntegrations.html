@@ -35,7 +35,7 @@
     </section>
 
     <section class="future-integrations">
-        <section>
+       
             <h3>Lanseres snart</h3>
             <section class="integration-grid">
                 <section class="integration-item" *ngFor="let item of upcomingIntegrations | filterIntegrations: searchText">
@@ -56,33 +56,8 @@
                     </section>
                 </section>
             </section>
-        </section>
-
-        <section>
-            <h3>Ønsker du integrasjon mot noen av disse? Vis din interesse</h3>
-            <section class="integration-grid">
-
-                <section class="integration-item" *ngFor="let item of candidateIntegrations | filterIntegrations: searchText">
-                    <section class="integration-icon" [style.background-color]="item.IconBackgroundColor">
-                        <img src="{{item.IconReference}}" />
-                    </section>
-                    <div class="title-container">
-                        <p class="title">{{item.Label}}</p>
-                        <p class="sub-title">{{item.CategoryName}}</p>
-                    </div>
-                    <section class="footer">
-                        <span>
-                            <i class="material-icons">power</i>
-                            {{item.CategoryName}}
-                        </span>
-
-                        <a class="read-more" (click)="openSubscribeModal(item)">Les mer</a>
-                    </section>
-                </section>
-            </section>
-        </section>
+        
     </section>
-
 
     <section class="more-info-container">
         <h3>Vil du vite mer?</h3>
