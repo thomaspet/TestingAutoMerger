@@ -5104,6 +5104,9 @@ export class Contract extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public Engine: ContractEngine;
+    public Hash: string;
+    public HashTransactionAddress: string;
     public ID: number;
     public Name: string;
     public StatusCode: number;
@@ -5113,6 +5116,81 @@ export class Contract extends UniEntity {
     public Parameters: Array<ContractParameter>;
     public Triggers: Array<ContractTrigger>;
     public RunLogs: Array<ContractRunLog>;
+    public CustomFields: any;
+}
+
+
+export class ContractAddress extends UniEntity {
+    public static RelativeUrl = 'contractaddresses';
+    public static EntityType = 'ContractAddress';
+
+    public _createguid: string;
+    public Address: string;
+    public Amount: number;
+    public AssetAddress: string;
+    public ContractAssetID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ID: number;
+    public StatusCode: number;
+    public Type: AddressType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public ContractAsset: ContractAsset;
+    public CustomFields: any;
+}
+
+
+export class ContractAsset extends UniEntity {
+    public static RelativeUrl = 'contractassets';
+    public static EntityType = 'ContractAsset';
+
+    public _createguid: string;
+    public Cap: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public IsAutoDestroy: boolean;
+    public IsCosignedByDefiner: boolean;
+    public IsFixedDenominations: boolean;
+    public IsIssuedByDefinerOnly: boolean;
+    public IsPrivate: boolean;
+    public IsTransferrable: boolean;
+    public SpenderAttested: boolean;
+    public StatusCode: number;
+    public Type: AddressType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public CustomFields: any;
+}
+
+
+export class ContractDebugLog extends UniEntity {
+    public static RelativeUrl = 'contractdebuglogs';
+    public static EntityType = 'ContractDebugLog';
+
+    public _createguid: string;
+    public ContractID: number;
+    public ContractRunLogID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Message: string;
+    public StatusCode: number;
+    public Type: ContractEventType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public ContractRunLog: ContractRunLog;
     public CustomFields: any;
 }
 
@@ -5143,6 +5221,7 @@ export class ContractRunLog extends UniEntity {
 
     public _createguid: string;
     public ContractID: number;
+    public ContractTriggerID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -5150,10 +5229,34 @@ export class ContractRunLog extends UniEntity {
     public Message: string;
     public RunTime: string;
     public StatusCode: number;
-    public Type: EventType;
+    public Type: ContractEventType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Contract: Contract;
+    public CustomFields: any;
+}
+
+
+export class ContractTransaction extends UniEntity {
+    public static RelativeUrl = 'contracttransactions';
+    public static EntityType = 'ContractTransaction';
+
+    public _createguid: string;
+    public Amount: number;
+    public AssetAddress: string;
+    public ContractAddressID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public ReceiverAddress: string;
+    public SenderAddress: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Contract: Contract;
+    public ContractAddress: ContractAddress;
     public CustomFields: any;
 }
 
@@ -5172,7 +5275,7 @@ export class ContractTrigger extends UniEntity {
     public ModelFilter: string;
     public OperationFilter: string;
     public StatusCode: number;
-    public Type: EventType;
+    public Type: ContractEventType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Contract: Contract;
@@ -5239,6 +5342,49 @@ export class CompanyAccess extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public GlobalIdentity: string;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class ContractCron extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ContractCron';
+
+    public _createguid: string;
+    public CompanyDbName: string;
+    public CompanyID: number;
+    public CompanyKey: string;
+    public ContractID: number;
+    public ContractTriggerID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Expression: string;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class ContractObyte extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ContractObyte';
+
+    public _createguid: string;
+    public Address: string;
+    public AssetAddress: string;
+    public CompanyDbName: string;
+    public CompanyID: number;
+    public CompanyKey: string;
+    public ContractAddressID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
     public ID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -7248,6 +7394,20 @@ export class SalaryTransactionPeriodSums extends UniEntity {
     public ToPeriod: number;
     public Year: number;
     public Sums: SalaryTransactionSums;
+    public Aga: AGACalculation;
+}
+
+
+export class VacationInfo extends UniEntity {
+    public BaseYear: number;
+    public EmployeeID: number;
+    public ManualBase: number;
+    public PayedVacationPay: number;
+    public Rate: number;
+    public Rate60: number;
+    public SystemBase: number;
+    public VacationPay: number;
+    public VacationPay60: number;
 }
 
 
@@ -7721,6 +7881,7 @@ export class MandatoryDimensionAccountReport extends UniEntity {
 
 export class AccountDimension extends UniEntity {
     public AccountID: number;
+    public AccountNumber: number;
     public DimensionsID: number;
     public Dimensions: Dimensions;
 }
@@ -8595,12 +8756,26 @@ export enum Type{
 }
 
 
-export enum EventType{
+export enum ContractEngine{
+    JavaScript = 0,
+    VBScript = 1,
+}
+
+
+export enum AddressType{
+    Obyte = 100,
+}
+
+
+export enum ContractEventType{
     Deploy = 1,
     Kill = 2,
+    Initialize = 3,
+    Reset = 4,
+    Compile = 5,
     UE = 100,
     Cron = 101,
-    Crypto = 102,
+    Obyte = 200,
 }
 
 
@@ -8867,8 +9042,15 @@ export enum StatusCodeAltinnSigning{
 
 export enum StatusCodeContract{
     Draft = 120000,
-    Running = 120001,
-    Killed = 120002,
+    Deploy = 120001,
+    Running = 120002,
+    Killed = 120003,
+}
+
+
+export enum StatusCodeContractParameter{
+    Deploy = 121001,
+    Run = 121002,
 }
 
 
