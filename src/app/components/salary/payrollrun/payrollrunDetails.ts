@@ -259,11 +259,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this.departments = departments;
             });
 
-            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((res) => {
-                const resultManDims = res;
-                const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? 
-                    resultManDims.Data[0].countID : 0;
-                this.accountsWithMandatoryDimensionsIsUsed = numberOfAccountsWithMandatoryDimensions > 0;
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(count => {
+                this.accountsWithMandatoryDimensionsIsUsed = count > 0;
             });
 
             this.updateTabStrip(this.payrollrunID);

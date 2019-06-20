@@ -62,8 +62,12 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         return super.GetAction(null, `get-mandatory-dimensions-report&accountID=${accountID}&dimensionsID=${dimensionsID}`);
     }
 
-    public GetNumberOfAccountsWithMandatoryDimensions (): Observable<any> {
-        return this.statisticsService.GetAll('model=AccountMandatoryDimension&select=count(ID)');
+    public GetNumberOfAccountsWithMandatoryDimensions (): Observable<number> {
+        return this.statisticsService.GetAll('model=AccountMandatoryDimension&select=count(ID)')
+            .map(res => {
+                const count = res && res.Data && res.Data[0] && res.Data[0].countID;
+                return count || 0;
+            });
     }
 
     public checkRecurringInvoices(accountID: number) : Observable<any> {
