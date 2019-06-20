@@ -78,6 +78,19 @@ export class TradeItemTable {
     itemsWithReport: any[] = [];
     showMandatoryDimensionsColumn = false;
     accountsWithMandatoryDimensionsIsUsed = true;
+    productExpands = [
+        'Account',
+        'Account.MandatoryDimensions',
+        'Dimensions',
+        'Dimensions.Project',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10'
+    ];
 
     constructor(
         private productService: ProductService,
@@ -361,19 +374,7 @@ export class TradeItemTable {
 
                     return this.productService.GetAll(
                         `filter=${filter}&top=100&orderby=PartName`,
-                        [
-                            'Account',
-                            'Account.MandatoryDimensions',
-                            'Dimensions',
-                            'Dimensions.Project',
-                            'Dimensions.Department',
-                            'Dimensions.Dimension5',
-                            'Dimensions.Dimension6',
-                            'Dimensions.Dimension7',
-                            'Dimensions.Dimension8',
-                            'Dimensions.Dimension9',
-                            'Dimensions.Dimension10'
-                        ]
+                        this.productExpands
                     ).pipe(
                         catchError(err => {
                             this.errorService.handle(err);
@@ -424,7 +425,7 @@ export class TradeItemTable {
                             return this.modalService.open(UniProductDetailsModal, {  }).onClose;
                         },
                         getAction: (item) => {
-                            return this.productService.Get(item.ID);
+                            return this.productService.Get(item.ID, this.productExpands);
                         },
                         errorAction: (msg: string) => {
                             this.errorService.handle(msg);
