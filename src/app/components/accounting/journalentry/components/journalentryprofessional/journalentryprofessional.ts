@@ -351,7 +351,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.companySettings = data[1];
                 this.predefinedDescriptions = data[2] || [];
                 this.dimensionTypes = data[3];
-                this.numberOfAccountsWithMandatoryDimensions = (data[4] && data[4].Data[0]) ? data[4].Data[0].countID : 0;
+                this.numberOfAccountsWithMandatoryDimensions = data[4];
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
             },

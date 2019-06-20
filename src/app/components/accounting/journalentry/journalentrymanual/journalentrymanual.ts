@@ -178,7 +178,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
                 const series = data[4];
                 this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(series);
-                this.numberOfAccountsWithMandatoryDimensions = (data[5] && data[5].Data[0]) ? data[5].Data[0].countID : 0;
+                this.numberOfAccountsWithMandatoryDimensions = data[5];
                 if (!this.hasLoadedData) {
                     this.loadData();
                 }
