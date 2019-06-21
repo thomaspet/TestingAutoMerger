@@ -1239,16 +1239,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             let iconType = 0;
             const debRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.DebitReport;
             const creRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.CreditReport;
-            
+
             let showTooltip = false;
             if (
                 rowModel.MandatoryDimensionsValidation
-                && rowModel.MandatoryDimensionsValidation.CreditReport
-                && rowModel.MandatoryDimensionsValidation.DebitReport
+                && (rowModel.MandatoryDimensionsValidation.CreditReport
+                || rowModel.MandatoryDimensionsValidation.DebitReport)
             ) {
                 if (
-                   !_.isEmpty(rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions)
-                    || !_.isEmpty(rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions)
+                    (rowModel.MandatoryDimensionsValidation.CreditReport
+                    && (!_.isEmpty(rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions)) || !_.isEmpty(rowModel.MandatoryDimensionsValidation.CreditReport.WarningDimensions))
+                    || (rowModel.MandatoryDimensionsValidation.DebitReport
+                    && (!_.isEmpty(rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions)) || !_.isEmpty(rowModel.MandatoryDimensionsValidation.DebitReport.WarningDimensions))
                 ) {
                     showTooltip = true;
                 }
@@ -1276,7 +1278,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return null;
                 }
                 return {
-                    type: type  ,
+                    type: type,
                     text: msgText,
                 };
             }
