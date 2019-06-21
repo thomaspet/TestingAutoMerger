@@ -8,10 +8,16 @@ import {
     Seller,
     SellerLink,
     User,
+    ValidationLevel,
+    CustomerInvoice,
+    AccountDimension,
+    Dimensions,
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import { ValidationMessage } from '@app/models/validationResult';
+import { AccountMandatoryDimensionService } from '@app/services/services';
 
 @Component({
     selector: 'uni-tof-head',
@@ -44,6 +50,11 @@ export class TofHead implements OnChanges {
 
     freeTextControl: FormControl = new FormControl('');
     commentControl: FormControl = new FormControl('');
+    validationMessage: ValidationMessage;
+    accountsWithMandatoryDimensionsIsUsed = true;
+
+    constructor (private accountMandatoryDimensionService: AccountMandatoryDimensionService) {
+    }
 
     ngOnInit() {
         this.tabs = [
@@ -103,5 +114,31 @@ export class TofHead implements OnChanges {
 
     isReadOnly(): boolean {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
+    }
+
+    public isAccountsWithMandatoryDimensionsUsed(resultManDims: any): boolean {
+        const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? resultManDims.Data[0].countID : 0;
+        return numberOfAccountsWithMandatoryDimensions > 0;
+    }
+
+    //TODO kall fra Ordre og rep.faktura
+    public getValidationMessage(customerID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
+        if (!this.accountsWithMandatoryDimensionsIsUsed) {
+            return;
+        }
+        this.accountMandatoryDimensionService.getCustomerMandatoryDimensionsReport(customerID, dimensionsID, dimensions).subscribe((report) => {
+            this.validationMessage = new ValidationMessage();
+            if (report && report.MissingRequiredDimensonsMessage) {
+                this.validationMessage.Level = ValidationLevel.Error;
+                this.validationMessage.Message = report.MissingRequiredDimensonsMessage;
+            } else {
+                this.validationMessage.Level = 0;
+            }
+        });
+    }
+
+    public clearValidationMessage() {
+        this.validationMessage = new ValidationMessage();
+        this.validationMessage.Level = 0;
     }
 }

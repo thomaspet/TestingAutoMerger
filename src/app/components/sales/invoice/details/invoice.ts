@@ -55,7 +55,8 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     AccrualService,
-    createGuid
+    createGuid,
+    AccountMandatoryDimensionService
 } from '@app/services/services';
 
 import {
@@ -156,6 +157,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     paymentInfoTypes: any[];
     distributionPlans: any[];
     reports: any[];
+    accountsWithMandatoryDimensionsIsUsed = true;
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -245,7 +247,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
         private modulusService: ModulusService,
-        private accrualService: AccrualService
+        private accrualService: AccrualService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -258,6 +261,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     ngOnInit() {
         this.recalcItemSums(null);
+        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((resultManDims) => {
+            this.accountsWithMandatoryDimensionsIsUsed = this.tofHead.isAccountsWithMandatoryDimensionsUsed(resultManDims);
+        });        
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
@@ -367,6 +373,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.refreshInvoice(invoice);
                     this.recalcItemSums(null);
                     this.tofHead.focus();
+                    if (this.accountsWithMandatoryDimensionsIsUsed) {
+                        this.tofHead.clearValidationMessage();
+                    }
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
@@ -430,13 +439,18 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.refreshInvoice(invoice);
                     }
                     this.tofHead.focus();
+                    if (this.accountsWithMandatoryDimensionsIsUsed) {
+                        this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
+                    }
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
     }
 
     ngAfterViewInit() {
-         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
+         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => {
+             this.tradeItemTable.focusFirstRow();
+         });
     }
 
     private getInvoice(ID: number): Observable<CustomerInvoice> {
@@ -614,7 +628,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
-
+            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
+            }
         }
 
         if (invoice['_updatedField']) {
@@ -629,6 +645,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
             }
+            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
+            }
+
         }
 
         this.updateCurrency(invoice, shouldGetCurrencyRate);

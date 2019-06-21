@@ -250,6 +250,7 @@ export class TradeItemTable {
         this.items = this.items.map(item => {
             if ((updateTableData && item.Product) || (!updateTableData && !item.Product)) {
                 item.Dimensions = dims;
+                item.DimensionsID = null;
             }
             return item;
         });
