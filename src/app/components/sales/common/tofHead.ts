@@ -116,11 +116,6 @@ export class TofHead implements OnChanges {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
     }
 
-    public isAccountsWithMandatoryDimensionsUsed(resultManDims: any): boolean {
-        const numberOfAccountsWithMandatoryDimensions = (resultManDims && resultManDims.Data[0]) ? resultManDims.Data[0].countID : 0;
-        return numberOfAccountsWithMandatoryDimensions > 0;
-    }
-
     //TODO kall fra Ordre og rep.faktura
     public getValidationMessage(customerID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
         if (!this.accountsWithMandatoryDimensionsIsUsed) {

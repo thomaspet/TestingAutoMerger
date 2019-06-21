@@ -261,8 +261,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     ngOnInit() {
         this.recalcItemSums(null);
-        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((resultManDims) => {
-            this.accountsWithMandatoryDimensionsIsUsed = this.tofHead.isAccountsWithMandatoryDimensionsUsed(resultManDims);
+        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
+            this.accountsWithMandatoryDimensionsIsUsed = result > 0;
         });        
 
         // Subscribe and debounce recalc on table changes
