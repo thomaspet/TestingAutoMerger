@@ -113,8 +113,8 @@ export class UniRegisterPaymentModal implements IUniModal {
                         paymentData.DimensionsID
                     ).subscribe((report) => {
                         let msg: string = '';
-                        if (report && report.MissingRequiredDimensonsMessage !== '') {
-                            msg = '  ! ' +  report.MissingRequiredDimensonsMessage;
+                        if (report && report.MissingRequiredDimensionsMessage !== '') {
+                            msg = '  ! ' +  report.MissingRequiredDimensionsMessage;
                             this.mandatoryDimensionMessage = msg;
                         }
 
@@ -133,8 +133,8 @@ export class UniRegisterPaymentModal implements IUniModal {
                                     data.AccountID,
                                     paymentData.DimensionsID
                                 ).subscribe(report2 => {
-                                    if (report2 && report2.MissingRequiredDimensonsMessage !== '') {
-                                        msg += '\n  ! ' +  report2.MissingRequiredDimensonsMessage;
+                                    if (report2 && report2.MissingRequiredDimensionsMessage !== '') {
+                                        msg += '\n  ! ' +  report2.MissingRequiredDimensionsMessage;
                                     }
                                     if (msg !== '') {
                                         this.mandatoryDimensionMessage = msg;

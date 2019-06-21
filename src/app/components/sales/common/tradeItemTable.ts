@@ -763,7 +763,7 @@ export class TradeItemTable {
 
                     if (reqDims.length) {
                         hasRequiredDims = true;
-                        text = rep.MissingRequiredDimensonsMessage;
+                        text = rep.MissingRequiredDimensionsMessage;
                     }
 
                     if (warnDims.length) {
@@ -906,14 +906,16 @@ export class TradeItemTable {
                 let msg: string = '';
                 this.itemsWithReport.forEach(item => {
                     const report = item.report;
-                    if (report.MissingRequiredDimensonsMessage !== '') {
-                        if (!msg.includes(report.MissingRequiredDimensonsMessage)) {
-                            msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
+                    if (report) {
+                        if (report.MissingRequiredDimensionsMessage !== '') {
+                            if (!msg.includes(report.MissingRequiredDimensionsMessage)) {
+                                msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                            }
                         }
-                    }
-                    if (report.MissingOnlyWarningsDimensionsMessage) {
-                        if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
-                            msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                        if (report.MissingOnlyWarningsDimensionsMessage) {
+                            if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
+                                msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                            }
                         }
                     }
                 });

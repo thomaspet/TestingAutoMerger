@@ -128,9 +128,9 @@ export class TofHead implements OnChanges {
         }
         this.accountMandatoryDimensionService.getCustomerMandatoryDimensionsReport(customerID, dimensionsID, dimensions).subscribe((report) => {
             this.validationMessage = new ValidationMessage();
-            if (report && report.MissingRequiredDimensonsMessage) {
+            if (report && report.MissingRequiredDimensionsMessage) {
                 this.validationMessage.Level = ValidationLevel.Error;
-                this.validationMessage.Message = report.MissingRequiredDimensonsMessage;
+                this.validationMessage.Message = report.MissingRequiredDimensionsMessage;
             } else {
                 this.validationMessage.Level = 0;
             }

@@ -186,11 +186,13 @@ export class VariablePayrollsComponent {
                 .subscribe((reports) => {
                     if (reports) {
                         reports.forEach(report => {
-                            if (report.MissingRequiredDimensonsMessage !== '') {
-                                msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
-                            }
-                            if (report.MissingOnlyWarningsDimensionsMessage) {
-                                msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                            if (report) {
+                                if (report.MissingRequiredDimensionsMessage !== '') {
+                                    msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                                }
+                                if (report.MissingOnlyWarningsDimensionsMessage) {
+                                    msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                }
                             }
                         });
                         if (msg !== '') {

@@ -7871,7 +7871,7 @@ export class MandatoryDimensionAccountReport extends UniEntity {
     public ID: number;
     public journalEntryLineDraftID: number;
     public MissingOnlyWarningsDimensionsMessage: string;
-    public MissingRequiredDimensonsMessage: string;
+    public MissingRequiredDimensionsMessage: string;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;

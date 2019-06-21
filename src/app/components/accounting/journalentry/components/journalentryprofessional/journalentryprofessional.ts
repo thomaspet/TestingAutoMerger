@@ -1258,8 +1258,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             if (debRep || creRep) {
 
-                if (debRep && debRep.MissingRequiredDimensonsMessage) { msgText = debRep.MissingRequiredDimensonsMessage + '\n'; }
-                if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
+                if (debRep && debRep.MissingRequiredDimensionsMessage) { msgText = debRep.MissingRequiredDimensionsMessage + '\n'; }
+                if (creRep && creRep.MissingRequiredDimensionsMessage) { msgText += creRep.MissingRequiredDimensionsMessage + '\n'; }
                 if (msgText !== '') { iconType = 1; }
 
                 if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) {
@@ -3091,7 +3091,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                             const data = this.table.getTableData();
-                            const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                            const msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
                             if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
 
                             this.dataChanged.emit(data);
@@ -3107,7 +3107,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                                 const data = this.table.getTableData();
-                                const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                const msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
                                 if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
                                 this.dataChanged.emit(data);
                         }, 0);
