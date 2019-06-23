@@ -395,6 +395,13 @@
                 "Format": "SharingStatus"
             },
             {
+                "Header": "Distribueres",
+                "Field": "DistributeAt",
+                "Width": "130px",
+                "Type": "datetime",
+                "Format": "DateWithTime"
+            },
+            {
                 "Header": "Jobb nr.",
                 "Field": "JobRunID",
                 "Type": "text",
@@ -463,6 +470,13 @@
                 "Field": "StatusCode",
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus"
+            },
+            {
+                "Header": "Distribueres",
+                "Field": "DistributeAt",
+                "Width": "130px",
+                "Type": "datetime",
+                "Format": "DateWithTime"
             },
             {
                 "Header": "Jobb nr.",
