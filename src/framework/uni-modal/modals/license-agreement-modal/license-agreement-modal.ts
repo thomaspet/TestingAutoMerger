@@ -69,4 +69,8 @@ export class LicenseAgreementModal implements IUniModal {
             );
     }
 
+    logout() {
+        this.onClose.emit();
+        this.authService.clearAuthAndGotoLogin();
+    }
 }
