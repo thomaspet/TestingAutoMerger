@@ -47,7 +47,7 @@ export interface INumberFormat {
 
 export interface IColumnTooltip {
     text: string;
-    type: 'good'|'warn'|'bad';
+    type: 'good'|'warn'|'bad'|'neutral';
     alignment?: 'left'|'right';
 }
 

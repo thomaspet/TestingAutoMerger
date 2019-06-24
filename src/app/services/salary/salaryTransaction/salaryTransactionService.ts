@@ -11,6 +11,8 @@ import {RequestMethod} from '@angular/http';
 @Injectable()
 export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
 
+    public supplements: any[] = [];
+
     constructor(
         http: UniHttp
     ) {

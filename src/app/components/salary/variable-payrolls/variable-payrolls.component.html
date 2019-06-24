@@ -37,6 +37,7 @@
         <ag-grid-wrapper
             *ngIf="toggle"
             class="maintable salaryTransTable transquery-grid-font-size"
+            (cellClick)="onCellClick($event)"
             [resource]="lookupFunction"
             [config]="salarytransEmployeeTableConfig">
         </ag-grid-wrapper>

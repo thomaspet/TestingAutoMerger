@@ -56,8 +56,8 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
     public ngOnInit() {
         if (this.options && this.options.data) {
             this.salaryTransactionService.Get(this.options.data.data.ID,
-                ['WageType.SupplementaryInformations', 'Employee', 'Employee.BusinessRelationInfo', 'employment',
-                'Supplements', 'Dimensions', 'Files', 'VatType.VatTypePercentages']
+                ['WageType.SupplementaryInformations', 'Employee', 'Employee.BusinessRelationInfo', 'employment', 'Employee.Employments',
+                'Supplements', 'Supplements.WageTypeSupplement', 'Dimensions', 'Files', 'VatType.VatTypePercentages']
             ).subscribe((res) => {
                 this.tableData.push(res);
                 this.uniTableConfig = this.options.data.config;
@@ -69,8 +69,15 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
         this.busy = true;
         const data = this.tableData[0];
         data.Employee = null;
-        data.Supplements = null;
         data.Wagetype = null;
+
+        if (data.Dimensions) {
+            data.Dimensions._createguid = this.salaryTransactionService.getNewGuid();
+        }
+
+        if (this.salaryTransactionService.supplements && this.salaryTransactionService.supplements.length) {
+            data.Supplements = this.salaryTransactionService.supplements;
+        }
 
         this.salaryTransactionService.save(data).subscribe(res => {
             this.busy = false;
@@ -83,6 +90,7 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
     }
 
     public close(emitValue: boolean = false) {
+        this.salaryTransactionService.supplements = [];
         this.onClose.emit(emitValue);
     }
 

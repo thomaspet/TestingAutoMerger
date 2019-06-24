@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import { UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from '@uni-framework/ui/unitable';
+import { UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton, IColumnTooltip } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
@@ -52,32 +52,15 @@ export class VariablePayrollsComponent {
     public selectedPayrollrun: PayrollRun;
     public salarytransEmployeeTableConfig: UniTableConfig;
     private wagetypes: WageType[] = [];
-    private deleteButton: IDeleteButton;
     public toggle: boolean = false;
 
-    private newOrChangedSalaryTransactions: SalaryTransaction[] = [];
     public filteredTransactions: SalaryTransaction[] = [];
     public dirtyTransactions: SalaryTransaction[] = [];
-    public salaryTransactions: SalaryTransaction[] = [];
     public initialized: boolean = false;
-    public infoMessage: string = 'Viser alle registrerte variable lønnsposter på denne lønnsavregningen. ' +
-    'Har kan du ikke redigere i listen, du må velge en post for å redigere. ' +
-    'Ved lagring overføres postene automatisk til valgt lønnsavregning. ' +
-    'Ved sletting fjernes postene fra valgt lønnsavregning.';
-
-    public expands = [
-        'WageType.SupplementaryInformations',
-        'Employee',
-        'Employee.Employments',
-        'Employee.BusinessRelationInfo',
-        'Employment',
-        'Supplements',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Files',
-        'VatType.VatTypePercentages'
-    ];
+    public infoMessage: string = `I dette grensesnittet kan du registrere og slette variable lønnsposter. Dersom du slår på visning `
+    + `av alle variable lønnsposter kan du redigere lønnsposten under meny-knappen (...-knappen) til høyre i listen.`
+    + 'Ved lagring overføres postene automatisk til valgt lønnsavregning. '
+    + 'Ved sletting fjernes postene fra valgt lønnsavregning.';
 
     constructor(
         private modalService: UniModalService,
@@ -100,17 +83,6 @@ export class VariablePayrollsComponent {
         private toastService: ToastService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
-        this.deleteButton = {
-            deleteHandler: (row: SalaryTransaction) => {
-                if (!row['_isEmpty']) {
-                    this.onRowDeleted(row);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-
         this.tabService.addTab({
             name: 'Variable lønnsposter',
             url: this.pageStateService.getUrl(),
@@ -157,25 +129,31 @@ export class VariablePayrollsComponent {
     }
 
     private saveVariablePayrolls(done: (message: string) => void) {
-        const createguidOnDimensionsAndSupplements = this.newOrChangedSalaryTransactions.map(trans => {
+        let missingEmployement: boolean = false;
+        this.selectedPayrollrun.transactions = this.filteredTransactions
+        .map(trans => {
             if (trans.Dimensions) {
                 trans.Dimensions._createguid = this.payrollrunService.getNewGuid();
             }
             if (trans.Supplements) {
                 trans.Supplements.map(x => x._createguid = this.payrollrunService.getNewGuid());
             }
-
-            return trans;
-        });
-
-        this.selectedPayrollrun.transactions = createguidOnDimensionsAndSupplements.filter(row => !row['_isEmpty']);
-
-        this.selectedPayrollrun.transactions.forEach(trans => {
+            if (!trans.EmploymentID) {
+                missingEmployement = true;
+            }
             trans.EmploymentID = trans.EmploymentID || 0;
             trans.Employee = null;
             trans.Wagetype = null;
             trans.employment = null;
-        });
+
+            return trans; })
+        .filter(row => !row['_isEmpty']);
+
+        if (missingEmployement) {
+            this.toastService.addToast('En eller flere linjer mangler arbeidsforhold', ToastType.bad, 5);
+            done('Lagring avbrutt. Alle linjene må ha arbeidsforhold.');
+            return;
+        }
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
@@ -216,13 +194,7 @@ export class VariablePayrollsComponent {
 
     public toggleChange(event) {
         this.toggle = event.checked;
-        this.newOrChangedSalaryTransactions = this.newOrChangedSalaryTransactions.filter(trans => !trans['_isEmpty']);
-        if (event.checked) {
-            this.salaryTransactions = this.salaryTransactions.filter(trans => !trans['_isEmpty']);
-            this.filteredTransactions = this.salaryTransactions.concat(this.newOrChangedSalaryTransactions);
-        } else {
-            this.filteredTransactions = this.newOrChangedSalaryTransactions;
-        }
+
         this.salarytransEmployeeTableConfig = this.createTableConfig(this.toggle);
         if (this.toggle) {
             this.createLookupFunction();
@@ -261,6 +233,7 @@ export class VariablePayrollsComponent {
         const config = new UniTableConfig('salary.salarytrans.list', true, false, 20)
         .setColumns(this.getColumns(false))
         .setAutoAddNewRow(false)
+        .setContextMenu(this.getContextMenu())
         .setChangeCallback(this.getChangeCallback().bind(this));
         const options: IModalOptions = {
             header: 'Rediger lønnspost',
@@ -295,7 +268,6 @@ export class VariablePayrollsComponent {
         }).onClose.subscribe((res: ConfirmActions) => {
             if (res === ConfirmActions.ACCEPT) {
                 this.salaryTransService.removeTransaction(salaryTrans.ID).subscribe(() => {
-                    // this.createTableConfig(true);
                     this.createLookupFunction();
                 });
             }
@@ -316,51 +288,24 @@ export class VariablePayrollsComponent {
             params.set('select', 'ID as ID,Account as Account,Amount as Amount,Text as Text,IsRecurringPost,SalaryBalanceID,SystemType,'
             + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,WageType.WageTypeNumber as WageTypeNumber,'
             + 'WageType.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
-            + 'Employee.EmployeeNumber as EmployeeNumber');
+            + 'Employee.EmployeeNumber as EmployeeNumber,Project.ProjectNumber as ProjectNumber,Project.Name as ProjectName,'
+            + 'Department.DepartmentNumber as DepartmentNumber,Department.Name as DepartmentName,count(supplements.ID) as suppcount,'
+            + `FileEntityLink.EntityType`);
             params.set('join',
-                'Employee.BusinessRelationID eq BusinessRelation.ID as bs and Employee.ID eq Employment.EmployeeID as Employment');
-            params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,VatType');
+                'Employee.BusinessRelationID eq BusinessRelation.ID as bs and Employee.ID eq Employment.EmployeeID as Employment'
+                + ' and SalaryTransaction.ID eq FileEntityLink.EntityID as FileEntityLink');
+            params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,Dimensions.Project,Dimensions.Department,VatType');
 
             return this.statisticsService.GetAllByUrlSearchParams(params);
         };
     }
 
     private createTableConfig(isReadOnly: boolean = true) {
-        const contextMenu = [
-            {
-                label: 'Tilleggsopplysninger',
-                action: (row) => {
-                    this.salaryTransViewService.openSupplements(row, (trans) => this.onSupplementModalClose(trans),
-                    this.selectedPayrollrun && !!this.selectedPayrollrun.StatusCode);
-                }
-            },
-            {
-                label: 'Legg til dokument',
-                action: (row) => {
-                    this.openDocumentsOnRow(row);
-                }
-            }
-        ];
-
-        if (this.toggle) {
-            contextMenu.push({
-                label: 'Rediger lønnspost',
-                action: (row) => {
-                    this.editSalaryTransaction(row);
-                }
-            });
-            contextMenu.push({
-                label: 'Slett lønnspost',
-                action: (row) => {
-                    this.deleteSalaryTransaction(row);
-                }
-            });
-        }
 
         const config = new UniTableConfig('salary.salarytrans.list', !isReadOnly, isReadOnly, 20)
             .setSearchable(isReadOnly)
             .setSortable(isReadOnly)
-            .setContextMenu(contextMenu)
+            .setContextMenu(this.getContextMenu(isReadOnly))
             .setColumns(this.getColumns(isReadOnly))
             .setAutoAddNewRow(!isReadOnly && !this.toggle)
             .setColumnMenuVisible((this.toggle && isReadOnly) || !this.toggle);
@@ -410,7 +355,7 @@ export class VariablePayrollsComponent {
                 obs = this.suggestVatType(row);
             }
 
-            if (event.field === '_Project') {
+            if (event.field === 'Dimensions.Project') {
                 row.Dimensions.ProjectID = !!row.Dimensions.Project
                 ? row.Dimensions.Project.ID
                 : null;
@@ -446,6 +391,37 @@ export class VariablePayrollsComponent {
             }
             return row;
         };
+    }
+
+    public getContextMenu(readOnly: boolean = false) {
+        if (readOnly) {
+            return [{
+                label: 'Rediger lønnspost',
+                action: (row) => {
+                    this.editSalaryTransaction(row);
+                }
+            },
+            {
+                label: 'Slett lønnspost',
+                action: (row) => {
+                    this.deleteSalaryTransaction(row);
+                }
+            }];
+        } else {
+            return  [{
+                label: 'Tilleggsopplysninger',
+                action: (row) => {
+                    this.salaryTransViewService.openSupplements(row, (trans) => this.onSupplementModalClose(trans),
+                    this.selectedPayrollrun && !!this.selectedPayrollrun.StatusCode);
+                }
+            },
+            {
+                label: 'Legg til dokument',
+                action: (row) => {
+                    this.openDocumentsOnRow(row);
+                }
+            }];
+        }
     }
 
     public getColumns(readOnly: boolean) {
@@ -542,7 +518,12 @@ export class VariablePayrollsComponent {
             .setAlias('VatTypeName')
         : this.salaryTransViewService.createVatTypeColumn();
 
-        const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+        const projectCol = readOnly
+        ? new UniTableColumn('Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text)
+            .setTemplate(row => row && row.ProjectNumber ? `${row.ProjectNumber} - ${row.ProjectName}` : '')
+            .setAlias('ProjectNumber')
+            .setFilterable(false)
+        : new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
@@ -566,7 +547,12 @@ export class VariablePayrollsComponent {
                 }
             });
 
-        const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
+        const departmentCol = readOnly
+        ? new UniTableColumn('Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text)
+            .setTemplate(row => row && row.DepartmentNumber ? `${row.DepartmentNumber} - ${row.DepartmentName}` : '')
+            .setAlias('DepartmentNumber')
+            .setFilterable(false)
+        : new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
@@ -621,26 +607,47 @@ export class VariablePayrollsComponent {
             .setWidth('5rem')
             .setFilterable(false);
 
-        const fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
-            .setTemplate(row => row['_FileIDs'] && row['_FileIDs'].length ? PAPERCLIP : '')
+        const fileCol = new UniTableColumn('FileEntityLinkEntityType', PAPERCLIP, UniTableColumnType.Text, false)
+            .setTemplate(row => row['FileEntityLinkEntityType'] ? PAPERCLIP : '')
             .setWidth(32)
             .setResizeable(false)
             .setFilterable(false)
             .setSkipOnEnterKeyNavigation(true);
 
-        const supplementCol = this.salaryTransViewService
-            .createSupplementsColumn(
-                (trans) => this.onSupplementModalClose(trans),
-                () => this.selectedPayrollrun && !!this.selectedPayrollrun.StatusCode)
-                .setFilterable(false);
+        const supplementCol = readOnly
+        ? new UniTableColumn('count(supplements.ID)', 'Tilleggsopplysning', UniTableColumnType.Text, false)
+            .setTemplate(() => '')
+            .setAlias('suppcount')
+            .setWidth(60)
+            .setTooltipResolver(row => {
+                if (!row || row.suppcount === 0) {
+                    return;
+                } else {
+                    return {
+                        type: 'neutral',
+                        text: 'Kan ha tilleggsopplysninger'
+                    };
+                }
+            })
+        : this.salaryTransViewService.createSupplementsColumn(
+            (trans) => this.onSupplementModalClose(trans),
+            () => this.selectedPayrollrun && !!this.selectedPayrollrun.StatusCode)
+            .setFilterable(false);
 
-        return [ employeeCol, wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol, vatTypeCol,
-            amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol, fileCol ];
+        let cols = [ employeeCol, wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol, vatTypeCol,
+            amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol ];
+
+        if (readOnly) {
+            cols = cols.concat([fileCol]);
+        }
+        return cols;
     }
 
     public onCellClick(event: ICellClickEvent) {
-        if (event.column.field === '_FileIDs') {
+        if (event.column.field === 'FileEntityLinkEntityType') {
             this.openDocumentsOnRow(event.row);
+        } else if (event.column.field === 'count(supplements.ID)') {
+            this.editSalaryTransaction(event.row);
         }
     }
 
@@ -653,33 +660,11 @@ export class VariablePayrollsComponent {
             };
 
             this.modalService.open(ImageModal, {data: data}).onClose.subscribe((list: IUpdatedFileListEvent) => {
-                this.updateFileList(list);
+                this.table.refreshTableData();
             });
         } else {
             this.toastService.addToast('Linje må lagres', ToastType.warn, 5, 'Lagre linje før du kan legge til dokument');
         }
-    }
-
-    public updateFileList(event: IUpdatedFileListEvent) {
-        let update: boolean;
-        this.filteredTransactions.forEach((trans) => {
-            if (!event || trans.ID !== event.entityID || trans['_FileIDs'].length === event.files.length) {
-                return;
-            }
-
-            trans['_FileIDs'] = event.files.map(file => file.ID);
-            this.table.updateRow(
-                this.filteredTransactions.find(filteredTrans => filteredTrans.ID === trans.ID)['_originalIndex'],
-                trans);
-
-            if (!this.selectedPayrollrun.JournalEntryNumber) {
-                return;
-            }
-
-            trans['_newFiles'] = event.files
-                .filter(file => !trans['Files'].some(transFile => transFile.ID === file.ID));
-            update = trans['_newFiles'].length;
-        });
     }
 
     private suggestVatType(trans: SalaryTransaction): Observable<SalaryTransaction> {
@@ -804,15 +789,14 @@ export class VariablePayrollsComponent {
 
     public onSupplementModalClose(trans: SalaryTransaction) {
         if (trans && trans.Supplements && trans.Supplements.length) {
+            this.salaryTransService.supplements = trans.Supplements;
             this.updateSalaryChanged(trans, true);
-            this.updateNewOrChangedTable(trans);
         }
     }
 
     public rowChanged(event) {
         const row: SalaryTransaction = event.rowModel;
         this.updateSalaryChanged(row);
-        this.updateNewOrChangedTable(row);
 
         if (row['_isDirty']) {
             if (!row.ID && !row._createguid) {
@@ -826,18 +810,6 @@ export class VariablePayrollsComponent {
         }
     }
 
-    private updateNewOrChangedTable(row: SalaryTransaction) {
-        if (row.ID) {
-            this.salaryTransactions = this.salaryTransactions.filter(x => x.ID !== row.ID);
-        }
-
-        this.newOrChangedSalaryTransactions = [
-            ...this.newOrChangedSalaryTransactions
-            .filter(salaryTrans => salaryTrans['_originalIndex'] !== row['_originalIndex']),
-            row,
-        ];
-    }
-
     public onRowDeleted(row: SalaryTransaction) {
         const transIndex: number = this.getTransIndex(row);
 
@@ -847,8 +819,6 @@ export class VariablePayrollsComponent {
 
         if (transIndex >= 0) {
             this.filteredTransactions.splice(transIndex, 1);
-                this.newOrChangedSalaryTransactions =
-                    this.newOrChangedSalaryTransactions.filter(trans => trans['_originalIndex'] !== row['_originalIndex']);
             this.updateSaveActions();
         }
     }
