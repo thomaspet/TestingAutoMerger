@@ -23,11 +23,11 @@ import {
                 <section class="uni-html-form bank-agreement-password-form">
                     <label *ngIf="!isFirstStage">
                         <span>Tilsendt kode</span>
-                        <input type="text" class="password" [(ngModel)]="model.Code">
+                        <input type="password" autocomplete="new-password" [(ngModel)]="model.Code">
                     </label>
                     <label *ngIf="isFirstStage">
                         <span>Passord</span>
-                        <input type="text" class="password" [(ngModel)]="model.Password">
+                        <input type="password" autocomplete="new-password" [(ngModel)]="model.Password">
                     </label>
                 </section>
                 <small *ngIf="msg" class="bad"> {{ msg }} </small>
