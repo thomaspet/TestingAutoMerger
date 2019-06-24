@@ -43,6 +43,7 @@ import {
     CustomDimensionService,
     DepartmentService,
     PaymentInfoTypeService,
+    AccountMandatoryDimensionService,
 } from '@app/services/services';
 
 import {
@@ -123,6 +124,7 @@ export class UniRecurringInvoice implements OnInit {
     distributionPlans: any[];
     reports: any[];
     log: any[];
+    accountsWithMandatoryDimensionsIsUsed = true;
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -191,6 +193,7 @@ export class UniRecurringInvoice implements OnInit {
         private customDimensionService: CustomDimensionService,
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -203,6 +206,9 @@ export class UniRecurringInvoice implements OnInit {
 
     ngOnInit() {
         this.recalcItemSums(null);
+        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
+            this.accountsWithMandatoryDimensionsIsUsed = result > 0;
+        });
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
@@ -313,6 +319,9 @@ export class UniRecurringInvoice implements OnInit {
                     this.refreshInvoice(invoice);
                     this.recalcItemSums(null);
                     this.tofHead.focus();
+                    if (this.accountsWithMandatoryDimensionsIsUsed) {
+                        this.tofHead.clearValidationMessage();
+                    }
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
@@ -370,6 +379,9 @@ export class UniRecurringInvoice implements OnInit {
 
                     this.refreshInvoice(invoice);
                     this.tofHead.focus();
+                    if (this.accountsWithMandatoryDimensionsIsUsed) {
+                        this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
+                    }
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
@@ -497,6 +509,9 @@ export class UniRecurringInvoice implements OnInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
+            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
+            }
         }
 
         if (invoice['_updatedField']) {
@@ -510,6 +525,9 @@ export class UniRecurringInvoice implements OnInit {
             } else {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
+            }
+            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
 

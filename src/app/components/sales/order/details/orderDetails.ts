@@ -51,6 +51,7 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     InvoiceHourService,
+    AccountMandatoryDimensionService,
 } from '@app/services/services';
 
 import {IUniSaveAction} from '@uni-framework/save/save';
@@ -140,6 +141,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     readonly: boolean;
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     hasTimetrackingAccess: boolean = false;
+    accountsWithMandatoryDimensionsIsUsed = true;
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -239,10 +241,14 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private modulusService: ModulusService,
         private invoiceHoursService: InvoiceHourService,
         private authService: AuthService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
    ) {}
 
     ngOnInit() {
         // this.setSums();
+        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
+            this.accountsWithMandatoryDimensionsIsUsed = result > 0;
+        });
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
@@ -333,6 +339,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         }
 
                         this.tofHead.focus();
+                        if (this.accountsWithMandatoryDimensionsIsUsed) {
+                            this.tofHead.getValidationMessage(order.CustomerID, order.DefaultDimensionsID);
+                        }
                     },
                         err => this.errorService.handle(err));
                 } else {
@@ -412,6 +421,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             this.currencyExchangeRate = order.CurrencyExchangeRate;
 
                             this.refreshOrder(order);
+                            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                                this.tofHead.clearValidationMessage();
+                            }
                         },
                         err => this.errorService.handle(err)
                     );
@@ -569,6 +581,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions, true);
+            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                this.tofHead.getValidationMessage(order.CustomerID, order.DefaultDimensionsID, order.DefaultDimensions);
+            }
         }
 
         if (order['_updatedField']) {
@@ -582,6 +597,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
             } else {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]]);
+            }
+            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
             }
         }
 
