@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomFields: any;
 }
 
@@ -889,10 +889,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -945,7 +945,7 @@ export class Customer extends UniEntity {
     public AcceptableDelta4CustomerPayment: number;
     public AcceptableDelta4CustomerPaymentAccountID: number;
     public AvtaleGiro: boolean;
-    public AvtaleGiroAmount: number;
+    public AvtaleGiroNotification: boolean;
     public BusinessRelationID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -3523,6 +3523,7 @@ export class EmailLog extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DistributeAt: LocalDate;
     public EntityID: number;
     public EntityType: string;
     public ExternalMessage: string;
@@ -3860,23 +3861,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultAddress: Address;
-    public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultPhone: Phone;
+    public DefaultAddress: Address;
+    public BaseCurrencyCode: CurrencyCode;
+    public SalaryBankAccount: BankAccount;
+    public CompanyBankAccount: BankAccount;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
-    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -3984,6 +3985,7 @@ export class Sharing extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DistributeAt: LocalDate;
     public EntityID: number;
     public EntityType: string;
     public ExternalMessage: string;
@@ -4034,184 +4036,6 @@ export class Product extends UniEntity {
     public Account: Account;
     public ProductCategoryLinks: Array<ProductCategoryLink>;
     public Dimensions: Dimensions;
-    public CustomFields: any;
-}
-
-
-export class Status extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'Status';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Description: string;
-    public EntityType: string;
-    public ID: number;
-    public Order: number;
-    public StatusCategoryID: number;
-    public StatusCode: number;
-    public System: boolean;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public StatusCategory: StatusCategory;
-    public CustomFields: any;
-}
-
-
-export class StatusCategory extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'StatusCategory';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Name: string;
-    public StatusCategoryCode: StatusCategoryCode;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class Transition extends UniEntity {
-    public static RelativeUrl = 'transitions';
-    public static EntityType = 'Transition';
-
-    public _createguid: string;
-    public Controller: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityType: string;
-    public ID: number;
-    public MethodName: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class TransitionThreshold extends UniEntity {
-    public static RelativeUrl = 'thresholds';
-    public static EntityType = 'TransitionThreshold';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public Disabled: boolean;
-    public ID: number;
-    public Operation: OperationType;
-    public Operator: Operator;
-    public PropertyName: string;
-    public RejectStatusCode: number;
-    public SharedApproveTransitionId: number;
-    public SharedRejectTransitionId: number;
-    public SharedRoleId: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Value: string;
-    public CustomFields: any;
-}
-
-
-export class TransitionThresholdApproval extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'TransitionThresholdApproval';
-
-    public _createguid: string;
-    public ApprovalID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Operation: OperationType;
-    public Operator: Operator;
-    public PropertyName: string;
-    public RejectStatusCode: number;
-    public SharedApproveTransitionId: number;
-    public SharedRejectTransitionId: number;
-    public SharedRoleId: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Value: string;
-    public Approval: Approval;
-    public CustomFields: any;
-}
-
-
-export class Approval extends UniEntity {
-    public static RelativeUrl = 'approvals';
-    public static EntityType = 'Approval';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public SharedRoleId: number;
-    public StatusCode: number;
-    public TaskID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public UserID: number;
-    public Thresholds: Array<TransitionThresholdApproval>;
-    public Task: Task;
-    public User: User;
-    public CustomFields: any;
-}
-
-
-export class Task extends UniEntity {
-    public static RelativeUrl = 'tasks';
-    public static EntityType = 'Task';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityID: number;
-    public ID: number;
-    public ModelID: number;
-    public RejectStatusCode: number;
-    public SharedApproveTransitionId: number;
-    public SharedRejectTransitionId: number;
-    public SharedRoleId: number;
-    public StatusCode: number;
-    public Title: string;
-    public Type: TaskType;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public UserID: number;
-    public Model: Model;
-    public Approvals: Array<Approval>;
-    public User: User;
-    public CustomFields: any;
-}
-
-
-export class TransitionFlow extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'TransitionFlow';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public EntityType: string;
-    public FromStatusID: number;
-    public ID: number;
-    public ToStatusID: number;
-    public TransitionID: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public FromStatus: Status;
-    public ToStatus: Status;
-    public Transition: Transition;
     public CustomFields: any;
 }
 
@@ -4444,6 +4268,279 @@ export class AltinnReceipt extends UniEntity {
     public UserSign: string;
     public XmlReceipt: string;
     public Signings: Array<AltinnSigning>;
+    public CustomFields: any;
+}
+
+
+export class ApprovalRule extends UniEntity {
+    public static RelativeUrl = 'approvalrules';
+    public static EntityType = 'ApprovalRule';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public IndustryCodes: string;
+    public Keywords: string;
+    public RuleType: ApprovalRuleType;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Steps: Array<ApprovalRuleStep>;
+    public CustomFields: any;
+}
+
+
+export class ApprovalRuleStep extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ApprovalRuleStep';
+
+    public _createguid: string;
+    public ApprovalRuleID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Limit: number;
+    public StatusCode: number;
+    public StepNumber: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public ApprovalRule: ApprovalRule;
+    public User: User;
+    public CustomFields: any;
+}
+
+
+export class ApprovalSubstitute extends UniEntity {
+    public static RelativeUrl = 'approvalsubstitutes';
+    public static EntityType = 'ApprovalSubstitute';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FromDate: LocalDate;
+    public ID: number;
+    public StatusCode: number;
+    public SubstituteUserID: number;
+    public ToDate: LocalDate;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public User: User;
+    public SubstituteUser: User;
+    public CustomFields: any;
+}
+
+
+export class TaskApprovalPlan extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'TaskApprovalPlan';
+
+    public _createguid: string;
+    public Amount: number;
+    public ApprovalID: number;
+    public ApprovalRuleID: number;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Limit: number;
+    public StatusCode: number;
+    public StepNumber: number;
+    public TaskID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public Task: Task;
+    public Approval: Approval;
+    public ApprovalRule: ApprovalRule;
+    public User: User;
+    public CustomFields: any;
+}
+
+
+export class Status extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Status';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public EntityType: string;
+    public ID: number;
+    public Order: number;
+    public StatusCategoryID: number;
+    public StatusCode: number;
+    public System: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public StatusCategory: StatusCategory;
+    public CustomFields: any;
+}
+
+
+export class StatusCategory extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'StatusCategory';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCategoryCode: StatusCategoryCode;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class Transition extends UniEntity {
+    public static RelativeUrl = 'transitions';
+    public static EntityType = 'Transition';
+
+    public _createguid: string;
+    public Controller: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityType: string;
+    public ID: number;
+    public MethodName: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class TransitionThreshold extends UniEntity {
+    public static RelativeUrl = 'thresholds';
+    public static EntityType = 'TransitionThreshold';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Disabled: boolean;
+    public ID: number;
+    public Operation: OperationType;
+    public Operator: Operator;
+    public PropertyName: string;
+    public RejectStatusCode: number;
+    public SharedApproveTransitionId: number;
+    public SharedRejectTransitionId: number;
+    public SharedRoleId: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public CustomFields: any;
+}
+
+
+export class TransitionThresholdApproval extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'TransitionThresholdApproval';
+
+    public _createguid: string;
+    public ApprovalID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Operation: OperationType;
+    public Operator: Operator;
+    public PropertyName: string;
+    public RejectStatusCode: number;
+    public SharedApproveTransitionId: number;
+    public SharedRejectTransitionId: number;
+    public SharedRoleId: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Value: string;
+    public Approval: Approval;
+    public CustomFields: any;
+}
+
+
+export class Approval extends UniEntity {
+    public static RelativeUrl = 'approvals';
+    public static EntityType = 'Approval';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public SharedRoleId: number;
+    public StatusCode: number;
+    public TaskID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public Thresholds: Array<TransitionThresholdApproval>;
+    public Task: Task;
+    public User: User;
+    public CustomFields: any;
+}
+
+
+export class Task extends UniEntity {
+    public static RelativeUrl = 'tasks';
+    public static EntityType = 'Task';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public ID: number;
+    public ModelID: number;
+    public RejectStatusCode: number;
+    public SharedApproveTransitionId: number;
+    public SharedRejectTransitionId: number;
+    public SharedRoleId: number;
+    public StatusCode: number;
+    public Title: string;
+    public Type: TaskType;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserID: number;
+    public Model: Model;
+    public Approvals: Array<Approval>;
+    public ApprovalPlan: Array<TaskApprovalPlan>;
+    public User: User;
+    public CustomFields: any;
+}
+
+
+export class TransitionFlow extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'TransitionFlow';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityType: string;
+    public FromStatusID: number;
+    public ID: number;
+    public ToStatusID: number;
+    public TransitionID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Transition: Transition;
+    public FromStatus: Status;
+    public ToStatus: Status;
     public CustomFields: any;
 }
 
@@ -4810,6 +4907,7 @@ export class EHFLog extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public DistributeAt: LocalDate;
     public EntityID: number;
     public EntityType: string;
     public ExternalMessage: string;
@@ -5833,6 +5931,7 @@ export class JournalEntry extends UniEntity {
     public static EntityType = 'JournalEntry';
 
     public _createguid: string;
+    public CanSkipMandatoryDimension: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -6729,11 +6828,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
     public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -8692,6 +8791,35 @@ export enum ProductTypeEnum{
 }
 
 
+export enum TeamPositionEnum{
+    NoPosition = 0,
+    Member = 1,
+    ReadAll = 10,
+    WriteAll = 11,
+    Approve = 12,
+    Manager = 20,
+}
+
+
+export enum TypeOfLogin{
+    none = 0,
+    AltinnPin = 1,
+    SMSPin = 2,
+    TaxPin = 3,
+}
+
+
+export enum ApprovalRuleType{
+    SupplierInvoice = 0,
+    Payment = 1,
+    CustomerInvoice = 2,
+    CustomerOrder = 3,
+    CustomerQuote = 4,
+    PurchaseOrder = 5,
+    Timesheet = 6,
+}
+
+
 export enum StatusCategoryCode{
     Draft = 10000,
     Pending = 20000,
@@ -8730,24 +8858,6 @@ export enum Operator{
 export enum TaskType{
     Task = 0,
     Approval = 1,
-}
-
-
-export enum TeamPositionEnum{
-    NoPosition = 0,
-    Member = 1,
-    ReadAll = 10,
-    WriteAll = 11,
-    Approve = 12,
-    Manager = 20,
-}
-
-
-export enum TypeOfLogin{
-    none = 0,
-    AltinnPin = 1,
-    SMSPin = 2,
-    TaxPin = 3,
 }
 
 
@@ -9017,6 +9127,15 @@ export enum StatusCodeSharing{
 }
 
 
+export enum StatusCodeAltinnSigning{
+    NotSigned = 43001,
+    PartialSigned = 43002,
+    Signed = 43003,
+    AlreadySigned = 43004,
+    Failed = 43005,
+}
+
+
 export enum ApprovalStatus{
     Active = 50120,
     Approved = 50130,
@@ -9028,15 +9147,6 @@ export enum TaskStatus{
     Active = 50020,
     Complete = 50030,
     Pending = 50040,
-}
-
-
-export enum StatusCodeAltinnSigning{
-    NotSigned = 43001,
-    PartialSigned = 43002,
-    Signed = 43003,
-    AlreadySigned = 43004,
-    Failed = 43005,
 }
 
 
