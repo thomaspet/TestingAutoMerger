@@ -59,6 +59,20 @@ export class UniReportComments implements IUniModal {
         this.comments = cloneDeep(this.data.comments);
     }
 
+    runRequestsSequentially(requests, index, total) {
+        if (index === total) {
+            this.onClose.emit(true);
+            return;
+        } else if (index < total) {
+            requests[index].subscribe(() => {
+                this.runRequestsSequentially(requests, ++index, total);
+            }, (err) => this.errorService.handle(err));
+            return;
+        } else {
+            this.errorService.handle('An error on reportComments.ts -> runRequestsSequentially.');
+        }
+    }
+
     save() {
         // Allow blur from submit click to trigger change event in table before saving
         setTimeout(() => {
@@ -83,11 +97,7 @@ export class UniReportComments implements IUniModal {
                     }
                 }));
             });
-
-            forkJoin(requests).subscribe(
-                () => this.onClose.emit(true),
-                err => this.errorService.handle(err)
-            );
+            this.runRequestsSequentially(requests, 0, requests.length);
         });
     }
 
