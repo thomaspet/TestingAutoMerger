@@ -17,6 +17,8 @@
 
     <footer>
         <mat-checkbox [(ngModel)]="hasAgreed">Godta lisensavtale</mat-checkbox>
+
+        <button class="logout" (click)="logout()">Logg ut og bytt selskap</button>
         <button class="c2a" (click)="confirmAgreement()" [disabled]="!hasAgreed">Bekreft</button>
     </footer>
 </section>
