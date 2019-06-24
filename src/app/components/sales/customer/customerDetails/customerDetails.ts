@@ -1584,12 +1584,15 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     EntityType: 'Customer',
-                    Property: 'AvtaleGiroAmount',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Beløpsgrense AvtaleGiro',
+                    Property: 'AvtaleGiroNotification',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Varsel AvtaleGiro',
                     FieldSet: 8,
                     Legend: 'Avtaler faktura',
-                    Section: 0
+                    Section: 0,
+                    Tooltip: {
+                        Text: 'Skal det sendes varsel på e-post om AvtaleGiro?'
+                    }
                 }
             ]
         };
