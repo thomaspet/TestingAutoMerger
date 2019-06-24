@@ -13,7 +13,7 @@
         <form class="uni-html-form" [formGroup]="autobankData">
             <label>
                 <span>Ditt autobank passord</span>
-                <input formControlName="AdminPassword" type="text" class="password" autofocus>
+                <input formControlName="AdminPassword" type="password" autocomplete="new-password" autofocus>
             </label>
 
             <fieldset>
@@ -29,12 +29,12 @@
 
                 <label>
                     <span>Passord</span>
-                    <input formControlName="Password" type="text" class="password">
+                    <input formControlName="Password" type="password" autocomplete="new-password">
                 </label>
 
                 <label>
                     <span>Bekreft passord</span>
-                    <input formControlName="ConfirmPassword" type="text" class="password">
+                    <input formControlName="ConfirmPassword" type="password" autocomplete="new-password">
                 </label>
 
                 <label>

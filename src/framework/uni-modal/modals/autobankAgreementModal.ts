@@ -159,12 +159,12 @@ export interface IAutoBankAgreementDetails {
                     <section class="uni-html-form bank-agreement-password-form">
                         <label>
                             <span>Passord</span>
-                            <input type="text" class="password" [(ngModel)]="agreementDetails.Password">
+                            <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails.Password">
                         </label>
 
                         <label>
                             <span>Bekreft passord</span>
-                            <input type="text" class="password" [(ngModel)]="agreementDetails._confirmPassword">
+                            <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails._confirmPassword">
                         </label>
                     </section>
 
