@@ -44,14 +44,7 @@ export class AccountSettings {
         ]
     };
 
-    public saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (completeEvent) => this.saveSettings(completeEvent),
-            main: true,
-            disabled: false
-        }
-    ];
+    public saveactions: IUniSaveAction[] = this.updateActions();
 
     constructor(
         private tabService: TabService,
@@ -88,6 +81,7 @@ export class AccountSettings {
     private changeRow(account: Account) {
         this.account = account;
         this.hasChanges = false;
+        this.saveactions = this.updateActions();
     }
 
     public change(event: SimpleChanges) {
@@ -197,5 +191,16 @@ export class AccountSettings {
                 });
             }
         });
+    }
+
+    private updateActions() {
+        return [
+            {
+                label: 'Lagre',
+                action: (completeEvent) => this.saveSettings(completeEvent),
+                main: true,
+                disabled: !this.account
+            }
+        ];
     }
 }
