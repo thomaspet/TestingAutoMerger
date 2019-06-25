@@ -1248,9 +1248,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             ) {
                 if (
                     (rowModel.MandatoryDimensionsValidation.CreditReport
-                    && (!_.isEmpty(rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions)) || !_.isEmpty(rowModel.MandatoryDimensionsValidation.CreditReport.WarningDimensions))
+                    && rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions)
                     || (rowModel.MandatoryDimensionsValidation.DebitReport
-                    && (!_.isEmpty(rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions)) || !_.isEmpty(rowModel.MandatoryDimensionsValidation.DebitReport.WarningDimensions))
+                    && rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions)
+                ) {
+                    showTooltip = true;
+                }
+
+                if (
+                    (rowModel.MandatoryDimensionsValidation.CreditReport
+                    && rowModel.MandatoryDimensionsValidation.CreditReport.WarningDimensions)
+                    || (rowModel.MandatoryDimensionsValidation.DebitReport
+                    && rowModel.MandatoryDimensionsValidation.DebitReport.WarningDimensions)
                 ) {
                     showTooltip = true;
                 }
