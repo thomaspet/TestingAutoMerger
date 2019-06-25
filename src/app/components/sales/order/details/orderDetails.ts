@@ -339,7 +339,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         }
 
                         this.tofHead.focus();
-                        if (this.accountsWithMandatoryDimensionsIsUsed) {
+                        if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
                             this.tofHead.getValidationMessage(order.CustomerID, order.DefaultDimensionsID);
                         }
                     },
@@ -581,7 +581,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions, true);
-            if (this.accountsWithMandatoryDimensionsIsUsed) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
                 this.tofHead.getValidationMessage(order.CustomerID, order.DefaultDimensionsID, order.DefaultDimensions);
             }
         }
@@ -598,7 +598,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]]);
             }
-            if (this.accountsWithMandatoryDimensionsIsUsed) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
                 this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
             }
         }

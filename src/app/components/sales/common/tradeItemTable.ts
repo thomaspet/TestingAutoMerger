@@ -744,22 +744,24 @@ export class TradeItemTable {
         .setTemplate(() => '')
         .setTooltipResolver((row: any) => {
             if (row.ProductID && row.AccountID) {
-                let text = '';
+                let hasRequiredDims, hasWarnDims;
+                let text = 'Påkrevde dimensjoner registrert ok';
 
-                let itemReport = row.ID !== 0
-                    ? this.itemsWithReport.find(x => x.itemID === row.ID)
-                    : this.itemsWithReport.find(x => x.createguid === row._createguid);
-
+                let itemReport = this.getItemWithReport(row);
                 if (!itemReport && row.ID === 0) {
                     itemReport = this.itemsWithReport.find(x => x.itemID === row.ID);
                 }
 
-                if (itemReport) {
+                if (itemReport && itemReport.report) {
                     const rep = itemReport.report;
+
+                    if ((!rep.RequiredDimensions || Object.keys(rep.RequiredDimensions).length === 0)
+                        && (!rep.WarningDimensions || Object.keys(rep.WarningDimensions).length === 0)) {
+                        return;
+                    }
 
                     const reqDims = rep.MissingRequiredDimensions || [];
                     const warnDims = rep.MissingWarningDimensions || [];
-                    let hasRequiredDims, hasWarnDims;
 
                     if (reqDims.length) {
                         hasRequiredDims = true;
@@ -774,15 +776,12 @@ export class TradeItemTable {
                             text = rep.MissingOnlyWarningsDimensionsMessage;
                         }
                     }
-
-                    if (hasRequiredDims || hasWarnDims) {
-                        return {
-                            type: hasRequiredDims ? 'bad' : 'warn',
-                            text: text
-                        };
-                    }
+                    const type = hasRequiredDims ? 'bad' : hasWarnDims ? 'warn' : 'good';
+                    return {
+                        type: type,
+                        text: text
+                    };
                 }
-
             }
         });
     }
@@ -863,9 +862,7 @@ export class TradeItemTable {
 
     private updateItemMandatoryDimensions(item: any) {
         this.accountMandatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
-            const itemRep = item.ID !== 0
-                ? this.itemsWithReport.find(x => x.itemID === item.ID)
-                : this.itemsWithReport.find(x => x.itemID === item.ID && x.createguid === item._createguid);
+            const itemRep = this.getItemWithReport(item);
             if (itemRep) {
                 itemRep.report = rep;
             } else {
