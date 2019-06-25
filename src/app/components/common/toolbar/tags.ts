@@ -78,9 +78,9 @@ export class UniTags implements OnChanges {
     public isOpen: boolean = false;
     public helpText: string;
     public autoCompleteModel: any = null;
-    private autoCompleteField: UniFieldLayout;
-    private searchBusy: boolean;
-    private removeBusy: boolean;
+    public autoCompleteField: UniFieldLayout;
+    public searchBusy: boolean;
+    public removeBusy: boolean;
     private ignoreFilter: string;
 
     constructor(private errorService: ErrorService) {}
@@ -147,7 +147,7 @@ export class UniTags implements OnChanges {
 
         saveObservable.subscribe(
             res => this.handleNewTags(res),
-            err => this.errorService.handle(err),
+            err => { this.errorService.handle(err); this.setSearchBusy(false); },
             () => this.setSearchBusy(false)
         );
     }
