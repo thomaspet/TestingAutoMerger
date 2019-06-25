@@ -855,6 +855,12 @@ export class TradeItemTable {
         this.itemsChange.next(this.items);
     }
 
+    private getItemWithReport(item: any) {
+        return item.ID !== 0
+        ? this.itemsWithReport.find(x => x.itemID === item.ID)
+        : this.itemsWithReport.find(x => x.createguid === item._createguid);
+    }
+
     private updateItemMandatoryDimensions(item: any) {
         this.accountMandatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
             const itemRep = item.ID !== 0
@@ -904,17 +910,20 @@ export class TradeItemTable {
         if (mdCol && !mdCol.visible) {
             if (this.accountsWithMandatoryDimensionsIsUsed && items) {
                 let msg: string = '';
-                this.itemsWithReport.forEach(item => {
-                    const report = item.report;
-                    if (report) {
-                        if (report.MissingRequiredDimensionsMessage !== '') {
-                            if (!msg.includes(report.MissingRequiredDimensionsMessage)) {
-                                msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                this.items.forEach(item => {
+                    const itemWithReport = this.getItemWithReport(item);
+                    if (itemWithReport) {
+                        const report = itemWithReport.report;
+                        if (report) {
+                            if (report.MissingRequiredDimensionsMessage !== '') {
+                                if (!msg.includes(report.MissingRequiredDimensionsMessage)) {
+                                    msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                                }
                             }
-                        }
-                        if (report.MissingOnlyWarningsDimensionsMessage) {
-                            if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
-                                msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                            if (report.MissingOnlyWarningsDimensionsMessage) {
+                                if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
+                                    msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                }
                             }
                         }
                     }
