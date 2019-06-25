@@ -3528,7 +3528,8 @@ export class BillView implements OnInit {
                 entityName: 'SupplierInvoice',
                 currencyCode: bill.CurrencyCode.Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate,
-                entityID: bill.SupplierID
+                entityID: bill.SupplierID,
+                supplierID: bill.SupplierID,
             }
         });
 

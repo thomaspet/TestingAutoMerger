@@ -1241,6 +1241,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             const creRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.CreditReport;
 
             let showTooltip = false;
+
             if (
                 rowModel.MandatoryDimensionsValidation
                 && (rowModel.MandatoryDimensionsValidation.CreditReport
