@@ -25,6 +25,12 @@
                 <span>Fritekst</span>
                 <textarea [(ngModel)]="currentFreeTxt" (keyup)="flagUnsavedChanged()" [attr.maxLength]="500"> </textarea>
             </section>
+            <section class="mandatory-dimensions-validation-message">
+                <span *ngIf="validationMessage?.Level === 30"><!--MissingRequiredDimensionsMessage - vises ikke-->
+                    <i class="material-icons bad">error</i>
+                    <span>{{validationMessage.Message}}</span>
+                </span>
+            </section>
         </section>
 
         <section class="uni-container" style="margin-bottom: 0">
@@ -44,7 +50,6 @@
                     (dataChanged)="onJournalEntryManualChange($event)"
                     (dataLoaded)="onJournalEntryManualDataLoaded($event)">
                 </journal-entry-manual>
-
                 <table *ngIf="!(current | async)?.JournalEntry?.JournalEntryNumber" class="compact-summary">
                     <tr>
                         <td>Differanse</td>

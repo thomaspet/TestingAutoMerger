@@ -20,7 +20,7 @@ import {
     TaskStatus,
     Dimensions,
     VatDeduction,
-    Payment
+    Payment, ValidationLevel
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -90,6 +90,8 @@ import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePay
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import { isNullOrUndefined } from 'util';
+import { AccountMandatoryDimensionService } from '@app/services/accounting/accountMandatoryDimensionService';
+import { ValidationMessage } from '@app/models/validationResult';
 
 interface ITab {
     name: string;
@@ -248,6 +250,9 @@ export class BillView implements OnInit {
         turnOnSmartBooking: true
     };
 
+    validationMessage: ValidationMessage = null;
+    accountsWithMandatoryDimensionsIsUsed = false;
+
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -281,7 +286,8 @@ export class BillView implements OnInit {
         private fileService: FileService,
         private paymentService: PaymentService,
         private browserStorageService: BrowserStorageService,
-        private reinvoicingService: ReInvoicingService
+        private reinvoicingService: ReInvoicingService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
         this.actions = this.rootActions;
 
@@ -302,6 +308,9 @@ export class BillView implements OnInit {
     }
 
     public ngOnInit() {
+        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
+            this.accountsWithMandatoryDimensionsIsUsed = result > 0;
+        });
         this.initForm();
         this.initFromRoute();
     }
@@ -1214,6 +1223,13 @@ export class BillView implements OnInit {
 
     public onFormInput(event) {
         this.flagUnsavedChanged();
+        if (this.current.value.ID && this.current.value.SupplierID) {
+            this.getValidationMessage(
+                this.current.value.SupplierID,
+                this.current.value.DefaultDimensionsID,
+                this.current.value.DefaultDimensions
+            );
+        }
     }
 
     public onFocusEvent(event) {
@@ -1274,6 +1290,14 @@ export class BillView implements OnInit {
                 [candidate.Left, candidate.Top, candidate.Width, candidate.Height],
                 this.ocrData.ImageWidth,
                 this.ocrData.ImageHeight
+            );
+        }
+
+        if (this.current.value.ID && this.current.value.SupplierID) {
+            this.getValidationMessage(
+                this.current.value.SupplierID,
+                this.current.value.DefaultDimensionsID,
+                this.current.value.DefaultDimensions
             );
         }
     }
@@ -1409,6 +1433,13 @@ export class BillView implements OnInit {
     public onFormChange(change: SimpleChanges) {
         try {
             this.onFormChanged(change);
+            if (this.current.value.ID && this.current.value.SupplierID) {
+                this.getValidationMessage(
+                    this.current.value.SupplierID,
+                    this.current.value.DefaultDimensionsID,
+                    this.current.value.DefaultDimensions
+                );
+            }
         } catch (err) {
             this.errorService.handle(err);
         }
@@ -2843,6 +2874,8 @@ export class BillView implements OnInit {
     }
 
     public onJournalEntryManualChange(lines) {
+        console.log(this.current.value);
+        console.log(lines);
         let changes = false;
 
         this.updateSummary(lines);
@@ -2943,6 +2976,13 @@ export class BillView implements OnInit {
 
     public onFormReady() {
         this.formReady = true;
+        if (this.current.value.ID && this.current.value.SupplierID) {
+            this.getValidationMessage(
+                this.current.value.SupplierID,
+                this.current.value.DefaultDimensionsID,
+                this.current.value.DefaultDimensions
+            );
+        }
     }
 
 
@@ -3942,5 +3982,20 @@ export class BillView implements OnInit {
 
     private resetPostings() {
         this.journalEntryManual.clear();
+    }
+
+    public getValidationMessage(supplierID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
+        if (!this.accountsWithMandatoryDimensionsIsUsed) {
+            return;
+        }
+        this.accountMandatoryDimensionService.getSupplierMandatoryDimensionsReport(supplierID, dimensionsID, dimensions).subscribe((report) => {
+            this.validationMessage = new ValidationMessage();
+            if (report && report.MissingRequiredDimensionsMessage) {
+                this.validationMessage.Level = ValidationLevel.Error;
+                this.validationMessage.Message = report.MissingRequiredDimensionsMessage;
+            } else {
+                this.validationMessage.Level = 0;
+            }
+        });
     }
 }

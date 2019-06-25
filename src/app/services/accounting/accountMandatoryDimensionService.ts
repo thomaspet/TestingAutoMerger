@@ -65,8 +65,15 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
     public getCustomerMandatoryDimensionsReport(accountID: number, dimensionsID: number, dimensions: Dimensions = null): Observable<any> {
         if (dimensions) {
             return super.ActionWithBody(null, dimensions, `get-customer-mandatory-dimensions-report-dimensions&customerID=${accountID}&dimensionsID=${dimensionsID}`, RequestMethod.Put);
-        } 
+        }
         return super.GetAction(null, `get-customer-mandatory-dimensions-report-dimensionsID&customerID=${accountID}&dimensionsID=${dimensionsID}`);
+    }
+
+    public getSupplierMandatoryDimensionsReport(supplierID: number, dimensionsID: number, dimensions: Dimensions = null): Observable<any> {
+        if (dimensions) {
+            return super.ActionWithBody(null, dimensions, `get-supplier-mandatory-dimensions-report-dimensions&supplierID=${supplierID}&dimensionsID=${dimensionsID}`, RequestMethod.Put);
+        }
+        return super.GetAction(null, `get-supplier-mandatory-dimensions-report-dimensionsID&supplierID=${supplierID}&dimensionsID=${dimensionsID}`);
     }
 
     public GetNumberOfAccountsWithMandatoryDimensions (): Observable<number> {
