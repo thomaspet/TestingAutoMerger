@@ -433,7 +433,7 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
-            }
+            } 
         ],
         "Filters": [
             {
@@ -563,6 +563,7 @@
                 "Name": "Avvist",
                 "Code": "payment_list",
                 "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
