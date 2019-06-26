@@ -2864,6 +2864,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.setupJournalEntryNumbers(false);
 
                 this.dataChanged.emit(this.journalEntryLines);
+
+                this.lastUsedJournalEntryNumber = '';
             },
             err => {
                 // call with empty string to avoid clearing the grid
@@ -2943,7 +2945,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private addJournalEntryLines(lines: JournalEntryData[]) {
         const newItems = this.table.getTableData();
-
         lines.forEach(line => {
             line.JournalEntryNo = this.lastUsedJournalEntryNumber
                 ? this.lastUsedJournalEntryNumber
