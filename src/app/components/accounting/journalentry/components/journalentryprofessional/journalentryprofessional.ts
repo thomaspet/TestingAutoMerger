@@ -1249,18 +1249,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             ) {
                 if (
                     (rowModel.MandatoryDimensionsValidation.CreditReport
-                    && rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions)
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions).length)
                     || (rowModel.MandatoryDimensionsValidation.DebitReport
-                    && rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions)
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions).length)
                 ) {
                     showTooltip = true;
                 }
 
                 if (
                     (rowModel.MandatoryDimensionsValidation.CreditReport
-                    && rowModel.MandatoryDimensionsValidation.CreditReport.WarningDimensions)
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.CreditReport.WarningDimensions).length)
                     || (rowModel.MandatoryDimensionsValidation.DebitReport
-                    && rowModel.MandatoryDimensionsValidation.DebitReport.WarningDimensions)
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.DebitReport.WarningDimensions).length)
                 ) {
                     showTooltip = true;
                 }
