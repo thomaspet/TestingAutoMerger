@@ -38,7 +38,6 @@ class EmployeeWithError extends Employee {
 
 export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
     @Output() employee = new EventEmitter<Employee>();
-    @Output() emps = new EventEmitter<Employee[]>();
     public salarytransSelectionTableConfig: UniTableConfig;
     public employeeList: Employee[] = [];
     public selectedIndex: number = 0;
