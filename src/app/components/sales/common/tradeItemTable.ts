@@ -283,9 +283,11 @@ export class TradeItemTable {
                     item.Dimensions = item.Dimensions || new Dimensions();
                     item.Dimensions[entity] = id;
                     item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                    item.DimensionsID = null;
                 }
                 return item;
             });
+            this.getMandatoryDimensionsReports();
         };
 
         if (shouldAskBeforeChange) {
@@ -338,8 +340,10 @@ export class TradeItemTable {
                         item.Dimensions = item.Dimensions || new Dimensions();
                         item.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
                         item.Dimensions['Dimension' + dimension] = dim;
+                        item.DimensionsID = null;
                         return item;
                     });
+                    this.getMandatoryDimensionsReports();
                 }
             });
         } else {
@@ -347,9 +351,11 @@ export class TradeItemTable {
                 item.Dimensions = item.Dimensions || new Dimensions();
                 item.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
                 item.Dimensions['Dimension' + dimension] = dim;
+                item.DimensionsID = null;
                 return item;
             });
-        }
+            this.getMandatoryDimensionsReports();
+}
     }
 
     private initTableConfig() {
