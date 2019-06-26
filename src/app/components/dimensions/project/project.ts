@@ -17,6 +17,8 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import PerfectScrollbar from 'perfect-scrollbar';
+import {takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 declare var _;
 
 @Component({
@@ -25,6 +27,7 @@ declare var _;
 })
 
 export class Project {
+    onDestroy$ = new Subject();
     childRoutes: IUniTab[] = [];
     activeProjectID: number;
     currentUser: { DisplayName: string, Email: string, GlobalIdentity: string, ID: number };
@@ -91,6 +94,11 @@ export class Project {
 
     ngAfterViewInit() {
         this.scrollbar = new PerfectScrollbar('#role-info');
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     private init() {
@@ -194,7 +202,9 @@ export class Project {
     }
 
     private updateToolbar() {
-        this.projectService.currentProject.subscribe( p => {
+        this.projectService.currentProject.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe( p => {
             this.toolbarconfig.statustrack = this.buildStatusTrack(p);
             this.projectService.toolbarConfig.next(this.toolbarconfig);
             this.projectService.saveActions.next(this.saveActions);

@@ -11,6 +11,8 @@ import {
     UserService
 } from '../../../../services/services';
 import * as moment from 'moment';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 interface IPageState {
     projectID?: string;
@@ -23,6 +25,8 @@ interface IPageState {
     templateUrl: 'hourtotals.html'
 })
 export class ProjectHourTotals {
+    onDestroy$ = new Subject();
+
     public currentProjectID: number;
     public currentProject: Project;
     private filter: string;
@@ -39,28 +43,31 @@ export class ProjectHourTotals {
         private http: UniHttp,
         private router: Router,
         private route: ActivatedRoute,
-        private userService: UserService,
-        private errorService: ErrorService,
-        private projectService: ProjectService) {
-
-    }
+        private projectService: ProjectService
+    ) {}
 
     public ngOnInit() {
         this.route.queryParams.subscribe((params) => {
             this.createFilter(this.filters.find( x => x.isActive).name);
         });
 
-        this.projectService.toolbarConfig.subscribe( cfg => {
+        this.projectService.toolbarConfig.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe( cfg => {
             this.toolbarConfig = cfg;
         });
 
-        this.projectService.currentProject.subscribe( p => {
+        this.projectService.currentProject.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe( p => {
             this.currentProject = p;
         });
     }
 
-    public ngOnDestroy() {
+    ngOnDestroy() {
         this.removeContextMenu();
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     public onAddHoursClick() {

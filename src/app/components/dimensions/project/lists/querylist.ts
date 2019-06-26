@@ -2,12 +2,15 @@ import {Component} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ProjectService, UniQueryDefinitionService} from '@app/services/services';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'project-query-list',
     templateUrl: './querylist.html'
 })
 export class ProjectQueryList {
+    onDestroy$ = new Subject();
     projectID: number = 0;
     reportID: number = 0;
     customerID: number = 0;
@@ -33,7 +36,9 @@ export class ProjectQueryList {
             });
         });
 
-        this.projectService.currentProject.subscribe(
+        this.projectService.currentProject.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(
             (project) => {
                 if (project) {
                     this.projectID = project.ID;
@@ -41,5 +46,10 @@ export class ProjectQueryList {
                 }
             }
         );
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 }
