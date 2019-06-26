@@ -33,6 +33,7 @@ export class CategoryView extends UniView implements OnDestroy {
     public currentCategory: EmployeeCategory;
     public saveActions: IUniSaveAction[];
     public toolbarConfig: IToolbarConfig;
+    private saveComplete: boolean = false;
 
     public childRoutes: any[];
 
@@ -114,6 +115,9 @@ export class CategoryView extends UniView implements OnDestroy {
     }
 
     public canDeactivate(): Observable<boolean> {
+        if (this.saveComplete) {
+            return Observable.of(this.saveComplete);
+        }
 
         return Observable
             .of(super.isDirty())
@@ -155,6 +159,10 @@ export class CategoryView extends UniView implements OnDestroy {
     }
 
     private saveAll(done: (message: string) => void, updateView = true) {
+        if (this.currentCategory && !this.currentCategory.Name) {
+            return done('Lagring feilet. Sett navn på kategori');
+        }
+
         this.getSubSaveObjects()
             .pipe(
                 switchMap(saveObj => this.saveAllObs(done, updateView, saveObj.filter(x => x.dirty))),
@@ -203,9 +211,10 @@ export class CategoryView extends UniView implements OnDestroy {
                     const cat = result[0];
                     super.updateState(EMP_CAT_KEY, cat, false);
                     const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + cat.ID + '/' + childRoute);
+                    this.saveComplete = true;
                     done('lagring fullført');
                     this.saveActions[0].disabled = true;
+                    this.router.navigateByUrl(this.url + cat.ID + '/' + childRoute);
                 })
             );
     }
