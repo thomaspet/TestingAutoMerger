@@ -159,15 +159,18 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             userIDFilter = ' and user.id eq ' + userIDFilter;
         }
 
-        const flds = this.selectBuilder('ID', 'StatusCode',
-            'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate', 'FreeTxt',
-            'InvoiceNumber', 'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber', 'PaymentInformation',
-            'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
-            'PaymentID', 'JournalEntry.JournalEntryNumber',
-            'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
-            'Department.DepartmentNumber',
-            'CurrencyCodeID', 'CurrencyCode.Code',
-            'ReInvoice.StatusCode');
+        const flds = this.selectBuilder(
+            'ID', 'StatusCode', 'Supplier.SupplierNumber', 'Info.Name',
+            'PaymentDueDate', 'InvoiceDate', 'FreeTxt', 'InvoiceNumber',
+            'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber',
+            'PaymentInformation', 'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
+            'PaymentID', 'JournalEntry.JournalEntryNumber', 'RestAmount',
+            'Project.Name', 'Project.Projectnumber', 'Department.Name',
+            'Department.DepartmentNumber', 'CurrencyCodeID',
+            'CurrencyCode.Code', 'CreatedAt', 'ReInvoice.StatusCode',
+            'ReInvoice.ID'
+        );
+
         let route = '?model=SupplierInvoice' +
             '&select=' + flds +
             '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +

@@ -87,6 +87,7 @@ export interface IUniTableColumn {
     onCellClick?: (rowModel) => void;
     isSumColumn?: boolean;
     tooltipResolver?: (rowModel) => IColumnTooltip;
+    hasLink?: (rowModel) => boolean;
     linkResolver?: (rowModel) => string;
     linkClick?: (rowModel) => void;
     maxLength?: number;
@@ -109,6 +110,7 @@ export class UniTableColumn implements IUniTableColumn {
     public cls: string;
     public headerCls: string;
 
+    public hasLink: (rowMdoel) => boolean;
     public linkResolver: (rowModel) => string;
     public linkClick: (rowModel) => void;
     public tooltipResolver: (rowModel) => IColumnTooltip;
@@ -298,6 +300,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setTooltipResolver(tooltipResolver: (rowModel) => IColumnTooltip) {
         this.tooltipResolver = tooltipResolver;
+        return this;
+    }
+
+    public setHasLink(check: (rowModel) => boolean) {
+        this.hasLink = check;
         return this;
     }
 

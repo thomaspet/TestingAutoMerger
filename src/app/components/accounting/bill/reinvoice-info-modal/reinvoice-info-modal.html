@@ -1,0 +1,42 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Viderefakturering</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section *ngIf="orders?.length" class="reinvoice-list">
+            <section *ngFor="let item of orders" class="reinvoice-item">
+                <a (click)="goToOrder(item)">Ordrenr. {{item.OrderNumber || 0}}</a>
+                <section class="customer-name">{{item.CustomerName}}</section>
+                <section>
+                    {{item.TaxInclusiveAmountCurrency || 0}},-
+                    <small>(inkl.mva)</small>
+                </section>
+
+                <section class="status">
+                    <span>{{item['_status']}}</span>
+                </section>
+            </section>
+        </section>
+
+        <section *ngIf="invoices?.length" class="reinvoice-list">
+            <section *ngFor="let item of invoices" class="reinvoice-item">
+                <a (click)="goToInvoice(item)">
+                    {{item.InvoiceNumber ? 'Fakturanr. ' + item.InvoiceNumber : 'Fakturakladd'}}
+                </a>
+                <section class="customer-name">{{item.CustomerName}}</section>
+                <section>
+                    {{item.TaxInclusiveAmountCurrency || 0}},-
+                    <small>(inkl.mva)</small>
+                </section>
+
+                <section class="status">
+                    <span>{{item['_status']}}</span>
+                </section>
+            </section>
+        </section>
+
+    </article>
+</section>

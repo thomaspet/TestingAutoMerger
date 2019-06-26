@@ -8,7 +8,8 @@ import {JournalEntryData} from '@app/models';
 import {
     SupplierInvoice,
     StatusCodeSupplierInvoice,
-    ApprovalStatus
+    ApprovalStatus,
+    StatusCodeReInvoice
 } from '../../../unientities';
 import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
@@ -33,6 +34,7 @@ import {catchError} from 'rxjs/operators';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import { BillTransitionModal, BillMassTransition } from './bill-transition-modal/bill-transition-modal';
+import {ReInvoiceInfoModal} from './reinvoice-info-modal/reinvoice-info-modal';
 
 interface IFilter {
     name: string;
@@ -657,9 +659,10 @@ export class BillsView implements OnInit {
         }
 
         const obs = filter.route
-            ?  this.supplierInvoiceService.fetch(filter.route)
+            ? this.supplierInvoiceService.fetch(filter.route)
             : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
-        obs.subscribe((result) => {
+
+            obs.subscribe((result) => {
             if (filter.onDataReady) {
                 filter.onDataReady(result);
             } else {
@@ -850,9 +853,13 @@ export class BillsView implements OnInit {
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }),
-            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Number)
+            new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.DateTime).setVisible(false),
+            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Link)
                 .setVisible(!!filter.showStatus)
-                .setAlignment('center')
+                .setHasLink(row => row.ReInvoiceStatusCode === StatusCodeReInvoice.ReInvoiced)
+                .setLinkClick(row => {
+                    this.modalService.open(ReInvoiceInfoModal, {data: row.ReInvoiceID});
+                })
                 .setTemplate((dataItem) => {
                     return this.reInvoicingService.getStatusText(dataItem.ReInvoiceStatusCode);
                 })

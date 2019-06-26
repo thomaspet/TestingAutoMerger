@@ -726,7 +726,7 @@ export class AgGridWrapper {
             }
 
             if (col.linkResolver || col.linkClick) {
-                agCol.cellRenderer = CellRenderer.getLinkColumn(this.onLinkClick.bind(this));
+                agCol.cellRenderer = CellRenderer.getLinkColumn(col.hasLink, this.onLinkClick.bind(this));
             }
 
             if (col.tooltipResolver) {
