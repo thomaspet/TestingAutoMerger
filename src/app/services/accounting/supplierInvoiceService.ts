@@ -40,7 +40,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     public getStatusText(statusCode: number): string {
         const statusType = this.statusTypes.find(x => x.Code === statusCode);
-        return statusType ? statusType.Text : 'Udefinert';
+        return statusType && statusType.Text || '';
     }
 
     public getTeamsAndUsers(): Observable<{ teams: Array<Team>, users: Array<User>} >  {

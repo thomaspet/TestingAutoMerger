@@ -214,7 +214,7 @@ export class TableDataService {
                                     sums['_isSumRow'] = true;
                                 }
 
-                                this.sumRow$.next([sums]);
+                                this.sumRow$.next(Array.isArray(sums) ? sums : [sums]);
                             });
                     } else {
                         const sumColumns = this.config.columns.filter(col => col.isSumColumn);

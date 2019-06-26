@@ -3,6 +3,8 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
+import {MatSelectModule} from '@angular/material';
+
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -15,10 +17,10 @@ import {ProjectEditmode} from './project/editmode/editmode';
 import {ProjectDocument} from './project/document/document';
 import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHourTotals} from './project/hours/hourtotals';
+import {ProjectSupplierInvoiceList} from './project/lists/supplier-invoice-list/supplier-invoice-list';
 
 import {UniDimensionView} from './custom/dimension';
 
-import {MatSelectModule} from '@angular/material';
 
 
 @NgModule({
@@ -45,6 +47,7 @@ import {MatSelectModule} from '@angular/material';
         ProjectDocument,
         ProjectQueryList,
         ProjectHourTotals,
+        ProjectSupplierInvoiceList,
         UniDimensionView
     ]
 })
