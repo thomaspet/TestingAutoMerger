@@ -11,7 +11,6 @@ import {
     UserRole
 } from '../../../app/unientities';
 import {
-    billViewLanguage as lang,
     approvalStatusLabels as statusLabels} from '../../../app/components/accounting/bill/detail/lang';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
@@ -74,7 +73,7 @@ export class UniApproveModal implements IUniModal, OnInit {
 
     public currentTeam: Team;
     public currentUser: User;
-    public okButtonLabel: string = lang.task_approve;
+    public okButtonLabel: string = 'Godkjenn';
     public modalTitle: string = '';
 
     public canApprove: boolean = false;
@@ -118,8 +117,8 @@ export class UniApproveModal implements IUniModal, OnInit {
             return;
         }
         this.invoice = this.options.data.invoice;
-        this.okButtonLabel = this.options.data.forApproval ? lang.task_approve : lang.task_reject;
-        this.modalTitle = this.options.data.forApproval ? lang.task_approve : lang.task_reject;
+        this.okButtonLabel = this.options.data.forApproval ? 'Godkjenn' : 'Avvis';
+        this.modalTitle = this.options.data.forApproval ? 'Godkjenn' : 'Avvis';
         this.rejectTab = !this.options.data.forApproval;
 
         if (this.currentTask) {
@@ -197,8 +196,8 @@ export class UniApproveModal implements IUniModal, OnInit {
 
     public switchTab(index: number) {
         this.rejectTab = index === 1;
-        this.okButtonLabel = this.rejectTab ? lang.task_reject : lang.task_approve;
-        this.modalTitle = this.rejectTab ? lang.task_reject : lang.task_approve;
+        this.okButtonLabel = this.rejectTab ? 'Avvis' : 'Godkjenn';
+        this.modalTitle = this.rejectTab ? 'Avvis' : 'Godkjenn';
     }
 
     public get currentDetails(): ApprovalDetails {
@@ -218,7 +217,7 @@ export class UniApproveModal implements IUniModal, OnInit {
         if (src === 'ok') {
 
             if (this.rejectTab && !this.comment) {
-                this.errorService.addErrorToast(lang.err_missing_comment);
+                this.errorService.addErrorToast('Du må skrive en kommentar som forklarer avvisningen.');
                 return;
             }
 

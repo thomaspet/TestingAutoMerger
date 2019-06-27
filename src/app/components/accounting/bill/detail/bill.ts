@@ -29,7 +29,7 @@ import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
-import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
+import {billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
 import {UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
@@ -89,7 +89,6 @@ import {JournalEntryMode} from '../../../../services/accounting/journalEntryServ
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-import { isNullOrUndefined } from 'util';
 import { AccountMandatoryDimensionService } from '@app/services/accounting/accountMandatoryDimensionService';
 import { ValidationMessage } from '@app/models/validationResult';
 
@@ -207,25 +206,25 @@ export class BillView implements OnInit {
 
     private rootActions: IUniSaveAction[] = [
         {
-            label: lang.tool_save,
+            label: 'Lagre endringer',
             action: (done) => this.save(done).catch(() => {}),
             main: true,
             disabled: true
         },
         {
-            label: lang.tool_save_and_new,
+            label: 'Lagre og start ny fra innboks',
             action: (done) => this.saveAndGetNewDocument(done),
             main: true,
             disabled: false
         },
         {
-            label: lang.tool_delete,
+            label: 'Slett',
             action: (done) => this.tryDelete(done),
             main: false,
             disabled: true
         },
         {
-            label: lang.converter,
+            label: 'Kjør tolk (OCR/EHF)',
             action: (done) => { this.runConverter(this.files, true); done(); },
             main: false,
             disabled: false
@@ -739,7 +738,7 @@ export class BillView implements OnInit {
     /// =============================
 
     private runEHF(file: any) {
-        this.userMsg(lang.ehf_running, null, null, true);
+        this.userMsg('Kjører EHF-tolkning av dokumentet. Vent litt..', null, null, true);
         this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`)
             .subscribe((invoice: SupplierInvoice) => {
                 invoice.ID = this.currentID;
@@ -787,9 +786,9 @@ export class BillView implements OnInit {
 
             // New supplier?
             if (!invoice.SupplierID && invoice.Supplier) {
-                const title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
+                const title = `Opprette ny leverandør '${invoice.InvoiceReceiverName}' ?`;
                 const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
-                    + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
+                    + ` Organisasjonsnr: ${invoice.Supplier.OrgNumber}`;
                 this.toast.clear();
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: title,
@@ -826,11 +825,11 @@ export class BillView implements OnInit {
             } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
                 this.orgNumber = invoice.Supplier.OrgNumber;
                 const bbanoriban = invoice.BankAccount.AccountNumber
-                    ? `${lang.create_bankaccount_bban} ${invoice.BankAccount.AccountNumber}`
-                    : `${lang.create_bankaccount_iban} ${invoice.BankAccount.IBAN}`;
+                    ? `BBAN ${invoice.BankAccount.AccountNumber}`
+                    : `IBAN ${invoice.BankAccount.IBAN}`;
                 const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: `${lang.create_bankaccount_title} ${bbanoriban}?`,
-                    message: `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
+                    header: `Vil du opprette bankkonto ${bbanoriban}?`,
+                    message: `Kontonr er ikke registrert på leverandøren ${invoice.InvoiceReceiverName}`,
                     buttonLabels: {
                         accept: 'Opprett konto',
                         cancel: 'Avbryt'
@@ -980,7 +979,7 @@ export class BillView implements OnInit {
     }
 
     private runOcr(file: any) {
-        this.userMsg(lang.ocr_running, null, null, true);
+        this.userMsg('Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
         this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
@@ -1077,11 +1076,11 @@ export class BillView implements OnInit {
 
 
             const modal = this.modalService.open(UniConfirmModalV2, {
-                header: `${lang.create_bankaccount_title} ${bankAccountNumber}?`,
-                message: `${lang.create_bankaccount_info} ${supplier.Info.Name}`,
+                header: `Vil du opprette bankkonto ${bankAccountNumber}?`,
+                message: `Kontonr er ikke registrert på leverandøren ${supplier.Info.Name}`,
                 buttonLabels: {
-                    accept: lang.create_bankaccount_accept,
-                    cancel: lang.create_bankaccount_reject
+                    accept: 'Opprett konto',
+                    cancel: 'Ikke opprett konto'
                 }
             });
 
@@ -1117,9 +1116,9 @@ export class BillView implements OnInit {
         ).subscribe(x => {
             if (x.Data && x.Data.entries && x.Data.entries.length > 0) {
                 const item = x.Data.entries[0];
-                const title = `${lang.create_supplier} '${item.navn}' ?`;
+                const title = `Opprette ny leverandør '${item.navn}' ?`;
                 const msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} `
-                    + `${item.forradrpoststed || ''}. ${lang.org_number}: ${item.orgnr}`;
+                    + `${item.forradrpoststed || ''}. Organisasjonsnr: ${item.orgnr}`;
                 this.toast.clear();
                 if (askUser) {
                     const modal = this.modalService.open(UniConfirmModalV2, {
@@ -1213,12 +1212,6 @@ export class BillView implements OnInit {
         this.supplierService.Post(sup).subscribe(x => {
             this.fetchNewSupplier(x.ID, true);
         }, err => this.errorService.handle(err));
-    }
-
-    public onSaveDraftForImage() {
-        this.save((msg) => {
-            this.userMsg(lang.add_image_now, lang.fyi, 3, true);
-        });
     }
 
     public onFormInput(event) {
@@ -1989,7 +1982,7 @@ export class BillView implements OnInit {
             } else {
                 this.actions = [
                     {
-                        label: lang.tool_save_and_reject,
+                        label: 'Lagre og avvis',
                         action: (done) => this.saveAndReject(done),
                         main: true,
                         disabled: false
@@ -2110,8 +2103,12 @@ export class BillView implements OnInit {
                 if (this.myUserRoles.find(
                         x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator')
                 ) {
-                    const reassign = this.newAction(workflowLabels.reAssign, 'reAssign',
-                        `api/biz/supplierinvoices?action=reAssign`, false);
+                    const reassign = this.newAction(
+                        'Tildel på nytt',
+                        'reAssign',
+                        `api/biz/supplierinvoices?action=reAssign`
+                    );
+
                     list.push(reassign);
                 }
             }
@@ -2124,24 +2121,24 @@ export class BillView implements OnInit {
                     list.forEach( x => x.main = false );
                     const approval = task.Approvals.find(a => a.UserID === this.myUser.ID);
                     const approvalID = approval ? approval.ID : task.Approvals[0].ID;
-                    let action = this.newAction(lang.task_approval, 'task_approval',
+                    let action = this.newAction('Godkjenning', 'task_approval',
                         `api/biz/approvals/${approvalID}?action=approve`, true);
                     list.push(action);
-                    action = this.newAction(lang.task_reject, 'task_reject',
+                    action = this.newAction('Avvis', 'task_reject',
                         `api/biz/approvals/${approvalID}?action=approve`, false);
                     list.push(action);
 
                     // Godkjenn og Bokfør, Godkjenn, Bokfør og Til betaling
                     if (it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
                         const toJournalAction = this.newAction(
-                            lang.task_approve_and_journal,
+                            'Godkjenn og bokfør',
                             'task_approve_and_journal',
                             `api/biz/approvals/${approvalID}?action=approve`,
                             false, approval === undefined);
                         list.push(toJournalAction);
 
                         const topaymentaction = this.newAction(
-                            lang.task_approve_and_journal_and_topayment,
+                            'Godkjenn, bokfør og til betaling',
                             'task_approve_and_journal_and_topayment',
                             `api/biz/approvals/${approvalID}?action=approve`,
                             false, approval === undefined);
@@ -2189,7 +2186,7 @@ export class BillView implements OnInit {
             // Bokfør og Til betaling
             if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
                 const toPaymentAction =
-                    this.newAction(lang.task_journal_and_topayment, 'task_journal_and_topayment', '');
+                    this.newAction('Bokfør og til betaling', 'task_journal_and_topayment', '');
                 list.push(toPaymentAction);
             }
             this.actions = list;
@@ -2420,9 +2417,9 @@ export class BillView implements OnInit {
             case 'journal':
                 this.journal(true, href).subscribe(result => {
                     if (result) {
-                        done(lang.save_success);
+                        done('Lagret');
                     } else {
-                        done(lang.err_journal);
+                        done('Bokføring feilet');
                     }
                 });
 
@@ -2452,9 +2449,9 @@ export class BillView implements OnInit {
 
             case 'finish':
                 this.modalService.open(UniConfirmModalV2, {
-                    header: lang.ask_archive,
-                    message: lang.ask_archive + current.InvoiceNumber,
-                    warning: lang.warning_action_not_reversable
+                    header: 'Arkivere faktura',
+                    message: 'Arkivere faktura ' + current.InvoiceNumber,
+                    warning: 'Merk! Dette steget er det ikke mulig å reversere.'
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
                         return this.RunActionOnCurrent(key, done, undefined, true);
@@ -2598,7 +2595,7 @@ export class BillView implements OnInit {
         }
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
-            header: lang.ask_register_payment_for_outgoing_payment + (bill.InvoiceNumber || ''),
+            header: 'Legg til i betalingsliste for leverandør-faktura: ' + (bill.InvoiceNumber || ''),
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
@@ -2656,8 +2653,8 @@ export class BillView implements OnInit {
  
         const obs = ask
             ? this.modalService.open(UniConfirmModalV2, {
-                header: lang.ask_journal_title + current.Supplier.Info.Name,
-                message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+                header: 'Bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
+                message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
                 buttonLabels: {
                     accept: 'Bokfør',
                     cancel: 'Avbryt'
@@ -2678,7 +2675,7 @@ export class BillView implements OnInit {
                     return true;
                 }).catch((err: ILocalValidation) => {
                     this.busy = false;
-                    this.userMsg(err.errorMessage, lang.warning, 10);
+                    this.userMsg(err.errorMessage, 'Advarsel', 10);
                     return false;
                 })
             );
@@ -2689,11 +2686,11 @@ export class BillView implements OnInit {
     private askApproveAndJournal(): Observable<any> {
         const current = this.current.getValue();
         return this.modalService.open(UniConfirmModalV2, {
-            header: lang.ask_approve_and_journal_title + current.Supplier.Info.Name,
-            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-            warning: lang.warning_action_not_reversable,
+            header: 'Godkjenne og bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
+            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
-                accept: lang.task_approve_and_journal,
+                accept: 'Godkjenn og bokfør',
                 cancel: 'Avbryt'
             }
         }).onClose;
@@ -2702,26 +2699,26 @@ export class BillView implements OnInit {
     private askApproveAndJournalAndToPayment(): Observable<any> {
         const current = this.current.getValue();
         return this.modalService.open(UniConfirmModalV2, {
-            header: lang.ask_approve_and_journal_and_topayment_title + current.Supplier.Info.Name,
-            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-            warning: lang.warning_action_not_reversable,
+            header: 'Godkjenne, bokføre og til betaling av leverandørfaktura fra ' + current.Supplier.Info.Name,
+            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
-                accept: lang.task_approve_and_journal_and_topayment,
+                accept: 'Godkjenn, bokfør og til betaling',
                 cancel: 'Avbryt'
             }
         }).onClose;
     }
 
     private askJournalAndToPayment(): Observable<any> {
-        return this.askWithLabel(lang.ask_journal_and_topayment_title, lang.task_journal_and_topayment);
+        return this.askWithLabel('Bokføre og til betaling av leverandørfaktura fra ', 'Bokfør og til betaling');
     }
 
     private askWithLabel(header: string, accept: string): Observable<any> {
         const current = this.current.value;
         return this.modalService.open(UniConfirmModalV2, {
             header: header + current.Supplier.Info.Name,
-            message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-            warning: lang.warning_action_not_reversable,
+            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: accept,
                 cancel: 'Avbryt'
@@ -2795,7 +2792,7 @@ export class BillView implements OnInit {
                     //slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
                     const autoCreatedDraftLines = current.JournalEntry.DraftLines.filter(x => 
                         x.Account.AccountNumber === current.Supplier.SupplierNumber &&
-                        x.Description === lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
+                        x.Description === 'fakturanr. ' + current.InvoiceNumber);
                     if (autoCreatedDraftLines && autoCreatedDraftLines.length > 0) {
                         autoCreatedDraftLines.forEach((line) => {
                             line.Deleted = true;
@@ -3118,7 +3115,7 @@ export class BillView implements OnInit {
         const bill = this.current.getValue();
         this.modalService.open(UniConfirmModalV2, {
             header: 'Bekreft sletting',
-            message: lang.ask_delete + (bill.InvoiceNumber || '') + '?',
+            message: 'Vennligst bekreft sletting av faktura ' + (bill.InvoiceNumber || ''),
             buttonLabels: {
                 accept: 'Slett',
                 cancel: 'Avbryt'
@@ -3128,7 +3125,7 @@ export class BillView implements OnInit {
                 return this.delete(done);
             }
 
-            done(lang.delete_canceled);
+            done('');
         });
     }
 
@@ -3138,23 +3135,23 @@ export class BillView implements OnInit {
         if (current.ID) {
             obs = this.supplierInvoiceService.Remove<SupplierInvoice>(current.ID, current);
         } else {
-            done(lang.delete_nothing_todo);
+            done('Ingenting å slette');
         }
         obs.subscribe((result) => {
-            done(lang.delete_success);
+            done('Sletting ok');
             this.newInvoice(false);
         }, (error) => {
             let msg = error.statusText;
             if (error._body) {
                 msg = this.errorService.extractMessage(error);
-                if (isNullOrUndefined(msg)) {
+                if (!msg) {
                     msg = trimLength(error._body, 100, true);
                 }
                 this.showErrMsg(msg, true);
             } else {
-                this.userMsg(lang.save_error);
+                this.userMsg('Feil ved lagring');
             }
-            done(lang.delete_error + ': ' + msg);
+            done('Feil ved sletting: ' + msg);
         });
     }
 
@@ -3165,7 +3162,7 @@ export class BillView implements OnInit {
                 .subscribe((res) => {
                     if (res && res.length > 0) {
                         this.router.navigateByUrl('/accounting/bills/0?fileid=' + res[0].ID);
-                        if (done) { done(lang.save_success); }
+                        if (done) { done('Lagret'); }
                     } else {
                         this.toast.addToast('Ingen flere dokumenter i flyten', ToastType.good, 2);
                     }
@@ -3224,7 +3221,7 @@ export class BillView implements OnInit {
                 this.fetchInvoice(this.currentID, (!!done))
                     .then(() => {
                         resolve({ success: true });
-                        if (done) { done(lang.save_success); }
+                        if (done) { done('Lagret'); }
                     })
                     .catch((msg) => {
                         reject({ success: false, errorMessage: msg });
@@ -3287,8 +3284,8 @@ export class BillView implements OnInit {
                     }
                 }, (err) => {
                     this.errorService.handle(err);
-                    if (done) { done(lang.save_error); }
-                    reject({ success: false, errorMessage: lang.save_error });
+                    if (done) { done('Feil ved lagring'); }
+                    reject({ success: false, errorMessage: 'Feil ved lagring' });
                 });
             };
 
@@ -3478,7 +3475,7 @@ export class BillView implements OnInit {
         // Auto-set "paymentinformation" from invoicenumber (if kid not set):
         if ((!current.PaymentID) && (!current.PaymentInformation)) {
             if (current.InvoiceNumber) {
-                current.PaymentInformation = lang.headliner_invoice + current.InvoiceNumber;
+                current.PaymentInformation = 'Fakturanr.' + current.InvoiceNumber;
                 changesMade = true;
             }
         }
@@ -3525,7 +3522,7 @@ export class BillView implements OnInit {
                         item.VatDate = current.InvoiceDate || current.DeliveryDate;
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                         item.Description = item.Description
-                            || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
+                            || ('fakturanr. ' + current.InvoiceNumber);
                         item['_isautogeneratedcreditline'] = true;
 
                         if (addToList) {
@@ -3559,7 +3556,7 @@ export class BillView implements OnInit {
                             completeAccount(draftitem, true);
                         }, (err) => {
                             this.errorService.handle(err);
-                            reject({ success: false, errorMessage: lang.err_supplieraccount_not_found });
+                            reject({ success: false, errorMessage: 'Fant ikke leverandørkonto' });
                         });
                 } else {
                     completeAccount(draftitem);
@@ -3586,7 +3583,7 @@ export class BillView implements OnInit {
         };
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
-            header: lang.ask_register_payment + (bill.InvoiceNumber || ''),
+            header: 'Registrere betaling for leverandør-faktura: ' + (bill.InvoiceNumber || ''),
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
@@ -3632,10 +3629,10 @@ export class BillView implements OnInit {
                 return { success: true };
             }
             if (sum !== 0) {
-                msg = lang.err_diff;
+                msg = 'Differanse i posteringer';
             }
         }
-        msg = msg || lang.err_missing_journalEntries;
+        msg = msg || 'Kontering mangler';
         if (showErrMsg) {
             this.userMsg(msg);
         }
@@ -3811,24 +3808,24 @@ export class BillView implements OnInit {
         };
         this.contextMenuItems = [
             {
-                label: lang.clearpostings,
+                label: 'Tøm konteringslisten',
                 action: () => this.journalEntryManual.removeJournalEntryData(),
                 disabled: () => this.current && this.current.getValue().StatusCode >= StatusCodeSupplierInvoice.Journaled,
             },
             {
-                label: lang.reinvoice,
+                label: 'Viderefakturer',
                 action: () => this.openReinvoiceModal(),
             },
         ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
                 ? `${trimLength(doc.Supplier.Info.Name, 20)}`
-                : lang.headliner_new,
+                : 'Ny leverandørfaktura',
             subheads: [
-                { title: doc && doc.InvoiceNumber ? `${lang.headliner_invoice} ${doc.InvoiceNumber}` : '' },
-                { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },
+                { title: doc && doc.InvoiceNumber ? `Fakturanr. ${doc.InvoiceNumber}` : '' },
+                { title: doc && doc.Supplier ? `Lev.nr. ${doc.Supplier.SupplierNumber}` : '' },
                 {
-                    title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
+                    title: jnr ? `(Bilagsnr. ${jnr})` : `(ikke bokført)`,
                     link: jnr
                         ? jnr.split('-').length > 1
                             ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
@@ -3939,13 +3936,13 @@ export class BillView implements OnInit {
                 txt = trimLength(msg.substr(msg.indexOf('"Message":') + 12, 80) + '..', 200, true);
             }
         }
-        this.userMsg(msg, lang.warning, 7);
+        this.userMsg(msg, 'Advarsel', 7);
         return txt;
     }
 
     private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
         this.toast.addToast(
-            title || (isGood ? lang.fyi : lang.warning),
+            title || (isGood ? 'Til informasjon' : 'Advarsel'),
             isGood ? ToastType.good : ToastType.bad, delay,
             msg
         );
