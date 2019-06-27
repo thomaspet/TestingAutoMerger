@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {ReInvoice, SupplierInvoice, StatusCodeReInvoice} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class ReInvoicingService extends BizHttp<ReInvoice> {
@@ -20,12 +19,11 @@ export class ReInvoicingService extends BizHttp<ReInvoice> {
     }
 
     public getStatusText(statusCode: number): string {
-        if (isNullOrUndefined(statusCode)) {
+        if (!statusCode) {
             return '';
         }
+
         const statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : 'Udefinert';
     }
-
-
 }

@@ -29,7 +29,6 @@ import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toas
 import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
-import { isNullOrUndefined } from 'util';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -285,16 +284,8 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         this.currentReInvoice = null;
                         this.onClose.emit(false);
                     },
-                    error =>
-                    {
-                        if (!isNullOrUndefined(error._body)) {
-                            const msg = this.errorService.extractMessage(error);
-                            this.toastr.addToast(msg, ToastType.warn, ToastTime.forever);
-                        } else {
-                            this.errorService.handle(error);
-                        }
-                    }
-                )
+                    error => this.errorService.handle(error)
+                );
             }
         });
     }

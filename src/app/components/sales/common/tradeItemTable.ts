@@ -32,7 +32,6 @@ import {
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import { isNullOrUndefined } from 'util';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
@@ -873,7 +872,7 @@ export class TradeItemTable {
                 itemRep.report = rep;
             } else {
                 this.itemsWithReport.push({
-                    createguid: isNullOrUndefined(item._createguid) ? item.ID : item._createguid,
+                    createguid: item._createguid || item.ID,
                     itemID: item.ID,
                     report: rep
                 });
@@ -893,7 +892,7 @@ export class TradeItemTable {
                     this.itemsWithReport = [];
                     this.items.forEach((item, index) => {
                         this.itemsWithReport.push({
-                            createguid: isNullOrUndefined(item._createguid) ? item.ID : item._createguid,
+                            createguid: item._createguid || item.ID,
                             itemID: item.ID,
                             report: reports[index]
                         });
