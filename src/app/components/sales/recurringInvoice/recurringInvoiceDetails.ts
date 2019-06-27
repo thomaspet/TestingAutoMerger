@@ -161,6 +161,7 @@ export class UniRecurringInvoice implements OnInit {
         'Items.Dimensions.Dimension8',
         'Items.Dimensions.Dimension9',
         'Items.Dimensions.Dimension10',
+        'Items.Account',
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
