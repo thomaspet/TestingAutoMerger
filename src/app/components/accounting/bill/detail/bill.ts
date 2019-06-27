@@ -972,7 +972,7 @@ export class BillView implements OnInit {
                 this.handleOcrResult(new OcrValuables(result));
 
                 const model = this.current.value;
-                this.updateJournalEntryManualFinancialDate(model.InvoiceDate, oldModel.InvoiceDate);
+                this.updateJournalEntryManualFinancialDate(model.InvoiceDate);
 
                 this.flagUnsavedChanged();
                 this.ocrData = result;
@@ -1565,13 +1565,14 @@ export class BillView implements OnInit {
                     );
             }
 
+            this.updateJournalEntryManualVatDate(model.InvoiceDate);
+
             // if invoicedate has the same value as deliverydate, update deliverydate also
             // when invoicedate is changed
             if ((!model.DeliveryDate && model.InvoiceDate)
                 || (change['InvoiceDate'].previousValue
                 && model.DeliveryDate.toString() === change['InvoiceDate'].previousValue.toString())) {
-                this.updateJournalEntryManualFinancialDate(model.InvoiceDate, model.DeliveryDate);
-
+                this.updateJournalEntryManualFinancialDate(model.InvoiceDate);
                 // deliverydate is default value for financialdate in the journalentry draftlines, so
                 // if any of the lines have the same value as the old deliverydate, update them to the
                 // new delivery date
@@ -1583,7 +1584,7 @@ export class BillView implements OnInit {
             // deliverydate is default value for financialdate in the journalentry draftlines, so
             // if any of the lines have the same value as the old deliverydate, update them to the
             // new delivery date
-            this.updateJournalEntryManualFinancialDate(change['DeliveryDate'].currentValue, change['DeliveryDate'].previousValue);
+            this.updateJournalEntryManualFinancialDate(change['DeliveryDate'].currentValue);
         }
 
         if (change['CurrencyCodeID']) {
@@ -2917,25 +2918,20 @@ export class BillView implements OnInit {
         this.formReady = true;
     }
 
-    private updateJournalEntryManualFinancialDate(newDate: LocalDate, oldDate: LocalDate) {
-        // if the InvoiceDate was changed, update the lines FinancialDates if those
-        // were set to the same as the original invoicedate
-        if (newDate !== oldDate) {
-            if (this.journalEntryManual) {
-                const lines = this.journalEntryManual.getJournalEntryData();
 
-                lines.map(line => {
-                    if (line.FinancialDate && oldDate && (line.FinancialDate.toString() === oldDate.toString())) {
-                        // if user changed the FinancialDate manually, dont override it when changing
-                        // the InvoiceDate
-                        line.FinancialDate = newDate;
-                    }
+    private updateJournalEntryManualVatDate(newDate: LocalDate) {
+    if (this.journalEntryManual) {
+            const lines = this.journalEntryManual.getJournalEntryData();
+            lines.map(line => { line.VatDate = newDate; });
+            this.journalEntryManual.setJournalEntryData(lines);
+        }
+    }
 
-                    // vatdate is always set to the InvoiceDate
-                    line.VatDate = newDate;
-                });
-                this.journalEntryManual.setJournalEntryData(lines);
-            }
+    private updateJournalEntryManualFinancialDate(newDate: LocalDate) {
+        if (this.journalEntryManual) {
+            const lines = this.journalEntryManual.getJournalEntryData();
+            lines.map(line => { line.FinancialDate = newDate; });
+            this.journalEntryManual.setJournalEntryData(lines);
         }
     }
 
@@ -3325,6 +3321,7 @@ export class BillView implements OnInit {
                     draft.VatPercent = line.DebitVatType ? line.DebitVatType.VatPercent : 0;
                     draft.VatDeductionPercent = line.VatDeductionPercent;
                     draft.FinancialDate = line.FinancialDate;
+                    draft.VatDate = line.VatDate;
                     draft.Dimensions = line.Dimensions;
 
                     if (draft.Dimensions && !draft.Dimensions.ID) {
@@ -3439,6 +3436,7 @@ export class BillView implements OnInit {
                 const completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
                     if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
                         item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
+                        item.VatDate = current.InvoiceDate || current.DeliveryDate;
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                         item.Description = item.Description
                             || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);

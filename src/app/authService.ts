@@ -3,9 +3,8 @@ import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
-import {Company, UserDto} from './unientities';
+import {Company, UserDto, ContractLicenseType} from './unientities';
 import {ReplaySubject} from 'rxjs';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import 'rxjs/add/operator/map';
 
 import * as moment from 'moment';
@@ -17,6 +16,7 @@ export interface IAuthDetails {
     activeCompany: Company;
     user: UserDto;
     hasActiveContract: boolean;
+    isDemo?: boolean;
 }
 
 const PUBLIC_ROOT_ROUTES = [
@@ -74,11 +74,7 @@ export class AuthService {
         removeOnUser: key => localStorage.removeItem(key),
     };
 
-    constructor(
-        private router: Router,
-        private http: Http,
-        private toastService: ToastService
-    ) {
+    constructor(private router: Router, private http: Http) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
         this.jwt = this.storage.getOnUser('jwt');
@@ -273,13 +269,15 @@ export class AuthService {
             const user = res.json();
             this.currentUser = user;
 
-            const hasActiveContract = user && !this.isTrialExpired(user);
+            const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
+            const hasActiveContract = user && !this.isTrialExpired(contract);
 
             const authDetails = {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
-                hasActiveContract: hasActiveContract
+                hasActiveContract: hasActiveContract,
+                isDemo: contract.TypeName === 'Demo'
             };
 
             this.authentication$.next(authDetails);
@@ -356,6 +354,7 @@ export class AuthService {
         this.storage.removeOnUser('activeCompany');
         this.storage.removeOnUser('activeFinancialYear');
         this.storage.removeOnUser('filesToken');
+        this.storage.removeOnUser('lastActiveCompanyKey');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;
@@ -475,37 +474,12 @@ export class AuthService {
         return 'ui_' + urlParts.join('_');
     }
 
-    private isTrialExpired(user): boolean {
-        const contract = (user.License && user.License.ContractType) || {};
+    private isTrialExpired(contract: ContractLicenseType): boolean {
         if (contract.TypeName === 'Demo' && contract.TrialExpiration) {
             const daysRemaining = moment(contract.TrialExpiration).diff(moment(), 'days');
             if (daysRemaining > 0) {
-                const daysWording = daysRemaining === 1 ? 'dag' : 'dager';
-                // Timeout so app init doesnt clear the toast immediately
-                setTimeout(() => {
-                    this.toastService.toast({
-                        title: `Prøveperiode slutter om ${daysRemaining} ${daysWording}`,
-                        type: ToastType.good,
-                        centered: true,
-                        duration: 10,
-                        action: {
-                            label: 'Aktiver nå',
-                            click: () => this.router.navigateByUrl('contract-activation'),
-                            displayInHeader: true
-                        }
-                    });
-                });
+                return false;
             } else {
-                // Timeout so app init doesnt clear the toast immediately
-                setTimeout(() => {
-                    this.toastService.toast({
-                        title: `Din prøveperiode på UniEconomy er over`,
-                        type: ToastType.warn,
-                        duration: 0,
-                        centered: true,
-                    });
-                });
-
                 return true;
             }
         }

@@ -9,7 +9,7 @@ import {
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
 import { CurrencyService } from '@app/services/common/currencyService';
-import { AccountManatoryDimensionService} from '@app/services/accounting/accountManatoryDimensionService';
+import { AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { UniSearchAccountConfig } from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
@@ -76,7 +76,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         private currencyService: CurrencyService,
         private toastService: ToastService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
-        private accountManatoryDimensionService: AccountManatoryDimensionService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private statisticsService: StatisticsService
     ) {}
 
@@ -108,7 +108,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 paymentData.BankChargeAccountID = this.companySettings.BankChargeAccountID;
 
                 if (this.companySettings.CompanyBankAccount) {
-                    this.accountManatoryDimensionService.getMandatoryDimensionsReport(
+                    this.accountMandatoryDimensionService.getMandatoryDimensionsReport(
                         this.companySettings.CompanyBankAccount.AccountID,
                         paymentData.DimensionsID
                     ).subscribe((report) => {
@@ -129,7 +129,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                             this.statisticsService.GetAll(`model=Account&Select=ID&filter=${filter}`).subscribe(res => {
                                 const data = (res && res.Data && res.Data[0]) || {};
 
-                                this.accountManatoryDimensionService.getMandatoryDimensionsReport(
+                                this.accountMandatoryDimensionService.getMandatoryDimensionsReport(
                                     data.AccountID,
                                     paymentData.DimensionsID
                                 ).subscribe(report2 => {

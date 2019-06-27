@@ -83,7 +83,9 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                         .postAMelding(row.period, AmeldingType.Nullstilling, row.year, null, row.messageID)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => row.type === AmeldingType.Nullstilling || row.altinnStatus === 'erstattet'
+                    disabled: (row: AmeldingData) => row.type === AmeldingType.Nullstilling
+                        || row.altinnStatus === 'erstattet'
+                        || row.altinnStatus === 'avvist'
                 },
                 {
                     label: 'Erstatt melding',
@@ -93,7 +95,9 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                                 this.switchMapLoadAndClose(() => this.ameldingService.postAMelding(row.period, row.type, row.year)),
                             )
                             .subscribe(),
-                    disabled: (row: AmeldingData) => row.altinnStatus === 'erstattet' || row.type === AmeldingType.Addition
+                    disabled: (row: AmeldingData) => row.altinnStatus === 'erstattet'
+                        || row.type === AmeldingType.Addition
+                        || row.altinnStatus === 'avvist'
                 },
                 {
                     label: 'Send a-melding på nytt',

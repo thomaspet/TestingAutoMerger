@@ -25,13 +25,14 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'historic-vatreport-modal',
-    styles: [`.uni-modal { width: 60vw;}`],
+    styles: [`.uni-modal { width: 75vw;}`],
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal uni-redesign">
             <header><h1>Oversikt over MVA meldinger</h1></header>
             <article class='modal-content'>
                 <p>Trykk på en av linjene under for å vise detaljer om MVA meldingen</p>
                 <ag-grid-wrapper
+                    class="transquery-grid-font-size"
                     [resource]="lookupFunction"
                     [config]="uniTableConfig"
                     (rowSelect)="selectedItemChanged($event)">
@@ -76,9 +77,10 @@ export class HistoricVatReportModal implements IUniModal {
     private getTableData(urlParams: URLSearchParams): Observable<any> {
         urlParams = urlParams || new URLSearchParams();
         urlParams.set('model', 'vatreport');
-        urlParams.set('select', 'vatreport.*,terminperiod.*,vatreporttype.*,journalentry.*,vatreportarchivedsummary.*,'
+        urlParams.set('select', 'TerminPeriodID,vatreport.*,terminperiod.*,vatreporttype.*,journalentry.*,vatreportarchivedsummary.*,'
             + 'auditlog.Action,auditlog.ID,auditlog.NewValue,auditlog.UpdatedAt,auditlog.EntityType');
         urlParams.set('join', 'vatreport.ID eq auditlog.EntityID');
+        urlParams.set('orderby', urlParams.get('orderby') || 'TerminPeriodID desc');
         urlParams.set('expand', 'terminperiod,vatreporttype,journalentry,vatreportarchivedsummary');
         urlParams.set('filter', 'auditlog.newvalue eq 32004 and auditlog.EntityType eq \'VatReport\'');
         return this.statisticsService.GetWrappedDataByUrlSearchParams(urlParams);
@@ -90,6 +92,8 @@ export class HistoricVatReportModal implements IUniModal {
             .setPageSize(10)
             .setSearchable(false)
             .setColumns([
+                new UniTableColumn('TerminPeriodID', 'PeriodeID', UniTableColumnType.Text)
+                    .setWidth('8rem'),
                 new UniTableColumn('VatReportType.Name', 'Type', UniTableColumnType.Text)
                     .setWidth('25%')
                     .setAlias('VatReportType_Name'),

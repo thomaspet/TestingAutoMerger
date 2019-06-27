@@ -62,7 +62,7 @@ import {
     CustomerService,
     UserService,
     CostAllocationService,
-    AccountManatoryDimensionService,
+    AccountMandatoryDimensionService,
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -131,7 +131,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private lastUsedJournalEntryNumber: string = '';
     private maDimensions: any[] = [];
     private lastImageDisplayFor: string = '';
-    private numberOfAccountsWithManatoryDimensions: number = 0;
+    private numberOfAccountsWithMandatoryDimensions: number = 0;
     private defaultAccountPayments: Account = null;
     private groupConfig: IGroupConfig = {
         groupKey: 'VatCodeGroupingValue',
@@ -201,7 +201,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private userService: UserService,
         private paymentService: PaymentService,
         private costAllocationService: CostAllocationService,
-        private accountManatoryDimensioinService: AccountManatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {}
 
     public ngOnInit() {
@@ -270,26 +270,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.calculateNetAmountAndNetAmountCurrency(row);
                 }
 
-                if (this.numberOfAccountsWithManatoryDimensions > 0) {
+                if (this.numberOfAccountsWithMandatoryDimensions > 0) {
 
-                    if (!row.ManatoryDimensionsValidation) {row.ManatoryDimensionsValidation = {}; }
+                    if (!row.MandatoryDimensionsValidation) {row.MandatoryDimensionsValidation = {}; }
                     const checkDebit: boolean = row.DebitAccountID;
                     const checkCredit: boolean = row.CreditAccountID;
 
                     if (checkDebit) {
-                        this.accountManatoryDimensioinService
+                        this.accountMandatoryDimensionService
                         .getMandatoryDimensionsReportByDimension(row.DebitAccountID, row.Dimensions)
                         .subscribe((report) => {
-                                row.ManatoryDimensionsValidation['DebitReport'] = report;
+                                row.MandatoryDimensionsValidation['DebitReport'] = report;
                                 this.table.updateRow(row['_originalIndex'], row);
                         });
                     }
 
                     if (checkCredit) {
-                        this.accountManatoryDimensioinService
+                        this.accountMandatoryDimensionService
                         .getMandatoryDimensionsReportByDimension(row.CreditAccountID, row.Dimensions)
                         .subscribe((report) => {
-                                row.ManatoryDimensionsValidation['CreditReport'] = report;
+                                row.MandatoryDimensionsValidation['CreditReport'] = report;
                                 this.table.updateRow(row['_originalIndex'], row);
                         });
                     }
@@ -335,7 +335,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.companySettingsService.Get(1),
             this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
             this.customDimensionService.getMetadata(),
-            this.accountManatoryDimensioinService.GetNumberOfAccountsWithManatoryDimensions()
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions()
         ).subscribe(
             (data) => {
                 if (this.companySettings
@@ -351,7 +351,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.companySettings = data[1];
                 this.predefinedDescriptions = data[2] || [];
                 this.dimensionTypes = data[3];
-                this.numberOfAccountsWithManatoryDimensions = (data[4] && data[4].Data[0]) ? data[4].Data[0].countID : 0;
+                this.numberOfAccountsWithMandatoryDimensions = data[4];
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
             },
@@ -1236,8 +1236,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         .setTooltipResolver( (rowModel) => {
             let msgText = '';
             let iconType = 0;
-            const debRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.DebitReport;
-            const creRep = rowModel.ManatoryDimensionsValidation && rowModel.ManatoryDimensionsValidation.CreditReport;
+            const debRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.DebitReport;
+            const creRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.CreditReport;
 
             if (debRep || creRep) {
 
@@ -3037,10 +3037,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const strF = event.field + '';
 
         if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))
-        && this.numberOfAccountsWithManatoryDimensions > 0) {
+        && this.numberOfAccountsWithMandatoryDimensions > 0) {
 
-            if (!event.rowModel.ManatoryDimensionsValidation) {
-                event.rowModel.ManatoryDimensionsValidation = {};
+            if (!event.rowModel.MandatoryDimensionsValidation) {
+                event.rowModel.MandatoryDimensionsValidation = {};
             }
 
             const checkDebit: boolean = event.field === 'DebitAccount' || strF.startsWith('Dimensions.');
@@ -3048,8 +3048,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
 
             if (!event.newValue || event.newValue === null) {
-                if (event.field === 'DebitAccount') {event.rowModel.ManatoryDimensionsValidation['DebitReport'] = null; }
-                if (event.field === 'CreditAccount') {event.rowModel.ManatoryDimensionsValidation['CreditReport'] = null; }
+                if (event.field === 'DebitAccount') {event.rowModel.MandatoryDimensionsValidation['DebitReport'] = null; }
+                if (event.field === 'CreditAccount') {event.rowModel.MandatoryDimensionsValidation['CreditReport'] = null; }
                 this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                 setTimeout(() => {
                     const data = this.table.getTableData();
@@ -3060,10 +3060,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             if ( event.newValue !== null || strF.startsWith('Dimensions.')) {
 
                 if (checkDebit) {
-                    this.accountManatoryDimensioinService
+                    this.accountMandatoryDimensionService
                     .getMandatoryDimensionsReportByDimension(event.rowModel.DebitAccountID, event.rowModel.Dimensions)
                     .subscribe((report) => {
-                            event.rowModel.ManatoryDimensionsValidation['DebitReport'] = report;
+                            event.rowModel.MandatoryDimensionsValidation['DebitReport'] = report;
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                             const data = this.table.getTableData();
@@ -3076,10 +3076,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 if (checkCredit) {
-                    this.accountManatoryDimensioinService
+                    this.accountMandatoryDimensionService
                     .getMandatoryDimensionsReportByDimension(event.rowModel.CreditAccountID, event.rowModel.Dimensions)
                     .subscribe((report) => {
-                            event.rowModel.ManatoryDimensionsValidation['CreditReport'] = report;
+                            event.rowModel.MandatoryDimensionsValidation['CreditReport'] = report;
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                                 const data = this.table.getTableData();

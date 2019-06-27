@@ -14,7 +14,7 @@ import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
 import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
-import {AccountManatoryDimensionService} from './accountManatoryDimensionService';
+import {AccountMandatoryDimensionService} from './accountMandatoryDimensionService';
 
 export enum JournalEntryMode {
     Manual,
@@ -62,8 +62,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         private companySettingsService: CompanySettingsService,
         public authService: AuthService,
         private numberFormat: NumberFormat,
-        private invoiceService: CustomerInvoiceService,
-        private accountManatoryDimensionService: AccountManatoryDimensionService,
+        private invoiceService: CustomerInvoiceService
     ) {
         super(http);
         // Anders 25.09

@@ -3,7 +3,7 @@ import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account,
     CompanySalary, Project, Department, TaxDrawFactor, EmployeeCategory,
-    JournalEntry, StdSystemType
+    JournalEntry, StdSystemType, EmployeeTaxCard, SubEntity, AccountDimension
 } from '../../../unientities';
 import {Observable, BehaviorSubject, Subject} from 'rxjs';
 import {tap, take, switchMap, filter, finalize, map} from 'rxjs/operators';
@@ -28,7 +28,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
-    SalarySumsService, StatisticsService
+    SalarySumsService, StatisticsService, SubEntityService, AccountMandatoryDimensionService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -85,6 +85,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private categories: EmployeeCategory[];
     private journalEntry: JournalEntry;
     private paymentStatus: PayrollRunPaymentStatus;
+    private accountsWithMandatoryDimensionsIsUsed = true;
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
@@ -126,8 +127,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private modalService: UniModalService,
         private payrollRunDetailsService: PayrollRunDetailsService,
         private supplementService: SupplementService,
-        private salarySumsService: SalarySumsService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private subEntityService: SubEntityService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -255,6 +257,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
             super.getStateSubject('departments').takeUntil(this.destroy$).subscribe((departments) => {
                 this.departments = departments;
+            });
+
+            this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(count => {
+                this.accountsWithMandatoryDimensionsIsUsed = count > 0;
             });
 
             this.updateTabStrip(this.payrollrunID);
@@ -1141,6 +1147,30 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.router.navigateByUrl(this.url + payrollRun.ID);
                         return Observable.of(undefined);
                     }
+                    if (this.accountsWithMandatoryDimensionsIsUsed && payrollRun.transactions) {
+                        let msg: string = '';
+                        this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(payrollRun.transactions)
+                        .subscribe((reports) => {
+                            if (reports) {
+                                reports.forEach(report => {
+                                    if (report.MissingRequiredDimensonsMessage !== '') {
+                                        msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
+                                    }
+                                    if (report.MissingOnlyWarningsDimensionsMessage) {
+                                        msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                    }
+                                });
+                                if (msg !== '') {
+                                    this._toastService.toast({
+                                        title: 'Dimensjon(er) mangler',
+                                        message: msg,
+                                        type: ToastType.warn,
+                                        duration: 3
+                                    });
+                                }
+                            }
+                        });
+                    }
                     return this.getSalaryTransactionsObservable();
                 }),
                 finalize(() => {
@@ -1153,6 +1183,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     super.updateState('salaryTransactions', salaryTransactions, false);
                 }
                 this.toggleDetailsView(false);
+
                 done('Lagret');
             },
             (err) => {

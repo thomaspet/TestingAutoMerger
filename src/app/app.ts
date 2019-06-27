@@ -11,13 +11,10 @@ import {NavbarLinkService} from './components/layout/navbar/navbar-link-service'
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {
     UniModalService,
-    CustomerLicenseAgreementModal,
     UserLicenseAgreementModal,
-    UniConfirmModalV2,
+    LicenseAgreementModal
 } from '@uni-framework/uni-modal';
 
-import * as moment from 'moment';
-import {KeyCodes} from '@app/services/common/keyCodes';
 // Do not change this import! Since we don't use rx operators correctly
 // we depend on having at least one import getting EVERYTHING in rxjs
 import {Observable} from 'rxjs/Rx';
@@ -77,14 +74,17 @@ export class App {
 
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = !!authDetails.user;
+
             if (this.isAuthenticated) {
                 this.toastService.clear();
-                if (!this.hasAcceptedCustomerLicense(authDetails.user)) {
-                    if (this.canAcceptCustomerLicense(authDetails.user)) {
-                        this.showCustomerLicenseModal();
-                    } else {
-                        this.showCanNotAcceptCustomerLicenseModal(authDetails.user);
-                    }
+
+                const contractType = authDetails.user.License.ContractType.TypeName;
+                if (!this.hasAcceptedCustomerLicense(authDetails.user) && contractType !== 'Demo') {
+                    this.modalService.open(LicenseAgreementModal, {
+                        hideCloseButton: true,
+                        closeOnClickOutside: false,
+                        closeOnEscape: false
+                    });
                 }
 
                 if (!this.hasAcceptedUserLicense(authDetails.user)) {
@@ -107,59 +107,9 @@ export class App {
             (!!user.License.CustomerAgreement.HasAgreedToLicense || user.License.CustomerAgreement.AgreementId === 0) : true;
     }
 
-    private canAcceptCustomerLicense(user: UserDto): boolean {
-        return !!user.License.CustomerAgreement.CanAgreeToLicense;
-    }
-
     private hasAcceptedUserLicense(user: UserDto): boolean {
         return (user && user.License && user.License.UserLicenseAgreement) ?
             (!!user.License.UserLicenseAgreement.HasAgreedToLicense || user.License.UserLicenseAgreement.AgreementId === 0) : true;
-    }
-
-    private showCustomerLicenseModal() {
-        this.modalService.open(CustomerLicenseAgreementModal, {
-            hideCloseButton: true,
-            closeOnClickOutside: false,
-            closeOnEscape: false
-        }).onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.uniHttp.asPOST()
-                    .usingBusinessDomain()
-                    .withEndPoint('users?action=accept-CustomerAgreement')
-                    .send()
-                    .map(res => res.json())
-                    .subscribe(
-                        success => this.toastService.addToast(
-                            'Suksess',
-                            ToastType.good,
-                            ToastTime.short,
-                            'Selskapslisens godkjent',
-                        ),
-                        err => this.errorService.handle(err),
-                    );
-            } else {
-                this.authService.clearAuthAndGotoLogin();
-            }
-        });
-    }
-
-    private showCanNotAcceptCustomerLicenseModal(user: UserDto) {
-        const company = user.License.Company;
-
-        this.modalService
-            .open(UniConfirmModalV2, {
-                message: `Lisensavtale for ${company.Name} må være godtatt før du kan ta Uni Economy i bruk.<br />
-                          Vennligst kontakt din systemeier for godkjenning av avtale.<br /><br />
-                          <b>Kontaktinfo:</b><br />
-                          ${company.ContactPerson}<br />
-                          ${company.ContactEmail}`,
-                header: `Lisensavtale må godtas`,
-                buttonLabels: {
-                    accept: 'OK'
-                }
-            })
-            .onClose
-            .subscribe(() => {});
     }
 
     private showUserLicenseModal() {

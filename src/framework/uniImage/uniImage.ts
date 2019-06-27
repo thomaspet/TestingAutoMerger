@@ -248,8 +248,9 @@ export class UniImage {
                     // Resolve the rest the of the files without changes.
                     const filesWithEHFData$ = res.map((file: FileExtended) => {
                         const filename = (file.Name || '').toLowerCase();
+                        const type = (file.ContentType || '').toLowerCase();
 
-                        if (this.useEhfReader && filename.includes('.ehf')) {
+                        if (this.useEhfReader && (type.includes('bis/billing') || filename.includes('.ehf'))) {
                             const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference).pipe(
                                 catchError(err => {
                                     console.error('Error loading EHF data', err);

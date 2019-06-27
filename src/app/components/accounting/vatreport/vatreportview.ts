@@ -406,8 +406,8 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private showList() {
-        this.modalService.open(HistoricVatReportModal, {}).onClose.subscribe(vatReport => {
-            if (vatReport) {
+        this.modalService.open(HistoricVatReportModal).onClose.subscribe(vatReport => {
+            if (vatReport && vatReport.ID) {
                 this.historicVatReportSelected(vatReport);
             }
         });

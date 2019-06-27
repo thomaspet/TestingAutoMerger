@@ -110,8 +110,10 @@ export class WorkerService extends BizHttp<Worker> {
     public getWorkTimeOff(year: number) {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`WorkTimeOff?filter=FromDate ge '${year}-01-01' and ToDate le '${year}-12-31'&orderby=FromDate`)
+            .usingStatisticsDomain()
+            .withEndPoint(`?model=WorkTimeOff&filter=FromDate ge '${year}-01-01' and ToDate le '${year}-12-31' `
+            + `and TimeoffType eq 1&orderby=FromDate`
+            + `&select=ToDate as ToDate,FromDate as FromDate,Description as Description`)
             .send()
             .map(res => res.json());
     }

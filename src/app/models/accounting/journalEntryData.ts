@@ -53,7 +53,7 @@ export class JournalEntryData {
     CurrencyCode: CurrencyCode;
     CurrencyExchangeRate: number;
 
-    ManatoryDimensionsValidation: any;
+    MandatoryDimensionsValidation: any;
 
     DimensionsID: number;
     Dimensions: Dimensions;
