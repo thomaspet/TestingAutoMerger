@@ -158,10 +158,9 @@ export class ProductDetails {
         if (this.productId > 0) {
             subheads.push({title: 'Produktnr. ' + this.product$.getValue().PartName});
         }
-
-        if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
+        if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
             if (this.product$.getValue().PriceExVat !== null) {
-                subheads.push({title: 'Utpris eks. mva ' + this.product$.getValue().PriceExVat });
+                subheads.push({title: 'Utpris ekskl. mva ' + this.product$.getValue().PriceExVat });
             }
         } else {
             if (this.product$.getValue().PriceIncVat !== null) {
@@ -587,7 +586,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'CostPrice',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Innpris eks. mva',
+                    Label: 'Innpris ekskl. mva',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','
@@ -599,7 +598,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'PriceExVat',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Utpris eks. mva',
+                    Label: 'Utpris ekskl. mva',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','
