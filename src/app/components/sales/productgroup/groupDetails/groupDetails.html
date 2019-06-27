@@ -1,47 +1,45 @@
-<section class="product-group-details">
-    <section class="details-section">
-        <header>
-            <h1>{{group?.Name}}</h1>
+<section class="details-section">
+    <header>
+        <h1>{{group?.Name}}</h1>
 
-            <button class="button-clean" (click)="saveGroup.next()">
-                <i class="material-icons good">done</i>
-                Lagre endringer
-            </button>
+        <button class="button-clean" (click)="saveGroup.next()">
+            <i class="material-icons good">done</i>
+            Lagre endringer
+        </button>
 
-            <button class="button-clean" (click)="onDeleteGroup()">
-                <i class="material-icons bad">close</i>
-                Slett gruppe
-            </button>
+        <button class="button-clean" (click)="onDeleteGroup()">
+            <i class="material-icons bad">close</i>
+            Slett gruppe
+        </button>
 
-            <button class="button-clean" *ngIf="group?.ID" (click)="createChildGroup.next()">
-                <i class="material-icons add-new">create_new_folder</i>
-                Ny undergruppe
-            </button>
-        </header>
+        <button class="button-clean" *ngIf="group?.ID" (click)="createChildGroup.next()">
+            <i class="material-icons add-new">create_new_folder</i>
+            Ny undergruppe
+        </button>
+    </header>
 
-        <uni-form
-            [config]="config$"
-            [fields]="fields$"
-            [model]="model$"
-            (changeEvent)="onFormChange($event)">
-        </uni-form>
+    <uni-form
+        [config]="config$"
+        [fields]="fields$"
+        [model]="model$"
+        (changeEvent)="onFormChange($event)">
+    </uni-form>
 
-        <ng-template [ngIf]="group?.ID">
-            <section class="add-product">
-                <label for="unisearch">Legg til produkt</label>
-                <uni-search
-                    [config]="uniSearchConfig"
-                    (changeEvent)="onProductAdded($event)">
-                </uni-search>
-            </section>
+    <ng-template [ngIf]="group?.ID">
+        <section class="add-product">
+            <label for="unisearch">Legg til produkt</label>
+            <uni-search
+                [config]="uniSearchConfig"
+                (changeEvent)="onProductAdded($event)">
+            </uni-search>
+        </section>
 
-            <ag-grid-wrapper
-                [config]="tableConfig"
-                [(resource)]="productsInCategory"
-                (rowDelete)="onRowDeleted($event)">
-            </ag-grid-wrapper>
-        </ng-template>
+        <ag-grid-wrapper
+            [config]="tableConfig"
+            [(resource)]="productsInCategory"
+            (rowDelete)="onRowDeleted($event)">
+        </ag-grid-wrapper>
+    </ng-template>
 
-        <small *ngIf="!group?.ID">Produktgruppe må lagres før produkter kan legges til</small>
-    </section>
+    <small *ngIf="!group?.ID">Produktgruppe må lagres før produkter kan legges til</small>
 </section>
