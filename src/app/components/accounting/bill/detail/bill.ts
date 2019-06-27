@@ -3403,6 +3403,10 @@ export class BillView implements OnInit {
             current.BankAccount = null;
         }
 
+        if (current.DefaultDimensions && !current.DefaultDimensions.ID) {
+            current.DefaultDimensions._createguid = this.supplierInvoiceService.getNewGuid();
+        }
+
         // set CurrencyID
         if (current.CurrencyCodeID && current.JournalEntry && current.JournalEntry.DraftLines) {
             current.JournalEntry.DraftLines.forEach(x => {
