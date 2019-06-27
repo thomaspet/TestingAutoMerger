@@ -2405,13 +2405,13 @@ export class BillView implements OnInit {
             case 'reAssign':
                 this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
                     .onClose.subscribe(details => this.onReAssignClickOk(details));
-                done(lang.reAssign_success);
+                done('Klar til å tildele på nytt');
                 break;
 
             case 'assign':
                 this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
                     .onClose.subscribe(details => this.onAssignClickOk(details));
-                done(lang.assign_success);
+                done('Tildelt');
                 break;
 
             case 'journal':
@@ -2612,7 +2612,7 @@ export class BillView implements OnInit {
                     .finally(() => this.busy = false)
                     .subscribe(() => {
                         this.updateInvoicePayments().add(() => {
-                            this.userMsg(lang.payment_ok, null, 3, true);
+                            this.userMsg('Betaling registrert', null, 3, true);
                             done();
                         });
                     }, err => {
@@ -2637,7 +2637,7 @@ export class BillView implements OnInit {
             this.toast.addToast('Kostnadsdelingen må settes opp før fakturaen kan bokføres.', ToastType.bad, 7);
             return Observable.of(false);
         }
-        //Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen? 
+        //Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
         if (this.validationMessage && this.validationMessage.Level === ValidationLevel.Error) {
             this.toast.addToast('Fakturaen kan ikke bokføres', ToastType.bad, 7, this.validationMessage.Message);
             return Observable.of(false);
@@ -2650,7 +2650,7 @@ export class BillView implements OnInit {
             this.toast.addToast('Fakturaen kan ikke bokføres', ToastType.bad, 7, validationMessage);
             return Observable.of(false);
         }
- 
+
         const obs = ask
             ? this.modalService.open(UniConfirmModalV2, {
                 header: 'Bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
@@ -2785,12 +2785,12 @@ export class BillView implements OnInit {
                 this.supplierInvoiceService.journal(current.ID).subscribe(x => {
                     this.fetchInvoice(current.ID, false);
                     resolve(result);
-                    this.userMsg(lang.journaled_ok, null, 6, true);
+                    this.userMsg('Bokføring fullført', null, 6, true);
 
                 }, (err) => {
                     this.errorService.handle(err);
                     //slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
-                    const autoCreatedDraftLines = current.JournalEntry.DraftLines.filter(x => 
+                    const autoCreatedDraftLines = current.JournalEntry.DraftLines.filter(x =>
                         x.Account.AccountNumber === current.Supplier.SupplierNumber &&
                         x.Description === 'fakturanr. ' + current.InvoiceNumber);
                     if (autoCreatedDraftLines && autoCreatedDraftLines.length > 0) {
@@ -3533,7 +3533,7 @@ export class BillView implements OnInit {
                         if (!validation.success) {
                             reject(validation);
                             return;
-                        }                        
+                        }
                         this.save().then(x => resolve(x)).catch(x => reject(x));
                     } else {
                         resolve({ success: true });
@@ -3600,7 +3600,7 @@ export class BillView implements OnInit {
                     .finally(() => this.busy = false)
                     .subscribe(() => {
                         this.fetchInvoice(bill.ID, true);
-                        this.userMsg(lang.payment_ok, null, 3, true);
+                        this.userMsg('Betaling registrert', null, 3, true);
                         done('Betaling registrert');
                     }, err => {
                         this.errorService.handle(err);
