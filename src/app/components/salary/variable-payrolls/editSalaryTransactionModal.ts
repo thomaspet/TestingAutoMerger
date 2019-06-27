@@ -57,7 +57,8 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
         if (this.options && this.options.data) {
             this.salaryTransactionService.Get(this.options.data.data.ID,
                 ['WageType.SupplementaryInformations', 'Employee', 'Employee.BusinessRelationInfo', 'employment', 'Employee.Employments',
-                'Supplements', 'Supplements.WageTypeSupplement', 'Dimensions', 'Files', 'VatType.VatTypePercentages']
+                'Supplements', 'Supplements.WageTypeSupplement', 'Dimensions',
+                'Dimensions.Project', 'Dimensions.Department', 'Files', 'VatType.VatTypePercentages']
             ).subscribe((res) => {
                 this.tableData.push(res);
                 this.uniTableConfig = this.options.data.config;
@@ -66,6 +67,7 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
     }
 
     public save() {
+        this.table.finishEdit();
         this.busy = true;
         const data = this.tableData[0];
         data.Employee = null;

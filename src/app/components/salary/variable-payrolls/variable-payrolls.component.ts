@@ -129,7 +129,7 @@ export class VariablePayrollsComponent {
     }
 
     private saveVariablePayrolls(done: (message: string) => void) {
-        let missingEmployement: boolean = false;
+        this.table.finishEdit();
         this.selectedPayrollrun.transactions = this.filteredTransactions
         .map(trans => {
             if (trans.Dimensions) {
@@ -138,9 +138,6 @@ export class VariablePayrollsComponent {
             if (trans.Supplements) {
                 trans.Supplements.map(x => x._createguid = this.payrollrunService.getNewGuid());
             }
-            if (!trans.EmploymentID) {
-                missingEmployement = true;
-            }
             trans.EmploymentID = trans.EmploymentID || 0;
             trans.Employee = null;
             trans.Wagetype = null;
@@ -148,12 +145,6 @@ export class VariablePayrollsComponent {
 
             return trans; })
         .filter(row => !row['_isEmpty']);
-
-        if (missingEmployement) {
-            this.toastService.addToast('En eller flere linjer mangler arbeidsforhold', ToastType.bad, 5);
-            done('Lagring avbrutt. Alle linjene må ha arbeidsforhold.');
-            return;
-        }
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
@@ -281,7 +272,7 @@ export class VariablePayrollsComponent {
             let filterString = params.get('filter') || '';
             filterString += filterString ? ' and ' : '';
             filterString += `(PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq 'false' and isnull(SalaryBalanceID,0) eq 0 and`
-            + ` (SystemType eq 0 or SystemType eq 5 or SystemType eq 6 or SystemType eq 7) and Employment.Standard eq 'true')`;
+            + ` (SystemType eq 0 or SystemType eq 5 or SystemType eq 6 or SystemType eq 7))`;
 
             params.set('model', 'SalaryTransaction');
             params.set('filter', filterString);
@@ -292,9 +283,9 @@ export class VariablePayrollsComponent {
             + 'Department.DepartmentNumber as DepartmentNumber,Department.Name as DepartmentName,count(supplements.ID) as suppcount,'
             + `FileEntityLink.EntityType`);
             params.set('join',
-                'Employee.BusinessRelationID eq BusinessRelation.ID as bs and Employee.ID eq Employment.EmployeeID as Employment'
+                'Employee.BusinessRelationID eq BusinessRelation.ID as bs'
                 + ' and SalaryTransaction.ID eq FileEntityLink.EntityID as FileEntityLink');
-            params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,Dimensions.Project,Dimensions.Department,VatType');
+            params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,Dimensions.Project,Dimensions.Department,VatType,Employment');
 
             return this.statisticsService.GetAllByUrlSearchParams(params);
         };
@@ -615,7 +606,7 @@ export class VariablePayrollsComponent {
             .setSkipOnEnterKeyNavigation(true);
 
         const supplementCol = readOnly
-        ? new UniTableColumn('count(supplements.ID)', 'Tilleggsopplysning', UniTableColumnType.Text, false)
+        ? new UniTableColumn('count(supplements.ID)', '...', UniTableColumnType.Text, false)
             .setTemplate(() => '')
             .setAlias('suppcount')
             .setWidth(60)
@@ -742,6 +733,9 @@ export class VariablePayrollsComponent {
                 rowModel.Dimensions.Project = employment.Dimensions.Project;
                 rowModel.Dimensions.ProjectID = employment.Dimensions.ProjectID;
             }
+        } else {
+            rowModel.Dimensions = null;
+            rowModel.DimensionsID = 0;
         }
     }
 
