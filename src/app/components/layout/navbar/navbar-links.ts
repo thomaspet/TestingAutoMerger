@@ -354,6 +354,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     url: '/bank?code=payment_batch_list',
                     moduleID: UniModules.Payment
                 },
+                {
+                    name: 'Avtalegirobunter',
+                    url: '/bank?code=avtalegiro_list',
+                    moduleID: UniModules.Payment
+                },
             ]
         }]
     },
