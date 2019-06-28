@@ -27,7 +27,8 @@ export class VatSummaryPerPost implements OnChanges {
 
             // remove specific message
             this.vatReportMessagesImportant = this.vatReportMessagesImportant.filter(x => {
-                return !x.Message.includes('i regnskapet er periodisert før denne momsterminen');
+                return !x.Message.includes('i regnskapet er periodisert før denne momsterminen')
+                    && !x.Message.includes('kjør på nytt');
             });
         }
     }
