@@ -5,9 +5,9 @@
 
 <section class="product-groups application">
     <section class="tree-view-container">
-        <button class="button-clean" [disabled]="selectedGroup && !selectedGroup.ID" (click)="createGroup()">
+        <button class="button-clean" [disabled]="selectedGroup && !selectedGroup.ID" (click)="createGroup(selectedGroup)">
             <i class="material-icons add-new">create_new_folder</i>
-            Ny hovedgruppe
+            Ny undergruppe
         </button>
 
         <mat-tree [dataSource]="treeDataSource" [treeControl]="treeControl">
@@ -42,6 +42,7 @@
         [(group)]="selectedGroup"
         (saveGroup)="saveGroup().subscribe()"
         (createChildGroup)="createGroup(selectedGroup)"
+        (changes)="updateToolbar()"
         (deleteGroup)="deleteGroup()">
     </group-details>
 </section>

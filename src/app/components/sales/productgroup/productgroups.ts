@@ -25,12 +25,7 @@ export class ProductGroups {
     public toolbarconfig: IToolbarConfig;
     public selectedGroup: ProductCategory;
 
-    public toolbarActions = [{
-        label: 'Ny produktgruppe',
-        action: (done) => this.createGroup(null, done),
-        main: true,
-        disabled: false
-    }];
+    public toolbarActions;
 
     treeControl: NestedTreeControl<any>;
     treeDataSource: MatTreeNestedDataSource<any>;
@@ -68,31 +63,47 @@ export class ProductGroups {
             if (allowed && group) {
                 this.expand(group);
                 this.selectedGroup = _.cloneDeep(group);
+                this.updateToolbar();
             }
         });
     }
 
     public canDeactivate() {
-        if (!this.selectedGroup || !this.selectedGroup['_isDirty']) {
-            return Observable.of(true);
-        }
-
-        return this.modalService.openUnsavedChangesModal().onClose.switchMap(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                return this.saveGroup();
-            } else if (response === ConfirmActions.REJECT) {
-                if (!this.selectedGroup.ID) {
-                    this.groups = this.groups.filter(g => !!g.ID);
-                    this.nodes = this.buildTreeData(this.groups);
-                    this.treeDataSource.data = null;
-                    this.treeDataSource.data = this.nodes;
+        const hasChanged = this.selectedGroup && this.selectedGroup['_isDirty'];
+        return Observable.of(hasChanged)
+            .switchMap(dirty => dirty
+                ? this.modalService.openUnsavedChangesModal().onClose
+                : Observable.of(ConfirmActions.REJECT))
+            .map(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.saveGroup();
                 }
+                return result !== ConfirmActions.CANCEL;
+            });
+    }
 
-                return Observable.of(true);
-            } else {
-                return Observable.of(false);
-            }
-        });
+    public updateToolbar() {
+        const showSaveAsMain = this.selectedGroup && this.selectedGroup['_isDirty'];
+        this.toolbarActions = [
+            {
+                label: 'Ny produktgruppe',
+                action: (done) => this.createGroup(null, done),
+                main: !showSaveAsMain,
+                disabled: false
+            },
+            {
+                label: 'Lagre endringer',
+                action: (done) => this.saveGroup(done),
+                main: showSaveAsMain,
+                disabled: !this.selectedGroup['_isDirty']
+            },
+            {
+                label: 'Slett gruppe',
+                action: (done) => this.deleteGroup(done),
+                main: false,
+                disabled: !this.selectedGroup
+            },
+        ];
     }
 
     expand(node) {
@@ -134,10 +145,11 @@ export class ProductGroups {
         }
     }
 
-    saveGroup(): Observable<boolean> {
+    saveGroup(done?): Observable<boolean> {
         const group = this.selectedGroup;
         if (!group || !group['_isDirty']) {
-            return Observable.of(true);
+            done('');
+            return;
         }
 
         const groupIndex = this.groups.findIndex(g => g.ID === this.selectedGroup.ID);
@@ -146,7 +158,7 @@ export class ProductGroups {
             ? this.productCategoryService.Put(group.ID, group)
             : this.productCategoryService.Post(group);
 
-        return saveRequest.map(savedGroup => {
+        saveRequest.subscribe(savedGroup => {
             this.toastService.addToast('Produktgruppe lagret', ToastType.good, 5);
             this.groups[groupIndex] = savedGroup;
             this.selectedGroup = savedGroup;
@@ -155,12 +167,14 @@ export class ProductGroups {
             this.treeDataSource.data = null;
             this.treeDataSource.data = this.nodes;
             this.selectGroup(savedGroup);
-
+            if (done) {
+                done('Lagring vellykket.');
+            }
             return true;
         });
     }
 
-    deleteGroup() {
+    deleteGroup(done?) {
         const deleteRequest = this.selectedGroup.ID
             ? this.productCategoryService.Remove(this.selectedGroup.ID)
             : Observable.of(true);
@@ -177,6 +191,9 @@ export class ProductGroups {
                 this.treeDataSource.data = null;
                 this.treeDataSource.data = this.nodes;
                 this.selectGroup(parent || this.groups[0]);
+                if (done) {
+                    done('Gruppe slettet');
+                }
             },
             err => this.errorService.handle(err)
         );
