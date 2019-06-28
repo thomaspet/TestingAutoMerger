@@ -78,8 +78,8 @@
                 "SelectRequired": true
             },
             {
-                "Header": "Beløpsgrense AvtaleGiro",
-                "Field": "Customer.AvtaleGiroAmount",
+                "Header": "Varsel AvtaleGiro",
+                "Field": "Customer.AvtaleGiroNotification",
                 "DefaultHidden": true
             }
         ],
