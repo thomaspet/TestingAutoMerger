@@ -386,7 +386,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             {name: 'Permisjon', path: 'employee-leave'},
             {name: 'Historiske poster', path: 'employee-trans-ticker'}
         ];
-        if (this.companySalarySettings.OtpExportActive) {
+        if (this.companySalarySettings && this.companySalarySettings.OtpExportActive) {
             paths.push({name: 'OTP', path: 'employee-otp'});
         }
         return paths;

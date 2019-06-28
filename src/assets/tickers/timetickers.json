@@ -143,20 +143,33 @@
         "IsTopLevelTicker": true,
         "Group": "Time",
         "Model": "WorkProfile",
+        "Expand": "",
         "OrderBy": "ID ASC",
-        "Columns":[
+        "Columns": [
             {
-                "Header": "Nr",
+                "Header": "Nr.",
                 "Field": "ID",
-                "Width": 100,
+                "Width": 50,
                 "Type": "link",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
                 "Field": "Name",
-                "Width": 500,
+                "Width": 250,
                 "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Minutter pr. uke",
+                "Field": "MinutesPerWeek",
+                "Width": 250,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Ink. lunsj",
+                "Field": "LunchIncluded",
+                "Width": "80px",
+                "Type": "boolean"
             }
         ]
     }

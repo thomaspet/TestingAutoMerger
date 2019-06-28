@@ -199,17 +199,20 @@
             },
             {
                 "Header": "Arbeidsforhold",
-                "Field": "TypeOfEmployment"
+                "Field": "TypeOfEmployment",
+                "FilterSelectConfigKey": "TypeOfEmployment"
             },
             {
                 "Header": "Avlønningstype",
                 "Field": "RemunerationType",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterSelectConfigKey": "RemunerationType"
             },
             {
                 "Header": "Arbeidstid",
                 "Field": "WorkingHoursScheme",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterSelectConfigKey": "WorkingHoursScheme"
             },
             {
                 "Header": "Timer pr uke full stilling",
@@ -237,17 +240,20 @@
             {
                 "Header": "SkipsType",
                 "Field": "ShipType",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterSelectConfigKey": "ShipType"
             },
             {
                 "Header": "SkipsRegister",
                 "Field": "ShipReg",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterSelectConfigKey": "ShipReg"
             },
             {
                 "Header": "Fartsområde",
                 "Field": "TradeArea",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterSelectConfigKey": "TradeArea"
             },
             {
                 "Header": "Prosjektnr",
@@ -504,7 +510,8 @@
             {
                 "Header": "Type",
                 "Field": "LeaveType",
-                "Width": "8rem"
+                "Width": "8rem",
+                "FilterSelectConfigKey": "LeaveType"
             },
             {
                 "Header": "Arbeidsforhold",
@@ -564,7 +571,8 @@
             {
                 "Header": "Type lønnsart",
                 "Field": "SpecialAgaRule",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterSelectConfigKey": "SpecialAgaRule"
             },
             {
                 "Header": "Hovedbokskonto",
@@ -598,15 +606,18 @@
             },
             {
                 "Header": "Skatt",
-                "Field": "taxtype"
+                "Field": "taxtype",
+                "FilterSelectConfigKey": "TaxType"
             },
             {
                 "Header": "Skatte- og avgiftsregel",
-                "Field": "SpecialTaxAndContributionsRule"
+                "Field": "SpecialTaxAndContributionsRule",
+                "FilterSelectConfigKey": "SpecialTaxAndContributionsRule"
             },
             {
                 "Header": "Systemets lønnsart",
-                "Field": "StandardWageTypeFor"
+                "Field": "StandardWageTypeFor",
+                "FilterSelectConfigKey": "StandardWageTypeFor"
             },
             {
                 "Header": "Skjul på lønnslipp",

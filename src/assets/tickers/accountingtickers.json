@@ -863,6 +863,18 @@
                 "Field": "OrgNumber"
             },
             {
+                "Header": "EHF",
+                "Field": "PeppolAddress",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Selvstendig næringsdrivende",
+                "Field": "SelfEmployed",
+                "Width": "80px",
+                "Type": "boolean",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Telefon",
                 "Field": "Info.DefaultPhone.Number"
             },
@@ -882,6 +894,12 @@
             {
                 "Header": "Sted",
                 "Field": "Info.InvoiceAddress.City"
+            },
+            {
+                "Header": "Hjemmeside",
+                "Field": "WebUrl",
+                "Type": "external-link",
+                "DefaultHidden": true
             },
             {
                 "Header": "Kredittdager",
@@ -1368,6 +1386,27 @@
                 "Field": "Locked",
                 "Width": "80px",
                 "Type": "boolean"
+            },
+            {
+                "Header": "Aktiv",
+                "Field": "Active",
+                "Width": "80px",
+                "Type": "boolean",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Systemkonto",
+                "Field": "SystemAccount",
+                "Width": "80px",
+                "Type": "boolean",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Postpost",
+                "Field": "UsePostPost",
+                "Width": "80px",
+                "Type": "boolean",
+                "DefaultHidden": true
             },
             {
                 "Header": "Gruppe",

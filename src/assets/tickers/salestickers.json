@@ -24,6 +24,18 @@
                 "FilterOperator": "contains"
             },
             {
+                "Header": "Orgnr.",
+                "Field": "Customer.OrgNumber",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "EHF",
+                "Field": "Customer.PeppolAddress",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Telefon",
                 "Field": "Info.DefaultPhone.Number"
             },
@@ -46,6 +58,12 @@
                 "Header": "Sted",
                 "Field": "Info.InvoiceAddress.City",
                 "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Hjemmeside",
+                "Field": "WebUrl",
+                "Type": "external-link",
+                "DefaultHidden": true
             },
             {
                 "Header": "Prosjekt",

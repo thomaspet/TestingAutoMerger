@@ -72,6 +72,21 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Kommentar",
+            "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kredittdager",
+            "Field": "CreditDays",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kreditert",
+            "Field": "Credited",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Rekvisisjon",
             "Field": "Requisition",
             "DefaultHidden": true
@@ -176,20 +191,23 @@
             "Header": "Utskrift",
             "Field": "PrintStatus",
             "Width": "125px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "FilterSelectConfigKey": "PrintStatus"
         },
         {
             "Header": "Siste distribusjon",
             "Field": "getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)",
             "Alias": "SharingType",
-            "width": "40px"
+            "width": "40px",
+            "FilterSelectConfigKey": "SharingType"
         },
         {
             "Header": "Status distribusjon",
             "Field": "getlatestsharingstatus('CustomerInvoice',CustomerInvoice.ID)",
             "Alias": "SharingStatusCode",
             "Format": "SharingStatus",
-            "width": "40px"
+            "width": "40px",
+            "FilterSelectConfigKey": "SharingStatusCode"
         }
     ],
     "ParentFilter": {
@@ -822,6 +840,21 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Kommentar",
+            "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kredittdager",
+            "Field": "CreditDays",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kreditert",
+            "Field": "Credited",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Rekvisisjon",
             "Field": "Requisition",
             "DefaultHidden": true
@@ -875,7 +908,8 @@
             "Header": "Utskrift",
             "Field": "PrintStatus",
             "Width": "125px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "FilterSelectConfigKey": "PrintStatus"
         }
     ],
     "ParentFilter": {
@@ -1352,6 +1386,21 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Kommentar",
+            "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kredittdager",
+            "Field": "CreditDays",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kreditert",
+            "Field": "Credited",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Rekvisisjon",
             "Field": "Requisition",
             "DefaultHidden": true
@@ -1425,7 +1474,8 @@
             "Header": "Utskrift",
             "Field": "PrintStatus",
             "Width": "125px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "FilterSelectConfigKey": "PrintStatus"
         }
     ],
     "ParentFilter": {
@@ -1903,6 +1953,26 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Kommentar",
+            "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kredittdager",
+            "Field": "CreditDays",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Kreditert",
+            "Field": "Credited",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Rekvisisjon",
+            "Field": "Requisition",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "65px",
@@ -1953,7 +2023,8 @@
             "Header": "Utskrift",
             "Field": "PrintStatus",
             "Width": "125px",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "FilterSelectConfigKey": "PrintStatus"
         }
     ],
     "ParentFilter": {
