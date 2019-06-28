@@ -1,0 +1,66 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{substitute?.ID ? 'Rediger vikar' : 'Ny vikar'}}</header>
+
+    <article *ngIf="substitute">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <label>
+            <span>Vikar</span>
+            <select [(ngModel)]="substitute.SubstituteUserID">
+                <option *ngFor="let user of users" [value]="user.ID">
+                    {{user.DisplayName || user.Email}}
+                </option>
+            </select>
+        </label>
+
+        <label>
+            <span>For</span>
+            <select [(ngModel)]="substitute.UserID">
+                <option *ngFor="let user of users" [value]="user.ID">
+                    {{user.DisplayName || user.Email}}
+                </option>
+            </select>
+        </label>
+
+        <label>
+            <span>Fra dato</span>
+            <section class="date-input">
+                <input #fromDateInput
+                    [(ngModel)]="substitute.FromDate"
+                    [matDatepicker]="fromDate"
+                    (keydown.enter)="fromDateInput.blur();fromDateInput.focus();"
+                />
+                <button class="icon-button calendar-toggle" (click)="fromDate.open()">
+                    <i class="material-icons">date_range</i>
+                </button>
+                <mat-datepicker #fromDate></mat-datepicker>
+            </section>
+        </label>
+
+        <label>
+            <span>Til dato</span>
+            <section class="date-input">
+                <input #toDateInput
+                    [(ngModel)]="substitute.ToDate"
+                    [matDatepicker]="toDate"
+                    (keydown.enter)="toDateInput.blur();toDateInput.focus();"
+                />
+                <button class="icon-button calendar-toggle" (click)="toDate.open()">
+                    <i class="material-icons">date_range</i>
+                </button>
+                <mat-datepicker #toDate></mat-datepicker>
+            </section>
+        </label>
+
+        <small *ngIf="validationMessage" class="validation-error">
+            {{validationMessage}}
+        </small>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="save()">Lagre</button>
+        <button (click)="onClose.emit(false)">Avbryt</button>
+    </footer>
+</section>

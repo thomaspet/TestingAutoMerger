@@ -20,7 +20,7 @@ export class UserService extends BizHttp<User> {
         });
     }
 
-    public getCurrentUser(): Observable<User> {
+    getCurrentUser(): Observable<User> {
         if (!this.userObservable) {
             this.userObservable = this.http.asGET()
                 .usingBusinessDomain()
@@ -36,6 +36,13 @@ export class UserService extends BizHttp<User> {
             // stop emitting errors if one subscriber doesn't catch
             .catch(err => Observable.throw(err));
     }
+
+    getActiveUsers(): Observable<User[]> {
+        return this.GetAll().pipe(
+            map(users => (users || []).filter(u => u.StatusCode === 110001))
+        );
+    }
+
 
     // override bizhttp put with cache invalidation
     public Put(id: number, entity: any): Observable<any> {

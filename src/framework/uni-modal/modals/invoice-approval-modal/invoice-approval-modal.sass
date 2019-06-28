@@ -1,0 +1,73 @@
+.uni-modal
+    width: 38rem
+    font-size: 15px
+    border-radius: 5px
+
+    header
+        padding: 0 2.25rem 0 2.5rem
+    article
+        padding: 1rem 2.5rem
+
+.steps
+    background: #ECF0F3
+    padding: .5rem 1rem
+    margin-bottom: 2rem
+    border-radius: 3px
+    .step
+        display: flex
+        align-items: center
+        height: 2.75rem
+
+    .user
+        flex: 1
+
+    .status
+        flex: 0 0 10rem
+
+        i.material-icons
+            font-size: 21px
+            vertical-align: middle
+            margin-bottom: 1px
+            margin-right: 5px
+
+        .status-indicator
+            display: inline-block
+            width: 10px
+            height: 10px
+            margin-right: 5px
+            border-radius: 50%
+
+        &.pending
+            color: #F5A623
+            .status-indicator
+                background: #F5A623
+        &.approved
+            color: #01A901
+            .status-indicator
+                background: #01A901
+        &.rejected
+            color: #F53B57
+            .status-indicator
+                background: #F53B57
+        &.inactive
+            color: #8C97AB
+
+label
+    span
+        display: block
+        font-weight: 500
+        margin-bottom: .5rem
+    textarea
+        height: 6rem
+        border-radius: 3px
+
+.validation-error
+    color: #F53B57
+
+footer
+    margin-bottom: .5rem
+
+    button.good, button.bad
+        width: 10rem
+        height: 3rem
+        border-radius: 30px

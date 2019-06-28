@@ -1,6 +1,6 @@
 import {ViewChild, Component, SimpleChanges, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {ICommentsConfig} from '../../../common/toolbar/toolbar';
@@ -21,21 +21,20 @@ import {
     Dimensions,
     VatDeduction,
     Payment, ValidationLevel
-} from '../../../../unientities';
+} from '@uni-entities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {UniForm, FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
 import {billStatusflowLabels as workflowLabels} from './lang';
-import {BillHistoryView} from './history/history';
-import {UniImage} from '../../../../../framework/uniImage/uniImage';
-import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
-import {UniAssignModal, AssignDetails} from './assignmodal';
-import {UniMath} from '../../../../../framework/core/uniMath';
-import {CommentService} from '../../../../../framework/comments/commentService';
+import {UniImage} from '@uni-framework/uniImage/uniImage';
+import {IUniSearchConfig} from '@uni-framework/ui/unisearch/index';
+import {BillAssignmentModal} from '../assignment-modal/assignment-modal';
+import {UniMath} from '@uni-framework/core/uniMath';
+import {CommentService} from '@uni-framework/comments/commentService';
 import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
@@ -46,12 +45,11 @@ import {
     UniConfirmModalWithList,
     IConfirmModalWithListReturnValue,
     ConfirmActions,
-    UniApproveModal,
-    ApprovalDetails,
     IModalOptions,
     UniReinvoiceModal,
-    UniConfirmModalWithCheckbox
-} from '../../../../../framework/uni-modal';
+    UniConfirmModalWithCheckbox,
+    InvoiceApprovalModal
+} from '@uni-framework/uni-modal';
 import {
     SupplierInvoiceService,
     SupplierService,
@@ -79,8 +77,9 @@ import {
     VatDeductionService,
     PaymentService,
     BrowserStorageService,
-    ReInvoicingService
-} from '../../../../services/services';
+    ReInvoicingService,
+    AssignmentDetails,
+} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
@@ -129,9 +128,7 @@ interface IJournalHistoryItem {
 })
 export class BillView implements OnInit {
     @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
     @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
     public busy: boolean = true;
@@ -2121,12 +2118,9 @@ export class BillView implements OnInit {
                     list.forEach( x => x.main = false );
                     const approval = task.Approvals.find(a => a.UserID === this.myUser.ID);
                     const approvalID = approval ? approval.ID : task.Approvals[0].ID;
-                    let action = this.newAction('Godkjenning', 'task_approval',
-                        `api/biz/approvals/${approvalID}?action=approve`, true);
-                    list.push(action);
-                    action = this.newAction('Avvis', 'task_reject',
-                        `api/biz/approvals/${approvalID}?action=approve`, false);
-                    list.push(action);
+
+                    list.push(this.newAction('Godkjenning', 'task_approval', '', true));
+                    list.push(this.newAction('Avvis', 'task_reject', '', false));
 
                     // Godkjenn og Bokfør, Godkjenn, Bokfør og Til betaling
                     if (it.StatusCode === StatusCodeSupplierInvoice.ForApproval) {
@@ -2317,45 +2311,23 @@ export class BillView implements OnInit {
         });
     }
 
-    public onTaskApproval(details: ApprovalDetails) {
-        if (!details) {
-            return;
-        }
-        if (details.approved || details.rejected) {
-            this.supplierInvoiceService.invalidateCache();
-            this.fetchInvoice(this.currentID, true);
-            if (details.message && details.message !== '') {
-                this.addComment(details.message);
-            }
-        }
-    }
-
-    public onReAssignClickOk(details: AssignDetails) {
+    assignInvoice(details: AssignmentDetails, isReAssign?: boolean) {
         const id = this.currentID;
-        if (!id || !details) { return; }
-        this.supplierInvoiceService.reAssign(id, details)
-            .subscribe( x => {
-                this.fetchInvoice(id, true);
-                if (details.Message && details.Message !== '') {
-                    this.addComment(details.Message);
-                }
-            }, (err) => {
-                this.errorService.handle(err);
-            });
-    }
+        if (id && details) {
+            const request = isReAssign
+                ? this.supplierInvoiceService.reAssign(id, details)
+                : this.supplierInvoiceService.assign(id, details);
 
-    public onAssignClickOk(details: AssignDetails) {
-        const id = this.currentID;
-        if (!id || !details) { return; }
-        this.supplierInvoiceService.assign(id, details)
-            .subscribe( x => {
-                this.fetchInvoice(id, true);
-                if (details.Message && details.Message !== '') {
-                    this.addComment(details.Message);
-                }
-            }, (err) => {
-                this.errorService.handle(err);
-            });
+            request.subscribe(
+                () => {
+                    this.fetchInvoice(id, true);
+                    if (details.Message) {
+                        this.addComment(details.Message);
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
+        }
     }
 
     public openAddFileModal() {
@@ -2403,21 +2375,20 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         switch (key) {
             case 'reAssign':
-                this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
-                    .onClose.subscribe(details => this.onReAssignClickOk(details));
-                done('Klar til å tildele på nytt');
-                break;
-
             case 'assign':
-                this.modalService.open(UniAssignModal, {closeOnClickOutside: false})
-                    .onClose.subscribe(details => this.onAssignClickOk(details));
-                done('Tildelt');
-                break;
-
+                this.modalService.open(BillAssignmentModal, {
+                    closeOnClickOutside: false
+                }).onClose.subscribe(details => {
+                    if (details) {
+                        this.assignInvoice(details, key === 'reAssign');
+                    }
+                });
+                done();
+            break;
             case 'journal':
                 this.journal(true, href).subscribe(result => {
                     if (result) {
-                        done('Lagret');
+                        done('');
                     } else {
                         done('Bokføring feilet');
                     }
@@ -2463,26 +2434,20 @@ export class BillView implements OnInit {
                 return true;
 
             case 'task_approval':
-                this.modalService.open(UniApproveModal, {
-                    data: {
-                        invoice: current,
-                        forApproval: true
-                    }
-                }).onClose.subscribe((details: ApprovalDetails) => {
-                    this.onTaskApproval(details);
-                });
-                done();
-                return true;
-
             case 'task_reject':
-                this.modalService.open(UniApproveModal, {
+                this.modalService.open(InvoiceApprovalModal, {
                     data: {
-                        invoice: current,
-                        forApproval: false
+                        task: current['_task'],
+                        entityType: 'SupplierInvoice',
+                        action: key === 'task_approval' ? 'approve' : 'reject'
                     }
-                }).onClose.subscribe((details: ApprovalDetails) => {
-                    this.onTaskApproval(details);
+                }).onClose.subscribe(approvedOrRejected => {
+                    if (approvedOrRejected) {
+                        this.supplierInvoiceService.invalidateCache();
+                        this.fetchInvoice(this.currentID, true);
+                    }
                 });
+
                 done();
                 return true;
 
@@ -2612,7 +2577,6 @@ export class BillView implements OnInit {
                     .finally(() => this.busy = false)
                     .subscribe(() => {
                         this.updateInvoicePayments().add(() => {
-                            this.userMsg('Betaling registrert', null, 3, true);
                             done();
                         });
                     }, err => {
@@ -2785,8 +2749,6 @@ export class BillView implements OnInit {
                 this.supplierInvoiceService.journal(current.ID).subscribe(x => {
                     this.fetchInvoice(current.ID, false);
                     resolve(result);
-                    this.userMsg('Bokføring fullført', null, 6, true);
-
                 }, (err) => {
                     this.errorService.handle(err);
                     //slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
@@ -3604,8 +3566,7 @@ export class BillView implements OnInit {
                     .finally(() => this.busy = false)
                     .subscribe(() => {
                         this.fetchInvoice(bill.ID, true);
-                        this.userMsg('Betaling registrert', null, 3, true);
-                        done('Betaling registrert');
+                        done();
                     }, err => {
                         this.errorService.handle(err);
                         done('Betaling feilet');

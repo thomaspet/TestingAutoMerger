@@ -23,7 +23,7 @@
                     role="button"
                     title="Godkjenn"
                     *ngIf="approval._activeApproval"
-                    (click)="approveOrReject(approval, true)">
+                    (click)="approveOrReject(approval, 'approve')">
                     check_circle
                 </i>
 
@@ -31,7 +31,7 @@
                     role="button"
                     title="Avvis"
                     *ngIf="approval._activeApproval"
-                    (click)="approveOrReject(approval, false)">
+                    (click)="approveOrReject(approval, 'reject')">
                     add_circle
                 </i>
             </section>

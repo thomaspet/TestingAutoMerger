@@ -1,0 +1,95 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Tildel faktura</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <mat-radio-group class="horizontal" [(ngModel)]="assignmentMode">
+            <mat-radio-button value="user">Brukere</mat-radio-button>
+            <mat-radio-button value="rule">Regel</mat-radio-button>
+            <mat-radio-button value="team">Team</mat-radio-button>
+        </mat-radio-group>
+
+
+        <label *ngIf="assignmentMode === 'user'">
+            <span>Velg brukere</span>
+
+            <ng-select
+                [(ngModel)]="userIDs"
+                [items]="users"
+                [multiple]="true"
+                appendTo="body"
+                bindLabel="DisplayName"
+                bindValue="ID">
+
+                <ng-template ng-multi-label-tmp let-items="items" let-clear="clear">
+                    <div class="ng-value" *ngFor="let item of items | slice:0:3">
+                        <span class="ng-value-icon left" (click)="clear(item)" aria-hidden="true">×</span>
+                        <span class="ng-value-label">{{item.DisplayName}}</span>
+                    </div>
+
+                    <div class="ng-value" *ngIf="items.length > 3" >
+                        <span class="ng-value-label">og {{items.length - 3}} til</span>
+                    </div>
+                </ng-template>
+
+                <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                    {{item.DisplayName}}
+                </ng-template>
+            </ng-select>
+        </label>
+
+        <label *ngIf="assignmentMode === 'team'">
+            <span>Velg team</span>
+
+            <ng-select
+                [(ngModel)]="teamID"
+                [items]="teams"
+                appendTo="body"
+                bindLabel="Name"
+                bindValue="ID">
+            </ng-select>
+        </label>
+
+        <label *ngIf="assignmentMode === 'rule'">
+            <span>Velg regel</span>
+
+            <ng-select
+                [(ngModel)]="approvalRule"
+                [items]="approvalRules"
+                appendTo="body"
+                bindLabel="Description">
+            </ng-select>
+
+            <section *ngIf="approvalRule" class="approval-rule-details">
+                <section *ngFor="let step of approvalRule.Steps" class="step">
+                    <span class="step-number">
+                        Steg {{step.StepNumber}}
+                    </span>
+
+                    <span class="approver">
+                        {{step.User?.DisplayName}}
+                    </span>
+
+                    <span *ngIf="step.Limit" class="threshold">
+                        > {{step.Limit | uninumberformat:'rounded'}} kr
+                    </span>
+                </section>
+            </section>
+        </label>
+
+        <label>
+            <span>Kommentar</span>
+            <textarea [(ngModel)]="message"></textarea>
+        </label>
+
+        <small class="validation-message" *ngIf="validationMessage">{{validationMessage}}</small>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="submit()">Tildel</button>
+        <button (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</section>

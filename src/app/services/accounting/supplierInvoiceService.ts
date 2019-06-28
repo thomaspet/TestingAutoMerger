@@ -62,7 +62,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             });
     }
 
-    public reAssign(supplierInvoiceId: number, details: IAssignDetails): Observable<boolean> {
+    public reAssign(supplierInvoiceId: number, details: AssignmentDetails): Observable<boolean> {
         super.invalidateCache();
         return this.http
             .asPOST()
@@ -73,7 +73,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.json());
     }
 
-    public assign(supplierInvoiceId: number, details: IAssignDetails): Observable<boolean> {
+    public assign(supplierInvoiceId: number, details: AssignmentDetails): Observable<boolean> {
         super.invalidateCache();
         return this.http
             .asPOST()
@@ -281,8 +281,9 @@ export interface IStatTotal {
     sumRestAmount: number;
 }
 
-export interface IAssignDetails {
-    Message: string;
-    TeamIDs: Array<number>;
-    UserIDs: Array<number>;
+export interface AssignmentDetails {
+    Message?: string;
+    TeamIDs?: number[];
+    UserIDs?: number[];
+    ApprovalRuleID?: number;
 }

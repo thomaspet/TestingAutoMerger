@@ -1,0 +1,69 @@
+<!-- <button class="add-flow-button" (click)="addFlow()" class="good">Ny regel</button> -->
+
+<section class="flow-container">
+
+    <section class="flow global">
+        <section class="header">
+            <span>Globale regler</span>
+            <small>* Kjøres på alle fakturaer</small>
+        </section>
+
+        <ul class="steps">
+            <li *ngFor="let rule of globalRules | slice:0:globalRuleDisplayCount">
+                <span class="approver">
+                    {{rule.Steps[0]?.User?.DisplayName}}
+                </span>
+                <span class="threshold">
+                    > {{rule.Steps[0]?.Limit | uninumberformat:'rounded'}} kr
+                </span>
+            </li>
+
+            <li *ngIf="globalRules?.length > globalRuleDisplayCount"
+                (click)="globalRuleDisplayCount = 99"
+                class="expand-all">
+
+                + {{globalRules.length - 3}} til
+            </li>
+        </ul>
+
+        <section class="footer">
+            <button (click)="openGlobalRuleModal()" class="outline-c2a">Rediger</button>
+        </section>
+    </section>
+
+    <section *ngFor="let rule of optionalRules" class="flow" [attr.aria-busy]="rule['_busy']">
+        <section class="header">
+            <span>{{rule.Description}}</span>
+            <button (click)="deleteRule(rule)" class="icon-button">
+                <i class="material-icons" style="font-size: 22px;">close</i>
+            </button>
+        </section>
+
+        <ul class="steps">
+            <li *ngFor="let step of rule.Steps | slice:0:rule['_displayCount']">
+                <span class="step-number">Steg {{step.StepNumber}}</span>
+                <span class="approver">{{step.User?.DisplayName}}</span>
+                <span *ngIf="step.Limit" class="threshold">
+                    > {{step.Limit | uninumberformat:'rounded'}} kr
+                </span>
+            </li>
+
+            <li
+                *ngIf="rule?.Steps?.length > rule['_displayCount']"
+                (click)="rule['_displayCount'] = 99"
+                class="expand-all">
+
+                + {{rule.Steps.length - rule['_displayCount']}} til
+            </li>
+        </ul>
+
+        <section class="footer">
+            <button (click)="openRuleModal(rule)" class="outline-c2a">Rediger</button>
+        </section>
+    </section>
+
+    <section (click)="openRuleModal()" class="flow add-new">
+        <i class="material-icons">add</i>
+    </section>
+
+</section>

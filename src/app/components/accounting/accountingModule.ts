@@ -1,21 +1,27 @@
-// Angular imports
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 
-// App imports
+import {
+    MatTabsModule,
+    MatSelectModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatMenuModule,
+    MatOptionModule,
+} from '@angular/material';
+
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetModule} from '../widgets/widgetModule';
 
-// routes
 import {accountingRoutes} from './accountingRoutes';
 
-// specific imports
 import {UniAccounting} from './accounting';
 import {JournalEntryProfessional} from './journalentry/components/journalentryprofessional/journalentryprofessional';
 import {JournalEntryManual} from './journalentry/journalentrymanual/journalentrymanual';
@@ -40,10 +46,7 @@ import {AccountDetailsReportModal} from './accountingreports/detailsmodal/accoun
 import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDetailsReport';
 import {PeriodPicker} from './accountingreports/periodFilter/periodpicker';
 import {DrilldownResultReportPart} from './accountingreports/reportparts/drilldownResultReportPart';
-import {
-    DistributionPeriodReportPart,
-    NumberAsMoneyPipe
-} from './accountingreports/reportparts/distributionPeriodReportPart';
+import {DistributionPeriodReportPart, NumberAsMoneyPipe} from './accountingreports/reportparts/distributionPeriodReportPart';
 import {DimensionsOverviewReportPart} from './accountingreports/reportparts/dimensionsOverviewReportPart';
 import {DrilldownBalanceReportPart} from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
@@ -56,9 +59,8 @@ import {BillHistoryView} from './bill/detail/history/history';
 import {BillPreviousView} from './bill/detail/previous/previous';
 import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {ReInvoiceInfoModal} from './bill/reinvoice-info-modal/reinvoice-info-modal';
-import {UniAssignModal} from './bill/detail/assignmodal';
+import {BillAssignmentModal} from './bill/assignment-modal/assignment-modal';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
-import {MyStringFilterPipe} from './bill/detail/assignmodal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
 import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
@@ -80,18 +82,10 @@ import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {UniBudgetView} from './budget/budgetview';
 import {UniBudgetEntryEditModal} from './budget/budgetEntryEditModal';
 import {UniBudgetEditModal} from './budget/budgetEditModal';
-import {
-    MatTabsModule,
-    MatSelectModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressBarModule,
-    MatMenuModule,
-    MatOptionModule,
-} from '@angular/material';
-import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
-import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
-import { UniCostAllocationDetails } from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
+
+import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
+import {UniCostAllocationList} from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
+import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
 
 @NgModule({
     imports: [
@@ -153,10 +147,10 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         BillPreviousView,
         BillTransitionModal,
         ReInvoiceInfoModal,
+        BillAssignmentModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
-        UniAssignModal, MyStringFilterPipe,
         NumberAsMoneyPipe,
         UniSmartBookingSettingsModal,
         NumberAsMoneyPipe,
@@ -206,7 +200,7 @@ import { UniCostAllocationDetails } from '@app/components/accounting/cost-alloca
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         NewAccountModal,
-        UniAssignModal,
+        BillAssignmentModal,
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,

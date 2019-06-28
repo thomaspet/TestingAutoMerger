@@ -66,6 +66,8 @@ import {DistributionPlanService} from './common/distributionService';
 import {AccrualService} from './common/accrualService';
 import {UserRoleService} from './common/userRoleService';
 import {EventplanService} from './common/eventplan.service';
+import {ApprovalRuleService} from './common/approvalRuleService';
+import {ApprovalSubstituteService} from './common/approvalSubstituteService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -133,6 +135,8 @@ export * from './common/distributionService';
 export * from './common/userRoleService';
 export * from './common/eventplan.service';
 export * from './common/accrualService';
+export * from './common/approvalRuleService';
+export * from './common/approvalSubstituteService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -141,6 +145,8 @@ export class CommonServicesModule {
             ngModule: CommonServicesModule,
             providers: [
                 ErrorService,
+                ApprovalRuleService,
+                ApprovalSubstituteService,
                 AltinnAuthenticationService,
                 AltinnIntegrationService,
                 AltinnReceiptService,

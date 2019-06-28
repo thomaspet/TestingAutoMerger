@@ -1,0 +1,60 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{action === 'approve' ? 'Godkjenning' : 'Avvis'}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section *ngIf="approvals?.length" class="steps">
+            <section *ngFor="let approval of approvals" class="step">
+                <span class="user">{{approval['_user']}}</span>
+
+                <ng-container [ngSwitch]="approval.StatusCode">
+                    <span *ngSwitchCase="approvalStatus.Active" class="status pending">
+                        <span class="status-indicator"></span>
+                        Venter godkjenning
+                    </span>
+
+                    <span *ngSwitchCase="approvalStatus.Approved" class="status approved">
+                        <span class="status-indicator"></span>
+                        Godkjent
+                    </span>
+
+                    <span *ngSwitchCase="approvalStatus.Rejected" class="status rejected">
+                        <span class="status-indicator"></span>
+                        Avvist
+                    </span>
+
+                    <span *ngSwitchDefault class="status inactive">
+                        Ikke aktiv enda
+                    </span>
+                </ng-container>
+            </section>
+        </section>
+
+        <label *ngIf="currentUsersApproval">
+            <span>Kommentar</span>
+            <textarea [(ngModel)]="comment" [ngClass]="{'error': commentMissing}"></textarea>
+        </label>
+
+        <small *ngIf="commentMissing" class="validation-error">
+            Vennligst begrunn avvisning i kommentarfeltet.
+        </small>
+    </article>
+
+    <footer class="center">
+        <ng-container *ngIf="currentUsersApproval">
+            <button *ngIf="action === 'approve'" (click)="submit()" class="good">
+                Godkjenn
+            </button>
+            <button *ngIf="action === 'reject'" (click)="submit()" class="bad">
+                Avvis
+            </button>
+
+            <button (click)="onClose.emit(false)">Lukk</button>
+        </ng-container>
+
+        <button *ngIf="!currentUsersApproval && !busy" (click)="onClose.emit()" class="c2a rounded">Lukk</button>
+    </footer>
+</section>

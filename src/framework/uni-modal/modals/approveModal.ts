@@ -146,6 +146,8 @@ export class UniApproveModal implements IUniModal, OnInit {
                     approvals.forEach( x => {
                         x['statusLabel'] = statusLabels[x.StatusCode];
                     });
+
+                    this.changeDetectorRef.markForCheck();
                 });
             }
         }

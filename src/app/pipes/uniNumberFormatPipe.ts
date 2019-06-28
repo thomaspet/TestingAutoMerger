@@ -48,6 +48,8 @@ export class UniNumberFormatPipe implements PipeTransform {
                     return this.numberFormat.asOrgNo(value);
                 case 'bankacct':
                     return this.numberFormat.asBankAcct(value);
+                case 'rounded':
+                    return this.numberFormat.asNumber(value, {decimalLength: 0});
                 default:
                     return this.numberFormat.asNumber(value);
             }

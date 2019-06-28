@@ -11,12 +11,12 @@ import {
     ApprovalStatus,
     StatusCodeReInvoice
 } from '../../../unientities';
-import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
-import {UniAssignModal, AssignDetails} from './detail/assignmodal';
+import {BillAssignmentModal} from './assignment-modal/assignment-modal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions, UniReinvoiceModal} from '../../../../framework/uni-modal';
 import {
     ApprovalService,
     SupplierInvoiceService,
+    AssignmentDetails,
     IStatTotal,
     ErrorService,
     PageStateService,
@@ -178,7 +178,7 @@ export class BillsView implements OnInit {
 
     public saveActions: IUniSaveAction[] = [{
         label: 'Nytt leverandørfaktura',
-        action: (completeEvent) => setTimeout(() => this.onAddNew()),
+        action: () => setTimeout(() => this.onAddNew()),
         main: true,
         disabled: false
     }];
@@ -320,7 +320,10 @@ export class BillsView implements OnInit {
             disabled: false
         });
 
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
+        if (
+            supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft
+            || supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected
+        ) {
             this.saveActions.push({
                 label: 'Tildel',
                 action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
@@ -341,15 +344,6 @@ export class BillsView implements OnInit {
                 label: 'Avvis',
                 action: (done) => setTimeout(() => this.rejectSupplierInvoices(done)),
                 main: false,
-                disabled: false
-            });
-        }
-
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected) {
-            this.saveActions.push({
-                label: 'Tildel',
-                action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
-                main: true,
                 disabled: false
             });
         }
@@ -414,19 +408,21 @@ export class BillsView implements OnInit {
     }
 
     public assignSupplierInvoices(done: any) {
-        this.modalService.open(UniAssignModal).onClose.subscribe(details => {
+        this.modalService.open(BillAssignmentModal).onClose.subscribe(details => {
             if (details) {
-                this.onAssignSupplierInvoicesClickOk(details);
+                console.log(details);
+                // this.assignInvoices(details);
             }
         });
+
         done();
     }
 
-    public onAssignSupplierInvoicesClickOk(details: AssignDetails) {
+    public assignInvoices(details: AssignmentDetails) {
         const assignRequests = this.selectedItems.map(invoice =>
             this.supplierInvoiceService.assign(invoice.ID, details)
-            .map(res => ({ ID: invoice.ID, success: true}))
-            .catch(err => Observable.of({ID: invoice.ID, success: false}))
+                .map(res => ({ ID: invoice.ID, success: true}))
+                .catch(err => Observable.of({ID: invoice.ID, success: false}))
         );
 
         Observable.forkJoin(assignRequests).subscribe(

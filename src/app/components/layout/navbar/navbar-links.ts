@@ -555,6 +555,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {name: 'Nummerserier', url: '/settings/numberseries'},
                     {name: 'Betingelser', url: '/settings/terms'},
                     {name: 'Dimensjoner', url: '/settings/dimension'},
+                    {name: 'Godkjenningsregler', url: '/approval-rules'}
                 ]
             },
             {

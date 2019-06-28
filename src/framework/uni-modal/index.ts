@@ -32,6 +32,7 @@ import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSetti
 import {UniConfirmModalWithCheckbox} from './modals/confirmWithCheckboxModal';
 import {UniMandatoryDimensionsModal} from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 import {LicenseAgreementModal} from './modals/license-agreement-modal/license-agreement-modal';
+import {InvoiceApprovalModal} from './modals/invoice-approval-modal/invoice-approval-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -69,6 +70,7 @@ export * from './modals/confirmWithCheckboxModal';
 export * from './modals/reInvoiceModal/showReinvoiceStatus.pipe';
 export * from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 export * from './modals/license-agreement-modal/license-agreement-modal';
+export * from './modals/invoice-approval-modal/invoice-approval-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -104,6 +106,7 @@ export const MODALS = [
     UniCompanyAccountingSettingsModal,
     UniConfirmModalWithCheckbox,
     UniMandatoryDimensionsModal,
-    LicenseAgreementModal
+    LicenseAgreementModal,
+    InvoiceApprovalModal
 ];
 

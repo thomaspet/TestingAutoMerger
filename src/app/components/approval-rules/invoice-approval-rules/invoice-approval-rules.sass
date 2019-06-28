@@ -1,0 +1,100 @@
+.add-flow-button
+    width: 8rem
+    border-radius: 5px
+
+.flow-container
+    display: flex
+    flex-flow: row wrap
+    margin-top: 1rem
+
+    .flow
+        display: flex
+        flex-direction: column
+        width: 25rem
+        height: 20rem
+        background: #fff
+        box-shadow: 0 1px 4px 0 rgba(0,0,0,0.1)
+        margin-bottom: 1.5rem
+        margin-right: 1.5rem
+        border-radius: 5px
+
+        .header
+            flex: 0 0 3.5rem
+            display: flex
+            justify-content: space-between
+            align-items: center
+            color: #707D90
+            font-weight: 500
+            font-size: 16px
+            padding: 0 1rem
+            border-top-left-radius: 5px
+            border-top-right-radius: 5px
+
+        ul.steps
+            flex: 1
+            list-style: none
+            margin: 0
+            padding: .5rem 1rem
+            overflow-y: auto
+
+            li
+                display: flex
+                align-items: center
+                height: 3rem
+                padding: 0 5px
+                border-top: 1px solid rgba(0, 0, 0, .1)
+                font-size: 13px
+
+                &:last-of-type
+                    border-bottom: 1px solid rgba(0, 0, 0, .1)
+
+                &.expand-all
+                    border-bottom: none
+                    color: #707D90
+                    font-size: 13px
+                    cursor: pointer
+                    justify-content: center
+
+                .step-number
+                    flex: 0 0 4rem
+                    font-weight: 500
+                    color: #707D90
+
+                .approver
+                    flex: 1
+
+                .threshold
+                    flex: 0 0 auto
+                    background: #F0CF61
+                    padding: 0 10px
+                    font-weight: 500
+                    border-radius: 30px
+
+
+        .footer
+            flex: 0 0 3.5rem
+            padding: 0 1rem
+            display: flex
+            justify-content: flex-end
+            align-items: center
+
+
+        &.global
+            .header
+                background: #4A90E2
+                span, small
+                    color: #fff
+
+            ul li:first-of-type
+                border-top: none
+
+        &.add-new
+            cursor: pointer
+            justify-content: center
+            align-items: center
+            i.material-icons
+                font-size: 104px
+                color: rgba(0, 0, 0, .15)
+
+            &:hover i.material-icons
+                color: rgba(0, 0, 0, .25)
