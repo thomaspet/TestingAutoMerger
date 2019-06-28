@@ -155,11 +155,15 @@ export class VacationPayModal implements OnInit, IUniModal {
                 const rows: IVacationPayLine[] = this.table.getSelectedRows();
                 let msg = '';
                 const missingEarlierPayments = rows
-                    .filter(row =>
-                        row
-                            .VacationInfos
-                            .filter(x => x.BaseYear < this.currentYear - 1)
-                            .some(x => !x.IsPayed));
+                    .filter(row => {
+                        if (!!row.VacationInfos) {
+                            return row
+                                .VacationInfos
+                                .filter(x => x.BaseYear < this.currentYear - 1)
+                                .some(x => !x.IsPayed);
+                        }
+                        return false;
+                    });
 
                 if (missingEarlierPayments.length) {
                     const last = missingEarlierPayments.pop();
@@ -301,9 +305,9 @@ export class VacationPayModal implements OnInit, IUniModal {
         if (!rowModel.Employee) {
             return false;
         }
-        const empAge = this.currentYear - new Date(rowModel.Employee.BirthDate).getFullYear();
+        const empAge = rowModel.Year - new Date(rowModel.Employee.BirthDate).getFullYear();
         if (empAge >= 59) {
-            if (this.vacationBaseYear === this.currentYear) {
+            if (this.vacationBaseYear === rowModel.Year) {
                 return true;
             } else {
                 return empAge >= 60;
@@ -445,14 +449,16 @@ export class VacationPayModal implements OnInit, IUniModal {
             valueProperty: 'id'
         };
         vpRadioField.LineBreak = true;
-
         const unpayedEarlierYears = lines
-            .some(line =>
-                line
-                    .VacationInfos
-                    .filter(x => this.isEarlierPay(this.currentYear, x.BaseYear))
-                    .some(info => !info.IsPayed)
-            );
+            .some(line => {
+                if (!!line.VacationInfos) {
+                    return line
+                        .VacationInfos
+                        .filter(x => this.isEarlierPay(this.currentYear, x.BaseYear))
+                        .some(info => !info.IsPayed);
+                }
+                return false;
+            });
 
         if (unpayedEarlierYears) {
             vpRadioField.Options.source.push({id: 3, name: 'Feriepenger for tidligere år'});
@@ -600,9 +606,10 @@ export class VacationPayModal implements OnInit, IUniModal {
     private isEarlierPay(currentYear: number, baseYear: number) {
         return baseYear < (currentYear - 1);
     }
+
     private recalcVacationPayForYear(row: IVacationPayLine, model: IVacationPayHeader, setmanually: boolean = false) {
-        const info = row.VacationInfos.find(i => i.BaseYear === row.Year);
-        const vacBase = row['ManualVacationPayBase'] + (info && info.SystemBase || 0);
+        const info = !!row.VacationInfos && row.VacationInfos.find(i => i.BaseYear === row.Year);
+        const vacBase = row['ManualVacationPayBase'] + (info && info.SystemBase || row['SystemVacationPayBase']);
         const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
         this.updateAndSetRate(row, model, setmanually);
         if (model.SixthWeek && this.empOver60(row)) {
