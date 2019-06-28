@@ -40,7 +40,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             _Task: 'VatReport',
             _Register: 'Bilag',
             NextNumber: null,
-            _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null
+            _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 90000, UseNumbersFromNumberSeriesID: null
         },
         {
             Name: 'JournalEntry invoice number series type',
