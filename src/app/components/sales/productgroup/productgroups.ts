@@ -64,6 +64,15 @@ export class ProductGroups {
                 this.expand(group);
                 this.selectedGroup = _.cloneDeep(group);
                 this.updateToolbar();
+            } else {
+                this.toolbarActions = [
+                    {
+                        label: 'Ny produktgruppe',
+                        action: (done) => this.createGroup(null, done),
+                        main: true,
+                        disabled: false
+                    }
+                ];
             }
         });
     }
