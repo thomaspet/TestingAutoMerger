@@ -188,6 +188,31 @@ export class TofDetailsForm {
             }
 
             if (this.entityType === 'RecurringInvoice') {
+                const avtalegiroFields = [
+                    <any> {
+                        FieldSet: 1,
+                        FieldSetColumn: 1,
+                        EntityType: this.entityType,
+                        ReadOnly: true,
+                        Property: 'Customer.AvtaleGiroNotification',
+                        FieldType: FieldType.CHECKBOX,
+                        Label: 'Varsel AvtaleGiro',
+                        Section: 0,
+                        Tooltip: {
+                            Text: 'Blir det sendt varsel på e-post om AvtaleGiro?'
+                        }
+                    },
+                    <any> {
+                        FieldSet: 1,
+                        FieldSetColumn: 1,
+                        EntityType: this.entityType,
+                        ReadOnly: true,
+                        Property: 'Customer.AvtaleGiro',
+                        FieldType: FieldType.CHECKBOX,
+                        Label: 'Påmeldt AvtaleGiro',
+                        Section: 0
+                    }
+                ];
                 // If its details view for recurring invoice, dont show dates, they are in recurring settings view
                 fields.splice(0, 2);
 
@@ -197,6 +222,8 @@ export class TofDetailsForm {
                     return f;
                 });
 
+                // Add avtalegiro fields after setting all the other fields to readonly = false
+                fields.splice(2, 0, ...avtalegiroFields);
             }
 
             this.fields$.next(fields);
