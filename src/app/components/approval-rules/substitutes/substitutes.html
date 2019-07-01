@@ -1,0 +1,69 @@
+<button class="c2a add-substitute" (click)="openSubstituteModal()">
+    Registrer vikar
+</button>
+
+<section class="substitute-list">
+    <section *ngFor="let sub of activeSubs" class="substitute">
+        <label>
+            <span>Vikar</span>
+            {{sub.SubstituteUser?.DisplayName || sub.SubstituteUser?.Email}}
+        </label>
+
+        <label>
+            <span>For</span>
+            {{sub.User?.DisplayName || sub.User?.Email}}
+        </label>
+
+        <label>
+            <span>Periode</span>
+            {{sub.FromDate | date:'dd.MM.yyyy'}} - {{sub.ToDate | date:'dd.MM.yyyy'}}
+        </label>
+
+        <section class="status">
+            <span class="indicator active"></span>
+            Aktiv
+        </section>
+
+        <button [matMenuTriggerFor]="contextMenu" class="icon-button">
+            <i class="material-icons">more_horiz</i>
+        </button>
+
+        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+            <button mat-menu-item (click)="openSubstituteModal(sub)">Rediger</button>
+            <button mat-menu-item (click)="delete(sub)">Slett</button>
+        </mat-menu>
+    </section>
+</section>
+
+<section class="substitute-list">
+    <section *ngFor="let sub of futureSubs" class="substitute">
+        <label>
+            <span>Vikar</span>
+            {{sub.SubstituteUser?.DisplayName || sub.SubstituteUser?.Email}}
+        </label>
+
+        <label>
+            <span>For</span>
+            {{sub.User?.DisplayName || sub.User?.Email}}
+        </label>
+
+        <label>
+            <span>Periode</span>
+            {{sub.FromDate | date:'dd.MM.yyyy'}} - {{sub.ToDate | date:'dd.MM.yyyy'}}
+        </label>
+
+        <section class="status">
+            <span class="indicator pending"></span>
+            Planlagt
+        </section>
+
+        <button [matMenuTriggerFor]="contextMenu" class="icon-button">
+            <i class="material-icons">more_horiz</i>
+        </button>
+
+        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+            <button mat-menu-item (click)="openSubstituteModal(sub)">Rediger</button>
+            <button mat-menu-item (click)="delete(sub)">Slett</button>
+        </mat-menu>
+    </section>
+</section>

@@ -1,11 +1,11 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
-import {Approval, ApprovalStatus, User} from '../../../unientities';
-import {ApprovalService, UserService, ErrorService, PageStateService} from '../../../services/services';
+import {Approval, ApprovalStatus, User} from '@uni-entities';
+import {ApprovalService, UserService, ErrorService, PageStateService} from '@app/services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniModalService, UniApproveModal} from '../../../../framework/uni-modal';
-import {CommentService} from '../../../../framework/comments/commentService';
+import {UniModalService, InvoiceApprovalModal} from '@uni-framework/uni-modal';
+import {CommentService} from '@uni-framework/comments/commentService';
 import * as moment from 'moment';
 
 @Component({
@@ -110,7 +110,7 @@ export class UniApprovals {
         }
         this.addTab();
 
-        this.approvalService.GetAll(filterString, ['Task.Model']).subscribe(
+        this.approvalService.GetAll(filterString, ['Task.Model', 'Task.Approvals', 'Task.ApprovalPlan']).subscribe(
             approvals => {
                 this.approvals = approvals.map(a => this.addApprovalMetadata(a));
 
@@ -143,25 +143,18 @@ export class UniApprovals {
         return approval;
     }
 
-    public approveOrReject(approval: Approval, isApprove: boolean): void {
-        let invoice = {
-            ID: approval.Task.EntityID,
-            _task: approval.Task
-        };
-        invoice._task.Approvals = [approval];
-        this.modalService.open(UniApproveModal,
-            {
-                data: {
-                    invoice: invoice,
-                    forApproval: isApprove
-                }
-            }).onClose.subscribe((res: any) => {
-                if (res && res.message) {
-                    this.addComment(approval.Task.Model.Name, approval.Task.EntityID, res.message);
-                }
+    approveOrReject(approval: Approval, action: 'approve' | 'reject'): void {
+        this.modalService.open(InvoiceApprovalModal, {
+            data: {
+                task: approval.Task,
+                entityType: approval.Task.Model.Name,
+                action: action
+            }
+        }).onClose.subscribe(approvedOrRejected => {
+            if (approvedOrRejected) {
                 this.loadApprovals();
-
-        }, err => this.errorService.handle(err));
+            }
+        });
     }
 
     private scrollToListItem(index: number): void {

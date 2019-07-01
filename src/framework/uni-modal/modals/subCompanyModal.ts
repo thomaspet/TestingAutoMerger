@@ -6,10 +6,10 @@ import { UniHttp } from '@uni-framework/core/http/http';
 @Component({
     selector: 'uni-subcompany-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-approve-modal-class">
+        <section role="dialog" class="uni-modal">
 
             <header>
-                <h1 style="width: 50%">Opprett selskap i lokalt kunderegister</h1>
+                <h1>Opprett selskap i lokalt kunderegister</h1>
             </header>
 
             <article [attr.aria-busy]="busy" *ngIf="subCompany === undefined">

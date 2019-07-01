@@ -2,7 +2,7 @@
 import {UniModalService} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {ProjectResponsibility} from '@app/models';
 import {Project, Address, User, Country} from '@app/unientities';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -20,6 +20,7 @@ import {
     CountryService,
     PostalCodeService,
 } from '@app/services/services';
+import {takeUntil} from 'rxjs/operators';
 
 declare var _;
 
@@ -31,9 +32,11 @@ declare var _;
 export class ProjectEditmode {
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
-    public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public project$: BehaviorSubject<Project> = new BehaviorSubject(null);
+    config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    project$: BehaviorSubject<Project> = new BehaviorSubject(null);
+    onDestroy$ = new Subject();
+
     public uniSearchConfig: IUniSearchConfig;
     public addressChanged: any;
     private customerExpandOptions: Array<string> = ['Info.Name'];
@@ -53,9 +56,7 @@ export class ProjectEditmode {
         private projectService: ProjectService,
         private errorService: ErrorService,
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
-        private addressService: AddressService,
         private userService: UserService,
-        private modalService: UniModalService,
         private countryService: CountryService,
         private postalCodeService: PostalCodeService,
     ) {
@@ -64,7 +65,9 @@ export class ProjectEditmode {
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
-        this.projectService.currentProject.subscribe(currentProject => {
+        this.projectService.currentProject.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(currentProject => {
             const project = currentProject || <any> {};
             if (!project.ProjectResources) {
                 project.ProjectResources = [];
@@ -77,6 +80,14 @@ export class ProjectEditmode {
             this.project = project;
             this.extendFormConfig();
         });
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
+        this.config$.complete();
+        this.fields$.complete();
+        this.project$.complete();
     }
 
     onFormChange(changes: SimpleChange) {

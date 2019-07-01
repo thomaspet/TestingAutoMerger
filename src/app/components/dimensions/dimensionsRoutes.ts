@@ -7,6 +7,7 @@ import {ProjectQueryList} from './project/lists/querylist';
 import {ProjectHourTotals} from './project/hours/hourtotals';
 
 import {UniDimensionView} from './custom/dimension';
+import {ProjectSupplierInvoiceList} from './project/lists/supplier-invoice-list/supplier-invoice-list';
 
 export const dimensionsRoutes = [
     {
@@ -64,7 +65,7 @@ export const dimensionsRoutes = [
                     },
                     {
                         path: 'supplierinvoices',
-                        component: ProjectQueryList
+                        component: ProjectSupplierInvoiceList
                     }
                 ]
             }

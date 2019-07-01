@@ -82,7 +82,7 @@ import { PaymentService } from '@app/services/accounting/paymentService';
 import { RequestMethod } from '@angular/http';
 import {JournalEntryMode} from '../../../../../services/accounting/journalEntryService';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-declare const _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'journal-entry-professional',
@@ -1232,6 +1232,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         .setVisible(false)
         .setTemplate(() => '')
         .setResizeable(false)
+        .setEditable(() => false)
         .setWidth('40px')  // '5%') //Har ingen effekt
         .setTooltipResolver( (rowModel) => {
             let msgText = '';
@@ -1239,10 +1240,36 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             const debRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.DebitReport;
             const creRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.CreditReport;
 
+            let showTooltip = false;
+
+            if (
+                rowModel.MandatoryDimensionsValidation
+                && (rowModel.MandatoryDimensionsValidation.CreditReport
+                || rowModel.MandatoryDimensionsValidation.DebitReport)
+            ) {
+                if (
+                    (rowModel.MandatoryDimensionsValidation.CreditReport
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.CreditReport.RequiredDimensions).length)
+                    || (rowModel.MandatoryDimensionsValidation.DebitReport
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.DebitReport.RequiredDimensions).length)
+                ) {
+                    showTooltip = true;
+                }
+
+                if (
+                    (rowModel.MandatoryDimensionsValidation.CreditReport
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.CreditReport.WarningDimensions).length)
+                    || (rowModel.MandatoryDimensionsValidation.DebitReport
+                    && Object.keys(rowModel.MandatoryDimensionsValidation.DebitReport.WarningDimensions).length)
+                ) {
+                    showTooltip = true;
+                }
+            }
+
             if (debRep || creRep) {
 
-                if (debRep && debRep.MissingRequiredDimensonsMessage) { msgText = debRep.MissingRequiredDimensonsMessage + '\n'; }
-                if (creRep && creRep.MissingRequiredDimensonsMessage) { msgText += creRep.MissingRequiredDimensonsMessage + '\n'; }
+                if (debRep && debRep.MissingRequiredDimensionsMessage) { msgText = debRep.MissingRequiredDimensionsMessage + '\n'; }
+                if (creRep && creRep.MissingRequiredDimensionsMessage) { msgText += creRep.MissingRequiredDimensionsMessage + '\n'; }
                 if (msgText !== '') { iconType = 1; }
 
                 if (debRep && debRep.MissingOnlyWarningsDimensionsMessage) {
@@ -1254,8 +1281,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (iconType !== 1 && msgText !== '') { iconType = 2; }
 
                 const type = iconType === 1 ? 'bad' : iconType === 2 ? 'warn' : 'good';
+                if (type === 'good') {
+                    msgText = 'Påkrevde dimensjoner registrert ok';
+                }
+                if (!showTooltip) {
+                    return null;
+                }
                 return {
-                    type: type  ,
+                    type: type,
                     text: msgText,
                 };
             }
@@ -1646,6 +1679,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 netAmountCol,
                 amountCurrencyCol,
+                currencyExchangeRate,
                 costAllocationCol,
                 manDimReportCol
             ];
@@ -2830,6 +2864,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.setupJournalEntryNumbers(false);
 
                 this.dataChanged.emit(this.journalEntryLines);
+
+                this.lastUsedJournalEntryNumber = '';
             },
             err => {
                 // call with empty string to avoid clearing the grid
@@ -2909,7 +2945,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private addJournalEntryLines(lines: JournalEntryData[]) {
         const newItems = this.table.getTableData();
-
         lines.forEach(line => {
             line.JournalEntryNo = this.lastUsedJournalEntryNumber
                 ? this.lastUsedJournalEntryNumber
@@ -3067,7 +3102,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                             const data = this.table.getTableData();
-                            const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                            let msg = '\n';
+                            if (report) {
+                                msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                            }
                             if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
 
                             this.dataChanged.emit(data);
@@ -3083,7 +3121,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                                 const data = this.table.getTableData();
-                                const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                let msg = '\n';
+                                if (report) {
+                                    msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                }
                                 if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
                                 this.dataChanged.emit(data);
                         }, 0);

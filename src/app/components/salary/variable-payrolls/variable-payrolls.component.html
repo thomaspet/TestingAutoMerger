@@ -1,40 +1,50 @@
 <uni-toolbar [saveactions]="saveActions" [config]="{title: 'Variable lønnsposter'}"></uni-toolbar>
 
-<article class="application" *ngIf="(payrollrun$ | async)" [attr.aria-busy]="loading">
-    <uni-information [config]="infoConfig" class="infoNote">
-        I dette grensesnittet kan du endre, registrere og slette variable lønnsposter. Ved lagring overføres postene automatisk
-        til valgt lønnsavregning. Ved sletting fjernes postene fra valgt lønnsavregning.
-        <br>
-        <br>
-        Husk at du også kan endre direkte på lønnsavregningen.
-    </uni-information>
-    <span class="selectedPayrollrun">
-        Lønnsavregning
-        <article class="selectContainer">
-            <uni-select
-                [items]="payrollruns"
-                [config]="payrollrunSelectConfig"
-                [(value)]="selectedPayrollrun"
-                (valueChange)="onPayrollrunSelect($event)">
-            </uni-select>
-        </article>
-    </span>
+<article class="application" *ngIf="payrollruns.length">
 
-    <span class="showPayrolls">
-        Vis alle variable lønnsposter
-        <i class="material-icons tab-tooltip" matTooltip="{{ infoMessage }}">
-            info
-        </i>
-        <mat-slide-toggle class="togglePayrollrun" [(checked)]="toggle" (change)="toggleChange($event)"></mat-slide-toggle>
-    </span>
+    <div class="variable-payrolls-topbar" style="display: flex; align-items: center;">
+        <mat-form-field>
+            <mat-select [value]="selectedPayrollrun" (valueChange)="onPayrollrunSelect($event)" placeholder="Lønnsavregning">
+                <mat-option *ngFor="let pr of payrollruns" [value]="pr">
+                    {{ pr.Description }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
 
-    <section class="uniTable">
-        <ag-grid-wrapper class="maintable salaryTransTable" [resource]="filteredTransactions" [config]="salarytransEmployeeTableConfig"
-            (rowChange)="rowChanged($event)" (rowDelete)="onRowDeleted($event)" (cellClick)="onCellClick($event)">
+        <span class="showPayrolls" style="margin: 0 0 0 2rem;">
+            Vis alle variable lønnsposter
+            <mat-slide-toggle class="togglePayrollrun" [(checked)]="toggle" (change)="toggleChange($event)"></mat-slide-toggle>
+            <i class="material-icons tab-tooltip" matTooltip="{{ infoMessage }}">
+                info
+            </i>
+        </span>
+
+        <div style="flex: 1"></div>
+    </div>
+
+    <section class="uni-container payrollruntrans-container">
+        <header>Variable lønnsposter</header>
+        <ag-grid-wrapper
+            *ngIf="!toggle"
+            class="maintable salaryTransTable transquery-grid-font-size"
+            [resource]="filteredTransactions"
+            [config]="salarytransEmployeeTableConfig"
+            (rowChange)="rowChanged($event)"
+            (rowDelete)="onRowDeleted($event)"
+            (cellClick)="onCellClick($event)">
         </ag-grid-wrapper>
+
+        <ag-grid-wrapper
+            *ngIf="toggle"
+            class="maintable salaryTransTable transquery-grid-font-size"
+            (cellClick)="onCellClick($event)"
+            [resource]="lookupFunction"
+            [config]="salarytransEmployeeTableConfig">
+        </ag-grid-wrapper>
+
     </section>
 </article>
 
-<article *ngIf="!(payrollrun$ | async)" [attr.aria-busy]="loading" class="application">
+<article *ngIf="!payrollruns.length && initialized" class="application">
     <h2>Du har ingen åpne lønnsavregninger</h2>
 </article>

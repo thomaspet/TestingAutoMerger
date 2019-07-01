@@ -46,9 +46,11 @@ import {
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatStepperModule,
-    MatListModule
+    MatListModule,
+    MatDatepickerModule
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @NgModule({
     imports: [
@@ -66,6 +68,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         MatStepperModule,
         MatListModule,
         ScrollingModule,
+        MatDatepickerModule,
 
         ClickOutsideModule,
         AppPipesModule,
@@ -76,6 +79,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniFormModule,
         UniTableModule,
         AgGridWrapperModule,
+        NgSelectModule
     ],
     declarations: [
         UniComponentLoader,
@@ -109,6 +113,9 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         StimulsoftReportWrapper,
     ],
     exports: [
+        FormsModule,
+        ReactiveFormsModule,
+
         // Modules
         UniPipesModule,
         UniSearchModule,
@@ -118,6 +125,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniDateselectorpModule,
         AgGridWrapperModule,
         ClickOutsideModule,
+        NgSelectModule,
 
         // Components
         UniModal,
@@ -145,7 +153,8 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         MatProgressSpinnerModule,
         MatStepperModule,
         MatListModule,
-        ScrollingModule
+        ScrollingModule,
+        MatDatepickerModule
     ]
 })
 export class UniFrameworkModule {}

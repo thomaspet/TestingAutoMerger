@@ -1,0 +1,64 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{rule?.ID ? 'Endre godkjenningsregel' : 'Ny godkjenningsregel'}}</header>
+
+    <article class="scrollable">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="rule-info">
+            <label>
+                <span>Navn</span>
+                <input [(ngModel)]="rule.Description" type="text" autofocus>
+            </label>
+        </section>
+
+        <span class="step-header">Godkjenningssteg</span>
+        <section class="steps">
+            <ng-container *ngFor="let step of rule.Steps; let idx = index">
+                <section *ngIf="!step.Deleted" class="step">
+                    <span class="step-number">
+                        <span>{{step.StepNumber}}</span>
+                    </span>
+
+                    <section class="step-details">
+                        <section>
+                            <mat-radio-group [(ngModel)]="step['_useLimit']" (ngModelChange)="step.Limit = 0">
+                                <mat-radio-button [value]="false">Kjøres alltid</mat-radio-button>
+                                <mat-radio-button [value]="true">Kjøres ved grenseverdi</mat-radio-button>
+                            </mat-radio-group>
+
+                            <label *ngIf="step['_useLimit']">
+                                <span>Beløp større enn</span>
+                                <input [(ngModel)]="step.Limit" type="number">
+                            </label>
+
+                            <label>
+                                <span>Godkjenner</span>
+                                <select [(ngModel)]="step.UserID">
+                                    <option *ngFor="let user of users" [value]="user.ID">
+                                        {{user.DisplayName}}
+                                    </option>
+                                </select>
+                            </label>
+                        </section>
+
+                        <button (click)="removeStep(idx)" class="delete-button icon-button">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </section>
+                </section>
+            </ng-container>
+        </section>
+
+        <button class="add-step" (click)="addStep()" class="outline-c2a">
+            <i class="material-icons">add</i>
+            Legg til godkjenningssteg
+        </button>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="submit()">Lagre</button>
+        <button (click)="onClose.emit(false)">Avbryt</button>
+    </footer>
+</section>

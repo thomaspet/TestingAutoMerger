@@ -50,6 +50,8 @@ h3
 
 .live-integration-items
     background-color: $bg-darker-color
+
+.live-integration-items, .future-integrations
     display: flex
     flex-flow: row wrap
     width: 100%
@@ -58,94 +60,81 @@ h3
     .integration-grid
         max-width: 100%
         width: #{(4 * $integration-item-width) + (3 * $integration-item-spacing)}
-
-.future-integrations
-    display: flex
-    flex-wrap: wrap
-    width: 100%
-    padding: 1rem 5%
-
-    > section
-        flex: 0 0 #{(2 * $integration-item-width) + $integration-item-spacing}
-        &:first-of-type
-            margin-right: 2rem
-
-        @media (max-width: 1733px)
-            flex: 0 0 100%
-            margin-rigth: 0
-
-.integration-item
-    background-color: white
-    width: $integration-item-width
-    height: 10rem
-    padding: 1.4rem
-    display: flex
-    flex-flow: row wrap
-    position: relative
-    border-radius: 3px
-    &:hover
-        box-shadow: 0rem 0.2rem 0.2rem 0.2rem #EDEDED
-        transition-property: box-shadow
-        transition: .25s ease-in-out
-
-    .integration-active
-        position: absolute
-        top: 10px
-        right: 10px
-        color: transparentize(#01A901, .3)
-
-    .integration-icon
-        margin: 0.5rem
-        width: 3.75rem
-        height: 3.75rem
-        flex-grow: 0
-        flex-shrink: 0
-        border-radius: 50%
-        box-shadow: 0.2rem 0.2rem #EDEDED
-        overflow: hidden
-        display: flex
-        align-items: center
-        & img
-            width: 100%
-
-    .title-container
-        padding: 1.05rem 0 0 0.5rem
-        width: 70%
-
-    .title
-        color: #1D2B33
-        font-weight: 500
-        margin: 0 0 2px 0
-
-    .sub-title
-        color: $light-text-color
-        font-size: 0.8rem
-        line-height: 0.6rem
-        padding: 0
-        margin: 0
-
-    .footer
-        display: flex
-        width: 100%
-        font-size: 0.8rem
-        color: $light-text-color
-
-        span
-            margin: auto 0
-            .material-icons
-                vertical-align: middle
-                margin-bottom: 2px
-
-        a.read-more
-            margin: auto 0 auto auto
-            font: 500 14px 'Roboto', sans-serif
-            text-decoration: none
-            color: $primary-button-color
+        
+        .integration-item
+            background-color: white
+            width: $integration-item-width
+            height: 10rem
+            padding: 1.4rem
+            display: flex
+            flex-flow: row wrap
+            position: relative
+            border-radius: 3px
             &:hover
-                text-decoration: underline
+                box-shadow: 0rem 0.2rem 0.2rem 0.2rem #EDEDED
+                transition-property: box-shadow
+                transition: .25s ease-in-out
+
+            .integration-active
+                position: absolute
+                top: 10px
+                right: 10px
+                color: transparentize(#01A901, .3)
+
+            .integration-icon
+                margin: 0.5rem
+                width: 3.75rem
+                height: 3.75rem
+                flex-grow: 0
+                flex-shrink: 0
+                border-radius: 50%
+                box-shadow: 0.2rem 0.2rem #EDEDED
+                overflow: hidden
+                display: flex
+                align-items: center
+                & img
+                    width: 100%
+
+            .title-container
+                padding: 1.05rem 0 0 0.5rem
+                width: 70%
+
+            .title
+                color: #1D2B33
+                font-weight: 500
+                margin: 0 0 2px 0
+
+            .sub-title
+                color: $light-text-color
+                font-size: 0.8rem
+                line-height: 0.6rem
+                padding: 0
+                margin: 0
+
+            .footer
+                display: flex
+                width: 100%
+                font-size: 0.8rem
+                color: $light-text-color
+
+                span
+                    margin: auto 0
+                    .material-icons
+                        vertical-align: middle
+                        margin-bottom: 2px
+
+                a.read-more
+                    margin: auto 0 auto auto
+                    font: 500 14px 'Roboto', sans-serif
+                    text-decoration: none
+                    color: $primary-button-color
+                    &:hover
+                        text-decoration: underline
+
+
 
 .more-info-container
-    padding: 6rem 6rem 12rem
+    padding: 2rem 5% 6rem
     display: flex
     flex-flow: row wrap
     justify-content: space-between

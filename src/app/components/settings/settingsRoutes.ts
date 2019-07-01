@@ -12,63 +12,65 @@ import {UniDimensionSettings} from './dimension/dimension';
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
 import {UserManagement} from '@app/components/settings/users/users';
 
-export const settingsRoutes: Routes = [{
-    path: '',
-    component: Settings,
-    children: [
-        {
-            path: '',
-            redirectTo: 'company',
-            pathMatch: 'full'
-        },
-        {
-            path: 'company',
-            component: CompanySettingsComponent,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'distribution',
-            component: UniDistributionSettings,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'aga-and-subentities',
-            component: AgaAndSubEntitySettings,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'webhooks',
-            component: IntegrationSettings,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'users',
-            component: UserManagement
-        },
-        {
-            path: 'altinn',
-            component: AltinnSettings,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'teams',
-            component: Teams,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'numberseries',
-            component: NumberSeries,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'terms',
-            component: UniTerms,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'dimension',
-            component: UniDimensionSettings,
-            canDeactivate: [CanDeactivateGuard]
-        }
-    ]
-}];
+export const settingsRoutes: Routes = [
+    {
+        path: '',
+        component: Settings,
+        children: [
+            {
+                path: '',
+                redirectTo: 'company',
+                pathMatch: 'full'
+            },
+            {
+                path: 'company',
+                component: CompanySettingsComponent,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'distribution',
+                component: UniDistributionSettings,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'aga-and-subentities',
+                component: AgaAndSubEntitySettings,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'webhooks',
+                component: IntegrationSettings,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'users',
+                component: UserManagement
+            },
+            {
+                path: 'altinn',
+                component: AltinnSettings,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'teams',
+                component: Teams,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'numberseries',
+                component: NumberSeries,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'terms',
+                component: UniTerms,
+                canDeactivate: [CanDeactivateGuard]
+            },
+            {
+                path: 'dimension',
+                component: UniDimensionSettings,
+                canDeactivate: [CanDeactivateGuard]
+            }
+        ]
+    },
+];

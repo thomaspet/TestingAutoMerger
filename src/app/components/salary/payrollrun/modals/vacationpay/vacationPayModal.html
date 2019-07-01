@@ -2,38 +2,38 @@
     <header>
         <h1>Feriepenger - oppsett og utbetaling</h1>
     </header>
-    <article [attr.aria-busy]="busy || !vacationpayBasis" class="scrollable">
-        <section class="vacationpay_Flexheader">
+    <article [attr.aria-busy]="!vacationpayBasis && !companysalary" class="scrollable">
+        <section [attr.aria-busy]="!companysalary" class="vacationpay_Flexheader">
             <uni-form class="vacationpay_settings_left" [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
-            <uni-information [config]="infoConfig$ | async" class="infoNote">
-                <table *ngIf="companysalary">
+            <uni-information *ngIf="companysalary" [config]="infoConfig$ | async" class="infoNote">
+                <table>
                     <tr>
                         <td>Feriepengesats</td>
-                        <td class="vacationpay_settingValues">{{companysalary._Rate | uninumberformat:'percentagewithdecimal'}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary['_Rate'] | uninumberformat:'percentagewithdecimal'}}</td>
                         <td></td>
                         <td>Trekk i lønn for ferie</td>
-                        <td class="vacationpay_settingValues">{{companysalary._wagedeductionText}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary['_wagedeductionText']}}</td>
                     </tr>
                     <tr>
                         <td>Sats over 60 år</td>
-                        <td class="vacationpay_settingValues">{{companysalary._Rate60 | uninumberformat:'percentagewithdecimal'}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary['_Rate60'] | uninumberformat:'percentagewithdecimal'}}</td>
                         <td></td>
                         <td>Konto kostnader feriepenger</td>
-                        <td class="vacationpay_settingValues">{{companysalary.MainAccountCostVacation}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary?.MainAccountCostVacation}}</td>
                     </tr>
                     <tr>
                         <td>Grunnbeløp</td>
-                        <td class="vacationpay_settingValues">{{companysalary._BasicAmount | unicurrency}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary['_BasicAmount'] | unicurrency}}</td>
                         <td></td>
                         <td>Konto avsatt feriepenger</td>
-                        <td class="vacationpay_settingValues">{{companysalary.MainAccountAllocatedVacation}}</td>
+                        <td class="vacationpay_settingValues">{{companysalary?.MainAccountAllocatedVacation}}</td>
                     </tr>
                 </table>
                 <a class="vacationPay_settingsLink" (click)="openVacationpaySettings()">Endre feriepengeinnstillinger</a>
             </uni-information>
         </section>
 
-        <section class="uniTable">
+        <section class="uniTable" [attr.aria-busy]="!vacationpayBasis">
             <ag-grid-wrapper
                 [resource]="vacationpayBasis"
                 [config]="tableConfig"

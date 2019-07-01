@@ -6,10 +6,7 @@
     <section class="modules">
         <h3>Moduler</h3>
         <section class="product-card" *ngFor="let module of modules">
-            <section class="price-info">
-                <span class="price">{{module.Price}} kr</span><span class="type"> {{priceText(module)}}</span>
-            </section>
-
+            <section class="product-content">
             <section class="product-info">
                 <img class="icon" [src]="module.IconReference" />
                 <span>{{module.Label}}</span>
@@ -23,7 +20,7 @@
                     {{module._isBought ? 'Velg brukere' : 'Abonner'}}
                 </button>
             </section>
-
+        </section>
             <a (click)="openSubscribeModal(module)" class="read-more">Les mer</a>
         </section>
     </section>

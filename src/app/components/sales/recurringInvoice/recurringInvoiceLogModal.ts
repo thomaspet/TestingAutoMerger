@@ -15,7 +15,7 @@ import {RecurringInvoiceService} from '../../../services/services';
 @Component({
     selector: 'uni-recurringinvoice-log-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-approve-modal-class" style="width: 75vw;">
+        <section role="dialog" class="uni-modal" style="width: 75vw;">
 
             <header>
                 <h1>

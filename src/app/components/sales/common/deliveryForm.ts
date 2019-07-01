@@ -42,7 +42,7 @@ export class TofDeliveryForm implements OnInit {
 
     ngOnInit() {
         if (this.entity && !this.entity['PaymentInfoTypeID']
-            && (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice')) {
+            && (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice' || this.entityType === 'RecurringInvoice')) {
                 this.entity['PaymentInfoTypeID'] = this.paymentInfoTypes[0].ID;
         }
 

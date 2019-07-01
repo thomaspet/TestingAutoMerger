@@ -8,14 +8,15 @@ import {JournalEntryData} from '@app/models';
 import {
     SupplierInvoice,
     StatusCodeSupplierInvoice,
-    ApprovalStatus
+    ApprovalStatus,
+    StatusCodeReInvoice
 } from '../../../unientities';
-import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
-import {UniAssignModal, AssignDetails} from './detail/assignmodal';
+import {BillAssignmentModal} from './assignment-modal/assignment-modal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions, UniReinvoiceModal} from '../../../../framework/uni-modal';
 import {
     ApprovalService,
     SupplierInvoiceService,
+    AssignmentDetails,
     IStatTotal,
     ErrorService,
     PageStateService,
@@ -33,6 +34,7 @@ import {catchError} from 'rxjs/operators';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import { BillTransitionModal, BillMassTransition } from './bill-transition-modal/bill-transition-modal';
+import {ReInvoiceInfoModal} from './reinvoice-info-modal/reinvoice-info-modal';
 
 interface IFilter {
     name: string;
@@ -176,7 +178,7 @@ export class BillsView implements OnInit {
 
     public saveActions: IUniSaveAction[] = [{
         label: 'Nytt leverandørfaktura',
-        action: (completeEvent) => setTimeout(() => this.onAddNew()),
+        action: () => setTimeout(() => this.onAddNew()),
         main: true,
         disabled: false
     }];
@@ -318,7 +320,10 @@ export class BillsView implements OnInit {
             disabled: false
         });
 
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
+        if (
+            supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft
+            || supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected
+        ) {
             this.saveActions.push({
                 label: 'Tildel',
                 action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
@@ -339,15 +344,6 @@ export class BillsView implements OnInit {
                 label: 'Avvis',
                 action: (done) => setTimeout(() => this.rejectSupplierInvoices(done)),
                 main: false,
-                disabled: false
-            });
-        }
-
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected) {
-            this.saveActions.push({
-                label: 'Tildel',
-                action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
-                main: true,
                 disabled: false
             });
         }
@@ -412,19 +408,21 @@ export class BillsView implements OnInit {
     }
 
     public assignSupplierInvoices(done: any) {
-        this.modalService.open(UniAssignModal).onClose.subscribe(details => {
+        this.modalService.open(BillAssignmentModal).onClose.subscribe(details => {
             if (details) {
-                this.onAssignSupplierInvoicesClickOk(details);
+                console.log(details);
+                // this.assignInvoices(details);
             }
         });
+
         done();
     }
 
-    public onAssignSupplierInvoicesClickOk(details: AssignDetails) {
+    public assignInvoices(details: AssignmentDetails) {
         const assignRequests = this.selectedItems.map(invoice =>
             this.supplierInvoiceService.assign(invoice.ID, details)
-            .map(res => ({ ID: invoice.ID, success: true}))
-            .catch(err => Observable.of({ID: invoice.ID, success: false}))
+                .map(res => ({ ID: invoice.ID, success: true}))
+                .catch(err => Observable.of({ID: invoice.ID, success: false}))
         );
 
         Observable.forkJoin(assignRequests).subscribe(
@@ -657,9 +655,10 @@ export class BillsView implements OnInit {
         }
 
         const obs = filter.route
-            ?  this.supplierInvoiceService.fetch(filter.route)
+            ? this.supplierInvoiceService.fetch(filter.route)
             : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
-        obs.subscribe((result) => {
+
+            obs.subscribe((result) => {
             if (filter.onDataReady) {
                 filter.onDataReady(result);
             } else {
@@ -850,9 +849,13 @@ export class BillsView implements OnInit {
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
                 }),
-            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Number)
+            new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.DateTime).setVisible(false),
+            new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Link)
                 .setVisible(!!filter.showStatus)
-                .setAlignment('center')
+                .setHasLink(row => row.ReInvoiceStatusCode === StatusCodeReInvoice.ReInvoiced)
+                .setLinkClick(row => {
+                    this.modalService.open(ReInvoiceInfoModal, {data: row.ReInvoiceID});
+                })
                 .setTemplate((dataItem) => {
                     return this.reInvoicingService.getStatusText(dataItem.ReInvoiceStatusCode);
                 })

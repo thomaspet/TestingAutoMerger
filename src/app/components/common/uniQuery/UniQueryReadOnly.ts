@@ -157,7 +157,7 @@ export class UniQueryReadOnly implements OnChanges {
                             );
                         }
 
-                        this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
+                        this.fields = this.queryDefinition.UniQueryFields.map((field: UniQueryField) => {
                             const f: UniTableColumn = new UniTableColumn();
                             f.field = field.Field;
                             f.header = field.Header;
@@ -180,7 +180,7 @@ export class UniQueryReadOnly implements OnChanges {
                                 }
                             }
 
-                            this.fields.push(f);
+                            return f;
                         });
 
                         this.setupTableConfig();
@@ -223,9 +223,7 @@ export class UniQueryReadOnly implements OnChanges {
         const expands: string[] = [];
         const selects: string[] = [];
 
-        for (let i = 0; i < this.fields.length; i++) {
-            const field = this.fields[i];
-
+        this.fields.forEach(field => {
             const colName = field.field;
             let aliasColName = '';
             let selectableColName = '';
@@ -277,7 +275,7 @@ export class UniQueryReadOnly implements OnChanges {
             }
 
             selects.push(selectableColName + ' as ' + aliasColName);
-        }
+        });
 
         if (this.queryDefinition.ClickUrl && this.queryDefinition.ClickParam) {
             const params: Array<string> = this.queryDefinition.ClickParam.split(',');

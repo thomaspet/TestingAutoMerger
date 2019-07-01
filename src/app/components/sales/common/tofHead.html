@@ -10,6 +10,12 @@
             [entityType]="entityName"
             (entityChange)="onDataChange($event)">
         </tof-customer-card>
+        <label>
+            <span *ngIf="validationMessage?.Level === 30"><!--MissingRequiredDimensionsMessage - vises ikke-->
+                <i class="material-icons bad">error</i>
+                {{validationMessage.Message}}
+            </span>
+        </label>
     </section>
 
     <section class="uni-container tof-forms">

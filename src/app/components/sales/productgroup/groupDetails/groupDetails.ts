@@ -21,10 +21,7 @@ class ExtendedProductCategory extends ProductCategory {
 export class GroupDetails implements OnInit {
     @Input() group: ExtendedProductCategory;
     @Output() groupChange: EventEmitter<ProductCategory> = new EventEmitter(false);
-
-    @Output() saveGroup: EventEmitter<any> = new EventEmitter(false);
-    @Output() createChildGroup: EventEmitter<any> = new EventEmitter(false);
-    @Output() deleteGroup: EventEmitter<any> = new EventEmitter(false);
+    @Output() changes: EventEmitter<any> = new EventEmitter(false);
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -63,19 +60,7 @@ export class GroupDetails implements OnInit {
         this.group = this.model$.getValue();
         this.group['_isDirty'] = true;
         this.groupChange.emit(this.group);
-    }
-
-    onDeleteGroup() {
-        const products = this.productsInCategory && this.productsInCategory.filter(p => !p.Deleted);
-        if (products && products.length) {
-            this.toastService.addToast(
-                'Kan ikke slette gruppe',
-                ToastType.warn, 0,
-                'Grupper som har kobling til produkter kan ikke slettes. Vennligst fjern produktkoblingene før gruppen slettes'
-            );
-        } else {
-            this.deleteGroup.emit();
-        }
+        this.changes.emit();
     }
 
     public getProductsInGroup(group) {
@@ -108,15 +93,19 @@ export class GroupDetails implements OnInit {
 
     onRowDeleted(rowModel) {
         this.productCategoryService.deleteCategoryLink(rowModel['_categoryLinkID']).subscribe(
-            () => { this.getProductsInGroup(this.group) },
+            () => { this.getProductsInGroup(this.group); },
             (err) => this.errorService.handle(err)
         );
     }
 
     public onProductAdded(event: any) {
         if (event.ID && this.group) {
+
             this.productCategoryService.saveCategoryTag(event.ID, this.group).subscribe(res => {
                 this.getProductsInGroup(this.group);
+                this.fields$.next(this.getFormFields());
+                this.toastService.addToast('Produkt lagt til', ToastType.good, 5,
+                `Produkt ${event.Name} lagt til produktgruppe ${this.group.Name}`);
             });
         }
     }

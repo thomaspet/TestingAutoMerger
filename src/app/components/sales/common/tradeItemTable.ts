@@ -32,7 +32,6 @@ import {
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import { isNullOrUndefined } from 'util';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
@@ -78,6 +77,19 @@ export class TradeItemTable {
     itemsWithReport: any[] = [];
     showMandatoryDimensionsColumn = false;
     accountsWithMandatoryDimensionsIsUsed = true;
+    productExpands = [
+        'Account',
+        'Account.MandatoryDimensions',
+        'Dimensions',
+        'Dimensions.Project',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10'
+    ];
 
     constructor(
         private productService: ProductService,
@@ -230,25 +242,17 @@ export class TradeItemTable {
         }
     }
 
-    public setDefaultProjectAndRefreshItems(projectID: number, updateTableData: boolean) {
-        if (this.projects) {
-            this.defaultProject = this.projects.find(project => project.ID === projectID);
-        }
-
-        this.defaultTradeItem.Dimensions.ProjectID = projectID;
-        this.defaultTradeItem.Dimensions.Project = this.defaultProject;
+    public setDefaultProjectAndRefreshItems(dims: any, updateTableData: boolean) {
+        this.defaultTradeItem.Dimensions = dims;
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
 
-        if (updateTableData) {
-            this.items = this.items.map(item => {
-                if (item.Product) {
-                    item.Dimensions = item.Dimensions || new Dimensions();
-                    item.Dimensions.ProjectID = projectID;
-                    item.Dimensions.Project = this.defaultProject;
-                }
-                return item;
-            });
-        }
+        this.items = this.items.map(item => {
+            if ((updateTableData && item.Product) || (!updateTableData && !item.Product)) {
+                item.Dimensions = dims;
+                item.DimensionsID = null;
+            }
+            return item;
+        });
     }
 
     public setNonCustomDimsOnTradeItems(entity: string, id: number) {
@@ -262,12 +266,9 @@ export class TradeItemTable {
                 }
         });
 
-        // let currentDimArray = entity.substr(0, entity.length - 2) === '' ? this.departments : []; // [] to be replaced with regions
-        // currentDimArray = entity.substr(0, entity.length - 2) === 'Region'
-        // ? currentDimArray : []; // [] to be replaced with this.responsibilities
-
-        // Should get from departments, regions or responsibilities!
-        const defaultDim = this.departments.find(dep => dep.ID === id);
+        const defaultDim = entity === 'ProjectID'
+            ? this.projects.find(project => project.ID === id)
+            : this.departments.find(dep => dep.ID === id);
 
         // Change default trade item when dimension is changed
         this.defaultTradeItem.Dimensions[entity] = id;
@@ -281,9 +282,11 @@ export class TradeItemTable {
                     item.Dimensions = item.Dimensions || new Dimensions();
                     item.Dimensions[entity] = id;
                     item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                    item.DimensionsID = null;
                 }
                 return item;
             });
+            this.getMandatoryDimensionsReports();
         };
 
         if (shouldAskBeforeChange) {
@@ -336,8 +339,10 @@ export class TradeItemTable {
                         item.Dimensions = item.Dimensions || new Dimensions();
                         item.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
                         item.Dimensions['Dimension' + dimension] = dim;
+                        item.DimensionsID = null;
                         return item;
                     });
+                    this.getMandatoryDimensionsReports();
                 }
             });
         } else {
@@ -345,9 +350,11 @@ export class TradeItemTable {
                 item.Dimensions = item.Dimensions || new Dimensions();
                 item.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
                 item.Dimensions['Dimension' + dimension] = dim;
+                item.DimensionsID = null;
                 return item;
             });
-        }
+            this.getMandatoryDimensionsReports();
+}
     }
 
     private initTableConfig() {
@@ -373,19 +380,7 @@ export class TradeItemTable {
 
                     return this.productService.GetAll(
                         `filter=${filter}&top=100&orderby=PartName`,
-                        [
-                            'Account',
-                            'Account.MandatoryDimensions',
-                            'Dimensions',
-                            'Dimensions.Project',
-                            'Dimensions.Department',
-                            'Dimensions.Dimension5',
-                            'Dimensions.Dimension6',
-                            'Dimensions.Dimension7',
-                            'Dimensions.Dimension8',
-                            'Dimensions.Dimension9',
-                            'Dimensions.Dimension10'
-                        ]
+                        this.productExpands
                     ).pipe(
                         catchError(err => {
                             this.errorService.handle(err);
@@ -436,7 +431,7 @@ export class TradeItemTable {
                             return this.modalService.open(UniProductDetailsModal, {  }).onClose;
                         },
                         getAction: (item) => {
-                            return this.productService.Get(item.ID);
+                            return this.productService.Get(item.ID, this.productExpands);
                         },
                         errorAction: (msg: string) => {
                             this.errorService.handle(msg);
@@ -747,33 +742,35 @@ export class TradeItemTable {
             });
     }
 
-    private createMandatoryDimensionsCol() : UniTableColumn {
+    private createMandatoryDimensionsCol(): UniTableColumn {
         return new UniTableColumn('MandatoryDimensions', 'Påkrevde dimensjoner', UniTableColumnType.Text, false)
         .setVisible(false)
         .setWidth(40, false)
         .setTemplate(() => '')
         .setTooltipResolver((row: any) => {
             if (row.ProductID && row.AccountID) {
-                let text = '';
+                let hasRequiredDims, hasWarnDims;
+                let text = 'Påkrevde dimensjoner registrert ok';
 
-                let itemReport = row.ID !== 0
-                    ? this.itemsWithReport.find(x => x.itemID === row.ID)
-                    : this.itemsWithReport.find(x => x.createguid === row._createguid);
-
+                let itemReport = this.getItemWithReport(row);
                 if (!itemReport && row.ID === 0) {
                     itemReport = this.itemsWithReport.find(x => x.itemID === row.ID);
                 }
 
-                if (itemReport) {
+                if (itemReport && itemReport.report) {
                     const rep = itemReport.report;
+
+                    if ((!rep.RequiredDimensions || Object.keys(rep.RequiredDimensions).length === 0)
+                        && (!rep.WarningDimensions || Object.keys(rep.WarningDimensions).length === 0)) {
+                        return;
+                    }
 
                     const reqDims = rep.MissingRequiredDimensions || [];
                     const warnDims = rep.MissingWarningDimensions || [];
-                    let hasRequiredDims, hasWarnDims;
 
                     if (reqDims.length) {
                         hasRequiredDims = true;
-                        text = rep.MissingRequiredDimensonsMessage;
+                        text = rep.MissingRequiredDimensionsMessage;
                     }
 
                     if (warnDims.length) {
@@ -784,15 +781,12 @@ export class TradeItemTable {
                             text = rep.MissingOnlyWarningsDimensionsMessage;
                         }
                     }
-
-                    if (hasRequiredDims || hasWarnDims) {
-                        return {
-                            type: hasRequiredDims ? 'bad' : 'warn',
-                            text: text
-                        };
-                    }
+                    const type = hasRequiredDims ? 'bad' : hasWarnDims ? 'warn' : 'good';
+                    return {
+                        type: type,
+                        text: text
+                    };
                 }
-
             }
         });
     }
@@ -801,18 +795,18 @@ export class TradeItemTable {
         let triggerChangeDetection = false;
         let noProduct = false;
 
-        if (event.field == 'Product') {
+
+        if (event.field === 'Product') {
             if (!event.newValue) {
                 noProduct = true;
-            }
-            else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
+            } else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
                 triggerChangeDetection = true;
             } else if (updatedRow.Product) {
                 triggerChangeDetection = true;
             }
-        } else if (event.field == 'ItemText') {
+        } else if (event.field === 'ItemText') {
             if (!updatedRow.Product) {
                 noProduct = true;
             }
@@ -832,7 +826,6 @@ export class TradeItemTable {
     public onRowChange(event: IRowChangeEvent) {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
-
         let triggerChangeDetection = this.updateDimensions(event, updatedRow);
 
         // If freetext on row is more than 250 characters we need
@@ -866,14 +859,20 @@ export class TradeItemTable {
         this.itemsChange.next(this.items);
     }
 
+    private getItemWithReport(item: any) {
+        return item.ID !== 0
+        ? this.itemsWithReport.find(x => x.itemID === item.ID)
+        : this.itemsWithReport.find(x => x.createguid === item._createguid);
+    }
+
     private updateItemMandatoryDimensions(item: any) {
         this.accountMandatoryDimensionService.getMandatoryDimensionsReportByDimension(item.AccountID, item.Dimensions).subscribe(rep => {
-            var itemRep = item.ID !== 0 ? this.itemsWithReport.find(x => x.itemID === item.ID) : this.itemsWithReport.find(x => x.itemID === item.ID && x.createguid === item._createguid);
+            const itemRep = this.getItemWithReport(item);
             if (itemRep) {
                 itemRep.report = rep;
             } else {
                 this.itemsWithReport.push({
-                    createguid: isNullOrUndefined(item._createguid) ? item.ID : item._createguid,
+                    createguid: item._createguid || item.ID,
                     itemID: item.ID,
                     report: rep
                 });
@@ -893,7 +892,7 @@ export class TradeItemTable {
                     this.itemsWithReport = [];
                     this.items.forEach((item, index) => {
                         this.itemsWithReport.push({
-                            createguid: isNullOrUndefined(item._createguid) ? item.ID : item._createguid,
+                            createguid: item._createguid || item.ID,
                             itemID: item.ID,
                             report: reports[index]
                         });
@@ -913,16 +912,21 @@ export class TradeItemTable {
         if (mdCol && !mdCol.visible) {
             if (this.accountsWithMandatoryDimensionsIsUsed && items) {
                 let msg: string = '';
-                this.itemsWithReport.forEach(item => {
-                    const report = item.report;
-                    if (report.MissingRequiredDimensonsMessage !== '') {
-                        if (!msg.includes(report.MissingRequiredDimensonsMessage)) {
-                            msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
-                        }
-                    }
-                    if (report.MissingOnlyWarningsDimensionsMessage) {
-                        if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
-                            msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                this.items.forEach(item => {
+                    const itemWithReport = this.getItemWithReport(item);
+                    if (itemWithReport) {
+                        const report = itemWithReport.report;
+                        if (report) {
+                            if (report.MissingRequiredDimensionsMessage !== '') {
+                                if (!msg.includes(report.MissingRequiredDimensionsMessage)) {
+                                    msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                                }
+                            }
+                            if (report.MissingOnlyWarningsDimensionsMessage) {
+                                if (!msg.includes(report.MissingOnlyWarningsDimensionsMessage)) {
+                                    msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                }
+                            }
                         }
                     }
                 });

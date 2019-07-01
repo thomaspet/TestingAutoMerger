@@ -58,7 +58,7 @@ export class StatisticsService extends BizHttp<string> {
         return this.http;
     }
 
-    public GetAllUnwrapped(queryString: string): Observable<[any]> {
+    public GetAllUnwrapped(queryString: string): Observable<any[]> {
         return this.GetAll(queryString)
             .map(response => response.Data);
     }

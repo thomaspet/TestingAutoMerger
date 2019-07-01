@@ -1,15 +1,15 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
-import {BasicAmount, VacationPayLine, CompanySalary, } from '../../../../../unientities';
+import {BasicAmount, VacationPayLine, CompanySalary, CompanyVacationRate, } from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
     UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
 } from '../../../../../../framework/ui/unitable/index';
 import {
-    BasicAmountService, VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService, CompanyVacationRateService,
+    BasicAmountService, VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService, CompanyVacationRateService, IVacationPayLine,
 } from '../../../../../../app/services/services';
 import {VacationPaySettingsModal, IVacationPaySettingsReturn} from '../../modals/vacationpay/vacationPaySettingsModal';
-import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {Observable, of, forkJoin} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
@@ -17,7 +17,7 @@ import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '@uni-framework/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {filter, tap, switchMap, map, finalize, take} from 'rxjs/operators';
+import {filter, tap, switchMap, map, finalize, take, catchError} from 'rxjs/operators';
 
 interface IVacationPayHeader {
     VacationpayYear?: number;
@@ -55,7 +55,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     public tableConfig: UniTableConfig;
     public totalPayout: number = 0;
 
-    public vacationpayBasis: VacationPayLine[];
+    public vacationpayBasis: IVacationPayLine[];
     private vacationBaseYear: number;
     public currentYear: number;
     public companysalary: CompanySalary;
@@ -148,6 +148,38 @@ export class VacationPayModal implements OnInit, IUniModal {
             })
             .onClose
             .filter(response => response === ConfirmActions.ACCEPT)
+            .pipe(tap(() => {
+                if (this.isEarlierPay(this.currentYear, this.vacationBaseYear)) {
+                    return;
+                }
+                const rows: IVacationPayLine[] = this.table.getSelectedRows();
+                let msg = '';
+                const missingEarlierPayments = rows
+                    .filter(row => {
+                        if (!!row.VacationInfos) {
+                            return row
+                                .VacationInfos
+                                .filter(x => x.BaseYear < this.currentYear - 1)
+                                .some(x => !x.IsPayed);
+                        }
+                        return false;
+                    });
+
+                if (missingEarlierPayments.length) {
+                    const last = missingEarlierPayments.pop();
+
+                    msg += missingEarlierPayments
+                        .map(row => `${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}`)
+                        .join(', ');
+
+                    msg += `${(msg ? ' og ' : '')}${last.Employee.EmployeeNumber} - ${last.Employee.BusinessRelationInfo.Name}`;
+
+                    msg += ', har utbetalinger fra tidligere år som venter og blir derfor ikke med i denne overføringen';
+                }
+                if (msg) {
+                    this.toastService.addToast('Mangler tidligere utbetaling', ToastType.warn, ToastTime.forever, msg);
+                }
+            }))
             .switchMap(response => {
                 this.busy = true;
                 return this.vacationpaylineService
@@ -201,7 +233,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     public rowChanged(event: IRowChangeEvent) {
-        if (event.field === 'ManualVacationPayBase' || event.field === '_Rate') {
+        if (event.field === '_ManualVacationPayBase' || event.field === '_Rate') {
             this.saveIsActive = true;
         }
         this.updatetotalPay();
@@ -224,44 +256,58 @@ export class VacationPayModal implements OnInit, IUniModal {
         }
     }
 
+
+
     private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
+        this.getVacationPayDataObs(vacationHeaderModel).subscribe();
+    }
+    private getVacationPayDataObs(vacationHeaderModel: IVacationPayHeader) {
         this.basicamountBusy = true;
         this.saveIsActive = false;
-        this.vacationpaylineService
+        return this.vacationpaylineService
             .getVacationpayBasis(this.vacationBaseYear, this.runID)
-            .finally(() => this.basicamountBusy = false)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe((vpBasis) => {
-                if (vpBasis) {
-                    const rateCol = this.tableConfig.columns.find(x => x.header.indexOf('Sats') > -1);
-                    if (!!rateCol) {
-                        rateCol.header = `Sats (${this.vacationBaseYear})`;
+            .pipe(
+                finalize(() => this.basicamountBusy = false),
+                catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                tap(vpBasis => {
+                    if (!!this.vacationpayBasis) {
+                        return;
                     }
-                    this.vacationpayBasis = vpBasis.map(x => {
-                        if (this.empOver60(x) && vacationHeaderModel.SixthWeek) {
-                            x['_IncludeSixthWeek'] = 'Ja';
-                            x['_Rate'] = x.Rate60;
-                            x['_VacationPay'] = x.VacationPay60;
-                        } else {
-                            x['_IncludeSixthWeek'] = 'Nei';
-                            x['_Rate'] = x.Rate;
-                            x['_VacationPay'] = x.VacationPay;
+                    this.createFormConfig(vpBasis);
+                }),
+                tap(vpBasis => {
+                    if (vpBasis) {
+                        const rateCol = this.tableConfig.columns.find(x => x.header.indexOf('Sats') > -1);
+                        if (!!rateCol) {
+                            rateCol.header = `Sats (${this.vacationBaseYear})`;
                         }
-                        this.recalcVacationPay(x, vacationHeaderModel);
-                        return x;
-                    });
-                }
-            });
+                        this.vacationpayBasis = vpBasis.map(x => {
 
+                            if (this.empOver60(x) && vacationHeaderModel.SixthWeek) {
+                                x['_IncludeSixthWeek'] = 'Ja';
+                                x['_Rate'] = x.Rate60;
+                                x['_VacationPay'] = x.VacationPay60;
+                            } else {
+                                x['_IncludeSixthWeek'] = 'Nei';
+                                x['_Rate'] = x.Rate;
+                                x['_VacationPay'] = x.VacationPay;
+                            }
+                            x['_ManualVacationPayBase'] = this.vacationpaylineService.manualVacationPayBase(x);
+                            return this.recalcVacationPay(x, vacationHeaderModel);
+                        });
+
+                    }
+
+                })
+            );
     }
-
     private empOver60(rowModel: VacationPayLine) {
         if (!rowModel.Employee) {
             return false;
         }
-        const empAge = this.currentYear - new Date(rowModel.Employee.BirthDate).getFullYear();
+        const empAge = rowModel.Year - new Date(rowModel.Employee.BirthDate).getFullYear();
         if (empAge >= 59) {
-            if (this.vacationBaseYear === this.currentYear) {
+            if (this.vacationBaseYear === rowModel.Year) {
                 return true;
             } else {
                 return empAge >= 60;
@@ -298,6 +344,9 @@ export class VacationPayModal implements OnInit, IUniModal {
                 break;
             case 2:
                 this.vacationBaseYear = this.currentYear;
+                break;
+            case 3:
+                this.vacationBaseYear = this.currentYear - 2;
                 break;
             default:
                 break;
@@ -348,8 +397,8 @@ export class VacationPayModal implements OnInit, IUniModal {
                         fields.forEach(field => field.ReadOnly = false);
                         this.fields$.next(fields);
                     }
-                    this.getVacationpayData(headerModel);
-                })
+                }),
+                switchMap(() => this.getVacationPayDataObs(headerModel))
             );
     }
 
@@ -382,7 +431,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             );
     }
 
-    private createFormConfig() {
+    private createFormConfig(lines: IVacationPayLine[] = []) {
         const vpRadioField = new UniFieldLayout();
         vpRadioField.FieldSet = 0;
         vpRadioField.Section = 0;
@@ -394,12 +443,26 @@ export class VacationPayModal implements OnInit, IUniModal {
         vpRadioField.Options = {
             source: [
                 {id: 1, name: 'Feriepenger for i fjor'},
-                {id: 2, name: 'Feriepenger for i år'}
+                {id: 2, name: 'Feriepenger for i år'},
             ],
             labelProperty: 'name',
             valueProperty: 'id'
         };
         vpRadioField.LineBreak = true;
+        const unpayedEarlierYears = lines
+            .some(line => {
+                if (!!line.VacationInfos) {
+                    return line
+                        .VacationInfos
+                        .filter(x => this.isEarlierPay(this.currentYear, x.BaseYear))
+                        .some(info => !info.IsPayed);
+                }
+                return false;
+            });
+
+        if (unpayedEarlierYears) {
+            vpRadioField.Options.source.push({id: 3, name: 'Feriepenger for tidligere år'});
+        }
 
         const basicAmountField = new UniFieldLayout();
         basicAmountField.FieldSet = 0;
@@ -453,7 +516,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         const systemGrunnlagCol = new UniTableColumn(
             'SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false);
         const manuellGrunnlagCol = new UniTableColumn(
-            'ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money);
+            '_ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money);
         const rateCol = new UniTableColumn('_Rate', `Sats (${this.vacationBaseYear})`, UniTableColumnType.Money, true)
             .setTemplate((row: VacationPayLine) => {
                 if (row['_isEmpty']) {
@@ -475,11 +538,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                     return;
                 }
 
-                if (row['_IncludeSixthWeek'] === 'Ja') {
-                    return '' + UniMath.useFirstTwoDecimals(row.VacationPay60);
-                } else {
-                    return '' + UniMath.useFirstTwoDecimals(row.VacationPay);
-                }
+                return '' + UniMath.useFirstTwoDecimals(row['_VacationPay']);
             });
         const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
             .setTemplate((row: VacationPayLine) => '' + UniMath.useFirstTwoDecimals(row.PaidVacationPay));
@@ -496,11 +555,18 @@ export class VacationPayModal implements OnInit, IUniModal {
             .setAutoAddNewRow(false)
             .setIsRowReadOnly((rowModel) => !rowModel.IsInCollection)
             .setChangeCallback((event) => {
-                const row: VacationPayLine = event.rowModel;
-                if (event.field === 'ManualVacationPayBase' || event.field === '_IncludeSixthWeek') {
-                    if (!row['ManualVacationPayBase']) {
-                        row['ManualVacationPayBase'] = 0;
+                const row: IVacationPayLine = event.rowModel;
+
+                if (event.field === '_ManualVacationPayBase' || event.field === '_IncludeSixthWeek') {
+                    if (!row.ManualVacationPayBase) {
+                        row.ManualVacationPayBase = 0;
                     }
+
+                    row.ManualVacationPayBase = this.isEarlierPay(this.currentYear, row.Year)
+                        ? Math.max(row['_ManualVacationPayBase'] - this.vacationpaylineService.sumUpPrevInfo(row, 'ManualBase'), 0)
+                        : row['_ManualVacationPayBase'];
+
+                    row['_ManualVacationPayBase'] = this.vacationpaylineService.manualVacationPayBase(row);
 
                     this.recalcVacationPay(row, this.vacationHeaderModel$.getValue());
                 }
@@ -520,25 +586,51 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.vacationpayBasis = this.vacationpayBasis.map(row => this.recalcVacationPay(row, model));
     }
 
-    private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader, setmanually: boolean = false) {
-        const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
+    private recalcVacationPay(row: IVacationPayLine, model: IVacationPayHeader, setManually?: boolean) {
+        row['_VacationPay'] = 0;
+        row.Withdrawal = 0;
+        this.recalcVacationPayForYear(row, model, setManually);
+        if (!this.isEarlierPay(this.currentYear, row.Year)) {
+            row.Withdrawal = this.getWidthdrawal(row, model);
+            return row;
+        }
+
+        row['_VacationPay'] += model.SixthWeek
+            ? this.vacationpaylineService.sumUpPrevInfo(row, 'VacationPay60')
+            : this.vacationpaylineService.sumUpPrevInfo(row, 'VacationPay');
+        row.Withdrawal = this.getWidthdrawal(row, model);
+
+        return row;
+    }
+
+    private isEarlierPay(currentYear: number, baseYear: number) {
+        return baseYear < (currentYear - 1);
+    }
+
+    private recalcVacationPayForYear(row: IVacationPayLine, model: IVacationPayHeader, setmanually: boolean = false) {
+        const info = !!row.VacationInfos && row.VacationInfos.find(i => i.BaseYear === row.Year);
+        const vacBase = row['ManualVacationPayBase'] + (info && info.SystemBase || row['SystemVacationPayBase']);
         const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
         this.updateAndSetRate(row, model, setmanually);
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
             if (vacBase > limitBasicAmount && !this.companysalary.AllowOver6G) {
-                row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate'] / 100
+                row['_VacationPay'] += row['VacationPay60'] = vacBase * row['Rate'] / 100
                 + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
             } else {
-                row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate60'] / 100;
+                row['_VacationPay'] += row['VacationPay60'] = vacBase * row['Rate60'] / 100;
             }
         } else {
             row['_IncludeSixthWeek'] = 'Nei';
-            row['_VacationPay'] = row['VacationPay'] = vacBase * row['_Rate'] / 100;
+            row['_VacationPay'] += row['VacationPay'] = vacBase * row['_Rate'] / 100;
         }
-        const widthdrawal = (row['_VacationPay'] - row['PaidVacationPay']);
-        row['Withdrawal'] = UniMath.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
+
         return row;
+    }
+
+    private getWidthdrawal(row: IVacationPayLine, model: IVacationPayHeader) {
+        const widthdrawal = row.Withdrawal + (row['_VacationPay'] - row['PaidVacationPay']);
+        return UniMath.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
     }
 
     private updateAndSetRate(row: VacationPayLine, model: IVacationPayHeader, setManually: boolean) {

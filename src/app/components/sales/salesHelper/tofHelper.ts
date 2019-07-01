@@ -76,9 +76,8 @@ export class TofHelper {
         entity.DefaultSellerID = customer.DefaultSellerID || null;
         entity.DefaultSeller = customer.DefaultSeller || null;
 
-        if (customer.Dimensions && customer.Dimensions.ProjectID) {
-            entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
-            entity.DefaultDimensions.Project = customer.Dimensions.Project;
+        if (customer.Dimensions) {
+            entity.DefaultDimensions = customer.Dimensions;
         }
 
         if (customer.PaymentTermsID) {
@@ -91,8 +90,8 @@ export class TofHelper {
         }
 
         // map sellers to entity
-        let sellers = [];
-        if (!entity.Sellers.length) {
+        const sellers = [];
+        if (!entity.Sellers.length && customer.Sellers) {
             customer.Sellers.forEach((seller) => {
                 sellers.push({
                     Percent: seller.Percent,

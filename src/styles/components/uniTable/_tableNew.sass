@@ -21,8 +21,12 @@ ag-grid-wrapper
         span + span
             margin-left: 2rem
 
-    &.small-text .uni-ag-wrapper
-        font-size: 14px
+    &.font-14
+        .uni-ag-wrapper
+            font-size: 14px
+    &.font-13
+        .uni-ag-wrapper
+            font-size: 13px
 
 ag-grid-angular
     width: 100%
@@ -332,12 +336,14 @@ ag-grid-angular .disabled-row
         background: $uni-color-good unicon-info($uni-color-negative) no-repeat center
     &.warn
         background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
+    &.neutral
+        background: #638bb3 unicon-info($uni-color-negative) no-repeat center
     &.bad
         background: unicon-warning($uni-color-bad) no-repeat center
         background-size: 1.4rem
         height: 1.9rem
 
-    &.good, &.warn
+    &.good, &.warn, &.neutral
         background-size: .4rem
         border-radius: 50%
         height: 1.1rem

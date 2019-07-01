@@ -396,7 +396,7 @@ export class BankComponent {
             });
 
             this.actions.push({
-                label: 'Bokfør og sett til betalt',
+                label: 'Bokfør betaling',
                 action: (done, file) => {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaidAndJournaled(done);
@@ -405,7 +405,7 @@ export class BankComponent {
             });
 
             this.actions.push({
-                label: 'Sett som betalt og bokført',
+                label: 'Endre status til bokført og betalt',
                 action: (done, file) => {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);

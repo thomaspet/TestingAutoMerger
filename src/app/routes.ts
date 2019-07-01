@@ -96,6 +96,10 @@ const routes = [
         path: 'license-info',
         loadChildren: './components/license-info/license-info.module#LicenseInfoModule'
     },
+    {
+        path: 'approval-rules',
+        loadChildren: './components/approval-rules/approval-rules.module#ApprovalRulesModule',
+    },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {

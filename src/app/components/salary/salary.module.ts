@@ -48,6 +48,7 @@ import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
 import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls.component';
+import {UniSalaryTransactionModal} from './variable-payrolls/editSalaryTransactionModal';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
@@ -202,6 +203,7 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,
+        UniSalaryTransactionModal,
 
         // Wagetype
         WageTypeView,
@@ -266,6 +268,7 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         PaycheckSenderModal,
         SalaryTransSupplementsModal,
         SalaryBalanceLineModal,
+        UniSalaryTransactionModal,
         ReconciliationModalComponent,
         ReconciliationResponseModalComponent,
         TimeTransferComponent,
@@ -335,6 +338,7 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,
+        UniSalaryTransactionModal,
 
         // Wagetype
         WageTypeView,

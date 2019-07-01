@@ -13,18 +13,23 @@ export class CellRenderer {
         return HeaderCheckbox;
     }
 
-    static getLinkColumn(onClick: (col, row) => void) {
+    static getLinkColumn(hasLink: (row) => boolean, onClick: (col, row) => void) {
         return function(params: ICellRendererParams) {
-            const el = document.createElement('span');
-            el.setAttribute('role', 'link');
-            el.classList.add('table-link');
-            el.innerText = params.value;
-            el.onclick = (event: MouseEvent) => {
-                event.stopPropagation();
-                onClick(params.colDef['_uniTableColumn'], params.data);
-            };
+            const row = params.data;
+            if (!hasLink || hasLink(row)) {
+                const el = document.createElement('span');
+                el.setAttribute('role', 'link');
+                el.classList.add('table-link');
+                el.innerText = params.value;
+                el.onclick = (event: MouseEvent) => {
+                    event.stopPropagation();
+                    onClick(params.colDef['_uniTableColumn'], row);
+                };
 
-            return el;
+                return el;
+            } else {
+                return params.value;
+            }
         };
     }
 

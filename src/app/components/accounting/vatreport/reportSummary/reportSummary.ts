@@ -24,6 +24,12 @@ export class VatSummaryPerPost implements OnChanges {
 
         if (changes['vatReportMessages'] && changes['vatReportMessages'].currentValue) {
             this.vatReportMessagesImportant = this.vatReportMessages.filter(x => x.Level === ValidationLevel.Error || x.Level === ValidationLevel.Warning);
+
+            // remove specific message
+            this.vatReportMessagesImportant = this.vatReportMessagesImportant.filter(x => {
+                return !x.Message.includes('i regnskapet er periodisert før denne momsterminen')
+                    && !x.Message.includes('kjør på nytt');
+            });
         }
     }
 

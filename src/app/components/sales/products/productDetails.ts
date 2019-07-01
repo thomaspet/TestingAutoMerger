@@ -137,18 +137,17 @@ export class ProductDetails {
                 this.departmentService.GetAll(null),
                 this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
                 this.customDimensionService.getMetadata()
-            )
-                .subscribe((response: Array<any>) => {
-                    this.vatTypes = response[0];
-                    this.projects = response[1];
-                    this.departments = response[2];
-                    this.defaultSalesAccount = response[3].DefaultSalesAccount;
-                    this.customDimensions = response[4];
-                    this.formIsInitialized = true;
-                    this.fields$.next(this.getComponentLayout().Fields);
-                    this.extendFormConfig();
-                    this.loadProduct();
-                }, err => this.errorService.handle(err));
+            ).subscribe((response: Array<any>) => {
+                this.vatTypes = response[0];
+                this.projects = response[1];
+                this.departments = response[2];
+                this.defaultSalesAccount = response[3].DefaultSalesAccount;
+                this.customDimensions = response[4];
+                this.formIsInitialized = true;
+                this.fields$.next(this.getComponentLayout().Fields);
+                this.extendFormConfig();
+                this.loadProduct();
+            }, err => this.errorService.handle(err));
         } else {
             this.loadProduct();
         }
@@ -159,10 +158,9 @@ export class ProductDetails {
         if (this.productId > 0) {
             subheads.push({title: 'Produktnr. ' + this.product$.getValue().PartName});
         }
-
-        if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
+        if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
             if (this.product$.getValue().PriceExVat !== null) {
-                subheads.push({title: 'Utpris eks. mva ' + this.product$.getValue().PriceExVat });
+                subheads.push({title: 'Utpris ekskl. mva ' + this.product$.getValue().PriceExVat });
             }
         } else {
             if (this.product$.getValue().PriceIncVat !== null) {
@@ -588,7 +586,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'CostPrice',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Innpris eks. mva',
+                    Label: 'Innpris ekskl. mva',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','
@@ -600,7 +598,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'PriceExVat',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Utpris eks. mva',
+                    Label: 'Utpris ekskl. mva',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','

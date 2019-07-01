@@ -124,6 +124,13 @@
                 "Width": "7rem"
             },
             {
+                "Header": "Distribueres",
+                "Field": "DistributeAt",
+                "Width": "4rem",
+                "Type": "datetime",
+                "Format": "DateWithTime"
+            },
+            {
                 "Header": "Jobb nr.",
                 "Field": "JobRunID",
                 "Type": "text",
@@ -325,6 +332,14 @@
                 "Format": "SharingStatus"
             },
             {
+                "Header": "Distribueres",
+                "Field": "DistributeAt",
+                "Width": "4rem",
+                "Type": "datetime",
+                "Format": "DateWithTime",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Jobb nr.",
                 "Field": "JobRunID",
                 "Type": "text",
@@ -395,6 +410,14 @@
                 "Format": "SharingStatus"
             },
             {
+                "Header": "Distribueres",
+                "Field": "DistributeAt",
+                "Width": "4rem",
+                "Type": "datetime",
+                "Format": "DateWithTime",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Jobb nr.",
                 "Field": "JobRunID",
                 "Type": "text",
@@ -463,6 +486,14 @@
                 "Field": "StatusCode",
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus"
+            },
+            {
+                "Header": "Distribueres",
+                "Field": "DistributeAt",
+                "Width": "4rem",
+                "Type": "datetime",
+                "Format": "DateWithTime",
+                "DefaultHidden": true
             },
             {
                 "Header": "Jobb nr.",

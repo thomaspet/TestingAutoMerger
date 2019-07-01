@@ -1,0 +1,94 @@
+// This styling is also used by global-rules-modal.ts
+// Remember to test both dialogs if you make changes!
+.uni-modal
+    width: 40rem
+
+    header i.close-button
+        display: none !important
+
+input, select
+    height: 2.25rem
+    border: 1px solid #C3CAD9
+    border-radius: 3px
+select
+    padding: 0 4px
+
+
+.rule-info
+    margin-bottom: 1rem
+    label input
+        margin-top: .75rem
+
+.step-header
+    display: block
+    margin: 1.5rem 0
+
+.step
+    display: flex
+    position: relative
+    font-size: 15px
+
+    &:last-of-type .step-number
+        border-left: none
+
+    .step-number
+        position: relative
+        margin-left: 12px
+        border-left: 1px solid #c3cad9
+        margin-right: 2rem
+
+        span
+            position: absolute
+            top: 0
+            left: -12px
+            width: 24px
+            height: 24px
+            border-radius: 50%
+            background: #1565c0
+            color: #fff
+            font-size: 12px
+            font-weight: 500
+            display: flex
+            justify-content: center
+            align-items: center
+
+.step-details
+    flex: 1
+    display: flex
+    margin-bottom: 2rem
+    padding: 1rem
+    background: #f9f9f9
+    border: 1px solid #c3cad9
+
+    .delete-button
+        flex: 0 0 auto
+        margin: auto 0rem auto 2rem
+
+    > section
+        flex: 1
+
+    label
+        display: flex
+        align-items: center
+
+        & + label
+            margin-top: 1rem
+
+        span
+            flex: 0 0 7.75rem
+        input, select
+            flex: 1
+            margin-left: 1rem
+
+    mat-radio-group
+        display: block
+        margin-bottom: 1rem
+        .mat-radio-button
+            display: inline-block !important
+            margin-right: 1rem
+
+        ::ng-deep .mat-radio-label
+            font-size: 15px !important
+
+button.add-step i.material-icons
+    font-size: 20px

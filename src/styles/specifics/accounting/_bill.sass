@@ -7,8 +7,12 @@ uni-bill
 		padding: 0 1rem
 		margin: 1.5rem 0
 
-		.bill-left-side,
-		.bill-right-side
+		.mandatory-dimensions-validation-message > span > span
+            position: relative
+            bottom: 0.4rem
+            left: 0.5rem
+
+		.bill-left-side,.bill-right-side
 			flex: 1
 			min-width: 35rem
 			margin: 0 .5rem
@@ -187,110 +191,6 @@ supplier-invoice-table-minus
 				&:hover, &:focus
 					color: darken(#60656a, 10%)
 
-.multiselectListElement
-    list-style: none
-    display: none
-    transition: .4s linear
-    position: absolute
-    background: #f8f9fd
-    width: 30vw
-    border: 1px solid $uni-color-scale5
-    border-radius: 0.25rem
-    margin-top: -7px
-    max-height: calc(50vh - 150px)
-    overflow-y: scroll
-
-    li
-        padding: .5rem 1rem
-
-        &:hover
-            background-color: $uni-color-scale8
-            cursor: pointer
-            &:first-of-type
-                background-color: #f8f9fd
-
-        label
-            display: block
-            padding-left: 15px
-            text-indent: -15px
-            cursor: pointer
-
-        input[type='checkbox']
-            width: 18px
-            height: 18px
-            padding: 0
-            margin: 0 1.5rem 0 0
-            vertical-align: bottom
-            cursor: pointer
-            position: relative
-            top: -2px
-
-
-.selectedAssigneeUsersList
-    list-style: none
-    margin-bottom: 0
-
-    li
-        float: left
-        width: auto
-        padding: 0 .6rem
-        cursor: pointer
-        border: 1px solid $uni-color-scale5
-        border-radius: .125rem
-        margin: 0 pxToRem(16) pxToRem(16) 0
-
-.multiselectADropdown
-	cursor: pointer
-	display: inline-block
-	width: 100%
-	background-color: $uni-color-negative
-	border: 1px solid $uni-color-scale5
-	padding-left: 5px
-	@extend input[type=text]
-	@extend %selectChevron
-
-.currentTeamText
-    width: 50%
-    cursor: pointer
-    padding: .6rem
-    border: 1px solid $uni-color-scale5
-    border-radius: .125re
-    margin-bottom: pxToRem(16)
-
-    p
-        margin: 0
-        &:first-of-type
-            font-size: 1.15rem
-        &:last-of-type
-            margin-top: .125rem
-
-.uni-approve-modal-class
-    footer
-       margin-top: 0
-
-.approveModalAssignRejectUl
-    list-style: none
-    width: 100%
-    border-bottom: 1px solid $uni-color-scale7
-
-    li
-        float: left
-        border: 1px solid $uni-color-scale7
-        border-top-left-radius: .3rem
-        border-top-right-radius: .3rem
-        border-bottom: none
-        padding: .4rem .6rem
-        margin: 0 .1rem 0 0
-
-        &:hover
-            cursor: pointer
-            color: $uni-color-negative
-            background-color: $uni-color-c2a
-
-
-.selected_tab_view
-    color: $uni-color-negative
-    background-color: $uni-color-c2a
 
 button.document_from_flow_button
     margin: 1rem 0

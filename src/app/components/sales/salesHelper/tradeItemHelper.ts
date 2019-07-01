@@ -70,25 +70,13 @@ export class TradeItemHelper  {
     }
 
     public getDefaultTradeItemData(mainEntity) {
-        return {
+        const ent = {
             ID: 0,
             Product: null,
             ProductID: null,
             ItemText: '',
             Unit: '',
-            Dimensions: {
-                ID: 0,
-                Project: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.Project : null)
-                    || (mainEntity.Customer && mainEntity.Customer.Dimensions
-                        ? mainEntity.Customer.Dimensions.Project : null),
-                ProjectID: (mainEntity.DefaultDimensions ? mainEntity.DefaultDimensions.ProjectID : null)
-                    || (mainEntity.Customer && mainEntity.Customer.Dimensions
-                        ? mainEntity.Customer.Dimensions.ProjectID : null),
-                Department: mainEntity.Customer && mainEntity.Customer.Dimensions
-                    ? mainEntity.Customer.Dimensions.Department : null,
-                DepartmentID: mainEntity.Customer && mainEntity.Customer.Dimensions
-                    ? mainEntity.Customer.Dimensions.DepartmentID : null
-            },
+            Dimensions: mainEntity.DefaultDimensions || { ID: 0 },
             NumberOfItems: 0,
             PriceExVat: 0,
             Discount: 0,
@@ -101,6 +89,7 @@ export class TradeItemHelper  {
             TimeFactor: null,
             ReduceIncompletePeriod: false
         };
+        return ent;
     }
 
     public tradeItemChangeCallback(
@@ -108,8 +97,6 @@ export class TradeItemHelper  {
         companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate,
         pricingSourceLabels, priceFactor
     ) {
-
-
         const newRow = event.rowModel;
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
@@ -129,6 +116,8 @@ export class TradeItemHelper  {
             newRow._createguid = this.guidService.guid();
             newRow.Dimensions._createguid = this.guidService.guid();
         }
+
+
 
         if (event.field === 'Product') {
             if (newRow['Product']) {

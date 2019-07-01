@@ -28,7 +28,6 @@ export class FilterIntegrationsPipe implements PipeTransform {
 export class MarketplaceIntegrations implements OnInit {
     activeIntegrations: ElsaProduct[];
     upcomingIntegrations: ElsaProduct[];
-    candidateIntegrations: ElsaProduct[];
     searchText: string = '';
     canPurchaseProducts: boolean;
 
@@ -69,10 +68,6 @@ export class MarketplaceIntegrations implements OnInit {
 
                 this.upcomingIntegrations = integrations.filter(i => {
                     return i.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
-                });
-
-                this.candidateIntegrations = integrations.filter(i => {
-                    return i.ProductStatus === ElsaProductStatusCode.DevelopmentCandidate;
                 });
             },
             err => this.errorService.handle(err)

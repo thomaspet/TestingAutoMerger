@@ -28,7 +28,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
-    SalarySumsService, StatisticsService, SubEntityService, AccountMandatoryDimensionService
+    SalarySumsService, StatisticsService, SubEntityService, BrowserStorageService, AccountMandatoryDimensionService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -64,6 +64,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
+    public employees: Employee[] = [];
 
     public busy: boolean = false;
     private url: string = '/salary/payrollrun/';
@@ -73,10 +74,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
     private emp: Employee;
-    private showFunctions: boolean = false;
+    private showFunctions: boolean = true;
+    private browserStorageItemName: string = 'showFunctionsPayrollRunDetails';
 
     public saving: boolean;
-    public employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
     private wagetypes: WageType[];
     private projects: Project[];
@@ -97,7 +98,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             template: (obj: EmployeeCategory) => obj ? `${obj.ID} - ${obj.Name}` : '',
             valueProperty: 'Name',
             search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter),
-            saveCallback: (cat: EmployeeCategory) => this.payrollrunService.savePayrollTag(this.payrollrunID, cat),
+            saveCallback: (cat: EmployeeCategory) => this.setCategory(this.payrollrunID, cat),
             deleteCallback: (tag) => this.payrollrunService.deletePayrollTag(this.payrollrunID, tag)
         },
         template: tag => `${tag.linkID} - ${tag.title}`
@@ -129,13 +130,16 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private supplementService: SupplementService,
         private statisticsService: StatisticsService,
         private subEntityService: SubEntityService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private browserStorage: BrowserStorageService,
     ) {
         super(router.url, cacheService);
         this.getLayout();
         this.config$.next({
             submitText: ''
         });
+
+        this.showFunctions = this.browserStorage.getItem(this.browserStorageItemName);
 
         this.route.params.subscribe(params => {
             this.journalEntry = undefined;
@@ -346,6 +350,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     toggleShowFunctions() {
         this.showFunctions = !this.showFunctions;
+        this.browserStorage.setItem(this.browserStorageItemName, this.showFunctions);
     }
 
     openTaxCardModal() {
@@ -374,6 +379,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     generateVacationPay() {
        this.openVacationPayModal();
+    }
+
+    private setCategory = (runID: number, category: EmployeeCategory) => {
+        return this.payrollrunService.savePayrollTag(runID, category);
+    }
+
+    getEmployeesFromChild = (event) => {
+        this.employees = event;
     }
 
     private updateSum(runID: number) {
@@ -1153,11 +1166,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         .subscribe((reports) => {
                             if (reports) {
                                 reports.forEach(report => {
-                                    if (report.MissingRequiredDimensonsMessage !== '') {
-                                        msg += '! ' +  report.MissingRequiredDimensonsMessage + '<br/>';
-                                    }
-                                    if (report.MissingOnlyWarningsDimensionsMessage) {
-                                        msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                    if (report) {
+                                        if (report.MissingRequiredDimensionsMessage !== '') {
+                                            msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                                        }
+                                        if (report.MissingOnlyWarningsDimensionsMessage) {
+                                            msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                        }
                                     }
                                 });
                                 if (msg !== '') {

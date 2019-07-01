@@ -142,6 +142,13 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10',
         'PaymentTerms',
         'DeliveryTerms',
         'Sellers',
@@ -521,38 +528,19 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
             shouldGetCurrencyRate = true;
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, true);
         }
 
-        // refresh items if project changed
-        if (quote.DefaultDimensions && quote.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = quote.DefaultDimensions.ProjectID;
-
-            if (this.quoteItems.length) {
-                this.modalService.confirm({
-                    header: `Endre prosjekt på alle varelinjer?`,
-                    message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
-                    buttonLabels: {
-                        accept: 'Ja',
-                        reject: 'Nei'
-                    }
-                }).onClose.subscribe(response => {
-                    const replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable
-                        .setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, replaceItemsProject);
-                });
-            } else {
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, true);
-            }
-        }
-
-        // If the update comes from dimension view
         if (quote['_updatedField']) {
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, false);
+            this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
+
             const dimension = quote['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
                 this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]]);
             } else {
-                // Department, Region and Reponsibility hits here!
+                // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]]);
             }
         }

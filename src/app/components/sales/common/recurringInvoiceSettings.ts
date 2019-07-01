@@ -162,10 +162,13 @@ export class UniRecurringInvoiceSettingsView implements OnInit {
                 FieldSetColumn: 1,
                 EntityType: this.entityType,
                 ReadOnly: true,
-                Property: 'Customer.AvtaleGiroAmount',
-                FieldType: FieldType.NUMERIC,
-                Label: 'Beløpsgrense AvtaleGiro',
-                Section: 0,                
+                Property: 'Customer.AvtaleGiroNotification',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Varsel AvtaleGiro',
+                Section: 0,
+                Tooltip: {
+                    Text: 'Blir det sendt varsel på e-post om AvtaleGiro?'
+                }
             },
             <any> {
                 FieldSet: 1,
@@ -175,7 +178,7 @@ export class UniRecurringInvoiceSettingsView implements OnInit {
                 Property: 'Customer.AvtaleGiro',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Påmeldt AvtaleGiro',
-                Section: 0,                
+                Section: 0,              
             }
         ];
     }

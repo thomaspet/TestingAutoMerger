@@ -8,6 +8,23 @@ import {Observable} from 'rxjs';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../authService';
 import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
+import {
+    WageType,
+    Leavetype,
+    LimitType,
+    SpecialTaxAndContributionsRule,
+    ShipRegistry,
+    ShipTradeArea,
+    ShipTypeOfShip,
+    WorkingHoursScheme,
+    RemunerationType,
+    TypeOfEmployment,
+    SharingType,
+    StatusCodeSharing,
+    TaxType,
+    StdWageType,
+    SpecialAgaRule
+} from '../../unientities';
 import {ErrorService} from './errorService';
 import {StatusService} from './statusService';
 import {CompanySettingsService} from './companySettingsService';
@@ -15,10 +32,12 @@ import {CompanySettings} from '../../unientities';
 import * as allModels from '../../unientities';
 
 import * as moment from 'moment';
+import { ReturnStatement } from '@angular/compiler';
+import { ReportTypeEnum } from '@app/models';
 declare const _; // lodash
 
 @Injectable()
-export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
+export class UniTickerService {
 
     private TICKER_LOCALSTORAGE_KEY: string = 'UniTickerHistory';
     private tickers: Array<Ticker>;
@@ -35,7 +54,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         private statusService: StatusService,
         private modelService: ApiModelService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService) {
+        private companySettingsService: CompanySettingsService
+    ) {
         /* KE: We dont have a backend endpoint yet - consider this later
                when we have stabilized the JSON structure for tickers
 
@@ -76,7 +96,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                 this.http.get('assets/tickers/sharedtickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/banktickers.json').map(x => x.json())
                             ).map(tickerfiles => {
-                                let allTickers: Array<Ticker> = [];
+                                const allTickers: Array<Ticker> = [];
 
                                 tickerfiles.forEach((fileContent: Array<Ticker>) => {
                                     fileContent.forEach(ticker => {
@@ -89,7 +109,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             .map((tickers: Array<Ticker>) => {
                                     tickers.forEach(ticker => {
                                         if (!ticker.Filters || ticker.Filters.length === 0) {
-                                            let filter = new TickerFilter();
+                                            const filter = new TickerFilter();
                                             filter.Name = 'Egendefinert';
                                             filter.Code = ticker.Model + 'CustomSearch';
                                             filter.FilterGroups = [];
@@ -121,9 +141,13 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                                 model = _.cloneDeep(model);
                                                 model.RelatedModels = [];
                                                 model.Relations.forEach(rel => {
-                                                    let relatedModel = this.modelService.getModel(rel.RelatedModel);
+                                                    const relatedModel = this.modelService.getModel(rel.RelatedModel);
                                                     if (relatedModel) {
-                                                        model.RelatedModels.push({RelationName: rel.Name, Model: _.cloneDeep(relatedModel)});
+                                                        model.RelatedModels.push(
+                                                            {
+                                                                RelationName: rel.Name,
+                                                                Model: _.cloneDeep(relatedModel)
+                                                            });
                                                     } else {
                                                         console.log('rel not found:', rel);
                                                     }
@@ -210,7 +234,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                                         if (t.SubTickersCodes && t.SubTickersCodes.length) {
                                             t.SubTickersCodes.forEach(subTickerCode => {
                                                 if (!t.SubTickers.find(x => x.Code === subTickerCode)) {
-                                                    let subTicker = tickers.find(x => x.Code === subTickerCode);
+                                                    const subTicker = tickers.find(x => x.Code === subTickerCode);
                                                     if (subTicker) {
                                                         t.SubTickers.push(_.cloneDeep(subTicker));
                                                     } else {
@@ -268,7 +292,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         let aliasColName = '';
         let selectableColName = '';
 
-        let modelname = (t.Model ? t.Model : '');
+        const modelname = (t.Model ? t.Model : '');
 
         if (this.isFunction(c.Field)) {
             // for functions, trust that the user knows what he/she is doing...
@@ -305,7 +329,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         // if not fieldtype is configured for the ticker column, try to find
         // type based on the model that is retrieved from the API
         if (model &&  (!c.Type || c.Type === '')) {
-            let modelField = this.modelService.getField(model, colName);
+            const modelField = this.modelService.getField(model, colName);
 
             if (modelField) {
                 if (modelField.Type.toString().indexOf('System.Int32') !== -1) {
@@ -343,8 +367,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return new Promise((resolve, reject) => {
             this.modelService.loadModelCache()
                 .then(() => {
-                    let model = this.modelService.getModel(ticker.Model);
-                    let uniEntityClass = allModels[ticker.Model];
+                    const model = this.modelService.getModel(ticker.Model);
+                    const uniEntityClass = allModels[ticker.Model];
 
                     if (action.Type === 'new') {
                         // get url for new entity, navigate
@@ -357,8 +381,8 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             throw Error('Could not navigate, no URL specified for model ' + ticker.Model);
                         }
                     } else if (action.Type === 'details') {
-                        let rowId: number = null;
-                        let urlIdProperty: string = 'ID';
+                        const rowId: number = null;
+                        const urlIdProperty: string = 'ID';
                         let propValuePairs: {prop: string, value: any} [] = [{prop: urlIdProperty, value: rowId}];
 
                         // check that we can find the ID of the model - and that we have only one
@@ -413,18 +437,19 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             throw Error('No row selected, cannot execute transition ' + action.Options.Transition);
                         }
 
-                        let service = new BizHttp<any>(this.uniHttp);
+                        const service = new BizHttp<any>(this.uniHttp);
                         service.relativeURL = uniEntityClass.RelativeUrl;
 
                         // TBD: should consider some throttling here if a lot of rows are selected - could potentially
                         // start hundreds of requests - errors should probably also be handled better, but it
                         // is probably not optimal to run requests one-by-one either.
-                        let requests = [];
+                        const requests = [];
                         selectedRows.forEach(row => {
                             requests.push(service.Transition(row['ID'], row, action.Options.Transition));
 
                             if (!row._links.transitions[action.Options.Transition]) {
-                                reject(`Cannot execute transition ${action.Options.Transition} for ID ${row['ID']}, transition is not available for this item`);
+                                reject(`Cannot execute transition ${action.Options.Transition}`
+                                + ` for ID ${row['ID']}, transition is not available for this item`);
                             }
 
                             console.log(`Transition ${action.Options.Transition} queued for ID ${row['ID']}`);
@@ -478,10 +503,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     }
 
     public getGroupedTopLevelTickers(tickers: Ticker[]): Array<TickerGroup> {
-        let groups: Array<TickerGroup> = [];
+        const groups: Array<TickerGroup> = [];
 
         for (const ticker of tickers.filter(x => x.IsTopLevelTicker)) {
-            let groupName = ticker.Group;
+            const groupName = ticker.Group;
 
             let group = groups.find(g => g.Name === groupName);
 
@@ -504,7 +529,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         let fieldValue: any = this.getFieldValueInternal(column, data);
 
         if (columnOverrides) {
-            let columnOverride = columnOverrides.find(x => x.Field === column.Field);
+            const columnOverride = columnOverrides.find(x => x.Field === column.Field);
             if (columnOverride) {
                 fieldValue = columnOverride.Template(data);
             }
@@ -681,7 +706,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     }
 
     private statusCodeToText(statusCode: number): string {
-        let text: string = this.statusService.getStatusText(statusCode);
+        const text: string = this.statusService.getStatusText(statusCode);
         return text || (statusCode ? statusCode.toString() : '');
     }
 
@@ -706,7 +731,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         }
 
         if (fieldName.indexOf('.') !== -1) {
-            let colName = fieldName.substring(fieldName.lastIndexOf('.') + 1);
+            const colName = fieldName.substring(fieldName.lastIndexOf('.') + 1);
             let lastPath =  fieldName.substring(0, fieldName.lastIndexOf('.'));
 
             if (lastPath.indexOf('.') !== -1) {
@@ -723,13 +748,18 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         return '';
     }
 
-    public getFilterString(filterGroups: TickerFilterGroup[], expressionFilterValues: IExpressionFilterValue[], useAllCriterias: boolean, mainModel: string): string {
+    public getFilterString(
+        filterGroups: TickerFilterGroup[],
+        expressionFilterValues: IExpressionFilterValue[],
+        useAllCriterias: boolean,
+        mainModel: string
+    ): string {
         let filterString: string = '';
         let isInGroup: boolean = false;
         let lastGroupWasUsed: boolean = false;
 
         for (let groupIndex = 0; groupIndex < filterGroups.length; groupIndex++) {
-            let group = filterGroups[groupIndex];
+            const group = filterGroups[groupIndex];
             let filters = group.FieldFilters;
 
             // dont use filters that miss either field or operator - this is probably just a filter
@@ -739,15 +769,15 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
 
             if (filters && filters.length > 0) {
-                let orderedByGroupFilters = filters.sort((a, b) => { return a.QueryGroup - b.QueryGroup});
+                const orderedByGroupFilters = filters.sort((a, b) => a.QueryGroup - b.QueryGroup);
                 isInGroup = false;
 
                 let groupFilterString: string = '';
                 let needsDelimiterBeforeNextFilter: boolean = false;
 
                 for (let index = 0; index < orderedByGroupFilters.length; index++) {
-                    let filter: TickerFieldFilter = orderedByGroupFilters[index];
-                    let filterValue: string = this.getFilterValueFromFilter(filter, expressionFilterValues);
+                    const filter: TickerFieldFilter = orderedByGroupFilters[index];
+                    const filterValue: string = this.getFilterValueFromFilter(filter, expressionFilterValues);
 
                     if (filterValue) {
                         // open new filter group with parenthesis
@@ -766,8 +796,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
                             needsDelimiterBeforeNextFilter = false;
                         }
-
-                        let path = filter.Path && filter.Path !== '' ? filter.Path : mainModel;
 
                         if (filter.Operator === 'contains' || filter.Operator === 'startswith' || filter.Operator === 'endswith') {
                             // Function operator
@@ -818,7 +846,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         // if expressionfiltervalues are defined, e.g. ":currentuserid", check if any of the defined filters
         // should inject the expressionfiltervalue
         if (filterValue.toString().startsWith(':')) {
-            let expressionFilterValue = expressionFilterValues.find(efv => ':' + efv.Expression === filterValue);
+            const expressionFilterValue = expressionFilterValues.find(efv => ':' + efv.Expression === filterValue);
 
             if (expressionFilterValue) {
                 filterValue = expressionFilterValue.Value;
@@ -833,7 +861,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     public addSearchHistoryItem(ticker: Ticker, filter: TickerFilter, url: string): TickerHistory {
         let existingHistory = this.getSearchHistoryItems();
 
-        let currentHistoryItem = this.getSearchHistoryItem(ticker, filter);
+        const currentHistoryItem = this.getSearchHistoryItem(ticker, filter);
 
         // if there is already a search item for the ticker/filter supplied, remove it from
         // the list - we will push it to the front of the list afterwards, this will
@@ -847,7 +875,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         }
 
         // add the search history to the start of the array ("top of the stack")
-        let newHistoryItem: TickerHistory = {
+        const newHistoryItem: TickerHistory = {
             TickerCode: ticker.Code,
             TickerName: ticker.Name,
             TickerFilterCode: filter ? filter.Code : null,
@@ -880,10 +908,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
     }
 
     public getSearchHistoryItem(ticker: Ticker, filter: TickerFilter): TickerHistory {
-        let historyItem = this.storageService.getItemFromCompany(this.TICKER_LOCALSTORAGE_KEY);
+        const historyItem = this.storageService.getItemFromCompany(this.TICKER_LOCALSTORAGE_KEY);
 
         if (historyItem) {
-            let array: Array<TickerHistory> = historyItem;
+            const array: Array<TickerHistory> = historyItem;
 
             if (filter) {
                 return array.find(
@@ -985,6 +1013,143 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             }
         ];
     }
+
+    // Search value and text showing in the dropdown in advanced search
+    public getSelectConfigOptions(configKey: string) {
+        switch (configKey) {
+            case 'SharingType':
+                return [
+                    {ID: 0,                         Name: 'Bruk distribusjonsplan'},
+                    {ID: SharingType.AP,            Name: 'Aksesspunkt'},
+                    {ID: SharingType.Email,         Name: 'E-post'},
+                    {ID: SharingType.Export,        Name: 'Eksport'},
+                    {ID: SharingType.Print,         Name: 'Utskrift'},
+                    {ID: SharingType.Vipps,         Name: 'Vipps'},
+                    {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint'},
+                    {ID: SharingType.Factoring,     Name: 'Factoring'},
+                    {ID: SharingType.Efaktura,      Name: 'Efaktura'},
+                    {ID: SharingType.Avtalegiro,    Name: 'Avtalegiro'}
+                ];
+
+            case 'SharingStatusCode':
+                return [
+                    {ID: StatusCodeSharing.Pending,     Name: 'I kø'},
+                    {ID: StatusCodeSharing.InProgress,  Name: 'Behandles'},
+                    {ID: StatusCodeSharing.Failed,      Name: 'Feilet'},
+                    {ID: StatusCodeSharing.Completed,   Name: 'Fullført'},
+                    {ID: StatusCodeSharing.Cancelled,   Name: 'Avbrutt'}
+                ];
+            case 'PrintStatus':
+                return [
+                    { Name: 'Sendt på e-post',       ID: 100 },
+                    { Name: 'Sendt til utskrift',    ID: 200 },
+                    { Name: 'Sendt til aksesspunkt', ID: 300 }
+                ];
+            case 'TypeOfEmployment':
+                return [
+                    { ID: 0,                                                    Name: 'Ikke valgt' },
+                    { ID: TypeOfEmployment.OrdinaryEmployment,                  Name: '1 - Ordinært arbeidsforhold' },
+                    { ID: TypeOfEmployment.MaritimeEmployment,                  Name: '2 - Maritimt arbeidsforhold' },
+                    { ID: TypeOfEmployment.FrilancerContratorFeeRecipient,      Name: '3 - Frilanser, oppdragstager, honorar' },
+                    { ID: TypeOfEmployment.PensionOrOtherNonEmployedBenefits,   Name: '4 - Pensjon og annet uten ansettelse' }
+                ];
+            case 'RemunerationType':
+                return [
+                    { ID: RemunerationType.notSet,              Name: 'Ikke valgt' },
+                    { ID: RemunerationType.FixedSalary,         Name: '1 - Fast lønnet' },
+                    { ID: RemunerationType.HourlyPaid,          Name: '2 - Timelønnet' },
+                    { ID: RemunerationType.PaidOnCommission,    Name: '3 - Provisjonslønnet' },
+                    { ID: RemunerationType.OnAgreement_Honorar, Name: '4 - Honorar' },
+                    { ID: RemunerationType.ByPerformance,       Name: '5 - Akkord' }
+                ];
+            case 'WorkingHoursScheme':
+                return  [
+                    { ID: 0, Name: 'Ikke valgt' },
+                    { ID: WorkingHoursScheme.NonShift,                  Name: '1 - Ikke skiftarbeid' },
+                    { ID: WorkingHoursScheme.OffshoreWork,              Name: '2 - Arbeid offshore' },
+                    { ID: WorkingHoursScheme.ContinousShiftwork336,     Name: '3 - Helkontinuerlig skiftarbeid' },
+                    { ID: WorkingHoursScheme.DayAndNightContinous355,   Name: '4 - Døgnkontinuerlig skiftarbeid' },
+                    { ID: WorkingHoursScheme.ShiftWork,                 Name: '5 - skiftarbeid' }
+                ];
+            case 'ShipType':
+                return [
+                    {ID: ShipTypeOfShip.notSet,                         Name: 'Ikke valgt'},
+                    {ID: ShipTypeOfShip.Other,                          Name: '1 - Annet'},
+                    {ID: ShipTypeOfShip.DrillingPlatform,               Name: '2 - Boreplattform'},
+                    {ID: ShipTypeOfShip.Tourist,                        Name: '3 - Turist'}
+                ];
+            case 'ShipReg':
+                return [
+                    {ID: ShipRegistry.notSet,                               Name: 'Ikke valgt'},
+                    {ID: ShipRegistry.NorwegianInternationalShipRegister,   Name: '1 - Norsk Internasjonalt skipsregister (NIS)'},
+                    {ID: ShipRegistry.NorwegianOrdinaryShipRegister,        Name: '2 - Norsk ordinært skipsregister (NOR)'},
+                    {ID: ShipRegistry.ForeignShipRegister,                  Name: '3 - Utenlandsk skipsregister (UTL)'}
+                ];
+            case 'TypeOfEmployment':
+                return [
+                    {ID: ShipTradeArea.notSet,                  Name: 'Ikke valgt'},
+                    {ID: ShipTradeArea.Domestic,                Name: '1 - Innenriks'},
+                    {ID: ShipTradeArea.Foreign,                 Name: '2 - Utenriks'}
+                ];
+            case 'LeaveType':
+                return [
+                    {ID: Leavetype.NotSet,                      Name: 'Ikke valgt'},
+                    {ID: Leavetype.Leave,                       Name: 'Permisjon'},
+                    {ID: Leavetype.LayOff,                      Name: 'Permittering'},
+                    {ID: Leavetype.Leave_with_parental_benefit, Name: 'Permisjon med foreldrepenger'},
+                    {ID: Leavetype.Military_service_leave,      Name: 'Permisjon ved militærtjeneste'},
+                    {ID: Leavetype.Educational_leave,           Name: 'Utdanningspermisjon'},
+                    {ID: Leavetype.Compassionate_leave,         Name: 'Velferdspermisjon'}
+                ];
+
+            case 'TaxType':
+                return [
+                    { ID: TaxType.Tax_None,     Name: 'Ingen' },
+                    { ID: TaxType.Tax_Table,    Name: 'Tabelltrekk' },
+                    { ID: TaxType.Tax_Percent,  Name: 'Prosenttrekk' },
+                    { ID: TaxType.Tax_0,        Name: 'Trekkplikt uten skattetrekk' }
+                ];
+            case 'LimitType':
+                return [
+                    {Type: LimitType.None,              Name: 'Ingen'},
+                    {Type: LimitType.Amount,            Name: 'Antall'},
+                    {Type: LimitType.Amount,            Name: 'Beløp'}
+                ];
+            case 'SpecialAgaRule':
+                return [
+                    { ID: SpecialAgaRule.Regular,       Name: 'Vanlig' },
+                    { ID: SpecialAgaRule.AgaRefund,     Name: 'Aga refusjon' },
+                    { ID: SpecialAgaRule.AgaPension,    Name: 'Aga pensjon' }
+                ];
+            case 'SpecialTaxAndContributionsRule':
+                return [
+                    { ID: SpecialTaxAndContributionsRule.Standard,                      Name: 'Standard/ingen valgt' },
+                    { ID: SpecialTaxAndContributionsRule.NettoPayment,                  Name: 'Netto lønn' },
+                    { ID: SpecialTaxAndContributionsRule.SpesialDeductionForMaritim,    Name: 'Særskilt fradrag for sjøfolk'},
+                    { ID: SpecialTaxAndContributionsRule.Svalbard,                      Name: 'Svalbard' },
+                    { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions,     Name: 'Kildeskatt for pensjonister' },
+                    { ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries,        Name: 'Jan Mayen og bilandene' },
+                    { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim,        Name: 'Nettolønn for sjøfolk' }
+                ];
+            case 'StandardWageTypeFor':
+                return [
+                    { ID: StdWageType.None,                         Name: 'Ingen' },
+                    { ID: StdWageType.TaxDrawTable,                 Name: 'Tabelltrekk' },
+                    { ID: StdWageType.TaxDrawPercent,               Name: 'Prosenttrekk' },
+                    { ID: StdWageType.HolidayPayWithTaxDeduction,   Name: 'Feriepenger med skattetrekk' },
+                    { ID: StdWageType.HolidayPayThisYear,           Name: 'Feriepenger i år' },
+                    { ID: StdWageType.HolidayPayLastYear,           Name: 'Feriepenger forrige år' },
+                    { ID: StdWageType.HolidayPayEarlierYears,       Name: 'Feriepenger tidligere år' },
+                    { ID: StdWageType.AdvancePayment,               Name: 'Forskudd' },
+                    { ID: StdWageType.Contribution,                 Name: 'Bidragstrekk' },
+                    { ID: StdWageType.Garnishment,                  Name: 'Påleggstrekk' },
+                    { ID: StdWageType.Outlay,                       Name: 'Utleggstrekk' },
+                    { ID: StdWageType.SourceTaxPension,             Name: 'Forskuddstrekk kildeskatt på pensjon' }
+                ];
+            default:
+                return [];
+        }
+    }
 }
 
 // Refactor: no need for these to be classes??
@@ -1067,6 +1232,7 @@ export class TickerColumn {
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public DisplayField?: string;
     public Expand?: string;
+    public FilterSelectConfigKey?: string;
     public SelectRequired?: boolean;
     public Alignment?: 'left' | 'right' | 'center';
     public EnableRowGroup?: boolean;

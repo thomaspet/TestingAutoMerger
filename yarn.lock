@@ -276,9 +276,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@ng-select/ng-select@^2.13.1":
-  version "2.13.1"
-  resolved "https://registry.yarnpkg.com/@ng-select/ng-select/-/ng-select-2.13.1.tgz#2a9a615b3a720393386317c02b0f49ea6d850824"
+"@ng-select/ng-select@^2.20.0":
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/@ng-select/ng-select/-/ng-select-2.20.0.tgz#72fa57b7149f2c4854888cd8918e304d0df4393d"
   dependencies:
     tslib "^1.9.0"
 

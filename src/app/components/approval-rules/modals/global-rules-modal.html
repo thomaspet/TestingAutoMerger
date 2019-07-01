@@ -1,0 +1,45 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Globale regler</header>
+
+    <article class="scrollable">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="steps">
+            <section *ngFor="let rule of rules; let idx = index" class="step">
+                <section class="step-details">
+                    <section>
+                        <label>
+                            <span>Beløp større enn</span>
+                            <input [(ngModel)]="rule.Steps[0].Limit" (change)="rule['_isDirty'] = true" type="number">
+                        </label>
+
+                        <label>
+                            <span>Godkjenner</span>
+                            <select [(ngModel)]="rule.Steps[0].UserID" (change)="rule['_isDirty'] = true">
+                                <option *ngFor="let user of users" [value]="user.ID">
+                                    {{user.DisplayName}}
+                                </option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <button (click)="removeRule(idx)" class="delete-button icon-button" [attr.aria-busy]="rule['_busy']">
+                        <i class="material-icons">close</i>
+                    </button>
+                </section>
+            </section>
+        </section>
+
+        <button class="add-step" (click)="addRule()" class="outline-c2a">
+            <i class="material-icons">add</i>
+            Legg til regel
+        </button>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="submit()">Lagre</button>
+        <button (click)="onClose.emit(hasDeletedRules)">Avbryt</button>
+    </footer>
+</section>

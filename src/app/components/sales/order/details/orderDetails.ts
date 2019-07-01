@@ -51,6 +51,7 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     InvoiceHourService,
+    AccountMandatoryDimensionService,
 } from '@app/services/services';
 
 import {IUniSaveAction} from '@uni-framework/save/save';
@@ -140,12 +141,20 @@ export class OrderDetails implements OnInit, AfterViewInit {
     readonly: boolean;
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     hasTimetrackingAccess: boolean = false;
+    accountsWithMandatoryDimensionsIsUsed = true;
 
     private customerExpands: string[] = [
         'DeliveryTerms',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10',
         'Dimensions.Project.ProjectTasks',
         'Info',
         'Info.Addresses',
@@ -169,6 +178,12 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Customer.Dimensions',
         'Customer.Dimensions.Project',
         'Customer.Dimensions.Department',
+        'Customer.Dimensions.Dimension5',
+        'Customer.Dimensions.Dimension6',
+        'Customer.Dimensions.Dimension7',
+        'Customer.Dimensions.Dimension8',
+        'Customer.Dimensions.Dimension9',
+        'Customer.Dimensions.Dimension10',
         'DefaultDimensions',
         'DeliveryTerms',
         'PaymentTerms',
@@ -226,10 +241,14 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private modulusService: ModulusService,
         private invoiceHoursService: InvoiceHourService,
         private authService: AuthService,
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService
    ) {}
 
     ngOnInit() {
         // this.setSums();
+        this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
+            this.accountsWithMandatoryDimensionsIsUsed = result > 0;
+        });
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
@@ -320,6 +339,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         }
 
                         this.tofHead.focus();
+                        if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
+                            this.tofHead.getValidationMessage(order.CustomerID, order.DefaultDimensionsID);
+                        }
                     },
                         err => this.errorService.handle(err));
                 } else {
@@ -399,6 +421,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             this.currencyExchangeRate = order.CurrencyExchangeRate;
 
                             this.refreshOrder(order);
+                            if (this.accountsWithMandatoryDimensionsIsUsed) {
+                                this.tofHead.clearValidationMessage();
+                            }
                         },
                         err => this.errorService.handle(err)
                     );
@@ -555,39 +580,26 @@ export class OrderDetails implements OnInit, AfterViewInit {
             }
 
             shouldGetCurrencyRate = true;
-        }
-
-        // refresh items if project changed
-        if (order.DefaultDimensions && order.DefaultDimensions.ProjectID !== this.projectID) {
-            this.projectID = order.DefaultDimensions.ProjectID;
-
-            if (this.orderItems.length) {
-                this.modalService.confirm({
-                    header: `Endre prosjekt på alle varelinjer?`,
-                    message: `Vil du endre til dette prosjektet på alle eksisterende varelinjer?`,
-                    buttonLabels: {
-                        accept: 'Ja',
-                        reject: 'Nei'
-                    }
-                }).onClose.subscribe(response => {
-                    const replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
-                    this.tradeItemTable
-                        .setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, replaceItemsProject);
-                });
-            } else {
-                this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, true);
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions, true);
+            if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
+                this.tofHead.getValidationMessage(order.CustomerID, order.DefaultDimensionsID, order.DefaultDimensions);
             }
         }
 
-        // If the update comes from dimension view
         if (order['_updatedField']) {
+            this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions, false);
+            this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
+
             const dimension = order['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
                 this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[dimension[0]][dimension[1]]);
             } else {
-                // Department, Region and Reponsibility hits here!
+                // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]]);
+            }
+            if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
+                this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
             }
         }
 

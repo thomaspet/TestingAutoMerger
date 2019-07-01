@@ -1159,6 +1159,14 @@ export class UniTicker {
                     }
                 }
 
+                if (column.FilterSelectConfigKey) {
+                    col.filterSelectConfig = {
+                        options: this.uniTickerService.getSelectConfigOptions(column.FilterSelectConfigKey),
+                        displayField: 'Name',
+                        valueField: 'ID'
+                    };
+                }
+
                 // update column template to display mandatory and optional dimensions
                 if (this.ticker.Code === 'accounts_list' && col.field.includes('MandatoryDimensions')) {
                     let mandatoryType = 0;

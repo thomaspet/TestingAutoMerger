@@ -13,7 +13,6 @@ import {UniActivateAPModal} from './modals/activateAPModal';
 import {UniActivateEInvoiceModal} from './modals/activateEInvoiceModal';
 import {UniActivateInvoicePrintModal} from './modals/activateInvoicePrintModal';
 import {ActivateOCRModal} from './modals/activateOcrModal';
-import {UniApproveModal} from './modals/approveModal';
 import {UniDownloadPaymentsModal} from './modals/downloadPaymentsModal';
 import {SingleTextFieldModal} from './modals/singleTextFieldModal';
 import {UserLicenseAgreementModal} from './modals/userLicenseAgreementModal';
@@ -32,6 +31,7 @@ import {UniCompanyAccountingSettingsModal} from './modals/companyAccountingSetti
 import {UniConfirmModalWithCheckbox} from './modals/confirmWithCheckboxModal';
 import {UniMandatoryDimensionsModal} from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 import {LicenseAgreementModal} from './modals/license-agreement-modal/license-agreement-modal';
+import {InvoiceApprovalModal} from './modals/invoice-approval-modal/invoice-approval-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -50,7 +50,6 @@ export * from './modals/activateAPModal';
 export * from './modals/activateEInvoiceModal';
 export * from './modals/activateOcrModal';
 export * from './modals/activateInvoicePrintModal';
-export * from './modals/approveModal';
 export * from './modals/downloadPaymentsModal';
 export * from './modals/singleTextFieldModal';
 export * from './modals/userLicenseAgreementModal';
@@ -69,6 +68,7 @@ export * from './modals/confirmWithCheckboxModal';
 export * from './modals/reInvoiceModal/showReinvoiceStatus.pipe';
 export * from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 export * from './modals/license-agreement-modal/license-agreement-modal';
+export * from './modals/invoice-approval-modal/invoice-approval-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -86,7 +86,6 @@ export const MODALS = [
     UniActivateEInvoiceModal,
     ActivateOCRModal,
     UniActivateInvoicePrintModal,
-    UniApproveModal,
     UniDownloadPaymentsModal,
     SingleTextFieldModal,
     UserLicenseAgreementModal,
@@ -104,6 +103,7 @@ export const MODALS = [
     UniCompanyAccountingSettingsModal,
     UniConfirmModalWithCheckbox,
     UniMandatoryDimensionsModal,
-    LicenseAgreementModal
+    LicenseAgreementModal,
+    InvoiceApprovalModal
 ];
 

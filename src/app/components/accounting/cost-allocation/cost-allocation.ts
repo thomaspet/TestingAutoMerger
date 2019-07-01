@@ -50,7 +50,8 @@ export class UniCostAllocation implements OnInit {
         public modalService: UniModalService,
         public costAllocationService: CostAllocationService,
         public customDimensionService: CustomDimensionService,
-        public errorService: ErrorService) {
+        public errorService: ErrorService
+    ) {
         this.tabService.addTab({
             url: '/accounting/costallocation',
             name: 'Fordelingsnøkler',
