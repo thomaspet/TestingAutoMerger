@@ -753,7 +753,9 @@ export class BillsView implements OnInit {
                     }
                     return '';
             }),
-            new UniTableColumn('_comment', 'Kommentar', UniTableColumnType.Text).setWidth('9rem')
+            new UniTableColumn('_comment', 'Kommentar', UniTableColumnType.Text).setWidth('9rem'),
+            new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.LocalDate)
+                .setWidth('6rem', false)
         ];
 
         this.tableConfig = new UniTableConfig('accounting.bills.inboxTable', false, true)
