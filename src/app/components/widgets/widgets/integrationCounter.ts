@@ -61,7 +61,6 @@ export class UniIntegrationCounterWidget {
             .filter(key => !!key)
             .switchMap(key => this.beforeCount(key, widget))
             .switchMap(() => this.widgetDataService.getData(this.getDataEndpoint(widget.config.type)))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .map(res => res.Data[0])
             .map(res => {
                 const valueKey = this.getValueKey(widget.config.type);
@@ -72,7 +71,10 @@ export class UniIntegrationCounterWidget {
                 }
                 return 0;
             })
-            .subscribe(count => this.count$.next(count));
+            .subscribe(
+                count => this.count$.next(count),
+                () => {},
+            );
     }
 
     private beforeCount(apiKey: ApiKey, widget: IUniWidget): Observable<any> {
