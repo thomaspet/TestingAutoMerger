@@ -64,10 +64,13 @@ export class ApprovalRuleModal implements IUniModal {
     }
 
     addStep() {
-        this.rule.Steps.push(<ApprovalRuleStep> {
+        const step: any = {
             StepNumber: this.rule.Steps.length + 1,
-            _createguid: this.approvalRuleService.getNewGuid()
-        });
+            _createguid: this.approvalRuleService.getNewGuid(),
+            _useLimit: false
+        };
+
+        this.rule.Steps.push(<ApprovalRuleStep> step);
     }
 
     submit() {
