@@ -632,7 +632,7 @@ export class BillsView implements OnInit {
     }
 
     public onRefreshClicked() {
-        this.refreshList(this.currentFilter, false, undefined, undefined, true);
+        this.refreshList(this.currentFilter, true, undefined, undefined, true);
     }
 
     private refreshList(
