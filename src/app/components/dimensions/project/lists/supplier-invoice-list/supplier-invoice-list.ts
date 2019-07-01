@@ -58,13 +58,22 @@ export class ProjectSupplierInvoiceList {
         this.tableConfig = new UniTableConfig('project.supplierinvoices', false)
             .setSearchable(true)
             .setColumns([
-                new UniTableColumn('InvoiceNumber', 'Fakturanr'),
-                new UniTableColumn('SupplierName', 'Leverandør'),
-                new UniTableColumn('SupplierOrgNumber', 'Org.nr'),
-                new UniTableColumn('YourReference', 'Deres ref'),
-                new UniTableColumn('TaxInclusiveAmountCurrency', 'Sum inkl.mva', UniTableColumnType.Money),
-                new UniTableColumn('RestAmountCurrency', 'Utestående', UniTableColumnType.Money),
-                new UniTableColumn('StatusCode', 'Status')
+                new UniTableColumn('SupplierInvoice.InvoiceNumber', 'Fakturanr')
+                    .setAlias('InvoiceNumber'),
+                new UniTableColumn('Info.Name', 'Leverandør')
+                    .setAlias('Name'),
+                new UniTableColumn('SupplierInvoice.SupplierOrgNumber', 'Org.nr')
+                    .setAlias('OrgNumber'),
+                new UniTableColumn('SupplierInvoice.YourReference', 'Deres ref')
+                    .setAlias('YourReference'),
+                new UniTableColumn('SupplierInvoice.TaxExclusiveAmountCurrency', 'Sum eks.mva', UniTableColumnType.Money)
+                    .setAlias('TaxExclusiveAmountCurrency'),
+                new UniTableColumn('SupplierInvoice.TaxInclusiveAmountCurrency', 'Sum inkl.mva', UniTableColumnType.Money)
+                    .setAlias('TaxInclusiveAmountCurrency'),
+                new UniTableColumn('SupplierInvoice.RestAmountCurrency', 'Utestående', UniTableColumnType.Money)
+                    .setAlias('RestAmountCurrency'),
+                new UniTableColumn('SupplierInvoice.StatusCode', 'Status')
+                    .setAlias('StatusCode')
                     .setTemplate(row => this.supplierInvoiceService.getStatusText(row.StatusCode)),
             ]);
     }
@@ -85,6 +94,7 @@ export class ProjectSupplierInvoiceList {
     private getSumRow(tableParams: URLSearchParams) {
         const params = this.getParams(tableParams);
         const select = [
+            'sum(SupplierInvoice.TaxExclusiveAmountCurrency) as TaxExclusiveAmountCurrency',
             'sum(SupplierInvoice.TaxInclusiveAmountCurrency) as TaxInclusiveAmountCurrency',
             'sum(SupplierInvoice.RestAmountCurrency) as RestAmountCurrency'
         ].join(',');
@@ -96,27 +106,28 @@ export class ProjectSupplierInvoiceList {
     private getTableData(tableParams: URLSearchParams) {
         const params = this.getParams(tableParams);
         const select = [
-            'ID as ID',
-            'InvoiceNumber as InvoiceNumber',
-            'Info.Name as SupplierName',
-            'SupplierOrgNumber as SupplierOrgNumber',
-            'YourReference as YourReference',
-            'TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency',
-            'RestAmountCurrency as RestAmountCurrency',
-            'StatusCode as StatusCode',
+            'SupplierInvoice.ID as ID',
+            'SupplierInvoice.InvoiceNumber as InvoiceNumber',
+            'Info.Name as Name',
+            'SupplierInvoice.SupplierOrgNumber as OrgNumber',
+            'SupplierInvoice.YourReference as YourReference',
+            'SupplierInvoice.TaxExclusiveAmountCurrency as TaxExclusiveAmountCurrency',
+            'SupplierInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency',
+            'SupplierInvoice.RestAmountCurrency as RestAmountCurrency',
+            'SupplierInvoice.StatusCode as StatusCode'
         ].join(',');
 
         params.set('select', select);
-        return this.statisticsService.GetAllByUrlSearchParams(params);
+        return this.statisticsService.GetAllByUrlSearchParams(params, true);
     }
 
     private getParams(tableParams: URLSearchParams) {
         const params = tableParams.clone();
         params.set('model', 'SupplierInvoice');
-        params.set('join', 'SupplierInvoice.JournalEntryID eq JournalEntryLineDraft.JournalEntryID and JournalEntryLineDraft.DimensionsID eq Dimensions.ID'); //tslint:disable-line
         params.set('expand', 'DefaultDimensions.Project,Supplier.Info');
+        params.set('distinct', 'true');
 
-        let filter = `(Project.ID eq ${this.projectID} or Dimensions.ProjectID eq ${this.projectID})`;
+        let filter = `(Project.ID eq ${this.projectID})`;
         if (params.has('filter')) {
             filter += ` and ${params.get('filter')}`;
         }
