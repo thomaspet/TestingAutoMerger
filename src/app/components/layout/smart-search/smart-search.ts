@@ -17,7 +17,9 @@ import {FormControl} from '@angular/forms';
 import {Subject} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
+import {VideoMappingService} from '@app/services/services';
 import {KeyCodes} from '@app/services/common/keyCodes';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniSmartSearchItem} from './smart-search-item';
 import {SmartSearchDataService} from './smart-search-data.service';
 
@@ -49,6 +51,8 @@ export class UniSmartSearch {
         @Inject(OverlayRef)
         private overlayRef: any,
         private dataService: SmartSearchDataService,
+        private videoMappingService: VideoMappingService,
+        private toast: ToastService,
         private router: Router
     ) {
         this.lastTenSearches = this.lastTenSearches.concat([], JSON.parse( localStorage.getItem('LastTenSearches')) || []);
@@ -149,6 +153,21 @@ export class UniSmartSearch {
                 this.searchResults.push(...asyncResults);
                 this.loading$.next(false);
                 setTimeout(() => this.activeItemManager.setFirstItemActive());
+            });
+        } else if (item && item.type === 'external-link') {
+            window.open(item.url, '_blank');
+            this.close();
+        } else if (item && item.type === 'user') {
+            this.dataService.openUserSettingsModal();
+            this.close();
+        } else if (item && item.type === 'video') {
+            this.videoMappingService.getVideo(window.location.href).then(res => {
+                if (res) {
+                    window.open(res, '_blank');
+                    this.close();
+                } else {
+                    this.toast.addToast('Fant ingen video for dette skjermbildet', ToastType.warn, 3);
+                }
             });
         }
     }
