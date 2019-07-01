@@ -34,6 +34,10 @@
             </option>
         </select>
 
+        <button class="outline-c2a" (click)="export()">
+            Eksporter
+        </button>
+
         <span class="sum pull-right">
             <span class="label">Sum eks.mva. </span>
             <span class="value">{{(billingData?.Total | uninumberformat:'money') || 0}} kr</span>
