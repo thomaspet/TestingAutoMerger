@@ -861,21 +861,12 @@ export class BillsView implements OnInit {
 
         ];
 
-        const contextMenuItems: IContextMenuItem[] = [
-            {
-                action: (row) => this.reInvoice(row),
-                disabled: (row) => !row || !row.ReInvoiced,
-                label: 'Viderefakturer'
-            }
-        ];
-
         return new UniTableConfig('accounting.bills.mainTable', false, true)
             .setSearchable(true)
             .setMultiRowSelect(true, false, true)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
-            .setColumnMenuVisible(true)
-            .setContextMenu(contextMenuItems);
+            .setColumnMenuVisible(true);
     }
 
     public reInvoice(row) {
