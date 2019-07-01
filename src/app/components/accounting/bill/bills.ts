@@ -410,8 +410,7 @@ export class BillsView implements OnInit {
     public assignSupplierInvoices(done: any) {
         this.modalService.open(BillAssignmentModal).onClose.subscribe(details => {
             if (details) {
-                console.log(details);
-                // this.assignInvoices(details);
+                this.assignInvoices(details);
             }
         });
 
@@ -632,7 +631,7 @@ export class BillsView implements OnInit {
     }
 
     public onRefreshClicked() {
-        this.refreshList(this.currentFilter, false, undefined, undefined, true);
+        this.refreshList(this.currentFilter, true, undefined, undefined, true);
     }
 
     private refreshList(
@@ -754,7 +753,9 @@ export class BillsView implements OnInit {
                     }
                     return '';
             }),
-            new UniTableColumn('_comment', 'Kommentar', UniTableColumnType.Text).setWidth('9rem')
+            new UniTableColumn('_comment', 'Kommentar', UniTableColumnType.Text).setWidth('9rem'),
+            new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.LocalDate)
+                .setWidth('6rem', false)
         ];
 
         this.tableConfig = new UniTableConfig('accounting.bills.inboxTable', false, true)
@@ -862,21 +863,12 @@ export class BillsView implements OnInit {
 
         ];
 
-        const contextMenuItems: IContextMenuItem[] = [
-            {
-                action: (row) => this.reInvoice(row),
-                disabled: (row) => !row || !row.ReInvoiced,
-                label: 'Viderefakturer'
-            }
-        ];
-
         return new UniTableConfig('accounting.bills.mainTable', false, true)
             .setSearchable(true)
             .setMultiRowSelect(true, false, true)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
-            .setColumnMenuVisible(true)
-            .setContextMenu(contextMenuItems);
+            .setColumnMenuVisible(true);
     }
 
     public reInvoice(row) {
