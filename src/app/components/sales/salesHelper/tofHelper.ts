@@ -77,7 +77,18 @@ export class TofHelper {
         entity.DefaultSeller = customer.DefaultSeller || null;
 
         if (customer.Dimensions) {
-            entity.DefaultDimensions = customer.Dimensions;
+            entity.DefaultDimensions = entity.DefaultDimensions || {};
+            // Project
+            entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
+            entity.DefaultDimensions.Project = customer.Dimensions.Project;
+            // Department
+            entity.DefaultDimensions.DepartmentID = customer.Dimensions.DepartmentID;
+            entity.DefaultDimensions.Department = customer.Dimensions.Department;
+            // Custom Dimensions
+            for (let i = 5; i <= 10; i++) {
+                entity.DefaultDimensions[`Dimension${i}ID`] = customer.Dimensions[`Dimension${i}ID`];
+                entity.DefaultDimensions[`Dimension${i}`] = customer.Dimensions[`Dimension${i}`];
+            }
         }
 
         if (customer.PaymentTermsID) {

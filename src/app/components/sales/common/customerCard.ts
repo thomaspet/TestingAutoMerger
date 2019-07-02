@@ -366,7 +366,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
                             PostalCode: updatedInvoiceAddress.PostalCode,
                             City: updatedInvoiceAddress.City,
                             Country: updatedInvoiceAddress.Country
-                        }
+                        };
 
                         if (this.entity.Customer.Info.InvoiceAddressID) {
                             newaddress['ID'] = this.entity.Customer.Info.InvoiceAddressID;
@@ -398,42 +398,5 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         this.showDefaultBadgeForCustomer(customer);
         this.entity = _.cloneDeep(this.entity);
         this.entityChange.emit(this.entity);
-    }
-
-    private mapDimensionsToEntity(customer: Customer, entity: any) {
-        if (entity.DefaultDimensions && customer.Dimensions) {
-            entity.DefaultDimensions = customer.Dimensions;
-        }
-    }
-
-    private mapTermsToEntity(customer: Customer, entity: any) {
-        if (customer.PaymentTerms) {
-            entity.PaymentTerms = customer.PaymentTerms;
-            entity.PaymentTermsID = customer.PaymentTermsID;
-        }
-
-        if (customer.DeliveryTerms) {
-            entity.DeliveryTerms = customer.DeliveryTerms;
-            entity.DeliveryTermsID = customer.DeliveryTermsID;
-        }
-    }
-
-    private mapAddressesToEntity(customer, addresses) {
-        const info = customer.Info || {};
-        if (info.InvoiceAddressID) {
-            const invoiceAddress = addresses.find(addr => addr.ID === info.InvoiceAddressID);
-            this.addressService.addressToInvoice(this.entity, invoiceAddress);
-        } else {
-            const invoiceAddress = addresses.find(addr => addr !== null);
-            this.addressService.addressToInvoice(this.entity, invoiceAddress);
-        }
-
-        if (info.ShippingAddressID) {
-            const shippingAddress = addresses.find(addr => addr.ID === info.ShippingAddressID);
-            this.addressService.addressToShipping(this.entity, shippingAddress);
-        } else {
-            const shippingAddress = addresses.find(addr => addr !== null);
-            this.addressService.addressToShipping(this.entity, shippingAddress);
-        }
     }
 }
