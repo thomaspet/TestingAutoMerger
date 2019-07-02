@@ -243,16 +243,30 @@ export class TradeItemTable {
     }
 
     public setDefaultProjectAndRefreshItems(dims: any, updateTableData: boolean) {
-        this.defaultTradeItem.Dimensions = dims;
+        this.mapDimensionsToEntity(dims, this.defaultTradeItem);
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
 
         this.items = this.items.map(item => {
             if ((updateTableData && item.Product) || (!updateTableData && !item.Product)) {
-                item.Dimensions = dims;
-                item.DimensionsID = null;
+                this.mapDimensionsToEntity(dims, item);
             }
             return item;
         });
+    }
+
+    public mapDimensionsToEntity(dimensions: any, entity: any) {
+        entity.Dimensions = entity.Dimensions || {};
+        // Project
+        entity.Dimensions.ProjectID = dimensions.ProjectID;
+        entity.Dimensions.Project = dimensions.Project;
+        // Department
+        entity.Dimensions.DepartmentID = dimensions.DepartmentID;
+        entity.Dimensions.Department = dimensions.Department;
+        // Custom Dimensions
+        for (let i = 5; i <= 10; i++) {
+            entity.Dimensions[`Dimension${i}ID`] = dimensions[`Dimension${i}ID`];
+            entity.Dimensions[`Dimension${i}`] = dimensions[`Dimension${i}`];
+        }
     }
 
     public setNonCustomDimsOnTradeItems(entity: string, id: number) {

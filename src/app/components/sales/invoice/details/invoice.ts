@@ -185,6 +185,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private invoiceExpands: Array<string> = [
         'Customer',
         'DefaultDimensions',
+        'DefaultDimensions.Project',
+        'DefaultDimensions.Department',
+        'DefaultDimensions.Dimension5',
+        'DefaultDimensions.Dimension6',
+        'DefaultDimensions.Dimension7',
+        'DefaultDimensions.Dimension8',
+        'DefaultDimensions.Dimension9',
+        'DefaultDimensions.Dimension10',
         'DeliveryTerms',
         'InvoiceReference',
         'JournalEntry',
@@ -263,7 +271,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.recalcItemSums(null);
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
             this.accountsWithMandatoryDimensionsIsUsed = result > 0;
-        });        
+        });
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
