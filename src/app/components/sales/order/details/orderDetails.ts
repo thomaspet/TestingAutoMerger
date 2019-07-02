@@ -25,7 +25,7 @@ import {
     VatType,
     Department,
     User,
-    ReportDefinition,
+    ReportDefinition, Contact,
 } from '@uni-entities';
 import {
     CompanySettingsService,
@@ -128,6 +128,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     selectConfig: any;
 
     sellers: Seller[];
+    contacts: Contact[];
 
     private currentOrderDate: LocalDate;
     dimensionTypes: any[];
@@ -163,6 +164,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Info.DefaultEmail',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
@@ -175,6 +177,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Customer',
         'Customer.Info',
         'Customer.Info.Addresses',
+        'Customer.Info.Contacts.Info',
         'Customer.Dimensions',
         'Customer.Dimensions.Project',
         'Customer.Dimensions.Department',
@@ -299,6 +302,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             : Observable.of([]),
                     ).subscribe(res => {
                         const order = <CustomerOrder>res[0];
+                        this.contacts = order.Customer.Info.Contacts;
                         this.companySettings = res[1];
                         this.currencyCodes = res[2];
                         this.paymentTerms = res[3];
@@ -378,8 +382,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             this.currencyCodes = res[3];
                             this.paymentTerms = res[4];
                             this.deliveryTerms = res[5];
+                            this.contacts = [];
                             if (res[6]) {
                                 order = this.tofHelper.mapCustomerToEntity(res[6], order);
+                                this.contacts = order.Customer.Info.Contacts;
                             }
                             if (res[7]) {
                                 order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
@@ -533,10 +539,20 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
+    updateContacts(order) {
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            this.contacts = this.currentCustomer.Info.Contacts;
+        } else if (order.Customer && order.Customer.Info && order.Customer.Info.Contacts) {
+            this.contacts = order.Customer.Info.Contacts;
+        } else {
+            this.contacts = [];
+        }
+    }
+
     onOrderChange(order) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
-
+        this.updateContacts(order);
         const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
             if ((!order.Customer.ID || order.Customer.ID === 0) && order.Customer.OrgNumber !== null) {

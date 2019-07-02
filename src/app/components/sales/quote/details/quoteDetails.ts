@@ -139,6 +139,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Info.DefaultEmail',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -159,6 +160,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private quoteExpands: string[] = [
         'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'Sellers',
         'Sellers.Seller',
@@ -276,6 +278,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.setUpDims(res[9]);
                     this.distributionPlans = res[10];
                     this.reports = res[11];
+
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -486,7 +489,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
         const customerChanged = this.didCustomerChange(quote);
-
         if (customerChanged) {
             if ((!quote.Customer.ID || quote.Customer.ID === 0) && quote.Customer.OrgNumber !== null) {
                 this.customerService.getCustomers(quote.Customer.OrgNumber).subscribe(res => {

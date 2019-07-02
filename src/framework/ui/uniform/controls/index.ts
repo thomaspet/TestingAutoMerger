@@ -1,3 +1,4 @@
+import { UniTypeaheadInput } from '@uni-framework/ui/uniform/controls/typeahead/typeahead';
 export * from './text/text';
 export * from './numeric/numeric';
 export * from './password/password';
@@ -57,6 +58,7 @@ export const CONTROLS = [
     UniSearchWrapper, // 18 - uni search wrapper
     UniMultiSelectInput, // 19 - uni multy select
     UniStaticTextInput, // 20 - uni static text
+    UniTypeaheadInput // 21 - uni typeahead
 ];
 
 export enum CONTROLS_ENUM {
@@ -79,5 +81,6 @@ export enum CONTROLS_ENUM {
     LOCAL_DATE = 17, // 17 - unidate
     UNI_SEARCH = 18, // 18 - unisearch wrapper
     UNI_MULTISELECT = 19, // 19 - multisearch
-    UNI_STATIC_TEXT = 20, // 19 - static text
+    UNI_STATIC_TEXT = 20, // 20 - static text
+    UNI_TYPEAHEAD = 21, // 21 - typeahead
 }

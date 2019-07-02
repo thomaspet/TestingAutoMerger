@@ -136,6 +136,7 @@ export class UniRecurringInvoice implements OnInit {
         'Info.DefaultContact.Info',
         'Info.Emails',
         'Info.DefaultEmail',
+        'Info.Contacts.Info',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
@@ -144,7 +145,7 @@ export class UniRecurringInvoice implements OnInit {
     ];
 
     private invoiceExpands: Array<string> = [
-        'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DeliveryTerms',
         'PaymentTerms',
@@ -474,6 +475,7 @@ export class UniRecurringInvoice implements OnInit {
         }
         return true;
     }
+
 
     onInvoiceChange(invoice: RecurringInvoice) {
         this.isDirty = true;

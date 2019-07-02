@@ -1,0 +1,44 @@
+<div class="autocomplete" (clickOutside)="onClickOutside($event)">
+    <input #query
+           [attr.aria-describedby]="asideGuid"
+           class="autocomplete_input"
+           [formControl]="control"
+           [readonly]="readOnly$ | async"
+           [placeholder]="field?.Placeholder || ''"
+           (focus)="focusHandler()"
+           role="combobox"
+           autocomplete="false"
+           aria-autocomplete="inline"
+           [attr.aria-owns]="'results-'+guid"
+           [title]="control?.value || ''"
+           type="text"
+           tabindex="-1"
+    />
+    <button #toggleBtn class="uni-typeahead-searchBtn"
+            type="button"
+            [attr.aria-busy]="busy$ | async"
+            tabIndex="-1"
+            [disabled]="readOnly$ | async">
+        Søk
+    </button>
+
+    <ul #list
+        *ngIf="lookupResults?.length"
+        class="uniTable_dropdown_list"
+        [id]="'results-' + guid"
+        role="listbox"
+        tabindex="-1"
+        [attr.aria-expanded]="isExpanded$ | async">
+
+        <li *ngFor="let item of lookupResults; let idx = index"
+            class="autocomplete_result uniTable_dropdown_item"
+            role="option"
+            (mouseover)="onMouseOver(item.isHeader, item, idx)"
+            (click)="confirmSelection(item)"
+            [attr.aria-selected]="selectedIndex === idx"
+            [ngClass]="{ 'group_list_header' : item.isHeader }">
+            {{idx + 1}}: {{ template(item) }}
+        </li>
+    </ul>
+    <ng-content></ng-content>
+</div>

@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {CompanySettings, CurrencyCode, LocalDate, Project, Seller} from '../../../unientities';
+import { CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller } from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 
@@ -23,6 +23,7 @@ export class TofDetailsForm {
     @Input() currencyCodes: Array<CurrencyCode>;
     @Input() projects: Project;
     @Input() sellers: Seller[];
+    @Input() contacts: Contact[];
     @Input() companySettings: CompanySettings;
 
     @Output() entityChange: EventEmitter<any> = new EventEmitter();
@@ -118,10 +119,15 @@ export class TofDetailsForm {
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
                     Property: 'YourReference',
-                    FieldType: FieldType.TEXT,
+                    FieldType: FieldType.TYPEAHEAD,
                     Label: 'Deres referanse',
                     Section: 0,
                     MaxLength: 255,
+                    Options: {
+                        source: this.contacts,
+                        valueProperty: 'Info.Name',
+                        displayProperty: 'Info.Name'
+                    }
                 },
                 <any> {
                     FieldSet: 1,

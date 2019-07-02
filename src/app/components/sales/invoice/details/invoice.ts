@@ -175,6 +175,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Info.DefaultContact.Info',
         'Info.Emails',
         'Info.DefaultEmail',
+        'Info.Contacts.Info',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
@@ -184,6 +185,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private invoiceExpands: Array<string> = [
         'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DeliveryTerms',
         'InvoiceReference',
@@ -263,7 +265,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.recalcItemSums(null);
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
             this.accountsWithMandatoryDimensionsIsUsed = result > 0;
-        });        
+        });
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
@@ -407,7 +409,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentInfoTypes = res[10];
                     this.distributionPlans = res[11];
                     this.reports = res[12];
-
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -578,6 +579,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         return true;
     }
+
 
     onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;

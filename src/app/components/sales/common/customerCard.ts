@@ -101,6 +101,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         'Info.InvoiceAddress',
         'Info.DefaultContact.Info',
         'Info.DefaultEmail',
+        'Info.Contacts.Info',
         'DefaultSeller',
         'DefaultSeller.Seller',
         'Dimensions.Project',
