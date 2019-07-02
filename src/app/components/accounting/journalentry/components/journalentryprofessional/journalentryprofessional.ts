@@ -3072,7 +3072,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                                 const data = this.table.getTableData();
-                                const msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
                                 if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
 
                                 this.dataChanged.emit(data);
@@ -3088,7 +3088,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
                                 const data = this.table.getTableData();
-                                const msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                const msg = report.MissingRequiredDimensonsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
                                 if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
                                 this.dataChanged.emit(data);
                         }, 0);
