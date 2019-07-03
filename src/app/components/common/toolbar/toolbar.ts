@@ -5,7 +5,6 @@ import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {IUniTagsConfig, ITag} from './tags';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
-import {VideoMappingService} from '../../../services/services';
 import {IToolbarSearchConfig} from './toolbarSearch';
 import {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 import {Observable} from 'rxjs';
@@ -113,7 +112,6 @@ export class UniToolbar implements OnInit, OnChanges {
     public selectValueChanged: EventEmitter<any> = new EventEmitter();
 
     private autocompleteField: UniFieldLayout;
-    public videoURLResolver: Promise<string|null>;
     public searchVisible: boolean;
 
     public uniSelectConfig: ISelectConfig = {
@@ -122,11 +120,7 @@ export class UniToolbar implements OnInit, OnChanges {
         hideDeleteButton: true
     };
 
-    constructor(private videoMappingService: VideoMappingService) {}
-
     public ngOnInit() {
-        this.videoURLResolver = this.videoMappingService.getVideo(window.location.href);
-
         Observable.fromEvent(window, 'resize')
             .throttleTime(200)
             .subscribe(event => {
