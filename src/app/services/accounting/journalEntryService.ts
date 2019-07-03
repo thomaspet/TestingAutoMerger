@@ -272,7 +272,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         if (existingJournalEntryIDs.length) {
-            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
+            return this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryData, existingJournalEntries);
                     journalEntries.forEach(je => je.Description = text);
@@ -285,6 +285,31 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             return this.saveJournalEntriesAsDraft(journalEntries);
         }
+    }
+
+    private fixInsaneFilter(ids: number[]) {
+        if (!ids || !ids.length) {
+            return;
+        }
+
+        if (ids.length === 2) {
+            return `filter=ID eq ${ids[0]} or ID eq ${ids[1]}`;
+        }
+
+        let previousId;
+        let filter = `(ID ge ${ids[0]}`;
+        ids.slice(1).forEach(id => {
+            if (previousId && id !== previousId + 1) {
+                filter += ' and ID le ' + previousId + ')';
+                filter += ` or (ID ge ${id}`;
+            }
+
+            previousId = id;
+        });
+
+        filter += ` AND id le ${ids[ids.length - 1]})`;
+
+        return `filter=${filter}`;
     }
 
     public postJournalEntryData(journalEntryData: Array<JournalEntryData>): Observable<JournalEntry[]> {
@@ -305,7 +330,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .of(journalEntryDataNew.filter(x => !x.CustomerInvoiceID))
             .switchMap(jeData => {
                 return existingJournalEntryIDs.length
-                    ? Observable.forkJoin(Observable.of(jeData), this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq ')))
+                    ? Observable.forkJoin(Observable.of(jeData), this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs)))
                     : Observable.forkJoin(Observable.of(jeData), Observable.of([]));
             })
             .map((data: [JournalEntryData[], JournalEntry[]]) => {
@@ -344,7 +369,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         if (existingJournalEntryIDs.length) {
-            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
+            return this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
                     return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID, creditDate);
@@ -1241,12 +1266,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getAccountBalanceInfo(
-        journalDataEntries: Array<JournalEntryData>, previousList: Array<AccountBalanceInfo>, currentFinancialYear: FinancialYear
+        journalDataEntries: Array<JournalEntryData>,
+        previousList: Array<AccountBalanceInfo>,
+        currentFinancialYear: FinancialYear
     ): Observable<any> {
 
         const distinctAccountIDs: Array<number> = [];
 
         journalDataEntries.forEach(row => {
+
             if (row.DebitAccountID && distinctAccountIDs.indexOf(row.DebitAccountID) === -1) {
                 distinctAccountIDs.push(row.DebitAccountID);
             }
@@ -1262,31 +1290,42 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return Observable.from([previousList]);
         }
 
-        let filter = '';
-
+        const filters = [];
         distinctNewAccountIDs.forEach(id => {
-            if (filter !== '') {
-                filter += ' or ';
-            }
-            filter += `( isnull(AccountID\,0) eq ${id} or isnull(SubAccountID\,0) eq ${id} ) `;
+            filters.push(`( isnull(AccountID\,0) eq ${id} or isnull(SubAccountID\,0) eq ${id} ) `);
         });
 
-        filter = `(${filter}) ` +
+        const requests = [];
+        while (filters.length) {
+            const firstThirty = filters.splice(0, 30);
+
+            const filter = `(${firstThirty.join(' or ')}) ` +
                 `and (( isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 and Period.AccountYear le ${currentFinancialYear.Year}) ` +
                 `or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
 
-        return this.statisticsService.GetAll(
-            `model=JournalEntryLine` +
-            `&expand=Account.TopLevelAccountGroup,SubAccount,Period` +
-            `&filter=${filter}` +
-            `&select=sum(JournalEntryLine.AmountCurrency) as SumAmountCurrency,JournalEntryLine.AccountID as AccountID,` +
-            `JournalEntryLine.SubAccountID as SubAccountID`
-        )
-            .map(data => {
+            const request = this.statisticsService.GetAll(
+                `model=JournalEntryLine` +
+                `&expand=Account.TopLevelAccountGroup,SubAccount,Period` +
+                `&filter=${filter}` +
+                `&select=isnull(sum(JournalEntryLine.AmountCurrency),0) as SumAmountCurrency,JournalEntryLine.AccountID as AccountID,` +
+                `JournalEntryLine.SubAccountID as SubAccountID`
+            );
+
+            requests.push(request);
+        }
+
+        return Observable.forkJoin(requests)
+            .catch(() => Observable.of(null))
+            .map(res => {
                 const accountBalances: Array<AccountBalanceInfo> = previousList;
 
-                if (data.Data) {
-                    data.Data.forEach(row => {
+                if (res && res.length) {
+                    const data = [];
+                    res.forEach(statisticsResponse => {
+                        data.push(...statisticsResponse.Data);
+                    });
+
+                    data.forEach(row => {
                         const accountBalance: AccountBalanceInfo = new AccountBalanceInfo();
                         accountBalance.accountID = row.SubAccountID ? row.SubAccountID : row.AccountID;
                         accountBalance.balance = row.SumAmountCurrency;

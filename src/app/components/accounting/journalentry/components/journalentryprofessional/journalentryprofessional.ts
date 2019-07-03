@@ -270,30 +270,35 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.calculateNetAmountAndNetAmountCurrency(row);
                 }
 
-                if (this.numberOfAccountsWithMandatoryDimensions > 0) {
+                /*
+                    Anders 02.07.2019
+                    Removing this as it crashes big imports for Tveit
+                */
 
-                    if (!row.MandatoryDimensionsValidation) {row.MandatoryDimensionsValidation = {}; }
-                    const checkDebit: boolean = row.DebitAccountID;
-                    const checkCredit: boolean = row.CreditAccountID;
+                // if (this.numberOfAccountsWithMandatoryDimensions > 0) {
 
-                    if (checkDebit) {
-                        this.accountMandatoryDimensionService
-                        .getMandatoryDimensionsReportByDimension(row.DebitAccountID, row.Dimensions)
-                        .subscribe((report) => {
-                                row.MandatoryDimensionsValidation['DebitReport'] = report;
-                                this.table.updateRow(row['_originalIndex'], row);
-                        });
-                    }
+                //     if (!row.MandatoryDimensionsValidation) {row.MandatoryDimensionsValidation = {}; }
+                //     const checkDebit: boolean = row.DebitAccountID;
+                //     const checkCredit: boolean = row.CreditAccountID;
 
-                    if (checkCredit) {
-                        this.accountMandatoryDimensionService
-                        .getMandatoryDimensionsReportByDimension(row.CreditAccountID, row.Dimensions)
-                        .subscribe((report) => {
-                                row.MandatoryDimensionsValidation['CreditReport'] = report;
-                                this.table.updateRow(row['_originalIndex'], row);
-                        });
-                    }
-                }
+                //     if (checkDebit) {
+                //         this.accountMandatoryDimensionService
+                //         .getMandatoryDimensionsReportByDimension(row.DebitAccountID, row.Dimensions)
+                //         .subscribe((report) => {
+                //                 row.MandatoryDimensionsValidation['DebitReport'] = report;
+                //                 this.table.updateRow(row['_originalIndex'], row);
+                //         });
+                //     }
+
+                //     if (checkCredit) {
+                //         this.accountMandatoryDimensionService
+                //         .getMandatoryDimensionsReportByDimension(row.CreditAccountID, row.Dimensions)
+                //         .subscribe((report) => {
+                //                 row.MandatoryDimensionsValidation['CreditReport'] = report;
+                //                 this.table.updateRow(row['_originalIndex'], row);
+                //         });
+                //     }
+                // }
             });
         }
 
@@ -3046,7 +3051,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
 
 
-    private rowChanged(event?) {
+    rowChanged(event?) {
         if (!event) {
             return;
         }
@@ -3101,15 +3106,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             event.rowModel.MandatoryDimensionsValidation['DebitReport'] = report;
                             this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
                             setTimeout(() => {
-                            const data = this.table.getTableData();
-                            let msg = '\n';
-                            if (report) {
-                                msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
-                            }
-                            if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
+                                const data = this.table.getTableData();
+                                let msg = '\n';
+                                if (report) {
+                                    msg = report.MissingRequiredDimensionsMessage + '\n' + report.MissingOnlyWarningsDimensionsMessage;
+                                }
+                                if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
 
-                            this.dataChanged.emit(data);
-                        }, 0);
+                                this.dataChanged.emit(data);
+                            }, 0);
                     });
                 }
 
