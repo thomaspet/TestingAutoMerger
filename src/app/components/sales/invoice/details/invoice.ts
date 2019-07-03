@@ -718,7 +718,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             shouldGetCurrencyRate = true;
         }
 
-        if (this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) {
+        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
             shouldGetCurrencyRate = false;
         }
 
