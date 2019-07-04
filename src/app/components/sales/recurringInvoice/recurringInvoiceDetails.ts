@@ -381,7 +381,7 @@ export class UniRecurringInvoice implements OnInit {
 
                     this.refreshInvoice(invoice);
                     this.tofHead.focus();
-                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
                 }, err => this.errorService.handle(err));
@@ -512,7 +512,7 @@ export class UniRecurringInvoice implements OnInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
@@ -529,7 +529,7 @@ export class UniRecurringInvoice implements OnInit {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
             }
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
