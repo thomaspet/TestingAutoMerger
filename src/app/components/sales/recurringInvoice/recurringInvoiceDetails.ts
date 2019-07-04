@@ -982,7 +982,10 @@ export class UniRecurringInvoice implements OnInit {
                             this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.invoiceItems);
                             done('Lagring fullført');
                         },
-                        err => reject(err));
+                        err => {
+                            this.errorService.handle(err);
+                            reject(err);
+                        });
                 } else {
                     done('Lagring avbrutt');
                 }
