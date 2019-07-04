@@ -506,6 +506,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+    private calculateCurrencyExchangeRate(row: JournalEntryData): JournalEntryData {
+        row.CurrencyExchangeRate = Math.abs(row.Amount / row.AmountCurrency);
+        return row;
+    }
+
     public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean ) {
         const returnValue: any = {
             type: ToastType.warn
@@ -1390,7 +1395,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         )
             .setSkipOnEnterKeyNavigation(true)
             .setVisible(false)
-            .setEditable(false)
             .setWidth('90px');
         const amountCurrencyCol = new UniTableColumn(
             'AmountCurrency', 'Beløp', UniTableColumnType.Money
@@ -1435,7 +1439,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 decimalSeparator: ',',
                 decimalLength: 4
             })
-            .setEditable(false)
             .setVisible(false)
             .setSkipOnEnterKeyNavigation(true)
             .setWidth('90px');
@@ -1851,6 +1854,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.calculateNetAmount(row);
                     row = this.calculateGrossAmount(row);
                     row = this.calculateAmount(row);
+                } else if (event.field === 'CurrencyExchangeRate') {
+                    row = this.calculateNetAmount(row);
+                    row = this.calculateAmount(row);
+                } else if (event.field === 'Amount') {
+                    row = this.calculateCurrencyExchangeRate(row);
                 } else if (event.field === 'VatDate') {
                     // set FinancialDate based on VatDate if FinancialDate has not been set, or
                     // if the FinancialDate was the same as the previous value for VatDate
