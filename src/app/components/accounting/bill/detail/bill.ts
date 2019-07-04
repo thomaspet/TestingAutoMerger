@@ -1213,7 +1213,7 @@ export class BillView implements OnInit {
 
     public onFormInput(event) {
         this.flagUnsavedChanged();
-        if (this.current.value.ID && this.current.value.SupplierID) {
+        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -1283,7 +1283,7 @@ export class BillView implements OnInit {
             );
         }
 
-        if (this.current.value.ID && this.current.value.SupplierID) {
+        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -1423,7 +1423,7 @@ export class BillView implements OnInit {
     public onFormChange(change: SimpleChanges) {
         try {
             this.onFormChanged(change);
-            if (this.current.value.ID && this.current.value.SupplierID) {
+            if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
                 this.getValidationMessage(
                     this.current.value.SupplierID,
                     this.current.value.DefaultDimensionsID,
@@ -2955,7 +2955,7 @@ export class BillView implements OnInit {
 
     public onFormReady() {
         this.formReady = true;
-        if (this.current.value.ID && this.current.value.SupplierID) {
+        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
