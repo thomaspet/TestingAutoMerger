@@ -1062,6 +1062,21 @@
                 "Format": "DateMonth"
             },
             {
+                "Header": "Utbetalingsår",
+                "Field": "Payrollrun.PayDate",
+                "Format": "DateYear"
+            },
+            {
+                "Header": "Motkonto",
+                "Field": "Wagetype.AccountNumber_Balance",
+                "Type": "text"
+            },
+            {
+                "Header": "Grunnlag for feriepenger",
+                "Field": "Wagetype.base_vacation",
+                "Type": "boolean"
+            },
+            {
                 "Header": "Utbetales",
                 "Field": "Wagetype.Base_Payment",
                 "Type": "boolean",

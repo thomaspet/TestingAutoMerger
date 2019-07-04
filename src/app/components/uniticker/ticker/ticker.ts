@@ -1093,6 +1093,14 @@ export class UniTicker {
                             });
                             col.setAlignment('right');
                             break;
+                        case 'DateYear':
+                            col.setType(UniTableColumnType.Text);
+                            col.setTemplate(row =>  {
+                                const year = row[col.alias] ? moment(row[col.alias]).format('YYYY') : '';
+                                return year;
+                            });
+                            col.setAlignment('right');
+                            break;
                         case 'NumberPositiveNegative':
                             col.setType(UniTableColumnType.Number);
                             col.setConditionalCls(row => {
