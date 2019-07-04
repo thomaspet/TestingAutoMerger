@@ -1,6 +1,6 @@
 
 import { BizHttp } from '@uni-framework/core/http/BizHttp';
-import { AccountMandatoryDimension, Dimensions, SalaryTransaction } from '@uni-entities';
+import { Account, AccountMandatoryDimension, Dimensions, SalaryTransaction } from '@uni-entities';
 import { UniHttp } from '@uni-framework/core/http/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
@@ -25,10 +25,16 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
     }
 
     getRequiredMessage(mandatoryDimensionLabels, account) {
+        if (!mandatoryDimensionLabels.length) {
+            return '';
+        }
         return `Konto ${account} krever at dimensjonen(e) ${mandatoryDimensionLabels.join(',')} er satt`;
     }
 
     getWarningMessage(mandatoryDimensionLabels, account) {
+        if (!mandatoryDimensionLabels.length) {
+            return '';
+        }
         return `Konto ${account} har forslag om a sette dimensjonene ${mandatoryDimensionLabels.join(',')}`;
     }
 
@@ -76,6 +82,32 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
             params.push(ad);
         });
         return super.ActionWithBody(null, params, `get-mandatory-dimensions-reports`, RequestMethod.Put);
+    }
+
+    public getReport(account: Account) {
+        const debitMandatoryDimensions = this.mandatoryDimensionsCache.filter(md => md.AccountID === account.ID);
+        const debitWarningDimensions = debitMandatoryDimensions.filter(md => md.MandatoryType === 2);
+        const debitRequiredDimensions = debitMandatoryDimensions.filter(md => md.MandatoryType === 1);
+        const debitWarningDimensionsLabels = debitWarningDimensions.map(md => md.Label);
+        const debitRequiredDimensionsLabels = debitRequiredDimensions.map(md => md.Label);
+        const arrayToObject = (dimensions) => {
+            const obj = {};
+            dimensions.forEach(item => {
+                obj[item.DimensionNo] = item.Label;
+            });
+            return obj;
+        };
+        const report = {
+            AccountID: account.ID,
+            AccountNumber: account.AccountNumber,
+            MissingOnlyWarningsDimensionsMessage: this.getWarningMessage(debitWarningDimensionsLabels, account.AccountNumber),
+            MissingRequiredDimensions: debitRequiredDimensions.map(md => md.DimensionNo),
+            MissingRequiredDimensionsMessage: this.getRequiredMessage(debitRequiredDimensionsLabels, account.AccountNumber),
+            MissingWarningDimensions: debitWarningDimensions.map(md => md.DimensionNo),
+            RequiredDimensions: arrayToObject(debitRequiredDimensions),
+            WarningDimensions: arrayToObject(debitWarningDimensions)
+        };
+        return report;
     }
 
     public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
