@@ -97,6 +97,15 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.json());
     }
 
+    public getDistributions2Types(entity1: string, entity2: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?filter=StatusCode eq 30001 and (EntityType eq '${entity1}' or EntityType eq '${entity2}')`)
+            .send()
+            .map(res => res.json());
+    }
+
     public distribute(id, entityType) {
         return this.http
             .asPUT()

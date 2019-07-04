@@ -117,7 +117,6 @@ export class TofHead implements OnChanges {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
     }
 
-    //TODO kall fra Ordre og rep.faktura
     public getValidationMessage(customerID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
         if (!this.accountsWithMandatoryDimensionsIsUsed) {
             return;

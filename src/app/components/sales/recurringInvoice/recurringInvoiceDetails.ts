@@ -82,7 +82,8 @@ export class UniRecurringInvoice implements OnInit {
 
     @Input() invoiceID: any;
 
-    private distributeEntityType = 'Models.Sales.CustomerInvoice';
+    private distributeEntityTypeInvoice = 'Models.Sales.CustomerInvoice';
+    private distributeEntityTypeOrder = 'Models.Sales.CustomerOrder';
     private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
@@ -121,8 +122,11 @@ export class UniRecurringInvoice implements OnInit {
     sellers: Seller[];
     dimensionTypes: any[];
     paymentInfoTypes: any[];
+    allDistributionPlans: any[];
     distributionPlans: any[];
+    allReports: any[];
     reports: any[];
+    reportType = 1;
     log: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
@@ -257,8 +261,8 @@ export class UniRecurringInvoice implements OnInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
-                    this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 1')
+                    this.reportService.getDistributions2Types(this.distributeEntityTypeInvoice, this.distributeEntityTypeOrder),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1 or ReportType eq 2')
                 ).subscribe((res) => {
                     let invoice = <RecurringInvoice>res[0];
 
@@ -291,8 +295,9 @@ export class UniRecurringInvoice implements OnInit {
                     this.departments = res[12];
                     this.setUpDims(res[13]);
                     this.paymentInfoTypes = res[14];
-                    this.distributionPlans = res[15];
-                    this.reports = res[16];
+                    this.allDistributionPlans = res[15];
+                    this.allReports = res[16];
+                    this.setTypeSpecificValues(invoice);
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
                         this.invoiceID, this.numberSeries, 'Customer Invoice number series'
@@ -338,8 +343,8 @@ export class UniRecurringInvoice implements OnInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
-                    this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
+                    this.reportService.getDistributions2Types(this.distributeEntityTypeInvoice, this.distributeEntityTypeOrder),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1 or ReportType eq 2'),
                     this.numberSeriesService.GetAll(
                         `filter=NumberSeriesType.Name eq 'Customer Invoice number `
                         + `series' and Empty eq false and Disabled eq false`,
@@ -357,8 +362,9 @@ export class UniRecurringInvoice implements OnInit {
                     this.departments = res[8];
                     this.setUpDims(res[9]);
                     this.paymentInfoTypes = res[10];
-                    this.distributionPlans = res[11];
-                    this.reports = res[12];
+                    this.allDistributionPlans = res[11];
+                    this.allReports = res[12];
+                    this.setTypeSpecificValues(invoice);
                     this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[13]);
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
@@ -387,6 +393,20 @@ export class UniRecurringInvoice implements OnInit {
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
+    }
+
+    private setTypeSpecificValues(invoice: RecurringInvoice) {
+        this.reportType = this.getReportType(invoice);
+        this.reports = this.allReports.filter(x => x.ReportType === this.reportType);
+        if (this.reportType === 1) {
+            this.distributionPlans = this.allDistributionPlans.filter(x => x.EntityType === this.distributeEntityTypeInvoice);
+        } else {
+            this.distributionPlans = this.allDistributionPlans.filter(x => x.EntityType === this.distributeEntityTypeOrder);
+        }
+    }
+
+    private getReportType(invoice: any): number {
+        return invoice.ProduceAs === 1 ? 1 : 2;
     }
 
     private getInvoice(ID: number): Observable<RecurringInvoice> {
@@ -563,6 +583,9 @@ export class UniRecurringInvoice implements OnInit {
             } else {
                 invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
             }
+        }
+        if (this.reportType !== this.getReportType(invoice)) {
+            this.setTypeSpecificValues(invoice);
         }
         this.invoice = invoice;
         this.updateSaveActions();
@@ -886,15 +909,7 @@ export class UniRecurringInvoice implements OnInit {
         this.saveActions = [
             {
                 label: 'Lagre',
-                action: done => this.saveInvoice(done).then(res => {
-                    if (res) {
-                        this.getInvoice(res.ID).subscribe(invoice => {
-                            this.refreshInvoice(invoice);
-                        });
-                    }
-                }).catch((err) => {
-                    done('Lagring avbrutt');
-                }),
+                action: done => this.saveAndRefreshInvoice(done),
                 disabled: false,
                 main: this.isDirty
             },
@@ -935,6 +950,24 @@ export class UniRecurringInvoice implements OnInit {
             }
         };
         this.modalService.open(UniRecurringInvoiceLogModal, options);
+    }
+
+    private saveAndRefreshInvoice(done) {
+        const requiresPageRefresh = !this.invoice.ID;
+        this.saveInvoice(done).then(res => {
+            if (res) {
+                this.isDirty = false;
+                if (requiresPageRefresh) {
+                    this.router.navigateByUrl('sales/recurringinvoice/' + res.ID);
+                } else {
+                    this.getInvoice(res.ID).subscribe(invoice => {
+                        this.refreshInvoice(invoice);
+                    });
+                }
+            }
+        }).catch((err) => {
+            done('Lagring avbrutt');
+        });
     }
 
     private saveInvoice(done = (msg: string) => {}): Promise<RecurringInvoice> {
