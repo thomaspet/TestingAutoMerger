@@ -39,8 +39,13 @@ export class SmartSearchDataService {
     private helpAndUserItems = [
         {
             type: 'external-link',
-            url: 'https://komigang.unieconomy.no/',
+            url: 'https://help.unieconomy.no',
             value: 'Kundesenter'
+        },
+        {
+            type: 'external-link',
+            url: 'https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24',
+            value: 'Opprett supportsak'
         },
         {
             type: 'external-link',
@@ -51,16 +56,6 @@ export class SmartSearchDataService {
             type: 'external-link',
             url: 'ftp://ftp.unimicro.biz/teknisk/umtt.exe',
             value: 'Teamviewer nedlasting'
-        },
-        {
-            type: 'video',
-            url: '',
-            value: 'Opplæringsvideo for skjermbilde'
-        },
-        {
-            type: 'external-link',
-            url: 'https://app.cimple.no/unimicro/tips-og-triks-2/',
-            value: 'Tips og triks'
         },
         { type: 'link', url: '/about/versions', value: 'Versjonsinformasjon' },
         { type: 'link', url: '/license-info', value: 'Lisensinformasjon' },

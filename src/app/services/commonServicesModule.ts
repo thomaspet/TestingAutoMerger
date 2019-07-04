@@ -58,7 +58,6 @@ import {TeamService} from './common/teamService';
 import {TermsService} from './common/termsService';
 import {UniFilesService} from './common/uniFilesService';
 import {ValidationService} from './common/validationService';
-import {VideoMappingService} from './common/videoMappingService';
 import {DimensionSettingsService} from './common/dimensionSettingsService';
 import {CustomDimensionService} from './common/customDimensionService';
 import {ApiKeyService} from './common/apikeyService';
@@ -121,7 +120,6 @@ export * from './common/teamService';
 export * from './common/termsService';
 export * from './common/uniFilesService';
 export * from './common/validationService';
-export * from './common/videoMappingService';
 export * from './common/uniSearchConfig/uniSearchAccountConfig';
 export * from './common/uniSearchConfig/uniSearchDimensionConfig';
 export * from './common/uniSearchConfig/uniSearchCustomerConfig';
@@ -205,7 +203,6 @@ export class CommonServicesModule {
                 TermsService,
                 UniFilesService,
                 ValidationService,
-                VideoMappingService,
                 DimensionSettingsService,
                 CustomDimensionService,
                 ApiKeyService,

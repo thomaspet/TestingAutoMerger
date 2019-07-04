@@ -1,6 +1,5 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {Router, NavigationEnd} from '@angular/router';
-import {VideoMappingService} from '@app/services/services';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'uni-tabstrip-help',
@@ -15,10 +14,9 @@ import {VideoMappingService} from '@app/services/services';
 
         <ul class="toolbar-dropdown-list" [attr.aria-expanded]="isExpanded">
             <li (click)="goToServiceDesk()">Kundesenter</li>
+            <li (click)="goToNewSupportCase()">Opprett supportsak</li>
             <li (click)="goToMySupportCases()">Mine supportsaker</li>
             <li (click)="goToTeamviewer()">Teamviewer nedlasting</li>
-            <li [attr.aria-disabled]="!videoURL?.length" (click)="goToVideo()">Opplæringsvideo for skjermbilde</li>
-            <li (click)="goToTipsAndTricks()">Tips og triks</li>
             <li (click)="goToAbout()">Versjonsinformasjon</li>
             <li (click)="goToLicenseInfo()">Lisensinformasjon</li>
         </ul>
@@ -28,32 +26,15 @@ import {VideoMappingService} from '@app/services/services';
 })
 export class UniTabstripHelp {
     public isExpanded: boolean;
-    public videoURL: string;
 
-    constructor(
-        private videoMappingService: VideoMappingService,
-        private router: Router,
-    ) {
-        router.events.subscribe(event => {
-            if (event instanceof NavigationEnd) {
-                this.videoURL = undefined;
-                this.videoMappingService.getVideo(window.location.href).then(res => this.videoURL = res);
-            }
-        });
-    }
-
-    goToVideo() {
-        if (this.videoURL) {
-            window.open(this.videoURL, '_blank');
-        }
-    }
-
-    goToTipsAndTricks() {
-        window.open('https://app.cimple.no/unimicro/tips-og-triks-2/', '_blank');
-    }
+    constructor(private router: Router) {}
 
     goToServiceDesk() {
-        window.open('https://komigang.unieconomy.no/', '_blank');
+        window.open('https://help.unieconomy.no', '_blank');
+    }
+
+    goToNewSupportCase() {
+        window.open('https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24', '_blank');
     }
 
     goToMySupportCases() {
