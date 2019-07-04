@@ -278,20 +278,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (this.numberOfAccountsWithMandatoryDimensions > 0) {
 
                     if (!row.MandatoryDimensionsValidation) {row.MandatoryDimensionsValidation = {}; }
-                    const checkDebit: boolean = row.DebitAccountID;
-                    const checkCredit: boolean = row.CreditAccountID;
 
-                    if (checkDebit) {
-                        const debitReport = this.accountMandatoryDimensionService.getReport(row.DebitAccount);
-                        row.MandatoryDimensionsValidation['DebitReport'] = debitReport;
-                        this.table.updateRow(row['_originalIndex'], row);
-                    }
+                    const debitReport = this.accountMandatoryDimensionService.getReport(row.DebitAccount, row);
+                    row.MandatoryDimensionsValidation['DebitReport'] = debitReport;
+                    this.table.updateRow(row['_originalIndex'], row);
 
-                    if (checkCredit) {
-                        const creditReport = this.accountMandatoryDimensionService.getReport(row.CreditAccount);
-                        row.MandatoryDimensionsValidation['DebitReport'] = creditReport;
-                        this.table.updateRow(row['_originalIndex'], row);
-                    }
+                    const creditReport = this.accountMandatoryDimensionService.getReport(row.CreditAccount, row);
+                    row.MandatoryDimensionsValidation['DebitReport'] = creditReport;
+                    this.table.updateRow(row['_originalIndex'], row);
                 }
             });
         }
@@ -1234,6 +1228,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         .setEditable(() => false)
         .setWidth('40px')  // '5%') //Har ingen effekt
         .setTooltipResolver( (rowModel) => {
+            if (rowModel.StatusCode) {
+                return null;
+            }
             let msgText = '';
             let iconType = 0;
             const debRep = rowModel.MandatoryDimensionsValidation && rowModel.MandatoryDimensionsValidation.DebitReport;
@@ -3077,9 +3074,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 event.rowModel.MandatoryDimensionsValidation = {};
             }
 
-            const checkDebit: boolean = event.field === 'DebitAccount' || strF.startsWith('Dimensions.');
-            const checkCredit: boolean = event.field === 'CreditAccount' || strF.startsWith('Dimensions.');
-
 
             if (!event.newValue || event.newValue === null) {
                 if (event.field === 'DebitAccount') {event.rowModel.MandatoryDimensionsValidation['DebitReport'] = null; }
@@ -3093,36 +3087,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             if ( event.newValue !== null || strF.startsWith('Dimensions.')) {
 
-                if (checkDebit) {
-                    const debitReport = this.accountMandatoryDimensionService.getReport(event.rowModel.DebitAccount);
-                    event.rowModel.MandatoryDimensionsValidation['DebitReport'] = debitReport;
-                    this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
-                    setTimeout(() => {
-                        const data = this.table.getTableData();
-                        let msg = '\n';
-                        if (debitReport) {
-                            msg = debitReport.MissingRequiredDimensionsMessage + '\n' + debitReport.MissingOnlyWarningsDimensionsMessage;
-                        }
-                        if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
+                const debitReport = this.accountMandatoryDimensionService.getReport(event.rowModel.DebitAccount, event.rowModel);
+                event.rowModel.MandatoryDimensionsValidation['DebitReport'] = debitReport;
+                this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                setTimeout(() => {
+                    const data = this.table.getTableData();
+                    let msg = '\n';
+                    if (debitReport) {
+                        msg = debitReport.MissingRequiredDimensionsMessage + '\n' + debitReport.MissingOnlyWarningsDimensionsMessage;
+                    }
+                    if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
 
-                        this.dataChanged.emit(data);
-                    }, 0);
-                }
+                    this.dataChanged.emit(data);
+                }, 0);
 
-                if (checkCredit) {
-                    const creditReport = this.accountMandatoryDimensionService.getReport(event.rowModel.DebitAccount);
-                    event.rowModel.MandatoryDimensionsValidation['CreditReport'] = creditReport;
-                    this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
-                    setTimeout(() => {
-                        const data = this.table.getTableData();
-                        let msg = '\n';
-                        if (creditReport) {
-                            msg = creditReport.MissingRequiredDimensionsMessage + '\n' + creditReport.MissingOnlyWarningsDimensionsMessage;
-                        }
-                        if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
-                        this.dataChanged.emit(data);
-                    }, 0);
-                }
+                const creditReport = this.accountMandatoryDimensionService.getReport(event.rowModel.CreditAccount, event.rowModel);
+                event.rowModel.MandatoryDimensionsValidation['CreditReport'] = creditReport;
+                this.table.updateRow(event.rowModel['_originalIndex'], event.rowModel);
+                setTimeout(() => {
+                    const data = this.table.getTableData();
+                    let msg = '\n';
+                    if (creditReport) {
+                        msg = creditReport.MissingRequiredDimensionsMessage + '\n' + creditReport.MissingOnlyWarningsDimensionsMessage;
+                    }
+                    if (msg !==  '\n') { this.toastService.addToast(msg, ToastType.warn, 10); }
+                    this.dataChanged.emit(data);
+                }, 0);
             }
         }
 

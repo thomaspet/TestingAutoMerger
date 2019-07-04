@@ -84,10 +84,32 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         return super.ActionWithBody(null, params, `get-mandatory-dimensions-reports`, RequestMethod.Put);
     }
 
-    public getReport(account: Account) {
+    public getDimensionName(dimensionNo) {
+        if (dimensionNo === 1) {
+            return 'Project';
+        }
+        if (dimensionNo === 2) {
+            return 'Department';
+        } else {
+            return 'Dimension' + dimensionNo;
+        }
+    }
+
+    public getReport(account: Account, row: any) {
+        if (!account) {
+            return null;
+        }
         const debitMandatoryDimensions = this.mandatoryDimensionsCache.filter(md => md.AccountID === account.ID);
-        const debitWarningDimensions = debitMandatoryDimensions.filter(md => md.MandatoryType === 2);
-        const debitRequiredDimensions = debitMandatoryDimensions.filter(md => md.MandatoryType === 1);
+        const debitWarningDimensions = debitMandatoryDimensions.filter(md => {
+            const isWarning = md.MandatoryType === 2;
+            const hasValue = !!row.Dimensions[this.getDimensionName(md.DimensionNo)];
+            return isWarning && !hasValue;
+        });
+        const debitRequiredDimensions = debitMandatoryDimensions.filter(md => {
+            const isRequired = md.MandatoryType === 1;
+            const hasValue = !!row.Dimensions[this.getDimensionName(md.DimensionNo)];
+            return isRequired && !hasValue;
+        });
         const debitWarningDimensionsLabels = debitWarningDimensions.map(md => md.Label);
         const debitRequiredDimensionsLabels = debitRequiredDimensions.map(md => md.Label);
         const arrayToObject = (dimensions) => {
