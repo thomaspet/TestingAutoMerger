@@ -1,15 +1,19 @@
 
-import { BizHttp } from "@uni-framework/core/http/BizHttp";
-import { AccountMandatoryDimension, Dimensions, SalaryTransaction } from "@uni-entities";
-import { UniHttp } from "@uni-framework/core/http/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { RequestMethod } from "@angular/http";
+import { BizHttp } from '@uni-framework/core/http/BizHttp';
+import { AccountMandatoryDimension, Dimensions, SalaryTransaction } from '@uni-entities';
+import { UniHttp } from '@uni-framework/core/http/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { RequestMethod } from '@angular/http';
 import {StatisticsService} from '../common/statisticsService';
+import { tap, map } from 'rxjs/operators';
 
 
 @Injectable()
 export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDimension> {
+
+    mandatoryDimensionsCache = [];
+    mandatoryDimensionsCacheIsValid = false;
 
     constructor(
         http: UniHttp,
@@ -20,9 +24,47 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         this.entityType = AccountMandatoryDimension.EntityType;
     }
 
+    getRequiredMessage(mandatoryDimensionLabels, account) {
+        return `Konto ${account} krever at dimensjonen(e) ${mandatoryDimensionLabels.join(',')} er satt`;
+    }
+
+    getWarningMessage(mandatoryDimensionLabels, account) {
+        return `Konto ${account} har forslag om a sette dimensjonene ${mandatoryDimensionLabels.join(',')}`;
+    }
+
+    getMandatoryDimensions() {
+        if (this.mandatoryDimensionsCacheIsValid) {
+            return of(this.mandatoryDimensionsCache);
+        }
+        return this.statisticsService.GetAll(
+            'model=accountmandatorydimension' +
+            '&select=AccountMandatoryDimension.DimensionNo as DimensionNo' +
+            ',AccountMandatoryDimension.MandatoryType as MandatoryType,' +
+            'AccountMandatoryDimension.AccountID as AccountID,' +
+            'DimensionSettings.Label as Label' +
+            '&filter=MandatoryType gt 0' +
+            '&join=accountmandatorydimension.DimensionNo eq DimensionSettings.Dimension'
+        ).pipe(
+            tap(result => this.mandatoryDimensionsCacheIsValid = true),
+            tap(result => this.mandatoryDimensionsCache = result.Data),
+            map(result => result.Data),
+            map(result => result.map(item => {
+                if (item.Label === null) {
+                    if (item.DimensionNo === 1) {
+                        item.Label = 'Prosjekt';
+                    }
+                    if (item.DimensionNo === 2) {
+                        item.Label = 'Avdeling';
+                    }
+                }
+                return item;
+            })),
+            tap(result => console.log(result))
+        );
+    }
 
     public getMandatoryDimensionsReports(items: any[]): Observable<any> {
-        let params: AccountDimension[] = [];
+        const params: AccountDimension[] = [];
         items.forEach(item => {
             const ad = new AccountDimension();
             ad.AccountID = item.AccountID;
@@ -37,7 +79,7 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
     }
 
     public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
-        let params: AccountDimension[] = [];
+        const params: AccountDimension[] = [];
         salaryTransactions
         .forEach(item => {
             const ad = new AccountDimension();

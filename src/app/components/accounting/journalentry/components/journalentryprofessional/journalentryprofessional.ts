@@ -175,6 +175,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     public currentRowIndex: number = 0;
     public currentFileIDs = [];
     private users: any[] = [];
+    private mandatoryDimensions = [];
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -202,7 +203,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private paymentService: PaymentService,
         private costAllocationService: CostAllocationService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService
-    ) {}
+    ) {
+        this.accountMandatoryDimensionService.getMandatoryDimensions().subscribe(result => {
+            this.mandatoryDimensions = result;
+        });
+    }
 
     public ngOnInit() {
         this.getCreatedByName();
@@ -270,35 +275,66 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.calculateNetAmountAndNetAmountCurrency(row);
                 }
 
-                /*
-                    Anders 02.07.2019
-                    Removing this as it crashes big imports for Tveit
-                */
+                if (this.numberOfAccountsWithMandatoryDimensions > 0) {
 
-                // if (this.numberOfAccountsWithMandatoryDimensions > 0) {
+                    if (!row.MandatoryDimensionsValidation) {row.MandatoryDimensionsValidation = {}; }
+                    const checkDebit: boolean = row.DebitAccountID;
+                    const checkCredit: boolean = row.CreditAccountID;
 
-                //     if (!row.MandatoryDimensionsValidation) {row.MandatoryDimensionsValidation = {}; }
-                //     const checkDebit: boolean = row.DebitAccountID;
-                //     const checkCredit: boolean = row.CreditAccountID;
+                    if (checkDebit) {
+                        const debitMandatoryDimensions = this.mandatoryDimensions.filter(md => md.AccountID === row.DebitAccountID);
+                        const debitWarningDimensions = debitMandatoryDimensions.filter(md => md.MandatoryType === 2);
+                        const debitRequiredDimensions = debitMandatoryDimensions.filter(md => md.MandatoryType === 1);
+                        const debitWarningDimensionsLabels = debitWarningDimensions.map(md => md.Label);
+                        const debitRequiredDimensionsLabels = debitRequiredDimensions.map(md => md.Label);
+                        const arrayToObject = (dimensions) => {
+                            const obj = {};
+                            dimensions.forEach(item => {
+                                obj[item.DimensionNo] = item.Label;
+                            });
+                            return obj;
+                        };
+                        const debitReport = {
+                            AccountID: row.DebitAccountID,
+                            AccountNumber: row.DebitAccount.AccountNumber,
+                            MissingOnlyWarningsDimensionsMessage: this.accountMandatoryDimensionService.getWarningMessage(debitWarningDimensionsLabels, row.DebitAccount.AccountNumber),
+                            MissingRequiredDimensions: debitWarningDimensions.map(md => md.DimensionNo),
+                            MissingRequiredDimensionsMessage: this.accountMandatoryDimensionService.getRequiredMessage(debitRequiredDimensionsLabels, row.DebitAccount.AccountNumber),
+                            MissingWarningDimensions: debitWarningDimensions.map(md => md.DimensionNo),
+                            RequiredDimensions: arrayToObject(debitRequiredDimensions),
+                            WarningDimensions: arrayToObject(debitWarningDimensions)
+                        };
+                        row.MandatoryDimensionsValidation['DebitReport'] = debitReport;
+                        this.table.updateRow(row['_originalIndex'], row);
+                    }
 
-                //     if (checkDebit) {
-                //         this.accountMandatoryDimensionService
-                //         .getMandatoryDimensionsReportByDimension(row.DebitAccountID, row.Dimensions)
-                //         .subscribe((report) => {
-                //                 row.MandatoryDimensionsValidation['DebitReport'] = report;
-                //                 this.table.updateRow(row['_originalIndex'], row);
-                //         });
-                //     }
-
-                //     if (checkCredit) {
-                //         this.accountMandatoryDimensionService
-                //         .getMandatoryDimensionsReportByDimension(row.CreditAccountID, row.Dimensions)
-                //         .subscribe((report) => {
-                //                 row.MandatoryDimensionsValidation['CreditReport'] = report;
-                //                 this.table.updateRow(row['_originalIndex'], row);
-                //         });
-                //     }
-                // }
+                    if (checkCredit) {
+                        const creditMandatoryDimensions = this.mandatoryDimensions.filter(md => md.AccountID === row.CreditAccountID);
+                        const creditWarningDimensions = creditMandatoryDimensions.filter(md => md.MandatoryType === 2);
+                        const creditRequiredDimensions = creditMandatoryDimensions.filter(md => md.MandatoryType === 1);
+                        const creditWarningDimensionsLabels = creditWarningDimensions.map(md => md.Label);
+                        const creditRequiredDimensionsLabels = creditRequiredDimensions.map(md => md.Label);
+                        const arrayToObject = (dimensions) => {
+                            const obj = {};
+                            dimensions.forEach(item => {
+                                obj[item.DimensionNo] = item.Label;
+                            });
+                            return obj;
+                        };
+                        const creditReport = {
+                            AccountID: row.DebitAccountID,
+                            AccountNumber: row.DebitAccount.AccountNumber,
+                            MissingOnlyWarningsDimensionsMessage: this.accountMandatoryDimensionService.getWarningMessage(creditWarningDimensionsLabels, row.CreditAccount.AccountNumber),
+                            MissingRequiredDimensions: creditWarningDimensions.map(md => md.DimensionNo),
+                            MissingRequiredDimensionsMessage: this.accountMandatoryDimensionService.getRequiredMessage(creditRequiredDimensionsLabels, row.CreditAccount.AccountNumber),
+                            MissingWarningDimensions: creditWarningDimensions.map(md => md.DimensionNo),
+                            RequiredDimensions: arrayToObject(creditRequiredDimensions),
+                            WarningDimensions: arrayToObject(creditWarningDimensions)
+                        };
+                        row.MandatoryDimensionsValidation['DebitReport'] = creditReport;
+                        this.table.updateRow(row['_originalIndex'], row);
+                    }
+                }
             });
         }
 
