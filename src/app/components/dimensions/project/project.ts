@@ -93,12 +93,16 @@ export class Project {
     }
 
     ngAfterViewInit() {
-        this.scrollbar = new PerfectScrollbar('#role-info');
+        this.scrollbar = new PerfectScrollbar('#scrolling-viewport');
     }
 
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
+
+        if (this.scrollbar) {
+            this.scrollbar.destroy();
+        }
     }
 
     private init() {
@@ -119,7 +123,6 @@ export class Project {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
             const mySalesSection = linkSections.filter(sec => sec.url === '/sales');
             const myAccountingSection = linkSections.filter(sec => sec.url === '/accounting');
-            const mytabs = [];
             if (mySalesSection.length) {
                 mySalesSection[0].linkGroups.forEach((group) => {
                     group.links.forEach( (li) => {
@@ -192,13 +195,21 @@ export class Project {
     }
 
     private getFilteredProjects() {
-        return this.allProjects.filter((project: ProjectModel) => {
+        const filtered = this.allProjects.filter((project: ProjectModel) => {
             const projectName = (project.Name || '').toLowerCase();
             const projectNumber = (project.ProjectNumber || '').toLowerCase();
             const filterString = (this.projectSearchFilterString || '').toLowerCase();
 
             return projectName.includes(filterString) || projectNumber.includes(filterString);
-        }).slice(0, 99);
+        });
+
+        setTimeout(() => {
+            if (this.scrollbar) {
+                this.scrollbar.update();
+            }
+        }, 50);
+
+        return filtered;
     }
 
     private updateToolbar() {

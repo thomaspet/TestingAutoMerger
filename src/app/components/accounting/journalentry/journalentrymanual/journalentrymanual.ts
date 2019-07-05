@@ -338,7 +338,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         if (journalEntry) {
             if (this.showImagesForJournalEntryNo !== journalEntry.JournalEntryNo) {
                 this.showImagesForJournalEntryNo = journalEntry.JournalEntryNo;
-                this.currentJournalEntryImages = journalEntry.FileIDs;
+                this.currentJournalEntryImages = journalEntry.FileIDs || [];
             }
         } else {
             this.showImagesForJournalEntryNo = null;
