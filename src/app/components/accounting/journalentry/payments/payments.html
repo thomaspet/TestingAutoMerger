@@ -1,9 +1,15 @@
 <uni-toolbar
     [config]="toolbarConfig"
-    [saveactions]="journalEntryManual.saveactions">
+    [selectConfig]="selectConfig"
+    [saveactions]="journalEntryManual.saveactions"
+    (selectValueChanged)="numberSeriesChanged($event, true)">
 </uni-toolbar>
 
-<journal-entry-manual [mode]="1"></journal-entry-manual>
+<journal-entry-manual
+    [mode]="0"
+    [selectedNumberSeries]="selectedNumberSeries"
+    (componentInitialized)="journalEntryManualInitialized()">
+</journal-entry-manual>
 
 <section class="uni-container">
     <header>Ubetalte fakturaer</header>

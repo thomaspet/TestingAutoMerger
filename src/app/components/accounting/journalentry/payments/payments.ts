@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {Observable} from 'rxjs';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
-import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
+import {CustomerInvoice, Account, CompanySettings, LocalDate, NumberSeries} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
@@ -14,7 +14,14 @@ import {
     CustomerInvoiceService,
     AccountService,
     CompanySettingsService,
+    NumberSeriesService,
+    JournalEntryService,
 } from '../../../../services/services';
+import {
+    UniModalService,
+    UniConfirmModalV2,
+    ConfirmActions
+} from '../../../../../framework/uni-modal';
 import {JournalEntryData} from '@app/models';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
@@ -33,6 +40,8 @@ export class Payments {
     private defaultBankAccount: Account;
     public toolbarConfig: IToolbarConfig = {};
     private reminderFeeSumList: any;
+    public selectConfig: any;
+    public selectedNumberSeries: NumberSeries;
 
     constructor(
         private tabService: TabService,
@@ -42,6 +51,9 @@ export class Payments {
         private errorService: ErrorService,
         private router: Router,
         private statisticsService: StatisticsService,
+        private numberSeriesService: NumberSeriesService,
+        private journalEntryService: JournalEntryService,
+        private modalService: UniModalService
     ) {
         this.tabService.addTab({
             name: 'Innbetalinger',
@@ -68,6 +80,49 @@ export class Payments {
         this.setupToolBarconfig();
     }
 
+    public journalEntryManualInitialized() {
+        const id = this.journalEntryService.getSessionNumberSeries();
+
+        this.selectedNumberSeries = id
+            ? this.journalEntryManual.numberSeries.find(serie => serie.ID === id)
+            : this.journalEntryManual.numberSeries[0];
+
+        if (!this.selectedNumberSeries) {
+            // the numberseries that was used is not found - this indicates that the user
+            // has changed year, so the previsous used numberseries is not valid anymore.
+            // Set the first available numberseries - this will ask the user to update
+            // existing journalentries if any
+            if (id) {
+                // get the numberseries based on the id, and find the corresponding
+                // numberseries for this year
+                this.numberSeriesService.Get(id)
+                    .subscribe(currentNumberSeries => {
+                        if (currentNumberSeries) {
+                            // try to find a valid numberseries based on the type and taskid
+                            const validNumberSeries =
+                                this.journalEntryManual.numberSeries
+                                    .find(x => x.NumberSeriesTypeID === currentNumberSeries.NumberSeriesTypeID
+                                        && x.NumberSeriesTaskID === currentNumberSeries.NumberSeriesTaskID);
+
+                            if (validNumberSeries) {
+                                // we found one with the same type/task, use that one
+                                this.numberSeriesChanged(validNumberSeries, false);
+                            } else {
+                                // no valid found, just use the first in the list then..
+                                this.numberSeriesChanged(this.journalEntryManual.numberSeries[0], false);
+                            }
+                        }
+                    }, err => {
+                        // we couldnt find any numberseries based on the set id, it has probably
+                        // been deleted, so just set the first one we have..
+                        this.numberSeriesChanged(this.journalEntryManual.numberSeries[0], false);
+                    });
+            }
+        }
+
+        this.setupToolBarconfig();
+    }
+
     private setupToolBarconfig() {
         this.contextMenuItems = [
             {
@@ -87,7 +142,57 @@ export class Payments {
             omitFinalCrumb: true,
             contextmenu: this.contextMenuItems
         };
+
+        const selectConfig = this.journalEntryManual
+        && this.journalEntryManual.numberSeries.length > 1 ?
+            {
+                items: this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(this.journalEntryManual.numberSeries),
+                label: 'Nummerserie',
+                selectedItem: this.selectedNumberSeries
+            }
+            : null;
+
+        this.selectConfig = selectConfig;
+
         this.toolbarConfig = toolbarConfig;
+    }
+
+    public numberSeriesChanged(selectedNumberSerie, askBeforeChanging: boolean) {
+        if (this.journalEntryManual) {
+            if (selectedNumberSerie && (!this.selectedNumberSeries || selectedNumberSerie.ID !== this.selectedNumberSeries.ID)) {
+                const currentData = this.journalEntryManual.getJournalEntryData();
+
+                if (askBeforeChanging && currentData && currentData.length > 0) {
+                    this.modalService.open(UniConfirmModalV2, {
+                        header: 'Bekreft endring',
+                        message: 'Du har allerede lagt til bilag - '
+                            + 'endring av nummerserie kan kunne oppdatere bilagsnr for alle bilagene',
+                        buttonLabels: {
+                            accept: 'Fortsett',
+                            cancel: 'Avbryt'
+                        }
+                    }).onClose.subscribe(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            // Update current selected numberseries. Set to data, tab and sessionstorage
+                            this.selectedNumberSeries = selectedNumberSerie;
+
+                            currentData.forEach(data => { data.NumberSeriesID = selectedNumberSerie.ID; });
+                            const url = this.router.url;
+                            this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
+                            this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
+                        }
+                        this.setupToolBarconfig();
+                    });
+                } else {
+                    // Update current selected numberseries. Set to tab and sessionstorage
+                    this.selectedNumberSeries = selectedNumberSerie;
+                    const url = this.router.url;
+                    this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
+                    this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
+                    this.setupToolBarconfig();
+                }
+            }
+        }
     }
 
     private openPredefinedDescriptions() {
