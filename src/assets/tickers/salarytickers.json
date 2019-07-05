@@ -50,6 +50,58 @@
             {
                 "Header": "Telefon",
                 "Field": "BusinessRelationInfo.DefaultPhone.Number"
+            },
+            {
+                "Header": "Kjønn",
+                "Field": "Sex",
+                "Type": "text"
+            },
+            {
+                "Header": "OTP Ansettelsedato",
+                "Field": "EmploymentDateOtp"
+            },
+            {
+                "Header": "OTP Sluttdato",
+                "Field": "EndDateOtp"
+            },
+            {
+                "Header": "Inkluderes i eksport",
+                "Field": "OtpExport",
+                "Type": "boolean"
+            },
+            {
+                "Header": "OTP status",
+                "Field": "OtpStatus",
+                "Type": "text"
+            },
+            {
+                "Header": "Inkl t.o.m mnd/år",
+                "Field": "IncludeOtpUntilMonth",
+                "Type": "text",
+                "Seperator": "/",
+                "SubFields": [{
+                    "Field": "IncludeOtpUntilYear",
+                    "Type": "DateYear"
+                }]
+            },
+            {
+                "Header": "Avlønningsform",
+                "Field": "TypeOfPaymentOtp",
+                "Type": "text"
+            },
+            {
+                "Header": "Kommunenr",
+                "Field": "MunicipalityNo",
+                "Type": "text"
+            },
+            {
+                "Header": "Internasjonal ID (type - land)",
+                "Field": "InternasjonalIDType",
+                "Type": "text",
+                "SubFields": [{
+                    "Field": "InternasjonalIDCountry",
+                    "Type": "text"
+                }]
             }
         ],
         "Actions": [{

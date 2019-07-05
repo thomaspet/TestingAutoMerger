@@ -333,20 +333,56 @@ export class UniTicker {
                     if (tickerType === 'table') {
                         if (this.tableConfig) {
                             const customerNrCol = this.tableConfig.columns.find(x => x.header === 'Kundenr.');
-                                if (customerNrCol) {
-                                    customerNrCol.setTemplate(x => {
+                            if (customerNrCol) {
+                                customerNrCol.setTemplate(x => {
                                     if (x.CustomerStatusCode === 20001) {
                                         return 'Lead';
                                     }
                                     return x.CustomerCustomerNumber;
                                 });
                             }
+
                             const getRateFromCol = this.tableConfig.columns.find(x => x.header === 'Sats hentes fra');
                             const getRateFrom = ['Lønnsart', 'Månedslønn ansatt', 'Timelønn ansatt', 'Frisats ansatt'];
-                                if (getRateFromCol) {
-                                    getRateFromCol.setTemplate(x => {
+                            if (getRateFromCol) {
+                                getRateFromCol.setTemplate(x => {
                                     if (x.WageTypeGetRateFrom || x.WageTypeGetRateFrom === 0) {
                                         return getRateFrom[x.WageTypeGetRateFrom];
+                                    }
+                                    return '';
+                                });
+                            }
+
+                            const otpStatusCol = this.tableConfig.columns.find(x => x.header === 'OTP status');
+                            const otpStatuses = ['Aktiv', 'Syk', 'Permittert', 'Lovfestet permisjon', 'Avtalt permisjon'];
+                            if (otpStatusCol) {
+                                otpStatusCol.setTemplate(x => {
+                                    if (x.EmployeeOtpStatus || x.EmployeeOtpStatus === 0) {
+                                        return otpStatuses[x.EmployeeOtpStatus];
+                                    }
+                                    return otpStatuses[0];
+                                });
+                            }
+
+                            const typeOfPaymentOtpCol = this.tableConfig.columns.find(x => x.header === 'Avlønningsform');
+                            const typesOfPaymentOtp = ['Fast', 'Time', 'Provisjon'];
+                            if (typeOfPaymentOtpCol) {
+                                typeOfPaymentOtpCol.setTemplate(x => {
+                                    if (x.EmployeeTypeOfPaymentOtp || x.EmployeeTypeOfPaymentOtp === 0) {
+                                        return typesOfPaymentOtp[x.EmployeeTypeOfPaymentOtp];
+                                    }
+                                    return typesOfPaymentOtp[0];
+                                });
+                            }
+
+                            const internationalIDTypeCol = this.tableConfig.columns
+                                .find(x => x.header === 'Internasjonal ID (type - land)');
+                            const internationalIDType = ['Ikke valgt', 'Passnr', 'Social sec. nr', 'Tax identit. nr', 'Value added nr'];
+                            if (internationalIDTypeCol) {
+                                internationalIDTypeCol.setTemplate(x => {
+                                    if (x.EmployeeInternasjonalIDType || x.EmployeeInternasjonalIDType === 0) {
+                                        const country = x.EmployeeInternasjonalIDCountry ? ' - ' + x.EmployeeInternasjonalIDCountry : '';
+                                        return internationalIDType[x.EmployeeInternasjonalIDType] + country;
                                     }
                                     return '';
                                 });
