@@ -20,16 +20,23 @@ export class AccountSettings {
     @ViewChild(AccountList) private accountlist: AccountList;
     @ViewChild(AccountDetails) private accountDetails: AccountDetails;
 
-    public account: Account;
+    saveaction: IUniSaveAction = {
+        label: 'Lagre',
+        action: (completeEvent) => this.saveSettings(completeEvent),
+        main: true,
+        disabled: true
+    };
 
+    public account: Account;
     private hasChanges: boolean = false;
+
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',
         navigation: {
             add: {
                 label: 'Opprett ny',
-                action: () => this.account = new Account()
+                action: () => this.account = <Account> {}
             }
         },
         contextmenu: [
@@ -44,8 +51,6 @@ export class AccountSettings {
         ]
     };
 
-    public saveactions: IUniSaveAction[] = this.updateActions();
-
     constructor(
         private tabService: TabService,
         private accountService: AccountService,
@@ -58,6 +63,10 @@ export class AccountSettings {
             name: 'Kontoplan', url: '/accounting/accountsettings',
             moduleID: UniModules.Accountsettings, active: true
         });
+    }
+
+    updateSaveEnabledState(enabled: boolean) {
+        this.saveaction.disabled = !enabled;
     }
 
     public changeAccount(account: Account) {
@@ -81,7 +90,7 @@ export class AccountSettings {
     private changeRow(account: Account) {
         this.account = account;
         this.hasChanges = false;
-        this.saveactions = this.updateActions();
+        this.updateSaveEnabledState(false);
     }
 
     public change(event: SimpleChanges) {
@@ -94,7 +103,9 @@ export class AccountSettings {
                     'Vi anbefaler at du ikke har påkrevd dimensjon på disse kontoene.');
             }
         });
+
         this.hasChanges = true;
+        this.updateSaveEnabledState(true);
     }
 
     public accountSaved(account: Account) {
@@ -140,7 +151,11 @@ export class AccountSettings {
         return this.accountDetails.save(done);
     }
     private saveSettings(completeEvent) {
-        this.accountDetails.saveAccount(completeEvent);
+        if (this.hasChanges) {
+            this.accountDetails.saveAccount(completeEvent);
+        } else {
+            completeEvent();
+        }
     }
 
     public SynchronizeNS4102() {
@@ -191,16 +206,5 @@ export class AccountSettings {
                 });
             }
         });
-    }
-
-    private updateActions() {
-        return [
-            {
-                label: 'Lagre',
-                action: (completeEvent) => this.saveSettings(completeEvent),
-                main: true,
-                disabled: !this.account
-            }
-        ];
     }
 }
