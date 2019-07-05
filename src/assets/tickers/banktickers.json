@@ -433,7 +433,7 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
-            } 
+            }
         ],
         "Filters": [
             {
@@ -639,7 +639,7 @@
         "OrderBy":"ID desc",
         "Group": "Bank",
         "Model": "PaymentBatch",
-        "Filter": "PaymentBatchTypeID ne '3'",
+        "Filter": "isnull(PaymentBatchTypeID,0) ne 3",
         "Expand":"",
         "Columns": [
             {
@@ -973,7 +973,7 @@
         "OrderBy":"ID desc",
         "Group": "Bank",
         "Model": "PaymentBatch",
-        "Filter": "PaymentBatchTypeID eq '3'",
+        "Filter": "PaymentBatchTypeID eq 3",
         "Expand":"",
         "Columns": [
             {
