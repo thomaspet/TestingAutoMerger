@@ -122,7 +122,7 @@
         [uploadWithoutEntity]="true"
         [rotateAllowed]="true"
         [useEhfReader]="true"
-        [fileIDs]="currentJournalEntryImages"
+        [fileIDs]="currentJournalEntryImages || []"
         (fileListReady)="onFileListReady($event)">
     </uni-image>
 
