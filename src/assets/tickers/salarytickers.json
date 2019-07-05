@@ -215,12 +215,16 @@
                 "Width": "14rem"
             },
             {
-                "Header": "Ansattnr.",
+                "Header": "Ansatt",
                 "Field": "Employee.EmployeeNumber",
                 "Type": "link",
                 "ExternalModel": "Employee",
                 "LinkNavigationProperty": "Employee.ID",
-                "Width": "7rem"
+                "Width": "7rem",
+                "SubFields": [{
+                    "Field": "Employee.BusinessRelationInfo.Name",
+                    "Type": "link"
+                }]
             },
             {
                 "Header": "Stillingsprosent",
@@ -242,8 +246,8 @@
                 "Alignment": "right"
             },
             {
-                "Header": "Virksomhet",
-                "Field": "SubEntity.BusinessRelationInfo.Name"
+                "Header": "Virksomhet org.nr",
+                "Field": "SubEntity.Orgnumber"
             },
             {
                 "Header": "Månedslønn",
@@ -325,6 +329,21 @@
             {
                 "Header": "Avdeling",
                 "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Timesats",
+                "Field": "HourRate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fri sats",
+                "Field": "UserDefinedRate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Hovedbokskonto",
+                "Field": "LedgerAccount",
                 "DefaultHidden": true
             },
             {
