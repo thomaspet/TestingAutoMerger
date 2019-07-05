@@ -341,6 +341,16 @@ export class UniTicker {
                                     return x.CustomerCustomerNumber;
                                 });
                             }
+                            const getRateFromCol = this.tableConfig.columns.find(x => x.header === 'Sats hentes fra');
+                            const getRateFrom = ['Lønnsart', 'Månedslønn ansatt', 'Timelønn ansatt', 'Frisats ansatt'];
+                                if (getRateFromCol) {
+                                    getRateFromCol.setTemplate(x => {
+                                    if (x.WageTypeGetRateFrom || x.WageTypeGetRateFrom === 0) {
+                                        return getRateFrom[x.WageTypeGetRateFrom];
+                                    }
+                                    return '';
+                                });
+                            }
                         }
                         if (this.groupingIsOn) {
                             this.getGroupingData();

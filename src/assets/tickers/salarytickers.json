@@ -642,6 +642,44 @@
                 "Header": "Beskrivelse",
                 "Field": "Description",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "Sats",
+                "Field": "Rate",
+                "Type": "percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sats hentes fra",
+                "Field": "GetRateFrom",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utbetales med tillegg i prosent",
+                "Field": "RateFactor",
+                "Type": "percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grenseverdi type",
+                "Field": "Limit_type",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grenseverdi",
+                "Field": "Limit_value",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Ny lønnsart (grenseverdi)",
+                "Field": "Limit_WageTypeNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Ny sats (grenseverdi)",
+                "Field": "Limit_newRate",
+                "Type": "percent",
+                "DefaultHidden": true
             }
         ],
         "Actions": [{
