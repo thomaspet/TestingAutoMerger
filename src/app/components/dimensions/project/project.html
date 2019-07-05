@@ -24,17 +24,20 @@
             </mat-form-field>
 
             <input type="search" [(ngModel)]="projectSearchFilterString" [formControl]="searchControl" />
-            <ul id="role-info">
-                    <li *ngFor="let project of filteredProjects"
-                    [class.selected]="project.ID === activeProjectID"
-                    (click)="onProjectSelect(project)">
+            <ul>
+                <cdk-virtual-scroll-viewport itemSize="65" id="scrolling-viewport">
+                    <li *cdkVirtualFor="let project of filteredProjects"
+                        [class.selected]="project.ID === activeProjectID"
+                        (click)="onProjectSelect(project)">
+
                         <span>
                             {{ project.Name }}
                         </span>
                         <span>
-                        Prosjektnr: &nbsp; {{ project.ProjectNumber }}
-                    </span>
+                            Prosjektnr: &nbsp; {{ project.ProjectNumber }}
+                        </span>
                     </li>
+                </cdk-virtual-scroll-viewport>
             </ul>
         </nav>
 
