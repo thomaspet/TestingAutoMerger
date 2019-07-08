@@ -581,6 +581,10 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/admin/flow',
                         moduleID: UniModules.Flow
                     },
+                    {
+                        name:'Importsentral',
+                        url:'/admin/import-central'
+                    }
                 ]
             }
         ]

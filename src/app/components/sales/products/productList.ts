@@ -1,14 +1,15 @@
-import {Component} from '@angular/core';
-import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {ProductService, ErrorService} from '../../../services/services';
-import {Product} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { URLSearchParams } from '@angular/http';
+import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { ProductService, ErrorService, UserService } from '../../../services/services';
+import { Product } from '../../../unientities';
+import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 import { environment } from 'src/environments/environment';
+import { DisclaimerModal } from '@app/components/admin/import-central/modals/disclaimer/disclaimer-modal';
 
 @Component({
     selector: 'product-list',
@@ -27,6 +28,7 @@ export class ProductList {
         private tabService: TabService,
         private errorService: ErrorService,
         private modalService: UniModalService,
+        private userService: UserService
     ) {
         this.tabService.addTab({
             name: 'Produkter',
@@ -60,7 +62,7 @@ export class ProductList {
         this.setupProductTable();
     }
 
-    public onRowSelected (event) {
+    public onRowSelected(event) {
         this.router.navigateByUrl('/sales/products/' + event.ID);
     }
 
@@ -79,23 +81,23 @@ export class ProductList {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        const partNameCol = new UniTableColumn('PartName', 'Produktnr',  UniTableColumnType.Text)
+        const partNameCol = new UniTableColumn('PartName', 'Produktnr', UniTableColumnType.Text)
             .setWidth('15%')
             .setFilterOperator('contains');
 
-        const nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
 
-        const dateCol = new UniTableColumn('CreatedAt', 'Opprettet',  UniTableColumnType.LocalDate)
+        const dateCol = new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.LocalDate)
             .setVisible(false)
             .setWidth('4rem');
 
-        const priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Money)
+        const priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva', UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('10%')
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
-        const priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Money)
+        const priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva', UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('10%')
             .setIsSumColumn(true)
@@ -139,7 +141,30 @@ export class ProductList {
             ]);
     }
 
-    public openImportModal(done = null) {
+    public openImportModal(done = () => { }) {
+        this.userService.getCurrentUser().subscribe(res => {
+            if (res) {
+                if (res.HasAgreedToImportDisclaimer) {
+                    this.openProductImportModal();
+                }
+                else {
+                    this.modalService.open(DisclaimerModal)
+                        .onClose.subscribe((val) => {
+                            if (val) {
+                                this.openProductImportModal();
+                            }
+                        });
+                }
+            }
+        });
+        done();
+    }
+
+    private importLogs() {
+        this.router.navigateByUrl('/admin/jobs');
+    }
+
+    private openProductImportModal() {
         this.modalService.open(ImportCentralTemplateModal,
             {
                 header: 'Importer produkter',
@@ -152,18 +177,7 @@ export class ProductList {
                     downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
                     downloadTemplateUrl: this.productTemplateUrl
                 }
-            }).onClose.subscribe((res) => {
-                if (res) {
-
-                } else {
-                    if (done) {
-                        done();
-                    }
-                }
-            });
-    }
-
-    private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
-    }
+            }
+        );
+    };
 }

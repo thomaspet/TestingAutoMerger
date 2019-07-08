@@ -1,0 +1,58 @@
+@import '../import-central-common.sass'
+
+.uni-container
+    margin: 0
+
+    .header-container
+        display: flex
+        align-items: center
+        @media #{$xs-and-less}   
+            display: inline-block
+
+    header
+        height: 3.5rem
+        line-height: 3.5rem
+        font-size: 20px
+        border: none
+        margin-right: 85px
+        @media #{$xs-and-less}   
+            margin-right: 0
+
+    .drop-down-container 
+        margin-right: 15px
+        @media #{$xs-and-less}   
+            margin-right: 0
+    
+    .table-wrapper
+        padding: 10px 35px
+        overflow: auto
+    
+    table
+        width: 100%
+        th
+            height: 50px
+            border-bottom: 2px solid #d4dce3
+            text-align: left
+            
+        td
+            color: gray
+            text-align: left
+            height: 50px
+            border-bottom: 1px solid #d4dce3
+            .time
+                font-weight: bold
+            label
+                display: flex
+                align-items: center
+                i
+                    margin-right: 5px
+                    font-size: 18px
+                &.progress
+                    color: $redesign-warn
+                &.success
+                    color: $redesign-good
+                &.error
+                    color: $redesign-bad
+
+        
+
