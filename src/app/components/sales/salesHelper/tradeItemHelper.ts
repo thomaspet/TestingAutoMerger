@@ -442,70 +442,8 @@ export class TradeItemHelper  {
         rowModel.SumVatCurrency = (rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency) || 0;
     }
 
-    public getSummaryLines(items: any[]) {
-        const sums = items.reduce(
-            // Reducer
-            (totals, item) => {
-                totals.totalExVat += item.SumTotalExVatCurrency || 0;
-                totals.totalIncVat += item.SumTotalIncVatCurrency || 0;
-                totals.sumVat += item.SumVatCurrency || 0;
-                return totals;
-            },
-            // Init values
-            {
-                totalExVat: 0,
-                totalIncVat: 0,
-                sumVat: 0
-            }
-        );
 
-        // Decimal rounding
-        const roundedAmount = Math.round(+sums.totalIncVat);
-        sums.decimalRounding = roundedAmount - sums.totalIncVat;
-        sums.totalIncVat = roundedAmount;
-
-
-        // Generate summary lines
-        const summaryLines: ISummaryLine[] = [];
-
-        if (sums.totalExVat) {
-            summaryLines.push({
-                label: 'Nettosum',
-                value: this.numberFormat.asMoney(sums.totalExVat || 0)
-            });
-        }
-
-        if (sums.sumVat) {
-            let vatPercents = items.map(item => {
-                return item.VatPercent ? item.VatPercent + '%' : '';
-            });
-
-            vatPercents = _.uniq(vatPercents.filter(vatPercent => !!vatPercent));
-            summaryLines.push({
-                label: `Mva (${vatPercents.join(', ')})`,
-                value: this.numberFormat.asMoney(sums.sumVat)
-            });
-        }
-
-        if (sums.decimalRounding) {
-            summaryLines.push({
-                label: 'Øreavrunding',
-                value: this.numberFormat.asMoney(sums.decimalRounding)
-            });
-        }
-
-        if (sums.totalIncVat) {
-            summaryLines.push({
-                label: 'Totalsum',
-                value: this.numberFormat.asMoney(sums.totalIncVat),
-                isTotalSum: true
-            });
-        }
-
-        return summaryLines;
-    }
-
-    public getSummaryLines2(items: any[], sums: TradeHeaderCalculationSummary): ISummaryLine[] {
+    public getSummaryLines(items: any[], sums: TradeHeaderCalculationSummary): ISummaryLine[] {
         const summaryLines: ISummaryLine[] = [];
 
         if (sums.SumTotalExVat) {
