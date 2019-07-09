@@ -135,7 +135,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private contextMenuItems: IContextMenuItem[] = [];
     companySettings: CompanySettings;
-    recalcDebouncer: EventEmitter<any> = new EventEmitter();
     saveActions: IUniSaveAction[] = [];
     shareActions: IShareAction[];
     toolbarconfig: IToolbarConfig;
@@ -271,14 +270,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.recalcItemSums(null);
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
             this.accountsWithMandatoryDimensionsIsUsed = result > 0;
-        });
-
-        // Subscribe and debounce recalc on table changes
-        this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
-            if (invoiceItems.length) {
-                this.recalcItemSums(invoiceItems);
-                this.isDirty = invoiceItems.some(item => item._isDirty);
-            }
         });
 
         // Subscribe to route param changes and update invoice data
@@ -1126,8 +1117,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.currentInvoiceDate = invoice.InvoiceDate;
 
         this.invoice = cloneDeep(invoice);
+        this.recalcItemSums(invoice.Items);
         this.updateCurrency(invoice, true);
-        this.recalcDebouncer.next(invoice.Items);
+
         if (this.tradeItemTable) {
             this.tradeItemTable.getMandatoryDimensionsReports();
         }
@@ -2271,7 +2263,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             : undefined;
 
         if (this.itemsSummaryData) {
-            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData);
         } else {
             this.summaryLines = [];
         }

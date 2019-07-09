@@ -1118,7 +1118,7 @@ export class UniRecurringInvoice implements OnInit {
             : undefined;
 
         if (this.itemsSummaryData) {
-            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData);
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {

@@ -478,8 +478,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 this.currentQuoteDate = quote.QuoteDate;
 
                 this.quote = cloneDeep(quote);
-                this.updateCurrency(quote, true);
+
                 this.recalcItemSums(quote.Items);
+                this.updateCurrency(quote, true);
+
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
@@ -1050,7 +1052,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             : undefined;
 
         if (this.itemsSummaryData) {
-            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData);
         } else {
             this.summaryLines = [];
         }

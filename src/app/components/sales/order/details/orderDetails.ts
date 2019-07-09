@@ -814,8 +814,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 }
 
                 this.order = cloneDeep(order);
-                this.updateCurrency(order, true);
+
                 this.recalcItemSums(order.Items);
+                this.updateCurrency(order, true);
+
                 if (this.tradeItemTable) {
                     this.tradeItemTable.getMandatoryDimensionsReports();
                 }
@@ -1239,7 +1241,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             : undefined;
 
         if (this.itemsSummaryData) {
-            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
+            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData);
         } else {
             this.summaryLines = [];
         }
