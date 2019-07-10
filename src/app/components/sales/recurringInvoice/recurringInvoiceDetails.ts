@@ -148,20 +148,6 @@ export class UniRecurringInvoice implements OnInit {
         'DefaultDimensions',
         'DeliveryTerms',
         'PaymentTerms',
-        'Items',
-        'Items.Product',
-        'Items.Product.VatType',
-        'Items.VatType',
-        'Items.Dimensions',
-        'Items.Dimensions.Project',
-        'Items.Dimensions.Department',
-        'Items.Dimensions.Dimension5',
-        'Items.Dimensions.Dimension6',
-        'Items.Dimensions.Dimension7',
-        'Items.Dimensions.Dimension8',
-        'Items.Dimensions.Dimension9',
-        'Items.Dimensions.Dimension10',
-        'Items.Account',
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
@@ -395,11 +381,12 @@ export class UniRecurringInvoice implements OnInit {
 
         return Observable.forkJoin(
             this.recurringInvoiceService.Get(ID, this.invoiceExpands, true),
+            this.recurringInvoiceService.getInvoiceItems(ID),
             this.recurringInvoiceService.getLog(ID)
         ).map(res => {
             const invoice: RecurringInvoice = res[0];
-            const invoiceItems: RecurringInvoiceItem[] = res[0].Items || [];
-            this.log = res[1];
+            const invoiceItems: RecurringInvoiceItem[] = res[1] || [];
+            this.log = res[2];
 
             invoice.Items = invoiceItems;
             return invoice;
