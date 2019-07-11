@@ -4,6 +4,7 @@
   "license": "",
   "private": true,
   "scripts": {
+    "postinstall": "node ./scripts/post-install.js",
     "license-check": "node ./scripts/license-check.js",
     "video-mapping": "node ./scripts/video-mapping.js",
     "entities": "node ./scripts/entities.js",
