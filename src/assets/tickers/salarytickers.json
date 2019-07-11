@@ -717,7 +717,6 @@
             {
                 "Header": "Sats",
                 "Field": "Rate",
-                "Type": "percent",
                 "DefaultHidden": true
             },
             {
@@ -749,7 +748,6 @@
             {
                 "Header": "Ny sats (grenseverdi)",
                 "Field": "Limit_newRate",
-                "Type": "percent",
                 "DefaultHidden": true
             }
         ],

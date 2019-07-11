@@ -364,6 +364,17 @@ export class UniTicker {
                                 });
                             }
 
+                            const limitTypeCol = this.tableConfig.columns.find(x => x.header === 'Grenseverdi type');
+                            const limitTypes = ['Ingen', 'Antall', 'Beløp'];
+                            if (limitTypeCol) {
+                                limitTypeCol.setTemplate(x => {
+                                    if (x.WageTypeLimit_type || x.WageTypeLimit_type === 0) {
+                                        return `${x.WageTypeLimit_type} - ${limitTypes[x.WageTypeLimit_type]}`;
+                                    }
+                                    return '';
+                                });
+                            }
+
                             const typeOfPaymentOtpCol = this.tableConfig.columns.find(x => x.header === 'Avlønningsform');
                             const typesOfPaymentOtp = ['Fast', 'Time', 'Provisjon'];
                             if (typeOfPaymentOtpCol) {
