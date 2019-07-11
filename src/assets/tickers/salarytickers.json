@@ -58,25 +58,30 @@
             },
             {
                 "Header": "OTP Ansettelsedato",
-                "Field": "EmploymentDateOtp"
+                "Field": "EmploymentDateOtp",
+                "DefaultHidden": true
             },
             {
                 "Header": "OTP Sluttdato",
-                "Field": "EndDateOtp"
+                "Field": "EndDateOtp",
+                "DefaultHidden": true
             },
             {
                 "Header": "Inkluderes i eksport",
                 "Field": "OtpExport",
+                "DefaultHidden": true,
                 "Type": "boolean"
             },
             {
                 "Header": "OTP status",
                 "Field": "OtpStatus",
+                "DefaultHidden": true,
                 "Type": "text"
             },
             {
                 "Header": "Inkl t.o.m mnd/år",
                 "Field": "IncludeOtpUntilMonth",
+                "DefaultHidden": true,
                 "Type": "text",
                 "Seperator": "/",
                 "SubFields": [{
@@ -87,6 +92,7 @@
             {
                 "Header": "Avlønningsform",
                 "Field": "TypeOfPaymentOtp",
+                "DefaultHidden": true,
                 "Type": "text"
             },
             {

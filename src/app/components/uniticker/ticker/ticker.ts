@@ -398,6 +398,18 @@ export class UniTicker {
                                     return '';
                                 });
                             }
+
+                            const genderCol = this.tableConfig.columns
+                                .find(x => x.header === 'Kjønn');
+                            const gender = ['Ikke satt', 'Kvinne', 'Mann'];
+                            if (genderCol) {
+                                genderCol.setTemplate(x => {
+                                    if (x.EmployeeSex || x.EmployeeSex === 0) {
+                                        return gender[x.EmployeeSex];
+                                    }
+                                    return '';
+                                });
+                            }
                         }
                         if (this.groupingIsOn) {
                             this.getGroupingData();
