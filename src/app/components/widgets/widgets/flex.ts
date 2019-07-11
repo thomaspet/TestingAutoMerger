@@ -1,35 +1,30 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
-import {AuthService} from '../../../authService';
-import {WorkerService, TimesheetService} from '../../../services/services';
+import {TimesheetService} from '../../../services/services';
 import * as moment from 'moment';
 
 @Component({
     selector: 'uni-flex',
     template: `
-        <div class="positive-negative-widget"
-             (click)="onClickNavigate()"
-             title="Totalsum flexiid">
+        <div class="sum_widget yellow-counter" (click)="onClickNavigate()" title="Gå til timeføring">
+            <div class="numbers-section">
+                <div class="header">Timesaldo</div>
+                <div>{{ displayValue || '-' }}</div>
+            </div>
 
-            <span>Timesaldo</span>
-            <span class="value" [ngClass]="{'bad': needsAttention}">
-                {{displayValue || '-'}}
-            </span>
+            <i class="material-icons"> watch_later </i>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniFlexWidget {
-    public widget: IUniWidget;
-
-    public displayValue: string;
-    public needsAttention: boolean;
+    widget: IUniWidget;
+    displayValue: string;
+    color = '#9bc9a9';
 
     constructor(
         private router: Router,
-        private authService: AuthService,
-        private workerService: WorkerService,
         private timesheetService: TimesheetService,
         private cdr: ChangeDetectorRef
     ) {}
@@ -67,7 +62,7 @@ export class UniFlexWidget {
                 const minutes = res.Minutes - (res.LastDayActual - res.LastDayExpected);
                 const hours  = (minutes / 60);
                 this.displayValue = hours.toFixed(1);
-                this.needsAttention = hours < 0;
+                this.color = hours >= 0 ? '#9bc9a9' : '#f4a899';
                 this.cdr.markForCheck();
             },
             err => {}

@@ -26,10 +26,10 @@ export enum TemplateCloseOptions {
 @Component({
     selector: 'uni-template-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 80vw">
-            <header><h1>Opprett ny mal</h1></header>
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw; padding: 0;">
+            <header style="padding: 0 2rem;"><h1>Opprett ny timeføringsmal</h1></header>
 
-            <article>
+            <article style="overflow: visible; padding: 0 2rem;">
                 <label>Navn </label><input type="text" class="template-modal-input-field" [(ngModel)]="template.Name"><br>
                 <label>Beskrivelse </label><input type="text" class="template-modal-input-field" [(ngModel)]="template.Description">
                 <ag-grid-wrapper
@@ -41,8 +41,8 @@ export enum TemplateCloseOptions {
 
             <footer>
                 <button (click)="close('save')" class="good">Lagre</button>
-                <button (click)="close('delete')" class="bad" *ngIf="onEdit.isEdit">Slett</button>
-                <button (click)="close('cancel')" class="bad">Avbryt</button>
+                <button (click)="close('delete')" *ngIf="onEdit.isEdit">Slett</button>
+                <button (click)="close('cancel')" >Avbryt</button>
             </footer>
         </section>
 `,

@@ -2,33 +2,37 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/co
 import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
 import {AuthService} from '../../../authService';
+import PerfectScrollbar from 'perfect-scrollbar';
+import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-shortcut-list',
     template: `
-        <section class="uni-widget-header">
-            {{widget.config.header}}
-        </section>
-
-        <section class="uni-widget-content shortcut-list">
-            <ul>
-                <li *ngFor="let item of items">
-                    <a (click)="navigateOnClick(item.link)" title="{{LISTTITLE}}">{{ item.label }} </a>
-                    <a class="uni-shortcutlist-newicon"
-                        *ngIf="item.urlToNew" (click)="navigateOnClick(item.urlToNew)"
-                        title="{{NEWTITLE}}"> </a>
-                </li>
-            </ul>
+        <section class="widget-wrapper">
+            <section class="header">
+                <span>{{widget.config.header}}</span>
+            </section>
+            <div class="content shortcut-list">
+                <ul id="shortcut-list">
+                    <li *ngFor="let item of items">
+                        <a (click)="navigateOnClick(item.link)" title="Gå til liste">{{ item.label }} </a>
+                        <a *ngIf="item.urlToNew"
+                            (click)="navigateOnClick(item.urlToNew)"
+                            title="Opprett ny">
+                            <i class="material-icons"> add </i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class UniShortcutListWidget {
-    public LISTTITLE: string = 'Gå til liste';
-    public NEWTITLE: string = 'Opprett ny';
-    public widget: IUniWidget;
-    public items: Array<any>;
+    widget: IUniWidget;
+    items: Array<any>;
+    scrollbar: PerfectScrollbar;
 
     constructor(
         private authService: AuthService,
@@ -38,15 +42,21 @@ export class UniShortcutListWidget {
 
     public ngAfterViewInit() {
         if (this.widget) {
-
+            this.scrollbar = new PerfectScrollbar('#shortcut-list', {wheelPropagation: true});
             // Authenticate all routes/modules
-            this.authService.authentication$.subscribe(auth => {
+            this.authService.authentication$.pipe(take(1)).subscribe(auth => {
                 if (auth.user) {
                     this.checkRoutes(auth.user);
                     this.cdr.markForCheck();
                 }
             });
 
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.scrollbar) {
+            this.scrollbar.destroy();
         }
     }
 

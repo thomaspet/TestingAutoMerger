@@ -6,6 +6,8 @@ import {WidgetDataService} from '../widgetDataService';
 import * as moment from 'moment';
 import {FinancialYearService} from '@app/services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import PerfectScrollbar from 'perfect-scrollbar';
+import {take} from 'rxjs/operators';
 
 enum PayrollRunPaymentStatus {
     None = 0,
@@ -17,18 +19,26 @@ enum PayrollRunPaymentStatus {
 @Component({
     selector: 'uni-transactions',
     template: `
-        <section class="uni-widget-header">{{ current?.header }}</section>
+    <section class="widget-wrapper">
+        <section class="header">
+            <span>{{ current?.header }}</span>
 
-        <section class="uni-widget-content" style="display: flex; flex-direction: row; text-align: left; padding: 0;">
-            <div class="transaction-list">
-                <ul style="list-style: none">
-                    <li *ngFor="let item of items; let itemIndex = index;"
-                        [ngClass]="{ 'is-active' : item.active }"
-                        (click)="changeModel(itemIndex)">
-                     {{ item.label }}
-                    </li>
-                </ul>
-            </div>
+            <section class="filters uni-redesign">
+                <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+                    {{ current?.label }}
+                    <i class="material-icons">expand_more</i>
+                </button>
+                <mat-menu #contextMenu="matMenu">
+                    <ul class="widget-filter-menu">
+                        <li role="button" *ngFor="let item of items; let itemIndex = index;" (click)="changeModel(itemIndex)">
+                            {{ item.label }}
+                        </li>
+                    </ul>
+                </mat-menu>
+            </section>
+        </section>
+
+        <section class="content" style="padding: .5rem 1.5rem">
             <div class="transaction_table">
                 <table>
                     <thead>
@@ -43,11 +53,10 @@ enum PayrollRunPaymentStatus {
                         <tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="transaction-list">
                         <tr *ngFor="let row of lookupResult; let i = index;">
                             <td *ngFor="let col of current?.columns"
-                                [ngClass]="col.class"
-                                (click)="rowSelected(row)">
+                                [ngClass]="col.class" (click)="rowSelected(row, col)">
                                 {{ col.displayFunction ? col.displayFunction(row[col.key]) : row[col.key] }}
                             </td>
 
@@ -66,13 +75,11 @@ enum PayrollRunPaymentStatus {
                                 </ng-container>
                             </td>
                         </tr>
-
                     </tbody>
-
                 </table>
             </div>
-
         </section>
+    </section>
     `
 })
 
@@ -81,6 +88,7 @@ export class UniTransactionsWidget implements AfterViewInit {
     public items: Array<any> = [];
     public lookupResult: any;
     public current: any;
+    scrollbar: PerfectScrollbar;
     private lastVisitedModel: string;
     public widget: IUniWidget;
     private numberFormat: any = {
@@ -103,7 +111,7 @@ export class UniTransactionsWidget implements AfterViewInit {
             this.lastVisitedModel = this.browserStorage.getItem('lastVisitedModel');
 
             // Authenticate all routes/modules
-            this.authService.authentication$.subscribe(auth => {
+            this.authService.authentication$.pipe(take(1)).subscribe(auth => {
                 if (auth.user) {
                     this.checkRoutesAndSetDefault(auth.user);
                     this.cdr.markForCheck();
@@ -130,11 +138,15 @@ export class UniTransactionsWidget implements AfterViewInit {
         this.getData();
     }
 
-    public rowSelected(item) {
+    public rowSelected(item, col?) {
         if (!item && !item.ID) {
             return;
         }
-        this.router.navigateByUrl(this.current.link + item.ID);
+        if (col && col.link && col.linkValue && item[col.linkValue]) {
+            this.router.navigateByUrl(col.link + item[col.linkValue]);
+        } else {
+            this.router.navigateByUrl(this.current.link + item.ID);
+        }
     }
 
     private getData() {
@@ -145,6 +157,11 @@ export class UniTransactionsWidget implements AfterViewInit {
             } else {
                 this.lookupResult = res;
             }
+            const elem = document.getElementById('transaction-list');
+            if (elem) {
+                this.scrollbar = new PerfectScrollbar(elem, {wheelPropagation: true});
+            }
+
             this.cdr.markForCheck();
         });
     }
@@ -416,7 +433,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                 dataEndPoint: '/api/biz/quotes?top=20&orderby=ID DESC&expand=Customer',
                 columns: [
                     {
-                        label: 'Ordrenr',
+                        label: 'Tilbudsnr',
                         style: 'color: red',
                         class: 'transaction_table_ten_percent',
                         displayFunction: (value) => {
@@ -469,7 +486,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                     {
                         label: 'Kundenr',
                         style: '',
-                        class: 'transaction_table_fifteen_percent',
+                        class: 'transaction_table_ten_percent',
                         key: 'CustomerNumber'
                     },
                     {
@@ -496,7 +513,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                     {
                         label: 'Prosjektnr',
                         style: '',
-                        class: 'transaction_table_fifteen_percent',
+                        class: 'transaction_table_ten_percent',
                         key: 'ProjectNumber'
                     },
                     {
@@ -662,7 +679,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                 label: 'Leverandørfaktura',
                 header: 'Siste leverandørfaktura',
                 dataEndPoint: '/api/statistics/?model=SupplierInvoice&select=id as ID,statuscode as StatusCode,'
-                + 'Supplier.SupplierNumber,Info.Name,paymentduedate as PaymentDueDate,invoicedate as InvoiceDate,'
+                + 'Supplier.SupplierNumber,Supplier.ID,Info.Name,paymentduedate as PaymentDueDate,invoicedate as InvoiceDate,'
                 + 'invoicenumber as InvoiceNumber,stuff(user.displayname) as Assignees,BankAccount.AccountNumber,'
                 + 'paymentinformation as PaymentInformation,taxinclusiveamount as TaxInclusiveAmount,'
                 + 'taxinclusiveamountcurrency as TaxInclusiveAmountCurrency,paymentid as PaymentID,'
@@ -676,14 +693,16 @@ export class UniTransactionsWidget implements AfterViewInit {
                     {
                         label: 'Fakturanr',
                         style: '',
-                        class: 'transaction_table_fifteen_percent',
+                        class: 'transaction_table_ten_percent',
                         key: 'InvoiceNumber'
                     },
                     {
                         label: 'Leverandør',
                         style: '',
-                        class: '',
-                        key: 'InfoName'
+                        class: 'transaction_table_fifteen_rem link',
+                        key: 'InfoName',
+                        link: '/accounting/suppliers/',
+                        linkValue: 'SupplierID'
                     },
                     {
                         label: 'Fakturadato',
@@ -706,7 +725,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                     {
                         label: 'Beløp',
                         style: '',
-                        class: '',
+                        class: 'right',
                         displayFunction: (value) => {
                             return this.numberToMoney(value);
                         },

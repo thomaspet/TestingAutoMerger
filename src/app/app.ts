@@ -77,7 +77,6 @@ export class App {
 
             if (this.isAuthenticated) {
                 this.toastService.clear();
-
                 const contractType = authDetails.user.License.ContractType.TypeName;
                 if (!this.hasAcceptedCustomerLicense(authDetails.user) && contractType !== 'Demo') {
                     this.modalService.open(LicenseAgreementModal, {

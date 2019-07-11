@@ -485,7 +485,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
         this.myChart = new Chart(element, {
             type: 'groupableBar',
-            data: data,
+            data: <any> data,
             options: {
                 tooltips: {
                     callbacks: {

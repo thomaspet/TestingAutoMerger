@@ -522,7 +522,8 @@ export class DistributionPeriodReportPart implements OnChanges {
         }
 
         if (this.chartElement && this.chartElement.nativeElement) {
-            this.chartRef = Chart.Line(this.chartElement.nativeElement, {
+            this.chartRef = new Chart(this.chartElement.nativeElement, {
+                type: 'line',
                 data: {
                     labels: chartConfig.labels,
                     datasets: chartConfig.datasets

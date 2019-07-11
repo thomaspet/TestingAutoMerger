@@ -1,54 +1,71 @@
 import {UniChartWidget} from './chart';
-import {UniRSSWidget} from './rss';
-import {UniClockWidget} from './clock';
+import {UniClockWidget} from './clock/clock';
 import {UniCompanyLogoWidget} from './companyLogo';
 import {UniSumWidget} from './sumWidget';
 import {UniFlexWidget} from './flex';
 import {UniTransactionsWidget} from './transactions';
 import {UniShortcutListWidget} from './shortcutList';
-import {UniInfoShortcutWidget} from './infoShortcut';
 import {UniCurrencyWidget} from './currency';
-import {UniTopTenWidget} from './topten';
+import {TopTenCustomersWidget} from './top-ten-customers/top-ten-customers';
 import {UniIntegrationCounterWidget} from './integrationCounter';
-import {UniOperatingProfitWidget} from './operatingprofitwidget';
+import {OperatingProfitWidget} from './operating-profits/operating-profits';
+import {UniReportListWidget} from './report-list/report-list';
 
-import {UniCountersWidget} from './counters';
 import {UniShortcutWidget} from './shortcuts';
-import {UniKpiWidget} from './kpi-widget';
+import {InvoicedWidget} from './invoiced/invoiced';
+import {UniUnpaidDoughnutChart} from './unpaid-doughnut-chart';
+import {TimetrackingCalendar} from './timetracking-calendar/timetracking-calendar';
+import {UniEventsWidget} from './eventswidget';
+import {KpiWidget} from './kpi/kpi';
+import {UniTimetrackingCharts} from './timetracking-charts/timetracking-charts';
+import {AssignmentsWidget} from './assignments/assignments-widget';
+import {ExpensesWidget} from './expenses/expenses-widget';
+import {BalanceWidget} from './balance/balance-widget';
 
 export const UNI_WIDGETS = [
-    UniCountersWidget,
-    UniKpiWidget,
     UniShortcutWidget,
     UniChartWidget,
-    UniRSSWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniSumWidget,
     UniFlexWidget,
     UniTransactionsWidget,
     UniShortcutListWidget,
-    UniInfoShortcutWidget,
     UniCurrencyWidget,
-    UniTopTenWidget,
+    TopTenCustomersWidget,
     UniIntegrationCounterWidget,
-    UniOperatingProfitWidget
+    InvoicedWidget,
+    UniUnpaidDoughnutChart,
+    TimetrackingCalendar,
+    OperatingProfitWidget,
+    KpiWidget,
+    UniReportListWidget,
+    UniEventsWidget,
+    UniTimetrackingCharts,
+    AssignmentsWidget,
+    ExpensesWidget,
+    BalanceWidget
 ];
 
-export * from './counters';
-export * from './kpi-widget';
 export * from './shortcuts';
 export * from './chart';
-export * from './rss';
-export * from './clock';
+export * from './clock/clock';
 export * from './companyLogo';
 export * from './sumWidget';
 export * from './flex';
 export * from './transactions';
 export * from './shortcutList';
-export * from './infoShortcut';
 export * from './currency';
-export * from './topten';
+export * from './top-ten-customers/top-ten-customers';
 export * from './integrationCounter';
-export * from './operatingprofitwidget';
-
+export * from './operating-profits/operating-profits';
+export * from './invoiced/invoiced';
+export * from './timetracking-calendar/timetracking-calendar';
+export * from './kpi/kpi';
+export * from './unpaid-doughnut-chart';
+export * from './report-list/report-list';
+export * from './eventswidget';
+export * from './timetracking-charts/timetracking-charts';
+export * from './assignments/assignments-widget';
+export * from './expenses/expenses-widget';
+export * from './balance/balance-widget';

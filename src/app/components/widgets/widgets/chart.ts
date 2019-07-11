@@ -14,14 +14,16 @@ import * as Chart from 'chart.js';
 @Component({
     selector: 'uni-chart',
     template: `
-        <section class="uni-widget-header">
-            {{widget.description}}
-        </section>
+        <section class="widget-wrapper">
+            <section class="header">
+                {{widget.description}}
+            </section>
 
-        <section class="uni-widget-content" [attr.aria-busy]="!(dataLoaded | async)">
-            <canvas #chartElement></canvas>
+            <section class="content" [attr.aria-busy]="!(dataLoaded | async)">
+                <canvas style="max-height: 220px" #chartElement></canvas>
+            </section>
         </section>
-    `,
+    `
 })
 export class UniChartWidget {
     @ViewChild('chartElement')
@@ -35,11 +37,7 @@ export class UniChartWidget {
     private datasets: any[] = [];
     public dataLoaded: EventEmitter<boolean> = new EventEmitter();
 
-    constructor(
-        private widgetDataService: WidgetDataService,
-        private el: ElementRef,
-        private yearService: FinancialYearService
-    ) {}
+    constructor(private widgetDataService: WidgetDataService) {}
 
     public ngAfterViewInit() {
         if (this.widget) {
@@ -49,6 +47,10 @@ export class UniChartWidget {
                 this.loadChartWidget();
             }
         }
+    }
+
+    ngOnDestroy() {
+        this.dataLoaded.complete();
     }
 
     public ngOnChanges() {
@@ -69,7 +71,7 @@ export class UniChartWidget {
                 }
 
                 const builderResult = this.builder.buildPieDataset(res.Data, this.widget.config);
-                this.labels = builderResult.labels;
+                this.labels = builderResult.labels.map(l => l.substr(0, 20));
                 this.datasets = builderResult.dataset;
                 this.drawChart();
             },

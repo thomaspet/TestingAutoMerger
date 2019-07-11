@@ -1,23 +1,34 @@
 export const MISC_WIDGETS = [
     {
-        id: 'overview-widget',
-        description: 'Nøkkeltall',
-        width: 12,
+        id: 'kpi_profitability',
+        description: 'Lønnsomhet',
+        width: 3,
         height: 1,
-        widgetType: 'overview',
-        config: {}
+        widgetType: 'kpi',
+        config: {type: 'profitability'}
     },
-
+    {
+        id: 'kpi_liquidity',
+        description: 'Likviditet',
+        width: 3,
+        height: 1,
+        widgetType: 'kpi',
+        config: {type: 'liquidity'}
+    },
+    {
+        id: 'kpi_solidity',
+        description: 'Soliditet',
+        width: 3,
+        height: 1,
+        widgetType: 'kpi',
+        config: {type: 'solidity'}
+    },
     {
         id: 'clock',
         description: 'Klokke',
         width: 3,
         height: 1,
-        widgetType: 'clock',
-        config: {
-            dateColor: '#7698bd',
-            showSeconds: false
-        }
+        widgetType: 'clock'
     },
     {
         id: 'companylogo',
@@ -36,11 +47,25 @@ export const MISC_WIDGETS = [
         config: {}
     },
     {
-        id: 'rss',
-        description: 'Nyhetsbrev',
-        width: 5,
-        height: 5,
-        alwaysVisible: true,
-        widgetType: 'rss',
+        id: 'report_shortcuts',
+        description: 'Rapporter',
+        width: 3,
+        height: 3,
+        widgetType: 'reportlist',
     },
+    {
+        id: 'events_widget',
+        description: 'Hendelser',
+        permissions: ['ui_sales'],
+        width: 3,
+        height: 3,
+        widgetType: 'event',
+    },
+    {
+        id: 'assignments',
+        description: 'Godkjenninger',
+        width: 3,
+        height: 3,
+        widgetType: 'assignments'
+    }
 ];

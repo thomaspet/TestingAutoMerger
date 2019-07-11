@@ -8,29 +8,33 @@ import {
     ViewChild,
     ComponentFactoryResolver,
     ComponentRef,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef
 } from '@angular/core';
 
 // Import known widgets. Loading third party stuff needs to be solved
 // for all appfrontend, not just widgets.
 import {
-    UniCountersWidget,
-    UniKpiWidget,
     UniShortcutWidget,
     UniChartWidget,
-    UniRSSWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniSumWidget,
     UniFlexWidget,
     UniTransactionsWidget,
     UniShortcutListWidget,
-    UniInfoShortcutWidget,
     UniCurrencyWidget,
-    UniTopTenWidget,
+    TopTenCustomersWidget,
     UniIntegrationCounterWidget,
-    UniOperatingProfitWidget
+    InvoicedWidget,
+    UniUnpaidDoughnutChart,
+    TimetrackingCalendar,
+    OperatingProfitWidget,
+    KpiWidget,
+    UniReportListWidget,
+    UniEventsWidget,
+    UniTimetrackingCharts,
+    AssignmentsWidget,
+    ExpensesWidget,
+    BalanceWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -54,22 +58,28 @@ export interface IUniWidget {
 }
 
 export const WIDGET_MAP = {
-    counters: UniCountersWidget,
-    overview: UniKpiWidget,
     shortcuts: UniShortcutWidget,
     chart: UniChartWidget,
-    rss: UniRSSWidget,
     clock: UniClockWidget,
     sum: UniSumWidget,
     companyLogo: UniCompanyLogoWidget,
     flex: UniFlexWidget,
     transaction: UniTransactionsWidget,
     shortcutlist: UniShortcutListWidget,
-    infoshortcut: UniInfoShortcutWidget,
     currency: UniCurrencyWidget,
-    topten: UniTopTenWidget,
+    topTenCustomers: TopTenCustomersWidget,
     integrationCounter: UniIntegrationCounterWidget,
-    operatingprofit: UniOperatingProfitWidget
+    invoiced: InvoicedWidget,
+    unpaid: UniUnpaidDoughnutChart,
+    timetracking_calendar: TimetrackingCalendar,
+    operatingprofit: OperatingProfitWidget,
+    kpi: KpiWidget,
+    reportlist: UniReportListWidget,
+    event: UniEventsWidget,
+    ttchart: UniTimetrackingCharts,
+    assignments: AssignmentsWidget,
+    expenses: ExpensesWidget,
+    balance: BalanceWidget
 };
 
 @Directive({

@@ -84,11 +84,15 @@ export class AuthService {
         if (this.jwt && this.activeCompany) {
             this.setLoadIndicatorVisibility(true);
             this.loadCurrentSession().subscribe(
-                res => {
+                auth => {
                     this.filesToken$.next(this.filesToken);
 
-                    if (!res.hasActiveContract) {
+                    if (!auth.hasActiveContract) {
                         this.router.navigateByUrl('contract-activation');
+                    }
+
+                    if (auth.hasActiveContract && (!this.router.url || this.router.url === '/')) {
+                        this.router.navigateByUrl(this.getMostFittingUrl(auth.user));
                     }
 
                     // Give the app a bit of time to initialise before we remove spinner
@@ -97,7 +101,7 @@ export class AuthService {
                         this.setLoadIndicatorVisibility(false);
                     }, 250);
                 },
-                err => {
+                () => {
                     this.setLoadIndicatorVisibility(false);
                     this.authentication$.next({
                         activeCompany: undefined,
@@ -214,13 +218,13 @@ export class AuthService {
 
                 this.loadCurrentSession().take(1).subscribe(
                     authDetails => {
-                        const permissions = authDetails.user['Permissions'] || [];
-                        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
-                            redirect = '/assignments/approvals';
+                        const forcedRedirect = this.getForcedRedirect(authDetails);
+                        if (forcedRedirect) {
+                            redirect = forcedRedirect;
                         }
 
-                        if (authDetails.user && !authDetails.hasActiveContract) {
-                            redirect = 'contract-activation';
+                        if (!redirect || redirect === '/' || !this.canActivateRoute(authDetails.user, redirect)) {
+                            redirect = this.getMostFittingUrl(authDetails.user);
                         }
 
                         setTimeout(() => {
@@ -236,6 +240,51 @@ export class AuthService {
                 );
             }
         });
+    }
+
+    private getForcedRedirect(authDetails: IAuthDetails) {
+        const permissions = authDetails.user['Permissions'] || [];
+
+        if (authDetails.user && !authDetails.hasActiveContract) {
+            return 'contract-activation';
+        }
+
+        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
+            return '/assignments/approvals';
+        }
+    }
+
+    /**
+     * Checks the users access and returns the most fitting redirect url.
+     * E.g if a user only has timetracking access we route them to that module.
+     */
+    private getMostFittingUrl(user) {
+        const permissions: string[] = user.Permissions || [];
+        if (permissions.length) {
+
+            const moduleUrls = [];
+            if (permissions.some(p => p.startsWith('ui_accounting'))) {
+                moduleUrls.push('/accounting');
+            }
+
+            if (permissions.some(p => p.startsWith('ui_sales'))) {
+                moduleUrls.push('/sales');
+            }
+
+            if (permissions.some(p => p.startsWith('ui_salary'))) {
+                moduleUrls.push('/salary');
+            }
+
+            if (permissions.some(p => p.startsWith('ui_timetracking'))) {
+                moduleUrls.push('/timetracking');
+            }
+
+            if (moduleUrls.length === 1) {
+                return moduleUrls[0];
+            }
+
+            return '/';
+        }
     }
 
     private getSafeRoute(url: string): string {
