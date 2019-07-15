@@ -341,7 +341,7 @@ export class AccountDetails implements OnInit {
                             // completeEvent('Lagret');
                             resolve(true);
                             if (this.invalidateDimensionsCache) {
-                                this.accountMandatoryDimensionService.invalidateCache();
+                                this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
                                 this.invalidateDimensionsCache = false;
                             }
                             this.account$.next(response);
@@ -403,6 +403,10 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
+                        if (this.invalidateDimensionsCache) {
+                            this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
+                            this.invalidateDimensionsCache = false;
+                        }
                         this.account$.next(response);
                         this.accountSaved.emit(account);
                         this.checkRecurringInvoices(account.ID);
@@ -418,6 +422,10 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
+                        if (this.invalidateDimensionsCache) {
+                            this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
+                            this.invalidateDimensionsCache = false;
+                        }
                         this.accountSaved.emit(account);
                     },
                     (err) => {

@@ -24,6 +24,11 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         this.entityType = AccountMandatoryDimension.EntityType;
     }
 
+    invalidateMandatoryDimensionsCache() {
+        this.mandatoryDimensionsCache = [];
+        this.mandatoryDimensionsCacheIsValid = false;
+    }
+
     getRequiredMessage(mandatoryDimensionLabels, account) {
         if (!mandatoryDimensionLabels.length) {
             return '';
@@ -64,8 +69,7 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
                     }
                 }
                 return item;
-            })),
-            tap(result => console.log(result))
+            }))
         );
     }
 
