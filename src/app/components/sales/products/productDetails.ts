@@ -302,7 +302,7 @@ export class ProductDetails {
     }
 
     private calculateAndUpdatePrice() {
-        const product = this.productService.calculatePriceLocal(this.product$.getValue());
+        const product = this.productService.calculatePriceLocal(this.product$.getValue(), this.vatTypes);
         this.product$.next(product);
         this.setupToolbar();
     }
