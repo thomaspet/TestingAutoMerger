@@ -168,6 +168,7 @@ export class UniTypeaheadInput extends BaseControl {
                         this.selectedItem = null;
                         this.selectedIndex = -1;
                         this.isExpanded$.next(false);
+                        this.confirmSelection(null);
                     }
                 });
             this.items$ = fromControl.merge(fromButton).share();
@@ -183,7 +184,7 @@ export class UniTypeaheadInput extends BaseControl {
                         && this.toggleButton.nativeElement !== document.activeElement) {
                         if (this.lookupResults.length) {
                             this.confirmSelection(this.lookupResults[0]);
-                        }else {
+                        } else {
                             this.confirmSelection(null);
                         }
                     }
@@ -314,7 +315,7 @@ export class UniTypeaheadInput extends BaseControl {
     private confirmSelection(item) {
         const undefinedToNull = val => val === undefined ? null : val;
         const previousValue = this.currentValue;
-        if (item) {
+        if (item && item.ID) {
             this.currentValue = _.get(item, this.options.valueProperty);
         } else {
             this.currentValue = this.control.value;
