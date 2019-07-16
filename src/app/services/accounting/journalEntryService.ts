@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData} from '../../unientities';
+import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/from';
@@ -14,7 +14,13 @@ import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
 import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
-import {AccountMandatoryDimensionService} from './accountMandatoryDimensionService';
+import {CompanySettingsService} from '../common/companySettingsService';
+import {ErrorService} from '../common/errorService';
+import {UniMath} from '../../../framework/core/uniMath';
+import {AuthService, IAuthDetails} from '../../authService';
+import {CustomerInvoiceService} from '@app/services/sales/customerInvoiceService';
+import {NumberFormat} from '@app/services/common/numberFormatService';
+import * as moment from 'moment';
 
 export enum JournalEntryMode {
     Manual,
@@ -36,16 +42,6 @@ export class JournalEntrySettings {
     public AttachmentsVisible: boolean;
     public DefaultVisibleFields: string[];
 }
-
-import * as moment from 'moment';
-import {CompanySettingsService} from '../common/companySettingsService';
-import {ErrorService} from '../common/errorService';
-import {UniMath} from '../../../framework/core/uniMath';
-import {AuthService, IAuthDetails} from '../../authService';
-import { JournalEntries } from '@app/components/accounting/journalentry/journalentries/journalentries';
-import { IJournalEntryLineDraft } from '@uni-framework/interfaces/interfaces';
-import {CustomerInvoiceService} from '@app/services/sales/customerInvoiceService';
-import {NumberFormat} from '@app/services/common/numberFormatService';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
@@ -131,10 +127,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingStatisticsDomain()
             .withEndPoint('?model=Account' +
             '&select=id as ID,AccountNumber as AccountNumber,AccountName as AccountName,VatTypeID as VatTypeID,Visible as Visible,' +
-            `UseVatDeductionGroupID as UseVatDeductionGroupID&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
-            'isnull(customerid,0) eq 0 and isnull(supplierid,0) eq 0&expand=VatType&orderby=accountnumber&wrap=false')
+            `UseVatDeductionGroupID as UseVatDeductionGroupID,TopLevelAccountGroup.GroupNumber&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
+            'isnull(customerid,0) eq 0 and isnull(supplierid,0) eq 0&expand=VatType,TopLevelAccountGroup&orderby=accountnumber&wrap=false')
             .send()
-            .map(res => res.json());
+            .map(res => res.json())
+            .map(res => res.map(x => {
+                const newValue = Object.assign(new Account(), x);
+                newValue.TopLevelAccountGroup = new AccountGroup();
+                newValue.TopLevelAccountGroup.GroupNumber = x.TopLevelAccountGroupGroupNumber;
+                return newValue;
+            }));
     }
 
     public getSessionNumberSeries() {
