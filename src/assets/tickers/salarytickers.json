@@ -1356,5 +1356,141 @@
             "Value": "ID"
         },
         "SubTickersCodes": []
+    },
+    {
+        "Name": "Saldo/trekk",
+        "Code": "salarybalances_list",
+        "RequiredUIPermissions": ["ui_salary"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "SalaryBalance",
+        "Expand": "Employee,Employee.BusinessRelationInfo",
+        "OrderBy": "ID desc",
+        "Columns": [
+            {
+                "Header": "Ansatt",
+                "Field": "Employee.EmployeeNumber",
+                "Width": "8rem",
+                "Type": "link",
+                "LinkNavigationProperty": "Employee.ID",
+                "FilterOperator": "startswith",
+                "SubFields": [{
+                    "Field": "Employee.BusinessRelationInfo.Name",
+                    "Type": "link"
+                }]
+            },
+            {
+                "Header": "Avdrag",
+                "Field": "Instalment",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Avdrag %",
+                "Field": "InstalmentPercent",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Max beløp",
+                "Field": "MaxAmount",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Min beløp",
+                "Field": "MinAmount",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Lønnsart",
+                "Field": "WageTypeNumber",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Navn",
+                "Field": "Name",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Type",
+                "Field": "InstalmentType",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "FromDate",
+                "Type": "localdate",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Til dato",
+                "Field": "ToDate",
+                "Type": "localdate",
+                "DefaultHidden": false
+            },
+            {
+                "Header":"Restsaldo",
+                "Expand": "Transactions.SalaryTransaction.payrollrun",
+                "Field": "sum(casewhen(InstalmentType eq 1 and ((isnull(Transactions.SalaryTransactionID,0) eq 0) or payrollrun.StatusCode gt 0)\\,Transactions.Amount\\,0))",
+                "Alias": "Amount",
+                "Type": "money"
+            }
+        ],
+        "SubTickersCodes": [
+            "salarybalance_details"
+        ]
+    },
+    {
+        "Name": "Saldo",
+        "Code": "salarybalance_details",
+        "RequiredUIPermissions": ["ui_salary"],
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "SalaryBalance",
+        "UseParentTickerActions": true,
+        "Expand": "Employee,Employee.BusinessRelationInfo,Transactions",
+        "Columns": [
+            {
+                "Header": "Nr.",
+                "Field": "Employee.EmployeeNumber",
+                "Width": "8rem",
+                "Type": "link",
+                "LinkNavigationProperty": "Employee.ID",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Ansatt",
+                "Field": "Employee.BusinessRelationInfo.Name",
+                "Type": "link",
+                "LinkNavigationProperty": "Employee.ID"
+            },
+            {
+                "Header": "Lønnsart",
+                "Field": "WageTypeNumber",
+                "Width": "8rem",
+                "Alignment": "right"
+            },
+            {
+                "Header": "Avdrag",
+                "Field": "Instalment",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdrag %",
+                "Field": "InstalmentPercent",
+                "DefaultHidden": true
+            },
+            {
+                "Header":"Restsaldo",
+                "Expand": "Transactions.SalaryTransaction.payrollrun",
+                "Field": "sum(casewhen(InstalmentType eq 1 and ((isnull(Transactions.SalaryTransactionID,0) eq 0) or payrollrun.StatusCode gt 0)\\,Transactions.Amount\\,0))",
+                "Alias": "Amount",
+                "Type": "money"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
     }
 ]
