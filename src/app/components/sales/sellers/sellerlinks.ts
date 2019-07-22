@@ -39,23 +39,69 @@ export class SellerLinks {
 
     public ngOnChanges() {
         if (this.entity) {
-            this.sellerLinks = cloneDeep(this.entity.Sellers) || [];
+            if (this.entity.Sellers && this.entity.Sellers.length > 0) {
+                this.sellerLinks = cloneDeep(this.entity.Sellers);
+                this.recalcSellers(this.sellerLinks[0]);
+            } else {
+                this.sellerLinks = [];
+            }
         }
     }
 
-    onSellerLinksChange() {
-        const sellerLinks = this.sellerLinks
-            .filter(link => !link['_isEmpty'])
-            .map(link => {
-                if (!link.ID) {
-                    link['_createGuid'] = this.sellerLinkService.getNewGuid();
+    recalcSellers(seller) {
+        const amount  = this.entity.Items ? this.entity.Items.reduce((prev, next) => prev + next.SumTotalIncVatCurrency, 0) : 0;
+        const sellers = this.getCleanSellers().filter(x => !x.Deleted);
+        const deletedSellers = this.getCleanSellers().filter(x => x.Deleted);
+        seller.Amount = amount * seller.Percent / 100;
+        if (!sellers) {
+            return;
+        }
+        if (sellers.length === 1) {
+            seller.Percent = 100;
+            seller.Amount = amount;
+        } else if (sellers.length === 2) {
+            const otherSeller = sellers.find(x => x.SellerID !== seller.SellerID);
+            otherSeller.Percent = 100 -  seller.Percent;
+            otherSeller.Amount = amount * otherSeller.Percent / 100;
+        } else {
+            const totalPercent = sellers.reduce((prev, next) => prev + next.Percent, 0);
+            const totalPercentButSeller = sellers.reduce((prev, next) => prev + (next.SellerID !== seller.SellerID ? next.Percent : 0), 0);
+            const surplusPrecent = totalPercentButSeller - 100;
+            if (surplusPrecent > 0) {
+                seller.Percent = 0;
+                seller.Amount = 0;
+            } else {
+                if (totalPercent > 100) {
+                    const surplus = totalPercent - 100;
+                    seller.Percent = seller.Percent - surplus;
+                    seller.Amount = seller.Amount * seller.Percent / 100;
+                } else {
+                    seller.Amount = amount * seller.Percent / 100;
                 }
+            }
+        }
+        this.sellerLinks = sellers.concat(deletedSellers);
+        this.sellerLinks = this.updateSellersGuid();
+        this.entity.Sellers = this.sellerLinks;
+        this.entityChange.emit(this.entity);
+    }
 
+    onSellerChange(event) {
+        this.recalcSellers(event.rowModel);
+    }
+
+    getCleanSellers() {
+        return this.sellerLinks.filter(link => !link['_isEmpty']);
+    }
+
+     updateSellersGuid() {
+        const sellerLinks = this.getCleanSellers().map(link => {
+                if (!link.ID && !link.Deleted) {
+                    link['_createguid'] = this.sellerLinkService.getNewGuid();
+                }
                 return link;
             });
-
-        this.entity.Sellers = sellerLinks;
-        this.entityChange.emit(this.entity);
+        return sellerLinks;
     }
 
     public onSellerLinkDeleted(sellerLink) {
@@ -64,9 +110,11 @@ export class SellerLinks {
             if (defaultSeller && defaultSeller.ID === sellerLink.Seller.ID) {
                 this.entity.DefaultSeller = null;
                 this.entity.DefaultSellerID = null;
-                this.entityChange.emit(this.entity);
             }
         }
+        this.sellerLinks = this.updateSellersGuid();
+        this.entity.Sellers = this.sellerLinks;
+        this.entityChange.emit(this.entity);
     }
 
     private changeCallback(event) {

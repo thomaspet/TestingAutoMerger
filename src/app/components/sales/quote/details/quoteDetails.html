@@ -41,7 +41,7 @@
             [currencyCodeID]="currencyCodeID"
             [currencyExchangeRate]="currencyExchangeRate"
             [dimensionTypes]="dimensionTypes"
-            (itemsChange)="recalcDebouncer.emit($event)">
+            (itemsChange)="onTradeItemsChange($event)">
         </uni-tradeitem-table>
 
         <section class="tof-summary">

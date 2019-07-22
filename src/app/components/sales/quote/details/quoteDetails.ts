@@ -1240,6 +1240,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private saveQuote(): Promise<CustomerQuote> {
         this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
+        if (this.quote.Sellers) {
+            this.quote.Sellers = this.quote.Sellers.filter(x => !x['_isEmpty']);
+        }
 
         // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
         if (this.quote.Sellers && this.quote.ID === 0) {
@@ -1422,5 +1425,11 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         return currencyCode ? currencyCode.Code : '';
+    }
+
+    public onTradeItemsChange($event) {
+        this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
+        this.quote = Object.assign({}, this.quote);
+        this.recalcDebouncer.emit($event);
     }
 }

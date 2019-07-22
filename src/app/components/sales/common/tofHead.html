@@ -77,7 +77,7 @@
             <seller-links
                 [readonly]="isReadOnly()"
                 [(entity)]="data"
-                (entityChange)="dataChange.emit(data)">
+                (entityChange)="onSellersChange($event)">
             </seller-links>
         </section>
 

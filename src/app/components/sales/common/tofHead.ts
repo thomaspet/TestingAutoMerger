@@ -93,8 +93,7 @@ export class TofHead implements OnChanges {
         }
     }
 
-    onSellersChange(sellers) {
-        this.data.Sellers = sellers;
+    onSellersChange($event) {
         this.dataChange.emit(this.data);
     }
 
