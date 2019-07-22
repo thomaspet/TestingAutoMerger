@@ -36,6 +36,7 @@ import {
     ReportDefinitionParameterService,
     CustomDimensionService,
     WageTypeService,
+    EmployeeTaxCardService,
     SalarybalanceService
 } from '../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -134,6 +135,7 @@ export class UniTicker {
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private customDimensionService: CustomDimensionService,
         private wageTypeService: WageTypeService,
+        private taxService: EmployeeTaxCardService,
         private salaryBalanceService: SalarybalanceService,
     ) {
         this.customDimensionService.getMetadata().subscribe(res => this.customDimensionsMetadata = res);
@@ -1118,6 +1120,10 @@ export class UniTicker {
 
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.standardwagetypefor')) {
                         col.template = (rowModel) => this.wageTypeService.GetNameForStandardWageTypeFor(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('.freeamounttype')) {
+                        col.template = (rowModel) => this.taxService.getNameFromFreeAmountType(rowModel[column.Alias]);
                     }
 
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('salarybalance.instalmenttype')) {

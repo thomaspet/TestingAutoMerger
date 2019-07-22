@@ -409,7 +409,8 @@
             },
             {
                 "Header": "Sist oppdatert",
-                "Field": "UpdatedAt"
+                "Field": "casewhen(UpdatedAt gt '2000-01-01',UpdatedAt,CreatedAt)",
+                "Alias": "LastChanged"
             },
             {
                 "Header": "xml",
@@ -1492,5 +1493,245 @@
             "Operator": "eq",
             "Value": "ID"
         }
+    },
+    {
+        "Name": "Skattekort",
+        "Code": "employeetaxcards_list",
+        "RequiredUIPermissions": ["ui_salary"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Lønn",
+        "Model": "EmployeeTaxCard",
+        "Joins": "EmployeeTaxCard.EmployeeID eq Employee.ID and Employee.BusinessRelationID eq BusinessRelation.ID",
+        "Columns":[
+            {
+                "Header": "Ansatt",
+                "Field": "Employee.EmployeeNumber",
+                "Type": "link",
+                "FilterOperator": "startswith",
+                "SubFields": [{
+                    "Field": "BusinessRelation.Name",
+                    "Type": "link"
+                }]
+            },
+            {
+                "Header": "Hovedarbeidsgiver tabell",
+                "Field": "loennFraHovedarbeidsgiver.Table",
+                "Type": "text",
+                "Alignment": "right"
+            },
+            {
+                "Header": "Hovedarbeidsgiver prosent",
+                "Field": "loennFraHovedarbeidsgiver.Percent"
+            },
+            {
+                "Header": "Hovedarbeidsgiver frikortType",
+                "Field": "loennFraHovedarbeidsgiver.freeAmountType",
+                "Alias": "freeAmountType"
+            },
+            {
+                "Header": "Hovedarbeidsgiver frikort beløp",
+                "Field": "loennFraHovedarbeidsgiver.NonTaxableAmount"
+            },
+            {
+                "Header": "Hovedarbeidsgiver antall måneder for trekk",
+                "Field": "loennFraHovedarbeidsgiver.AntallMaanederForTrekk"
+            },
+            {
+                "Header": "Biarbeidsgiver tabell",
+                "Field": "loennFraBiarbeidsgiver.Table",
+                "Type": "text",
+                "Alignment": "right",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Biarbeidsgiver prosent",
+                "Field": "loennFraBiarbeidsgiver.Percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Biarbeidsgiver frikortType",
+                "Field": "loennFraBiarbeidsgiver.freeAmountType",
+                "Alias": "freeAmountType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Biarbeidsgiver frikort beløp",
+                "Field": "loennFraBiarbeidsgiver.NonTaxableAmount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Biarbeidsgiver antall måneder for trekk",
+                "Field": "loennFraBiarbeidsgiver.AntallMaanederForTrekk",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Pensjon tabell",
+                "Field": "pensjon.Table",
+                "Type": "text",
+                "Alignment": "right",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Pensjon prosent",
+                "Field": "pensjon.Percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Pensjon frikortType",
+                "Field": "pensjon.freeAmountType",
+                "Alias": "freeAmountType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Pensjon frikort beløp",
+                "Field": "pensjon.NonTaxableAmount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Pensjon antall måneder for trekk",
+                "Field": "pensjon.AntallMaanederForTrekk",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utenrikstjenestemann tabell",
+                "Field": "loennTilUtenrikstjenestemann.Table",
+                "Type": "text",
+                "Alignment": "right",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utenrikstjenestemann prosent",
+                "Field": "loennTilUtenrikstjenestemann.Percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utenrikstjenestemann frikortType",
+                "Field": "loennTilUtenrikstjenestemann.freeAmountType",
+                "Alias": "freeAmountType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utenrikstjenestemann frikort beløp",
+                "Field": "loennTilUtenrikstjenestemann.NonTaxableAmount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utenrikstjenestemann antall måneder for trekk",
+                "Field": "loennTilUtenrikstjenestemann.AntallMaanederForTrekk",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Trygd utenlandsk borger tabell",
+                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.Table",
+                "Type": "text",
+                "Alignment": "right",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Trygd utenlandsk borger prosent",
+                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.Percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Trygd utenlandsk borger frikortType",
+                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.freeAmountType",
+                "Alias": "freeAmountType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Trygd utenlandsk borger frikort beløp",
+                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.NonTaxableAmount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Trygd utenlandsk borger antall måneder for trekk",
+                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.AntallMaanederForTrekk",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grensegjenger tabell",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Table",
+                "Type": "text",
+                "Alignment": "right",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grensegjenger prosent",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grensegjenger frikortType",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.freeAmountType",
+                "Alias": "freeAmountType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grensegjenger frikort beløp",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.NonTaxableAmount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Grensegjenger antall måneder for trekk",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.AntallMaanederForTrekk",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Uføreytelser fra andre tabell",
+                "Field": "ufoereYtelserAndre.Table",
+                "Type": "text",
+                "Alignment": "right",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Uføreytelser fra andre prosent",
+                "Field": "ufoereYtelserAndre.Percent",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Uføreytelser fra andre frikortType",
+                "Field": "ufoereYtelserAndre.freeAmountType",
+                "Alias": "freeAmountType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Uføreytelser fra andre frikort beløp",
+                "Field": "ufoereYtelserAndre.NonTaxableAmount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Uføreytelser fra andre antall måneder for trekk",
+                "Field": "ufoereYtelserAndre.AntallMaanederForTrekk",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sist oppdatert dato",
+                "Field": "casewhen(UpdatedAt gt '2000-01-01',UpdatedAt,CreatedAt)",
+                "Alias": "LastChanged",
+                "Type": "date"
+            },
+            {
+                "Header": "År",
+                "Field": "Year",
+                "Type": "text",
+                "Alignment": "right"
+            },
+            {
+                "Header": "Biarbeidsgiver",
+                "Field": "NotMainEmployer",
+                "Type": "boolean"
+            },
+            {
+                "Header":"Resultat status",
+                "Field": "Resultatstatus",
+                "Type": "text"
+            },
+            {
+                "Header": "Tilleggsopplysning status",
+                "Field": "Tilleggsopplysning",
+                "Type": "text"
+            }
+        ]
     }
 ]
