@@ -53,7 +53,7 @@ import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 import { map } from 'rxjs/operators';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-declare const _;
+import * as _ from 'lodash';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk distribusjonsplan'},
@@ -1588,8 +1588,13 @@ export class UniTicker {
         if (tableColumns && tableColumns.length) {
             tableColumns.forEach(col => {
                 if (col.visible) {
-                    stringSelect.push(col.field + ' as ' + col.alias);
-                    headers.push(col.header);
+                    if (!col.field.includes('MandatoryDimensions')) {
+                        stringSelect.push(col.field + ' as ' + col.alias);
+                        headers.push(col.header);
+                    } else {
+                        stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
+                        headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
+                    }
                 }
             });
         } else {
@@ -1597,10 +1602,11 @@ export class UniTicker {
                 if (!col.DefaultHidden) {
                     if (col.Field.includes('MandatoryDimensions')) {
                         stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
+                        headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
                     } else {
                         stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                        headers.push(col.Header);
                     }
-                    headers.push(col.Header);
                 }
             });
         }
@@ -1610,14 +1616,15 @@ export class UniTicker {
             if (col.Type === 'dontdisplay') {
                 if (col.Field.includes('MandatoryDimensions')) {
                     stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
+                    headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
                 } else {
                     stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    headers.push(col.Header);
                 }
-                headers.push(col.Header);
             }
         });
 
-        const selectedFieldString = stringSelect.join(',');
+        const selectedFieldString = _.uniq(stringSelect).join(',');
 
         // Remove code after test!
         this.headers = this.headers
@@ -1633,7 +1640,7 @@ export class UniTicker {
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
-                this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
+                this.ticker.Expand, _.uniq(headers).join(','), this.ticker.Joins, this.ticker.Distinct)
                     .subscribe((result) => {
                         let filename = '';
                         // Get filename with filetype from headers
