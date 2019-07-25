@@ -437,6 +437,14 @@ export class WageTypeService extends BizHttp<WageType> {
         return ret && ret.Name;
     }
 
+    public specialTaxAndContributionRuleFilter(companySalary: CompanySalary): string {
+        const keys =  ['Standard', ...Object
+            .keys(companySalary)
+            .filter(key => key.startsWith('Base') && companySalary[key])
+            .map(key => key.substring(5))];
+        return `(${keys.map(key => `SpecialTaxAndContributionsRule eq ${SpecialTaxAndContributionsRule[key]}`).join(' or ')})`;
+    }
+
     private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
         return [
                 this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard),
