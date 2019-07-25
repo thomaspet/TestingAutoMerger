@@ -1,9 +1,10 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import {Router} from '@angular/router';
 import {SellerLink, Seller} from '@uni-entities';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '@uni-framework/ui/unitable';
 import {ErrorService, SellerService, SellerLinkService} from '@app/services/services';
 import {cloneDeep} from 'lodash';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'seller-links',
@@ -13,11 +14,13 @@ export class SellerLinks {
     @Input() readonly: boolean;
     @Input() entity;
     @Output() entityChange = new EventEmitter();
+    @ViewChild('table') table: AgGridWrapper;
 
     sellerTableConfig: UniTableConfig;
     sellerLinks: SellerLink[];
 
     sellers: Seller[];
+    totalPercent = 0;
 
     constructor(
         private router: Router,
@@ -41,53 +44,62 @@ export class SellerLinks {
         if (this.entity) {
             if (this.entity.Sellers && this.entity.Sellers.length > 0) {
                 this.sellerLinks = cloneDeep(this.entity.Sellers);
-                this.recalcSellers(this.sellerLinks[0]);
             } else {
                 this.sellerLinks = [];
             }
+            this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + next.Percent, 0);
         }
     }
 
-    recalcSellers(seller) {
+    manageSellers(event) {
+        if (!event) {
+            return;
+        }
         const amount  = this.entity.Items ? this.entity.Items.reduce((prev, next) => prev + next.SumTotalIncVatCurrency, 0) : 0;
         const sellers = this.getCleanSellers().filter(x => !x.Deleted);
         const deletedSellers = this.getCleanSellers().filter(x => x.Deleted);
-        seller.Amount = amount * seller.Percent / 100;
-        if (!sellers) {
-            return;
-        }
-        if (sellers.length === 1) {
+        const seller = event.rowModel;
+        const numberOfSellers = sellers.length;
+        let focusRow = false;
+        let totalPercent = 0;
+
+        if (event.field === 'Seller' && numberOfSellers === 1) {
             seller.Percent = 100;
-            seller.Amount = amount;
-        } else if (sellers.length === 2) {
-            const otherSeller = sellers.find(x => x.SellerID !== seller.SellerID);
+            seller.Amount = amount * seller.Percent / 100;
+        } else if (event.field === 'Percent' && numberOfSellers === 2) {
+            const otherSeller = sellers.find(x => event.rowModel !== x);
+            if (seller.Percent > 100) {
+                seller.Percent = 100;
+            }
+            seller.Amount = amount * seller.Percent / 100;
             otherSeller.Percent = 100 -  seller.Percent;
             otherSeller.Amount = amount * otherSeller.Percent / 100;
-        } else {
-            const totalPercent = sellers.reduce((prev, next) => prev + next.Percent, 0);
-            const totalPercentButSeller = sellers.reduce((prev, next) => prev + (next.SellerID !== seller.SellerID ? next.Percent : 0), 0);
-            const surplusPrecent = totalPercentButSeller - 100;
-            if (surplusPrecent > 0) {
-                seller.Percent = 0;
-                seller.Amount = 0;
-            } else {
-                if (totalPercent > 100) {
-                    const surplus = totalPercent - 100;
-                    seller.Percent = seller.Percent - surplus;
-                    seller.Amount = seller.Amount * seller.Percent / 100;
-                } else {
-                    seller.Amount = amount * seller.Percent / 100;
-                }
+        } else if (event.field === 'Percent') {
+            totalPercent = sellers.reduce((prev, next) => prev + next.Percent, 0);
+            totalPercent = totalPercent > 100 ? 100 : totalPercent;
+            if (totalPercent < 100) {
+                sellers.push(<SellerLink>{
+                    Seller: null,
+                    Percent: 100 - totalPercent,
+                    Amount: amount * (100 - totalPercent) / 100,
+                    Deleted: false,
+                });
+                focusRow = true;
             }
+            sellers.forEach(s => s.Amount = amount * s.Percent / 100);
         }
         this.sellerLinks = sellers.concat(deletedSellers);
         this.sellerLinks = this.updateSellersGuid();
         this.entity.Sellers = this.sellerLinks;
         this.entityChange.emit(this.entity);
+        this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + next.Percent, 0);
+        if (focusRow) {
+            this.table.focusRow(numberOfSellers);
+        }
     }
 
     onSellerChange(event) {
-        this.recalcSellers(event.rowModel);
+        this.manageSellers(event);
     }
 
     getCleanSellers() {
