@@ -79,6 +79,7 @@ export class PostPost {
     scrollbar: PerfectScrollbar;
     activeAccount: number = 0;
     activeSubAccountID: number = 0;
+    selectedReskontroTypeForCleaning: string;
     customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
     account$: BehaviorSubject<Account> = new BehaviorSubject(null);
@@ -284,10 +285,21 @@ export class PostPost {
                 action: this.autolock.bind(this),
                 disabled: false,
                 label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
-            }, {
+            },
+            {
                 action: this.cleanAndResetLinesWithWrongStatus.bind(this),
                 disabled: false,
-                label: 'Tilbakestill linjer uten motpost'
+                label: 'Resett linjer u/motpost'
+            },
+            {
+                action: this.cleanAndResetAllLinesWithWrongStatus('customer').bind(this),
+                disabled: false,
+                label: 'Resett linjer u/motpost, kunder'
+            },
+            {
+                action: this.cleanAndResetAllLinesWithWrongStatus('supplier').bind(this),
+                disabled: false,
+                label: 'Resett linjer u/motpost, leverandører'
             }
         ];
     }
@@ -334,6 +346,31 @@ export class PostPost {
     }
 
 
+
+    private cleanAndResetAllLinesWithWrongStatus(entityType: string) {
+        return (done: (message: string) => void) => {
+            this.modalService.confirm({
+                header: 'Tilbakestille linjer',
+                message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost for alle kunder?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                        this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID, entityType);
+                        done('Tilbakestilling ble kjørt.');
+                    break;
+                    default:
+                        done('Avbrutt');
+                    break;
+                }
+            });
+        };
+    }
+
     private cleanAndResetLinesWithWrongStatus (done: (message: string) => void) {
 
         this.modalService.confirm({
@@ -347,7 +384,7 @@ export class PostPost {
         }).onClose.subscribe(response => {
             switch (response) {
                 case ConfirmActions.ACCEPT:
-                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID);
+                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID, null);
                     done('Tilbakestilling ble kjørt.');
                 break;
                 default:

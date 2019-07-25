@@ -36,11 +36,11 @@ export class PostPostService extends BizHttp<PostPost> {
             .map(response => response.json());
     }
 
-    public ResetJournalEntryLinesPostStatus(subaccountid: number) {
+    public ResetJournalEntryLinesPostStatus(subaccountid: number, reskontroType: string) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid )
+            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid + '&subAccountType=' + reskontroType)
             .send()
             .map(response => response.json());
     }
