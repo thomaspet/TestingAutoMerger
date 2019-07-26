@@ -572,7 +572,10 @@ export class UniTickerService {
         if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
             const model = this.modelService.getModel(data[column.Alias]);
             if (model) {
-                const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                if (ticker.Name === 'Distribusjon' && column.Field === 'EntityType') {
+                    linkNavigationPropertyAlias = 'SharingEntityDisplayValue';
+                }
                 formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
             }
         }

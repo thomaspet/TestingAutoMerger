@@ -990,6 +990,10 @@ export class UniTicker {
                 } else {
                     selects.push(column.SelectableFieldName + ' as ' + column.Alias);
                 }
+
+                if (this.ticker.Name === 'Distribusjon' && column.Field === 'EntityType') {
+                    selects.push('EntityDisplayValue');
+                }
                 if (column.SubFields) {
                     column.SubFields.forEach(subColumn => {
                         if (this.shouldAddColumnToQuery(subColumn, tableColumn)) {
