@@ -21,6 +21,7 @@ export class SellerLinks {
 
     sellers: Seller[];
     totalPercent = 0;
+    tableIsDirty = false;
 
     constructor(
         private router: Router,
@@ -92,13 +93,14 @@ export class SellerLinks {
         this.sellerLinks = this.updateSellersGuid();
         this.entity.Sellers = this.sellerLinks;
         this.entityChange.emit(this.entity);
-        this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + next.Percent, 0);
+        this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + (next.Percent || 0), 0);
         if (focusRow) {
             this.table.focusRow(numberOfSellers);
         }
     }
 
     onSellerChange(event) {
+        this.tableIsDirty = true;
         this.manageSellers(event);
     }
 
@@ -134,7 +136,6 @@ export class SellerLinks {
         if (event.field === 'Seller') {
             rowModel.SellerID = rowModel.Seller.ID;
         }
-
         return rowModel;
     }
 
@@ -179,5 +180,6 @@ export class SellerLinks {
             .setContextMenu(contextMenuItems)
             .setChangeCallback(event => this.changeCallback(event))
             .setColumns([sellerCol, percentCol, amountCol]);
+        setTimeout(() => this.table.focusRow(0), 500);
     }
 }

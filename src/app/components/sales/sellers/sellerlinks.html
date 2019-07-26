@@ -5,7 +5,7 @@
     (rowDelete)="onSellerLinkDeleted($event)">
 </ag-grid-wrapper>
 <label>
-    <span *ngIf="totalPercent !== 100">
+    <span *ngIf="totalPercent !== 100 && tableIsDirty">
         <i class="material-icons bad">error</i>
         Selger prosent er ikke 100, du bør endre dette før lagring.
     </span>
