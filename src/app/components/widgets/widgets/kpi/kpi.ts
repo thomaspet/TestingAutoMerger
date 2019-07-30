@@ -162,8 +162,6 @@ export class KpiWidget {
             kpiObject.indicator = 'trending_up';
             kpiObject.indicatorLevel = 5;
         }
-
-        kpiObject.grade = 'Tilfredstillende';
     }
 
     drawDoughnut(canvas, kpiObject: IKeyNumberObject) {
