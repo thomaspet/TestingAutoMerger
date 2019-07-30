@@ -285,21 +285,6 @@ export class PostPost {
                 action: this.autolock.bind(this),
                 disabled: false,
                 label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
-            },
-            {
-                action: this.cleanAndResetLinesWithWrongStatus.bind(this),
-                disabled: false,
-                label: 'Resett linjer u/motpost'
-            },
-            {
-                action: this.cleanAndResetAllLinesWithWrongStatus('customer').bind(this),
-                disabled: false,
-                label: 'Resett linjer u/motpost, kunder'
-            },
-            {
-                action: this.cleanAndResetAllLinesWithWrongStatus('supplier').bind(this),
-                disabled: false,
-                label: 'Resett linjer u/motpost, leverandører'
             }
         ];
     }
