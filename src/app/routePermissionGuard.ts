@@ -1,5 +1,4 @@
 import {Inject} from '@angular/core';
-import {UserService} from './services/services';
 import {AuthService} from './authService';
 import {
     Router,
@@ -11,7 +10,6 @@ import {
 
 export class RoutePermissionGuard implements CanActivate, CanActivateChild {
     constructor(
-        @Inject(UserService) private userService,
         @Inject(Router) private router,
         @Inject(AuthService) private authService: AuthService
     ) {}

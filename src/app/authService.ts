@@ -91,10 +91,6 @@ export class AuthService {
                         this.router.navigateByUrl('contract-activation');
                     }
 
-                    if (auth.hasActiveContract && (!this.router.url || this.router.url === '/')) {
-                        this.router.navigateByUrl(this.getMostFittingUrl(auth.user));
-                    }
-
                     // Give the app a bit of time to initialise before we remove spinner
                     // (less visual noise on startup)
                     setTimeout(() => {
@@ -223,10 +219,6 @@ export class AuthService {
                             redirect = forcedRedirect;
                         }
 
-                        if (!redirect || redirect === '/' || !this.canActivateRoute(authDetails.user, redirect)) {
-                            redirect = this.getMostFittingUrl(authDetails.user);
-                        }
-
                         setTimeout(() => {
                             this.router.navigateByUrl(redirect || '');
                             this.setLoadIndicatorVisibility(false);
@@ -251,39 +243,6 @@ export class AuthService {
 
         if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
             return '/assignments/approvals';
-        }
-    }
-
-    /**
-     * Checks the users access and returns the most fitting redirect url.
-     * E.g if a user only has timetracking access we route them to that module.
-     */
-    private getMostFittingUrl(user) {
-        const permissions: string[] = user.Permissions || [];
-        if (permissions.length) {
-
-            const moduleUrls = [];
-            if (permissions.some(p => p.startsWith('ui_accounting'))) {
-                moduleUrls.push('/accounting');
-            }
-
-            if (permissions.some(p => p.startsWith('ui_sales'))) {
-                moduleUrls.push('/sales');
-            }
-
-            if (permissions.some(p => p.startsWith('ui_salary'))) {
-                moduleUrls.push('/salary');
-            }
-
-            if (permissions.some(p => p.startsWith('ui_timetracking'))) {
-                moduleUrls.push('/timetracking');
-            }
-
-            if (moduleUrls.length === 1) {
-                return moduleUrls[0];
-            }
-
-            return '/';
         }
     }
 
