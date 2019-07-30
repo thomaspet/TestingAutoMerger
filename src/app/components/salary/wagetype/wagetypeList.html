@@ -7,8 +7,8 @@
 <article class="application wagetype" [attr.aria-busy] = "busy">
     <ag-grid-wrapper
         class="transquery-grid-font-size"
-        [resource]="lookupFunction"
+        [resource]="wageTypes$ | async"
         [config]="tableConfig"
-        (rowClick)="rowSelected($event)">
+        (rowSelect)="rowSelected($event)">
 </ag-grid-wrapper>
 </article>
