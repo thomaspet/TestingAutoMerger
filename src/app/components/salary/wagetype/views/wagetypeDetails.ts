@@ -589,7 +589,7 @@ export class WagetypeDetail extends UniView {
         tilleggsopplysning.editable = false;
         const suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text)
             .setTemplate((supplement: WageTypeSupplement) => {
-                if (Object.keys(supplement.SuggestedValue).length) {
+                if (supplement.SuggestedValue && Object.keys(supplement.SuggestedValue).length) {
                     return '';
                 }
                 return supplement.SuggestedValue;
