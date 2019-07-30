@@ -58,7 +58,7 @@ export class UniChooseReportModal implements IUniModal {
                 const defaultReport = defaultReportID && this.reports.find(report => report.ID === defaultReportID);
 
                 this.selectedReport = defaultReport || this.reports[0];
-                if (entity.Customer.Localization) {
+                if (entity && entity.Customer.Localization) {
                     this.selectedReport.localization = entity.Customer.Localization;
                 } else if (company.Localization) {
                     this.selectedReport.localization = company.Localization;
