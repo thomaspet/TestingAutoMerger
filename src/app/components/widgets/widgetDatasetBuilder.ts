@@ -13,14 +13,19 @@
 
 export class WidgetDatasetBuilder {
 
-    public BAR_CHART_COLORS = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585', '#9067a7', '#ab6857', '#ccc274', '#FFFFFF', '#000000'];
-    public LINE_CHART_COLORS = ['#396bb1', '#da7c30', '#3e9651', '#cc2529', '#535154', '#6b4c9a', '#922428', '#948b3d', '#FFFFFF', '#000000'];
-    public MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    public BAR_CHART_COLORS = ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585', '#9067a7',
+        '#ab6857', '#ccc274', '#FFFFFF', '#000000'];
+    public LINE_CHART_COLORS = ['#396bb1', '#da7c30', '#3e9651', '#cc2529', '#535154', '#6b4c9a',
+        '#922428', '#948b3d', '#FFFFFF', '#000000'];
+    public CUSTOM_COLORS = ['#2F7FDA', '#4898F3', '#62B2FF', '#7BCBFF', '#94E4FF', '#E1FFFF',
+        '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
+    public MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+        'September', 'October', 'November', 'December'];
     public MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     public QUARTERS = ['1. Kvartal', '2. Kvartal', '3. Kvartal', '4. Kvartal'];
     public QUARTERS_SHORT = ['Q1', 'Q2', 'Q3', 'Q4'];
 
-    //Mainly used for bar- line- and point-charts..
+    // Mainly used for bar- line- and point-charts..
     public buildSingleColorDataset(data: any, index: number, config: any) {
         let myData = [];
 
@@ -41,8 +46,8 @@ export class WidgetDatasetBuilder {
     }
 
     public buildPieDataset(data: any[], config: any) {
-        let labels = [];
-        let dataset = [];
+        const labels = [];
+        const dataset = [];
 
         let rest = [];
 
@@ -71,7 +76,7 @@ export class WidgetDatasetBuilder {
         return {
             dataset: [{
                 data: dataset,
-                backgroundColor: this.BAR_CHART_COLORS.slice(0, data.length),
+                backgroundColor: this.CUSTOM_COLORS.slice(0, data.length),
                 label: '',
                 borderColor: this.LINE_CHART_COLORS[8]
             }],

@@ -122,7 +122,7 @@ export class SellerSalesList {
         const sellerPercentCol = new UniTableColumn('SellerLinkPercent', '%', UniTableColumnType.Percent)
             .setWidth('4rem')
             .setTemplate(row => {
-                return row.SellerLinkPercent || '100';
+                return row.SellerLinkPercent || '0';
             });
 
         const sellerIncAmountCol = new UniTableColumn('SellerAmount', 'Selgersum inkl. mva', UniTableColumnType.Money)

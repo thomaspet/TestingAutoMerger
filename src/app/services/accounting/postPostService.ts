@@ -36,11 +36,11 @@ export class PostPostService extends BizHttp<PostPost> {
             .map(response => response.json());
     }
 
-    public ResetJournalEntryLinesPostStatus(subaccountid: number) {
+    public ResetJournalEntryLinesPostStatus(subaccountid: number, reskontroType: string) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid )
+            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid + '&subAccountType=' + reskontroType)
             .send()
             .map(response => response.json());
     }
@@ -118,143 +118,148 @@ export class PostPostService extends BizHttp<PostPost> {
             finalized: false
         });
 
-        this.http
-            .asGET()
-            .usingStatisticsDomain()
-            .withEndPoint(query)
-            .send()
-            .map(res => res.json())
-            .subscribe((result) => {
+        this.ResetJournalEntryLinesPostStatus(null, 'customer').subscribe((resCust) => {
+            this.ResetJournalEntryLinesPostStatus(null, 'supplier').subscribe((resSupp) => {
 
-                if (!result) {
-                    responseObject.next({
-                        message: 'Fant ingen kontoer å automerke.',
-                        percent: 100,
-                        errors: errors,
-                        finalized: true
-                    });
-                    responseObject.complete();
-                    return;
-                } else {
-                    responseObject.next({
-                        message: `Fant ${result.length} kontoer med mulig automerking. Sjekker kontoer nå.`,
-                        percent: 0,
-                        errors: errors,
-                        finalized: false
-                    });
-                }
+            this.http
+                .asGET()
+                .usingStatisticsDomain()
+                .withEndPoint(query)
+                .send()
+                .map(res => res.json())
+                .subscribe((result) => {
 
-                const markableResults = result.filter(item => (item.ItemCount > 0 && item.NumNegative !== 0 && item.NumPositive !== 0));
-
-                const batchSuggestions = (index: number) => {
-                    if (index >= markableResults.length) {
+                    if (!result) {
                         responseObject.next({
-                            message:  `${logMessages.length - errors} kontoer merket, ${errors} feilet.`,
+                            message: 'Fant ingen kontoer å automerke.',
                             percent: 100,
                             errors: errors,
-                            finalized: true,
-                            logMessages: logMessages
+                            finalized: true
                         });
-
+                        responseObject.complete();
                         return;
-                    } else if (this.cancelAutomarkAll) {
+                    } else {
                         responseObject.next({
-                            message:  `Automerking avbrutt.. ${logMessages.length - errors} kontoer merket, ${errors} feilet.`,
-                            percent: 100,
+                            message: `Fant ${result.length} kontoer med mulig automerking. Sjekker kontoer nå.`,
+                            percent: 0,
                             errors: errors,
-                            finalized: true,
-                            logMessages: logMessages
+                            finalized: false
                         });
-
-                        return false;
                     }
 
-                    const item = markableResults[index];
+                    const markableResults = result.filter(item => (item.ItemCount > 0 && item.NumNegative !== 0 && item.NumPositive !== 0));
 
-                    responseObject.next({
-                        message: `${item.AccountNo} - ${item.Name}`,
-                        errors: errors,
-                        percent: Math.floor((index / markableResults.length) * 100),
-                        finalized: false
-                    });
+                    const batchSuggestions = (index: number) => {
+                        if (index >= markableResults.length) {
+                            responseObject.next({
+                                message:  `${logMessages.length - errors} kontoer merket, ${errors} feilet.`,
+                                percent: 100,
+                                errors: errors,
+                                finalized: true,
+                                logMessages: logMessages
+                            });
 
-                    if (item.ItemCount < 0 || item.NumNegative === 0 || item.NumPositive === 0) {
-                        // Unmarkable, do nothing
-                        batchSuggestions(index + 1);
-                    } else {
-                        const route = `postposts?action=get-suggestions&methods=${method}&${this.getRouteFilter(item)}`;
-                        this.http
-                            .asGET()
-                            .usingBusinessDomain()
-                            .withEndPoint(route)
-                            .send()
-                            .map(res => res.json())
-                            .subscribe((suggestions) => {
-                                // Add new query to the allBatches array
-                                if (suggestions) {
-                                    const markings = suggestions.Pairs;
-                                    if (markings && markings.length) {
-                                        let position = 0;
-                                        const batches: any[] = [];
-                                        const batchSize: number = 50;
+                            return;
+                        } else if (this.cancelAutomarkAll) {
+                            responseObject.next({
+                                message:  `Automerking avbrutt.. ${logMessages.length - errors} kontoer merket, ${errors} feilet.`,
+                                percent: 100,
+                                errors: errors,
+                                finalized: true,
+                                logMessages: logMessages
+                            });
 
-                                        // Add suggested pairs in batches and send them to prevent server timeout
-                                        while (position < markings.length) {
-                                            const batch = markings.slice(position, position + batchSize);
-                                            position += batchSize;
-                                            batches.push(
-                                                this.http
-                                                    .asPOST()
-                                                    .usingBusinessDomain()
-                                                    .withEndPoint('postposts?action=markposts')
-                                                    .withBody(batch)
-                                                    .send()
-                                                    .do(() => {
-                                                        logMessages.push({
-                                                            message: 'Vellykket automerking av ' + (batch.length * 2) +
-                                                            ' linjer for ' + item.AccountNo + ' - ' + item.Name,
-                                                            error: false
-                                                        });
-                                                    })
-                                                    .catch((err) => {
-                                                        errors++;
-                                                        const error = err.json();
-                                                        let errorMessage = '';
-                                                        if (error && error.Messages && error.Messages.length) {
-                                                            errorMessage = error.Messages[0].Message;
-                                                        } else if (error && error.JournalEntryNumber) {
-                                                            errorMessage = 'Feil på bilagsnr. ' + error.JournalEntryNumber;
-                                                        }
-                                                        logMessages.push({
-                                                            message: 'Feil på automerking av konto: '
-                                                            + item.AccountNo + ' - ' + item.Name,
-                                                            error: true,
-                                                            errorMsg: errorMessage
+                            return false;
+                        }
+
+                        const item = markableResults[index];
+
+                        responseObject.next({
+                            message: `${item.AccountNo} - ${item.Name}`,
+                            errors: errors,
+                            percent: Math.floor((index / markableResults.length) * 100),
+                            finalized: false
+                        });
+
+                        if (item.ItemCount < 0 || item.NumNegative === 0 || item.NumPositive === 0) {
+                            // Unmarkable, do nothing
+                            batchSuggestions(index + 1);
+                        } else {
+                            const route = `postposts?action=get-suggestions&methods=${method}&${this.getRouteFilter(item)}`;
+                            this.http
+                                .asGET()
+                                .usingBusinessDomain()
+                                .withEndPoint(route)
+                                .send()
+                                .map(res => res.json())
+                                .subscribe((suggestions) => {
+                                    // Add new query to the allBatches array
+                                    if (suggestions) {
+                                        const markings = suggestions.Pairs;
+                                        if (markings && markings.length) {
+                                            let position = 0;
+                                            const batches: any[] = [];
+                                            const batchSize: number = 50;
+
+                                            // Add suggested pairs in batches and send them to prevent server timeout
+                                            while (position < markings.length) {
+                                                const batch = markings.slice(position, position + batchSize);
+                                                position += batchSize;
+                                                batches.push(
+                                                    this.http
+                                                        .asPOST()
+                                                        .usingBusinessDomain()
+                                                        .withEndPoint('postposts?action=markposts')
+                                                        .withBody(batch)
+                                                        .send()
+                                                        .do(() => {
+                                                            logMessages.push({
+                                                                message: 'Vellykket automerking av ' + (batch.length * 2) +
+                                                                ' linjer for ' + item.AccountNo + ' - ' + item.Name,
+                                                                error: false
                                                             });
-                                                        return Observable.of('');
-                                                    })
-                                            );
+                                                        })
+                                                        .catch((err) => {
+                                                            errors++;
+                                                            const error = err.json();
+                                                            let errorMessage = '';
+                                                            if (error && error.Messages && error.Messages.length) {
+                                                                errorMessage = error.Messages[0].Message;
+                                                            } else if (error && error.JournalEntryNumber) {
+                                                                errorMessage = 'Feil på bilagsnr. ' + error.JournalEntryNumber;
+                                                            }
+                                                            logMessages.push({
+                                                                message: 'Feil på automerking av konto: '
+                                                                + item.AccountNo + ' - ' + item.Name,
+                                                                error: true,
+                                                                errorMsg: errorMessage
+                                                                });
+                                                            return Observable.of('');
+                                                        })
+                                                );
+                                            }
+
+                                            Observable.forkJoin(batches).subscribe((batchResult) => {
+                                                batchSuggestions(index + 1);
+                                            }, (error) => {
+                                                batchSuggestions(index + 1);
+                                            });
+
+                                        } else {
+                                            batchSuggestions(index + 1);
                                         }
-
-                                        Observable.forkJoin(batches).subscribe((batchResult) => {
-                                            batchSuggestions(index + 1);
-                                        }, (error) => {
-                                            batchSuggestions(index + 1);
-                                        });
-
                                     } else {
                                         batchSuggestions(index + 1);
                                     }
-                                } else {
-                                    batchSuggestions(index + 1);
-                                }
-                            });
-                    }
-                };
-                batchSuggestions(0);
+                                });
+                        }
+                    };
+                    batchSuggestions(0);
+                });
             });
+        });
+        return responseObject;
 
-            return responseObject;
     }
 
     private getRouteFilter(item) {

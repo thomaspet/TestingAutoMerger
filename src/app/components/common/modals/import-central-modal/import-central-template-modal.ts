@@ -6,6 +6,8 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import { FileService, ErrorService, JobService } from '@app/services/services';
 import { Http } from '@angular/http';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { DisclaimerModal } from '@app/components/admin/import-central/modals/disclaimer/disclaimer-modal';
 
 
 @Component({
@@ -28,15 +30,18 @@ import { Http } from '@angular/http';
                     </label>
                     <label class="upload-input">
                         <i class="material-icons">cloud_download</i>
-                    <a href="{{options.data.downloadTemplateUrl}}">Download Template</a>
+                    <a href="{{options.data.downloadTemplateUrl}}">Last ned mal</a>
                 </label>
                 </form>
-                <div>
+                <div class="file-container">
                     <span>Filimport</span>
                     <div class="supplier-file-import">
                         <input type="file" (change)="uploadFileChange($event)" accept=".xlsx, .txt">
                     </div>
                 </div>
+
+                <a (click)="onShowDisclaimer()">Vis betingelser for Import</a>
+                
                 <section *ngIf="loading$ | async" class="modal-spinner">
                     <mat-spinner></mat-spinner>
                 </section>
@@ -74,7 +79,8 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
         private fileService: FileService,
         private errorService: ErrorService,
         private http: Http,
-        private jobService: JobService
+        private jobService: JobService,
+        private modalService: UniModalService
     ) {
         this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
@@ -139,6 +145,9 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
         }
     }
 
+    public onShowDisclaimer() {
+        this.modalService.open(DisclaimerModal);
+    }
     public close() {
         this.onClose.emit();
     }

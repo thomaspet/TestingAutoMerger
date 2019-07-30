@@ -43,6 +43,7 @@
         </ng-template>
 
         <uni-select
+            *ngIf="availableCompanies?.length"
             [config]="selectConfig"
             [items]="availableCompanies"
             (valueChange)="onCompanySelected($event)">

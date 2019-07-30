@@ -9,7 +9,10 @@ import {
     ChangeDetectorRef,
     EventEmitter,
 } from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, Subject, interval} from 'rxjs';
+import {cloneDeep} from 'lodash';
+import * as $ from 'jquery';
+
 import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
@@ -17,25 +20,19 @@ import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
 
-import {
-    // SHORTCUTS,
-    SHORTCUT_LISTS,
-    INFO_SHORTCUTS,
+import {Chart} from 'chart.js';
+import 'chartjs-plugin-datalabels';
+Chart.defaults.global.plugins.datalabels.display = false;
 
+import {
+    SHORTCUT_LISTS,
     CHARTS,
     COUNTERS,
     MISC_WIDGETS
 } from './configs/index';
-
-import * as $ from 'jquery';
-declare const _;
+import {takeUntil, throttleTime, debounceTime, finalize} from 'rxjs/operators';
 
 export {IUniWidget} from './uniWidget';
-
-interface IGridCell {
-    available: boolean;
-    class: string;
-}
 
 interface IGridAnchor {
     valid: boolean;
@@ -49,6 +46,7 @@ export interface IResponsiveWidgetLayout {
     large: IUniWidget[];
     medium?: IUniWidget[];
     small?: IUniWidget[];
+    xs?: IUniWidget[];
 }
 
 export interface IWidgetReference {
@@ -57,10 +55,18 @@ export interface IWidgetReference {
     widgetID: string;
 }
 
+export interface DefaultWidgetLayout {
+    large: IWidgetReference[];
+    medium?: IWidgetReference[];
+    small?: IWidgetReference[];
+    xs?: IWidgetReference[];
+}
+
 enum LAYOUT_WIDTH {
     large = 12,
-    medium = 8,
-    small = 4
+    medium = 9,
+    small = 6,
+    xs = 3
 }
 
 @Component({
@@ -69,33 +75,41 @@ enum LAYOUT_WIDTH {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniWidgetCanvas {
-    @ViewChild('canvas')
-    private canvas: ElementRef;
+    @ViewChild('canvas') canvas: ElementRef;
+    @ViewChildren(UniWidget) widgetElements: QueryList<UniWidget>;
 
-    @ViewChildren(UniWidget)
-    private widgetElements: QueryList<UniWidget>;
+    @Input() layoutName: string;
+    @Input() defaultLayout: DefaultWidgetLayout;
 
-    @Input()
-    private layoutName: string;
+    onDestroy$ = new Subject();
 
-    @Input()
-    private defaultLayout: IWidgetReference[];
+    companyName: string;
+    links = [
+        { label: 'Hjem', url: '/' },
+        { label: 'Regnskap', url: '/accounting' },
+        { label: 'Salg', url: '/sales' },
+        { label: 'Lønn', url: '/salary' },
+        { label: 'Timer', url: '/timetracking' },
+        { label: 'Bank', url: '/bank' },
+        { label: 'Oversikt', url: '/overview' }
+    ];
 
-    public layout: IResponsiveWidgetLayout;
+    layout: IResponsiveWidgetLayout;
     private layoutBackup: IResponsiveWidgetLayout;
     private unsavedChanges: boolean;
-    public editMode: boolean;
-    public currentSize: string;
-    private gridUnitInPx: number;
-    private widgetMargin: number;
+    editMode: boolean;
+    currentSize: string;
+    gridUnitInPx: number;
+    widgetMargin: number;
 
     private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
     private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
-    public gridAnchor: IGridAnchor;
-    private widgetSelectorItems: any[];
+    gridAnchor: IGridAnchor;
+    widgetSelectorItems: any[];
 
-    private refreshInterval: any;
     private sidebarState: string;
+
+    canvasHeight: number;
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -109,14 +123,18 @@ export class UniWidgetCanvas {
         this.dataService.clearCache();
 
         // Clear on a 10 min timer
-        this.refreshInterval = setInterval(() => {
+        interval(600000).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
             this.dataService.clearCache();
             this.refreshWidgets();
-        }, 60000 * 10);
+        });
 
         this.widgetMargin = 10;
 
-        this.authService.authentication$.subscribe(auth => {
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
+            this.companyName = auth.activeCompany && auth.activeCompany.Name;
+
             if (auth.user && this.layout) {
                 this.canvasHelper.resetGrid();
                 const layout = this.canvasHelper.getSavedLayout(this.layoutName);
@@ -124,40 +142,46 @@ export class UniWidgetCanvas {
             }
         });
 
-        Observable.fromEvent(window, 'resize')
-            .throttleTime(200)
-            .subscribe(event => {
-                if (this.defaultLayout) {
-                    if (this.editMode) {
-                        this.save();
-                    }
-
-                    this.drawLayout();
-                }
-            });
-
-        this.navbarService.sidebarState$
-            .debounceTime(200)
-            .subscribe(state => {
-                if (this.sidebarState && this.sidebarState !== state) {
-                    this.drawLayout();
+        Observable.fromEvent(window, 'resize').pipe(
+            throttleTime(200),
+            takeUntil(this.onDestroy$)
+        ).subscribe(() => {
+            if (this.defaultLayout) {
+                if (this.editMode) {
+                    this.save();
                 }
 
-                this.sidebarState = state;
-            });
+                this.drawLayout();
+            }
+        });
+
+        this.navbarService.sidebarState$.pipe(
+            debounceTime(200),
+            takeUntil(this.onDestroy$)
+        ).subscribe(state => {
+            if (this.sidebarState && this.sidebarState !== state) {
+                this.drawLayout();
+            }
+
+            this.sidebarState = state;
+        });
 
         this.initWidgetSelector();
     }
 
-    public ngOnChanges() {
+    ngOnChanges() {
         if (this.defaultLayout && this.layoutName) {
             const layout = this.canvasHelper.getSavedLayout(this.layoutName);
             this.initializeLayout(layout);
         }
     }
 
-    public ngOnDestroy() {
-        clearInterval(this.refreshInterval);
+    ngOnDestroy() {
+        this.mouseMove.complete();
+        this.drawAnchorCell.complete();
+
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     private initializeLayout(layout?: IResponsiveWidgetLayout) {
@@ -165,15 +189,12 @@ export class UniWidgetCanvas {
             layout = this.buildResponsiveLayout(this.defaultLayout);
         }
 
-        // Filter based on permissions
-        this.authService.authentication$.take(1).subscribe(auth => {
-            this.layout = this.canvasHelper.filterLayout(layout, auth.user);
-            this.drawLayout();
-        });
+        this.layout = layout;
+        this.drawLayout();
     }
 
-    public refreshWidgets() {
-        this.layout[this.currentSize] = this.deepCopyWidgets(this.layout[this.currentSize]);
+    refreshWidgets() {
+        this.layout[this.currentSize] = cloneDeep(this.layout[this.currentSize]);
         this.canvasHelper.resetGrid();
         this.drawLayout();
     }
@@ -182,10 +203,13 @@ export class UniWidgetCanvas {
         let size;
         let numCols;
 
-        if (window.innerWidth <= 900) {
+        if (window.innerWidth <= 650) {
+            size = 'xs';
+            numCols = LAYOUT_WIDTH.xs;
+        } else if (window.innerWidth <= 1200) {
             size = 'small';
             numCols = LAYOUT_WIDTH.small;
-        } else if (window.innerWidth <= 1300) {
+        } else if (window.innerWidth <= 1600) {
             size = 'medium';
             numCols = LAYOUT_WIDTH.medium;
         } else {
@@ -193,7 +217,7 @@ export class UniWidgetCanvas {
             numCols = LAYOUT_WIDTH.large;
         }
 
-        this.widgetMargin = window.innerWidth <= 1500 ? 10 : 25;
+        this.widgetMargin = window.innerWidth <= 1650 ? 10 : 18;
 
         if (this.currentSize !== size) {
             this.currentSize = size;
@@ -222,6 +246,16 @@ export class UniWidgetCanvas {
             }
         });
 
+        let maxY = 0;
+        this.layout[size].forEach((widget: IUniWidget) => {
+            const widgetY = widget.y + widget.height;
+            if (widgetY > maxY) {
+                maxY = widgetY;
+            }
+        });
+
+        this.canvasHeight = maxY;
+
         // Timeout to make sure we trigger change detection when loading data from cache
         // (cache messes with change detection timing because its "too quick")
         setTimeout(() => {
@@ -229,9 +263,9 @@ export class UniWidgetCanvas {
         });
     }
 
-    public addWidget(widget) {
+    addWidget(widget) {
         const position = this.canvasHelper.getNextAvailablePosition(widget);
-        widget.editMode = this.editMode;
+        widget.editMode = true;
 
         if (position) {
             widget.x = position.x;
@@ -257,15 +291,11 @@ export class UniWidgetCanvas {
         this.cdr.markForCheck();
     }
 
-    public toggleEditMode() {
+    toggleEditMode() {
         this.editMode = !this.editMode;
 
         if (this.editMode) {
-            this.layoutBackup = {
-                small: this.deepCopyWidgets(this.layout.small),
-                medium: this.deepCopyWidgets(this.layout.medium),
-                large: this.deepCopyWidgets(this.layout.large)
-            };
+            this.layoutBackup = cloneDeep(this.layout);
         } else {
             this.layoutBackup = undefined;
         }
@@ -275,7 +305,7 @@ export class UniWidgetCanvas {
         this.cdr.markForCheck();
     }
 
-    public cancelEdit() {
+    cancelEdit() {
         if (this.unsavedChanges) {
             this.layout = this.layoutBackup;
             this.layout[this.currentSize].forEach(w => this.setWidgetPosition(w));
@@ -288,7 +318,7 @@ export class UniWidgetCanvas {
         this.toggleEditMode();
      }
 
-    public hardReset() {
+    hardReset() {
         if (!confirm('Ønsker du å gå tilbake til Uni Micro standard layout? Dette vil fjerne alle dine endringer')) {
             return;
         }
@@ -301,7 +331,7 @@ export class UniWidgetCanvas {
         this.initializeLayout();
     }
 
-    public save() {
+    save() {
         if (!this.layout || !this.unsavedChanges) {
             this.toggleEditMode();
             return;
@@ -309,11 +339,10 @@ export class UniWidgetCanvas {
 
         this.canvasHelper.saveLayout(this.layoutName, this.layout);
         this.unsavedChanges = false;
-        this.toastService.addToast('Layout lagret', ToastType.good, 5);
         this.toggleEditMode();
     }
 
-    public startDrag(event: MouseEvent, widget: IUniWidget) {
+    startDrag(event: MouseEvent, widget: IUniWidget) {
         if (!this.editMode) {
             return;
         }
@@ -328,41 +357,41 @@ export class UniWidgetCanvas {
 
         this.canvasHelper.releaseGridSpace(widget);
 
-        (this.mouseMove as Observable<any>)
-            .throttleTime(5)
-            .takeUntil(Observable.fromEvent(document, 'mouseup').take(1))
-            .finally(() => this.stopDrag(widget))
-            .subscribe((moveEvent: MouseEvent) => {
-                widget._position.left = moveEvent.clientX - canvasBounds.left - offsetX;
-                widget._position.top = moveEvent.clientY - canvasBounds.top - offsetY;
+        this.mouseMove.pipe(
+            throttleTime(5),
+            takeUntil(Observable.fromEvent(document, 'mouseup').take(1)),
+            finalize(() => this.stopDrag(widget))
+        ).subscribe((moveEvent: MouseEvent) => {
+            widget._position.left = moveEvent.clientX - canvasBounds.left - offsetX;
+            widget._position.top = moveEvent.clientY - canvasBounds.top - offsetY;
 
-                this.drawAnchorCell.next(widget);
-            });
+            this.drawAnchorCell.next(widget);
+        });
 
-        (this.drawAnchorCell as Observable<any>)
-            .throttleTime(50)
-            .subscribe((w: IUniWidget) => {
-                const gridIndex = this.canvasHelper.getClosestGridIndex(
-                    this.gridUnitInPx,
-                    w._position.top,
-                    w._position.left
-                );
+        this.drawAnchorCell.pipe(
+            throttleTime(50),
+        ).subscribe((w: IUniWidget) => {
+            const gridIndex = this.canvasHelper.getClosestGridIndex(
+                this.gridUnitInPx,
+                w._position.top,
+                w._position.left
+            );
 
-                if (gridIndex.x >= 0 && gridIndex.x < 12 && gridIndex.y >= 0 && gridIndex.y < 9) {
-                    this.gridAnchor = {
-                        top: this.gridUnitInPx * gridIndex.y,
-                        left: this.gridUnitInPx * gridIndex.x,
-                        x: gridIndex.x,
-                        y: gridIndex.y,
-                        valid: (gridIndex.x + w.width - 1) < 12 && (gridIndex.y + w.height - 1) < 9
-                    };
-                } else {
-                    this.gridAnchor = undefined;
-                }
-            });
+            if (gridIndex.x >= 0 && gridIndex.x < 12 && gridIndex.y >= 0 && gridIndex.y < 9) {
+                this.gridAnchor = {
+                    top: this.gridUnitInPx * gridIndex.y,
+                    left: this.gridUnitInPx * gridIndex.x,
+                    x: gridIndex.x,
+                    y: gridIndex.y,
+                    valid: (gridIndex.x + w.width - 1) < 12 && (gridIndex.y + w.height - 1) < 9
+                };
+            } else {
+                this.gridAnchor = undefined;
+            }
+        });
     }
 
-    public stopDrag(widget: IUniWidget) {
+    stopDrag(widget: IUniWidget) {
         if (this.gridAnchor && this.gridAnchor.valid) {
             const collision = this.canvasHelper.findCollision(
                 this.gridAnchor.y,
@@ -399,13 +428,13 @@ export class UniWidgetCanvas {
         this.gridAnchor = undefined;
     }
 
-    public onMouseMove(event: MouseEvent) {
+    onMouseMove(event: MouseEvent) {
         if (this.editMode) {
             this.mouseMove.next(event);
         }
     }
 
-    public onWidgetRemoved(widget: IUniWidget, index: number) {
+    onWidgetRemoved(widget: IUniWidget, index: number) {
         this.layout.large.splice(index, 1);
         this.layout.medium.splice(index, 1);
         this.layout.small.splice(index, 1);
@@ -414,47 +443,50 @@ export class UniWidgetCanvas {
         this.unsavedChanges = true;
     }
 
-    private buildResponsiveLayout(widgetReferences: IWidgetReference[]): IResponsiveWidgetLayout {
-        const widgets = this.canvasHelper.getWidgetsFromReferences(widgetReferences);
+    private buildResponsiveLayout(defaultLayout: DefaultWidgetLayout): IResponsiveWidgetLayout {
+        if (!defaultLayout.medium) {
+            defaultLayout.medium = defaultLayout.large;
+        }
+
+        if (!defaultLayout.small) {
+            defaultLayout.small = defaultLayout.medium;
+        }
+
+        if (!defaultLayout.xs) {
+            defaultLayout.xs = defaultLayout.small;
+        }
 
         return {
-            large: this.setWidgetWidths(widgets, LAYOUT_WIDTH.large),
-            medium: this.setWidgetWidths(widgets, LAYOUT_WIDTH.medium),
-            small: this.setWidgetWidths(widgets, LAYOUT_WIDTH.small)
+            large: this.getWidgetsFromDefaultLayout(defaultLayout.large, LAYOUT_WIDTH.large),
+            medium: this.getWidgetsFromDefaultLayout(defaultLayout.medium, LAYOUT_WIDTH.medium),
+            small: this.getWidgetsFromDefaultLayout(defaultLayout.small, LAYOUT_WIDTH.small),
+            xs: this.getWidgetsFromDefaultLayout(defaultLayout.xs, LAYOUT_WIDTH.xs),
         };
     }
 
-    private setWidgetWidths(widgets: IUniWidget[], maxWidth: number): IUniWidget[] {
+    getWidgetsFromDefaultLayout(widgetRefs: IWidgetReference[], layoutWidth: number): IUniWidget[] {
+        const widgets = this.canvasHelper.getWidgetsFromReferences(widgetRefs) || [];
         return widgets.map(widget => {
             // Make sure the widgets in each size layout has no references to each other
             widget = Object.assign({}, widget);
 
-            if (widget.width > maxWidth) {
-                widget.width = maxWidth;
+            if (widget.width > layoutWidth) {
+                widget.width = layoutWidth;
             }
 
             return widget;
         });
     }
 
-    private deepCopyWidgets(widgets: IUniWidget[]): IUniWidget[] {
-        return widgets.map(w => Object.assign({}, w));
-    }
-
     private initWidgetSelector() {
-        const shortcuts = [...SHORTCUT_LISTS, ...INFO_SHORTCUTS];
         this.widgetSelectorItems = [
             {
                 label: 'Tellere',
                 items: COUNTERS
             },
-            // {
-            //     label: 'Snarveier',
-            //     items: shortcuts
-            // },
             {
                 label: 'Snarveier',
-                items: shortcuts
+                items: SHORTCUT_LISTS
             },
             {
                 label: 'Diagram',

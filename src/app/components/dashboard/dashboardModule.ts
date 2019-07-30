@@ -3,13 +3,15 @@ import {CommonModule} from '@angular/common';
 import {Dashboard} from './dashboard';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {WidgetModule} from '../widgets/widgetModule';
+import {AppPipesModule} from '@app/pipes/appPipesModule';
 
 @NgModule({
 
     imports: [
         CommonModule,
         UniFrameworkModule,
-        WidgetModule
+        WidgetModule,
+        AppPipesModule
     ],
     declarations: [
         Dashboard

@@ -35,6 +35,7 @@ export class TofHead implements OnChanges {
     @Input() paymentTerms: Terms[];
     @Input() deliveryTerms: Terms[];
     @Input() sellers: Seller[];
+    @Input() contacts: any[];
     @Input() companySettings: CompanySettings;
     @Input() dimensionTypes: any[];
     @Input() reports: any[];
@@ -92,8 +93,7 @@ export class TofHead implements OnChanges {
         }
     }
 
-    onSellersChange(sellers) {
-        this.data.Sellers = sellers;
+    onSellersChange($event) {
         this.dataChange.emit(this.data);
     }
 
@@ -116,7 +116,6 @@ export class TofHead implements OnChanges {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
     }
 
-    //TODO kall fra Ordre og rep.faktura
     public getValidationMessage(customerID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
         if (!this.accountsWithMandatoryDimensionsIsUsed) {
             return;

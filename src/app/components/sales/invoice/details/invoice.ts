@@ -174,6 +174,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Info.DefaultContact.Info',
         'Info.Emails',
         'Info.DefaultEmail',
+        'Info.Contacts.Info',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
@@ -183,6 +184,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private invoiceExpands: Array<string> = [
         'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -406,7 +408,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentInfoTypes = res[10];
                     this.distributionPlans = res[11];
                     this.reports = res[12];
-
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -438,7 +439,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.refreshInvoice(invoice);
                     }
                     this.tofHead.focus();
-                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
                 }, err => this.errorService.handle(err));
@@ -578,6 +579,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         return true;
     }
 
+
     onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
@@ -627,7 +629,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
@@ -644,7 +646,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
             }
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
             }
 
@@ -707,7 +709,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             shouldGetCurrencyRate = true;
         }
 
-        if (this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) {
+        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
             shouldGetCurrencyRate = false;
         }
 

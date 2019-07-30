@@ -58,4 +58,25 @@ export class ElsaContractService {
             .withEndPoint(endpoint)
             .send();
     }
+
+    getContractTypeText(contractType: number) {
+        switch (contractType) {
+            case ElsaContractType.Standard:
+                return 'Standard';
+            case ElsaContractType.Bureau:
+                return 'Byrå';
+            case ElsaContractType.Demo:
+                return 'Demo';
+            case ElsaContractType.Internal:
+                return 'Intern';
+            case ElsaContractType.Partner:
+                return 'Partner';
+            case ElsaContractType.Pilot:
+                return 'Pilot';
+            case ElsaContractType.NonProfit:
+                return 'Non-profit';
+            default:
+                return '';
+        }
+    }
 }

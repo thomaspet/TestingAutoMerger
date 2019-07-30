@@ -298,6 +298,11 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
+    public getNameForInstalmentType(instalmentType: SalBalType): string {
+        const ret = this.instalmentTypes.find(x => x.ID === instalmentType);
+        return ret && ret.Name;
+    }
+
     public getSalarybalance(id: number | string, expand: string[] = null): Observable<SalaryBalance> {
         if (!id) {
             if (expand) {

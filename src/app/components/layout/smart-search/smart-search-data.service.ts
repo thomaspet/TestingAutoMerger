@@ -6,6 +6,7 @@ import 'rxjs/add/operator/debounceTime';
 import * as _ from 'lodash';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamModal';
+import {UserSettingsModal} from '../navbar/user-dropdown/user-settings-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AuthService} from '@app/authService';
 
@@ -33,6 +34,32 @@ export class SmartSearchDataService {
         'prosjekt',
         'produkt',
         'rapport'
+    ];
+
+    private helpAndUserItems = [
+        {
+            type: 'external-link',
+            url: 'https://help.unieconomy.no',
+            value: 'Kundesenter'
+        },
+        {
+            type: 'external-link',
+            url: 'https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24',
+            value: 'Opprett supportsak'
+        },
+        {
+            type: 'external-link',
+            url: 'https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open',
+            value: 'Mine supportsaker'
+        },
+        {
+            type: 'external-link',
+            url: 'ftp://ftp.unimicro.biz/teknisk/umtt.exe',
+            value: 'Teamviewer nedlasting'
+        },
+        { type: 'link', url: '/about/versions', value: 'Versjonsinformasjon' },
+        { type: 'link', url: '/license-info', value: 'Lisensinformasjon' },
+        { type: 'user', url: '', value: 'Brukerinnstillinger' }
     ];
 
     constructor(
@@ -63,9 +90,9 @@ export class SmartSearchDataService {
 
     public syncLookup(query: string): any[] {
         if (query.startsWith('ny') || query.startsWith('nytt')) {
-            return [].concat(this.getNewShortcutListInit(query), this.componentLookup(query));
+            return [].concat(this.getNewShortcutListInit(query), this.getHelpAndUserItems(query), this.componentLookup(query));
         } else {
-            return [].concat(this.componentLookup(query), this.getNewShortcutListInit(query));
+            return [].concat(this.componentLookup(query), this.getHelpAndUserItems(query), this.getNewShortcutListInit(query));
         }
     }
 
@@ -267,6 +294,29 @@ export class SmartSearchDataService {
         return [];
     }
 
+    getHelpAndUserItems(query: string) {
+        const all = _.cloneDeep(this.helpAndUserItems);
+        if (query.toLowerCase() === 'hjelp') {
+             all.unshift({
+                type: 'header',
+                url: '/',
+                value: 'Hjelp'
+            });
+            return all;
+        }
+
+        const items = all.filter(item => item.value.toLowerCase().includes(query));
+        if (items.length) {
+            items.unshift({
+                type: 'header',
+                url: '/',
+                value: 'Hjelp'
+            });
+            return items;
+        }
+        return [];
+    }
+
     public openReportModal(report) {
         this.uniModalService.open(UniReportParamsModal,
             {   data: report,
@@ -279,6 +329,10 @@ export class SmartSearchDataService {
                     });
                 }
             });
+    }
+
+    public openUserSettingsModal() {
+        this.uniModalService.open(UserSettingsModal, { data: this.authService.currentUser });
     }
 
     private componentLookup(query: string) {

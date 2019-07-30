@@ -94,6 +94,8 @@ export enum UniModules {
     Versions        = 707,
     GDPRList        = 708,
     Flow            = 709,
+    ImportCentral   = 710,
+    ImportCentralLog   = 711,
 }
 
 @Injectable()

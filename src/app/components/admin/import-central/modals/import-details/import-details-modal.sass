@@ -1,0 +1,91 @@
+@import '../../import-central-common.sass'
+
+.uni-html-form
+    label
+        display: inline
+        text-align: center
+        margin: 25px 0
+    .file-name
+        font-weight: bold
+        margin: 0
+    .action
+        display: flex
+        align-items: center
+
+.fetch-detail 
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-flow: column
+    margin: 70px
+    
+.success-import
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-flow: column
+    .success-icon
+        font-size: 50px
+        color: $redesign-good
+    .success-message
+        max-height: 170px
+        overflow-y: auto
+        .progress-title
+            font-weight: bold
+            margin-bottom: 12px
+        .status-container
+            display: flex
+            flex-direction: row
+            align-items: baseline
+            margin-top: 5px
+            .progress-check
+                margin-right: 8px
+                position: relative
+                top: 4px
+                font-size: 18px
+                color: $redesign-good
+            .progress-time
+                margin: 0
+                margin-right: 12px
+        p
+            margin: 0
+        color: #155724
+        background-color: #f2f2f2
+        border-color: #c3e6cb
+        padding: .75rem 1.25rem
+        margin-bottom: 1rem
+        width: 100%
+
+.error-import
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-flow: column
+
+    .error-message
+        min-height: 45px
+        width: 90%
+        background-color: #fdd3d9
+        display: flex
+        align-items: center
+    
+        label
+            margin: 0px 10px
+            font-size: 14px
+
+            .error-count 
+                font-weight: bold
+                margin: 0
+
+        i
+            margin-left: 10px
+            font-size: 15px
+            color: $redesign-bad
+
+// section.uni-modal.uni-redesign
+//     max-width: 35rem
+    
+@media #{$xs-and-less}         
+    section.uni-modal.uni-redesign
+        min-width: auto !important
+

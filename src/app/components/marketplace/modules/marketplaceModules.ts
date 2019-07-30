@@ -211,4 +211,8 @@ export class MarketplaceModules implements AfterViewInit {
             this.modalService.open(MissingPurchasePermissionModal);
         }
     }
+
+    openLinkInNewTab(url: string){
+        window.open(url, '_blank');
+    }
 }

@@ -1,0 +1,64 @@
+<section class="widget-wrapper">
+    <section class="header">
+        <span>{{ widget.description }}</span>
+
+        <section class="filters uni-redesign">
+            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+                {{ currentPeriod.label }}
+                <i class="material-icons">expand_more</i>
+            </button>
+
+            <mat-menu #contextMenu="matMenu">
+                <ul class="widget-filter-menu">
+                    <li role="button" (click)="updateData(0)">
+                        Vis siste 12 måneder
+                    </li>
+
+                    <li role="button" (click)="updateData(1)">
+                        Vis siste 10 uker
+                    </li>
+
+                    <li role="button" (click)="updateData(2)">
+                        Vis siste 10 dager
+                    </li>
+                </ul>
+            </mat-menu>
+        </section>
+    </section>
+
+    <div class="content">
+        <div class="canvas-container">
+            <section class="custom-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
+                <span>{{tooltip.label}}</span>
+                <section class="data-row">
+                    <span>Fakturert</span>
+                    <span>{{tooltip.invoiced | uninumberformat:'money'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Innbetalt</span>
+                    <span>{{tooltip.paid | uninumberformat:'money'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Utestående</span>
+                    <span>{{tooltip.unpaid | uninumberformat:'money'}}</span>
+                </section>
+            </section>
+
+            <canvas #chartCanvas></canvas>
+        </div>
+
+        <section class="chart-legend">
+            <section class="legend">
+                <span class="indicator invoiceinvoiced"></span>
+                Fakurert: <strong>{{ totalInvoiceInPeriod }}</strong>
+            </section>
+
+            <section class="legend">
+                <span class="indicator invoicepaid"></span>
+                Innbetalt: <strong>{{ totalPaidInPeriod }}</strong>
+            </section>
+        </section>
+    </div>
+</section>

@@ -332,8 +332,8 @@ export class LedgerAccountReconciliation {
 
     }
 
-    public ResetJournalEntrylinesPostPostStatus(subaccountId: number): void {
-        this.postPostService.ResetJournalEntryLinesPostStatus(subaccountId).subscribe ( () => {
+    public ResetJournalEntrylinesPostPostStatus(subaccountId: number, reskontroType: string): void {
+        this.postPostService.ResetJournalEntryLinesPostStatus(subaccountId, reskontroType).subscribe ( () => {
             this.loadData();
             this.isDirty = false;
         });

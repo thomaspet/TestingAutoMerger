@@ -1,9 +1,10 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import {Router} from '@angular/router';
 import {SellerLink, Seller} from '@uni-entities';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '@uni-framework/ui/unitable';
 import {ErrorService, SellerService, SellerLinkService} from '@app/services/services';
 import {cloneDeep} from 'lodash';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'seller-links',
@@ -13,11 +14,14 @@ export class SellerLinks {
     @Input() readonly: boolean;
     @Input() entity;
     @Output() entityChange = new EventEmitter();
+    @ViewChild('table') table: AgGridWrapper;
 
     sellerTableConfig: UniTableConfig;
     sellerLinks: SellerLink[];
 
     sellers: Seller[];
+    totalPercent = 0;
+    tableIsDirty = false;
 
     constructor(
         private router: Router,
@@ -39,23 +43,79 @@ export class SellerLinks {
 
     public ngOnChanges() {
         if (this.entity) {
-            this.sellerLinks = cloneDeep(this.entity.Sellers) || [];
+            if (this.entity.Sellers && this.entity.Sellers.length > 0) {
+                this.sellerLinks = cloneDeep(this.entity.Sellers);
+            } else {
+                this.sellerLinks = [];
+            }
+            this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + next.Percent, 0);
         }
     }
 
-    onSellerLinksChange() {
-        const sellerLinks = this.sellerLinks
-            .filter(link => !link['_isEmpty'])
-            .map(link => {
-                if (!link.ID) {
-                    link['_createGuid'] = this.sellerLinkService.getNewGuid();
-                }
+    manageSellers(event) {
+        if (!event) {
+            return;
+        }
+        const amount  = this.entity.Items ? this.entity.Items.reduce((prev, next) => prev + next.SumTotalIncVatCurrency, 0) : 0;
+        const sellers = this.getCleanSellers().filter(x => !x.Deleted);
+        const deletedSellers = this.getCleanSellers().filter(x => x.Deleted);
+        const seller = event.rowModel;
+        const numberOfSellers = sellers.length;
+        let focusRow = false;
+        let totalPercent = 0;
 
+        if (event.field === 'Seller' && numberOfSellers === 1) {
+            seller.Percent = 100;
+            seller.Amount = amount * seller.Percent / 100;
+        } else if (event.field === 'Percent' && numberOfSellers === 2) {
+            const otherSeller = sellers.find(x => event.rowModel !== x);
+            if (seller.Percent > 100) {
+                seller.Percent = 100;
+            }
+            seller.Amount = amount * seller.Percent / 100;
+            otherSeller.Percent = 100 -  seller.Percent;
+            otherSeller.Amount = amount * otherSeller.Percent / 100;
+        } else if (event.field === 'Percent') {
+            totalPercent = sellers.reduce((prev, next) => prev + next.Percent, 0);
+            totalPercent = totalPercent > 100 ? 100 : totalPercent;
+            if (totalPercent < 100) {
+                sellers.push(<SellerLink>{
+                    Seller: null,
+                    Percent: 100 - totalPercent,
+                    Amount: amount * (100 - totalPercent) / 100,
+                    Deleted: false,
+                });
+                focusRow = true;
+            }
+            sellers.forEach(s => s.Amount = amount * s.Percent / 100);
+        }
+        this.sellerLinks = sellers.concat(deletedSellers);
+        this.sellerLinks = this.updateSellersGuid();
+        this.entity.Sellers = this.sellerLinks;
+        this.entityChange.emit(this.entity);
+        this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + (next.Percent || 0), 0);
+        if (focusRow) {
+            this.table.focusRow(numberOfSellers);
+        }
+    }
+
+    onSellerChange(event) {
+        this.tableIsDirty = true;
+        this.manageSellers(event);
+    }
+
+    getCleanSellers() {
+        return this.sellerLinks.filter(link => !link['_isEmpty']);
+    }
+
+     updateSellersGuid() {
+        const sellerLinks = this.getCleanSellers().map(link => {
+                if (!link.ID && !link.Deleted) {
+                    link['_createguid'] = this.sellerLinkService.getNewGuid();
+                }
                 return link;
             });
-
-        this.entity.Sellers = sellerLinks;
-        this.entityChange.emit(this.entity);
+        return sellerLinks;
     }
 
     public onSellerLinkDeleted(sellerLink) {
@@ -64,9 +124,11 @@ export class SellerLinks {
             if (defaultSeller && defaultSeller.ID === sellerLink.Seller.ID) {
                 this.entity.DefaultSeller = null;
                 this.entity.DefaultSellerID = null;
-                this.entityChange.emit(this.entity);
             }
         }
+        this.sellerLinks = this.updateSellersGuid();
+        this.entity.Sellers = this.sellerLinks;
+        this.entityChange.emit(this.entity);
     }
 
     private changeCallback(event) {
@@ -74,7 +136,6 @@ export class SellerLinks {
         if (event.field === 'Seller') {
             rowModel.SellerID = rowModel.Seller.ID;
         }
-
         return rowModel;
     }
 
@@ -119,5 +180,6 @@ export class SellerLinks {
             .setContextMenu(contextMenuItems)
             .setChangeCallback(event => this.changeCallback(event))
             .setColumns([sellerCol, percentCol, amountCol]);
+        setTimeout(() => this.table.focusRow(0), 500);
     }
 }

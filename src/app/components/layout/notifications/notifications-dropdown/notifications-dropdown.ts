@@ -46,6 +46,11 @@ export class NotificationsDropdown {
             icon: 'comment',
             label: 'Kommentarer',
             entityType: 'Comment'
+        },
+        {
+            icon: 'reminder',
+            label: 'Påminnelser',
+            entityType: 'CustomerInvoiceReminder'
         }
     ];
 

@@ -19,6 +19,7 @@
         [distributionPlans]="distributionPlans"
         [reports]="reports"
         [sellers]="sellers"
+        [contacts]="quote?.Customer?.Info?.Contacts"
         [dimensionTypes]="dimensionTypes"
         [currentUser]="currentUser"
         (dataChange)="onQuoteChange($event)">
@@ -40,7 +41,7 @@
             [currencyCodeID]="currencyCodeID"
             [currencyExchangeRate]="currencyExchangeRate"
             [dimensionTypes]="dimensionTypes"
-            (itemsChange)="recalcDebouncer.emit($event)">
+            (itemsChange)="onTradeItemsChange($event)">
         </uni-tradeitem-table>
 
         <section class="tof-summary">

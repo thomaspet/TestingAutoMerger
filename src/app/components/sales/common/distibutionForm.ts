@@ -34,6 +34,7 @@ export class UniDistibutionTOFView implements OnInit {
 
     public ngOnChanges(changes) {
         this.model$.next(this.entity);
+        this.setUpFields();
     }
 
     public onFormChange(changes) {

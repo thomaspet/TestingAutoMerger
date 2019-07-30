@@ -1,19 +1,19 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit} from '@angular/core';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
+import {NumberFormat} from '@app/services/services';
 import {Router} from '@angular/router';
 
 @Component({
     selector: 'uni-sum-widget',
     template: `
-        <div class="positive-negative-widget"
-            (click)="onClickNavigate()"
-            title="{{ widget.description }}">
+        <div class="sum_widget" [ngClass]="widget.config.class" (click)="onClickNavigate()" title="{{ widget.description }}">
+            <div class="numbers-section">
+                <div class="header">{{ widget.config.title}}</div>
+                <div>{{ displayValue }}</div>
+            </div>
 
-            <span>{{ widget.config.title}}</span>
-            <span class="value" [ngClass]="{'bad': needsAttention}">
-                {{ displayValue | uninumberformat: 'money' }}
-            </span>
+            <i class="material-icons"> {{ widget.config.icon }} </i>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,31 +21,37 @@ import {Router} from '@angular/router';
 
 export class UniSumWidget implements AfterViewInit {
     public widget: IUniWidget;
-    public displayValue: string = '-';
-    public needsAttention: boolean;
+    public displayValue: any = '0';
 
     constructor(
         private widgetDataService: WidgetDataService,
         private router: Router,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private numberFormatSerivce: NumberFormat
     ) {}
 
     public ngAfterViewInit() {
         this.widgetDataService.getData(this.widget.config.dataEndpoint)
             .subscribe(
                 (res) => {
-                    if (!res || !res.Data) {
-                        return;
-                    }
-
-                    const sum = res.Data[0] && (res.Data[0].sum || 0);
-                    if (this.widget.config.positive) {
-                        this.needsAttention = sum <= 0;
+                    if (typeof res === 'number') {
+                        this.displayValue = res;
+                    } else if (this.widget.config.useLength) {
+                        if (res && res.Data) {
+                            this.displayValue = res.Data.length;
+                        }
                     } else {
-                        this.needsAttention = sum >= 0;
+                        if (!res || !res.Data) {
+                            return;
+                        }
+                        const sum = res.Data[0] && (res.Data[0].sum || 0);
+                        if (this.widget.config.positive && sum === 0) {
+                            this.widget.config.icon = this.widget.config.goodIcon ? this.widget.config.goodIcon : this.widget.config.icon;
+                            this.widget.config.class = this.widget.config.goodClass
+                                ? this.widget.config.goodClass : this.widget.config.class;
+                        }
+                        this.displayValue = this.numberFormatSerivce.asMoney(sum, { decimalLength: 0 });
                     }
-                    this.displayValue = sum;
-
                     this.cdr.markForCheck();
                 }, err => {}
             );
@@ -53,7 +59,11 @@ export class UniSumWidget implements AfterViewInit {
 
     public onClickNavigate() {
         if (this.widget && !this.widget._editMode) {
-            this.router.navigateByUrl(this.widget.config.link);
+            if (this.widget.config.link.includes('<userID>')) {
+                this.router.navigateByUrl(this.widgetDataService.replaceWithUserID(this.widget.config.link));
+            } else {
+                this.router.navigateByUrl(this.widget.config.link);
+            }
         }
     }
 }

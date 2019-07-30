@@ -1,0 +1,71 @@
+<section class="widget-wrapper">
+    <section class="header">
+        <span>{{ widget.description }}</span>
+
+        <section class="filters uni-redesign">
+            <button *ngFor="let year of years"
+                class
+                [ngClass]="{'outline-c2a': year === currentYear}"
+                (click)="yearChange(year)">
+                {{year}}
+            </button>
+
+            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+                {{showAccumulatedResult ? 'Akkumulert resultat' : 'Månedlig resultat'}}
+                <i class="material-icons">expand_more</i>
+            </button>
+            <mat-menu #contextMenu="matMenu">
+                <ul class="widget-filter-menu">
+                    <li role="button" (click)="changeResultLine(false)">
+                        Vis månedlig resultat
+                    </li>
+
+                    <li role="button" (click)="changeResultLine(true)">
+                        Vis akkumulert resultat
+                    </li>
+                </ul>
+            </mat-menu>
+        </section>
+    </section>
+
+    <section class="content" [attr.aria-busy]="busy">
+        <div class="canvas-container">
+            <section class="custom-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
+                <span>{{tooltip.month}}</span>
+                <section class="data-row">
+                    <span>Inntekter</span>
+                    <span>{{tooltip.income | uninumberformat:'money'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Kostnader</span>
+                    <span>{{tooltip.cost | uninumberformat:'money'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Resultat</span>
+                    <span>{{tooltip.result | uninumberformat:'money'}}</span>
+                </section>
+            </section>
+
+            <canvas #operatingProfit></canvas>
+        </div>
+
+        <section *ngIf="!unauthorized" class="chart-legend">
+            <section class="legend">
+                <span class="indicator income"></span>
+                Inntekter: <strong>{{ (income | uninumberformat:'money') || 0}}</strong>
+            </section>
+
+            <section class="legend">
+                <span class="indicator cost"></span>
+                Kostnader: <strong>{{ (cost * -1 | uninumberformat:'money') || 0}}</strong>
+            </section>
+
+            <section class="legend">
+                <span class="indicator result"></span>
+                Resultat: <strong>{{ (sum | uninumberformat:'money') || 0 }}</strong>
+            </section>
+        </section>
+    </section>
+</section>

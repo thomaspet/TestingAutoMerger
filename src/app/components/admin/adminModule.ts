@@ -20,13 +20,19 @@ import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.com
 import {PeopleService} from '@app/components/admin/gdpr/people.service';
 import {GdprFileWriter} from '@app/components/admin/gdpr/gdpr-file-writer';
 import {SaftExportModal} from './jobs/saft/saftexportmodal';
-import {MatAutocompleteModule, MatSlideToggleModule, MatRadioModule, MatCheckboxModule, MatProgressSpinnerModule} from '@angular/material';
+import {MatAutocompleteModule, MatSlideToggleModule, MatRadioModule, MatCheckboxModule, MatProgressSpinnerModule, MatProgressBarModule} from '@angular/material';
 
 import {FlowSettings} from './flow/flowSettings';
 import {FlowModal} from './flow/flow-modal/flow-modal';
 import {FlowList} from './flow/flow-list/flow-list';
 import {FlowTemplates} from './flow/templates/templates';
 import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
+import { DownloadTemplateModal } from './import-central/modals/download-template/download-template-modal';
+import { ImportTemplateModal } from './import-central/modals/import-template/import-template-modal';
+import { ImportDetailsModal } from './import-central/modals/import-details/import-details-modal';
+import { ImportCentralComponent } from './import-central/import-central.component';
+import { ImportCentralLogHistoryComponent } from './import-central/log-history/import-central-log-history';
+import { DisclaimerModal } from './import-central/modals/disclaimer/disclaimer-modal';
 
 @NgModule({
     entryComponents: [
@@ -34,6 +40,10 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         SaftExportModal,
         FlowTemplateModal,
         FlowModal,
+        DownloadTemplateModal,
+        ImportTemplateModal,
+        ImportDetailsModal,
+        DisclaimerModal
     ],
     imports: [
         BrowserModule,
@@ -51,7 +61,8 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         MatSlideToggleModule,
         MatProgressSpinnerModule,
         MatRadioModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        MatProgressBarModule
     ],
     declarations: [
         JobList,
@@ -68,7 +79,14 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         FlowModal,
         FlowTemplateModal,
         FlowList,
-        FlowTemplates
+        FlowTemplates,
+
+        ImportCentralComponent,
+        ImportCentralLogHistoryComponent,
+        DownloadTemplateModal,
+        ImportTemplateModal,
+        ImportDetailsModal,
+        DisclaimerModal
     ],
     providers: [
         PeopleService,
@@ -79,7 +97,9 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         JobDetails,
         JobLog,
         ApprovalThresholds,
-        UniGdprPeopleList
+        UniGdprPeopleList,
+        ImportCentralComponent,
+        ImportCentralLogHistoryComponent
     ]
 })
 export class AdminModule {}

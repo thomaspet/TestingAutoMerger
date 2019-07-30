@@ -11,9 +11,6 @@ import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/sal
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
 import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
-import {
-    ReconciliationListParamsModalComponent
-} from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
@@ -125,14 +122,11 @@ export class UniReports implements OnInit {
     }
 
     private showReportParams(report: ReportDefinition) {
-        switch (report.Name) {
-            case 'Årsoppgave':
-                this.openReportModal(AnnualSatementReportFilterModalComponent, report);
-                return;
-            case 'Avstemming':
-                this.openReportModal(ReconciliationListParamsModalComponent, report);
-                return;
+        if (report.Name === 'Årsoppgave') {
+            this.openReportModal(AnnualSatementReportFilterModalComponent, report);
+            return;
         }
+
         switch (report.ID) {
             case 7:
             case 8:

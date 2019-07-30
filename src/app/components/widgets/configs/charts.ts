@@ -2,34 +2,15 @@ export const CHARTS = [
     {
         id: 'topten_customers',
         description: '10 største kunder',
-        width: 4,
+        width: 5,
         height: 3,
-        widgetType: 'topten',
-        config: {
-            contextMenuItems: [
-                {
-                    label: 'Ny faktura',
-                    link: '/sales/invoices/0;customerID=',
-                    needsID: true
-                },
-                {
-                    label: 'Ny ordre',
-                    link: '/sales/orders/0;customerID=',
-                    needsID: true
-                },
-                {
-                    label: 'Nytt tilbud',
-                    link: '/sales/quotes/0;customerID=',
-                    needsID: true
-                }
-            ]
-        }
+        widgetType: 'topTenCustomers',
     },
     {
         id: 'transaction_accounting',
         description: 'Transaksjoner - Regnskap',
-        width: 8,
-        height: 4,
+        width: 7,
+        height: 3,
         widgetType: 'transaction',
         config: {
             dashboard: 'Accounting' // Identifyer for which fields to show.. fix while not dynamic
@@ -38,11 +19,75 @@ export const CHARTS = [
     {
         id: 'transaction_sales',
         description: 'Transaksjoner - Salg',
-        width: 8,
+        width: 10,
         height: 3,
         widgetType: 'transaction',
         config: {
             dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
+        }
+    },
+    {
+        id: 'invoiced',
+        description: 'Fakturert',
+        permissions: ['ui_sales'],
+        width: 5,
+        height: 3,
+        widgetType: 'invoiced',
+        config: {
+            dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
+        }
+    },
+    {
+        id: 'expenses',
+        description: 'Kostnader',
+        permissions: ['ui_accounting'],
+        width: 3,
+        height: 4,
+        widgetType: 'expenses'
+    },
+    {
+        id: 'balance',
+        description: 'Balansefordeling',
+        permissions: ['ui_accounting'],
+        width: 5,
+        height: 3,
+        widgetType: 'balance'
+    },
+    {
+        id: 'unpaid_supplierinvoice',
+        description: 'Leverandørgjeld',
+        permissions: ['ui_accounting'],
+        width: 4,
+        height: 3,
+        widgetType: 'unpaid',
+        config: {
+            model: 'SupplierInvoice',
+            function: 'unpaid',
+            labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', '61-90 dager', 'Over 90 dager']
+        }
+    },
+    {
+        id: 'unpaid_customerinvoice',
+        description: 'Kundefordringer',
+        permissions: ['ui_sales'],
+        width: 4,
+        height: 3,
+        widgetType: 'unpaid',
+        config: {
+            model: 'CustomerInvoice',
+            function: 'unpaid',
+            labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', '61-90 dager', 'Over 90 dager']
+        }
+    },
+    {
+        id: 'project_percent',
+        description: 'Prosjektprosent',
+        permissions: ['ui_timetracking_timeentry'],
+        width: 4,
+        height: 3,
+        widgetType: 'ttchart',
+        config: {
+            type: 'project_percent',
         }
     },
     {
@@ -56,38 +101,10 @@ export const CHARTS = [
         }
     },
     {
-        id: 'chart_operating_profits',
-        description: 'Driftsresultater',
-        permissions: ['ui_accounting_accountingreports'],
-        width: 7,
-        height: 5,
-        widgetType: 'chart',
-        config: {
-            chartType: 'line',
-            labels: ['Jan', '', '', 'Apr', '', '', 'Jul', '', 'Sep', '', '', 'Dec'],
-            colors: ['#7293cb'],
-            backgroundColors: ['transparent'],
-            dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),'
-                + 'sum(amount)&join=journalentryline.accountid eq account.id&filter=year(financialdate) '
-                + 'eq <year> and account.accountnumber ge 3000 and account.accountnumber le 9999 '
-                + '&range=monthfinancialdate'
-            ],
-            dataKey: ['sumamount'],
-            multiplyValue: -1,
-            dataset: [],
-            fill: 'none',
-            options: {
-                showLines: true,
-                bezierCurve: false
-            },
-            title: ['Driftsresultat']
-        }
-    },
-    {
         id: 'operatingprofit',
         description: 'Driftsresultat',
         permissions: ['ui_accounting_accountingreports'],
-        width: 7,
+        width: 6,
         height: 4,
         widgetType: 'operatingprofit',
     },
@@ -95,7 +112,7 @@ export const CHARTS = [
         id: 'chart_employees_per_employment',
         description: 'Ansatte per stillingskode',
         permissions: ['ui_salary'],
-        width: 4,
+        width: 5,
         height: 3,
         widgetType: 'chart',
         config: {
@@ -113,12 +130,12 @@ export const CHARTS = [
             addDataValueToLabel: false,
             dataset: [],
             options: {
-                cutoutPercentage: 80,
+                cutoutPercentage: 0,
                 animation: {
                     animateScale: true
                 },
                 legend: {
-                    position: 'bottom'
+                    position: 'left'
                 },
             }
         }
@@ -150,7 +167,7 @@ export const CHARTS = [
                     animateScale: true
                 },
                 legend: {
-                    position: 'bottom'
+                    position: 'left'
                 }
             }
         }
@@ -158,34 +175,12 @@ export const CHARTS = [
     {
         id: 'chart_minutes_per_wagetype',
         description: 'Fordeling pr. timeart',
-        permissions: ['ui_reports'],
-        width: 3,
+        permissions: ['ui_timetracking_timeentry'],
+        width: 5,
         height: 3,
-        widgetType: 'chart',
+        widgetType: 'ttchart',
         config: {
-            chartType: 'pie',
-            labels: [],
-            colors: [],
-            dataEndpoint: [
-                '/api/statistics?model=workitem&select=sum(minutes) as Sum,'
-                + 'worktype.Name as Name&expand=worktype'
-                + '&filter=year(date) eq <year>'
-            ],
-            labelKey: 'Name',
-            valueKey: 'Sum',
-            maxNumberOfLabels: 4,
-            useIf: '',
-            addDataValueToLabel: false,
-            dataset: [],
-            options: {
-                cutoutPercentage: 80,
-                animation: {
-                    animateScale: true
-                },
-                legend: {
-                    position: 'bottom'
-                },
-            }
+            type: 'wagetype_pie'
         }
-    },
+    }
 ];

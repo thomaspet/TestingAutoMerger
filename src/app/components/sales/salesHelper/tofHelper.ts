@@ -16,8 +16,8 @@ export class TofHelper {
             entity.DefaultDimensions._createguid = this.addressService.getNewGuid();
         }
 
-        if (entity.DefaultSeller && entity.DefaultSeller.ID > 0) {
-            entity.DefaultSellerID = entity.DefaultSeller.ID;
+        if (entity.DefaultSeller && entity.DefaultSeller.ID > 0 && entity.DefaultSellerID > 0) {
+            entity.DefaultSeller = undefined;
         }
 
         if (entity.DefaultSeller && entity.DefaultSeller.ID === null) {

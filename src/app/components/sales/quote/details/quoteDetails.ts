@@ -139,6 +139,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Info.DefaultEmail',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -158,6 +159,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private quoteExpands: string[] = [
         'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -283,6 +285,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.setUpDims(res[9]);
                     this.distributionPlans = res[10];
                     this.reports = res[11];
+
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -495,7 +498,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
         const customerChanged = this.didCustomerChange(quote);
-
         if (customerChanged) {
             if ((!quote.Customer.ID || quote.Customer.ID === 0) && quote.Customer.OrgNumber !== null) {
                 this.customerService.getCustomers(quote.Customer.OrgNumber).subscribe(res => {
@@ -1238,6 +1240,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private saveQuote(): Promise<CustomerQuote> {
         this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
+        if (this.quote.Sellers) {
+            this.quote.Sellers = this.quote.Sellers.filter(x => !x['_isEmpty']);
+        }
 
         // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
         if (this.quote.Sellers && this.quote.ID === 0) {
@@ -1420,5 +1425,11 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         return currencyCode ? currencyCode.Code : '';
+    }
+
+    public onTradeItemsChange($event) {
+        this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
+        this.quote = Object.assign({}, this.quote);
+        this.recalcDebouncer.emit($event);
     }
 }

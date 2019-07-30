@@ -7,7 +7,10 @@ import {AuthService} from '@app/authService';
 import {WIDGET_CONFIGS} from './configs';
 import {UserDto} from '@uni-entities';
 
+const LOCALSTORAGE_KEY = 'dashboard_layouts';
+
 interface ISavedLayout {
+    xs: IWidgetReference[];
     small: IWidgetReference[];
     medium: IWidgetReference[];
     large: IWidgetReference[];
@@ -59,11 +62,14 @@ export class CanvasHelper {
     }
 
     public filterLayout(layout: IResponsiveWidgetLayout, user: UserDto): IResponsiveWidgetLayout {
-        return {
+        const filtered = {
+            xs: this.filterWidgetsByPermissions(layout.xs, user),
             small: this.filterWidgetsByPermissions(layout.small, user),
             medium: this.filterWidgetsByPermissions(layout.medium, user),
             large: this.filterWidgetsByPermissions(layout.large, user),
         };
+
+        return filtered;
     }
 
     public filterWidgetsByPermissions(widgets: IUniWidget[], user: UserDto): IUniWidget[] {
@@ -80,10 +86,10 @@ export class CanvasHelper {
         if (filtered.length !== widgets.length) {
             // Remove x/y coordinates so that the widget position is re-calculated
             // This prevents layouts with lots of holes after filtering widgets
-            filtered.forEach(w => {
-                w.x = undefined;
-                w.y = undefined;
-            });
+            // filtered.forEach(w => {
+            //     w.x = undefined;
+            //     w.y = undefined;
+            // });
         }
 
         return filtered;
@@ -91,8 +97,9 @@ export class CanvasHelper {
 
     public verifyCustomLayout(layout: ISavedLayout) {
         // Verify that all elements have a widgetID
-        if (layout && layout.small && layout.medium && layout.large) {
-            return layout.small.every(w => !!w.widgetID)
+        if (layout && layout.xs && layout.small && layout.medium && layout.large) {
+            return layout.xs.every(w => !!w.widgetID)
+                && layout.small.every(w => !!w.widgetID)
                 && layout.medium.every(w => !!w.widgetID)
                 && layout.large.every(w => !!w.widgetID);
         }
@@ -105,11 +112,12 @@ export class CanvasHelper {
             return;
         }
 
-        const layoutStore = this.browserStorage.getItemFromCompany('widget_layouts');
+        const layoutStore = this.browserStorage.getItemFromCompany(LOCALSTORAGE_KEY);
         if (layoutStore && layoutStore[name]) {
             const layout: ISavedLayout = layoutStore[name];
             if (this.verifyCustomLayout(layout)) {
                 return {
+                    xs: this.getWidgetsFromReferences(layout.xs),
                     small: this.getWidgetsFromReferences(layout.small),
                     medium: this.getWidgetsFromReferences(layout.medium),
                     large: this.getWidgetsFromReferences(layout.large)
@@ -126,18 +134,19 @@ export class CanvasHelper {
             return;
         }
 
-        let layoutStore = this.browserStorage.getItemFromCompany('widget_layouts');
+        let layoutStore = this.browserStorage.getItemFromCompany(LOCALSTORAGE_KEY);
         if (!layoutStore) {
             layoutStore = {};
         }
 
         layoutStore[name] = {
+            xs: this.getReferencesFromWidgets(layout.xs),
             small: this.getReferencesFromWidgets(layout.small),
             medium: this.getReferencesFromWidgets(layout.medium),
             large: this.getReferencesFromWidgets(layout.large)
         };
 
-        this.browserStorage.setItemOnCompany('widget_layouts', layoutStore);
+        this.browserStorage.setItemOnCompany(LOCALSTORAGE_KEY, layoutStore);
     }
 
     public removeLayout(name: string) {
@@ -146,9 +155,9 @@ export class CanvasHelper {
         }
 
         try {
-            const layoutStore = this.browserStorage.getItemFromCompany('widget_layouts');
+            const layoutStore = this.browserStorage.getItemFromCompany(LOCALSTORAGE_KEY);
             delete layoutStore[name];
-            this.browserStorage.setItemOnCompany('widget_layouts', layoutStore);
+            this.browserStorage.setItemOnCompany(LOCALSTORAGE_KEY, layoutStore);
         } catch (e) {}
     }
 

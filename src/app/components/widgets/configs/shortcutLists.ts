@@ -304,7 +304,7 @@ export const SHORTCUT_LISTS = [
         id: 'shortcut_list_salary',
         description: 'Snartvei liste - Lønn',
         width: 3,
-        height: 4,
+        height: 3,
         widgetType: 'shortcutlist',
         config: {
             header: 'Snarveier',
@@ -355,7 +355,6 @@ export const SHORTCUT_LISTS = [
     {
         id: 'shortcut_list_timetracking',
         description: 'Snartvei liste - Timeføring',
-        permissions: ['ui_timetracking_workers', 'ui_timetracking_worktypes'],
         width: 2,
         height: 3,
         widgetType: 'shortcutlist',

@@ -31,7 +31,7 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     }
 
     private load() {
-        const fields: UniFieldLayout[] = [];
+        let fields: UniFieldLayout[] = [];
         if (this.salaryTransaction$.getValue().Supplements) {
             this.salaryTransaction$
                 .getValue()
@@ -62,6 +62,9 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
                             case Valuetype.IsString:
                                 fields.push(this.createTexField(supplement, index));
                                 break;
+                            case Valuetype.Period:
+                                fields = [...fields, ...this.createFromToDatePicker(supplement, index)];
+                                break;
                         }
                     }
             });
@@ -80,10 +83,16 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     }
 
     private createDatePicker(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout {
-        if (!supplement.ValueDate) {
-            supplement.ValueDate = new Date(supplement.WageTypeSupplement.SuggestedValue);
-        }
         return this.getNewField(supplement, FieldType.LOCAL_DATE_PICKER, `Supplements[${index}].ValueDate`);
+    }
+
+    private createFromToDatePicker(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout[] {
+        return [
+            this.getNewField(
+                supplement, FieldType.LOCAL_DATE_PICKER, `Supplements[${index}].ValueDate`, `${supplement.WageTypeSupplement.Name} start`),
+            this.getNewField(
+                supplement, FieldType.LOCAL_DATE_PICKER, `Supplements[${index}].ValueDate2`, `${supplement.WageTypeSupplement.Name} slutt`)
+        ];
     }
 
     private createNumberField(supplement: SalaryTransactionSupplement, index: number): UniFieldLayout {
@@ -100,11 +109,16 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
         return this.getNewField(supplement, FieldType.TEXT, `Supplements[${index}].ValueString`);
     }
 
-    private getNewField(supplement: SalaryTransactionSupplement, type: FieldType, property: string): UniFieldLayout {
+    private getNewField(
+        supplement: SalaryTransactionSupplement,
+        type: FieldType,
+        property: string,
+        name: string = supplement.WageTypeSupplement.Name
+    ): UniFieldLayout {
         const config = this.options.modalConfig;
         const field: UniFieldLayout = new UniFieldLayout();
         field.EntityType = 'SalaryTransactionSupplement';
-        field.Label = supplement.WageTypeSupplement.Name;
+        field.Label = name;
         field.FieldType = type;
         field.Property = property;
         field.LineBreak = true;

@@ -25,6 +25,7 @@ import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';
 import {ReportDefinitionParameterService} from '../../services/reports/reportDefinitionParameterService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
+import { RequestMethod } from '@angular/http';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
@@ -181,11 +182,15 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public payInvoice(id: number, payment: InvoicePaymentData): Observable<JournalEntry> {
         return this.ActionWithBody(id, payment, 'payInvoice');
     }
+    public payInvoiceWithNumberSeriesTaskID(id: number, payment: InvoicePaymentData, taskID: number) {
+        return this.ActionWithBody(id, payment, 'pay-invoice-with-number-series-task-id', RequestMethod.Put,
+            taskID != null ? 'numberseriestaskid=' + taskID.toString() : null);
+    }
 
-    public payInvoices(data: {id: number, payment: InvoicePaymentData}[]): Observable<JournalEntry[]> {
-        if (!data.length) {return Observable.of([]);}
+    public payInvoices(data: {id: number, payment: InvoicePaymentData, numberSeriesTaskID: number}[]): Observable<JournalEntry[]> {
+        if (!data.length) { return Observable.of([]); }
 
-        return Observable.forkJoin(data.map(d => this.payInvoice(d.id, d.payment)));
+        return Observable.forkJoin(data.map(d => this.payInvoiceWithNumberSeriesTaskID(d.id, d.payment, d.numberSeriesTaskID)));
     }
 
     public onCheckCreateCreditNoteDisabled(selectedRow: any): boolean {

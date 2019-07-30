@@ -645,8 +645,8 @@ export class DebtCollectionSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomFields: any;
 }
 
@@ -2752,6 +2752,7 @@ export class Confirmation extends UniEntity {
     public _createguid: string;
     public Code: string;
     public CompanyName: string;
+    public ContractType: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -3530,6 +3531,7 @@ export class EmailLog extends UniEntity {
     public ExternalReference: string;
     public From: string;
     public ID: number;
+    public JobRunExternalRef: string;
     public JobRunID: number;
     public StatusCode: number;
     public Subject: string;
@@ -3900,6 +3902,7 @@ export class User extends UniEntity {
     public DisplayName: string;
     public Email: string;
     public GlobalIdentity: string;
+    public HasAgreedToImportDisclaimer: boolean;
     public ID: number;
     public IsAutobankAdmin: boolean;
     public LastLogin: Date;
@@ -3992,6 +3995,7 @@ export class Sharing extends UniEntity {
     public ExternalReference: string;
     public From: string;
     public ID: number;
+    public JobRunExternalRef: string;
     public JobRunID: number;
     public StatusCode: number;
     public Subject: string;
@@ -4538,9 +4542,9 @@ export class TransitionFlow extends UniEntity {
     public TransitionID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Transition: Transition;
     public FromStatus: Status;
     public ToStatus: Status;
+    public Transition: Transition;
     public CustomFields: any;
 }
 
@@ -4741,8 +4745,8 @@ export class NumberSeries extends UniEntity {
     public UpdatedBy: string;
     public UseNumbersFromNumberSeriesID: number;
     public NumberSeriesType: NumberSeriesType;
-    public UseNumbersFromNumberSeries: NumberSeries;
     public NumberSeriesTask: NumberSeriesTask;
+    public UseNumbersFromNumberSeries: NumberSeries;
     public MainAccount: Account;
     public CustomFields: any;
 }
@@ -4914,6 +4918,7 @@ export class EHFLog extends UniEntity {
     public ExternalReference: string;
     public From: string;
     public ID: number;
+    public JobRunExternalRef: string;
     public JobRunID: number;
     public StatusCode: number;
     public Subject: string;
@@ -5400,6 +5405,64 @@ export class ApiKey extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Url: string;
+    public CustomFields: any;
+}
+
+
+export class AvtaleGiroAgreement extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AvtaleGiroAgreement';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public DataSender: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public NextNumber: number;
+    public Thumbprint: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class AvtaleGiroBankAccount extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AvtaleGiroBankAccount';
+
+    public _createguid: string;
+    public AvtaleGiroAgreementID: number;
+    public BankAccountNumber: string;
+    public CompanyID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Company: Company;
+    public CustomFields: any;
+}
+
+
+export class AvtaleGiroFile extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AvtaleGiroFile';
+
+    public _createguid: string;
+    public AvtaleGiroAgreementID: number;
+    public AvtaleGiroContent: string;
+    public CompanyID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FileID: number;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Company: Company;
     public CustomFields: any;
 }
 
@@ -6377,9 +6440,9 @@ export class VatReportReference extends UniEntity {
     public UpdatedBy: string;
     public VatPostID: number;
     public VatTypeID: number;
-    public VatType: VatType;
-    public VatPost: VatPost;
     public Account: Account;
+    public VatPost: VatPost;
+    public VatType: VatType;
     public CustomFields: any;
 }
 
@@ -6752,8 +6815,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6828,11 +6891,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
-    public VatTypePercentages: Array<VatTypePercentage>;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -7138,9 +7201,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7667,6 +7730,7 @@ export class UserDto extends UniEntity {
     public DisplayName: string;
     public Email: string;
     public GlobalIdentity: string;
+    public HasAgreedToImportDisclaimer: boolean;
     public ID: number;
     public IsAutobankAdmin: boolean;
     public LastLogin: Date;
