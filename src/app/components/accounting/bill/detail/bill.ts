@@ -1123,7 +1123,7 @@ export class BillView implements OnInit {
             if (x.Data && x.Data.entries && x.Data.entries.length > 0) {
                 const item = x.Data.entries[0];
                 const title = `Opprette ny leverandør '${item.navn}' ?`;
-                const msg = `${item.foretningsadr || ''} ${item.forradrpostnr || ''} `
+                const msg = `${item.forretningsadr || ''} ${item.forradrpostnr || ''} `
                     + `${item.forradrpoststed || ''}. Organisasjonsnr: ${item.orgnr}`;
                 this.toast.clear();
                 if (askUser) {
@@ -1141,7 +1141,7 @@ export class BillView implements OnInit {
                             this.createSupplier(
                                 item.orgnr,
                                 item.navn,
-                                item.foretningsadr,
+                                item.forretningsadr,
                                 item.forradrpostnr,
                                 item.forradrpoststed,
                                 bankAccount
@@ -1150,7 +1150,7 @@ export class BillView implements OnInit {
                     });
                 } else {
                     this.createSupplier(
-                        item.orgnr, item.navn, item.foretningsadr,
+                        item.orgnr, item.navn, item.forretningsadr,
                         item.forradrpostnr, item.forradrpoststed, bankAccount
                     );
                 }

@@ -1,23 +1,61 @@
-import { Injectable } from '@angular/core';
-import { UniHttp } from '../../../framework/core/http/http';
-import { RecurringInvoice, StatusCodeRecurringInvoice } from '../../unientities';
-import { ITickerActionOverride } from '../../services/common/uniTickerService';
-import { BizHttp } from '../../../framework/core/http/BizHttp';
+import {Injectable} from '@angular/core';
+import {RecurringInvoice, StatusCodeRecurringInvoice} from '@uni-entities';
+import {ITickerActionOverride} from '../../services/common/uniTickerService';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {BizHttp} from '@uni-framework/core/http/BizHttp';
+import {map, take} from 'rxjs/operators';
 
 @Injectable()
 export class RecurringInvoiceService extends BizHttp<RecurringInvoice> {
-
-    public actionOverrides: Array<ITickerActionOverride> = [];
-
-    public statusTypes: Array<any> = [
+    actionOverrides: Array<ITickerActionOverride> = [];
+    statusTypes: Array<any> = [
         { Code: StatusCodeRecurringInvoice.Active, Text: 'Aktiv' },
         { Code: StatusCodeRecurringInvoice.InActive, Text: 'Inaktiv' }
     ];
 
-    constructor( http: UniHttp ) {
+    constructor(http: UniHttp) {
         super(http);
         this.relativeURL = RecurringInvoice.RelativeUrl;
         this.entityType = RecurringInvoice.EntityType;
+    }
+
+    getInvoiceItems(invoiceID: number) {
+        const expand = [
+            'Product.VatType',
+            'VatType',
+            'Dimensions.Project',
+            'Dimensions.Department',
+            'Dimensions.Dimension5',
+            'Dimensions.Dimension6',
+            'Dimensions.Dimension7',
+            'Dimensions.Dimension8',
+            'Dimensions.Dimension9',
+            'Dimensions.Dimension10',
+            'Account',
+        ].join(',');
+
+        const filter = `RecurringInvoiceID eq ${invoiceID}`;
+        const url = `recurringinvoiceitems?filter=${filter}&expand=${expand}`;
+
+        const hash = this.hashFnv32a(url);
+        let request = this.getFromCache(hash);
+
+        if (!request) {
+            request = this.http
+                .usingBusinessDomain()
+                .asGET()
+                .withEndPoint(url)
+                .send()
+                .publishReplay(1)
+                .refCount();
+
+            this.storeInCache(hash, request);
+        }
+
+        return request.pipe(
+            take(1),
+            map(res => res.json())
+        );
     }
 
     public getStatusText = (statusCode: string) => {
