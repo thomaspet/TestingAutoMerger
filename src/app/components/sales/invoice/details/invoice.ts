@@ -557,7 +557,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
-            return this.modalService.openUnsavedChangesModal().onClose
+            const acceptBtnTxt = (this.invoiceID && this.invoiceID > 0) ? 'Lagre' : 'Lagre som kladd';
+            return this.modalService.openUnsavedChangesModal(acceptBtnTxt).onClose
                 .switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         if (!this.invoice.ID && !this.invoice.StatusCode) {
