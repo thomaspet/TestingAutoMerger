@@ -7,7 +7,7 @@
 </table-filters>
 
 <section #wrapper class="uni-ag-wrapper"
-    *ngIf="rowModelType"
+    *ngIf="showGrid && rowModelType"
     [ngStyle]="{
         'height': tableHeight,
         'flex': config?.isGroupingTicker ? '1' : 'unset',

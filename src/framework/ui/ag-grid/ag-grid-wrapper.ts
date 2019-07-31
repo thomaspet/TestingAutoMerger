@@ -71,6 +71,7 @@ export class AgGridWrapper {
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
+    showGrid = true; // used for hard re-draw
     public markedRowCount: number = 0;
     private configStoreKey: string;
     private agGridApi: GridApi;
@@ -198,7 +199,21 @@ export class AgGridWrapper {
                 this.tableHeight = undefined;
                 this.rowModelType = 'clientSide';
                 this.cacheBlockSize = undefined;
-                this.usePagination = this.config.pageable && !this.config.editable && !this.config.rowDraggable;
+
+                // Ag-grid does not support updating pagination flag after grid init.
+                // For this reason we need to do a hard re-draw (ngIf) when this changes.
+                const usePagination = this.config.pageable && !this.config.editable && !this.config.rowDraggable;
+                const paginationChanged = (this.usePagination && !usePagination) || (this.usePagination === false && usePagination);
+
+                this.usePagination = usePagination;
+                if (paginationChanged) {
+                    this.showGrid = false;
+                    this.cdr.markForCheck();
+                    setTimeout(() => {
+                        this.showGrid = true;
+                        this.cdr.markForCheck();
+                    });
+                }
             } else {
                 this.localData = false;
                 this.rowModelType = 'infinite';
