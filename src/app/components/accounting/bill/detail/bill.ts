@@ -1578,6 +1578,9 @@ export class BillView implements OnInit {
                     );
                 }
                 this.fetchNewSupplier(supplier.ID);
+                if (this.accountsWithMandatoryDimensionsIsUsed) {
+                    this.getValidationMessage(supplier.ID);
+                }
             }
             return;
         }
