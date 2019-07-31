@@ -121,6 +121,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private projectID: number;
     private ehfEnabled: boolean = false;
 
+    recalcDebouncer: EventEmitter<any> = new EventEmitter();
     readonly: boolean;
     readonlyDraft: boolean;
     invoice: CustomerInvoice;
@@ -270,6 +271,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     ngOnInit() {
         this.recalcItemSums(null);
+
+        // Subscribe and debounce recalc on table changes
+        this.recalcDebouncer.debounceTime(500).subscribe((invoiceItems) => {
+            this.recalcItemSums(invoiceItems);
+        });
+
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe((result) => {
             this.accountsWithMandatoryDimensionsIsUsed = result > 0;
         });
