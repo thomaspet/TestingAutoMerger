@@ -37,7 +37,7 @@ import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 @Component({
     selector: 'uni-tradeitem-table',
     template: `
-        <ag-grid-wrapper *ngIf="settings"
+        <ag-grid-wrapper *ngIf="showTable && settings"
             [(resource)]="items"
             [config]="tableConfig"
             (rowChange)="onRowChange($event)"
@@ -61,10 +61,12 @@ export class TradeItemTable {
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     @Input() public vatTypes: VatType[];
+
+    showTable: boolean = true; // used for hard re-draw
+
     private foreignVatType: VatType;
     public tableConfig: UniTableConfig;
     public settings: CompanySettings;
-    private defaultProject: Project;
     pricingSourceLabels = ['Fast', 'Produkt'];
     priceFactor = [
         { value: 0, label: 'Fast' },
@@ -138,7 +140,11 @@ export class TradeItemTable {
         }
 
         if (changes['readonly'] && this.table) {
-            this.initTableConfig();
+            this.showTable = false;
+            setTimeout(() => {
+                this.initTableConfig();
+                this.showTable = true;
+            });
         }
 
         if (changes['vatDate']) {
