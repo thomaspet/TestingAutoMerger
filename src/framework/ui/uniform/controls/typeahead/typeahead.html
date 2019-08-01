@@ -1,4 +1,4 @@
-<div class="autocomplete" (clickOutside)="onClickOutside($event)">
+<div class="autocomplete" (clickOutside)="onClickOutside()">
     <input #query
            [attr.aria-describedby]="asideGuid"
            class="autocomplete_input"
@@ -6,18 +6,15 @@
            [readonly]="readOnly$ | async"
            [placeholder]="field?.Placeholder || ''"
            (focus)="focusHandler()"
+           (blur)="emitChanges()"
            role="combobox"
-           autocomplete="false"
-           aria-autocomplete="inline"
-           [attr.aria-owns]="'results-'+guid"
-           [title]="control?.value || ''"
            type="text"
            tabindex="-1"
     />
     <button #toggleBtn class="uni-typeahead-searchBtn"
             type="button"
-            [attr.aria-busy]="busy$ | async"
             tabIndex="-1"
+            (click)="toggle()"
             [disabled]="readOnly$ | async">
         Søk
     </button>
@@ -25,19 +22,17 @@
     <ul #list
         *ngIf="lookupResults?.length"
         class="uniTable_dropdown_list"
-        [id]="'results-' + guid"
         role="listbox"
         tabindex="-1"
-        [attr.aria-expanded]="isExpanded$ | async">
+        [attr.aria-expanded]="isExpanded">
 
         <li *ngFor="let item of lookupResults; let idx = index"
             class="autocomplete_result uniTable_dropdown_item"
             role="option"
-            (mouseover)="onMouseOver(item.isHeader, item, idx)"
-            (click)="confirmSelection(item)"
-            [attr.aria-selected]="selectedIndex === idx"
-            [ngClass]="{ 'group_list_header' : item.isHeader }">
-            {{idx + 1}}: {{ template(item) }}
+            (mouseover)="selectedIndex = idx"
+            (click)="select(idx)"
+            [attr.aria-selected]="selectedIndex === idx">
+            {{ template(item) }}
         </li>
     </ul>
     <ng-content></ng-content>
