@@ -870,7 +870,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveAllObs(config: IEmployeeSaveConfig, saveObjects: ISaveObject[]): Observable<any[]> {
-
         return this.saveEmployee(saveObjects)
             .catch((error, obs) => {
                 config.done('Feil ved lagring');
@@ -955,6 +954,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveEmployee(saveObj: ISaveObject[]): Observable<Employee> {
+        this.employeeService.invalidateCache();
         const empSaveObj = saveObj.find(obj => obj.key === EMPLOYEE_KEY);
         // If employee is untouched and exists in backend we dont have to save it again
         if (!empSaveObj || !empSaveObj.state || (!empSaveObj.dirty && this.employee.ID > 0)) {
