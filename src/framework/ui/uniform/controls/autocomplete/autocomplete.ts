@@ -81,6 +81,7 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     ngOnDestroy() {
+        super.ngOnDestroy();
         this.busy$.complete();
         this.isExpanded$.complete();
         this.cleanSubscriptions();
