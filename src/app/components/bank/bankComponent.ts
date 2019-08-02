@@ -570,6 +570,7 @@ export class BankComponent {
                 newPayment.ReconcilePayment = payment.ReconcilePayment;
                 newPayment.AutoJournal = payment.AutoJournal;
                 newPayment.IsCustomerPayment = payment.IsCustomerPayment;
+                newPayment.CurrencyCodeID = payment.CurrencyCodeID;
 
                 if (showModal) {
                     // show addPaymentModel
