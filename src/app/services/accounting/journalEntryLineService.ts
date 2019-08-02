@@ -62,7 +62,7 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=get-journal-entry-postpost-data' + querystring)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getStatusText = (statusCode: number) => {
@@ -85,6 +85,6 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
             `?model=journalentryline&select=sum(amount) as Saldo&filter=subaccount.accountnumber eq ${customerNumber}&expand=subaccount`
         )
         .send()
-        .map(res => res.json());
+        .map(res => res.body);
     }
 }

@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
+import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
     Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary, PostingSummaryDraft
@@ -16,8 +15,7 @@ import {StatisticsService} from '../../common/statisticsService';
 import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {RequestMethod} from '@angular/http';
-import {map} from 'rxjs/operators';
+
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, // Note: NOT in Use yet
@@ -247,7 +245,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 .withEndPoint(this.relativeURL + '/' + id + '/category/' + category.ID)
                 .withBody(category)
                 .send()
-                .map(response => response.json());
+                .map(response => response.body);
         }
         return Observable.of(null);
     }

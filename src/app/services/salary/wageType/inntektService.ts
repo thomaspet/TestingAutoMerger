@@ -24,7 +24,7 @@ export class InntektService extends BizHttp<code> {
             .usingBusinessDomain()
             .withEndPoint(url)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getSalaryValidValueTypes(): Observable<string> {
@@ -33,6 +33,6 @@ export class InntektService extends BizHttp<code> {
             .usingBusinessDomain()
             .withEndPoint(`salaryvalidvalue/types?action=getall`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 }

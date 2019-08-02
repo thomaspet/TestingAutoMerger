@@ -1,8 +1,8 @@
 import {Component, Input, ViewChild} from '@angular/core';
-import {URLSearchParams, Response} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
-import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
+import {PeriodFilter} from '../periodFilter/periodFilter';
 import {
     UniTableColumn,
     UniTableConfig,
@@ -66,8 +66,8 @@ export class AccountDetailsReport {
     subAccountIDs: Array<number> = [];
     includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    transactionsLookupFunction: (urlParams: URLSearchParams) => any;
-    columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
+    transactionsLookupFunction: (urlParams: HttpParams) => any;
+    columnSumResolver: (urlParams: HttpParams) => Observable<{[field: string]: number}>;
     doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     accountNumber: number;
     tabIndex: number = 0;
@@ -194,10 +194,10 @@ export class AccountDetailsReport {
                     this.updateToolbar();
                     this.addTab();
 
-                    this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
+                    this.transactionsLookupFunction = (urlParams: HttpParams) =>
                         this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-                    this.columnSumResolver = (urlParams: URLSearchParams) =>
+                    this.columnSumResolver = (urlParams: HttpParams) =>
                         this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
                     this.searchConfig.initialItem$.next(account);
@@ -223,10 +223,10 @@ export class AccountDetailsReport {
                 Date: moment(this.activeYear + '-12-31')
             };
 
-            this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
+            this.transactionsLookupFunction = (urlParams: HttpParams) =>
                 this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-            this.columnSumResolver = (urlParams: URLSearchParams) =>
+            this.columnSumResolver = (urlParams: HttpParams) =>
                 this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
             this.loadData();
@@ -375,8 +375,8 @@ export class AccountDetailsReport {
         this.doTurnAndInclude();
     }
 
-    private getTableData(urlParams: URLSearchParams, isSum: boolean = false): Observable<Response> {
-        urlParams = urlParams || new URLSearchParams();
+    private getTableData(urlParams: HttpParams, isSum: boolean = false) {
+        urlParams = urlParams || new HttpParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
@@ -398,20 +398,20 @@ export class AccountDetailsReport {
             filters.push(`isnull(StatusCode,0) ne '31004'`);
         }
 
-        urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
-        urlParams.set('filter', filters.join(' and '));
+        urlParams = urlParams.set('model', 'JournalEntryLine');
+        urlParams = urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
+        urlParams = urlParams.set('filter', filters.join(' and '));
 
         if (isSum) {
-            urlParams.set('select', 'sum(Amount) as Amount');
-            urlParams.delete('join');
-            urlParams.delete('orderby');
+            urlParams = urlParams.set('select', 'sum(Amount) as Amount');
+            urlParams = urlParams.delete('join');
+            urlParams = urlParams.delete('orderby');
 
-            return this.statisticsService.GetAllByUrlSearchParams(urlParams)
-                .map(res => res.json())
+            return this.statisticsService.GetAllByHttpParams(urlParams)
+                .map(res => res.body)
                 .map(res => (res.Data && res.Data[0]) || []);
         } else {
-            urlParams.set('select',
+            urlParams = urlParams.set('select',
             'ID as ID,' +
             'JournalEntryNumber as JournalEntryNumber,' +
             'FinancialDate,' +
@@ -431,19 +431,19 @@ export class AccountDetailsReport {
             'ReferenceCreditPostID as ReferenceCreditPostID,' +
             'OriginalReferencePostID as OriginalReferencePostID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments');
-            urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-            urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
+            urlParams = urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
+            urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
-            return this.statisticsService.GetAllByUrlSearchParams(urlParams);
+            return this.statisticsService.GetAllByHttpParams(urlParams);
         }
     }
 
     private setupLookupTransactions() {
         this.transactionsLookupFunction =
-            (urlParams: URLSearchParams) => this.getTableData(urlParams)
+            (urlParams: HttpParams) => this.getTableData(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-        this.columnSumResolver = (urlParams: URLSearchParams) =>
+        this.columnSumResolver = (urlParams: HttpParams) =>
             this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 

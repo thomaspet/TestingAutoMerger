@@ -120,7 +120,7 @@ export class UniApproveTaskModal {
             .usingBusinessDomain()
             .withEndPoint('approvals?expand=user&filter=taskid eq ' + taskID)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     approve() {
@@ -163,7 +163,7 @@ export class UniApproveTaskModal {
             .withBody(body)
             .withEndPoint(route)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 }
 

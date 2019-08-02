@@ -6,7 +6,7 @@ import { StatisticsService } from '@app/services/common/statisticsService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, UniConfirmModalWithCheckbox, ConfirmActions } from '../../../../framework/uni-modal';
-import { RequestMethod } from '@angular/http';
+import { RequestMethod } from '@uni-framework/core/http';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import { Payment } from '@uni-entities';
 import {Router} from '@angular/router';

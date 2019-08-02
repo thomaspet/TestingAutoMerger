@@ -163,7 +163,7 @@ export class SaveQueryDefinitionForm implements OnInit {
         this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint('uniquerydefinitions?action=get-distinct-querydefinition-categories')
-            .send().map(response => response.json())
+            .send().map(response => response.body)
             .subscribe(
                 result => {
                     this.categories = this.transformArray(result);

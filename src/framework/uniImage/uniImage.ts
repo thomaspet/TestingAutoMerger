@@ -9,7 +9,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import {MatMenuTrigger} from '@angular/material';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import printJS from 'print-js';
 
 import {File} from '../../app/unientities';
@@ -99,7 +99,7 @@ export class UniImage {
     onDestroy$: Subject<any> = new Subject();
 
     constructor(
-        private ngHttp: Http,
+        private ngHttp: HttpClient,
         private http: UniHttp,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
@@ -242,7 +242,7 @@ export class UniImage {
         if (request) {
             request.subscribe(
                 res => {
-                    res = res.json().filter(x => x !== null);
+                    res = res.body.filter(x => x !== null);
 
                     // Get json data and generate markup for EHF files.
                     // Resolve the rest the of the files without changes.
@@ -363,7 +363,7 @@ export class UniImage {
         if (fileName.includes('.pdf')) {
             this.fileService.printFile(this.currentFile.ID).subscribe(
                 (res: any) => {
-                    const url = JSON.parse(res._body) + '&attachment=false';
+                    const url = res.body + '&attachment=false';
                     try {
                         printJS({
                             printable: url,
@@ -646,14 +646,15 @@ export class UniImage {
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', file);
 
-        this.ngHttp.post(this.baseUrl + '/api/file', data)
-            .map(res => res.json())
-            .subscribe((res) => {
+        this.ngHttp.post<any>(this.baseUrl + '/api/file', data, {
+            observe: 'body'
+        }).subscribe(
+            res => {
                 // files are uploaded to unifiles, and will get an externalid that
                 // references the file in UE - get the UE file and add that to the
                 // collection
-                this.fileService.Get(res.ExternalId)
-                    .subscribe(newFile => {
+                this.fileService.Get(res.ExternalId).subscribe(
+                    newFile => {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
                         this.setFileViewerData(this.files);
@@ -666,13 +667,15 @@ export class UniImage {
                         // check filestatus and load file/image when Uni Files is done
                         // processing it
                         this.checkFileStatusAndLoadImage(newFile);
-
-                    }, err => this.errorService.handle(err));
+                    },
+                    err => this.errorService.handle(err)
+                );
             }, err => {
                 this.uploading = false;
                 this.cdr.markForCheck();
                 this.errorService.handle(err);
-            });
+            }
+        );
     }
 
     private checkFileStatusAndLoadImage(file, attempts: number = 0) {

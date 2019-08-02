@@ -8,7 +8,8 @@ import {
     ChangeDetectorRef,
     ChangeDetectionStrategy
 } from '@angular/core';
-import {URLSearchParams, Http} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
+
 import {Router} from '@angular/router';
 import {
     Ticker,
@@ -41,7 +42,7 @@ import {
 } from '../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable, empty} from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
@@ -51,7 +52,7 @@ import {SharingType, StatusCodeSharing} from '../../../unientities';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
 
@@ -98,8 +99,8 @@ export class UniTicker {
     public tableConfig: UniTableConfig;
     public prefetchDataLoaded: boolean = false;
     public resource: any;
-    public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
-    public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
+    public lookupFunction: (urlParams: HttpParams) => Observable<any>;
+    public columnSumResolver: (urlParams: HttpParams) => Observable<{[field: string]: number}>;
 
     private selectedRow: any = null;
     public canShowTicker: boolean = true;
@@ -109,7 +110,7 @@ export class UniTicker {
     public newWithEntityAction: TickerAction;
 
     public unitableFilter: string;
-    public publicParams: URLSearchParams;
+    public publicParams: HttpParams;
     public groupingIsOn: boolean = false;
     public groupFilter: string = '';
 
@@ -124,7 +125,6 @@ export class UniTicker {
         private errorService: ErrorService,
         private uniTickerService: UniTickerService,
         private modelService: ApiModelService,
-        private http: Http,
         private reportDefinitionService: ReportDefinitionService,
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
@@ -139,29 +139,25 @@ export class UniTicker {
         private salaryBalanceService: SalarybalanceService,
     ) {
         this.customDimensionService.getMetadata().subscribe(res => this.customDimensionsMetadata = res);
-        this.lookupFunction = (urlParams: URLSearchParams) => {
+        this.lookupFunction = (urlParams: HttpParams) => {
             this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
-                    .GetAllByUrlSearchParams(params, this.ticker.Distinct || false)
-                    .catch(() => Observable.empty()) // fail silently
+                    .GetAllByHttpParams(params, this.ticker.Distinct || false)
                     .pipe(
-                        map(data => {
+                        catchError(() => empty()), // fail silently
+                        map(response => {
                             if (this.ticker.Expand.indexOf('MandatoryDimensions') > -1) {
-                                const body = JSON.parse(data['_body']);
+                                const body = response.body;
                                 const list = body.Data;
                                 const grouppedList = this.groupMandatoryDimensions(list);
-                                data['_body'] = JSON.stringify(grouppedList);
-                                return data;
+                                response = response.clone({ body: grouppedList });
                             }
-                            return data;
+
+                            return response;
                         })
                     );
-            } else if (this.ticker.ApiUrl) {
-                return this.http
-                    .get(this.ticker.ApiUrl)
-                    .catch(() => Observable.empty()); // fail silently
             }
         };
 
@@ -181,28 +177,14 @@ export class UniTicker {
             });
 
             const tickerParams = this.getSearchParams(urlParams);
-            const sumParams = new URLSearchParams();
-            sumParams.set('model', tickerParams.get('model'));
-            sumParams.set('filter', tickerParams.get('filter'));
-            sumParams.set('select', selects.join(','));
+            const sumParams = new HttpParams()
+                .set('model', tickerParams.get('model'))
+                .set('filter', tickerParams.get('filter') || '')
+                .set('expand', tickerParams.get('expand') || '')
+                .set('select', selects.join(','));
 
-
-            // Anders - 16.03.2018
-            // Mega hacky way to avoid items being expanded on sum request
-            // due to one of the columns summing on order lines.
-            // This will be fixed properly på UK-1083
-            // REPLACE WITH ORIGINAL WHEN ISSUE IS RESOLVED!!
-            const expandString = tickerParams.get('expand') || '';
-            let expands = expandString.replace(' ', '').split(',');
-            expands = expands.filter(field => field.toLowerCase() !== 'items');
-
-            sumParams.set('expand', expands.join(','));
-
-            // Original:
-            // sumParams.set('expand', tickerParams.get('expand'));
-
-            return this.statisticsService.GetAllByUrlSearchParams(sumParams)
-                .map(res => res.json())
+            return this.statisticsService.GetAllByHttpParams(sumParams)
+                .map(res => res.body)
                 .map(res => (res.Data && res.Data[0]) || []);
         };
     }
@@ -241,31 +223,31 @@ export class UniTicker {
     }
 
     public getGroupingData() {
-        let searchParams = this.publicParams || new URLSearchParams();
+        let searchParams = this.publicParams || new HttpParams();
         const TOP: number = 5000;
 
-        searchParams.set('top', TOP.toString());
-        searchParams.delete('hateoas');
+        searchParams = searchParams.set('top', TOP.toString());
+        searchParams = searchParams.delete('hateoas');
         if (this.groupFilter) {
-            searchParams.set('filter', this.groupFilter);
+            searchParams = searchParams.set('filter', this.groupFilter);
         } else {
-            searchParams.delete('filter');
+            searchParams = searchParams.delete('filter');
         }
 
         searchParams = this.getSearchParams(searchParams);
 
-        const countSearchParams = new URLSearchParams();
-        countSearchParams.set('select', 'count(ID) as count');
-        countSearchParams.set('filter', searchParams.get('filter'));
-        countSearchParams.set('model', searchParams.get('model'));
-        countSearchParams.set('expand', searchParams.get('expand'));
+        const countSearchParams = new HttpParams()
+            .set('select', 'count(ID) as count')
+            .set('filter', searchParams.get('filter'))
+            .set('model', searchParams.get('model'))
+            .set('expand', searchParams.get('expand'));
 
         Observable.forkJoin(
-            this.statisticsService.GetAllByUrlSearchParams(searchParams),
-            this.statisticsService.GetAllByUrlSearchParams(countSearchParams)
+            this.statisticsService.GetAllByHttpParams(searchParams),
+            this.statisticsService.GetAllByHttpParams(countSearchParams)
         ).subscribe((res: any) => {
-            const result = res[0].json();
-            const counter = res[1].json();
+            const result = res[0].body;
+            const counter = res[1].body;
             if (counter && counter.Data && counter.Data[0].count > TOP) {
                 this.toastService.addToast('For mye data', ToastType.warn, 8,
                 `Du har prøvd å hente ut for mye data. Vi har returnert de ${TOP} første linjene. ` +
@@ -497,28 +479,25 @@ export class UniTicker {
         this.canShowTicker = canShowTicker;
     }
 
-    private getSearchParams(urlParams: URLSearchParams): URLSearchParams {
-        let params = urlParams;
-
-        if (!params) {
-            params = new URLSearchParams();
-        }
+    private getSearchParams(urlParams: HttpParams): HttpParams {
+        let params = urlParams || new HttpParams;
 
         if (params.get('model') && params.get('model') !== this.ticker.Model) {
-            params.set('orderby', null);
-            params.set('expand', null);
-            params.set('join', null);
-            params.set('filter', null);
+            params = params
+                .delete('orderby')
+                .delete('expand')
+                .delete('join')
+                .delete('filter');
         }
 
-        params.set('model', this.ticker.Model);
-        params.set('select', this.selects);
+        params = params.set('model', this.ticker.Model);
+        params = params.set('select', this.selects);
 
         if (!params.get('orderby')) {
             if (this.selectedFilter && this.selectedFilter.OrderBy) {
-                params.set('orderby', this.selectedFilter.OrderBy);
+                params = params.set('orderby', this.selectedFilter.OrderBy);
             } else if (this.ticker.OrderBy) {
-                params.set('orderby', this.ticker.OrderBy);
+                params = params.set('orderby', this.ticker.OrderBy);
             }
         } else { // Hack for MandatoryDimensions
             const orderbyParams: string = params.get('orderby');
@@ -527,16 +506,16 @@ export class UniTicker {
                 const newOrderByMandatoryType = 'MandatoryDimensions.MandatoryType '
                     + (orderbyParams.includes('MandatoryType') ? 'desc' : 'asc');
                 const newOrderByDimension = 'MandatoryDimensions.DimensionNo ' + direction;
-                params.set('orderby', [newOrderByDimension, newOrderByMandatoryType].join(','));
+                params = params.set('orderby', [newOrderByDimension, newOrderByMandatoryType].join(','));
             }
         }
 
         if (this.ticker.Expand) {
-            params.set('expand', this.ticker.Expand);
+            params = params.set('expand', this.ticker.Expand);
         }
 
         if (this.ticker.Joins) {
-            params.set('join', this.ticker.Joins);
+            params = params.set('join', this.ticker.Joins);
         }
 
         if (this.ticker.Filter) {
@@ -561,7 +540,7 @@ export class UniTicker {
             if (filter.indexOf(':currentaccountingyear') >= 0) {
                 this.setCurrentAccountingYearInFilter(filter, params);
             } else {
-                params.set('filter', filter);
+                params = params.set('filter', filter);
             }
         } else if (this.ticker.DefaultTableFilter) {
             let filter = urlParams.get('filter');
@@ -573,7 +552,7 @@ export class UniTicker {
                 (!this.ticker.DefaultTableFilter.active && !this.ticker.DefaultTableFilter.useWhenActive);
             if (use) {
                 filter = !!filter ? (filter + ` and ${this.ticker.DefaultTableFilter.filter}`) : this.ticker.DefaultTableFilter.filter;
-                params.set('filter', filter);
+                params = params.set('filter', filter);
             }
         }
 
@@ -611,7 +590,9 @@ export class UniTicker {
                 filter = tickerFilter;
             }
 
-            params.set('filter', filter);
+            if (filter) {
+                params = params.set('filter', filter);
+            }
         }
 
         // if the ticker has a parent filter (i.e. it is running in the context of another ticker),
@@ -632,25 +613,25 @@ export class UniTicker {
                 currentFilter = parentFilter;
             }
 
-            params.set('filter', currentFilter);
+            params = params.set('filter', currentFilter);
         }
 
         // if we have actions that are transitions we need to add hateoas to the data to be able to
         // analyse if a transition is valid
         const actions = this.getTickerActions();
         if (actions.filter(x => x.Type === 'transition').length > 0) {
-            params.set('hateoas', 'true');
+            params = params.set('hateoas', 'true');
         }
 
         return params;
     }
 
-    private setCurrentAccountingYearInFilter(filter: string, urlParams: URLSearchParams)  {
-        const params = urlParams;
+    private setCurrentAccountingYearInFilter(filter: string, urlParams: HttpParams)  {
+        let params = urlParams;
         const expFilterVal = this.expressionFilters.find(x => x.Expression === 'currentaccountingyear');
         if (expFilterVal) {
             filter = filter.replace(':currentaccountingyear', `${expFilterVal.Value}`);
-            params.set('filter', filter);
+            params = params.set('filter', filter);
         } else {
             const currentAccountingYear = this.financialYearService.getActiveYear().toString();
             this.expressionFilters.push({
@@ -658,13 +639,14 @@ export class UniTicker {
                 Value: currentAccountingYear
             });
             filter = filter.replace(':currentaccountingyear', currentAccountingYear);
-            params.set('filter', filter);
+            params = params.set('filter', filter);
         }
     }
 
     private loadDetailTickerData() {
-        this.lookupFunction(new URLSearchParams('top=1'))
-            .map(data => data.json())
+        const params = new HttpParams().set('top', '1');
+        this.lookupFunction(params)
+            .map(data => data.body)
             .map(data => data.Data ? data.Data : [])
             .subscribe(data => {
                 if (data && data.length > 0) {
@@ -1659,7 +1641,7 @@ export class UniTicker {
                             filename = 'export.xlsx';
                         }
 
-                        const blob = new Blob([result._body], { type: 'text/csv' });
+                        const blob = new Blob([result.body], { type: 'text/csv' });
                         // download file so the user can open it
                         saveAs(blob, filename);
                     },

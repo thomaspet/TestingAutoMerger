@@ -49,7 +49,7 @@ export class WidgetDataService {
                 .usingEmptyDomain()
                 .withEndPoint(endpoint)
                 .send()
-                .map(res => res.json())
+                .map(res => res.body)
                 .publishReplay(1)
                 .refCount();
         }

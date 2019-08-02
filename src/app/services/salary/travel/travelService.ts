@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import {BizHttp} from '@uni-framework/core/http/BizHttp';
+import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {
     Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
 } from '@uni-entities';
-import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {EmployeeService} from '../employee/employeeService';
 import {ApiKeyService} from '../../common/apikeyService';
 import {FileService} from '../../common/fileService';
-import {RequestMethod} from '@angular/http';
 import {SupplierService} from '@app/services/accounting/supplierService';
 
 @Injectable()

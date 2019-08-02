@@ -230,7 +230,7 @@ export class UniTerms {
                 ht.usingBusinessDomain()
                     .withBody(term)
                     .withEndPoint(route)
-                    .send().map(response => response.json())
+                    .send().map(response => response.body)
                     .subscribe(
                         result => {
                             this.hasUnsavedChanges = false;
@@ -287,7 +287,7 @@ export class UniTerms {
         this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint('terms?hateoas=false&orderby=name')
-            .send().map(response => response.json())
+            .send().map(response => response.body)
             .subscribe(
                 result => {
                     this.terms = result;

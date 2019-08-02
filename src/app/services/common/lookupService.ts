@@ -18,10 +18,10 @@ export class Lookupservice {
         if (useStatistics) {
             return this.http.asGET().usingStatisticsDomain()
             .withEndPoint(route).send(params)
-            .map(response => response.json().Data);
+            .map(response => response.body.Data);
         }
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
-        .map(response => response.json());
+        .map(response => response.body);
     }
 }

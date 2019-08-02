@@ -16,7 +16,7 @@ export class ElsaCustomersService {
             .usingEmptyDomain()
             .withEndPoint(endpoint)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     get(id: number): Observable<ElsaCustomer> {
@@ -25,7 +25,7 @@ export class ElsaCustomersService {
             .usingEmptyDomain()
             .withEndPoint(`/api/elsa/customers/${id}`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     getAll(expand?: string): Observable<ElsaCustomer[]> {
@@ -38,7 +38,7 @@ export class ElsaCustomersService {
             .usingEmptyDomain()
             .withEndPoint(endpoint)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     put(customer: ElsaCustomer) {
@@ -55,7 +55,7 @@ export class ElsaCustomersService {
             .withEndPoint(`/api/customers/${customerID}/customer-access`)
             .withBody(email)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     removeAdmin(customerID: number, id: number) {
@@ -63,6 +63,6 @@ export class ElsaCustomersService {
             .usingElsaDomain()
             .withEndPoint(`/api/customers/${customerID}/customer-access/${id}`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 }

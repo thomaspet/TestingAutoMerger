@@ -1,14 +1,12 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
-import {WageTypeService, ErrorService, StatisticsService} from '../../../services/services';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, IContextMenuItem} from '@uni-framework/ui/unitable';
+import {WageTypeService, ErrorService, StatisticsService} from '@app/services/services';
 
-import {CompanySalary} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {URLSearchParams} from '@angular/http';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {HttpParams} from '@angular/common/http';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
@@ -18,7 +16,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 export class WagetypeList implements OnInit {
 
     public tableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
     public contextMenuItems: IContextMenuItem[] = [];
     @ViewChild(AgGridWrapper) table: AgGridWrapper;
     public busy: boolean;
@@ -29,8 +27,6 @@ export class WagetypeList implements OnInit {
         main: true,
         disabled: false
     }];
-
-    private companySalary: CompanySalary;
 
     constructor(
         private _router: Router,
@@ -85,9 +81,9 @@ export class WagetypeList implements OnInit {
             .setSearchable(true);
     }
 
-    public lookup(urlParams: URLSearchParams) {
-        const params = urlParams || new URLSearchParams();
-        return this._wageTypeService.GetAllByUrlSearchParams(params);
+    public lookup(urlParams: HttpParams) {
+        const params = urlParams || new HttpParams();
+        return this._wageTypeService.GetAllByHttpParams(params);
     }
 
     public rowSelected(event) {

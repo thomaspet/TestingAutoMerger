@@ -1,4 +1,4 @@
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { ProductService } from '@app/services/common/productService';
 import { ValueItem } from '@app/services/timetracking/timesheetService';
@@ -53,29 +53,28 @@ export class InvoiceHourService {
     private orderList: Array<WorkOrder> = [];
     public computing = true;
 
-    constructor(private statisticsService: StatisticsService, private productService: ProductService) {
-
-    }
+    constructor(private statisticsService: StatisticsService, private productService: ProductService) {}
 
     public getHourTotals(options: IWizardOptions): Observable<ISumHours[]> {
-        const query = new URLSearchParams();
-        query.set('model', 'workitem');
-        query.set('select', `casewhen(worker.userid eq ${options.currentUser.ID}\,1\,0) as IsCurrentUser`
-            + ',casewhen(customerid gt 0\,1\,0) as IsCustomerHours'
-            + ',casewhen(customerorderid gt 0\,1\,0) as IsOrderHours'
-            + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
-        query.set('filter', 'transferedtoorder eq 0 and (customerid gt 0 or customerorderid gt 0 or dimensions.projectid gt 0)'
-            + ` and ( date ge '${options.periodFrom}' and date le '${options.periodTo}' )`
-        );
-        query.set('expand', 'dimensions,workrelation.worker');
+        const params = new HttpParams()
+            .set('model', 'workitem')
+            .set('select', `casewhen(worker.userid eq ${options.currentUser.ID}\,1\,0) as IsCurrentUser`
+                + ',casewhen(customerid gt 0\,1\,0) as IsCustomerHours'
+                + ',casewhen(customerorderid gt 0\,1\,0) as IsOrderHours'
+                + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
+            )
+            .set('filter', 'transferedtoorder eq 0 and (customerid gt 0 or customerorderid gt 0 or dimensions.projectid gt 0)'
+                + ` and ( date ge '${options.periodFrom}' and date le '${options.periodTo}' )`
+            )
+            .set('expand', 'dimensions,workrelation.worker');
 
-        return this.statisticsService.GetAllByUrlSearchParams(query, true)
+        return this.statisticsService.GetAllByHttpParams(params, true)
             .map( response => {
                 const mapped = [
                     { customerHours: 0, orderHours: 0, projectHours: 0, total: 0 },
                     { customerHours: 0, orderHours: 0, projectHours: 0, total: 0 }
                 ];
-                const body = response.json().Data;
+                const body = response.body.Data;
                 if (body && body.length > 0) {
                     body.forEach(element => {
                         const hours = roundTo(element.SumMinutes / 60, 1);
@@ -100,57 +99,67 @@ export class InvoiceHourService {
     }
 
     getInvoicableHoursOnOrder(orderID: number) {
-        const query = new URLSearchParams();
-        query.set('model', 'workitem');
-        query.set('select', 'sum(casewhen(minutestoorder ne 0,minutestoorder,minutes)) as SumMinutes'
-            + ',sum(casewhen(transferedtoorder eq 0,casewhen(minutestoorder ne 0,minutestoorder,minutes),0)) as SumNotTransfered');
-        query.set('filter', `CustomerOrderID eq ${orderID}`);
-        return this.statisticsService.GetAllByUrlSearchParams(query, true).map(response => response.json().Data);
+        const params = new HttpParams()
+            .set('model', 'workitem')
+            .set('filter', `CustomerOrderID eq ${orderID}`)
+            .set('select', 'sum(casewhen(minutestoorder ne 0,minutestoorder,minutes)) as SumMinutes'
+                + ',sum(casewhen(transferedtoorder eq 0,casewhen(minutestoorder ne 0,minutestoorder,minutes),0)) as SumNotTransfered'
+            );
+
+        return this.statisticsService.GetAllByHttpParams(params, true)
+            .map(response => response.body.Data);
     }
 
     public getGroupedInvoicableHours(options: IWizardOptions) {
-        const query = new URLSearchParams();
+        let params = new HttpParams();
         let filter = '';
 
-        query.set('model', 'workitem');
+        params = params.set('model', 'workitem');
 
         switch (options.source) {
             default:
             case WizardSource.CustomerHours:
-                query.set('select', 'CustomerID as CustomerID'
-                    + ',Customer.CustomerNumber as CustomerNumber'
-                    + ',Info.Name as CustomerName'
-                    + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
-                query.set('expand', 'workrelation.worker,customer.info');
-                query.set('orderby', 'info.name');
+                params = params
+                    .set('select', 'CustomerID as CustomerID'
+                        + ',Customer.CustomerNumber as CustomerNumber'
+                        + ',Info.Name as CustomerName'
+                        + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
+                    )
+                    .set('expand', 'workrelation.worker,customer.info')
+                    .set('orderby', 'info.name');
+
                 filter = 'transferedtoorder eq 0 and CustomerID gt 0';
-                break;
-
+            break;
             case WizardSource.OrderHours:
-                query.set('select', 'CustomerOrderID as OrderID'
-                    + ',CustomerOrder.OrderNumber as OrderNumber'
-                    + ',CustomerOrder.CustomerName as CustomerName'
-                    + ',CustomerOrder.CustomerID as CustomerID'
-                    + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
-                query.set('expand', 'workrelation.worker,customerorder');
-                query.set('orderby', 'CustomerOrderID desc');
-                filter = 'transferedtoorder eq 0 and CustomerOrderID gt 0';
-                break;
+                params = params
+                    .set('select', 'CustomerOrderID as OrderID'
+                        + ',CustomerOrder.OrderNumber as OrderNumber'
+                        + ',CustomerOrder.CustomerName as CustomerName'
+                        + ',CustomerOrder.CustomerID as CustomerID'
+                        + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
+                    )
+                    .set('expand', 'workrelation.worker,customerorder')
+                    .set('orderby', 'CustomerOrderID desc');
 
+                filter = 'transferedtoorder eq 0 and CustomerOrderID gt 0';
+            break;
             case WizardSource.ProjectHours:
-                query.set('select', 'Dimensions.ProjectID as ProjectID'
-                    + ',Project.ProjectNumber as ProjectNumber'
-                    + ',Project.Name as ProjectName'
-                    + ',businessrelation.Name as CustomerName'
-                    + ',customer.ID as CustomerID'
-                    + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
-                query.set('expand', 'workrelation.worker,dimensions.project');
-                query.set('join', 'dimensions.projectid eq project.id'
-                    + ' and project.projectcustomerid eq customer.id'
-                    + ' and customer.businessrelationid eq businessrelation.id');
-                query.set('orderby', 'dimensions.projectid desc');
+                params = params
+                    .set('select', 'Dimensions.ProjectID as ProjectID'
+                        + ',Project.ProjectNumber as ProjectNumber'
+                        + ',Project.Name as ProjectName'
+                        + ',businessrelation.Name as CustomerName'
+                        + ',customer.ID as CustomerID'
+                        + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
+                    )
+                    .set('expand', 'workrelation.worker,dimensions.project')
+                    .set('join', 'dimensions.projectid eq project.id'
+                        + ' and project.projectcustomerid eq customer.id'
+                        + ' and customer.businessrelationid eq businessrelation.id')
+                    .set('orderby', 'dimensions.projectid desc');
+
                 filter = 'transferedtoorder eq 0 and dimensions.projectid gt 0';
-                break;
+            break;
         }
 
         if (options && options.filterByUserID) {
@@ -159,20 +168,18 @@ export class InvoiceHourService {
 
         filter += ` and ( date ge '${options.periodFrom}' and date le '${options.periodTo}' )`;
 
-        query.set('filter', filter);
+        params = params.set('filter', filter);
 
-        return this.statisticsService.GetAllByUrlSearchParams(query, true);
-
+        return this.statisticsService.GetAllByHttpParams(params, true);
     }
 
 
     getWorkHours(options) {
-        const query = new URLSearchParams();
+        let params = new HttpParams();
         let filter = '';
 
-        query.set('model', 'WorkItem');
-
-        query.set('select',
+        params = params.set('model', 'WorkItem');
+        params = params.set('select',
             'ID as ID'
             + ',CustomerOrderID as CustomerOrderID'
             + ',CustomerID as CustomerID'
@@ -193,8 +200,8 @@ export class InvoiceHourService {
             + ',Product.VatTypeID as VatTypeID'
             + ',Product.Name as ProductName'
             + ',Product.Description as ProductDescription');
-        query.set('expand', 'Worktype.Product,WorkRelation.Worker.Info');
-        query.set('orderby', 'Worktype.Name');
+        params = params.set('expand', 'Worktype.Product,WorkRelation.Worker.Info');
+        params = params.set('orderby', 'Worktype.Name');
 
         filter = `CustomerOrderID eq ${options.orderID}`;
         if (options.tabValue === 1) {
@@ -202,16 +209,16 @@ export class InvoiceHourService {
         }
         filter += ' and (Minutes ne 0 or MinutesToOrder ne 0)';
 
-        query.set('filter', filter);
+        params = params.set('filter', filter);
 
-        return this.statisticsService.GetAllByUrlSearchParams(query, true).map(resp => resp.json().Data);
+        return this.statisticsService.GetAllByHttpParams(params, true).map(resp => resp.body.Data);
     }
 
     public getWorkTypeWithProducts(options: IWizardOptions) {
-        const query = new URLSearchParams();
+        let params = new HttpParams();
 
-        query.set('model', 'workitem');
-        query.set('select', 'sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
+        params = params.set('model', 'workitem');
+        params = params.set('select', 'sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
             + ',Worktype.ID as WorkTypeID'
             + ',WorkType.Name as WorktypeName'
             + ',casewhen(WorkType.Price ne 0\,WorkType.Price\,Product.PriceExVat) as PriceExVat'
@@ -220,8 +227,8 @@ export class InvoiceHourService {
             + ',Product.ID as ProductID'
             + ',Product.VatTypeID as VatTypeID'
             + ',Product.Name as ProductName');
-        query.set('expand', 'workrelation.worker,worktype.product');
-        query.set('orderby', 'worktype.name');
+        params = params.set('expand', 'workrelation.worker,worktype.product');
+        params = params.set('orderby', 'worktype.name');
         let filter = 'transferedtoorder eq 0';
 
         if (options) {
@@ -237,7 +244,7 @@ export class InvoiceHourService {
                             break;
                         case WizardSource.ProjectHours:
                             list.push(`dimensions.projectid eq ${options.selectedCustomers[i].ProjectID}`);
-                            query.set('expand', 'workrelation.worker,worktype.product,dimensions');
+                            params = params.set('expand', 'workrelation.worker,worktype.product,dimensions');
                             break;
                         }
                 }
@@ -250,45 +257,45 @@ export class InvoiceHourService {
 
         filter += ` and ( date ge '${options.periodFrom}' and date le '${options.periodTo}' )`;
 
-        query.set('filter', filter);
+        params = params.set('filter', filter);
 
-        return this.statisticsService.GetAllByUrlSearchParams(query, false);
+        return this.statisticsService.GetAllByHttpParams(params, false);
     }
 
     public getOrderLineBaseData(options: IWizardOptions) {
-        const query: URLSearchParams = new URLSearchParams();
+        let params = new HttpParams();
 
         let groupField = 'CustomerID';
         let customerField = 'CustomerID';
 
         switch (options.source) {
             case WizardSource.CustomerHours:
-                query.set('expand', 'workrelation.worker,worktype.product');
+                params = params.set('expand', 'workrelation.worker,worktype.product');
                 break;
             case WizardSource.OrderHours:
                 groupField = 'CustomerOrderID';
                 customerField = 'CustomerOrder.CustomerID';
-                query.set('expand', 'workrelation.worker,worktype.product,customerorder');
+                params = params.set('expand', 'workrelation.worker,worktype.product,customerorder');
                 break;
             case WizardSource.ProjectHours:
                 groupField = 'Dimensions.ProjectID';
                 customerField = 'Project.ProjectCustomerID';
-                query.set('expand', 'workrelation.worker,worktype.product,dimensions');
-                query.set('join', 'dimensions.projectid eq project.id');
+                params = params.set('expand', 'workrelation.worker,worktype.product,dimensions');
+                params = params.set('join', 'dimensions.projectid eq project.id');
                 break;
         }
 
-        query.set('model', 'workitem');
-        query.set('select', 'ID as ID'
-        + ',Date as Date'
-        + `,${groupField} as GroupValue`
-        + `,${customerField} as CustomerID`
-        + ',Description as Description'
-        + ',Worktype.ID as WorkTypeID'
-        + ',WorkType.Name as WorktypeName'
-        + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
+        params = params.set('model', 'workitem');
+        params = params.set('select', 'ID as ID'
+            + ',Date as Date'
+            + `,${groupField} as GroupValue`
+            + `,${customerField} as CustomerID`
+            + ',Description as Description'
+            + ',Worktype.ID as WorkTypeID'
+            + ',WorkType.Name as WorktypeName'
+            + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
 
-        query.set('orderby', `${groupField},worktype.name`);
+        params = params.set('orderby', `${groupField},worktype.name`);
         let filter = 'transferedtoorder eq 0';
 
         if (options) {
@@ -316,20 +323,21 @@ export class InvoiceHourService {
 
         filter += ` and ( date ge '${options.periodFrom}' and date le '${options.periodTo}' )`;
 
-        query.set('filter', filter);
+        params = params.set('filter', filter);
 
-        return this.statisticsService.GetAllByUrlSearchParams(query, false)
-        .map(response => response.json().Data);
+        return this.statisticsService.GetAllByHttpParams(params, false)
+        .map(response => response.body.Data);
     }
 
     lookupProduct(txt: string) {
-        const params = new URLSearchParams();
         const value = filterInput(txt);
-        params.set('filter', `partname eq '${value}' or startswith(name,'${value}')`);
-        params.set('top', '50');
-        params.set('hateoas', 'false');
-        params.set('select', 'ID,Partname,Name,PriceExVat,VatTypeID,Unit');
-        return this.productService.GetAllByUrlSearchParams(params).map(result => result.json());
+        const params = new HttpParams()
+            .set('filter', `partname eq '${value}' or startswith(name,'${value}')`)
+            .set('top', '50')
+            .set('hateoas', 'false')
+            .set('select', 'ID,Partname,Name,PriceExVat,VatTypeID,Unit');
+
+        return this.productService.GetAllByHttpParams(params).map(result => result.body);
     }
 
     onEditChange(event: { originalIndex: number, field: string, rowModel: CustomWorkItem }) {

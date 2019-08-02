@@ -32,7 +32,7 @@ export class UserDetails {
                 .send()
                 .subscribe(
                     res => {
-                        const companies = (res && res.json()) || [];
+                        const companies = (res && res.body) || [];
                         this.companies = companies
                             .filter(company => {
                                 return !moment(company.EndDate).isValid()

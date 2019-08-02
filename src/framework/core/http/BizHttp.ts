@@ -1,8 +1,11 @@
 import {Injectable} from '@angular/core';
-import {URLSearchParams, RequestMethod} from '@angular/http';
-import {UniHttp} from './http';
+import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/concatMap';
+
+import {UniHttp} from './http';
+import {RequestMethod} from './request-method';
+import {map} from 'rxjs/operators';
 
 interface IHttpCacheStore<T> {
     [hash: number]: IHttpCacheEntry<T>;
@@ -119,9 +122,9 @@ export class BizHttp<T> {
             .withEndPoint(jobID.toString())
             .send()
             .repeatWhen(c => c.debounceTime(1000))
-            .skipWhile(status => status.json().Completed !== true)
+            .skipWhile(status => status.body.Completed !== true)
             .take(1)
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public Get<T>(ID: number|string, expand?: string[],hateoas:boolean=false): Observable<any> {
@@ -148,7 +151,7 @@ export class BizHttp<T> {
             this.storeInCache(hash, request);
         }
 
-        return request.map((res) => res.json());
+        return request.map((res) => res.body);
     }
 
     public GetOneByQuery(query: string, expand?: string[]): Observable<any> {
@@ -156,27 +159,32 @@ export class BizHttp<T> {
             .map(result => result && result.length && result[0]);
     }
 
-    public GetAllByUrlSearchParams<T>(params: URLSearchParams): Observable<any> {
+    public GetAllByHttpParams<T>(params: HttpParams, mapResponse?: boolean): Observable<any> {
         // use default orderby for service if no orderby is specified
-        if (!params.get('orderby') && this.DefaultOrderBy !== null) {
-            params.set('orderby', this.DefaultOrderBy);
+        if (!params.get('orderby') && this.DefaultOrderBy) {
+            params = params.set('orderby', this.DefaultOrderBy);
         }
 
         // use default expands for service if no expand is specified
         if (!params.get('expand') && this.defaultExpand) {
-            params.set('expand', this.defaultExpand.join());
+            params = params.set('expand', this.defaultExpand.join());
         }
 
         // remove empty filters, causes problem on backend
         if (params.get('filter') === '') {
-            params.delete('filter');
+            params = params.delete('filter');
         }
 
         return this.http
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL)
-            .send({}, params);
+            .send({}, params)
+            .pipe(
+                map(res => {
+                    return mapResponse ? res.body : res;
+                })
+            );
     }
 
     public GetAll<T>(query?: string, expand?: string[]): Observable<any> {
@@ -210,7 +218,7 @@ export class BizHttp<T> {
             this.storeInCache(hash, request);
         }
 
-        return request.map((res) => res.json());
+        return request.map(res => res.body);
     }
 
     public Post<T>(entity: T): Observable<any> {
@@ -221,7 +229,7 @@ export class BizHttp<T> {
             .withBody(entity)
             .withEndPoint(this.relativeURL)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public Put<T>(ID: number, entity: T): Observable<any> {
@@ -232,7 +240,7 @@ export class BizHttp<T> {
             .withBody(entity)
             .withEndPoint(this.relativeURL + '/' + ID)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public Remove<T>(ID: number | string, entity?: T): Observable<any> {
@@ -254,20 +262,20 @@ export class BizHttp<T> {
             .withBody(entity)
             .withEndPoint(this.relativeURL + '/' + ID + '?action=' + transitionName)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
-    public Action<T>(ID: number, actionName: string, parameters: string = null, method: number = RequestMethod.Put): Observable<any> {
+    public Action<T>(ID: number, actionName: string, parameters: string = null, method: RequestMethod = RequestMethod.Put): Observable<any> {
         this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .as(method)
             .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
-    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: number = RequestMethod.Put, parameters: string = null): Observable<any> {
+    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: RequestMethod = RequestMethod.Put, parameters: string = null): Observable<any> {
         this.invalidateCache();
         return this.http
             .usingBusinessDomain()
@@ -275,7 +283,7 @@ export class BizHttp<T> {
             .withBody(entity)
             .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public GetAction<T>(ID: number, actionName: string, parameters: string = null) {
@@ -323,7 +331,7 @@ export class BizHttp<T> {
             this.storeInCache(hash, request, false);
         }
 
-        return request.map((res) => res.json());
+        return request.map((res) => res.body);
     }
 
     public GetLayout(ID: string) {
@@ -333,7 +341,7 @@ export class BizHttp<T> {
             .asGET()
             .withEndPoint(endPoint)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getNewGuid(): string {
@@ -348,7 +356,7 @@ export class BizHttp<T> {
             .usingStatisticsDomain()
             .withEndPoint(`?model=${this.entityType}&select=ID as ID&filter=ID gt ${currentID}&orderby=ID&top=1`)
             .send()
-            .map(response => response.json())
+            .map(response => response.body)
             .map((response: statisticsResponse) => {
                 return response.Data.length > 0 ? response.Data[0].ID : null;
             });
@@ -362,7 +370,7 @@ export class BizHttp<T> {
             .asGET()
             .withEndPoint(`?model=${this.entityType}&select=ID as ID&filter=ID lt ${currentID}&orderby=ID DESC&top=1`)
             .send()
-            .map(response => response.json())
+            .map(response => response.body)
             .map((response: statisticsResponse) => {
                 return response.Data.length > 0 ? response.Data[0].ID : null;
             });

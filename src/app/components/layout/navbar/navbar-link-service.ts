@@ -118,7 +118,7 @@ export class NavbarLinkService {
             .asGET()
             .usingStatisticsDomain()
             .withEndPoint(url)
-            .send().map(res => res.json());
+            .send().map(res => res.body);
     }
 
     public getDimensionLinks(dimensions) {

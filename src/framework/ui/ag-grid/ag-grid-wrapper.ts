@@ -8,7 +8,7 @@ import {
     ViewChild,
     ElementRef,
 } from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {UniTableConfig} from '../unitable/config/unitableConfig';
 import {UniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
@@ -55,9 +55,9 @@ export class AgGridWrapper {
     @ViewChild(TableEditor) public editor: TableEditor;
 
     @Input() public config: UniTableConfig;
-    @Input() public columnSumResolver: (params: URLSearchParams) => Observable<{[field: string]: number}>;
+    @Input() public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
 
-    @Input() public resource: any[] | ((params: URLSearchParams) => Observable<any>);
+    @Input() public resource: any[] | ((params: HttpParams) => Observable<any>);
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false); // double binding
 
     @Output() public columnsChange: EventEmitter<UniTableColumn[]> = new EventEmitter(false);

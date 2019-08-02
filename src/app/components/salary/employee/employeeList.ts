@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {Employee} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -20,7 +20,7 @@ export class EmployeeList {
     }];
 
     employeeTableConfig: UniTableConfig;
-    lookupFunction: (urlParams: URLSearchParams) => any;
+    lookupFunction: (urlParams: HttpParams) => any;
 
     constructor(
         private router: Router,
@@ -40,17 +40,17 @@ export class EmployeeList {
     }
 
     public createTableConfig() {
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            const params = urlParams || new URLSearchParams();
-
-            params.set('model', 'Employee');
-            params.set('select', 'ID as ID,EmployeeNumber as EmployeeNumber,BirthDate as BirthDate,BusinessRelationInfo.Name as BRName' +
-            ',InvoiceAddress.AddressLine1 as Address,DefaultEmail.EmailAddress as email,sb.Name as SubEntityName');
-            params.set('join', 'SubEntity.BusinessRelationID eq BusinessRelation.ID as sb');
-            params.set('expand', 'BusinessRelationInfo.DefaultEmail,SubEntity,BusinessRelationInfo.InvoiceAddress');
+        this.lookupFunction = (urlParams: HttpParams) => {
+            const params = (urlParams || new HttpParams())
+                .set('model', 'Employee')
+                .set('select', 'ID as ID,EmployeeNumber as EmployeeNumber,BirthDate as BirthDate,BusinessRelationInfo.Name as BRName' +
+                    ',InvoiceAddress.AddressLine1 as Address,DefaultEmail.EmailAddress as email,sb.Name as SubEntityName')
+                .set('join', 'SubEntity.BusinessRelationID eq BusinessRelation.ID as sb')
+                .set('expand', 'BusinessRelationInfo.DefaultEmail,SubEntity,BusinessRelationInfo.InvoiceAddress');
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                .GetAllByHttpParams(params, true)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
         const idCol = new UniTableColumn('EmployeeNumber', 'Nr')

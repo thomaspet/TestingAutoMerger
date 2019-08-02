@@ -118,7 +118,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withEndPoint(`ledgersuggestions/${orgNumber}`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getAccountsFromSuggeestions(accountNumberStart) {
@@ -130,13 +130,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             `UseVatDeductionGroupID as UseVatDeductionGroupID,TopLevelAccountGroup.GroupNumber&filter=startswith(AccountNumber, '${accountNumberStart}') and ` +
             'isnull(customerid,0) eq 0 and isnull(supplierid,0) eq 0&expand=VatType,TopLevelAccountGroup&orderby=accountnumber&wrap=false')
             .send()
-            .map(res => res.json())
-            .map(res => res.map(x => {
-                const newValue = Object.assign(new Account(), x);
-                newValue.TopLevelAccountGroup = new AccountGroup();
-                newValue.TopLevelAccountGroup.GroupNumber = x.TopLevelAccountGroupGroupNumber;
-                return newValue;
-            }));
+            .map(res => {
+                const accounts = res.body;
+                return accounts.map(acc => {
+                    const account: Account = Object.assign(<Account> {}, acc);
+                    account.TopLevelAccountGroup = <AccountGroup> {};
+                    account.TopLevelAccountGroup.GroupNumber = acc.TopLevelAccountGroupGroupNumber;
+                    return account;
+                });
+            });
     }
 
     public getSessionNumberSeries() {
@@ -169,7 +171,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 '&orderby=journalentrynumbernumeric%20desc&top=1'
             )
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getTaxableIncomeLast12Months(toDate: LocalDate): Observable<any> {
@@ -187,7 +189,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             )
             .send()
             .map(response => {
-                const data = response.json().Data;
+                const data = response.body.Data;
                 if (data && data.length > 0) {
                     return data[0].SumAmount;
                 }
@@ -205,7 +207,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 '&filter=JournalEntryID eq ' + journalEntryID
             )
             .send()
-            .map(response => response.json())
+            .map(response => response.body)
             .map(data => data.Data && data.Data.length > 0 ? data.Data[0] : null);
     }
 
@@ -223,7 +225,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 '&filter=JournalEntryAccrualID eq ' + journalEntryAccrualID
             )
             .send()
-            .map(response => response.json())
+            .map(response => response.body)
             .map(data => data.Data);
     }
 
@@ -234,7 +236,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=nextjournalentrynumber')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getJournalEntryPeriodData(accountID: number): Observable<any> {
@@ -243,7 +245,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `?action=get-journal-entry-period-data&accountID=${accountID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 
@@ -255,7 +257,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         + `&journalEntryID=${journalEntryID}`
         + `&paymentID=${paymentID}`)
         .send()
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
     public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
@@ -389,7 +391,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBody(journalEntries)
             .withEndPoint(this.relativeURL + '?action=save-journal-entries-as-draft')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public deleteJournalEntryDraftGroup(journalEntryDraftGroup: string): Observable<any> {
@@ -407,7 +409,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBodyTrim(journalEntries)
             .withEndPoint(this.relativeURL + '?action=book-journal-entries')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     private creditAndBookCorrectedJournalEntries(journalEntries: Array<JournalEntry>, journalEntryID: number, creditDate?: LocalDate)
@@ -420,7 +422,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 this.relativeURL + '?action=credit-and-book-journal-entry&journalEntryID=' + journalEntryID +
                 (creditDate ? '&creditDate=' + creditDate : ''))
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public createInvoicePaymentDataObjects(data: JournalEntryData[] ):
@@ -629,7 +631,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBody(journalEntries)
             .withEndPoint(this.relativeURL + '?action=save-journal-entry-data')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public checkInvoiceCreditAccountCombo(invoiceNumber, supplierID) {
@@ -640,7 +642,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         + supplierID + ' and InvoiceNumber eq "'
         + invoiceNumber + '" and StatusCode ne 31004&expand=subaccount')
         .send()
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
     public getAccountingLockedDate(): LocalDate {
@@ -1047,7 +1049,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=validate-journal-entry-data')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getJournalEntryDataBySupplierInvoiceID(supplierInvoiceID: number): Observable<any> {
@@ -1056,7 +1058,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&supplierInvoiceID=' + supplierInvoiceID)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getJournalEntryDataByJournalEntryDraftGroup(journalEntryDraftGroup: string): Observable<Array<JournalEntryData>> {
@@ -1065,7 +1067,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&journalEntryDraftGroup=' + journalEntryDraftGroup)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getJournalEntryDataByJournalEntryID(journalEntryID: number, singleRowMode: boolean): Observable<JournalEntryData[]> {
@@ -1266,7 +1268,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 this.relativeURL + '?action=credit-journal-entry&journalEntryNumber=' + journalEntryNumber + '&creditDate=' + date
             )
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAccountBalanceInfo(
@@ -1868,7 +1870,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .withBody(journalDataEntries)
             .withEndPoint(this.relativeURL + '?action=calculate-journal-entry-summary')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = '') {

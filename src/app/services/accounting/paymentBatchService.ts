@@ -44,7 +44,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .usingBusinessDomain()
             .withEndPoint('bank-agreements?expand=BankAccount.Bank')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getStatusText(statusCode: number, isCustomerPayment: boolean): string {
@@ -85,7 +85,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withBody(model)
             .withEndPoint('paymentbatches?action=create-and-send-all-to-payment')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public SendToPayment(password: string, paymentBatchID: number): Observable<any> {
@@ -96,7 +96,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withBody(password)
             .withEndPoint(this.relativeURL + '?action=send-to-payment&fileId=' + paymentBatchID)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public sendAutobankPayment(body: any) {
@@ -107,7 +107,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withBody(body)
             .withEndPoint('paymentbatches?action=create-and-send-to-payment')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public updatePaymentsToPaidAndJournalPayments(paymentIDs: number[]) {
@@ -118,7 +118,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withBody(paymentIDs)
             .withEndPoint('paymentbatches?action=update-payments-to-paid-and-journal-payments')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public updatePaymentsToPaid(paymentIDs: number[]) {
@@ -129,7 +129,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withBody(paymentIDs)
             .withEndPoint('paymentbatches?action=update-payments-to-completed')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public sendPasswordToTwoFactor(body: any) {
@@ -139,6 +139,6 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withBody(body)
             .withEndPoint('bank-agreements?action=auth-code')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 }

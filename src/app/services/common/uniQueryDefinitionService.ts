@@ -22,7 +22,7 @@ export class UniQueryDefinitionService extends BizHttp<UniQueryDefinition> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `?filter=ModuleID eq ${moduleID}&select=ID,Name`)
             .send()
-            .map(response => response.json())
+            .map(response => response.body)
             .map(queryDefinitions =>
                 queryDefinitions.map(queryDefinition => ({
                         id: queryDefinition.ID,

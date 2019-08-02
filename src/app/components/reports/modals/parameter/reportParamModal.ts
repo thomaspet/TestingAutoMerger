@@ -1,5 +1,5 @@
 import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, SimpleChanges } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
+import { HttpParams } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
 
@@ -264,25 +264,25 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
             );
             if (param) {
-                const searchParams = new URLSearchParams();
-                searchParams.set('model', 'NumberSeries');
-                searchParams.set('select', 'NextNumber');
+                let searchParams = new HttpParams()
+                    .set('model', 'NumberSeries')
+                    .set('select', 'NextNumber');
 
                 switch (param.Name) {
                     case 'InvoiceNumber':
-                        searchParams.set('filter', 'Name eq \'Customer Invoice number series\'');
-                        break;
+                        searchParams = searchParams.set('filter', 'Name eq \'Customer Invoice number series\'');
+                    break;
                     case 'OrderNumber':
-                        searchParams.set('filter', 'Name eq \'Customer Order number series\'');
-                        break;
+                        searchParams = searchParams.set('filter', 'Name eq \'Customer Order number series\'');
+                    break;
                     case 'QuoteNumber':
-                        searchParams.set('filter', 'Name eq \'Customer Quote number series\'');
-                        break;
+                        searchParams = searchParams.set('filter', 'Name eq \'Customer Quote number series\'');
+                    break;
                 }
 
                 // Get param value
                 this.statisticsService
-                    .GetDataByUrlSearchParamsForCompany(searchParams, this.report.companyKey)
+                    .GetDataByHttpParamsForCompany(searchParams, this.report.companyKey)
                     .subscribe((result: StatisticsResponse) => {
                         const value = result.Data[0].NumberSeriesNextNumber - 1;
                         if (value > 0) { param.value = value; }
@@ -527,7 +527,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             .withEndPoint(route)
             .withBody(email)
             .send({}, undefined, !companyKey)
-            .map(response => response.json())
+            .map(response => response.body)
             .subscribe((success) => {
             this.toastService.removeToast(toast);
             if (success) {

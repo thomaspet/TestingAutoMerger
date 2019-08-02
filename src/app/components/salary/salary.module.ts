@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpModule} from '@angular/http';
+import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
 import {WidgetModule} from '../widgets/widgetModule';
@@ -139,7 +139,7 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpModule,
+        HttpClientModule,
         MatTooltipModule,
         MatSlideToggleModule,
         MatSelectModule,

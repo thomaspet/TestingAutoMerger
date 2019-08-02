@@ -88,7 +88,7 @@ export class Login {
                     return;
                 }
 
-                this.availableCompanies = response.json();
+                this.availableCompanies = response.body;
 
                 try {
                     const lastActiveCompanyKey = this.browserStorage.getItem('lastActiveCompanyKey');

@@ -60,7 +60,7 @@ export class UmhService {
             .withEndPoint('om/actions')
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -70,7 +70,7 @@ export class UmhService {
             .withEndPoint('om/objectives')
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -80,7 +80,7 @@ export class UmhService {
             .withEndPoint('web-hooks/subscriptions')
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -91,7 +91,7 @@ export class UmhService {
             .withBody(subscription)
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -102,7 +102,7 @@ export class UmhService {
             .withBody(subscription)
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -113,7 +113,7 @@ export class UmhService {
             .send()
             .map((res) => {
                 console.log(res);
-                return res.json();
+                return res.body;
             });
     }
 
@@ -123,7 +123,7 @@ export class UmhService {
             .withEndPoint('web-hooks/subscriptions/enable')
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -133,7 +133,7 @@ export class UmhService {
             .withEndPoint('web-hooks/subscriptions/is-enabled')
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 
@@ -143,7 +143,7 @@ export class UmhService {
             .withEndPoint('web-hooks/subscriptions/is-permitted?writeOperation=' + writeOperation)
             .send()
             .map((res) => {
-                return res.json();
+                return res.body;
             });
     }
 

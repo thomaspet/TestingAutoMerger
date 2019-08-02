@@ -3110,29 +3110,22 @@ export class BillView implements OnInit {
     }
 
     public delete(done) {
-        const current = this.current.getValue();
-        let obs: any;
-        if (current.ID) {
-            obs = this.supplierInvoiceService.Remove<SupplierInvoice>(current.ID, current);
-        } else {
-            done('Ingenting å slette');
-        }
-        obs.subscribe((result) => {
-            done('Sletting ok');
-            this.newInvoice(false);
-        }, (error) => {
-            let msg = error.statusText;
-            if (error._body) {
-                msg = this.errorService.extractMessage(error);
-                if (!msg) {
-                    msg = trimLength(error._body, 100, true);
+        const invoice = this.current.getValue();
+        if (invoice.ID) {
+            this.supplierInvoiceService.Remove<SupplierInvoice>(invoice.ID).subscribe(
+                () => {
+                    done('Sletting ok');
+                    this.newInvoice(false);
+                },
+                err => {
+                    this.errorService.handle(err);
+                    done();
                 }
-                this.showErrMsg(msg, true);
-            } else {
-                this.userMsg('Feil ved lagring');
-            }
-            done('Feil ved sletting: ' + msg);
-        });
+            );
+        } else {
+            done();
+            this.newInvoice(false);
+        }
     }
 
     private saveAndGetNewDocument(done?) {

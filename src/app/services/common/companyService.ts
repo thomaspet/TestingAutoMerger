@@ -39,7 +39,7 @@ export class CompanyService extends BizHttp<Company> {
             .send()
             .map(response => {
                 super.invalidateCache();
-                return response.json();
+                return response.body;
             });
     }
 
@@ -85,7 +85,7 @@ export class CompanyService extends BizHttp<Company> {
             .send({}, null, false)
             .pipe(
                 tap(() => super.invalidateCache()),
-                map(res => res.json())
+                map(res => res.body)
             );
     }
 

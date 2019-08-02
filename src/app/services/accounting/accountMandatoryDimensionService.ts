@@ -1,17 +1,14 @@
 
-import { BizHttp } from '@uni-framework/core/http/BizHttp';
-import { Account, AccountMandatoryDimension, Dimensions, SalaryTransaction } from '@uni-entities';
-import { UniHttp } from '@uni-framework/core/http/http';
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { RequestMethod } from '@angular/http';
+import {BizHttp} from '@uni-framework/core/http/BizHttp';
+import {Account, AccountMandatoryDimension, Dimensions, SalaryTransaction} from '@uni-entities';
+import {UniHttp, RequestMethod} from '@uni-framework/core/http';
+import {Injectable} from '@angular/core';
+import {Observable, of} from 'rxjs';
 import {StatisticsService} from '../common/statisticsService';
-import { tap, map } from 'rxjs/operators';
-
+import {tap, map} from 'rxjs/operators';
 
 @Injectable()
 export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDimension> {
-
     mandatoryDimensionsCache = [];
     mandatoryDimensionsCacheIsValid = false;
 

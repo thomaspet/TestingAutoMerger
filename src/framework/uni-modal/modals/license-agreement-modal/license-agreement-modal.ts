@@ -51,7 +51,6 @@ export class LicenseAgreementModal implements IUniModal {
             .usingBusinessDomain()
             .withEndPoint('users?action=accept-CustomerAgreement')
             .send()
-            .map(res => res.json())
             .subscribe(
                 () => {
                     this.toastService.addToast(

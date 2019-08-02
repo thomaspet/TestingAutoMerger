@@ -30,9 +30,7 @@ export interface JobLog {
 
 @Injectable()
 export class JobService {
-    constructor(private uniHttp: UniHttp) {
-
-    }
+    constructor(private uniHttp: UniHttp) {}
 
     // job runs
     public getLatestJobRuns(num: number): Observable<any> {

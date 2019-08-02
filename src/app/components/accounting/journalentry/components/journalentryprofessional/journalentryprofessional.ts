@@ -79,8 +79,8 @@ import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
 import {DraftLineDescriptionModal} from './draftLineDescriptionModal';
 import { PaymentService } from '@app/services/accounting/paymentService';
-import { RequestMethod } from '@angular/http';
 import {JournalEntryMode} from '../../../../../services/accounting/journalEntryService';
+import {RequestMethod} from '@uni-framework/core/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
 

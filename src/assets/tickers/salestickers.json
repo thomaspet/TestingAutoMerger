@@ -519,7 +519,7 @@
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "CustomerOrder",
-        "Expand": "Customer,Customer.Info,Items",
+        "Expand": "Customer,Customer.Info",
         "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
         "OrderBy": "ID DESC",
         "Columns": [

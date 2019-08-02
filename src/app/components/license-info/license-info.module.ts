@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {HttpModule} from '@angular/http';
+import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ScrollingModule} from '@angular/cdk/scrolling';
@@ -27,7 +27,7 @@ import {AppCommonModule} from '../common/appCommonModule';
 @NgModule({
     imports: [
         CommonModule,
-        HttpModule,
+        HttpClientModule,
         RouterModule,
         FormsModule,
         ReactiveFormsModule,

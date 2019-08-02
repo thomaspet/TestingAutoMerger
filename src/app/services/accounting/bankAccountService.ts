@@ -29,7 +29,7 @@ export class BankAccountService extends BizHttp<BankAccount> {
                                 this.toastr.addToast('Account Removed', ToastType.good, ToastTime.short);
                                 resolve(true);
                             }, (error) => {
-                                this.toastr.addToast('Error removing account', ToastType.bad, ToastTime.short, error.json().Message);
+                                this.toastr.addToast('Error removing account', ToastType.bad, ToastTime.short, error.body.Message);
                                 reject(ba);
                             });
                     } else {
@@ -46,6 +46,6 @@ export class BankAccountService extends BizHttp<BankAccount> {
             .withEndPoint('/bankaccounts/' + ID)
             .usingBusinessDomain()
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 }

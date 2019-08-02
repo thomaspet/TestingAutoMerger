@@ -2,7 +2,7 @@ import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpModule} from '@angular/http';
+import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
 import {UniSidebar} from './sidebar/sidebar';
@@ -47,7 +47,7 @@ import {
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpModule,
+        HttpClientModule,
         RouterModule,
 
         A11yModule,

@@ -94,13 +94,13 @@ export class WorkApprovalPreview {
     private get(route: string, params?: any ) {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
     private getStatistics(query: string) {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint('?' + query).send()
-        .map(response => response.json());
+        .map(response => response.body);
 
     }
 

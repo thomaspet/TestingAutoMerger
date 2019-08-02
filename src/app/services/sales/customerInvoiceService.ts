@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { UniHttp } from '../../../framework/core/http/http';
 import {
     CustomerInvoice,
-    CustomerInvoiceItem,
     StatusCodeCustomerInvoice,
     LocalDate,
     InvoicePaymentData,
@@ -18,14 +17,13 @@ import { EmailService } from '../common/emailService';
 import { UniModalService } from '../../../framework/uni-modal/modalService';
 import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
 import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
-import { BizHttp } from '../../../framework/core/http/BizHttp';
+import { BizHttp, RequestMethod } from '@uni-framework/core/http';
 import { Observable } from 'rxjs';
 import { ErrorService } from '../common/errorService';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';
 import {ReportDefinitionParameterService} from '../../services/reports/reportDefinitionParameterService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import { RequestMethod } from '@angular/http';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
@@ -330,7 +328,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=create-invoice-journalentrydraft`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public setPrintStatus(invoiceId: number, printStatus: string): Observable<any> {
@@ -349,7 +347,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .withBody(invoice)
             .withEndPoint(this.relativeURL + '?action=send-invoice-to-vipps')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public matchInvoicesManual(customerInvoiceIDs: number[], paymentID: number): Observable<any> {
@@ -359,7 +357,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .withBody(customerInvoiceIDs)
             .withEndPoint(this.relativeURL + '?action=match-invoices-manual&paymentID=' + paymentID)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {

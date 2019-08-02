@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ErrorService, JobService, FileService} from '../../../../services/services';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AuthService} from '../../../../authService';
 import {timer as observableTimer, BehaviorSubject, forkJoin} from 'rxjs';
 import {environment} from 'src/environments/environment';
@@ -37,7 +37,7 @@ export class SaftExportView implements OnInit {
         private errorService: ErrorService,
         private jobService: JobService,
         private fileService: FileService,
-        private ngHttp: Http,
+        private ngHttp: HttpClient,
         private authService: AuthService,
         private modalService: UniModalService
     ) {}
@@ -286,9 +286,10 @@ export class SaftExportView implements OnInit {
             data.append('Caption', '');
             data.append('File', <any> file);
 
-            this.ngHttp.post(this.baseUrl + '/api/file', data)
-                .map(res => res.json())
-                .subscribe((res) => {
+            this.ngHttp.post<any>(this.baseUrl + '/api/file', data, {
+                observe: 'body'
+            }).subscribe(
+                (res) => {
                     // files are uploaded to unifiles, and will get an externalid that
                     // references the file in UE - get the UE file and add that to the
                     // collection

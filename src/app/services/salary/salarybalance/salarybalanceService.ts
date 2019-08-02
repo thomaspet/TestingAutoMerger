@@ -337,7 +337,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${ID}?action=balance`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public updateFields(

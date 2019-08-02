@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Budget} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {ResponseContentType} from '@angular/http';
 
 @Injectable()
 export class BudgetService extends BizHttp<Budget> {
@@ -23,7 +22,7 @@ export class BudgetService extends BizHttp<Budget> {
             .usingBusinessDomain()
             .withEndPoint('accounts?action=profit-and-loss-grouped&FinancialYear=' + year)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getExcelTemplate(id) {
@@ -31,8 +30,8 @@ export class BudgetService extends BizHttp<Budget> {
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(`budgets/${id}?action=getexcelbudget`)
-            .send({responseType: ResponseContentType.Blob})
-            .map(res => new Blob([res._body], { type: 'text/csv' }));
+            .send({responseType: 'blob'})
+            .map(res => new Blob([res.body], { type: 'text/csv' }));
     }
 
     public importExcelTemplate(id, fileid, departmentID: number = 0) {
@@ -43,7 +42,7 @@ export class BudgetService extends BizHttp<Budget> {
             .asPOST()
             .withEndPoint(endpoint)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getEntriesFromBudgetIDAndAccountID(budgetID: number, accountID: number, departmentID?: number) {
@@ -57,7 +56,7 @@ export class BudgetService extends BizHttp<Budget> {
             .usingBusinessDomain()
             .withEndPoint('budgetentries?filter=' + filter  + '&expand=account' + (departmentID ? ',dimensions' : ''))
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getEntriesFromBudgetIDAndAccount(budgetID: number, accoutnNumber: number, departmentID?: number) {
@@ -71,7 +70,7 @@ export class BudgetService extends BizHttp<Budget> {
             .usingBusinessDomain()
             .withEndPoint('budgetentries?filter=' + filter + '&expand=account' + (departmentID ? ',dimensions' : ''))
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public transitionAction(id: number, action: string) {
@@ -215,14 +214,14 @@ export class BudgetService extends BizHttp<Budget> {
                 .withEndPoint('budgetentries')
                 .withBody(entry)
                 .send()
-                .map(res => res.json());
+                .map(res => res.body);
         } else {
             query = this.http
                 .asPUT()
                 .withEndPoint('budgetentries/' + entry.ID)
                 .withBody(entry)
                 .send()
-                .map(res => res.json());
+                .map(res => res.body);
         }
         return query;
     }

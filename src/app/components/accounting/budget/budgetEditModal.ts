@@ -1,5 +1,5 @@
 import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService, BudgetService} from '@app/services/services';
@@ -103,7 +103,7 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
         private uniFilesService: UniFilesService,
         private errorService: ErrorService,
         private budgetService: BudgetService,
-        private http: Http
+        private http: HttpClient
         ) {
             this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
@@ -155,8 +155,9 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
 
-        return this.http.post(this.baseUrl + '/api/file', data)
-            .map(res => res.json());
+        return this.http.post<any>(this.baseUrl + '/api/file', data, {
+            observe: 'body'
+        });
     }
 
     public save() {

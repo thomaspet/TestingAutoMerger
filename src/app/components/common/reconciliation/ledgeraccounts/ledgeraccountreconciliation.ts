@@ -37,7 +37,7 @@ import {
 } from '../../../../services/services';
 import {ColumnMenuNew} from '@uni-framework/ui/ag-grid/column-menu-modal';
 import {AddPaymentModal} from '@app/components/common/modals/addPaymentModal';
-import {RequestMethod} from '@angular/http';
+import {RequestMethod} from '@uni-framework/core/http';
 import {JournalEntryLineCouple} from '@app/services/accounting/postPostService';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Observable, Subject} from 'rxjs';

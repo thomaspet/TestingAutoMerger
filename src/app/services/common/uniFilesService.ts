@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
-import {Http, Headers, RequestOptions} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '../../authService';
-import {Observable, throwError, from} from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class UniFilesService {
@@ -12,13 +11,15 @@ export class UniFilesService {
     private uniEconomyToken: string;
     private activeCompany: any;
 
-    constructor(private http: Http, private authService: AuthService) {
-        authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.uniEconomyToken = authDetails.token;
+    constructor(private http: HttpClient, private authService: AuthService) {
+        this.authService.authentication$.subscribe((authDetails) => {
+            if (authDetails) {
+                this.activeCompany = authDetails.activeCompany;
+                this.uniEconomyToken = authDetails.token;
+            }
         });
 
-        authService.filesToken$.subscribe(token => {
+        this.authService.filesToken$.subscribe(token => {
             this.uniFilesToken = token;
         });
     }
@@ -29,169 +30,135 @@ export class UniFilesService {
             + `&key=${this.activeCompany.Key}`
             + `&token=${this.uniEconomyToken}`;
 
-        return this.http.get(url).map(res => res.json());
+        return this.http.get(url);
     }
 
     public syncUniEconomyCompanySettings() {
-        const options = new RequestOptions({
-            headers: new Headers({
+        this.http.get(this.uniFilesBaseUrl + '/api/client/sync-ue-client-data', {
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
-        });
-
-        this.http
-            .get(this.uniFilesBaseUrl + '/api/client/sync-ue-client-data', options)
-            .subscribe((res) => {
+            }
+        }).subscribe(
+            () => {
                 console.log('settings synced to unifiles');
             }, err => {
                 // ignore error here - usually it wont matter much for the user anyway
                 console.log('error syncing settings to uni files', err);
-            });
+            }
+        );
     }
 
     public checkAuthentication(): Promise<boolean> {
-        const options = new RequestOptions({
-            headers: new Headers({
-                'Accept': 'application/json',
-                'Token': this.uniFilesToken,
-                'Key': this.activeCompany.Key
-            })
-        });
-
         return new Promise<boolean>((resolve, reject) => {
-            this.http
-                .get(this.uniFilesBaseUrl + '/api/init/check-auth', options)
-                .subscribe((res) => {
-                    resolve(true);
-                }, err => {
-                    reject('Not authenticated');
-                });
+            this.http.get(this.uniFilesBaseUrl + '/api/init/check-auth', {
+                headers: {
+                    'Accept': 'application/json',
+                    'Token': this.uniFilesToken,
+                    'Key': this.activeCompany.Key
+                }
+            }).subscribe(
+                () => resolve(true),
+                () => reject('Not authenticated')
+            );
         });
     }
 
-    public forceFullLoad(id: string, reauthOnFailure: boolean = true): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+    public forceFullLoad(id: string): Observable<any> {
+        return this.http.get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, {
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http.get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, options);
     }
 
-    public getFileSplitList(id: string, reauthOnFailure: boolean = true): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+    public getFileSplitList(id: string): Observable<any> {
+        return this.http.get(this.uniFilesBaseUrl + '/api/file/get-page-split-info/' + id, {
+            observe: 'body',
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http.get(this.uniFilesBaseUrl + '/api/file/get-page-split-info/' + id, options)
-            .map(res => res.json());
     }
 
     public rotate(id: string, page: number, rotateClockwise: boolean): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+        return this.http.get(this.uniFilesBaseUrl + `/api/file/rotate-page/${id}/${page}/${rotateClockwise}`, {
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http
-            .get(this.uniFilesBaseUrl + `/api/file/rotate-page/${id}/${page}/${rotateClockwise}`, options);
     }
 
     public getFileProcessingStatus(id: string): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+        return this.http.get(this.uniFilesBaseUrl + '/api/file/filestatus/' + id, {
+            observe: 'body',
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http
-            .get(this.uniFilesBaseUrl + '/api/file/filestatus/' + id, options)
-            .map(response => response.json());
     }
 
     public getOcrStatistics(): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+        return this.http.get(this.uniFilesBaseUrl + '/api/client/get-ocr-stats', {
+            observe: 'body',
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http
-            .get(this.uniFilesBaseUrl + '/api/client/get-ocr-stats', options)
-            .map(response => response.json());
     }
 
-    public trainOcrEngine(ocrInterpretation, reauthOnFailure: boolean = true) {
-        const options = new RequestOptions({
-            headers: new Headers({
+    public trainOcrEngine(body) {
+        this.http.post(this.uniFilesBaseUrl + '/api/ocr/train-engine', body, {
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
-        });
-
-        this.http.post(
-                this.uniFilesBaseUrl + '/api/ocr/train-engine',
-                ocrInterpretation,
-                options)
-            .subscribe(res => {
-                // result is not used
-            }, err => {
-                // ignore errors on this api call
-            });
+            }
+        }).subscribe(
+            () => {},
+            () => {}
+        );
     }
 
     public splitFileMultiple(
         fileStorageReference,
-        batches: Array<IFileSplitMultipleBatch>,
-        rotations: Array<IFileRotation>,
-        hasTriedReAuth?: boolean
+        batches: IFileSplitMultipleBatch[],
+        rotations: IFileRotation[]
     ): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+        const url = this.uniFilesBaseUrl + `/api/file/split-multiple?id=${fileStorageReference}`;
+        const body = JSON.stringify({Batches: batches, Rotations: rotations});
+        return this.http.post(url, body, {
+            observe: 'body',
+            headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http.post(
-            this.uniFilesBaseUrl + `/api/file/split-multiple?id=${fileStorageReference}`,
-            JSON.stringify({Batches: batches, Rotations: rotations}),
-            options
-        ).map(res => res.json && res.json());
     }
 
-    public splitFile(fileStorageReference, fromPage, hasTriedReAuth?: boolean): Observable<any> {
-        const options = new RequestOptions({
-            headers: new Headers({
+    public splitFile(fileStorageReference, fromPage): Observable<any> {
+        const url = this.uniFilesBaseUrl + `/api/file/split?id=${fileStorageReference}&frompage=${fromPage}`
+        return this.http.post(url, null, {
+            observe: 'body',
+            headers: {
                 'Accept': 'application/json',
                 'Token': this.uniEconomyToken,
                 'Key': this.activeCompany.Key
-            })
+            }
         });
-
-        return this.http.post(
-            this.uniFilesBaseUrl + `/api/file/split?id=${fileStorageReference}&frompage=${fromPage}`,
-            null, options
-        ).map(res => res.json && res.json());
     }
 }
 

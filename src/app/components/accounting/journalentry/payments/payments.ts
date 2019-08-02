@@ -2,7 +2,7 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {CustomerInvoice, Account, CompanySettings, LocalDate, NumberSeries} from '../../../../unientities';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
@@ -35,7 +35,7 @@ export class Payments {
 
     public contextMenuItems: IContextMenuItem[] = [];
     public invoiceTable: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;
     public toolbarConfig: IToolbarConfig = {};
@@ -270,29 +270,29 @@ export class Payments {
         ).subscribe((response: Array<any>) => {
             this.reminderFeeSumList = response[0];
 
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            urlParams = urlParams || new URLSearchParams();
-            urlParams.set(
+        this.lookupFunction = (urlParams: HttpParams) => {
+            urlParams = urlParams || new HttpParams();
+            urlParams = urlParams.set(
                 'expand',
                 'Customer,JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,'
                     + 'JournalEntry.Lines.SubAccount,CurrencyCode,CustomerInvoiceReminders'
             );
 
             if (urlParams.get('orderby') === null) {
-                urlParams.set('orderby', 'PaymentDueDate');
+                urlParams = urlParams.set('orderby', 'PaymentDueDate');
             }
 
             if (urlParams.get('filter')) {
-                urlParams.set('filter', '( ' + urlParams.get('filter') + ' ) and (RestAmount gt 0 or CollectorStatusCode ne 42505)');
+                urlParams = urlParams.set('filter', '( ' + urlParams.get('filter') + ' ) and (RestAmount gt 0 or CollectorStatusCode ne 42505)');
             } else {
-                urlParams.set('filter', 'RestAmount gt 0');
+                urlParams = urlParams.set('filter', 'RestAmount gt 0');
             }
 
             if (this.ignoreInvoiceIdList.length > 0) {
                 const ignoreFilterString = ' and ( ID ne ' + this.ignoreInvoiceIdList.join(' and ID ne ') + ' ) ';
-                urlParams.set('filter', urlParams.get('filter') + ignoreFilterString);
+                urlParams = urlParams.set('filter', urlParams.get('filter') + ignoreFilterString);
             }
-            return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
+            return this.customerInvoiceService.GetAllByHttpParams(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 

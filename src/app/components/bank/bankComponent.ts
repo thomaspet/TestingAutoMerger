@@ -44,7 +44,7 @@ import {
 } from '../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
-import { RequestMethod } from '@angular/http';
+import { RequestMethod } from '@uni-framework/core/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
 

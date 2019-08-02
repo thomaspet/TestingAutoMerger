@@ -44,7 +44,7 @@ export class UniVersionsView {
             .asGET()
             .withEndPoint('status/version')
             .send({})
-            .map(result => result.json())
+            .map(result => result.body)
             .map(res => ({
                 fullVersion: res.Version,
                 minVersion: res.Version.substr(0, 6),

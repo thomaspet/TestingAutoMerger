@@ -168,7 +168,7 @@ export class BureauDashboard {
             .usingRootDomain()
             .withEndPoint('kpi/companies')
             .send()
-            .map(res => res.json())
+            .map(res => res.body)
             .do(() => this.busy = false)
             .subscribe(
                 res => {
@@ -218,7 +218,7 @@ export class BureauDashboard {
             + `&select=customer.id as ID,info.name as Name,customer.customernumber as CustomerNumber,companykey as CompanyKey`
             + `&filter=customerid gt 0&expand=customer.info&wrap=false`)
         .send()
-        .map(res => res.json())
+        .map(res => res.body)
         .do(() => this.busy = false)
         .subscribe(
             res => {

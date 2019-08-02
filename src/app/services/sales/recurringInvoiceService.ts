@@ -54,7 +54,7 @@ export class RecurringInvoiceService extends BizHttp<RecurringInvoice> {
 
         return request.pipe(
             take(1),
-            map(res => res.json())
+            map(res => res.body)
         );
     }
 
@@ -76,7 +76,7 @@ export class RecurringInvoiceService extends BizHttp<RecurringInvoice> {
             '&join=recurringinvoicelog.invoiceid eq customerinvoice.id and recurringinvoicelog.orderid eq customerorder.id' +
             '&top=&orderby=id desc&wrap=false ')
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
 
     }
 }

@@ -85,7 +85,7 @@ export class SubCompanyModal implements IUniModal {
             })
             .withEndPoint('customers')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 }
 

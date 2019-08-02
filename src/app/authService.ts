@@ -1,7 +1,8 @@
 import {Injectable, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
-import {Http, Headers} from '@angular/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {switchMap, map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto, ContractLicenseType} from './unientities';
 import {ReplaySubject} from 'rxjs';
@@ -50,7 +51,7 @@ export class AuthService {
     public currentUser: UserDto;
     public filesToken: string;
 
-    private headers: Headers = new Headers({
+    private headers = new HttpHeaders({
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     });
@@ -74,7 +75,7 @@ export class AuthService {
         removeOnUser: key => localStorage.removeItem(key),
     };
 
-    constructor(private router: Router, private http: Http) {
+    constructor(private router: Router, private http: HttpClient) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
         this.jwt = this.storage.getOnUser('jwt');
@@ -148,13 +149,16 @@ export class AuthService {
     public authenticate(credentials: {username: string, password: string}): Observable<boolean> {
         const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'sign-in';
 
-        return this.http.post(url, JSON.stringify(credentials), {headers: this.headers})
-            .switchMap((apiAuth) => {
+        return this.http.post<any>(url, JSON.stringify(credentials), {
+            headers: this.headers,
+            observe: 'response'
+        }).pipe(
+            switchMap(apiAuth => {
                 if (apiAuth.status !== 200) {
-                    return Observable.of(apiAuth.json());
+                    return Observable.of(apiAuth.body);
                 }
 
-                this.jwt = apiAuth.json().access_token;
+                this.jwt = apiAuth.body.access_token;
                 this.jwtDecoded = this.decodeToken(this.jwt);
 
                 if (!this.jwtDecoded) {
@@ -165,7 +169,8 @@ export class AuthService {
 
                 this.storage.saveOnUser('jwt', this.jwt);
                 return Observable.of(true);
-            });
+            })
+        );
     }
 
     public authenticateUniFiles(): Promise<string> {
@@ -175,10 +180,13 @@ export class AuthService {
             }
 
             const uniFilesUrl = environment.BASE_URL_FILES + '/api/init/sign-in';
-            this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {headers: this.headers}).subscribe(
+            this.http.post<string>(uniFilesUrl, JSON.stringify(this.jwt), {
+                headers: this.headers,
+                observe: 'response'
+            }).subscribe(
                 res => {
                     if (res && res.status === 200) {
-                        this.filesToken = res.json();
+                        this.filesToken = res.body;
                         this.storage.saveOnUser('filesToken', this.filesToken);
 
                         this.filesToken$.next(this.filesToken);
@@ -262,35 +270,36 @@ export class AuthService {
     }
 
     loadCurrentSession(): Observable<IAuthDetails> {
-        const headers = new Headers({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${this.jwt}`,
-            'CompanyKey': this.activeCompany.Key
-        });
-
         const url = environment.BASE_URL
             + environment.API_DOMAINS.BUSINESS
             + 'users?action=current-session';
 
-        return this.http.get(url, {headers: headers}).map(res => {
-            const user = res.json();
-            this.currentUser = user;
+        return this.http.get<any>(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${this.jwt}`,
+                'CompanyKey': this.activeCompany.Key
+            }
+        }).pipe(
+            map(user => {
+                this.currentUser = user;
 
-            const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
-            const hasActiveContract = user && !this.isTrialExpired(contract);
+                const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
+                const hasActiveContract = user && !this.isTrialExpired(contract);
 
-            const authDetails = {
-                token: this.jwt,
-                activeCompany: this.activeCompany,
-                user: user,
-                hasActiveContract: hasActiveContract,
-                isDemo: contract.TypeName === 'Demo'
-            };
+                const authDetails = {
+                    token: this.jwt,
+                    activeCompany: this.activeCompany,
+                    user: user,
+                    hasActiveContract: hasActiveContract,
+                    isDemo: contract.TypeName === 'Demo'
+                };
 
-            this.authentication$.next(authDetails);
-            return authDetails;
-        });
+                this.authentication$.next(authDetails);
+                return authDetails;
+            })
+        );
     }
 
     public getToken(): string {
@@ -343,19 +352,17 @@ export class AuthService {
                 user: undefined,
                 hasActiveContract: false
             });
+
             this.filesToken$.next(undefined);
 
             const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
-            const headers = new Headers({
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + this.jwt,
-                'CompanyKey': this.activeCompany
-            });
-
-            this.http.post(url, '', {headers: headers}).subscribe(
-                () => {},
-                () => {/* ignore errors */}
-            );
+            this.http.post(url, '', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.jwt,
+                    'CompanyKey': this.activeCompany
+                }
+            }).subscribe(() => {}, () => {}); // ignore the response
         }
 
         this.storage.removeOnUser('jwt');

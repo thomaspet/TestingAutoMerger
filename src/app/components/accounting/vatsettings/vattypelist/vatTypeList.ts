@@ -1,5 +1,5 @@
 import {Component, ViewChild, Output, EventEmitter, ElementRef, OnInit, AfterViewInit} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {VatType} from '@uni-entities';
 import {VatTypeService, ErrorService, FinancialYearService} from '@app/services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
@@ -15,7 +15,7 @@ export class VatTypeList implements OnInit, AfterViewInit {
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     public vatTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
     private activeYear: number;
 
     constructor(
@@ -50,25 +50,25 @@ export class VatTypeList implements OnInit, AfterViewInit {
 
     private setupTable() {
 
-        this.lookupFunction = (urlParams: URLSearchParams) => {
+        this.lookupFunction = (urlParams: HttpParams) => {
             let params = urlParams;
 
             if (params === null) {
-                params = new URLSearchParams();
+                params = new HttpParams();
             }
 
             if (!params.get('orderby')) {
-                params.set('orderby', 'VatCode');
+                params = params.set('orderby', 'VatCode');
             }
 
-            params.set(
+            params = params.set(
                 'expand',
                 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,'
                     + 'VatReportReferences.VatPost,VatReportReferences.Account,'
                     + 'VatTypePercentages'
             );
 
-            return this.vatTypeService.GetAllByUrlSearchParams(params)
+            return this.vatTypeService.GetAllByHttpParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 

@@ -21,7 +21,7 @@ export class NumberSeriesTaskService extends BizHttp<NumberSeriesTask> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=get-active-numberseriestasks&entityType=${entityType}&year=${year}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public translateTask(task) {

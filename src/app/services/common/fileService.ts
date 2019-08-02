@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Response} from '@angular/http';
+import {HttpResponse} from '@angular/common/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -28,8 +28,7 @@ export class FileService extends BizHttp<File> {
             .withDefaultHeaders()
             .usingBusinessDomain()
             .withEndPoint(`files/${fileID}?action=download`)
-            .send()
-            .map((urlResponse: Response) => urlResponse);
+            .send();
     }
 
     public getDownloadUrl(fileID: number) {
@@ -39,21 +38,21 @@ export class FileService extends BizHttp<File> {
             .usingBusinessDomain()
             .withEndPoint(`files/${fileID}?action=download`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
-    public downloadFile(fileID: number, contentType: string,asAttachment:boolean=true) {
+    public downloadFile(fileID: number, contentType: string) {
         return this.http
             .asGET()
             .withDefaultHeaders()
             .usingBusinessDomain()
             .withEndPoint(`files/${fileID}?action=download`)
             .send()
-            .switchMap((urlResponse: Response) => {
-                const url = urlResponse['_body'].replace(/\"/g, '');
+            .switchMap((urlResponse: HttpResponse<any>) => {
+                const url = urlResponse.body.replace(/\"/g, '');
                 return this.http.http.get(url);
             })
-            .map(res => new Blob([res['_body']], { type: contentType }));
+            .map((res: any) => new Blob([res], { type: contentType }));
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {
@@ -67,7 +66,7 @@ export class FileService extends BizHttp<File> {
                 + `&isAttachment=${isAttachment}`
             )
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public linkFile(entityType: string, entityID: number, fileID: number) {
@@ -77,7 +76,7 @@ export class FileService extends BizHttp<File> {
             .usingBusinessDomain()
             .withEndPoint(`files/${fileID}?action=link&entityType=${entityType}&entityID=${entityID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getLinkedEntityID(fileID: number, entityType?: string) {
@@ -102,7 +101,7 @@ export class FileService extends BizHttp<File> {
             .usingBusinessDomain()
             .withEndPoint(`files?action=split-file&oldFileID=${oldFileID}&newFileID1=${newFileID1}&newFileID2=${newFileID2}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public splitFileMultiple(oldFileID: number, newFileIds: Array<number>) {
@@ -114,7 +113,7 @@ export class FileService extends BizHttp<File> {
             .usingBusinessDomain()
             .withEndPoint(`files?action=split-file-multiple&oldFileID=${oldFileID}&newFileIds=${newFileIdsString}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public delete(fileId: number) {
@@ -143,13 +142,13 @@ export class FileService extends BizHttp<File> {
             .withEndPoint(`filetags`)
             .withBody({ FileID: id, TagName: tag, Status: status })
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getStatistics(query: string) {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint('?' + query).send()
-        .map(response => response.json());
+        .map(response => response.body);
 
     }
 }

@@ -26,7 +26,7 @@ export class UserService extends BizHttp<User> {
                 .usingBusinessDomain()
                 .withEndPoint('users?action=current-session')
                 .send()
-                .map(res => res.json())
+                .map(res => res.body)
                 .publishReplay(1)
                 .refCount();
         }
@@ -72,7 +72,7 @@ export class UserService extends BizHttp<User> {
             .withEndPoint('userroles?filter=UserID eq ' + id +
                 '&expand=SharedRole')
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public changeAutobankPassword(body: any) {
@@ -82,7 +82,7 @@ export class UserService extends BizHttp<User> {
             .withEndPoint('users?action=change-autobank-password')
             .withBody(body)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getUsersByGUIDs(GUIDs: string[]): Observable<User[]> {
