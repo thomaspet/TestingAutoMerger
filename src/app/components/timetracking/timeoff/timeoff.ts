@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -11,10 +11,10 @@ import PerfectScrollbar from 'perfect-scrollbar';
 import * as moment from 'moment';
 
 @Component({
-    'templateUrl': './timeoff.html',
-    selector: 'uni-work-time-off'
+    selector: 'uni-work-time-off',
+    templateUrl: './timeoff.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class UniWorkTimeOff {
 
     _DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
@@ -43,6 +43,7 @@ export class UniWorkTimeOff {
     };
 
     constructor(
+        private cdr: ChangeDetectorRef,
         private route: ActivatedRoute,
         private tabService: TabService,
         private pageStateService: PageStateService,
@@ -105,6 +106,8 @@ export class UniWorkTimeOff {
             if (this.currentView.value === 'list') {
                 this.scrollbar = new PerfectScrollbar('#role-info');
             }
+
+            this.cdr.markForCheck();
         });
     }
 

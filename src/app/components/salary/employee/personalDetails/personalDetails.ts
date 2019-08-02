@@ -399,8 +399,10 @@ export class PersonalDetails extends UniView {
             },
             events: {
                 select: (model: Address, selectedItem: Country) => {
-                    model.Country = selectedItem.Name;
-                    model.CountryCode = selectedItem.CountryCode;
+                    if (selectedItem) {
+                        model.Country = selectedItem.Name;
+                        model.CountryCode = selectedItem.CountryCode;
+                    }
                 }
             },
             valueProperty: 'CountryCode',

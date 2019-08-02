@@ -1,18 +1,16 @@
 import {Component} from '@angular/core';
 import {Observable} from 'rxjs';
+import {cloneDeep} from 'lodash';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {ProductCategory} from '@uni-entities';
 import {ProductCategoryService, ErrorService} from '@app/services/services';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 import {MatTreeNestedDataSource} from '@angular/material/tree';
 import {NestedTreeControl} from '@angular/cdk/tree';
 
 export * from './groupDetails/groupDetails';
-
-declare const _; // lodash
 
 @Component({
     selector: 'product-groups',
@@ -36,7 +34,6 @@ export class ProductGroups {
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private toastService: ToastService
     ) {
         this.treeControl = new NestedTreeControl(node => Observable.of(node._children));
         this.treeDataSource = new MatTreeNestedDataSource();
@@ -62,7 +59,7 @@ export class ProductGroups {
         this.canDeactivate().subscribe(allowed => {
             if (allowed && group) {
                 this.expand(group);
-                this.selectedGroup = _.cloneDeep(group);
+                this.selectedGroup = cloneDeep(group);
                 this.updateToolbar();
             } else {
                 this.toolbarActions = [
@@ -168,7 +165,6 @@ export class ProductGroups {
             : this.productCategoryService.Post(group);
 
         saveRequest.subscribe(savedGroup => {
-            this.toastService.addToast('Produktgruppe lagret', ToastType.good, 5);
             this.groups[groupIndex] = savedGroup;
             this.selectedGroup = savedGroup;
             this.nodes = this.buildTreeData(this.groups);

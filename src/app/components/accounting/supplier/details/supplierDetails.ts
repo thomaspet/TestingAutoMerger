@@ -274,12 +274,10 @@ export class SupplierDetails implements OnInit {
                 this.setSupplierStatusInToolbar(StatusCode.Error);
                 this.updateToolbarContextMenuLabel(StatusCode.Error);
                 supplier.StatusCode = StatusCode.Error;
-                this.toastService.addToast('Leverandør blokkert', ToastType.bad, 5);
             } else {
                 this.setSupplierStatusInToolbar(StatusCode.Active);
                 this.updateToolbarContextMenuLabel(StatusCode.Active);
                 supplier.StatusCode = StatusCode.Active;
-                this.toastService.addToast('Leverandør låst opp', ToastType.good, 5);
             }
             this.supplier$.next(supplier);
         });

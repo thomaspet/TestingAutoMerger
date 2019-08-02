@@ -285,6 +285,8 @@ export class AccountDetails implements OnInit {
                 account.MandatoryDimensions.push(newMandatoryDimension);
             }
         });
+
+        this.changeEvent.next();
     }
 
     private setSynchronizeVisibility(account: Account, fields) {

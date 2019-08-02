@@ -24,9 +24,13 @@
         padding: 1rem
         height: 100%
 
-        > *
+        > *:not(router-outlet)
             display: block
             width: 100%
+
+        project-editmode
+            height: 100%
+            overflow: auto
 
 .project-router-outlet
 
