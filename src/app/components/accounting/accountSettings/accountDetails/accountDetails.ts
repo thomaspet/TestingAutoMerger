@@ -22,7 +22,7 @@ import {
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
 import * as _ from 'lodash';
 import { getNewGuid } from '@app/components/common/utils/utils';
-import { RequestMethod } from '@angular/http';
+import { RequestMethod } from '@uni-framework/core/http';
 
 @Component({
     selector: 'account-details',
