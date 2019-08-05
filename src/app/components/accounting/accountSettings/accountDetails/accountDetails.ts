@@ -22,6 +22,7 @@ import {
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
 import * as _ from 'lodash';
 import { getNewGuid } from '@app/components/common/utils/utils';
+import { RequestMethod } from '@angular/http';
 
 @Component({
     selector: 'account-details',
@@ -43,6 +44,7 @@ export class AccountDetails implements OnInit {
     public dimensionsConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public dimensionsFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public invalidateDimensionsCache = false;
+    public deleteButtonDisabled = true;
 
     constructor(
         private accountService: AccountService,
@@ -97,6 +99,10 @@ export class AccountDetails implements OnInit {
                     this.account$.next(dataset);
                     this.extendFormConfig();
                     this.setDimensionsForm();
+                    this.accountService.Action(this.inputAccount.ID, 'is-account-used', null, RequestMethod.Get)
+                    .subscribe((used) => {
+                        this.deleteButtonDisabled = used;
+                    });
                 },
                 err => this.errorService.handle(err)
             );
@@ -253,7 +259,8 @@ export class AccountDetails implements OnInit {
         });
     }
 
-    public onDimensionsChange(change: SimpleChange) {
+    public onDimensionsChange(event /*change: SimpleChange*/) {
+        const change = event as SimpleChange;
         this.invalidateDimensionsCache = true;
         const dimensions = this.dimensions$.getValue();
         const account = this.account$.getValue();
@@ -285,7 +292,6 @@ export class AccountDetails implements OnInit {
                 account.MandatoryDimensions.push(newMandatoryDimension);
             }
         });
-
         this.changeEvent.next();
     }
 
@@ -568,4 +574,19 @@ export class AccountDetails implements OnInit {
             ]
         };
     }
+
+    deleteAccount(): void {
+        const account = this.account$.getValue();
+        this.accountService
+            .Remove(account.ID).subscribe((response) => {
+                this.toastService.addToast('Konto ble slettet', ToastType.good, 5);
+                this.account$.next(response);
+                this.accountSaved.emit(account);
+                this.dimensions$.next({});
+            },
+            (error) => {
+                this.errorService.handle(error);
+            });
+    }
+
 }
