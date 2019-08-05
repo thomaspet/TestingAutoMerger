@@ -52,7 +52,6 @@ export class UniAttachments {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileList: boolean = true;
     @Input() uploadWithoutEntity: boolean = false;
-    @Input() downloadAsAttachment: boolean = false;
 
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter();
 
@@ -129,28 +128,14 @@ export class UniAttachments {
     }
 
     public attachmentClicked(attachment: File) {
-        if (!this.downloadAsAttachment) {
-            const data = {
-                entity: this.entity,
-                entityID: this.entityID,
-                showFileID: attachment.ID,
-                readonly: true
-            };
+        const data = {
+            entity: this.entity,
+            entityID: this.entityID,
+            showFileID: attachment.ID,
+            readonly: true
+        };
 
-            this.modalService.open(ImageModal, { data: data });
-
-        } else {
-            this.fileService
-                .downloadFile(attachment.ID, 'application/xml')
-                    .subscribe((blob) => {
-                        // download file so the user can open it
-                        saveAs(blob, attachment.Name);
-                    },
-                    err => {
-                        this.errorService.handle(err);
-                    }
-                );
-        }
+        this.modalService.open(ImageModal, { data: data });
     }
 
     public uploadFileChange(event) {

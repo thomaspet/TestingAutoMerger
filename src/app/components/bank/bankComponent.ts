@@ -447,7 +447,7 @@ export class BankComponent {
             this.paymentBatchService.Get(row.PaymentBatchID).subscribe((paymentBatch) => {
                 if (paymentBatch.PaymentFileID) {
                     this.fileService
-                        .downloadFile(paymentBatch.PaymentFileID, 'application/xml')
+                        .downloadXml(paymentBatch.PaymentFileID)
                         .subscribe((blob) => {
                             this.toastService.addToast('Utbetalingsfil hentet', ToastType.good, 5);
                             saveAs(blob, `payments_${row.ID}.xml`);
@@ -479,7 +479,7 @@ export class BankComponent {
                     this.toastService.addToast('Fil ikke generert', ToastType.bad, 15, 'Fant ingen betalingsfil.');
                 } else {
                     this.fileService
-                        .downloadFile(paymentBatch.PaymentFileID, 'application/xml')
+                        .downloadXml(paymentBatch.PaymentFileID)
                         .subscribe((blob) => {
                             this.toastService.addToast('Innbetalingsfil hentet', ToastType.good, 5);
                             // download file so the user can open it
@@ -499,7 +499,7 @@ export class BankComponent {
             if (fileID) {
                 resolve();
                 this.fileService
-                .downloadFile(fileID, 'application/xml')
+                .downloadXml(fileID)
                 .subscribe((blob) => {
                     const title = type === 'RECEIPT' ? 'Avregningsretur' : 'Statusretur';
                     this.toastService.addToast(`${title} hentet`, ToastType.good, 5);
@@ -969,7 +969,7 @@ export class BankComponent {
                             this.updateSaveActions(this.selectedTicker.Code);
 
                             this.fileService
-                                .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                                .downloadXml(updatedPaymentBatch.PaymentFileID)
                                 .subscribe((blob) => {
                                     doneHandler('Utbetalingsfil hentet');
 
@@ -1122,7 +1122,7 @@ export class BankComponent {
                     this.updateSaveActions(this.selectedTicker.Code);
 
                     this.fileService
-                        .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                        .downloadXml(updatedPaymentBatch.PaymentFileID)
                         .subscribe((blob) => {
                             doneHandler('Utbetalingsfil hentet');
 

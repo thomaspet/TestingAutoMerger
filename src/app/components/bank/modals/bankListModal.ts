@@ -130,7 +130,7 @@ export class UniBankListModal implements IUniModal, OnInit {
     }
 
     public downloadFile(file: any) {
-        this.fileService.downloadFile(file.ID, 'application/xml').subscribe((blob) => {
+        this.fileService.downloadXml(file.ID).subscribe((blob) => {
             saveAs(blob, file.Name);
         }, err => {
             this.toastService.addToast('Noe gikk galt', ToastType.bad, ToastTime.medium,

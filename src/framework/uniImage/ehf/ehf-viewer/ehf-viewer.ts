@@ -49,7 +49,7 @@ export class EHFViewer {
 
     downloadSource() {
         this.fileService
-            .downloadFile(this.file.ID, 'application/xml')
+            .downloadXml(this.file.ID)
             .subscribe((blob) => {
                 saveAs(blob, this.file.Name + '.xml');
             });
