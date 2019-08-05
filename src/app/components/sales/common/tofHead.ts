@@ -120,15 +120,20 @@ export class TofHead implements OnChanges {
         if (!this.accountsWithMandatoryDimensionsIsUsed) {
             return;
         }
-        this.accountMandatoryDimensionService.getCustomerMandatoryDimensionsReport(customerID, dimensionsID, dimensions).subscribe((report) => {
-            this.validationMessage = new ValidationMessage();
-            if (report && report.MissingRequiredDimensionsMessage) {
-                this.validationMessage.Level = ValidationLevel.Error;
-                this.validationMessage.Message = report.MissingRequiredDimensionsMessage;
-            } else {
-                this.validationMessage.Level = 0;
-            }
-        });
+
+        if (dimensionsID || dimensions) {
+            this.accountMandatoryDimensionService.getCustomerMandatoryDimensionsReport(
+                customerID, dimensionsID, dimensions
+            ).subscribe((report) => {
+                this.validationMessage = new ValidationMessage();
+                if (report && report.MissingRequiredDimensionsMessage) {
+                    this.validationMessage.Level = ValidationLevel.Error;
+                    this.validationMessage.Message = report.MissingRequiredDimensionsMessage;
+                } else {
+                    this.validationMessage.Level = 0;
+                }
+            });
+        }
     }
 
     public clearValidationMessage() {
