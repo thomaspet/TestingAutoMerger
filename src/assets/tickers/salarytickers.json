@@ -1623,30 +1623,30 @@
             },
             {
                 "Header": "Trygd utenlandsk borger tabell",
-                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.Table",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorger.Table",
                 "Type": "text",
                 "Alignment": "right",
                 "DefaultHidden": true
             },
             {
                 "Header": "Trygd utenlandsk borger prosent",
-                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.Percent",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorger.Percent",
                 "DefaultHidden": true
             },
             {
                 "Header": "Trygd utenlandsk borger frikortType",
-                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.freeAmountType",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorger.freeAmountType",
                 "Alias": "freeAmountType",
                 "DefaultHidden": true
             },
             {
                 "Header": "Trygd utenlandsk borger frikort beløp",
-                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.NonTaxableAmount",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorger.NonTaxableAmount",
                 "DefaultHidden": true
             },
             {
                 "Header": "Trygd utenlandsk borger antall måneder for trekk",
-                "Field": "loennKunTrygdeavgiftTilTrygd utenlandsk borger.AntallMaanederForTrekk",
+                "Field": "loennKunTrygdeavgiftTilUtenlandskBorger.AntallMaanederForTrekk",
                 "DefaultHidden": true
             },
             {
