@@ -1,7 +1,6 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
-import {AuthService} from '@app/authService';
-import {NAVBAR_LINKS} from '../navbar/navbar-links';
+import {BreakpointObserver, BreakpointState} from '@angular/cdk/layout';
 import {NavbarLinkService, INavbarLinkSection, SidebarState} from '../navbar/navbar-link-service';
 import {Observable} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -19,10 +18,9 @@ export class UniSidebar {
     public navbarLinkSections: INavbarLinkSection[];
 
     private scrollbar: PerfectScrollbar;
-    private temporaryExpandedState: boolean;
 
     constructor(
-        private authService: AuthService,
+        private breakpointObserver: BreakpointObserver,
         private navbarService: NavbarLinkService,
         private router: Router
     ) {
@@ -39,15 +37,6 @@ export class UniSidebar {
             });
         });
 
-        Observable.fromEvent(window, 'resize')
-            .debounceTime(200)
-            .subscribe(event => {
-                if (this.state === 'expanded' && window.innerWidth <= 1010) {
-                    this.state = 'collapsed';
-                    this.navbarService.sidebarState$.next(this.state);
-                }
-            });
-
         this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
                 this.getActiveSection();
@@ -57,6 +46,16 @@ export class UniSidebar {
 
     public ngAfterViewInit() {
         this.scrollbar = new PerfectScrollbar('#scroll-container');
+        setTimeout(() => {
+            this.breakpointObserver
+                .observe(['(max-width: 1010px)'])
+                .subscribe((state: BreakpointState) => {
+                    if (state.matches) {
+                        this.state = 'collapsed';
+                        this.navbarService.sidebarState$.next(this.state);
+                    }
+                });
+        });
     }
 
     public getActiveSection() {
