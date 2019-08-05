@@ -912,7 +912,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             };
 
                             const obsList: Observable<any>[] = saveObjects
-                                .map(obj => this.saveSubField(config, obj, emp))
+                                .map(obj => this.saveSubField(config, obj, _.cloneDeep(emp)))
                                 .filter(obs => !!obs);
 
                             if (!this.saveStatus.numberOfRequests) {
