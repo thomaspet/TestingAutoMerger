@@ -1370,6 +1370,10 @@
         "OrderBy": "ID desc",
         "Columns": [
             {
+                "Header": "Nr.",
+                "Field": "ID"
+            },
+            {
                 "Header": "Ansatt",
                 "Field": "Employee.EmployeeNumber",
                 "Width": "8rem",
@@ -1437,8 +1441,129 @@
             }
         ],
         "SubTickersCodes": [
-            "salarybalance_details"
+            "salarybalance_details",
+            "salarybalance_transactions"
         ]
+    },
+    {
+        "Name": "Saldo",
+        "Code": "salarybalance_transactions",
+        "RequiredUIPermissions": ["ui_salary"],
+        "Type": "Table",
+        "Group": "Lønn",
+        "Model": "SalaryBalanceLine",
+        "UseParentTickerActions": true,
+        "Filter": "isnull(SalaryTransactionID,0) ne 0",
+        "Columns":[
+            {
+                "Header": "Lønnsart",
+                "Field": "SalaryTransaction.WageTypeNumber",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Lønnsavregning",
+                "Field": "SalaryTransaction.PayrollRunID",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Tekst",
+                "Field": "SalaryTransaction.Text",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Arbeidsforhold",
+                "Field": "SalaryTransaction.Employment.ID",
+                "Type": "text",
+                "SubFields": [{
+                    "Field": "SalaryTransaction.Employment.JobName"
+                }]
+            },
+            {
+                "Header": "Fra dato",
+                "Field": "SalaryTransaction.FromDate",
+                "Type": "date",
+                "Alignment": "right",
+                "Width": "6rem",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Til dato",
+                "Field": "SalaryTransaction.ToDate",
+                "Type": "date",
+                "Alignment": "right",
+                "Width": "6rem",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Konto",
+                "Field": "SalaryTransaction.Account",
+                "Type": "text",
+                "Alignment": "right",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Sum",
+                "Field": "SalaryTransaction.Sum",
+                "Type": "money"
+            },
+            {
+                "Header": "Aga",
+                "Field": "SalaryTransaction.Wagetype.Base_EmploymentTax",
+                "Type": "boolean",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utbetalingsmåned",
+                "Field": "SalaryTransaction.Payrollrun.PayDate",
+                "Format": "DateMonth"
+            },
+            {
+                "Header": "Utbetalingsår",
+                "Field": "SalaryTransaction.Payrollrun.PayDate",
+                "Format": "DateYear"
+            },
+            {
+                "Header": "Motkonto",
+                "Field": "SalaryTransaction.Wagetype.AccountNumber_Balance",
+                "Type": "text"
+            },
+            {
+                "Header": "Grunnlag for feriepenger",
+                "Field": "SalaryTransaction.Wagetype.base_vacation",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Utbetales",
+                "Field": "SalaryTransaction.Wagetype.Base_Payment",
+                "Type": "boolean",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjektnr",
+                "Field": "SalaryTransaction.Dimensions.Project.ProjectNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjekt",
+                "Field": "SalaryTransaction.Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdelingsnr",
+                "Field": "SalaryTransaction.Dimensions.Department.DepartmentNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdeling",
+                "Field": "SalaryTransaction.Dimensions.Department.Name",
+                "DefaultHidden": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "SalaryBalanceID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
     },
     {
         "Name": "Saldo",
@@ -1451,7 +1576,7 @@
         "Expand": "Employee,Employee.BusinessRelationInfo,Transactions",
         "Columns": [
             {
-                "Header": "Nr.",
+                "Header": "Ansattnr",
                 "Field": "Employee.EmployeeNumber",
                 "Width": "8rem",
                 "Type": "link",
@@ -1468,7 +1593,8 @@
                 "Header": "Lønnsart",
                 "Field": "WageTypeNumber",
                 "Width": "8rem",
-                "Alignment": "right"
+                "Alignment": "right",
+                "Type": "text"
             },
             {
                 "Header": "Avdrag",
