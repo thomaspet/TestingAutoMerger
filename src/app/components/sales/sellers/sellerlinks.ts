@@ -1,33 +1,30 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {SellerLink, Seller} from '@uni-entities';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '@uni-framework/ui/unitable';
-import {ErrorService, SellerService, SellerLinkService} from '@app/services/services';
+import {ErrorService, SellerService} from '@app/services/services';
 import {cloneDeep} from 'lodash';
-import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'seller-links',
-    templateUrl: './sellerLinks.html',
+    templateUrl: './sellerlinks.html',
+    styleUrls: ['./sellerlinks.sass']
 })
 export class SellerLinks {
     @Input() readonly: boolean;
     @Input() entity;
     @Output() entityChange = new EventEmitter();
-    @ViewChild('table') table: AgGridWrapper;
 
     sellerTableConfig: UniTableConfig;
     sellerLinks: SellerLink[];
 
     sellers: Seller[];
     totalPercent = 0;
-    tableIsDirty = false;
 
     constructor(
         private router: Router,
         private errorService: ErrorService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService
     ) {
         this.sellerService.GetAll().subscribe(
             sellers => {
@@ -36,6 +33,7 @@ export class SellerLinks {
             },
             err => {
                 this.errorService.handle(err);
+                this.sellers = [];
                 this.setupTable();
             }
         );
@@ -43,79 +41,79 @@ export class SellerLinks {
 
     public ngOnChanges() {
         if (this.entity) {
-            if (this.entity.Sellers && this.entity.Sellers.length > 0) {
-                this.sellerLinks = cloneDeep(this.entity.Sellers);
-            } else {
-                this.sellerLinks = [];
-            }
-            this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + next.Percent, 0);
+            const sellers = cloneDeep(this.entity.Sellers || []);
+            this.sellerLinks = this.setAmountsOnSellers(this.entity, sellers);
+            this.updateTotalPercent();
         }
     }
 
-    manageSellers(event) {
-        if (!event) {
-            return;
-        }
-        const amount  = this.entity.Items ? this.entity.Items.reduce((prev, next) => prev + next.SumTotalIncVatCurrency, 0) : 0;
-        const sellers = this.getCleanSellers().filter(x => !x.Deleted);
-        const deletedSellers = this.getCleanSellers().filter(x => x.Deleted);
-        const seller = event.rowModel;
-        const numberOfSellers = sellers.length;
-        let focusRow = false;
-        let totalPercent = 0;
+    private setAmountsOnSellers(entity, sellers) {
+        const totalAmount = (entity.Items || []).reduce((sum, item) => {
+            if (item.Deleted) {
+                return sum;
+            }
 
-        if (event.field === 'Seller' && numberOfSellers === 1) {
-            seller.Percent = 100;
-            seller.Amount = amount * seller.Percent / 100;
-        } else if (event.field === 'Percent' && numberOfSellers === 2) {
-            const otherSeller = sellers.find(x => event.rowModel !== x);
-            if (seller.Percent > 100) {
-                seller.Percent = 100;
+            return sum + (item.SumTotalIncVatCurrency || 0);
+        }, 0);
+
+        return (sellers || []).map(seller => {
+            if (!seller['_isEmpty'] && !seller.Deleted) {
+                seller.Amount = totalAmount * (seller.Percent / 100);
             }
-            seller.Amount = amount * seller.Percent / 100;
-            otherSeller.Percent = 100 -  seller.Percent;
-            otherSeller.Amount = amount * otherSeller.Percent / 100;
-        } else if (event.field === 'Percent') {
-            totalPercent = sellers.reduce((prev, next) => prev + next.Percent, 0);
-            totalPercent = totalPercent > 100 ? 100 : totalPercent;
-            if (totalPercent < 100) {
-                sellers.push(<SellerLink>{
-                    Seller: null,
-                    Percent: 100 - totalPercent,
-                    Amount: amount * (100 - totalPercent) / 100,
-                    Deleted: false,
-                });
-                focusRow = true;
+
+            return seller;
+        });
+    }
+
+    private setCreateGuidsOnSellers(sellers: SellerLink[]): SellerLink[] {
+        return sellers.map(seller => {
+            if (!seller.ID && !seller.Deleted) {
+                seller._createguid = this.sellerService.getNewGuid();
             }
-            sellers.forEach(s => s.Amount = amount * s.Percent / 100);
-        }
-        this.sellerLinks = sellers.concat(deletedSellers);
-        this.sellerLinks = this.updateSellersGuid();
-        this.entity.Sellers = this.sellerLinks;
-        this.entityChange.emit(this.entity);
-        this.totalPercent = this.sellerLinks.reduce((prev, next) => prev + (next.Percent || 0), 0);
-        if (focusRow) {
-            this.table.focusRow(numberOfSellers);
-        }
+
+            return seller;
+        });
+    }
+
+    private updateTotalPercent() {
+        this.totalPercent = this.sellerLinks.reduce((sum, seller) => {
+            if (seller.Deleted) {
+                return sum;
+            }
+            return sum + (seller.Percent || 0);
+        }, 0);
     }
 
     onSellerChange(event) {
-        this.tableIsDirty = true;
-        this.manageSellers(event);
-    }
+        if (!event) {
+            return;
+        }
 
-    getCleanSellers() {
-        return this.sellerLinks.filter(link => !link['_isEmpty']);
-    }
+        const tableData = this.sellerLinks.filter(link => !link['_isEmpty']);
 
-     updateSellersGuid() {
-        const sellerLinks = this.getCleanSellers().map(link => {
-                if (!link.ID && !link.Deleted) {
-                    link['_createguid'] = this.sellerLinkService.getNewGuid();
-                }
-                return link;
-            });
-        return sellerLinks;
+        let sellers = tableData.filter(link => !link.Deleted);
+        const deletedSellers = tableData.filter(link => link.Deleted);
+        const editedSeller = event.rowModel;
+
+        if (event.field === 'Seller' && sellers.length === 1) {
+            editedSeller.Percent = 100;
+        } else if (event.field === 'Percent' && sellers.length === 2) {
+            const otherSeller = sellers.find(x => event.rowModel !== x);
+            if (editedSeller.Percent > 100) {
+                editedSeller.Percent = 100;
+            }
+            otherSeller.Percent = 100 -  editedSeller.Percent;
+        }
+
+        sellers = sellers.concat(deletedSellers);
+        sellers = this.setCreateGuidsOnSellers(sellers);
+        sellers = this.setAmountsOnSellers(this.entity, sellers);
+
+        this.sellerLinks = sellers;
+        this.entity.Sellers = this.sellerLinks;
+        this.entityChange.emit(this.entity);
+
+        this.updateTotalPercent();
     }
 
     public onSellerLinkDeleted(sellerLink) {
@@ -126,60 +124,50 @@ export class SellerLinks {
                 this.entity.DefaultSellerID = null;
             }
         }
-        this.sellerLinks = this.updateSellersGuid();
+
         this.entity.Sellers = this.sellerLinks;
         this.entityChange.emit(this.entity);
-    }
-
-    private changeCallback(event) {
-        const rowModel = event.rowModel;
-        if (event.field === 'Seller') {
-            rowModel.SellerID = rowModel.Seller.ID;
-        }
-        return rowModel;
+        this.updateTotalPercent();
     }
 
     private setupTable() {
         const sellerCol = new UniTableColumn('Seller', 'Selger',  UniTableColumnType.Select)
-            .setTemplate((row) => row.Seller ? row.Seller.Name : '')
+            .setDisplayField('Seller.Name')
             .setOptions({
                 resource: this.sellers || [],
-                itemTemplate: (item) => `${item.ID}: ${item.Name}`
+                displayField: 'Name'
             });
 
         const percentCol = new UniTableColumn('Percent', 'Prosent', UniTableColumnType.Number);
-        const amountCol = new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Number)
-            .setEditable(false);
+        const amountCol = new UniTableColumn('Amount', 'Beløp (ink.mva)', UniTableColumnType.Number, false);
 
-        const defaultRowModel = {
-            SellerID: 0
-        };
-
-        const contextMenuItems: IContextMenuItem[] = [];
-        contextMenuItems.push({
-            label: 'Vis selgerdetaljer',
-            action: (rowModel) => {
-                this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID);
+        const contextMenuItems: IContextMenuItem[] = [
+            {
+                label: 'Vis selgerdetaljer',
+                action: (rowModel) => {
+                    this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID);
+                },
+                disabled: (rowModel) => !rowModel.SellerID
             },
-            disabled: (rowModel) => !rowModel.SellerID
-        },
-        {
-            label: 'Vis selger sine salg',
-            action: (rowModel) => {
-                this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID + '/sales');
-            },
-            disabled: (rowModel) => !rowModel.SellerID
-        });
+            {
+                label: 'Vis selger sine salg',
+                action: (rowModel) => {
+                    this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID + '/sales');
+                },
+                disabled: (rowModel) => !rowModel.SellerID
+            }
+        ];
 
-        // Setup table
         this.sellerTableConfig = new UniTableConfig('common.seller.sellerlinks', !this.readonly, true, 15)
-            .setSearchable(false)
-            .setSortable(false)
-            .setDefaultRowData(defaultRowModel)
+            .setAutofocus(true)
+            .setDefaultRowData({SellerID: 0})
             .setDeleteButton(!this.readonly)
             .setContextMenu(contextMenuItems)
-            .setChangeCallback(event => this.changeCallback(event))
-            .setColumns([sellerCol, percentCol, amountCol]);
-        setTimeout(() => this.table.focusRow(0), 500);
+            .setColumns([sellerCol, percentCol, amountCol])
+            .setChangeCallback(event => {
+                if (event && event.field === 'Seller') {
+                    event.rowModel.SellerID = event.rowModel.Seller.ID;
+                }
+            });
     }
 }
