@@ -20,9 +20,9 @@ export class ProductService extends BizHttp<Product> {
             const vatTypeFromList = vattypes.find(item => item.VatCode === product.VatType.VatCode)
             const vatPercent = product.VatType.VatPercent || (vatTypeFromList && vatTypeFromList.VatPercent);
             if (product.CalculateGrossPriceBasedOnNetPrice) {
-                product.PriceExVat = product.PriceIncVat / ((100 + vatPercent || 0) / 100);
+                product.PriceExVat = product.PriceIncVat / ((100 + vatPercent || 100) / 100);
             } else {
-                product.PriceIncVat = (product.PriceExVat * (100 + vatPercent || 0)) / 100;
+                product.PriceIncVat = (product.PriceExVat * (100 + vatPercent || 100)) / 100;
             }
         } else {
             if (product.CalculateGrossPriceBasedOnNetPrice) {
