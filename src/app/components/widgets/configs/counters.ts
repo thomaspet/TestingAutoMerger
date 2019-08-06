@@ -34,15 +34,16 @@ export const COUNTERS = [
     },
     {
         id: 'sum_overdue_invoices',
-        description: 'Totalsum forfalt faktura',
+        description: 'Restsum forfalte faktura',
         permissions: ['ui_sales'],
         width: 3,
         height: 1,
         widgetType: 'sum',
         config: {
-            dataEndpoint: '/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as '
-            + 'sum&filter=(CustomerInvoice.PaymentDueDate le \'getdate()\' )',
-            title: 'Sum forfalte faktura',
+            dataEndpoint: '/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as sum'
+            + '&filter=(CustomerInvoice.RestAmountCurrency ne \'0\' and CustomerInvoice.PaymentDueDate lt \'getdate()\' and add(TaxInclusiveAmount, CreditedAmount) ne \'0\' )'
+            + ' and (CustomerInvoice.StatusCode eq \'42002\' or CustomerInvoice.StatusCode eq \'42003\' )',
+            title: 'Restsum forfalte faktura',
             positive: false,
             link: '/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices',
             icon: 'description',
@@ -107,7 +108,7 @@ export const COUNTERS = [
         height: 1,
         widgetType: 'sum',
         config: {
-            dataEndpoint: '/api/biz/filetags/IncomingMail|IncomingEHF/0?action=get-supplierInvoice-inbox-count',
+            dataEndpoint: '/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox-count',
             title: 'Fakturainnboks',
             positive: false,
             link: '/accounting/bills?filter=Inbox',
