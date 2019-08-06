@@ -1172,13 +1172,13 @@
             },
             {
                 "Header": "Utbetalingsmåned",
-                "Field": "Payrollrun.PayDate",
-                "Format": "DateMonth"
+                "Field": "month(Payrollrun.PayDate)",
+                "Alias": "PayMonth"
             },
             {
                 "Header": "Utbetalingsår",
-                "Field": "Payrollrun.PayDate",
-                "Format": "DateYear"
+                "Field": "year(Payrollrun.PayDate)",
+                "Alias": "PayYear"
             },
             {
                 "Header": "Motkonto",
