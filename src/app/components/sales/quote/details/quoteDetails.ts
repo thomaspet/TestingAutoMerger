@@ -1428,8 +1428,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     }
 
     public onTradeItemsChange($event) {
-        this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
-        this.quote = Object.assign({}, this.quote);
+        this.quote.Items = this.quoteItems;
+        this.quote = cloneDeep(this.quote);
         this.recalcDebouncer.emit($event);
     }
 }
