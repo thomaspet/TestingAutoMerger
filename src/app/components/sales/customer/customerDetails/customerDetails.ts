@@ -1043,7 +1043,9 @@ export class CustomerDetails implements OnInit {
 
     private save(saveAsLead?: boolean): Observable<Customer> {
         const customer = this.preSave(this.customer$.getValue());
-        customer.Sellers = customer.Sellers.filter(x => !x['_isEmpty']);
+        if (customer.Sellers) {
+            customer.Sellers = customer.Sellers.filter(x => !x['_isEmpty']);
+        }
 
         if (saveAsLead) {
             customer.StatusCode = StatusCode.Pending;
