@@ -47,6 +47,7 @@ export class TofDetailsForm {
 
     onFormChange(changes: SimpleChanges) {
         const keys = Object.keys(changes);
+        this.entity['_updatedFields'] = keys;
         keys.forEach(key => {
             if (key.includes('ProjectID')) {
                 this.entity['_updatedField'] = Object.keys(changes)[0];
@@ -61,7 +62,6 @@ export class TofDetailsForm {
         } else if (changes['InvoiceDate'] && changes['InvoiceDate'].currentValue) {
             this.setDates(changes['InvoiceDate'].currentValue);
         }
-
         this.entityChange.emit(this.entity);
     }
 
