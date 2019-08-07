@@ -741,7 +741,7 @@ export class BillView implements OnInit {
                 invoice.ID = this.currentID;
                 this.updateSummary([]);
                 const current = this.current.getValue();
-                if (current.TaxInclusiveAmountCurrency) {
+                if (current.TaxExclusiveAmountCurrency) {
                     current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
                 }
                 this.current.next(current);
@@ -972,7 +972,7 @@ export class BillView implements OnInit {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
                 const current = this.current.getValue();
-                if (current.TaxInclusiveAmountCurrency) {
+                if (current.TaxExclusiveAmountCurrency) {
                     current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
                 }
                 this.current.next(current);
@@ -991,7 +991,7 @@ export class BillView implements OnInit {
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 const current = this.current.getValue();
-                if (current.TaxInclusiveAmountCurrency) {
+                if (current.TaxExclusiveAmountCurrency) {
                     current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
                 }
                 this.current.next(current);
@@ -1683,7 +1683,7 @@ export class BillView implements OnInit {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
                 const current = this.current.getValue();
-                if (current.TaxInclusiveAmountCurrency) {
+                if (current.TaxExclusiveAmountCurrency) {
                     current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
                 }
                 this.current.next(current);
@@ -2880,7 +2880,7 @@ export class BillView implements OnInit {
 
         this.updateSummary(lines);
         let supplierInvoice = this.current.getValue();
-        if (supplierInvoice.TaxInclusiveAmountCurrency) {
+        if (supplierInvoice.TaxExclusiveAmountCurrency) {
             supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
         }
         this.current.next(supplierInvoice);
