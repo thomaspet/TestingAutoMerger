@@ -18,6 +18,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
+import {WizardSettingsModal} from '@uni-framework/uni-modal/modals/wizard-settings-modal/wizard-settings-modal';
 
 import {UniNewCompanyModal, DeleteCompanyModal, GrantAccessModal} from '@app/components/common/modals/company-modals';
 
@@ -423,8 +424,14 @@ export class BureauDashboard {
                     this.companies.unshift(company);
                     this.companies = [...this.companies];
                     this.filterCompanies();
-                    this.authService.setActiveCompany(company);
-                    this.uniModalService.open(CompanyActionsModal, <IModalOptions>{ header: `${company.Name} opprettet!` });
+                    this.authService.setActiveCompany(company, '/');
+
+                    this.modalService.open(WizardSettingsModal, {
+                        closeOnClickOutside: false,
+                        hideCloseButton: true
+                    }).onClose.subscribe(res => {
+                        this.uniModalService.open(CompanyActionsModal, <IModalOptions>{ header: `${company.Name} opprettet!` });
+                    }, err => console.error(err));
                     doneCallback('');
                 }
             });

@@ -1,0 +1,75 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+$red: #f53b57
+
+.uni-wizard-settings-modal
+    ::ng-deep .mat-horizontal-content-container
+        overflow: visible !important
+
+    label
+        display: flex
+        align-items: center
+        margin-bottom: 1rem
+
+        uni-tooltip
+            position: static !important
+            margin-left: 5px
+
+        span
+            flex: 0 0 185px
+            margin-right: 20px
+            font-weight: 400
+            font-size: 14px
+            line-height: 2.4rem
+
+        input, select
+            flex: 1
+            height: 2.4rem !important
+            border: 1px solid rgba(0, 0, 0, 0.25)
+            border-radius: 3px
+            font-size: 14px
+            width: 100%
+
+            &.ng-touched.ng-invalid
+                border: 1px solid $red
+
+        .invalid input
+            border: 1px solid $red
+
+        .warning input
+            border: 1px solid $uni-color-warn
+
+        select
+            padding-left: 4px
+
+    small.form-warning
+        display: block
+        color: $uni-color-warn
+        margin: -10px 0 16px 170px
+
+    small.form-error
+        display: block
+        color: $red
+        margin: -10px 0 16px 170px
+
+.wizard-demo-message
+    padding: 2rem
+    border: 1px solid $uni-color-scale8
+    border-radius: 3px
+    i
+        color: #0f4880
+        vertical-align: middle
+        font-size: 1.8rem
+
+.wizard-account-search-section
+    flex: 1
+    ul
+        position: absolute
+        list-style: none
+        z-index: 99999
+        background-color: #fff
+        max-height: 40vh
+        overflow: auto
+
+        li
+            padding: .5rem 1rem
+            border-bottom: 1px solid $uni-color-scale8
