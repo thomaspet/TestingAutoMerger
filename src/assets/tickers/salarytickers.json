@@ -1435,7 +1435,7 @@
             {
                 "Header":"Restsaldo",
                 "Expand": "Transactions.SalaryTransaction.payrollrun",
-                "Field": "sum(casewhen(InstalmentType eq 1 and ((isnull(Transactions.SalaryTransactionID,0) eq 0) or payrollrun.StatusCode gt 0)\\,Transactions.Amount\\,0))",
+                "Field": "sum(casewhen(InstalmentType eq 1 or Type eq 1\\,casewhen(isnull(Transactions.SalaryTransactionID,0) eq 0 or payrollrun.StatusCode gt 0\\,Transactions.Amount\\,0)\\,0))",
                 "Alias": "Amount",
                 "Type": "money"
             }
@@ -1598,18 +1598,16 @@
             },
             {
                 "Header": "Avdrag",
-                "Field": "Instalment",
-                "DefaultHidden": true
+                "Field": "Instalment"
             },
             {
                 "Header": "Avdrag %",
-                "Field": "InstalmentPercent",
-                "DefaultHidden": true
+                "Field": "InstalmentPercent"
             },
             {
                 "Header":"Restsaldo",
                 "Expand": "Transactions.SalaryTransaction.payrollrun",
-                "Field": "sum(casewhen(InstalmentType eq 1 and ((isnull(Transactions.SalaryTransactionID,0) eq 0) or payrollrun.StatusCode gt 0)\\,Transactions.Amount\\,0))",
+                "Field": "sum(casewhen(InstalmentType eq 1 or Type eq 1\\,casewhen(isnull(Transactions.SalaryTransactionID,0) eq 0 or payrollrun.StatusCode gt 0\\,Transactions.Amount\\,0)\\,0))",
                 "Alias": "Amount",
                 "Type": "money"
             }
