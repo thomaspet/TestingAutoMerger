@@ -89,6 +89,7 @@ export class UniRecurringInvoice implements OnInit {
     private numberSeries: NumberSeries[];
     private projectID: number;
     private deletables: SellerLink[] = [];
+    private askedAboutSettingDimensionsOnItems: boolean;
 
     readonly: boolean;
     invoice: RecurringInvoice;
@@ -524,6 +525,10 @@ export class UniRecurringInvoice implements OnInit {
             }
         }
 
+        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('Dimension')) {
+            this.askedAboutSettingDimensionsOnItems = false;
+        }
+
         if (invoice['_updatedField']) {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, false);
             this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
@@ -531,10 +536,10 @@ export class UniRecurringInvoice implements OnInit {
             const dimension = invoice['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]]);
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
             }
             if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);

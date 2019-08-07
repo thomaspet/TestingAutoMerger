@@ -108,6 +108,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     currencyCodes: Array<CurrencyCode>;
     currencyExchangeRate: number;
     private currentCustomer: Customer;
+    private  askedAboutSettingDimensionsOnItems: boolean;
+
     currentUser: User;
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
@@ -542,6 +544,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, true);
         }
 
+        if (quote['_updatedFields'] && quote['_updatedFields'].toString().includes('Dimension')) {
+            this.askedAboutSettingDimensionsOnItems = false;
+        }
+
         if (quote['_updatedField']) {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, false);
             this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
@@ -549,10 +555,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             const dimension = quote['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]]);
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]]);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
             }
         }
 

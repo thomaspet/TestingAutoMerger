@@ -42,6 +42,7 @@ export class UniDimensionTOFView implements OnInit {
         });
 
         this.entity['_updatedField'] = Object.keys(changes)[0];
+        this.entity['_updatedFields'] = Object.keys(changes);
         this.entityChange.emit(this.entity);
     }
 

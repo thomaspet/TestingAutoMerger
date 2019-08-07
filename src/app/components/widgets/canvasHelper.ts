@@ -83,15 +83,6 @@ export class CanvasHelper {
             });
         });
 
-        if (filtered.length !== widgets.length) {
-            // Remove x/y coordinates so that the widget position is re-calculated
-            // This prevents layouts with lots of holes after filtering widgets
-            // filtered.forEach(w => {
-            //     w.x = undefined;
-            //     w.y = undefined;
-            // });
-        }
-
         return filtered;
     }
 
@@ -112,7 +103,7 @@ export class CanvasHelper {
             return;
         }
 
-        const layoutStore = this.browserStorage.getItemFromCompany(LOCALSTORAGE_KEY);
+        const layoutStore = this.browserStorage.getItem(LOCALSTORAGE_KEY);
         if (layoutStore && layoutStore[name]) {
             const layout: ISavedLayout = layoutStore[name];
             if (this.verifyCustomLayout(layout)) {
@@ -134,7 +125,7 @@ export class CanvasHelper {
             return;
         }
 
-        let layoutStore = this.browserStorage.getItemFromCompany(LOCALSTORAGE_KEY);
+        let layoutStore = this.browserStorage.getItem(LOCALSTORAGE_KEY);
         if (!layoutStore) {
             layoutStore = {};
         }
@@ -146,7 +137,7 @@ export class CanvasHelper {
             large: this.getReferencesFromWidgets(layout.large)
         };
 
-        this.browserStorage.setItemOnCompany(LOCALSTORAGE_KEY, layoutStore);
+        this.browserStorage.setItem(LOCALSTORAGE_KEY, layoutStore);
     }
 
     public removeLayout(name: string) {
@@ -155,9 +146,9 @@ export class CanvasHelper {
         }
 
         try {
-            const layoutStore = this.browserStorage.getItemFromCompany(LOCALSTORAGE_KEY);
+            const layoutStore = this.browserStorage.getItem(LOCALSTORAGE_KEY);
             delete layoutStore[name];
-            this.browserStorage.setItemOnCompany(LOCALSTORAGE_KEY, layoutStore);
+            this.browserStorage.setItem(LOCALSTORAGE_KEY, layoutStore);
         } catch (e) {}
     }
 
