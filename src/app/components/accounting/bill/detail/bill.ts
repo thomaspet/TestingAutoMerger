@@ -741,7 +741,9 @@ export class BillView implements OnInit {
                 invoice.ID = this.currentID;
                 this.updateSummary([]);
                 const current = this.current.getValue();
-                current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                if (current.TaxInclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
                 this.current.next(current);
                 this.toast.clear();
                 this.handleEHFResult(invoice);
@@ -970,7 +972,9 @@ export class BillView implements OnInit {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
                 const current = this.current.getValue();
-                current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                if (current.TaxInclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
                 this.current.next(current);
             }
         });
@@ -987,7 +991,9 @@ export class BillView implements OnInit {
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 const current = this.current.getValue();
-                current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                if (current.TaxInclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
                 this.current.next(current);
                 this.toast.clear();
 
@@ -1677,7 +1683,9 @@ export class BillView implements OnInit {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
                 const current = this.current.getValue();
-                current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                if (current.TaxInclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
                 this.current.next(current);
             }
 
@@ -2872,7 +2880,9 @@ export class BillView implements OnInit {
 
         this.updateSummary(lines);
         let supplierInvoice = this.current.getValue();
-        supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
+        if (supplierInvoice.TaxInclusiveAmountCurrency) {
+            supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
+        }
         this.current.next(supplierInvoice);
         let previousLine = null;
 
@@ -2945,7 +2955,9 @@ export class BillView implements OnInit {
             setTimeout(() => {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
                 supplierInvoice = this.current.getValue();
-                supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
+                if (supplierInvoice.TaxInclusiveAmountCurrency) {
+                    supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
+                }
                 this.current.next(supplierInvoice);
             });
         }
