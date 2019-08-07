@@ -84,15 +84,7 @@ export class UniWidgetCanvas {
     onDestroy$ = new Subject();
 
     companyName: string;
-    links = [
-        { label: 'Hjem', url: '/' },
-        { label: 'Regnskap', url: '/accounting' },
-        { label: 'Salg', url: '/sales' },
-        { label: 'Lønn', url: '/salary' },
-        { label: 'Timer', url: '/timetracking' },
-        { label: 'Bank', url: '/bank' },
-        { label: 'Oversikt', url: '/overview' }
-    ];
+    links = [];
 
     layout: IResponsiveWidgetLayout;
     private layoutBackup: IResponsiveWidgetLayout;
@@ -133,12 +125,26 @@ export class UniWidgetCanvas {
         this.authService.authentication$.pipe(
             takeUntil(this.onDestroy$)
         ).subscribe(auth => {
-            this.companyName = auth.activeCompany && auth.activeCompany.Name;
+            if (auth.user && auth.activeCompany) {
+                this.companyName = auth.activeCompany && auth.activeCompany.Name;
 
-            if (auth.user && this.layout) {
-                this.canvasHelper.resetGrid();
-                const layout = this.canvasHelper.getSavedLayout(this.layoutName);
-                this.initializeLayout(layout);
+                this.links = [
+                    { label: 'Hjem', url: '/' },
+                    { label: 'Regnskap', url: '/accounting' },
+                    { label: 'Salg', url: '/sales' },
+                    { label: 'Lønn', url: '/salary' },
+                    { label: 'Timer', url: '/timetracking' },
+                    { label: 'Bank', url: '/bank' },
+                    { label: 'Oversikt', url: '/overview' }
+                ].filter(link => {
+                    return this.authService.canActivateRoute(auth.user, link.url);
+                });
+
+                if (this.layout) {
+                    this.canvasHelper.resetGrid();
+                    const layout = this.canvasHelper.getSavedLayout(this.layoutName);
+                    this.initializeLayout(layout);
+                }
             }
         });
 
@@ -264,20 +270,35 @@ export class UniWidgetCanvas {
     }
 
     addWidget(widget) {
-        const position = this.canvasHelper.getNextAvailablePosition(widget);
-        widget.editMode = true;
+        let alreadyAdded = false;
+        try {
+            alreadyAdded = this.layout[this.currentSize].some(w => w.id === widget.id);
+        } catch (e) {
+            console.error(e);
+        }
 
-        if (position) {
-            widget.x = position.x;
-            widget.y = position.y;
-
-            this.layout.small.push(widget);
-            this.layout.medium.push(widget);
-            this.layout.large.push(widget);
-            this.unsavedChanges = true;
-            this.setWidgetPosition(widget);
+        if (alreadyAdded) {
+            this.toastService.toast({
+                title: 'Widgeten er allerede lagt til',
+                type: ToastType.warn,
+                duration: 3
+            });
         } else {
-            this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
+            const position = this.canvasHelper.getNextAvailablePosition(widget);
+            widget._editMode = true;
+
+            if (position) {
+                widget.x = position.x;
+                widget.y = position.y;
+
+                this.layout.small.push(widget);
+                this.layout.medium.push(widget);
+                this.layout.large.push(widget);
+                this.unsavedChanges = true;
+                this.setWidgetPosition(widget);
+            } else {
+                this.toastService.addToast('Det er ikke plass til denne widgeten', ToastType.warn, 10);
+            }
         }
     }
 
