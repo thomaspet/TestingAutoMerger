@@ -553,23 +553,22 @@ header.dashboard-header
         list-style: none
         display: flex
         margin: 0 auto 0 2rem
-
-        li a
-            font-size: 13px
-            font-weight: 500
-            color: #707D90
-            text-decoration: none
-            padding: 8px 20px
-            border-radius: 3px
-            &:hover
-                background: rgba(0, 0, 0, .07)
-
-            &.active
-                color: #fff
-                background: #198CEE
-
         li + li
             margin-left: 5px
+
+    a.dashboard-link
+        font-size: 13px
+        font-weight: 500
+        color: #707D90
+        text-decoration: none
+        padding: 8px 20px
+        border-radius: 3px
+        &:hover
+            background: rgba(0, 0, 0, .07)
+
+        &.active
+            color: #fff
+            background: #198CEE
 
     @media screen and (max-width: 1400px)
         .title

@@ -135,7 +135,6 @@ export class UniWidgetCanvas {
                     { label: 'Lønn', url: '/salary' },
                     { label: 'Timer', url: '/timetracking' },
                     { label: 'Bank', url: '/bank' },
-                    { label: 'Oversikt', url: '/overview' }
                 ].filter(link => {
                     return this.authService.canActivateRoute(auth.user, link.url);
                 });

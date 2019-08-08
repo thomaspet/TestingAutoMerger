@@ -1378,6 +1378,7 @@
                 "Field": "Employee.EmployeeNumber",
                 "Width": "8rem",
                 "Type": "link",
+                "ExternalModel": "Employee",
                 "LinkNavigationProperty": "Employee.ID",
                 "FilterOperator": "startswith",
                 "SubFields": [{
@@ -1626,15 +1627,17 @@
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "EmployeeTaxCard",
-        "Joins": "EmployeeTaxCard.EmployeeID eq Employee.ID and Employee.BusinessRelationID eq BusinessRelation.ID",
+        "Joins": "EmployeeTaxCard.EmployeeID eq Employee.ID and Employee.BusinessRelationID eq BusinessRelation.ID as info",
         "Columns":[
             {
                 "Header": "Ansatt",
                 "Field": "Employee.EmployeeNumber",
                 "Type": "link",
                 "FilterOperator": "startswith",
+                "ExternalModel": "Employee",
+                "LinkNavigationProperty": "Employee.ID",
                 "SubFields": [{
-                    "Field": "BusinessRelation.Name",
+                    "Field": "info.Name",
                     "Type": "link"
                 }]
             },

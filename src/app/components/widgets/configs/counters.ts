@@ -63,7 +63,7 @@ export const COUNTERS = [
             + `&filter=items.statuscode eq 41102 and (statuscode eq 41002 or statuscode eq 41003)&join=&expand=items`,
             title: 'Ordrereserve',
             positive: false,
-            link: '/overview?code=order_list&filter=order_reserves',
+            link: '/sales/orders?filter=order_reserves',
             icon: 'business',
             class: 'green-counter'
         }
