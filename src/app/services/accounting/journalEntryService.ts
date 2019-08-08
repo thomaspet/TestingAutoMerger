@@ -506,6 +506,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             // to perform the actual booking
             const draftLines = this.createJournalEntryDraftLines(line, je);
 
+
             draftLines.forEach(draftLine => {
                 je.DraftLines.push(draftLine);
             });
@@ -551,6 +552,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
+            draftLine.JournalEntryTypeID = journalEntryData.JournalEntryTypeID;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
             draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && !!debitAccount.UseVatDeductionGroupID
                                     ? journalEntryData.VatDeductionPercent
@@ -598,6 +600,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
             draftLine.VatType = creditVatType;
+            draftLine.JournalEntryTypeID = journalEntryData.JournalEntryTypeID;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
             draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && !!creditAccount.UseVatDeductionGroupID
                                     ? journalEntryData.VatDeductionPercent

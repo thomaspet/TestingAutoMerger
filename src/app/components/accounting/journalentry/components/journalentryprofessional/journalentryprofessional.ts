@@ -1434,6 +1434,21 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setSkipOnEnterKeyNavigation(true)
             .setWidth('90px');
 
+
+        const journalEntryTypeCol = new UniTableColumn('JournalEntryType', 'Bilagstype', UniTableColumnType.Lookup)
+            .setDisplayField('JournalEntryType.DisplayName')
+            .setVisible(false)
+            .setWidth('12%')
+            .setOptions({
+                itemTemplate: (item) => {
+                    return (item.DisplayName);
+                },
+                lookupFunction: (query) => {
+                    return this.statisticsService.GetAll(`model=JournalEntryType&select=DisplayName as DisplayName,ID as ID&filter=ID gt 5`)
+                        .map(x => x.Data ? x.Data : []);
+                    }
+                });
+
         const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setDisplayField('Project.ProjectNumber')
             .setVisible(false)
@@ -1625,7 +1640,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 manDimReportCol,
                 addedPaymentCol,
-                fileCol
+                fileCol,
+                journalEntryTypeCol
             ].map(col => {
                 col = _.cloneDeep(col);
                 if (col.field === invoiceNoCol.field ||
@@ -1680,7 +1696,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCurrencyCol,
                 currencyExchangeRate,
                 costAllocationCol,
-                manDimReportCol
+                manDimReportCol,
+                journalEntryTypeCol
             ];
 
             if (dimensionCols.length) {
@@ -1739,7 +1756,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 costAllocationCol,
                 addedPaymentCol,
                 fileCol,
-                manDimReportCol
+                manDimReportCol,
+                journalEntryTypeCol
             ];
 
             if (dimensionCols.length) {
@@ -2826,10 +2844,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public postJournalEntryData(completeCallback, id?: number) {
         const tableData = this.table.getTableData();
-
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
             data.NumberSeriesTaskID = this.selectedNumberSeriesTaskID ? this.selectedNumberSeriesTaskID : null;
+            data.JournalEntryTypeID = data.JournalEntryType ? data.JournalEntryType.ID : null;
             if (!data.VatDeductionPercent) {
                 data.VatDeductionPercent = 100;
             }

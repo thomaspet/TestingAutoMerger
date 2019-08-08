@@ -72,6 +72,7 @@ export class TransqueryDetails implements OnInit {
     useConfiguredFilter: boolean = false;
     loading$: Subject<boolean> = new Subject();
 
+    private journalEntryTypes: any[];
     private lastFilterString: string;
     private dimensionTypes: any[];
     private searchTimeout;
@@ -268,7 +269,7 @@ export class TransqueryDetails implements OnInit {
         urlParams = urlParams.set(
             'expand',
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
-                + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
+                + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode,JournalEntryType'
                 + expandString
         );
         urlParams = urlParams.set('filter', filters.join(' and '));
@@ -591,6 +592,10 @@ export class TransqueryDetails implements OnInit {
             .setFilterable(false)
                 .setVisible(showTaxBasisAmount)
                 .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
+            new UniTableColumn('JournalEntryType.DisplayName', 'Bilagstype', UniTableColumnType.Text)
+                .setFilterable(true)
+                .setVisible(false)
+                .setTemplate(line => line.JournalEntryTypeDisplayName),
             new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
                 .setTemplate(line => line.JournalEntryLineVatReportID ? line.JournalEntryLineVatReportID : 'Nei')
                 .setFilterable(false)
