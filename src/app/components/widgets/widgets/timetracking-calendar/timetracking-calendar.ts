@@ -1,8 +1,8 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {UserService} from '@app/services/services';
+import {UserService, TimesheetService} from '@app/services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniTimeModal} from '@app/components/common/timetrackingCommon';
@@ -11,10 +11,14 @@ import * as moment from 'moment';
 @Component({
     selector: 'timetracking-calendar-widget',
     template: `
-        <div class="timebox-container" title="{{ widget.description }}">
+        <div class="timebox-container" title="{{ widget.description }}" [attr.aria-busy]="busy">
             <div class="timetracking-calendar-header">Timeføring</div>
 
-            <div class="timebox-calendar-container">
+            <a *ngIf="missingWorker" class="missing-worker" (click)="activateWorker()">
+                Aktiver timeføring
+            </a>
+
+            <div *ngIf="!missingWorker" class="timebox-calendar-container">
                 <div class="calender-select-month-header">
                     <i class="material-icons" (click)="monthChange(-1)"> chevron_left </i>
                     <span>
@@ -43,7 +47,7 @@ import * as moment from 'moment';
                 </table>
             </div>
 
-            <div class="timebox-footer">
+            <div *ngIf="!missingWorker" class="timebox-footer">
                 <a (click)="openTimeReg(today)">
                     Registrer timer
                 </a>
@@ -56,6 +60,8 @@ import * as moment from 'moment';
 
 export class TimetrackingCalendar {
     widget: IUniWidget;
+    missingWorker: boolean;
+    busy: boolean;
 
     _MONTHS = ['', 'Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
     _DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
@@ -82,7 +88,8 @@ export class TimetrackingCalendar {
         private dataService: WidgetDataService,
         private modalService: UniModalService,
         private browserStorage: BrowserStorageService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private timesheetService: TimesheetService,
     ) {
         this.timeTrackingTemplates = this.browserStorage.getItem('timeTrackingTemplates') || [];
         this.getDataAndLoadCalendar();
@@ -94,16 +101,32 @@ export class TimetrackingCalendar {
             this.dataService.clearCache();
             this.dataService.request(route).subscribe((workRelation) => {
                 if (workRelation && workRelation.length) {
+                    this.missingWorker = false;
                     this.relation = workRelation[0];
-                    this.dataService.request(`api/biz/workrelations/${workRelation[0].ID}?action=timesheet&` +
-                    `fromdate=${moment().subtract(3, 'month').format('YYYY-MM-DD')}&todate=${moment().format('YYYY-MM-DD')}`)
-                    .subscribe((flex) => {
+                    this.dataService.request(
+                        `api/biz/workrelations/${workRelation[0].ID}?action=timesheet&`
+                        + `fromdate=${moment().subtract(3, 'month').format('YYYY-MM-DD')}&todate=${moment().format('YYYY-MM-DD')}`
+                    ).subscribe((flex) => {
                         this.monthsOneYear = this.getFormattedMonths(this.createMonths(flex));
                         this.cdr.markForCheck();
                     });
+                } else {
+                    this.missingWorker = true;
+                    this.cdr.markForCheck();
                 }
             });
         });
+    }
+
+    activateWorker() {
+        if (!this.busy) {
+            this.busy = true;
+            this.cdr.markForCheck();
+            this.timesheetService.initUser(undefined, true).subscribe(() => {
+                this.getDataAndLoadCalendar();
+                this.busy = false;
+            });
+        }
     }
 
     public monthChange(direction: number) {
@@ -152,6 +175,7 @@ export class TimetrackingCalendar {
     }
 
     public openTimeReg(day: any) {
+
         this.selectedDay = day;
         this.modalService.open(UniTimeModal, { data:
             {

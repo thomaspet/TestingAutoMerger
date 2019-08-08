@@ -78,38 +78,37 @@ export class UniTimetrackingCharts implements AfterViewInit {
             break;
             case 'project_percent':
                 this.dataService.getData(`/api/statistics?model=workitem&select=`
-                + `sum(casewhen(isnull(Dimensions.ProjectID,0) gt 0,Minutes,0) ) as sum,`
-                + `sum(casewhen(isnull(Dimensions.ProjectID,0) eq 0,Minutes,0) ) as sum1&top=&expand=Dimensions`
-                + `&filter=workrelationid eq ${this.workrelationID}`).subscribe((data) => {
-                    if (data && data.Data) {
+                    + `sum(casewhen(isnull(Dimensions.ProjectID,0) gt 0,Minutes,0) ) as project,`
+                    + `sum(casewhen(isnull(Dimensions.ProjectID,0) eq 0,Minutes,0) ) as noProject`
+                    + `&top=&expand=Dimensions`
+                    + `&filter=workrelationid eq ${this.workrelationID}`
+                ).subscribe((data) => {
+                    if (data && data.Data && data.Data[0]) {
+                        const projectAmount = data.Data[0].project || 0;
+                        const noProjectAmount = data.Data[0].noProject || 0;
 
-                        const set = [];
-                        let totalAmount = 0;
-                        for (const key in data.Data[0]) {
-                            if (key) {
-                                set.push(data.Data[0][key]);
-                                totalAmount += data.Data[0][key];
-                            }
+                        const chartData = [projectAmount, noProjectAmount];
+                        const totalAmount = projectAmount + noProjectAmount;
+
+                        if (totalAmount > 0) {
+                            this.chartConfig = this.getPieConfig();
+                            this.chartConfig.options.plugins.doughnutlabel.labels = [
+                                {
+                                    text: 'Prosjektprosent',
+                                    font: { size: '14' }
+                                },
+                                {
+                                    text: (projectAmount / totalAmount * 100).toFixed(2) + ' %',
+                                    font: { size: '20' }
+                                }
+                            ];
+                            this.chartConfig.options.legend.display = false;
+                            this.chartConfig.options.cutoutPercentage = 80;
+                            this.chartConfig.data.datasets[0].backgroundColor = ['#2F7FDA', '#ecf5f8'];
+                            this.chartConfig.data.labels = ['Ført med prosent', 'Ført uten prosent'],
+                            this.chartConfig.data.datasets[0].data = chartData;
+                            this.drawChart();
                         }
-
-                        this.chartConfig = this.getPieConfig();
-
-                        this.chartConfig.options.plugins.doughnutlabel.labels = [
-                            {
-                                text: 'Prosjektprosent',
-                                font: { size: '14' }
-                            },
-                            {
-                                text: (set[0] / totalAmount * 100).toFixed(2) + ' %',
-                                font: { size: '20' }
-                            }
-                        ];
-                        this.chartConfig.options.legend.display = false;
-                        this.chartConfig.options.cutoutPercentage = 80;
-                        this.chartConfig.data.datasets[0].backgroundColor = ['#2F7FDA', '#ecf5f8'];
-                        this.chartConfig.data.labels = ['Ført med prosent', 'Ført uten prosent'],
-                        this.chartConfig.data.datasets[0].data = set;
-                        this.drawChart();
                     }
                 });
             break;

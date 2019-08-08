@@ -3,7 +3,7 @@
 
     <ul class="links" *ngIf="links">
         <li *ngFor="let link of links">
-            <a
+            <a class="dashboard-link"
                 [routerLink]="link.url"
                 [routerLinkActiveOptions]="{exact: true}"
                 routerLinkActive="active">
@@ -11,6 +11,8 @@
             </a>
         </li>
     </ul>
+
+    <a class="dashboard-link" routerLink="/overview">Oversikt</a>
 
     <newsfeed></newsfeed>
 
