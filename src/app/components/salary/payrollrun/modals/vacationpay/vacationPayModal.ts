@@ -615,17 +615,27 @@ export class VacationPayModal implements OnInit, IUniModal {
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
             if (vacBase > limitBasicAmount && !this.companysalary.AllowOver6G) {
-                row['_VacationPay'] += row['VacationPay60'] = vacBase * row['Rate'] / 100
-                + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
+                row['_VacationPay'] += row['VacationPay60'] = this.calcVacation(vacBase, row.Rate)
+                    + this.calcVacation(limitBasicAmount, row.Rate60 - row.Rate);
             } else {
-                row['_VacationPay'] += row['VacationPay60'] = vacBase * row['Rate60'] / 100;
+                row['_VacationPay'] += row['VacationPay60'] = this.calcVacation(vacBase, row.Rate60);
             }
         } else {
             row['_IncludeSixthWeek'] = 'Nei';
-            row['_VacationPay'] += row['VacationPay'] = vacBase * row['_Rate'] / 100;
+            row['_VacationPay'] += row['VacationPay'] = this.calcVacation(vacBase, row['_Rate']);
         }
 
         return row;
+    }
+
+    private calcVacation(base: number, rate: number) {
+        const percentAdjustment = 100;
+        let decimals = base && base.toString().split('.')[1];
+        const basePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        decimals = rate && rate.toString().split('.')[1];
+        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        return Math.round(basePrecision * base * ratePrecision * rate)
+            / (basePrecision * ratePrecision * percentAdjustment);
     }
 
     private getWidthdrawal(row: IVacationPayLine, model: IVacationPayHeader) {
