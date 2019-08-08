@@ -1,0 +1,30 @@
+<section 
+    role="dialog" 
+    class="uni-modal uni-redesign" 
+    [ngStyle]="{
+        'width': '70rem', 
+        'height': deletedCompanies?.length > 0 ? '40rem' : '9rem'
+        }">
+    <header>Slettede selskaper</header>
+
+    <section class="list-container" style="height: 92%">
+        <div 
+            *ngIf="deletedCompanies?.length === 0"
+            style="margin-left: 3rem; margin-bottom: 1rem">
+            Det er ingen slettede selskaper på denne lisensen.
+        </div>
+
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+        
+        <license-info-list 
+            *ngIf="deletedCompanies?.length > 0"
+            [columns]="columns" 
+            [rows]="deletedCompanies" 
+            [orderBy]="'CompanyName'"
+            [contextMenu]="contextMenu"
+            style="height: 100%">
+        </license-info-list>
+    </section>
+</section>

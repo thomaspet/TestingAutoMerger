@@ -22,6 +22,7 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {UserList} from './user-list/license-user-list';
 import {UserDetails} from './user-list/license-user-details/license-user-details';
 import {AddAdminModal} from './add-admin-modal/add-admin-modal';
+import {DeletedCompaniesModal} from './company-list/deleted-companies-modal/deleted-companies-modal';
 import {AppCommonModule} from '../common/appCommonModule';
 
 @NgModule({
@@ -62,8 +63,9 @@ import {AppCommonModule} from '../common/appCommonModule';
         InvoiceItemDetails,
         CellValuePipe,
         ListView,
-        AddAdminModal
+        AddAdminModal,
+        DeletedCompaniesModal
     ],
-    entryComponents: [AddAdminModal]
+    entryComponents: [AddAdminModal, DeletedCompaniesModal]
 })
 export class LicenseInfoModule {}

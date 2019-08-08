@@ -98,4 +98,14 @@ export class CompanyService extends BizHttp<Company> {
             .send({}, null, false)
             .do(() => super.invalidateCache());
     }
+
+    reviveCompany(companyKey: string) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`companies?action=undelete-company&key=${companyKey}`)
+            .withHeader('CompanyKey', companyKey)
+            .send({}, null, false)
+            .do(() => super.invalidateCache());
+    }
 }

@@ -29,7 +29,16 @@ export class ElsaContractService {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
-            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses`)
+            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses?isDeleted=false`)
+            .send()
+            .map(res => res.body);
+    }
+
+    getDeletedCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
+        return this.uniHttp
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses?isDeleted=true`)
             .send()
             .map(res => res.body);
     }
@@ -47,7 +56,7 @@ export class ElsaContractService {
     }
 
     activateContract(contractID: number, isBureau: boolean = false) {
-        let endpoint = `/api/elsa/contracts/${contractID}?action=activate`;
+        let endpoint = `/api/elsa/contracts/${contractID}/activate`;
         if (isBureau) {
             endpoint += `&ContractType=${ElsaContractType.Bureau}`;
         }
