@@ -629,18 +629,15 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private calcVacation(base: number, rate: number) {
-        const percentAdjustment = 100;
-        let decimals = base && base.toString().split('.')[1];
-        const basePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        decimals = rate && rate.toString().split('.')[1];
-        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        return Math.round(basePrecision * base * ratePrecision * rate)
-            / (basePrecision * ratePrecision * percentAdjustment);
+        return Math.ceil(base * rate) / 100;
     }
 
     private getWidthdrawal(row: IVacationPayLine, model: IVacationPayHeader) {
-        const widthdrawal = row.Withdrawal + (row['_VacationPay'] - row['PaidVacationPay']);
-        return UniMath.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
+        const payLeft = row['_VacationPay'] - row['PaidVacationPay'];
+        if (payLeft < 0.011) {
+            return 0;
+        }
+        return UniMath.useFirstTwoDecimals((row.Withdrawal + payLeft) * model.PercentPayout / 100);
     }
 
     private updateAndSetRate(row: VacationPayLine, model: IVacationPayHeader, setManually: boolean) {
