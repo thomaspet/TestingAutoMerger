@@ -102,41 +102,15 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                         this.errorService.handle(err);
                     });
                } else {
-                    this.busy = true;
                    // Without two-stage authentification
-                    if (this.options.data.sendAll) {
-                        this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
-                            this.onClose.emit('Sendingen er fullført');
-                            this.busy = false;
-                        }, err => {
-                            this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
-                            this.errorService.handle(err);
-                            this.busy = false;
-                        });
-                    } else {
-                        this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
-                            this.busy = false;
-                            this.onClose.emit('Sendingen er fullført');
-                        }, err => {
-                            this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
-                            this.errorService.handle(err);
-                            this.busy = false;
-                        });
-                   }
+                    this.sendPayments();
                }
             } else {
                 // When user has written password and gotten code
                 // Check for code
                 if (this.model.Code) {
-                    this.busy = true;
                     // Send PASSWORD, CODE and PAYMENTIDS as body
-                    this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
-                        this.busy = false;
-                        this.onClose.emit('Sendingen er fullført');
-                    }, err => {
-                        this.busy = false;
-                        this.errorService.handle(err);
-                    });
+                    this.sendPayments();
                 } else {
                     // If code field is empty, show toast...
                     this.msg = 'Koden kan ikke være tom';
@@ -146,6 +120,40 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
         } else {
             this.msg = 'Fyll ut passord..';
         }
+    }
+
+    public handleAutobankError(error: any) {
+        if (error.status === 400) { // Bad Request
+            this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
+            this.errorService.handle(error);
+            this.busy = false;
+        } else if (error.status === 504) { // Bad Gateway or Timeout
+            this.msg = 'Noe gikk galt i overføring av betalinger. Vennligst sjekk med banken din om betalingen er mottatt';
+            this.errorService.handle(error);
+            this.busy = false;
+        } else {
+            this.errorService.handle(error);
+            this.busy = false;
+        }
+    }
+
+    public sendPayments() {
+        this.busy = true;
+        if (this.options.data.sendAll) {
+            this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
+                this.onClose.emit('Sendingen er fullført');
+                this.busy = false;
+            }, err => {
+                this.handleAutobankError(err);
+            });
+        } else {
+            this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
+                this.busy = false;
+                this.onClose.emit('Sendingen er fullført');
+            }, err => {
+                this.handleAutobankError(err);
+            });
+       }
     }
 
     public onBadClick() {
