@@ -542,7 +542,9 @@ export class VacationPayModal implements OnInit, IUniModal {
             });
         const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
             .setTemplate((row: VacationPayLine) => '' + UniMath.useFirstTwoDecimals(row.PaidVacationPay));
-        const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
+        const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money)
+            .setWidth('6rem')
+            .setTemplate((row: VacationPayLine) => '' + (UniMath.useFirstTwoDecimals(row.Withdrawal) || ''));
 
 
         this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpayModalContent')
@@ -615,22 +617,27 @@ export class VacationPayModal implements OnInit, IUniModal {
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
             if (vacBase > limitBasicAmount && !this.companysalary.AllowOver6G) {
-                row['_VacationPay'] += row['VacationPay60'] = vacBase * row['Rate'] / 100
-                + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
+                row['_VacationPay'] += row['VacationPay60'] = this.calcVacation(vacBase, row.Rate)
+                    + this.calcVacation(limitBasicAmount, row.Rate60 - row.Rate);
             } else {
-                row['_VacationPay'] += row['VacationPay60'] = vacBase * row['Rate60'] / 100;
+                row['_VacationPay'] += row['VacationPay60'] = this.calcVacation(vacBase, row.Rate60);
             }
         } else {
             row['_IncludeSixthWeek'] = 'Nei';
-            row['_VacationPay'] += row['VacationPay'] = vacBase * row['_Rate'] / 100;
+            row['_VacationPay'] += row['VacationPay'] = this.calcVacation(vacBase, row['_Rate']);
         }
 
         return row;
     }
 
+    private calcVacation(base: number, rate: number) {
+        const ofset = 10000;
+        return (UniMath.round(base * ofset, 0) * UniMath.round(rate * ofset, 0)) / (100 * Math.pow(ofset, 2));
+    }
+
     private getWidthdrawal(row: IVacationPayLine, model: IVacationPayHeader) {
-        const widthdrawal = row.Withdrawal + (row['_VacationPay'] - row['PaidVacationPay']);
-        return UniMath.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
+        const payLeft = row['_VacationPay'] - row['PaidVacationPay'];
+        return (row.Withdrawal + payLeft) * model.PercentPayout / 100;
     }
 
     private updateAndSetRate(row: VacationPayLine, model: IVacationPayHeader, setManually: boolean) {
