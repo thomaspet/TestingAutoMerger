@@ -542,7 +542,9 @@ export class VacationPayModal implements OnInit, IUniModal {
             });
         const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
             .setTemplate((row: VacationPayLine) => '' + UniMath.useFirstTwoDecimals(row.PaidVacationPay));
-        const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
+        const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money)
+            .setWidth('6rem')
+            .setTemplate((row: VacationPayLine) => '' + (UniMath.useFirstTwoDecimals(row.Withdrawal) || ''));
 
 
         this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpayModalContent')
@@ -629,15 +631,13 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private calcVacation(base: number, rate: number) {
-        return Math.ceil(base * rate) / 100;
+        const ofset = 10000;
+        return (UniMath.round(base * ofset, 0) * UniMath.round(rate * ofset, 0)) / (100 * Math.pow(ofset, 2));
     }
 
     private getWidthdrawal(row: IVacationPayLine, model: IVacationPayHeader) {
         const payLeft = row['_VacationPay'] - row['PaidVacationPay'];
-        if (payLeft < 0.011) {
-            return 0;
-        }
-        return UniMath.useFirstTwoDecimals((row.Withdrawal + payLeft) * model.PercentPayout / 100);
+        return (row.Withdrawal + payLeft) * model.PercentPayout / 100;
     }
 
     private updateAndSetRate(row: VacationPayLine, model: IVacationPayHeader, setManually: boolean) {
