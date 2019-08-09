@@ -453,6 +453,16 @@
                             "Field": "StatusCode",
                             "Operator": "eq",
                             "Value": "44001"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
                         }
                     ]
                 }]
@@ -514,6 +524,16 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
                         }
                     ]
                 }]
@@ -535,6 +555,16 @@
                             "Field": "StatusCode",
                             "Operator": "eq",
                             "Value": "44018"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
                         }
                     ]
                 }]
@@ -555,6 +585,16 @@
                             "Field": "StatusCode",
                             "Operator": "eq",
                             "Value": "44004"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
                         }
                     ]
                 }]
@@ -621,6 +661,16 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
                         }
                     ]
                 }]
@@ -639,7 +689,7 @@
         "OrderBy":"ID desc",
         "Group": "Bank",
         "Model": "PaymentBatch",
-        "Filter": "isnull(PaymentBatchTypeID,0) ne 3",
+        "Filter": "isnull(PaymentBatchTypeID,0) ne 3 and IsCustomerPayment eq 'false'",
         "Expand":"",
         "Columns": [
             {
@@ -699,23 +749,7 @@
                 "NeedsActionOverride": true
             }
         ],
-        "Filters": [
-            {
-                "Name": "Alle",
-                "Code": "all_batches",
-                "UseAllCriterias": true,
-                "IsMultiRowSelect": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "IsCustomerPayment",
-                            "Operator": "eq",
-                            "Value": "false"
-                        }
-                    ]
-                }]
-            }],
+
         "SubTickersCodes": ["payments_in_batch", "paymentBatch_status_log"]
     },
     {
@@ -1014,23 +1048,6 @@
             }
         ],
         "Actions": [],
-        "Filters": [
-            {
-                "Name": "Alle",
-                "Code": "all_batches",
-                "UseAllCriterias": true,
-                "IsMultiRowSelect": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "PaymentBatchTypeID",
-                            "Operator": "eq",
-                            "Value": "3"
-                        }
-                    ]
-                }]
-            }],
         "SubTickersCodes": ["payments_in_avtalegirobatch", "paymentBatch_status_log"]
     },
     {
