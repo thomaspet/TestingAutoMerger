@@ -20,7 +20,12 @@ export class TopTenCustomersWidget {
         private cdr: ChangeDetectorRef
     ) {
         this.dataService.getData(this.getEndPoint()).subscribe((res) => {
-            this.customers = res;
+            this.customers = (res || []).filter(customer => {
+                return customer.SumPreviousYear > 0
+                    || customer.SumThisYear > 0
+                    || customer.SumRest > 0;
+            });
+
             this.cdr.markForCheck();
         });
     }
