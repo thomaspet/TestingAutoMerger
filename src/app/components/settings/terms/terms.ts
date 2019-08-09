@@ -1,32 +1,26 @@
 import {Component, ViewChildren, QueryList} from '@angular/core';
 import {SettingsService} from '../settings-service';
-import {
-    UniTableConfig,
-    UniTableColumn,
-    UniTable,
-    UniTableColumnType
-} from '../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ErrorService, GuidService} from '../../../services/services';
 import {Terms, TermsType} from '../../../unientities';
-import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'uni-terms',
     templateUrl: './terms.html'
 })
+
 export class UniTerms {
-    @ViewChildren(UniTable)
-    private uniTables: QueryList<UniTable>;
+    @ViewChildren(AgGridWrapper)
+    private uniTables: QueryList<AgGridWrapper>;
 
     public termsTypes: any[] = [
-        {TermsType: TermsType.PaymentTerms, Name: 'Betalingsbetingelser'},
-        {TermsType: TermsType.DeliveryTerms, Name: 'Leveringsbetingelser'}
+        { TermsType: TermsType.PaymentTerms, Name: 'Betalingsbetingelser' },
+        { TermsType: TermsType.DeliveryTerms, Name: 'Leveringsbetingelser' }
     ];
-    public currentTermType: any = this.termsTypes.find(
-        x => x.TermsType === TermsType.PaymentTerms
-    ); // Valgt TermsTypes, betaling forhåndsvalgt
+    public currentTermType: any = this.termsTypes.find(x => x.TermsType === TermsType.PaymentTerms);
     public currentTerms: Terms[] = []; // terms filtrert etter valgt TermsTypes
     private deletables: Array<Terms> = []; // Tabellrader som blir slettet
 
@@ -54,13 +48,13 @@ export class UniTerms {
     }
 
     public onTermSelected(event) {
-        if (!event || !event.rowModel) {
+        if (!event) {
             return;
         }
 
         this.checkSave(true).then(ok => {
             if (ok) {
-                this.setCurrent(event.rowModel);
+                this.setCurrent(event);
             }
         });
     }
@@ -87,7 +81,7 @@ export class UniTerms {
     // Filtrerer terms etter valgt TermsTypes
     private setCurrent(t: any) {
         if (this.uniTables) {
-            this.uniTables.last.blur();
+            this.uniTables.last.finishEdit();
         }
         this.deletables = [];
 
@@ -106,10 +100,9 @@ export class UniTerms {
     }
 
     public onTermDeleted(event) {
-        var row = event.rowModel;
-        var index = row['_originalIndex'];
+        const index = event['_originalIndex'];
         if (index >= 0) {
-            var item = this.currentTerms[index];
+            const item = this.currentTerms[index];
             this.currentTerms.splice(index, 1);
             if (item && item.ID) {
                 item.Deleted = true;
@@ -137,8 +130,8 @@ export class UniTerms {
 
     // Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
     public onEditChange(event) {
-        var rowIndex = event.originalIndex;
-        var value = event.rowModel[event.field];
+        const rowIndex = event.originalIndex;
+        let value = event.rowModel[event.field];
 
         if (value === null) {value = 0; }
 
@@ -157,7 +150,7 @@ export class UniTerms {
             }
         }
 
-        let localItem = <any>this.currentTerms[rowIndex];
+        const localItem = <any>this.currentTerms[rowIndex];
         switch (event.field) {
             case 'Name':
                 this.currentTerms[rowIndex].Name = value.ID;
@@ -172,6 +165,7 @@ export class UniTerms {
                 this.currentTerms[rowIndex]['Description'] = value;
                 break;
         }
+        this.currentTerms[rowIndex].TermsType = this.currentTerms[rowIndex].TermsType || this.currentTermType.TermsType;
         localItem._originalIndex = rowIndex;
         return localItem;
     }
@@ -224,26 +218,23 @@ export class UniTerms {
             if (this.deletables) {
                 this.deletables.forEach( item => this.currentTerms.push(item) );
             }
-            this.currentTerms.forEach(term => {
-                var ht = term.ID ? this.http.asPUT() : this.http.asPOST();
-                var route = term.ID ? 'terms/' + term.ID : 'terms';
+
+            this.currentTerms.filter(t => !t['_isEmpty']).forEach(term => {
+                const ht = term.ID ? this.http.asPUT() : this.http.asPOST();
+                const route = term.ID ? 'terms/' + term.ID : 'terms';
                 ht.usingBusinessDomain()
                     .withBody(term)
                     .withEndPoint(route)
                     .send().map(response => response.body)
-                    .subscribe(
-                        result => {
-                            this.hasUnsavedChanges = false;
-                            this.updateSaveActions();
-                            this.getTerms();
-                            resolve(true);
-                        },
-                        error => {
-                            resolve(false);
-                            this.errorService.handle(error);
-                        }
-
-                    );
+                    .subscribe(result => {
+                        this.hasUnsavedChanges = false;
+                        this.updateSaveActions();
+                        this.getTerms();
+                        resolve(true);
+                    }, error => {
+                        resolve(false);
+                        this.errorService.handle(error);
+                    });
             });
         });
     }
@@ -252,8 +243,9 @@ export class UniTerms {
         this.termsTypeTableConfig = new UniTableConfig('settings.terms.termType', false, true, 15)
             .setSearchable(false)
             .setSortable(false)
+            .setColumnMenuVisible(false)
             .setColumns([
-                new UniTableColumn('Name', '', UniTableColumnType.Text)
+                new UniTableColumn('Name', 'Betingelse', UniTableColumnType.Text)
             ]);
     }
 

@@ -1,5 +1,5 @@
-import {Component, OnInit, OnChanges, Input, Output, SimpleChanges, EventEmitter} from '@angular/core';
-import {AltinnReceiptService, ErrorService, FinancialYearService} from '../../../../services/services';
+import {Component, OnChanges, Input, SimpleChanges} from '@angular/core';
+import {AltinnReceiptService, ErrorService} from '../../../../services/services';
 import {AltinnReceipt} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
@@ -17,18 +17,18 @@ export interface IAltinnReceiptListOptions {
     templateUrl: './altinn-receipt-list.component.html',
     styleUrls: ['./altinn-receipt-list.component.sass']
 })
-export class AltinnReceiptListComponent implements OnInit, OnChanges {
-    @Input() public options: IAltinnReceiptListOptions;
-    public model$: BehaviorSubject<AltinnReceipt[]> = new BehaviorSubject([]);
-    public receiptTable: UniTableConfig;
-    public busy: boolean;
-    constructor(
-        private altinnReceiptService: AltinnReceiptService,
-        private errorService: ErrorService,
-        private financialYearService: FinancialYearService
-    ) { }
+export class AltinnReceiptListComponent implements OnChanges {
+    @Input()
+    public options: IAltinnReceiptListOptions;
 
-    public ngOnInit() {}
+    model$: BehaviorSubject<AltinnReceipt[]> = new BehaviorSubject([]);
+    receiptTable: UniTableConfig;
+    busy: boolean;
+
+    constructor (
+        private altinnReceiptService: AltinnReceiptService,
+        private errorService: ErrorService
+    ) { }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (!changes['options']) {
@@ -55,11 +55,8 @@ export class AltinnReceiptListComponent implements OnInit, OnChanges {
             }
         };
 
-        this.receiptTable = new UniTableConfig('salary.altinnReceiptList.altinn-receipt-list.altinn-receipt-list.component')
-            .setColumns([
-                dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
-            ])
-            .setEditable(false)
+        this.receiptTable = new UniTableConfig('salary.altinnReceiptList.altinn-receipt-list.altinn-receipt-list.component', false)
+            .setColumns([ dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn ])
             .setContextMenu([contextMenuItem])
             .setPageSize(10);
     }

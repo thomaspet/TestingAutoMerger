@@ -1410,8 +1410,6 @@ export class UniTicker {
             - 144 // Form height
             - 20 // Body margin and padding
             - 32 // Application class margin
-            - 64 // Unitable pagination
-            - 91 // Unitable filter and thead
             - 100; // Paddings and marings
 
         pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
