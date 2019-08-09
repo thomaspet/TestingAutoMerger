@@ -57,8 +57,9 @@ export class WizardSettingsModal implements IUniModal {
     distributionTypes: any[] = [];
     isOrgNumberValid = true;
     initiated: boolean = false;
+    showCloseWhenError: boolean = false;
     companySettings: CompanySettings;
-    companySalary: CompanySalary;
+    companySalary: any = {};
     vacationRates: any;
     periodSeries: any;
 
@@ -90,7 +91,7 @@ export class WizardSettingsModal implements IUniModal {
             this.companySettings = settings;
             this.vacationRates = vaycay;
             this.periodSeries = periodes;
-            this.companySalary = salary;
+            this.companySalary = salary || {};
             this.distributionTypes = types.slice(0, 4);
 
             // Uniform setup
@@ -118,6 +119,7 @@ export class WizardSettingsModal implements IUniModal {
         this.currentStep--;
             setTimeout(() => {
                 this.stepper.previous();
+                this.errorMessage = '';
             });
     }
 
@@ -134,7 +136,6 @@ export class WizardSettingsModal implements IUniModal {
         this.errorMessage = '';
         if (this.currentStep === SETTINGS_STEPS.CompanyAndAccounting) {
             if  (!!this.companySettings.CompanyName
-                && !!this.companySettings.OrganizationNumber
                 && !!this.companySettings.DefaultAddress.AddressLine1
                 && !!this.companySettings.DefaultEmail.EmailAddress) {
                 this.stepValidator[SETTINGS_STEPS.CompanyAndAccounting].isValid = true;
@@ -153,7 +154,7 @@ export class WizardSettingsModal implements IUniModal {
                 this.stepValidator[SETTINGS_STEPS.Salary].isValid = true;
                 return true;
             } else {
-                this.errorMessage = 'Feriepengesats må være større enn 10.2% og mindre enn 100%. Har du skrevet feil?';
+                this.errorMessage = 'Feriepengesats må være mellom 10.2% og 100%. Har du skrevet feil?';
                 this.stepValidator[SETTINGS_STEPS.Salary].isValid = false;
                 return false;
             }
@@ -163,7 +164,7 @@ export class WizardSettingsModal implements IUniModal {
         }
 
         this.stepValidator[this.currentStep].isValid = false;
-        this.errorMessage = 'Alle feltene er påkrevd. Sjekk at info stemmer.';
+        this.errorMessage = 'Alle feltene med * er påkrevd. Sjekk at info stemmer.';
         return false;
     }
 
@@ -294,6 +295,11 @@ export class WizardSettingsModal implements IUniModal {
     }
 
     public saveSettings() {
+
+        if (!this.canMove()) {
+            return;
+        }
+
         this.errorMessage = '';
         this.busy = true;
         const accountsSettingsObject = this.accountSettings$.getValue();
@@ -319,7 +325,9 @@ export class WizardSettingsModal implements IUniModal {
             });
         }, (err) => {
             this.busy = false;
-            this.errorMessage = 'Kan ikke lagre innstillinger.';
+            this.showCloseWhenError = true;
+            this.errorMessage =
+                'Kan ikke lagre innstillinger. Noe kan ha gått galt ved oppretting. Du kan endre dette i innstillingsbildet senere';
         });
     }
 

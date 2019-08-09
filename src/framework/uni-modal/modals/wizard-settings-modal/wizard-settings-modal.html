@@ -8,7 +8,7 @@
         <mat-horizontal-stepper [linear]="true" #stepper [@.disabled]="true" *ngIf="initiated">
             <mat-step label="Firma" [completed]="stepValidator[0].isValid">
                 <label>
-                    <span>Organisasjonsnummer *</span>
+                    <span>Organisasjonsnummer</span>
                     <input type="search" [(ngModel)]="companySettings.OrganizationNumber"/>
                     <input type="hidden">
                 </label>
@@ -93,6 +93,6 @@
                 Lagre og fullfør
         </button>
 
-        <button class="cancel" *ngIf="currentStep === lastStep" (click)="close()">Lukk</button>
+        <button class="cancel" *ngIf="showCloseWhenError" (click)="close()">Lukk</button>
     </footer>
 </section>
