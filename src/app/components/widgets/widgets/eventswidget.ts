@@ -93,7 +93,10 @@ export class UniEventsWidget implements AfterViewInit {
         private widgetDataService: WidgetDataService,
         private router: Router,
         private cdr: ChangeDetectorRef
-    ) {}
+    ) {
+        const indexForTimeSpan = localStorage.getItem('timespanindex');
+        this.currentTimeSpan = this.timespans[indexForTimeSpan || 0];
+    }
 
     public ngAfterViewInit() {
         this.loadData();
@@ -113,11 +116,14 @@ export class UniEventsWidget implements AfterViewInit {
 
     public changeTimeSpan(timespan: any) {
         this.currentTimeSpan = timespan;
+        localStorage.setItem('timespanindex', this.timespans.findIndex(res => res.timespan === timespan.timespan).toString());
         this.loadData();
     }
 
     public getQueries() {
         return [
+            this.widgetDataService.getData(`/api/statistics?model=SupplierInvoice&select=count(ID) as value&`
+            + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`),
             this.widgetDataService.getData(`/api/statistics?model=CustomerInvoice&select=count(ID) as value&`
             + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`),
             this.widgetDataService.getData(`/api/statistics?model=CustomerOrder&select=count(ID) as value&`
@@ -125,8 +131,6 @@ export class UniEventsWidget implements AfterViewInit {
             this.widgetDataService.getData(`/api/statistics?model=CustomerQuote&select=count(ID) as value&`
             + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`),
             this.widgetDataService.getData(`/api/statistics?model=Customer&select=count(ID) as value&`
-            + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`),
-            this.widgetDataService.getData(`/api/statistics?model=SupplierInvoice&select=count(ID) as value&`
             + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`)
         ];
     }
