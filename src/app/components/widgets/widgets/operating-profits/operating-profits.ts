@@ -185,8 +185,6 @@ export class OperatingProfitWidget {
     }
 
     private getEmptyResultChart() {
-        const lineChartColor = '#f1c40f';
-
         return {
             type: 'groupableBar',
             data: {
@@ -194,11 +192,21 @@ export class OperatingProfitWidget {
                 datasets: [{
                     label: 'Resultat',
                     data: [],
-                    borderColor: lineChartColor,
-                    pointBorderColor: lineChartColor,
-                    pointBackgroundColor: lineChartColor,
-                    borderWidth: 2,
-                    pointRadius: 3,
+                    borderColor: 'rgba(89, 104, 121, .75)',
+                    pointBorderColor: '#fff',
+                    pointBackgroundColor: (context) => {
+                        let value = 0;
+                        try {
+                            value = context.dataset.data[context.dataIndex];
+                        } catch (e) {
+                            console.error(e);
+                        }
+
+                        return value >= 0 ? '#62B2FF' : '#FCD292';
+                    },
+                    borderWidth: 1.25,
+                    pointBorderWidth: 1.25,
+                    pointRadius: 4,
                     lineTension: 0,
                     type: 'ShadowLine',
                     fill: false,
@@ -216,7 +224,7 @@ export class OperatingProfitWidget {
                 {
                     label: 'Kostnader',
                     data: [],
-                    backgroundColor: '#3C8CD9',
+                    backgroundColor: '#FCD292',
                     borderWidth: 0,
                     stack: 1
                 }
