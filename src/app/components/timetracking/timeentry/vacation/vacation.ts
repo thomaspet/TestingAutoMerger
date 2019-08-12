@@ -136,7 +136,7 @@ export class View {
                 resolve({ success: true });
             }, err => {
                 this.busy = false;
-                reject({ success: false, msg: err._body });
+                reject({ success: false, msg: 'Lagring feilet' });
             });
         });
     }

@@ -23,7 +23,7 @@ export class VatPostService extends BizHttp<VatPost> {
         .usingBusinessDomain()
         .withEndPoint(this.relativeURL + '?action=get-vatposts-with-percentage&date=' + localDate)
         .send()
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
 

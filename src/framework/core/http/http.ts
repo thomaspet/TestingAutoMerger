@@ -1,9 +1,11 @@
-﻿import {Injectable, EventEmitter} from '@angular/core';
-import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
-import {environment} from 'src/environments/environment';
-import {AuthService} from '../../../app/authService';
+﻿import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/catch';
+
+import {environment} from 'src/environments/environment';
+import {RequestMethod} from './request-method';
+import {AuthService} from '../../../app/authService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export interface IUniHttpRequest {
@@ -19,36 +21,36 @@ export interface IUniHttpRequest {
     orderBy?: string;
     top?: number;
     skip?: number;
-    responseType?: number;
+    responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
 }
 
 @Injectable()
 export class UniHttp {
     private baseUrl: string = environment.BASE_URL;
     private apiDomain: string = environment.API_DOMAINS.BUSINESS;
-    private headers: Headers;
-    private method: number;
+    private headers: HttpHeaders;
+    private method: string;
     private body: any;
     private endPoint: string;
 
-    private lastReAuthentication: Date;
-    private reAuthenticated$: EventEmitter<any> = new EventEmitter();
-
     // AuthService is used by BizHttp for caching, don't remove!
     constructor(
-        public http: Http,
+        public http: HttpClient,
         public authService: AuthService,
         private browserStorage: BrowserStorageService,
     ) {
         const headers = environment.DEFAULT_HEADERS;
-        this.headers = new Headers();
+        this.headers = new HttpHeaders();
         this.appendHeaders(headers);
     }
 
     public appendHeaders(headers: any) {
-        for (let key in headers) {
-            this.headers.set(key, headers[key])
-        }
+        Object.keys(headers).forEach(key => {
+            if (headers[key]) {
+                this.headers = this.headers.set(key, headers[key]);
+            }
+        });
+
         return this;
     }
 
@@ -57,12 +59,12 @@ export class UniHttp {
     }
 
     public withNewHeaders() {
-        this.headers = new Headers();
+        this.headers = new HttpHeaders();
         return this;
     }
 
     public withDefaultHeaders() {
-        this.headers = new Headers();
+        this.headers = new HttpHeaders();
         this.appendHeaders(environment.DEFAULT_HEADERS);
         return this;
     }
@@ -73,7 +75,7 @@ export class UniHttp {
     }
 
     public withHeader(name: string, value: any) {
-        this.headers.set(name, value);
+        this.headers = this.headers.set(name, value);
         return this;
     }
 
@@ -145,7 +147,7 @@ export class UniHttp {
         return this;
     }
 
-    public as(method: number) {
+    public as(method: RequestMethod) {
         this.method = method;
         return this;
     }
@@ -170,23 +172,12 @@ export class UniHttp {
         return this;
     }
 
-    public asPATCH() {
-        this.method = RequestMethod.Patch;
-        return this;
-    }
-
-    public asHEAD() {
-        this.method = RequestMethod.Head;
-        return this;
-    }
-
     public withBody(body: any) {
         this.body = body;
         return this;
     }
 
-    public withBodyTrim(body: any)
-    {
+    public withBodyTrim(body: any) {
         this.body = this.deleteObjectsWithID(body);
         return this;
     }
@@ -196,43 +187,57 @@ export class UniHttp {
         return this;
     }
 
-    public sendToUrl(url: any) {
+    public sendToUrl(url: any): Observable<any> {
         const options: any = {
-            method: this.method,
-            url: url,
-            headers: this.headers,
-            body: ''
+            observe: 'body',
+            headers: this.headers
         };
 
         if (this.body) {
-            options.body = (this.body instanceof FormData) ? this.body : JSON.stringify(this.body);
+            options.body = this.body instanceof FormData ? this.body : JSON.stringify(this.body);
+        }
+
+        let httpRequest;
+        switch (this.method) {
+            case 'get':
+                httpRequest = this.http.get(url, options);
+            break;
+            case 'put':
+                httpRequest = this.http.put(url, options.body, options);
+            break;
+            case 'post':
+                httpRequest = this.http.post(url, options.body, options);
+            break;
+            case 'delete':
+                httpRequest = this.http.delete(url, options);
+            break;
         }
 
         this.method = undefined;
         this.body = undefined;
-        return this.http.request(new Request(options))
-            .map((response: any) => response.json());
+
+        return httpRequest;
     }
 
-    public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
+    public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
         const token = this.authService.getToken();
         const companyKey = this.authService.getCompanyKey();
         let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
         year = year || this.browserStorage.getItem('ActiveYear');
 
         if (token) {
-            this.headers.set('Authorization', 'Bearer ' + token);
+            this.headers = this.headers.set('Authorization', 'Bearer ' + token);
         }
 
         if (companyKey && useCompanyKeyHeader) {
-            this.headers.set('CompanyKey', companyKey);
+            this.headers = this.headers.set('CompanyKey', companyKey);
         }
 
-        if (year) {
-            this.headers.set('Year', year.Year);
+        if (year && year.Year) {
+            this.headers = this.headers.set('Year', year.Year);
         }
 
-        this.headers.set('Accept', 'application/json');
+        this.headers = this.headers.set('Accept', 'application/json');
 
         const baseurl = request.baseUrl || this.baseUrl;
         const apidomain = request.apiDomain || this.apiDomain;
@@ -243,24 +248,18 @@ export class UniHttp {
         this.apiDomain = environment.API_DOMAINS.BUSINESS;
         this.endPoint = undefined;
 
+        const method = request.method || this.method;
         const options: any = {
-            method: request.method || this.method,
+            observe: 'response',
             url: url,
             headers: this.headers,
-            body: ''
+            responseType: request.responseType || 'json'
         };
 
-        if (request.responseType) {
-            options.responseType = request.responseType;
-        }
-
-        const body = request.body || this.body || {};
+        const body = request.body || this.body;
         if (body) {
             options.body = (body instanceof FormData) ? body : JSON.stringify(body);
         }
-
-        this.method = undefined;
-        this.body = undefined;
 
         if (searchParams) {
             options.params = searchParams;
@@ -268,7 +267,26 @@ export class UniHttp {
             options.params = this.buildUrlParams(request);
         }
 
-        return this.http.request(new Request(options)).catch((err) => {
+        this.method = undefined;
+        this.body = undefined;
+
+        let httpRequest;
+        switch (method) {
+            case 'get':
+                httpRequest = this.http.get(options.url, options);
+            break;
+            case 'put':
+                httpRequest = this.http.put(options.url, options.body, options);
+            break;
+            case 'post':
+                httpRequest = this.http.post(options.url, options.body, options);
+            break;
+            case 'delete':
+                httpRequest = this.http.delete(options.url, options);
+            break;
+        }
+
+        return httpRequest.catch((err) => {
             if (err.status === 401) {
                 this.authService.clearAuthAndGotoLogin();
                 return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
@@ -289,14 +307,14 @@ export class UniHttp {
     }
 
     private buildUrlParams(request: IUniHttpRequest) {
-        const urlParams = new URLSearchParams();
+        let params = new HttpParams();
         const filters = ['expand', 'filter', 'orderBy', 'action', 'top', 'skip', 'hateoas'];
         filters.forEach((filter: string) => {
             if (request[filter]) {
-                urlParams.append(filter, request[filter]);
+                params = params.append(filter, request[filter]);
             }
         });
-        return urlParams;
+        return params;
     }
 
     private deleteObjectsWithID(obj: any): any {

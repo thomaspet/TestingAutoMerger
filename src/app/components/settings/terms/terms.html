@@ -1,19 +1,18 @@
 <section class="splitview">
-
     <nav class ="splitview_list">
-        <uni-table *ngIf="termsTypes"
-                [config]="termsTypeTableConfig"
-                [resource]="termsTypes"
-                (rowSelected)="onTermSelected($event)">
-        </uni-table>
+        <ag-grid-wrapper
+            *ngIf="termsTypes"
+            [config]="termsTypeTableConfig"
+            [resource]="termsTypes"
+            (rowClick)="onTermSelected($event)">
+        </ag-grid-wrapper>
     </nav>
 
     <main class="splitview_detail">
-        <uni-table
+        <ag-grid-wrapper
             [config]="termsTableConfig"
             [resource]="currentTerms"
-            (rowDeleted)="onTermDeleted($event)">
-        </uni-table>
+            (rowDelete)="onTermDeleted($event)">
+        </ag-grid-wrapper>
     </main>
-
 </section>

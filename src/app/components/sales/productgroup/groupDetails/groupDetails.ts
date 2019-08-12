@@ -1,6 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {ProductCategory} from '@uni-entities';
 import {ProductCategoryService, ErrorService, StatisticsService} from '@app/services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
@@ -39,7 +38,6 @@ export class GroupDetails implements OnInit {
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
         private uniSearchProductConfig: UniSearchProductConfig,
-        private toastService: ToastService
     ) {
         this.uniSearchConfig = this.uniSearchProductConfig.generateProductsConfig();
     }
@@ -104,8 +102,6 @@ export class GroupDetails implements OnInit {
             this.productCategoryService.saveCategoryTag(event.ID, this.group).subscribe(res => {
                 this.getProductsInGroup(this.group);
                 this.fields$.next(this.getFormFields());
-                this.toastService.addToast('Produkt lagt til', ToastType.good, 5,
-                `Produkt ${event.Name} lagt til produktgruppe ${this.group.Name}`);
             });
         }
     }

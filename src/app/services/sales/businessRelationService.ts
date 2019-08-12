@@ -1,9 +1,7 @@
 import {Injectable, SimpleChange} from '@angular/core';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {BusinessRelation, CompanySettings, CompanyType} from '../../unientities';
-import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {RequestMethod} from '@angular/http';
 import {BankAccountService} from '../accounting/bankAccountService';
 import {ErrorService} from '../common/errorService';
 import {IBrRegCompanyInfo} from '@uni-framework/uni-modal';

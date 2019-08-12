@@ -1,17 +1,14 @@
-// Angular imports
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpModule} from '@angular/http';
+import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
-// App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
-// specific imports
 import {CurrencyComponent} from './currencyComponent';
 import {CurrencyOverrides} from './currencyoverrides/currencyoverrides';
 import {CurrencyExchange} from './currencyexchange/currencyexchange';
@@ -21,7 +18,7 @@ import {CurrencyExchange} from './currencyexchange/currencyexchange';
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpModule,
+        HttpClientModule,
         RouterModule,
 
         UniFrameworkModule,

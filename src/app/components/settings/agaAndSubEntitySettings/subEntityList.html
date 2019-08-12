@@ -3,13 +3,14 @@
     info
 </i>
 
-<section class="splitview" [attr.aria-busy]="busy">
+<section class="splitview" [attr.aria-busy]="busy" style="width: 100%;">
     <nav class="splitview_list">
-        <uni-table
+        <ag-grid-wrapper
             [resource]="allSubEntities"
             [config]="subEntityListConfig"
-            (rowSelected)="rowSelected($event)">
-        </uni-table>
+            (rowDelete)="removeSubEntity($event)"
+            (rowClick)="rowSelected($event)">
+        </ag-grid-wrapper>
 
         <div role="group" class="comboButton">
 

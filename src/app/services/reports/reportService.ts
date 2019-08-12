@@ -1,8 +1,8 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import {RequestMethod} from '@angular/http';
+import {RequestMethod} from '@uni-framework/core/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable, forkJoin} from 'rxjs';
+import {Observable, forkJoin, of} from 'rxjs';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ErrorService} from '../common/errorService';
 import {EmailService} from '../common/emailService';
@@ -12,6 +12,7 @@ import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource}
 import {environment} from 'src/environments/environment';
 import {BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '@app/services/common/statisticsService';
+import {catchError, map} from 'rxjs/operators';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -43,7 +44,7 @@ export class ReportService extends BizHttp<string> {
             .usingBusinessDomain()
             .withEndPoint(`report-definition-data-sources?filter=reportdefinitionid eq ${reportDefinitionID}`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     getReportTemplate(reportID: number) {
@@ -51,7 +52,7 @@ export class ReportService extends BizHttp<string> {
             .usingRootDomain()
             .withEndPoint(`${this.relativeURL}/${reportID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 
@@ -94,7 +95,7 @@ export class ReportService extends BizHttp<string> {
             .usingBusinessDomain()
             .withEndPoint(`distributions?filter=StatusCode eq 30001 and EntityType eq '${entity}'`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getDistributions2Types(entity1: string, entity2: string) {
@@ -103,7 +104,7 @@ export class ReportService extends BizHttp<string> {
             .usingBusinessDomain()
             .withEndPoint(`distributions?filter=StatusCode eq 30001 and (EntityType eq '${entity1}' or EntityType eq '${entity2}')`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public distribute(id, entityType) {
@@ -112,7 +113,7 @@ export class ReportService extends BizHttp<string> {
             .usingBusinessDomain()
             .withEndPoint(`distributions?action=distribute&id=${id}&entityType=${entityType}`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public distributeWithType(id, entityType, distributionType) {
@@ -124,7 +125,7 @@ export class ReportService extends BizHttp<string> {
             .usingBusinessDomain()
             .withEndPoint(endpoint)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
 
@@ -184,17 +185,18 @@ export class ReportService extends BizHttp<string> {
                 return this.http.asGET()
                     .usingEmptyDomain()
                     .withEndPoint(endpoint)
-                    .send(undefined, undefined, !companyKey)
-                    .catch(err => {
-                        console.error(err);
-                        return Observable.of([]);
-                    })
-                    .map(res => {
-                        return {
-                            name: name,
-                            data: res.json ? res.json() : res
-                        };
-                    });
+                    .send(undefined, undefined, !companyKey).pipe(
+                        catchError(err => {
+                            console.error(err);
+                            return of([]);
+                        }),
+                        map(res => {
+                            return {
+                                name: name,
+                                data: res.body ? res.body : res
+                            };
+                        })
+                    );
             };
 
             const requests = datasources.map(datasource => {

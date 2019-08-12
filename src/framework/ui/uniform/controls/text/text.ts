@@ -58,7 +58,7 @@ export class UniTextInput extends BaseControl implements OnChanges {
         }
         if (this.control.valid) {
             const previousValue = _.get(this.model, this.field.Property);
-            _.set(this.model, this.field.Property, this.control.value);
+            _.set(this.model, this.field.Property, this.control.value.trim());
             this.lastControlValue = this.control.value;
             this.emitChange(previousValue, this.control.value);
         }

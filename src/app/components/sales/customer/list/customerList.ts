@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
-import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import {
     ITickerActionOverride, ITickerColumnOverride
 } from '../../../../services/common/uniTickerService';
@@ -15,8 +14,6 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 import { environment } from 'src/environments/environment';
 import { DisclaimerModal } from '@app/components/admin/import-central/modals/disclaimer/disclaimer-modal';
-import { UserDto, User } from '@uni-entities';
-import { AuthService } from '@app/authService';
 
 @Component({
     selector: 'customer-list',
@@ -41,15 +38,15 @@ export class CustomerList implements OnInit {
         },
         {
             Code: 'new_customer_invoice',
-            ExecuteActionHandler: (customer) => this.newTOFWithCustomer(customer, 'invoices')
+            ExecuteActionHandler: (selectedRows) => this.newTOFWithCustomer(selectedRows, 'invoices')
         },
         {
             Code: 'new_customer_order',
-            ExecuteActionHandler: (customer) => this.newTOFWithCustomer(customer, 'orders')
+            ExecuteActionHandler: (selectedRows) => this.newTOFWithCustomer(selectedRows, 'orders')
         },
         {
             Code: 'new_customer_quote',
-            ExecuteActionHandler: (customer) => this.newTOFWithCustomer(customer, 'quotes')
+            ExecuteActionHandler: (selectedRows) => this.newTOFWithCustomer(selectedRows, 'quotes')
         },
         {
             Code: 'invoice_creditcreditnote',
@@ -110,7 +107,6 @@ export class CustomerList implements OnInit {
     constructor(
         private router: Router,
         private tabService: TabService,
-        private toastService: ToastService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerQuoteService: CustomerQuoteService,
         private customerOrderService: CustomerOrderService,
@@ -131,14 +127,12 @@ export class CustomerList implements OnInit {
         this.router.navigateByUrl('/sales/customer/0');
     }
 
-    public newTOFWithCustomer(customer, entity: string) {
+    public newTOFWithCustomer(selectedRows, entity: string) {
         return new Promise(res => {
-            if (!entity || !customer || !customer.CustomerID) {
-                this.toastService.addToast('Ops, noe gikk galt', ToastType.bad, 5, 'Last inn listen på nytt og prøv igjen.');
-                res(true);
-                return;
+            if (entity && selectedRows && selectedRows[0]) {
+                this.router.navigateByUrl(`/sales/${entity}/0;customerID=${selectedRows[0].ID}`);
             }
-            this.router.navigateByUrl(`/sales/${entity}/0;customerID=${customer.CustomerID}`);
+
             res(true);
         });
     }
@@ -148,8 +142,7 @@ export class CustomerList implements OnInit {
             if (res) {
                 if (res.HasAgreedToImportDisclaimer) {
                     this.openCustomerImportModal();
-                }
-                else {
+                } else {
                     this.modalService.open(DisclaimerModal)
                         .onClose.subscribe((val) => {
                             if (val) {
@@ -174,7 +167,7 @@ export class CustomerList implements OnInit {
                     jobName: 'CustomerImportJob',
                     entityType: 'Customer',
                     description: 'Import central - customer',
-                    conditionalStatement: 'Hvis kundenummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
+                    conditionalStatement: 'Dersom kundenummer i filen eksisterer i Uni Economy vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
                     formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
                     downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system',
                     downloadTemplateUrl: this.customerTemplateUrl

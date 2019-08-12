@@ -17,7 +17,7 @@ export class CommentService {
             .usingBusinessDomain()
             .withEndPoint(`${route}&expand=Author`)
             .send()
-            .map(res => res.json() || []);
+            .map(res => res.body || []);
     }
 
     public loadComments(entity: string, entityID: number) {
@@ -32,7 +32,7 @@ export class CommentService {
             .withEndPoint(`${Comment.RelativeUrl}/${entity}/${entityID}`)
             .withBody({Text: message})
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public put(comment: Comment) {
@@ -44,7 +44,7 @@ export class CommentService {
                 Text: comment.Text
             })
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public delete(comment: Comment) {

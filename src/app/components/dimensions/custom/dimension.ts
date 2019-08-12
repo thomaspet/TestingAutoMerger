@@ -1,6 +1,7 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {URLSearchParams, RequestMethod} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
+import {RequestMethod} from '@uni-framework/core/http';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs';
@@ -43,7 +44,7 @@ export class UniDimensionView implements OnInit {
 
     tableConfig: UniTableConfig;
     TOFTableConfig: UniTableConfig;
-    lookupFunction: (urlParams: URLSearchParams) => any;
+    lookupFunction: (urlParams: HttpParams) => any;
 
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     model$: BehaviorSubject<any> = new BehaviorSubject(null);
@@ -233,7 +234,7 @@ export class UniDimensionView implements OnInit {
             } else {
                 this.refresh();
             }
-        });                
+        });
     }
 
     public onRowDelete(row) {
@@ -242,7 +243,7 @@ export class UniDimensionView implements OnInit {
         let dimensionNumber;
         let service;
         let custom = false;
-        switch (this.currentDimension) {    
+        switch (this.currentDimension) {
             case 1: //Project
                 dimensionName = row.Name;
                 dimensionNumber = row.ProjectNumber;
@@ -293,7 +294,7 @@ export class UniDimensionView implements OnInit {
                 });
                 deleteModal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
-                        service.Remove(dimensionId).subscribe( 
+                        service.Remove(dimensionId).subscribe(
                             res => {
                                 this.toast.addToast('Dimensjonen er slettet', ToastType.good, 2);
                             },
@@ -336,15 +337,15 @@ export class UniDimensionView implements OnInit {
                 service = this.invoiceService;
             }
 
-            this.lookupFunction = (urlParams: URLSearchParams) => {
-                urlParams = urlParams || new URLSearchParams();
-                urlParams.set(
+            this.lookupFunction = (urlParams: HttpParams) => {
+                urlParams = urlParams || new HttpParams();
+                urlParams = urlParams.set(
                     'expand',
                     'Customer,DefaultDimensions.Project,DefaultDimensions.Dimension' + this.currentDimension
                 );
 
                 if (urlParams.get('orderby') === null) {
-                    urlParams.set('orderby', this.numberStrings[index - 1] + ' desc');
+                    urlParams = urlParams.set('orderby', this.numberStrings[index - 1] + ' desc');
                 }
 
                 let filter = urlParams.get('filter') || '';
@@ -357,9 +358,9 @@ export class UniDimensionView implements OnInit {
                     }
                 }
 
-                urlParams.set('filter', filter);
+                urlParams = urlParams.set('filter', filter);
 
-                return this.services[index - 1].GetAllByUrlSearchParams(urlParams)
+                return this.services[index - 1].GetAllByHttpParams(urlParams)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             };
 

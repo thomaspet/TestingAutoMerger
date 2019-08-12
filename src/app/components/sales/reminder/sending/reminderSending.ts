@@ -10,6 +10,7 @@ import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     StatisticsService,
     ErrorService,
@@ -20,7 +21,6 @@ import {
     PageStateService
 } from '../../../../services/services';
 import {
-    UniTable,
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
@@ -55,12 +55,13 @@ export interface CustomReminder extends CustomerInvoiceReminder {
 export class ReminderSending {
     @Input() config: any;
     @Input() modalMode: boolean;
-    @ViewChildren(UniTable) private tables: QueryList<UniTable>;
+    @ViewChildren(AgGridWrapper)
+    private tables: QueryList<AgGridWrapper>;
 
     public remindersEmail: CustomReminder[];
     public remindersPrint: CustomReminder[];
+    public reminderTable: UniTableConfig;
     private remindersAll: CustomReminder[];
-    private reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
         + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,'
         + 'InterestFeeCurrency as InterestFeeCurrency,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
@@ -193,6 +194,7 @@ export class ReminderSending {
                 rowExists = true;
             }
         }
+
         if (!rowExists) {
             this.changedReminders.push(data.rowModel);
         }
@@ -441,8 +443,9 @@ export class ReminderSending {
                 ];
 
                 this.reportDefinitionService.GetAll(`filter=name eq 'Purring'`).subscribe(rd => {
-                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerInvoiceReminder', rd[0].ID, email, parameters, doneHandler);
-                })
+                    this.emailService.sendEmailWithReportAttachment(
+                        'Models.Sales.CustomerInvoiceReminder', rd[0].ID, email, parameters, doneHandler);
+                });
             });
         });
     }
@@ -557,7 +560,8 @@ export class ReminderSending {
             .setNumberFormat(this.numberFormat)
             .setEditable(false)
             .setConditionalCls((item) => {
-                return (+item.RestAmountCurrency <= item.InterestFeeCurrency) || (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
+                return (+item.RestAmountCurrency <= item.InterestFeeCurrency)
+                    || (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
             });
 
         const interestAmountCol = new UniTableColumn('InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
@@ -565,7 +569,7 @@ export class ReminderSending {
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
-            .setEditable((item) => item.StatusCode != StatusCodeCustomerInvoiceReminder.Completed)
+            .setEditable((item) => item.StatusCode !== StatusCodeCustomerInvoiceReminder.Completed)
             .setVisible(false)
             .setConditionalCls((item) => {
                 return (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';

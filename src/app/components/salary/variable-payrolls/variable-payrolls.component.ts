@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import {URLSearchParams} from '@angular/http';
-import { UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton, IColumnTooltip } from '@uni-framework/ui/unitable';
+import { HttpParams } from '@angular/common/http';
+import { UniTableColumnType, UniTableColumn, UniTableConfig } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
@@ -32,7 +32,6 @@ import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/t
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-declare var _;
 
 @Component({
     selector: 'uni-variable-payrolls',
@@ -45,7 +44,7 @@ export class VariablePayrollsComponent {
 
     saveActions: IUniSaveAction[] = [];
     salarytransSelectionTableConfig: UniTableConfig;
-    lookupFunction: (urlParams: URLSearchParams) => any;
+    lookupFunction: (urlParams: HttpParams) => any;
 
     private payrollRunID: number;
     public payrollruns: PayrollRun[] = [];
@@ -266,28 +265,31 @@ export class VariablePayrollsComponent {
     }
 
     private createLookupFunction() {
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            const params = urlParams || new URLSearchParams();
+        this.lookupFunction = (urlParams: HttpParams) => {
+            let params = urlParams || new HttpParams();
 
             let filterString = params.get('filter') || '';
             filterString += filterString ? ' and ' : '';
             filterString += `(PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq 'false' and isnull(SalaryBalanceID,0) eq 0 and`
             + ` (SystemType eq 0 or SystemType eq 5 or SystemType eq 6 or SystemType eq 7))`;
 
-            params.set('model', 'SalaryTransaction');
-            params.set('filter', filterString);
-            params.set('select', 'ID as ID,Account as Account,Amount as Amount,Text as Text,IsRecurringPost,SalaryBalanceID,SystemType,'
-            + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,WageType.WageTypeNumber as WageTypeNumber,'
-            + 'WageType.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
-            + 'Employee.EmployeeNumber as EmployeeNumber,Project.ProjectNumber as ProjectNumber,Project.Name as ProjectName,'
-            + 'Department.DepartmentNumber as DepartmentNumber,Department.Name as DepartmentName,count(supplements.ID) as suppcount,'
-            + `FileEntityLink.EntityType`);
-            params.set('join',
+            params = params.set('model', 'SalaryTransaction');
+            params = params.set('filter', filterString);
+            params = params.set('select',
+                'ID as ID,Account as Account,Amount as Amount,Text as Text,IsRecurringPost,SalaryBalanceID,SystemType,'
+                + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,WageType.WageTypeNumber as WageTypeNumber,'
+                + 'WageType.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
+                + 'Employee.EmployeeNumber as EmployeeNumber,Project.ProjectNumber as ProjectNumber,Project.Name as ProjectName,'
+                + 'Department.DepartmentNumber as DepartmentNumber,Department.Name as DepartmentName,count(supplements.ID) as suppcount,'
+                + `FileEntityLink.EntityType`);
+
+            params = params.set('join',
                 'Employee.BusinessRelationID eq BusinessRelation.ID as bs'
                 + ' and SalaryTransaction.ID eq FileEntityLink.EntityID as FileEntityLink');
-            params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,Dimensions.Project,Dimensions.Department,VatType,Employment');
 
-            return this.statisticsService.GetAllByUrlSearchParams(params);
+            params = params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,Dimensions.Project,Dimensions.Department,VatType,Employment');
+
+            return this.statisticsService.GetAllByHttpParams(params);
         };
     }
 

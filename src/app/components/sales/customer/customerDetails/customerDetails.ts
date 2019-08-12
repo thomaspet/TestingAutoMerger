@@ -1460,7 +1460,7 @@ export class CustomerDetails implements OnInit {
                             }
                             return this.customerService.validateKID(value)
                                 .switchMap(response => {
-                                    const body = response.json();
+                                    const body = response.body;
                                     const result = body === true ? null : errorMessage;
                                     return Observable.of(result);
                                })

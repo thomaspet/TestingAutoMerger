@@ -17,7 +17,7 @@ export class CustomDimensionService {
             .usingBusinessDomain()
             .withEndPoint(endpoint)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getCustomDimension(dimension: number, id: number) {
@@ -26,7 +26,7 @@ export class CustomDimensionService {
             .usingBusinessDomain()
             .withEndPoint('dimension' + dimension + '/' + id)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public saveCustomDimension(dimension: number, body: any) {
@@ -37,7 +37,7 @@ export class CustomDimensionService {
             .withEndPoint('dimension' + dimension + '/' + body.ID)
             .withBody(body)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
         } else {
             return this.http
             .asPOST()
@@ -45,7 +45,7 @@ export class CustomDimensionService {
             .withEndPoint('dimension' + dimension)
             .withBody(body)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
         }
     }
 
@@ -55,7 +55,7 @@ export class CustomDimensionService {
         .usingBusinessDomain()
         .withEndPoint('dimensionsettings')
         .send()
-        .map(res => res.json());
+        .map(res => res.body);
 
 
     }
@@ -66,8 +66,8 @@ export class CustomDimensionService {
             .usingBusinessDomain()
             .withEndPoint('dimension' + dimension + '/' + id + '?action=is-used')
             .send()
-            .map(res => res.json());
-    }    
+            .map(res => res.body);
+    }
 
     public Remove(dimension: number, id: number) {
         return this.http
@@ -75,7 +75,7 @@ export class CustomDimensionService {
             .usingBusinessDomain()
             .withEndPoint('dimension' + dimension + '/' + id)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
 }

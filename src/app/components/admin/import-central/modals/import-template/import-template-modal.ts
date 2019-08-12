@@ -2,22 +2,21 @@ import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef }
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { JobService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { ImportFileType } from '@app/models/import-central/ImportDialogModel';
+
 @Component({
     selector: 'import-template-modal',
     templateUrl: './import-template-modal.html',
     styleUrls: ['./import-template-modal.sass']
 })
 export class ImportTemplateModal implements OnInit, IUniModal {
+    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
 
     @Input() options: IModalOptions = {};
-
     @Output() onClose: EventEmitter<any> = new EventEmitter();
-
-    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
 
     // view related variables
     isValidFileFormat: boolean = true;
@@ -32,12 +31,14 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     companyName: string;
     token: string;
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
-    attachedFile: File;
+    attachedFile;
 
     constructor(
         private authService: AuthService,
-        private http: Http, private jobService: JobService,
-        private toastService: ToastService) {
+        private http: HttpClient,
+        private jobService: JobService,
+        private toastService: ToastService
+    ) {
         this.authService.authentication$.take(1).subscribe((authDetails) => {
             this.companyKey = authDetails.activeCompany.Key;
             this.companyName = authDetails.activeCompany.Name;
@@ -48,7 +49,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     ngOnInit(): void {
     }
 
-    // Trigger click event of input file 
+    // Trigger click event of input file
     public selectFile() {
         if (!this.isFileDetached) {
             if (this.fileElement) {
@@ -61,7 +62,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     // Get file after user selected from file explorer
     public openFile(event) {
         this.onFileAttach(event, false);
-    };
+    }
 
     // Enabaling file drag into the modal
     public dragFile(event) {
@@ -85,7 +86,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
             return true;
         }
         this.isValidFileFormat = false;
-        return false
+        return false;
     }
 
     private uploadFileToFileServer(file: File) {
@@ -97,8 +98,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         data.append('WithPublicAccessToken', 'true');
         data.append('File', <any>file);
 
-        return this.http.post(this.fileServerUrl + '/api/file', data)
-            .map(res => res.json());
+        return this.http.post<any>(this.fileServerUrl + '/api/file', data);
     }
 
     private importFileToJobServer(jobName, importModel) {
@@ -107,14 +107,15 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     private uploadFile(file: File) {
         this.uploadFileToFileServer(file).subscribe((res) => {
-            let importModel = {
+            const importModel = {
                 CompanyKey: this.companyKey,
                 CompanyName: this.companyName,
                 Url: `${this.fileServerUrl}/api/externalfile/${this.companyKey}/${res.StorageReference}/${res._publictoken}`,
                 ImportFileType: this.fileType
-            }
+            };
+
             this.importFileToJobServer(this.options.data.jobName, importModel).subscribe(
-                res => {
+                () => {
                     this.close();
                     this.showToast(file.name);
                 },
@@ -144,7 +145,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         setTimeout(() => {
             this.progressBarVal = 100;
             this.showCancel = true;
-        }, 500)
+        }, 500);
     }
 
     public onFileDetach() {
@@ -158,8 +159,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     public importFile() {
         if (this.attachedFile) {
             this.uploadFile(this.attachedFile);
-        }
-        else {
+        } else {
             this.isValidFileFormat = false;
         }
     }

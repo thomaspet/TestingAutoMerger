@@ -26,7 +26,7 @@ export class CompanySalaryService extends BizHttp<CompanySalary> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL)
             .send({top: 1})
-            .map(response => response.json())
+            .map(response => response.body)
             .map(res => res[0]);
     }
 

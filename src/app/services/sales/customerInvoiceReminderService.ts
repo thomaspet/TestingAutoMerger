@@ -1,9 +1,7 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {CustomerInvoiceReminder, StatusCodeCustomerInvoiceReminder} from '../../unientities';
-import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {RequestMethod} from '@angular/http';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 
 @Injectable()
@@ -57,7 +55,7 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
             .withEndPoint
                 (`?model=customerinvoicereminder&select=ID,CustomerInvoiceID,RunNumber as RunNumber,ReminderNumber as ReminderNumber,StatusCode&filter=CustomerInvoiceID eq '${id}'&top=1&orderby=ReminderNumber desc`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     createInvoiceRemindersForInvoicelist(list: number[]) {

@@ -1,10 +1,11 @@
 import {Component, OnInit, Output, Input, ViewChild, EventEmitter, OnChanges} from '@angular/core';
-import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent} from '../../../../../framework/ui/unitable';
 import {BehaviorSubject} from 'rxjs';
 import {ReportDefinitionService, ErrorService} from '../../../../services/services';
 import {Employee} from '../../../../unientities';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -20,12 +21,17 @@ const PAYCHECK_FORMAT_KEY = '_paycheckFormat';
 })
 export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
 
-    @Input() public employees: Employee[];
-    @Output() public busy: EventEmitter<boolean> = new EventEmitter();
-    @Output() public selectedEmps: EventEmitter<number> = new EventEmitter();
-    @ViewChild(UniTable) public table: UniTable;
+    @Input()
+    public employees: Employee[];
+    @Output()
+    public busy: EventEmitter<boolean> = new EventEmitter();
+    @Output()
+    public selectedEmps: EventEmitter<number> = new EventEmitter();
 
-    public tableEmps$: BehaviorSubject<Employee[]> = new BehaviorSubject<Employee[]>([]);
+    @ViewChild(AgGridWrapper)
+    public table: AgGridWrapper;
+
+    public employeeTableData: Employee[] = [];
     public emailEmps: Employee[] = [];
     public printEmps: Employee[] = [];
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
@@ -41,7 +47,7 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     }
 
     public ngOnChanges() {
-        this.tableEmps$.next(this.handleEmployees(this.employees || []));
+        this.employeeTableData = [...this.handleEmployees(this.employees || [])];
     }
 
     private setupTable() {
@@ -53,20 +59,14 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
             UniTableColumnType.Text,
             false);
 
-        const typeCol = new UniTableColumn(
-            '_paycheckFormat',
-            'Type',
-            UniTableColumnType.Select,
-            (row: Employee) => this.employeeHasAddress(row))
-            .setOptions({
-                resource: [
-                    PaycheckFormat.E_MAIL,
-                    PaycheckFormat.PRINT
-                ],
-                itemTemplate: item => item
-            });
+        const typeCol = new UniTableColumn('_paycheckFormat', 'Type', UniTableColumnType.Text,
+            (row: Employee) => this.employeeHasAddress(row));
 
-        const config = new UniTableConfig('salary.common.employee-report-picker-list', true, true, 25)
+        let pageSize = window.innerHeight - 520;
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        const config = new UniTableConfig('salary.common.employee-report-picker-list', false, true, pageSize)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)
@@ -75,6 +75,24 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
             .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol]);
 
         this.tableConfig$.next(config);
+    }
+
+    onCellClick(clickEvent: ICellClickEvent) {
+        if (clickEvent && clickEvent.column && clickEvent.column.field === '_paycheckFormat') {
+            const newRow = clickEvent.row;
+
+            if (newRow._paycheckFormat === PaycheckFormat.E_MAIL) {
+                newRow._paycheckFormat = PaycheckFormat.PRINT;
+            } else {
+                newRow._paycheckFormat = PaycheckFormat.E_MAIL;
+            }
+            this.employeeTableData.splice(newRow._originalIndex, 1, newRow);
+            // Re-filter the print/mail arrays
+            this.emailEmps = this.employeeTableData.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
+            this.printEmps = this.employeeTableData.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
+            // Force view update!
+            this.employeeTableData = [...this.employeeTableData];
+        }
     }
 
     private resetRowSelection() {

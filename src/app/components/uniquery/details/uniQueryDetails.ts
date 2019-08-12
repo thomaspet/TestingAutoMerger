@@ -8,7 +8,7 @@ import {
     IExpressionFilterValue
 } from '../../../../framework/ui/unitable/index';
 import {Router, ActivatedRoute} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -44,7 +44,7 @@ export class UniQueryDetails {
     private models: any;
     private visibleModels: any;
     public tableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
 
     public fields: Array<UniTableColumn> = [];
     private filters: Array<ITableFilter> = [];
@@ -95,22 +95,17 @@ export class UniQueryDetails {
             this.currentUserGlobalIdentity = token.nameid;
         }
 
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams;
-
-            if (params === null) {
-                params = new URLSearchParams();
-            }
-
-            params.set('model', this.queryDefinition.MainModelName);
-            params.set('select', this.selects);
+        this.lookupFunction = (urlParams: HttpParams) => {
+            let params = (urlParams || new HttpParams())
+                .set('model', this.queryDefinition.MainModelName)
+                .set('select', this.selects);
 
             if (this.expands) {
-                params.set('expand', this.expands);
+                params = params.set('expand', this.expands);
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params)
+                .GetAllByHttpParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
     }
@@ -454,7 +449,7 @@ export class UniQueryDetails {
                     filename = 'export.xlsx';
                 }
 
-                const blob = new Blob([result._body], { type: 'text/csv' });
+                const blob = new Blob([result.body], { type: 'text/csv' });
                 // download file so the user can open it
                 saveAs(blob, filename);
             },

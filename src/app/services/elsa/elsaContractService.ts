@@ -13,7 +13,7 @@ export class ElsaContractService {
             .usingEmptyDomain()
             .withEndPoint(`/api/elsa/contracts/${id}`)
             .send()
-            .map(req => req.json());
+            .map(req => req.body);
     }
 
     getAll(): Observable<ElsaContract[]> {
@@ -22,16 +22,25 @@ export class ElsaContractService {
             .usingEmptyDomain()
             .withEndPoint('/api/elsa/contracts')
             .send()
-            .map(req => req.json());
+            .map(req => req.body);
     }
 
     getCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()
-            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses`)
+            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses?isDeleted=false`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
+    }
+
+    getDeletedCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
+        return this.uniHttp
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses?isDeleted=true`)
+            .send()
+            .map(res => res.body);
     }
 
     getUserLicenses(contractID: number): Observable<ElsaUserLicense[]> {
@@ -41,13 +50,13 @@ export class ElsaContractService {
             .withEndPoint(`/api/contracts/${contractID}/userlicense-summary`)
             .send()
             .map(res => {
-                const users = res.json() || [];
+                const users = res.body || [];
                 return users.filter(user => user.UserName !== 'System User');
             });
     }
 
     activateContract(contractID: number, isBureau: boolean = false) {
-        let endpoint = `/api/elsa/contracts/${contractID}?action=activate`;
+        let endpoint = `/api/elsa/contracts/${contractID}/activate`;
         if (isBureau) {
             endpoint += `&ContractType=${ElsaContractType.Bureau}`;
         }

@@ -18,6 +18,10 @@ export interface ElsaCompanyLicense {
     OrgNumber: string;
     StatusCode: ElsaCompanyLicenseStatus;
     EndDate: string;
+    IsDeleted: boolean;
+    DeletedAt: Date;
+    DeletedBy: string;
+    DeletedByEmail: string;
 }
 
 export interface ElsaPurchase {

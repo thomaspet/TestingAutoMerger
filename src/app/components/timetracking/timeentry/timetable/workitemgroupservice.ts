@@ -99,25 +99,25 @@ export class WorkitemGroupService {
     private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
     private POST(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
             return this.http.asPOST().usingBusinessDomain().withBody(body)
             .withEndPoint(route).send(params)
-            .map(response => response.json());
+            .map(response => response.body);
         } else {
             return this.http.asPOST().usingBusinessDomain()
             .withEndPoint(route).send(params)
-            .map(response => response.json());
+            .map(response => response.body);
         }
     }
 
     public getStatistics(query: string): Observable<any> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint('?' + query).send()
-        .map(response => response.json());
+        .map(response => response.body);
 
     }
 

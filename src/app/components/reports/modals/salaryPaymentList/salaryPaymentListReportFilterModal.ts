@@ -137,7 +137,9 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                             report.parameters.push({Name: 'BookingType', value: model$.getValue().BookingType});
                             report.parameters.push({Name: 'Refresh', value: true});
                         }
+
                         this.modalService.open(UniPreviewModal, {
+                            closeOnClickOutside: false,
                             data: report
                         });
                     }

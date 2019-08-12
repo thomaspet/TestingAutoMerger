@@ -4,7 +4,7 @@ import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User} from '../../unie
 import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {ErrorService} from '../common/errorService';
 import {UserService} from '../common/userService';
 import {StatusCode} from '../../../app/components/sales/salesHelper/salesEnums';
@@ -47,11 +47,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
         const obsTeams = this.http.asGET().usingBusinessDomain()
             .withEndPoint('teams/?expand=positions&hateoas=false&orderby=name&filter=positions.position ge 12').send()
-            .map(response => response.json());
+            .map(response => response.body);
 
         const obsUsers = this.http.asGET().usingBusinessDomain()
             .withEndPoint('users/?hateoas=false?orderby=displayname&filter=statuscode eq 110001').send()
-            .map(response => response.json());
+            .map(response => response.body);
 
         return Observable.forkJoin( obsTeams, obsUsers )
             .switchMap( result => {
@@ -70,7 +70,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .withBody(details)
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=reAssign-to`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public assign(supplierInvoiceId: number, details: AssignmentDetails): Observable<boolean> {
@@ -81,7 +81,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .withBody(details)
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=assign-to`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public journal(supplierInvoiceId: number) {
@@ -91,7 +91,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=journal`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public sendForPaymentWithData(supplierInvoiceId: number, invoicePaymentData?: InvoicePaymentData) {
@@ -102,7 +102,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=sendForPaymentWithPaymentData`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public creditInvoiceJournalEntry(supplierInvoiceId: number) {
@@ -112,7 +112,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=credit-supplierinvoice-journalentry&supplierInvoiceId=${supplierInvoiceId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 
@@ -124,7 +124,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getInvoiceSummary(odatafilter: string): Observable<any> {
@@ -133,7 +133,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=get-supplier-invoice-summary&odataFilter=' + odatafilter)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public newSupplierInvoice(): Promise<SupplierInvoice> {
@@ -150,10 +150,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     public getStatQuery(route: string): Observable<any> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
-        .map(response => response.json().Data);
+        .map(response => response.body.Data);
     }
 
-    public getInvoiceList(urlSearchParams: URLSearchParams, userIDFilter: string = ''): Observable<any> {
+    public getInvoiceList(httpParams: HttpParams, userIDFilter: string = ''): Observable<any> {
 
         if (userIDFilter !== '' && userIDFilter !== null) {
             userIDFilter = ' and user.id eq ' + userIDFilter;
@@ -178,19 +178,19 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             '&orderby=id desc' +
             '&filter=( isnull(deleted,0) eq 0 ' + (userIDFilter === null ? '' : userIDFilter)  + ' )';
 
-        if (urlSearchParams) {
-            const filter = urlSearchParams.get('filter');
+        if (httpParams) {
+            const filter = httpParams.get('filter');
             if (filter) {
                 route += ` and ( ${filter} )`;
             }
-            const top = urlSearchParams.get('top');
+            const top = httpParams.get('top');
             if (top) {
                 route += '&top=' + top;
             }
         }
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
-        .map(response => response.json().Data);
+        .map(response => response.body.Data);
     }
 
     public getInvoiceListGroupedTotals(userIDFilter: string = ''): Observable<Array<IStatTotal>> {
@@ -200,14 +200,14 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         '&filter=isnull(deleted,0) eq 0';
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
-        .map(response => response.json().Data);
+        .map(response => response.body.Data);
     }
 
-    public fetch(route: string, urlSearchParams?: URLSearchParams): Observable<any> {
-        return this.send(route, urlSearchParams, 'GET');
+    public fetch(route: string, httpParams?: HttpParams): Observable<any> {
+        return this.send(route, httpParams, 'GET');
     }
 
-    public send(route: string, urlSearchParams?: URLSearchParams, method = 'POST', body?: any): Observable<any> {
+    public send(route: string, httpParams?: HttpParams, method = 'POST', body?: any): Observable<any> {
         let ht = this.http.asPOST();
         switch (method.toUpperCase()) {
             case 'GET':
@@ -221,8 +221,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
                 break;
         }
         return ht.usingBusinessDomain()
-        .withEndPoint(route).send( body ? { body: body } : undefined, urlSearchParams)
-        .map(response => response.json());
+        .withEndPoint(route).send( body ? { body: body } : undefined, httpParams)
+        .map(response => response.body);
     }
 
     public checkInvoiceData(invoiceNumber: any, supplierID: number, ID?: number) {
@@ -232,7 +232,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .usingStatisticsDomain()
         .withEndPoint(endpoint)
         .send()
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
     public isOCR(file: any): boolean {

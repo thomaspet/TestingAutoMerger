@@ -82,7 +82,7 @@ export class Signup {
                     grecaptcha.reset();
                     this.step1Form.value.RecaptchaResponse = null;
                     try {
-                        const errorBody = err.json();
+                        const errorBody = err.body;
                         if (errorBody.Message) {
                             this.errorMessage = errorBody.Message;
                         } else {
@@ -124,13 +124,13 @@ export class Signup {
             .send()
             .subscribe(
                 res => {
-                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
+                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.body);
                 },
                 err => {
                     this.busy = false;
                     let errorMessage;
                     try {
-                        const errorBody = err.json();
+                        const errorBody = err.body;
                         errorMessage = errorBody.Message || errorBody.Messages[0].Message;
                     } catch (error) {}
 
@@ -151,7 +151,7 @@ export class Signup {
 
                     // Try catch to avoid having to null check everything
                     try {
-                        const errorBody = err.json();
+                        const errorBody = err.body;
                         usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
                     } catch (e) { }
 

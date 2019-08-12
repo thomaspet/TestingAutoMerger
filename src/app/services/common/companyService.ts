@@ -39,7 +39,7 @@ export class CompanyService extends BizHttp<Company> {
             .send()
             .map(response => {
                 super.invalidateCache();
-                return response.json();
+                return response.body;
             });
     }
 
@@ -85,7 +85,7 @@ export class CompanyService extends BizHttp<Company> {
             .send({}, null, false)
             .pipe(
                 tap(() => super.invalidateCache()),
-                map(res => res.json())
+                map(res => res.body)
             );
     }
 
@@ -94,6 +94,16 @@ export class CompanyService extends BizHttp<Company> {
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint(`companies/${ID}?action=delete-company`)
+            .withHeader('CompanyKey', companyKey)
+            .send({}, null, false)
+            .do(() => super.invalidateCache());
+    }
+
+    reviveCompany(companyKey: string) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`companies?action=undelete-company&key=${companyKey}`)
             .withHeader('CompanyKey', companyKey)
             .send({}, null, false)
             .do(() => super.invalidateCache());

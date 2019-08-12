@@ -19,7 +19,7 @@ export class SalarySumsService extends BizHttp<SalaryTransactionSums> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `?action=get-sums&id=${id}${filter ? '&filter=' + filter : ''}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getSumsInYear(year: number, employeeID: number = null): Observable<SalaryTransactionSums> {
@@ -30,7 +30,7 @@ export class SalarySumsService extends BizHttp<SalaryTransactionSums> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `?action=getall&fromPayrollRun=true&filter=${filter}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getSumsInPeriod(fromPeriod: number, toPeriod: number, transYear: number): Observable<SalaryTransactionPeriodSums[]> {
@@ -39,7 +39,7 @@ export class SalarySumsService extends BizHttp<SalaryTransactionSums> {
             .asGET()
             .withEndPoint(this.relativeURL + `?action=sums-in-period&fromPeriod=${fromPeriod}&toPeriod=${toPeriod}&year=${transYear}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 }

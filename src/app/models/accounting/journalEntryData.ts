@@ -1,6 +1,6 @@
 import {
     JournalEntry, Account, VatType, Dimensions, Payment, Accrual, JournalEntryLineDraft, JournalEntryLine, LocalDate,
-    CurrencyCode, CustomerInvoice, CostAllocation
+    CurrencyCode, CustomerInvoice, CostAllocation, JournalEntryType
 } from '../../unientities';
 
 export class JournalEntryData {
@@ -69,6 +69,8 @@ export class JournalEntryData {
 
     JournalEntryPaymentData: JournalEntryPaymentData;
 
+    JournalEntryType: JournalEntryType;
+    JournalEntryTypeID: number;
 
     JournalEntryDataAccrual: Accrual;
     JournalEntryDataAccrualID: number;

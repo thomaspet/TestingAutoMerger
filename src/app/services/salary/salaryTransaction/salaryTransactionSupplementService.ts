@@ -70,10 +70,14 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
             return false;
         }
 
-        return !supp.ValueDate
+        return this.isDateUnfinished(supp.ValueDate)
             && !supp.ValueDate2
             && (!supp.ValueMoney || supp.ValueMoney === 0)
             && !supp.ValueString;
+    }
+
+    private isDateUnfinished(date: Date) {
+        return !(date === (new Date('0001-01-01T00:00:00Z') || null));
     }
 
     public supplementsCleanUpToast() {

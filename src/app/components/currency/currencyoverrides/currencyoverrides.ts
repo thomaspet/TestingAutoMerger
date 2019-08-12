@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Observable, forkJoin, of as observableOf} from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -147,13 +147,13 @@ export class CurrencyOverrides {
     }
 
     private loadData(routeparams = null) {
-        const params = new URLSearchParams();
-        params.set('orderby', 'FromDate asc');
-        params.set('expand', 'FromCurrencyCode,ToCurrencyCode');
+        const params = new HttpParams()
+            .set('orderby', 'FromDate asc')
+            .set('expand', 'FromCurrencyCode,ToCurrencyCode');
 
-        this.currencyOverridesService.GetAllByUrlSearchParams(params).subscribe(
+        this.currencyOverridesService.GetAllByHttpParams(params).subscribe(
             res => {
-                const data = res.json();
+                const data = res.body;
                 const hasParams = Object.keys(routeparams).some(key => routeparams.hasOwnProperty(key));
                 if (hasParams) {
                     data.push({

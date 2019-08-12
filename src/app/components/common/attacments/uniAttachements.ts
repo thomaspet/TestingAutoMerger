@@ -1,6 +1,6 @@
 import {Component, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {UniTableConfig, UniTableColumn} from '../../../../framework/ui/unitable/index';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {File, FileEntityLink} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../authService';
@@ -52,7 +52,6 @@ export class UniAttachments {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileList: boolean = true;
     @Input() uploadWithoutEntity: boolean = false;
-    @Input() downloadAsAttachment: boolean = false;
 
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter();
 
@@ -65,7 +64,7 @@ export class UniAttachments {
     tableConfig: UniTableConfig;
 
     constructor(
-        private ngHttp: Http,
+        private ngHttp: HttpClient,
         private http: UniHttp,
         private errorService: ErrorService,
         private fileService: FileService,
@@ -111,7 +110,7 @@ export class UniAttachments {
                 .usingBusinessDomain()
                 .withEndPoint(`files/${this.entity}/${this.entityID}`)
                 .send()
-                .map(res => res.json())
+                .map(res => res.body)
         ]).subscribe(res => {
             this.fileLinks = res[0];
             const files = res[1];
@@ -129,28 +128,14 @@ export class UniAttachments {
     }
 
     public attachmentClicked(attachment: File) {
-        if (!this.downloadAsAttachment) {
-            const data = {
-                entity: this.entity,
-                entityID: this.entityID,
-                showFileID: attachment.ID,
-                readonly: true
-            };
+        const data = {
+            entity: this.entity,
+            entityID: this.entityID,
+            showFileID: attachment.ID,
+            readonly: true
+        };
 
-            this.modalService.open(ImageModal, { data: data });
-
-        } else {
-            this.fileService
-                .downloadFile(attachment.ID, 'application/xml')
-                    .subscribe((blob) => {
-                        // download file so the user can open it
-                        saveAs(blob, attachment.Name);
-                    },
-                    err => {
-                        this.errorService.handle(err);
-                    }
-                );
-        }
+        this.modalService.open(ImageModal, { data: data });
     }
 
     public uploadFileChange(event) {
@@ -185,15 +170,17 @@ export class UniAttachments {
         data.append('Caption', ''); // where should we get this from the user?
         data.append('File', <any> file);
 
-        this.ngHttp.post(this.baseUrl + '/api/file', data)
-            .map(res => res.json())
-            .subscribe((res) => {
+        this.ngHttp.post<File>(this.baseUrl + '/api/file', data, {
+            observe: 'body'
+        }).subscribe(
+            (res) => {
                 this.uploading = false;
                 this.fileUploaded.emit(res);
                 this.getFiles();
             }, err => {
                 this.errorService.handle(err);
-            });
+            }
+        );
     }
 
     onRowSelectionChange(selectedFiles: File[]) {

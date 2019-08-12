@@ -14,7 +14,7 @@ import {
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import { Period, VatReport } from '../../../../../app/unientities';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {
     VatReportService,
@@ -56,7 +56,7 @@ export class HistoricVatReportModal implements IUniModal {
     public unitable: UniTable;
 
     public uniTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
     private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(
@@ -69,21 +69,21 @@ export class HistoricVatReportModal implements IUniModal {
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
-        this.lookupFunction = (urlParams: URLSearchParams) =>
+        this.lookupFunction = (urlParams: HttpParams) =>
             this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<any> {
-        urlParams = urlParams || new URLSearchParams();
-        urlParams.set('model', 'vatreport');
-        urlParams.set('select', 'TerminPeriodID,vatreport.*,terminperiod.*,vatreporttype.*,journalentry.*,vatreportarchivedsummary.*,'
+    private getTableData(urlParams: HttpParams): Observable<any> {
+        urlParams = urlParams || new HttpParams();
+        urlParams = urlParams.set('model', 'vatreport');
+        urlParams = urlParams.set('select', 'TerminPeriodID,vatreport.*,terminperiod.*,vatreporttype.*,journalentry.*,vatreportarchivedsummary.*,'
             + 'auditlog.Action,auditlog.ID,auditlog.NewValue,auditlog.UpdatedAt,auditlog.EntityType');
-        urlParams.set('join', 'vatreport.ID eq auditlog.EntityID');
-        urlParams.set('orderby', urlParams.get('orderby') || 'TerminPeriodID desc');
-        urlParams.set('expand', 'terminperiod,vatreporttype,journalentry,vatreportarchivedsummary');
-        urlParams.set('filter', 'auditlog.newvalue eq 32004 and auditlog.EntityType eq \'VatReport\'');
-        return this.statisticsService.GetWrappedDataByUrlSearchParams(urlParams);
+        urlParams = urlParams.set('join', 'vatreport.ID eq auditlog.EntityID');
+        urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'TerminPeriodID desc');
+        urlParams = urlParams.set('expand', 'terminperiod,vatreporttype,journalentry,vatreportarchivedsummary');
+        urlParams = urlParams.set('filter', 'auditlog.newvalue eq 32004 and auditlog.EntityType eq \'VatReport\'');
+        return this.statisticsService.GetWrappedDataByHttpParams(urlParams);
     }
 
     private generateUniTableConfig(): UniTableConfig {

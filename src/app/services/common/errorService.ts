@@ -37,39 +37,31 @@ export class ErrorService {
         this.addErrorToast(toastMsg || message);
     }
 
-    public extractMessage(err: any): string {
-        let errBody;
-        if (this.isHttpResponse(err)) {
-            try {
-                errBody = err.json();
-            } catch (e) {
-                errBody = err.text();
-            }
-        } else {
-            errBody = err;
+    public extractMessage(err): string {
+        if (!err) {
+            return;
         }
 
-        if (errBody.message) {
-            return errBody.message;
-        } else if (errBody.Message) {
-            return errBody.Message;
-        } else if (errBody.Messages) {
-            if (errBody.Messages.length > 0) {
-                return errBody.Messages.map(m => m.Message).join('<br />');
-            } else {
-                return '[Unparsable error occurred, see logs for more info]';
+        const errorBody = this.getErrorBody(err);
+        if (errorBody) {
+            if (errorBody.message || errorBody.Message) {
+                return errorBody.message || errorBody.Message;
+            } else if (errorBody.Messages) {
+                if (errorBody.Messages.length > 0) {
+                    return errorBody.Messages.map(m => m.Message).join('<br />');
+                } else {
+                    return '[Unparsable error occurred, see logs for more info]';
+                }
+            } else if (err.status === 400) {
+                return this.extractValidationResults(errorBody).join('<br />');
             }
-        } else if (err.status === 400) {
-            return this.extractValidationResults(errBody).join('<br />');
-        } else if (errBody.statusText) {
-            return errBody.statusText;
         } else {
-            return errBody.toString();
+            return err.statusText || '';
         }
     }
 
-    private isHttpResponse(obj: any) {
-        return obj.headers && obj.headers.get && obj.status;
+    private isHttpError(err: any) {
+        return err && err.headers && err.status;
     }
 
     public extractValidationResults(error: any): string[] {
@@ -161,17 +153,7 @@ export class ErrorService {
     }
 
     private getErrorBody(err: any) {
-        let errBody;
-        if (this.isHttpResponse(err)) {
-            try {
-                errBody = err.json();
-            } catch (e) {
-                errBody = err.text();
-            }
-        } else {
-            errBody = err;
-        }
-        return errBody;
+        return this.isHttpError(err) ? err.error : err;
     }
 
     public addErrorToast(message: string) {

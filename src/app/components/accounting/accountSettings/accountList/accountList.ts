@@ -13,7 +13,7 @@ import {
     UniTableConfig
 } from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Account} from '../../../../unientities';
 import {AccountService, ErrorService} from '../../../../services/services';
 
@@ -26,7 +26,7 @@ export class AccountList implements OnInit, AfterViewInit {
     @Output() uniAccountChange: EventEmitter<Account> = new EventEmitter();
 
     accountTable: UniTableConfig;
-    lookupFunction: (urlParams: URLSearchParams) => any;
+    lookupFunction: (urlParams: HttpParams) => any;
 
     constructor(
         private accountService: AccountService,
@@ -55,26 +55,26 @@ export class AccountList implements OnInit, AfterViewInit {
 
     private setupTable() {
 
-        this.lookupFunction = (urlParams: URLSearchParams) => {
+        this.lookupFunction = (urlParams: HttpParams) => {
             let params = urlParams;
 
             if (params === null) {
-                params = new URLSearchParams();
+                params = new HttpParams();
             }
 
             if (!params.get('orderby')) {
-                params.set('orderby', 'AccountNumber');
+                params = params.set('orderby', 'AccountNumber');
             }
 
             if (!params.get('filter')) {
-                params.set('filter', 'AccountID eq null');
+                params = params.set('filter', 'AccountID eq null');
             } else {
-                params.set('filter', '( ' + params.get('filter') + ' ) and AccountID eq null');
+                params = params.set('filter', '( ' + params.get('filter') + ' ) and AccountID eq null');
             }
 
-            params.set('expand', 'AccountGroup,VatType,MandatoryDimensions');
+            params = params.set('expand', 'AccountGroup,VatType,MandatoryDimensions');
 
-            return this.accountService.GetAllByUrlSearchParams(params)
+            return this.accountService.GetAllByHttpParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 

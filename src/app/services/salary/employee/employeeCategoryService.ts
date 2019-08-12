@@ -42,7 +42,7 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${categoryID}?action=employeesoncategory`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getPayrollrunsInCategory(categoryID: number): Observable<PayrollRun[]> {
@@ -51,7 +51,7 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${categoryID}?action=payrollrunsoncategory`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getPrevious(ID: number, expands: string[] = null) {

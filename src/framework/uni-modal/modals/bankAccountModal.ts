@@ -15,11 +15,11 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
 @Component({
     selector: 'uni-bankaccount-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal uni-redesign">
             <header>
                 <h1>{{options.header || 'Bankkonto'}}</h1>
             </header>
-            <article [attr.aria-busy]="busy">
+            <article [attr.aria-busy]="busy" style="overflow: visible;">
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -255,7 +255,7 @@ export class UniBankAccountModal implements IUniModal {
                         }
                             bankAccountUsesMessages += baMessage + '<br>';
                     });
-                    this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);    
+                    this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);
                 }
 
             }, err => this.errorService.handle(err));

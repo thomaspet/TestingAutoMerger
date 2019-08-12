@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { URLSearchParams } from '@angular/http';
+import { HttpParams } from '@angular/common/http';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
 import { IUniSaveAction } from '../../../../framework/save/save';
 import { ProductService, ErrorService, UserService } from '../../../services/services';
@@ -17,7 +17,7 @@ import { DisclaimerModal } from '@app/components/admin/import-central/modals/dis
 })
 export class ProductList {
     public productTable: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
     public saveActions: IUniSaveAction[];
 
     productTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
@@ -68,16 +68,13 @@ export class ProductList {
 
     private setupProductTable() {
 
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams;
+        this.lookupFunction = (urlParams: HttpParams) => {
+            const params = (urlParams || new HttpParams).set(
+                'expand',
+                'Info,Dimensions,Dimensions.Department,Dimensions.Project'
+            );
 
-            if (params === null) {
-                params = new URLSearchParams();
-            }
-
-            params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
-
-            return this.productService.GetAllByUrlSearchParams(params)
+            return this.productService.GetAllByHttpParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
@@ -146,8 +143,7 @@ export class ProductList {
             if (res) {
                 if (res.HasAgreedToImportDisclaimer) {
                     this.openProductImportModal();
-                }
-                else {
+                } else {
                     this.modalService.open(DisclaimerModal)
                         .onClose.subscribe((val) => {
                             if (val) {

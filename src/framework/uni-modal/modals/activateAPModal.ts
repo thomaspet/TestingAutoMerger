@@ -21,7 +21,7 @@ import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountMo
 @Component({
     selector: 'uni-activate-ap-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal uni-redesign">
             <header>
                 <h1>{{options.header || 'Aktiver EHF'}}</h1>
             </header>
@@ -31,7 +31,8 @@ import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountMo
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
-                <span>Aktivering av inngående eller utgående faktura for Uni Economy vil erstatte samme funksjon i V3/Uni24 om du har aktivert fra V3/Uni24 tidligere.</span>
+                <span>Aktivering av inngående eller utgående faktura for Uni Economy vil erstatte samme funksjon i
+                    V3/Uni24 om du har aktivert fra V3/Uni24 tidligere.</span>
             </article>
 
             <footer>

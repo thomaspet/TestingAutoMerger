@@ -21,7 +21,7 @@ import { CompanyAccountingSettingsService } from '@app/services/accounting/compa
 import { ProductService } from '@app/services/common/productService';
 import * as moment from 'moment';
 import { UniMath } from '@uni-framework/core/uniMath';
-import { RequestMethod } from '@angular/http';
+import { RequestMethod } from '@uni-framework/core/http';
 import { getNewGuid } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -279,8 +279,11 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             }
         }).onClose.subscribe(modalResponse => {
             if (modalResponse === ConfirmActions.ACCEPT) {
-                this.reinvoiceService.Remove(this.currentReInvoice.ID).subscribe(
-                    () => {
+                this.reinvoiceService.Action(this.currentReInvoice.ID, 'delete').subscribe(
+                    (res) => {
+                        if (res) {
+                            this.toastr.addToast(res, ToastType.warn);
+                        }
                         this.currentReInvoice = null;
                         this.onClose.emit(false);
                     },

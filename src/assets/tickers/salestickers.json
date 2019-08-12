@@ -124,8 +124,7 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true,
-                "ExecuteWithoutSelection": true,
-                "SendParentModel": true
+                "ExecuteWithoutSelection": true
             },
             {
                 "Name": "Ny ordre",
@@ -134,8 +133,7 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true,
-                "ExecuteWithoutSelection": true,
-                "SendParentModel": true
+                "ExecuteWithoutSelection": true
             },
             {
                 "Name": "Nytt tilbud",
@@ -144,8 +142,7 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true,
-                "ExecuteWithoutSelection": true,
-                "SendParentModel": true
+                "ExecuteWithoutSelection": true
             }
         ],
         "SubTickersCodes": ["customer_details", "contact_list", "customer_invoice_list", "customer_order_list", "customer_quote_list"],
@@ -519,7 +516,7 @@
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "CustomerOrder",
-        "Expand": "Customer,Customer.Info,Items",
+        "Expand": "Customer,Customer.Info",
         "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
         "OrderBy": "ID DESC",
         "Columns": [

@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {URLSearchParams, ResponseContentType, Response} from '@angular/http';
+import {HttpParams, HttpResponse} from '@angular/common/http';
+
 import {Observable} from 'rxjs';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
 
@@ -22,16 +23,16 @@ export class StatisticsService extends BizHttp<string> {
         this.DefaultOrderBy = null;
     }
 
-    public GetWrappedDataByUrlSearchParams<T>(params: URLSearchParams): Observable<Response> {
-        return this.GetAllByUrlSearchParams(params);
+    public GetWrappedDataByHttpParams<T>(params: HttpParams): Observable<HttpResponse<any>> {
+        return this.GetAllByHttpParams(params);
     }
 
-    public GetDataByUrlSearchParams<T>(params: URLSearchParams): Observable<StatisticsResponse> {
-        return this.GetAllByUrlSearchParams(params).map(response => response.json());
+    public GetDataByHttpParams<T>(params: HttpParams): Observable<StatisticsResponse> {
+        return this.GetAllByHttpParams(params).map(response => response.body);
     }
 
-    public GetDataByUrlSearchParamsForCompany<T>(params: URLSearchParams, companyKey?: string): Observable<StatisticsResponse> {
-        return this.GetAllByUrlSearchParams(params, false, companyKey).map(response => response.json());
+    public GetDataByHttpParamsForCompany<T>(params: HttpParams, companyKey?: string): Observable<StatisticsResponse> {
+        return this.GetAllByHttpParams(params, false, companyKey).map(response => response.body);
     }
 
     public GetAll(queryString: string): Observable<StatisticsResponse> {
@@ -46,7 +47,7 @@ export class StatisticsService extends BizHttp<string> {
             .withEndPoint(this.relativeURL + '?' + queryString)
             .send({}, undefined, !companyKey)
             .map(response => {
-                const obj = response.json();
+                const obj = response.body;
                 if (!obj.Success) {
                     throw new Error(obj.Message);
                 }
@@ -63,23 +64,23 @@ export class StatisticsService extends BizHttp<string> {
             .map(response => response.Data);
     }
 
-    public GetAllByUrlSearchParams<T>(params: URLSearchParams, distinct = false, companyKey?: string): Observable<Response> {
+    public GetAllByHttpParams<T>(params: HttpParams, distinct = false, companyKey?: string): Observable<HttpResponse<any>> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
-            params.set('orderby', this.DefaultOrderBy);
+            params = params.set('orderby', this.DefaultOrderBy);
         }
 
         // use default expands for service if no expand is specified
         if (!params.get('expand') && this.defaultExpand) {
-            params.set('expand', this.defaultExpand.join());
+            params = params.set('expand', this.defaultExpand.join());
         }
 
         // remove empty filters, causes problem on backend
         if (params.get('filter') === '') {
-            params.delete('filter');
+            params = params.delete('filter');
         }
 
-        params.set('distinct', distinct ? 'true' : 'false');
+        params = params.set('distinct', distinct ? 'true' : 'false');
 
         if (companyKey) { this.http.appendHeaders({ CompanyKey: companyKey}); }
 
@@ -89,7 +90,7 @@ export class StatisticsService extends BizHttp<string> {
             .withEndPoint(this.relativeURL)
             .send({}, params, !companyKey)
             .map(response => {
-                const body = response.json();
+                const body = response.body;
                 if (!body.Success) {
                     throw new Error(body.Message);
                 }
@@ -98,29 +99,27 @@ export class StatisticsService extends BizHttp<string> {
     }
 
     public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string, distinct: boolean): Observable<any> {
-
-        const params: URLSearchParams = new URLSearchParams();
-
-        params.set('model', model);
-        params.set('select', selects);
-        params.set('expand', expands);
-        params.set('headings', headings);
-        params.set('distinct', (distinct || false).toString());
+        let params = new HttpParams()
+            .set('model', model)
+            .set('select', selects)
+            .set('expand', expands)
+            .set('headings', headings)
+            .set('distinct', (distinct || false).toString());
 
         // remove empty filters, causes problem on backend
         if (filters && filters !== '') {
-            params.set('filter', filters);
+            params = params.set('filter', filters);
         }
 
         if (joins) {
-            params.set('join', joins);
+            params = params.set('join', joins);
         }
 
         return this.http
             .usingRootDomain()
             .asGET()
             .withEndPoint('exportstatistics')
-            .send({responseType: ResponseContentType.Blob}, params);
+            .send({responseType: 'blob'}, params);
     }
 
     public checkShouldShowField(field: string) {

@@ -1,7 +1,7 @@
 import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {forkJoin} from 'rxjs';
 import {MatStepper} from '@angular/material';
-import {Http, Headers} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
 
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
@@ -65,7 +65,7 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
         private roleService: RoleService,
         private errorService: ErrorService,
         private companyService: CompanyService,
-        private http: Http,
+        private http: HttpClient,
         private toastService: ToastService,
     ) {}
 
@@ -175,14 +175,17 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
                     // TODO: Remove when role assignment is implemented back-end
                     if (newUserRoles && newUserRoles.length) {
                         const url = environment.BASE_URL_INIT + environment.API_DOMAINS.BUSINESS + 'userroles?bulk-insert-roles';
-                        const headers = new Headers({
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + this.authService.getToken(),
-                            'CompanyKey': response.Key
-                        });
-                        this.http.post(url, newUserRoles, { headers: headers })
-                            .finally(() => this.busy = false)
-                            .subscribe(() => null);
+
+                        this.http.post(url, newUserRoles, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer ' + this.authService.getToken(),
+                                'CompanyKey': response.Key
+                            }
+                        }).subscribe(
+                            () => this.busy = false,
+                            () => this.busy = false
+                        );
                     }
                     this.onClose.emit(response);
                 },

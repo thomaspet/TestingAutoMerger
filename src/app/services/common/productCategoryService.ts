@@ -34,7 +34,7 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
                 .withEndPoint(ProductCategoryLink.RelativeUrl)
                 .withBody({ProductID: currentID, ProductCategoryID: category.ID})
                 .send()
-                .map(response => response.json())
+                .map(response => response.body)
                 .map(cat => {return {title: category.Name, linkID: cat.ID}});
         }
         return Observable.of(null);
@@ -62,6 +62,6 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
             .usingBusinessDomain()
             .withEndPoint(`productcategorylinks?filter=ProductCategoryID eq ${categoryID}&expand=Product`)
             .send()
-            .map(res => res.json())
+            .map(res => res.body)
     }
 }

@@ -872,13 +872,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
 
         if (runIsCalculated) {
-            this.tagConfig.toolTip = 'Låst fordi lønnsavregningen er avregnet';
+            this.tagConfig.helpText = 'Låst fordi lønnsavregningen er avregnet';
             this.tagConfig.readOnlyMessage = 'Låst fordi lønnsavregningen er avregnet';
         } else if (anyEditableTranses) {
-            this.tagConfig.toolTip = 'Lønnsavregningen inneholder variable lønnsposter, kategoriutvalget kan derfor ikke endres.';
+            this.tagConfig.helpText = 'Lønnsavregningen inneholder variable lønnsposter, kategoriutvalget kan derfor ikke endres.';
             this.tagConfig.readOnlyMessage = 'Lønnsavregningen inneholder variable lønnsposter, kategoriutvalget kan derfor ikke endres.';
         } else {
-            this.tagConfig.toolTip = '';
+            this.tagConfig.helpText = '';
             this.tagConfig.readOnlyMessage = '';
         }
     }

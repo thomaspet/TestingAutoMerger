@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../authService';
@@ -7,13 +7,14 @@ import {ErrorService} from './errorService';
 
 @Injectable()
 export class ApiModelService {
-    private models: Array<ApiModel>;
-    private modules: Array<ModuleConfig>;
+    private models: ApiModel[];
+    private modules: ModuleConfig[];
 
     constructor(private uniHttpService: UniHttp,
         private errorService: ErrorService,
         protected authService: AuthService,
-        private http: Http) {
+        private http: HttpClient
+    ) {
         if (this.authService) {
             this.authService.authentication$.subscribe(change => this.invalidateCache());
         }
@@ -43,11 +44,11 @@ export class ApiModelService {
         });
     }
 
-    public getModules(): Array<ModuleConfig> {
+    public getModules(): ModuleConfig[] {
         this.modules.forEach(x => {
             x.Expanded = false;
             x.ModelList.forEach(m => {
-                m.Expanded = false
+                m.Expanded = false;
                 m.Selected = false;
             });
         });
@@ -68,27 +69,29 @@ export class ApiModelService {
                         .asGET()
                         .withEndPoint('allmodels')
                         .send()
-                        .map(response => response.json()),
-                    this.http.get('assets/modelconfig/modelconfig.json')
-                        .map(x => x.json())
+                        .map(response => response.body),
+                    this.http.get<UniModuleAndModelSetup>(
+                        'assets/modelconfig/modelconfig.json',
+                        {observe: 'body'}
+                    )
                 ).subscribe(data => {
-                    let models: Array<any> = data[0];
-                    let setup: UniModuleAndModelSetup = data[1];
+                    const models: Array<any> = data[0];
+                    const setup: UniModuleAndModelSetup = data[1];
 
-                    let otherModule = new ModuleConfig();
+                    const otherModule = <ModuleConfig> {};
                     otherModule.Name = 'Other';
                     otherModule.Translated = 'Annet';
                     otherModule.ModelList = [];
 
                     // set up models and module
                     models.forEach(model => {
-                        let modelSetup = setup.Models.find(x => x.Name === model.Name);
+                        const modelSetup = setup.Models.find(x => x.Name === model.Name);
                         if (modelSetup) {
                             model.DetailsUrl = modelSetup.Url;
                             model.TranslatedName = modelSetup.Translated;
                         }
 
-                        let modules = setup.Modules.filter(x => x.Models && x.Models.indexOf(model.Name) !== -1);
+                        const modules = setup.Modules.filter(x => x.Models && x.Models.indexOf(model.Name) !== -1);
 
                         if (modules.length > 0) {
                             modules.forEach(module => {

@@ -106,7 +106,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
                     .usingBusinessDomain()
                     .withEndPoint(this.relativeURL + `/${id}?validate=true`)
                     .send()
-                    .map(response => response.json());
+                    .map(response => response.body);
             }
             return this.Get(id);
         }
@@ -122,7 +122,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL)
             .send({filter: 'period eq ' + periode + ' and year eq ' + currentYear})
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAMeldingFile(id: number): Observable<string> {
@@ -131,7 +131,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=get-amelding`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAmeldingFeedbackFile(id: number) {
@@ -140,7 +140,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=get-feedback`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public sendAMelding(id: number) {
@@ -150,7 +150,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=send`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public postAMelding(period: number, amldType: number, currYear: number, runID: number = null, replaceThis: string = null) {
@@ -168,7 +168,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             })
             .withEndPoint(this.relativeURL)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAmeldingFeedback(id: number, authData: AltinnAuthenticationData): Observable<AmeldingData> {
@@ -185,7 +185,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .withHeaders(headers)
             .withEndPoint(this.relativeURL + `/${id}?action=feedback`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAmeldingSumUp(id: number): Observable<any> {
@@ -194,7 +194,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .usingBusinessDomain()
             .withEndPoint(`ameldingsums/${id}?action=get-sumup`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getValidations(entity: any): string[] {

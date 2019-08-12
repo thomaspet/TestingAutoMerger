@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {CustomerService} from '@app/services/sales/customerService';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import { SupplierService } from '@app/services/accounting/supplierService';
 import { Observable } from 'rxjs';
 import { ContactService } from '@app/services/common/contactService';
@@ -42,7 +42,7 @@ export class PeopleService {
 
     }
 
-    getPeople(urlParams: URLSearchParams, searchString) {
+    getPeople(urlParams: HttpParams, searchString) {
         return Observable.forkJoin(
             this.getCustomers(urlParams),
             this.getSuppliers(urlParams),
@@ -61,73 +61,82 @@ export class PeopleService {
             .map(x => [].concat.apply([], x));
     }
 
-    getCustomers(urlParams: URLSearchParams) {
-        const params = urlParams || new URLSearchParams();
-        params.set('expand', expand);
-        params.set('hateoas', 'false');
-        params.set('top', '50');
-        return this.customerService.GetAllByUrlSearchParams(params)
-            .map(x => x.json())
+    getCustomers(urlParams: HttpParams) {
+        let params = urlParams || new HttpParams();
+        params = params
+            .set('expand', expand)
+            .set('hateoas', 'false')
+            .set('top', '50');
+
+        return this.customerService.GetAllByHttpParams(params)
+            .map(x => x.body)
             .map(x => x.map(y => {
                 y._Source = 'Customer';
                 return y;
             }));
     }
 
-    getSuppliers(urlParams: URLSearchParams) {
-        const params = urlParams || new URLSearchParams();
-        params.set('expand', expand);
-        params.set('hateoas', 'false');
-        params.set('top', '50');
-        return this.supplierService.GetAllByUrlSearchParams(params)
-            .map(x => x.json())
+    getSuppliers(urlParams: HttpParams) {
+        let params = urlParams || new HttpParams();
+        params = params
+            .set('expand', expand)
+            .set('hateoas', 'false')
+            .set('top', '50');
+
+        return this.supplierService.GetAllByHttpParams(params)
+            .map(x => x.body)
             .map(x => x.map(y => {
                 y._Source = 'Supplier';
                 return y;
             }));
     }
 
-    getContacts(urlParams: URLSearchParams) {
-        const params = urlParams || new URLSearchParams();
-        params.set('expand', expand);
-        params.set('hateoas', 'false');
-        params.set('top', '50');
-        return this.contactService.GetAllByUrlSearchParams(params)
-            .map(x => x.json())
+    getContacts(urlParams: HttpParams) {
+        let params = urlParams || new HttpParams();
+        params = params
+            .set('expand', expand)
+            .set('hateoas', 'false')
+            .set('top', '50');
+
+        return this.contactService.GetAllByHttpParams(params)
+            .map(x => x.body)
             .map(x => x.map(y => {
                 y._Source = 'Contact';
                 return y;
             }));
     }
 
-    getWorkers(urlParams: URLSearchParams) {
-        const params = urlParams || new URLSearchParams();
-        params.set('expand', expand);
-        params.set('hateoas', 'false');
-        params.set('top', '50');
-        return this.workerService.GetAllByUrlSearchParams(params)
-            .map(x => x.json())
+    getWorkers(urlParams: HttpParams) {
+        let params = urlParams || new HttpParams();
+        params = params
+            .set('expand', expand)
+            .set('hateoas', 'false')
+            .set('top', '50');
+        return this.workerService.GetAllByHttpParams(params)
+            .map(x => x.body)
             .map(x => x.map(y => {
                 y._Source = 'Worker';
                 return y;
             }));
     }
 
-    getEmployees(urlParams: URLSearchParams, searchString) {
-        const params = urlParams || new URLSearchParams();
-        params.set('expand', employeesExpand);
-        params.set('hateoas', 'false');
-        params.set('orderby', 'BusinessRelationInfo.Name');
-        params.set('top', '50');
+    getEmployees(urlParams: HttpParams, searchString) {
+        let params = urlParams || new HttpParams();
+        params = params
+            .set('expand', employeesExpand)
+            .set('hateoas', 'false')
+            .set('orderby', 'BusinessRelationInfo.Name')
+            .set('top', '50');
+
         if (params.has('filter')) {
             let filter = params.get('filter');
             filter = filter.replace(new RegExp('Info.', 'g'), 'BusinessRelationInfo.');
             filter += ` or startswith(SocialSecurityNumber, '${searchString}')`;
-            params.set('filter', filter);
+            params = params.set('filter', filter);
 
         }
-        return this.employeeService.GetAllByUrlSearchParams(params)
-            .map(x => x.json())
+        return this.employeeService.GetAllByHttpParams(params)
+            .map(x => x.body)
             .map(x => x.map(y => {
                 y._Source = 'Employee';
                 y.Info = y.BusinessRelationInfo;

@@ -17,20 +17,22 @@
 
         <section *ngIf="remindersEmail">
             <p>{{remindersEmail.length}} purringer kan sendes på e-post eller sendes til fakturaprint</p>
-            <uni-table *ngIf="remindersEmail.length"
+            <ag-grid-wrapper
+                *ngIf="remindersEmail.length"
                 [resource]="remindersEmail"
                 [config]="reminderTable"
-                (rowChanged)="onRowChanged($event)">
-            </uni-table>
+                (rowChange)="onRowChanged($event)">
+            </ag-grid-wrapper>
         </section>
 
         <section *ngIf="remindersPrint">
             <p>{{remindersPrint.length}} purringer må skrives ut på papir eller sendes til fakturaprint</p>
-            <uni-table *ngIf="remindersPrint.length"
+            <ag-grid-wrapper
+                *ngIf="remindersPrint.length"
                 [resource]="remindersPrint"
                 [config]="reminderTable"
-                (rowChanged)="onRowChanged($event)">
-            </uni-table>
+                (rowChange)="onRowChanged($event)">
+            </ag-grid-wrapper>
         </section>
     </section>
 </section>

@@ -744,7 +744,7 @@ export class AMeldingView implements OnInit {
         if (done) {
             done('Feilet ved henting av tilbakemelding');
         }
-        const errMessage = err.json().Message ? err.json().Message : '';
+        const errMessage = err.body.Message ? err.body.Message : '';
         let toastText = '';
         if (errMessage.indexOf('Incorrect username') >= 0) {
             toastText = 'Brukernavn og/eller passord er feil';

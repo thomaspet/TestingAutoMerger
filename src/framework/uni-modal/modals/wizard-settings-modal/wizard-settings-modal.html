@@ -1,0 +1,98 @@
+<section role="dialog" class="uni-redesign uni-modal uni-wizard-settings-modal" style="width: 60vw;">
+    <header>Oppsett av innstillinger for {{ companySettings?.CompanyName }}</header>
+    <article style="overflow: visible">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <mat-horizontal-stepper [linear]="true" #stepper [@.disabled]="true" *ngIf="initiated">
+            <mat-step label="Firma" [completed]="stepValidator[0].isValid">
+                <label>
+                    <span>Organisasjonsnummer</span>
+                    <input type="search" [(ngModel)]="companySettings.OrganizationNumber"/>
+                    <input type="hidden">
+                </label>
+
+                <label>
+                    <span>Selskapsnavn *</span>
+                    <input
+                        type="text"
+                        [(ngModel)]="companySettings.CompanyName"
+                        (blur)="isCompanyNameFieldTouched = true"
+                    />
+                </label>
+
+                <label>
+                    <span>Adresse *</span>
+                    <input type="text" [(ngModel)]="companySettings.DefaultAddress.AddressLine1">
+                </label>
+
+                <label>
+                    <span>E-post *</span>
+                    <input type="text" [(ngModel)]="companySettings.DefaultEmail.EmailAddress">
+                </label>
+            </mat-step>
+
+            <mat-step label="Regnskap" *ngIf="stepValidator[1].hasStep" [completed]="stepValidator[1].isValid">
+                <uni-form
+                    [config]="{}"
+                    [fields]="accountingFields$"
+                    [model]="accountSettings$">
+                </uni-form>
+            </mat-step>
+
+            <mat-step label="Bank & Altinn" *ngIf="stepValidator[2].hasStep" [completed]="stepValidator[2].isValid">
+                <uni-form
+                    [config]="{}"
+                    [fields]="fields$"
+                    [model]="accountSettings$">
+                </uni-form>
+            </mat-step>
+
+            <mat-step label="Lønn" *ngIf="stepValidator[3].hasStep" [completed]="stepValidator[3].isValid">
+                <label>
+                    <span style="flex: 0 0 210px;">Standard feriepengesats</span>
+                    <input type="text" [(ngModel)]="vacationRates.Rate">
+                </label>
+                <label>
+                    <span style="flex: 0 0 210px;">Poster skattetrekk automatisk</span>
+                    <i class="material-icons" style="color: #0f4880" (click)="companySalary.PostToTaxDraw = !companySalary.PostToTaxDraw"> {{ companySalary.PostToTaxDraw ? 'check_box' : 'check_box_outline_blank' }} </i>
+                </label>
+            </mat-step>
+
+            <mat-step label="Klart til bruk" [completed]="false">
+                <section class="wizard-demo-message">
+                    <span>
+                        <i class="material-icons" style="color: green; font-size: 2.8rem; margin: 0 1rem;"> check_circle_outline </i>
+                        Innstillinger lagret, og firma er klart til bruk. <strong style="text-decoration: underline">Velkommen til UniEconomy</strong>
+                    </span>
+                </section>
+            </mat-step>
+        </mat-horizontal-stepper>
+
+        <small class="form-warning" *ngIf="errorMessage">
+            {{ errorMessage }}
+        </small>
+    </article>
+
+    <footer>
+        <button class="back"
+            (click)="previous()"
+            *ngIf="currentStep !== lastStep"
+            [disabled]="currentStep === 0">
+                Tilbake
+        </button>
+
+        <button class="c2a" *ngIf="currentStep < lastStep - 1" (click)="next()" [disabled]="false">
+            Neste
+        </button>
+
+        <button class="good"
+            *ngIf="currentStep === lastStep - 1"
+            (click)="saveSettings()">
+                Lagre og fullfør
+        </button>
+
+        <button class="cancel" *ngIf="showCloseWhenError" (click)="close()">Lukk</button>
+    </footer>
+</section>

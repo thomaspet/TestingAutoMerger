@@ -1,9 +1,9 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import {IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
-import { URLSearchParams } from '@angular/http';
+import { Component } from '@angular/core';
+import { IUniTableConfig } from '@uni-framework/ui/unitable';
+import { HttpParams } from '@angular/common/http';
 import { PeopleService } from '@app/components/admin/gdpr/people.service';
 import { Observable } from 'rxjs';
-import { Form, FormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { tableConfig } from './table.config';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
@@ -14,7 +14,7 @@ import { BrowserStorageService } from '@uni-framework/core/browserStorageService
 })
 export class UniGdprPeopleList {
     public tableConfig: IUniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
+    public lookupFunction: (urlParams: HttpParams) => Observable<any>;
     public searchControl: FormControl;
     public data: Array<any> = [];
     public STORAGE_KEY = 'gdpr_filter';
@@ -49,14 +49,17 @@ export class UniGdprPeopleList {
                 }
                 const filter = this.getFilter(searchString);
                 this.storage.setSessionItemOnCompany(this.STORAGE_KEY, searchString);
-                const params = new URLSearchParams();
-                params.set('filter', filter);
-                const data$ = this.peopleService.getPeople(params, searchString)
-                    .do(x => this.busy = true);
-                data$.subscribe(x => {
-                    this.busy = false;
-                    this.data = x;
-                });
+                const params = new HttpParams().set('filter', filter);
+
+                this.busy = true;
+
+                this.peopleService.getPeople(params, searchString).subscribe(
+                    data => {
+                        this.busy = false;
+                        this.data = data;
+                    },
+                    () => this.busy = false
+                );
             });
     }
 

@@ -34,7 +34,7 @@ export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
             .withEndPoint(`${this.relativeURL}?action=get-pin-message`)
             .withBody(altinnAuthRequest)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public storeAltinnAuthenticationDataInLocalstorage(altinnAuthenticationData: AltinnAuthenticationData) {

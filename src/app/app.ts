@@ -123,7 +123,7 @@ export class App {
                     .usingBusinessDomain()
                     .withEndPoint('users?action=accept-UserLicenseAgreement')
                     .send()
-                    .map(res => res.json())
+                    .map(res => res.body)
                     .subscribe(
                         success => this.toastService.addToast(
                             'Suksess',

@@ -119,7 +119,7 @@ export class BureauTaskTab implements AfterViewInit, OnDestroy {
             `${BASE}/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox`,
             companyKey
         )
-            .map(response => response.json())
+            .map(response => response.body)
             .map(result => result.length);
     }
 

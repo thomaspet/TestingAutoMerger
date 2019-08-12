@@ -763,7 +763,7 @@ export class TimeEntry {
             .usingBusinessDomain()
             .withEndPoint(endpoint)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 }
 

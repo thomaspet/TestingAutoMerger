@@ -1,9 +1,7 @@
 ﻿import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {IUniSaveAction} from '@uni-framework/save/save';
 import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {IUploadConfig} from '@uni-framework/uniImage/uniImage';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
@@ -36,25 +34,20 @@ import {
     CurrencyCodeService,
     CurrencyService,
     EHFService,
-    EmailService,
     ErrorService,
     FinancialYearService,
     MunicipalService,
     PeriodSeriesService,
-    PhoneService,
     UniSearchAccountConfig,
     VatReportFormService,
     VatTypeService,
     UniFilesService,
-    ElsaProductService,
     ElsaPurchaseService,
     CampaignTemplateService,
     SubEntityService,
-    ReportService,
     ReportTypeService,
     DistributionPlanService
 } from '@app/services/services';
-import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
 import {
@@ -73,7 +66,6 @@ import {SettingsService} from '../settings-service';
 
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
-import { AgreementService } from '@app/services/common/agreementService';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
@@ -105,28 +97,13 @@ export class CompanySettingsComponent implements OnInit {
     public showImageSection: boolean = false;
     public showReminderSection: boolean = false;
     public showReportOptionsSection: boolean = false;
-    public imageUploadOptions: IUploadConfig;
-
-    public addressChanged: any;
-    public emailChanged: any;
-    public phoneChanged: any;
-    public emptyPhone: Phone;
-    public emptyEmail: Email;
-    public emptyAddress: Address;
 
     private organizationnumbertoast: number;
 
     public isDirty: boolean = false;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public config$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public reportSetupFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-
-    public roundingTypes: {ID: number, Label: string}[] = [
-        {ID: 0, Label: 'Opp'},
-    //    {ID: 1, Label: 'Ned'},
-    //    {ID: 2, Label: 'Hele'},
-    //    {ID: 3, Label: 'Halve'}
-    ];
 
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
@@ -155,14 +132,10 @@ export class CompanySettingsComponent implements OnInit {
     private orderFormList: ReportDefinition[];
     private invoiceFormList: ReportDefinition[];
 
-    private currentYear: number;
-
     private invoiceTemplate: CampaignTemplate;
     private orderTemplate: CampaignTemplate;
     private quoteTemplate: CampaignTemplate;
 
-    private hasBoughtEHF: boolean = false;
-    private hasBoughtInvoicePrint: boolean = false;
     private hideXtraPaymentOrgXmlTagValue: boolean;
     private hideBankValues: boolean;
     private distributionPlans: any[];
@@ -181,8 +154,6 @@ export class CompanySettingsComponent implements OnInit {
         private municipalService: MunicipalService,
         private bankaccountService: BankAccountService,
         private addressService: AddressService,
-        private phoneService: PhoneService,
-        private emailService: EmailService,
         private toastService: ToastService,
         private accountVisibilityGroupService: AccountVisibilityGroupService,
         private companyService: CompanyService,
@@ -194,11 +165,8 @@ export class CompanySettingsComponent implements OnInit {
         private ehfService: EHFService,
         private modalService: UniModalService,
         private uniFilesService: UniFilesService,
-        private subEntitySettingsService: SubEntitySettingsService,
         private companySettingsViewService: CompanySettingsViewService,
-        private elsaProductService: ElsaProductService,
         private router: Router,
-        private agreementService: AgreementService,
         private campaignTemplateService: CampaignTemplateService,
         private elsaPurchasesService: ElsaPurchaseService,
         private subEntityService: SubEntityService,
@@ -207,11 +175,6 @@ export class CompanySettingsComponent implements OnInit {
         private reportTypeService: ReportTypeService,
         private distributionPlanService: DistributionPlanService,
     ) {
-        this.financialYearService.lastSelectedFinancialYear$.subscribe(
-            res => this.currentYear = res.Year,
-            err => this.errorService.handle(err)
-        );
-
         this.settingsService.setSaveActions([{
             label: 'Lagre firmainnstillinger',
             action: (event) => this.saveSettings(event),
@@ -224,8 +187,16 @@ export class CompanySettingsComponent implements OnInit {
         this.getDataAndSetupForm();
     }
 
-    private getDataAndSetupForm() {
+    ngOnDestroy() {
+        // Avoid memory leaks
+        this.companySettings$.complete();
+        this.fields$.complete();
+        this.config$.complete();
+        this.reportSetupFields$.complete();
+        this.reportModel$.combineAll();
+    }
 
+    private getDataAndSetupForm() {
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
             this.vatReportFormService.GetAll(null),
@@ -234,9 +205,6 @@ export class CompanySettingsComponent implements OnInit {
             this.accountGroupSetService.GetAll(null),
             this.companySettingsService.Get(1),
             this.municipalService.getAll(null),
-            this.phoneService.GetNewEntity(),
-            this.emailService.GetNewEntity(),
-            this.addressService.GetNewEntity(null, 'Address'),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
             this.financialYearService.GetAll(null),
             this.campaignTemplateService.getInvoiceTemplatetext(),
@@ -246,9 +214,6 @@ export class CompanySettingsComponent implements OnInit {
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
             this.distributionPlanService.GetAll(null),
-            this.emailService.GetNewEntity(),
-            this.isProductBought('EHF').catch(this.logAndIgnoreError),
-            this.isProductBought('INVOICEPRINT').catch(this.logAndIgnoreError),
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -259,46 +224,38 @@ export class CompanySettingsComponent implements OnInit {
                 this.hideXtraPaymentOrgXmlTagValue = !dataset[5].UseXtraPaymentOrgXmlTag;
                 this.hideBankValues = !dataset[5].UsePaymentBankValues;
                 this.municipalities = dataset[6];
-                this.emptyPhone = dataset[7];
-                this.emptyEmail = dataset[8];
-                this.emptyAddress = dataset[9];
+
                 // get accountvisibilitygroups that are not specific for a companytype
-                this.accountVisibilityGroups = dataset[10].filter(x => x.CompanyTypes.length === 0);
-                this.accountYears = dataset[11];
+                this.accountVisibilityGroups = dataset[7].filter(x => x.CompanyTypes.length === 0);
+                this.accountYears = dataset[8];
                 this.accountYears.forEach(item => item['YearString'] = item.Year.toString());
 
-                this.invoiceTemplate = JSON.parse(dataset[12]._body)[0]
-                    || <CampaignTemplate>{
-                        EntityName: 'CustomerInvoice',
-                        Template: ''
-                    };
-                this.orderTemplate = JSON.parse(dataset[13]._body)[0]
-                    || <CampaignTemplate>{
-                        EntityName: 'CustomerOrder',
-                        Template: ''
-                    };
-                this.quoteTemplate = JSON.parse(dataset[14]._body)[0]
-                    || <CampaignTemplate>{
-                        EntityName: 'CustomerQuote',
-                        Template: ''
-                    };
+                this.invoiceTemplate = dataset[9][0] || <CampaignTemplate> {
+                    EntityName: 'CustomerInvoice',
+                    Template: ''
+                };
+                this.orderTemplate = dataset[10][0] || <CampaignTemplate> {
+                    EntityName: 'CustomerOrder',
+                    Template: ''
+                };
+                this.quoteTemplate = dataset[11][0] || <CampaignTemplate> {
+                    EntityName: 'CustomerQuote',
+                    Template: ''
+                };
 
                 this.reportModel$.next({
-                    company: this.setupCompanySettingsData(dataset[5]),
+                    company: this.setupMultivalueData(dataset[5]),
                     orderTemplate: this.orderTemplate,
                     invoiceTemplate: this.invoiceTemplate,
                     quoteTemplate: this.quoteTemplate
                 });
 
-                this.quoteFormList = dataset[15];
-                this.orderFormList = dataset[16];
-                this.invoiceFormList = dataset[17];
-                this.distributionPlans = dataset[18];
-                this.hasBoughtEHF = dataset[20];
-                this.hasBoughtInvoicePrint = dataset[21];
+                this.quoteFormList = dataset[12];
+                this.orderFormList = dataset[13];
+                this.invoiceFormList = dataset[14];
+                this.distributionPlans = dataset[15];
 
-                // do this after getting emptyPhone/email/address
-                this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
+                this.companySettings$.next(this.setupMultivalueData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
                 this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                     company => {
@@ -319,17 +276,12 @@ export class CompanySettingsComponent implements OnInit {
             );
     }
 
-    private setupCompanySettingsData(companySettings: CompanySettings) {
-        companySettings.DefaultAddress = companySettings.DefaultAddress
-        ? companySettings.DefaultAddress : this.emptyAddress;
-        companySettings['Addresses'] = [companySettings.DefaultAddress];
-        companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
-        companySettings['Phones'] = [companySettings.DefaultPhone];
-        companySettings.DefaultEmail = companySettings.DefaultEmail ? companySettings.DefaultEmail : this.emptyEmail;
-        companySettings['Emails'] = [companySettings.DefaultEmail];
-        companySettings.FactoringEmail = companySettings.FactoringEmail ? companySettings.FactoringEmail : this.emptyEmail;
-        companySettings['FactoringEmails'] = [companySettings.FactoringEmail];
-        return companySettings;
+    private setupMultivalueData(settings: CompanySettings) {
+        settings['Addresses'] = [settings.DefaultAddress || {_createguid: this.companySettingsService.getNewGuid()}];
+        settings['Phones'] = [settings.DefaultPhone || {_createguid: this.companySettingsService.getNewGuid()}];
+        settings['Emails'] = [settings.DefaultEmail || {_createguid: this.companySettingsService.getNewGuid()}];
+        settings['FactoringEmails'] = [settings.FactoringEmail || {_createguid: this.companySettingsService.getNewGuid()}];
+        return settings;
     }
 
     public onFormReady() {
@@ -608,30 +560,30 @@ export class CompanySettingsComponent implements OnInit {
         if (company.BankAccounts) {
             company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
-                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                    bankaccount['_createguid'] = this.companySettingsService.getNewGuid();
                 }
             });
         }
 
         if (company.DefaultAddress && company.DefaultAddress.ID === 0 && !company.DefaultAddress['_createguid']) {
-            company.DefaultAddress['_createguid'] = this.addressService.getNewGuid();
+            company.DefaultAddress['_createguid'] = this.companySettingsService.getNewGuid();
         }
 
         if (company.FactoringEmail && company.FactoringEmail.ID === 0 && !company.FactoringEmail['_createguid']) {
-            company.FactoringEmail['_createguid'] = this.emailService.getNewGuid();
+            company.FactoringEmail['_createguid'] = this.companySettingsService.getNewGuid();
         }
 
         if (company.DefaultEmail && company.DefaultEmail.ID === 0 && !company.DefaultEmail['_createguid']) {
-            company.DefaultEmail['_createguid'] = this.emailService.getNewGuid();
+            company.DefaultEmail['_createguid'] = this.companySettingsService.getNewGuid();
         }
 
         if (company.DefaultPhone && company.DefaultPhone.ID === 0 && !company.DefaultPhone['_createguid']) {
-            company.DefaultPhone['_createguid'] = this.phoneService.getNewGuid();
+            company.DefaultPhone['_createguid'] = this.companySettingsService.getNewGuid();
         }
 
         if (company.CompanyBankAccount) {
             if (!company.CompanyBankAccount.ID) {
-                company.CompanyBankAccount['_createguid'] = this.bankaccountService.getNewGuid();
+                company.CompanyBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
                 company.CompanyBankAccount.BankAccountType = 'company';
             }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.CompanyBankAccount);
@@ -639,7 +591,7 @@ export class CompanySettingsComponent implements OnInit {
 
         if (company.TaxBankAccount) {
             if (!company.TaxBankAccount.ID) {
-                company.TaxBankAccount['_createguid'] = this.bankaccountService.getNewGuid();
+                company.TaxBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
                 company.TaxBankAccount.BankAccountType = 'bankaccount';
             }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.TaxBankAccount);
@@ -647,7 +599,7 @@ export class CompanySettingsComponent implements OnInit {
 
         if (company.SalaryBankAccount) {
             if (!company.SalaryBankAccount.ID) {
-                company.SalaryBankAccount['_createguid'] = this.bankaccountService.getNewGuid();
+                company.SalaryBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
                 company.SalaryBankAccount.BankAccountType = 'salarybank';
             }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
@@ -677,7 +629,6 @@ export class CompanySettingsComponent implements OnInit {
 
                     this.reminderSettings.save().then(() => {
                         this.isDirty = false;
-                        this.toastService.addToast('Innstillinger lagret', ToastType.good, 3);
                         complete('Innstillinger lagret');
 
                         // just start this after saving settings - it wont matter much if it
@@ -691,17 +642,6 @@ export class CompanySettingsComponent implements OnInit {
                 });
             }
         );
-    }
-
-    private promptUpdateOfSubEntitiesIfNeeded(companySettings: CompanySettings) {
-        if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
-            this.subEntitySettingsService
-                .addSubEntitiesFromExternal(companySettings.OrganizationNumber)
-                .subscribe(
-                    subEntities => this.savedCompanyOrgValue = companySettings.OrganizationNumber,
-                    err => this.errorService.handle(err)
-                );
-        }
     }
 
     private promptImportFromBrregIfNeeded(companySettings: CompanySettings) {
@@ -986,7 +926,7 @@ export class CompanySettingsComponent implements OnInit {
             editor: (bankaccount: BankAccount) => {
                 if (!bankaccount || !bankaccount.ID) {
                     bankaccount = bankaccount || new BankAccount();
-                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                    bankaccount['_createguid'] = this.companySettingsService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
                     bankaccount.ID = 0;
@@ -1086,7 +1026,6 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getFormLayout() {
-        this.config$.next({});
         this.fields$.next([
             {
                 EntityType: 'CompanySettings',
@@ -1929,7 +1868,7 @@ export class CompanySettingsComponent implements OnInit {
         return null;
     }
 
-    private logoFileChanged(files: Array<any>) {
+    logoFileChanged(files: Array<any>) {
         const company = this.companySettings$.getValue();
         if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
             // update logourl in company object
@@ -1938,15 +1877,11 @@ export class CompanySettingsComponent implements OnInit {
 
             // run request to save it without the user clicking save, because otherwise
             // the LogoFileID and FileEntityLinks will be left in an inconsistent state
-            this.companySettingsService.PostAction(1, 'update-logo', `logoFileId=${company.LogoFileID}`)
-                .subscribe((res) => {
-                    this.toastService.addToast('Logo lagret', ToastType.good, ToastTime.short);
-                }, err => this.errorService.handle(err));
+            this.companySettingsService.PostAction(1, 'update-logo', `logoFileId=${company.LogoFileID}`).subscribe(
+                () => {},
+                err => this.errorService.handle(err)
+            );
         }
-    }
-
-    private isProductBought(name: string): Observable<boolean> {
-        return this.elsaPurchasesService.getPurchaseByProductName(name).map(res => !!res);
     }
 
     private activateProduct(productName: string, activationModal: () => void) {
@@ -2032,11 +1967,6 @@ export class CompanySettingsComponent implements OnInit {
         } else {
             this.disableInvoiceEmail();
         }
-    }
-
-    private logAndIgnoreError(err: Error, obs: Observable<any>): Observable<boolean> {
-        console.log('Failed to run async call:', err);
-        return Observable.of(false);
     }
 
     //#region Test data
