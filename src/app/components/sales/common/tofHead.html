@@ -3,7 +3,6 @@
         <header>
             Kunde
         </header>
-
         <tof-customer-card
             [readonly]="readonly"
             [entity]="data"
@@ -37,6 +36,7 @@
             [currencyCodes]="currencyCodes"
             [projects]="projects"
             [sellers]="sellers"
+            [contacts]="contacts"
             [companySettings]="companySettings">
         </tof-details-form>
 
@@ -77,7 +77,7 @@
             <seller-links
                 [readonly]="isReadOnly()"
                 [(entity)]="data"
-                (entityChange)="dataChange.emit(data)">
+                (entityChange)="onSellersChange($event)">
             </seller-links>
         </section>
 

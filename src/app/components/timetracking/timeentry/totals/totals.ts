@@ -308,7 +308,7 @@ export class RegtimeTotals {
                     callbacks: {
                         label: function(i, d) {
                             return d.labels[i.index] + ' - ' + d.datasets[i.datasetIndex].label
-                                + ' ' + (d.datasets[i.datasetIndex].data[i.index] / 60).toFixed(2) + ' timer';
+                                + ' ' + (<number> d.datasets[i.datasetIndex].data[i.index] / 60).toFixed(2) + ' timer';
                         }
                     }
                 }

@@ -2,6 +2,7 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/co
 import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
 import {AuthService} from '../../../authService';
+import {take} from 'rxjs/operators';
 
 interface IWidgetShortcut {
     label: string;
@@ -38,7 +39,7 @@ export class UniShortcutWidget {
     ) {}
 
     public ngAfterViewInit() {
-        this.authService.authentication$.subscribe(auth => {
+        this.authService.authentication$.pipe(take(1)).subscribe(auth => {
             const user = auth.user;
             try {
                 this.shortcuts = this.widget.config.shortcuts.map(shortcut => {

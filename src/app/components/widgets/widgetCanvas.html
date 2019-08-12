@@ -1,6 +1,32 @@
-<section #canvas class="widget-canvas"
-         [ngClass]="{'edit-mode': editMode}"
-         (mousemove)="onMouseMove($event)">
+<header class="dashboard-header uni-redesign">
+    <span class="title">{{companyName}}</span>
+
+    <ul class="links" *ngIf="links">
+        <li *ngFor="let link of links">
+            <a class="dashboard-link"
+                [routerLink]="link.url"
+                [routerLinkActiveOptions]="{exact: true}"
+                routerLinkActive="active">
+                {{link.label}}
+            </a>
+        </li>
+    </ul>
+
+    <a class="dashboard-link" routerLink="/overview">Oversikt</a>
+
+    <newsfeed></newsfeed>
+
+    <button class="edit-toggle icon-button" (click)="toggleEditMode()">
+        <i class="material-icons">edit</i>
+    </button>
+</header>
+
+
+<section #canvas
+    class="widget-canvas"
+    [ngClass]="{'edit-mode': editMode}"
+    [ngStyle]="{'height': ((canvasHeight || 0) * gridUnitInPx) + 'px'}"
+    (mousemove)="onMouseMove($event)">
     <section class="canvas-guide" *ngIf="editMode">
         <ng-template ngFor let-row let-rowIndex="index" [ngForOf]="canvasHelper.canvasGrid">
             <span *ngFor="let cell of row; let cellIndex = index"
@@ -39,31 +65,25 @@
     </ng-template>
 </section>
 
-<button *ngIf="!editMode" class="canvas-edit-toggle" (click)="toggleEditMode()">
-    <i class="material-icons">edit</i>
-</button>
+<section class="canvas-toolbar uni-redesign" *ngIf="editMode">
+    <button (click)="hardReset()" class="bad">
+        Tilbakestill alt
+    </button>
 
-<section class="canvas-toolbar" *ngIf="editMode">
-    <span *ngIf="editMode">
-        <button (click)="hardReset()" class="bad canvas-hard-reset">
-            Tilbakestill alt
-        </button>
+    <uni-multilevel-select
+        [placeholder]="'Legg til widget'"
+        [items]="widgetSelectorItems"
+        [displayField]="'description'"
+        (select)="addWidget($event)"
+        class="drop-up">
+    </uni-multilevel-select>
 
-        <uni-multilevel-select
-            [placeholder]="'Legg til widget'"
-            [items]="widgetSelectorItems"
-            [displayField]="'description'"
-            (select)="addWidget($event)"
-            class="drop-up">
-        </uni-multilevel-select>
+    <button (click)="save()" class="good">
+        Lagre
+    </button>
 
-        <button (click)="cancelEdit()" class="bad canvas-cancel">
-            Avbryt
-        </button>
-
-        <button (click)="save()" class="good canvas-save">
-            Lagre
-        </button>
-    </span>
+    <button (click)="cancelEdit()" class="canvas-cancel outline-warn">
+        Avbryt
+    </button>
 </section>
 

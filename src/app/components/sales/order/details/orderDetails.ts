@@ -25,7 +25,7 @@ import {
     VatType,
     Department,
     User,
-    ReportDefinition,
+    ReportDefinition, Contact,
 } from '@uni-entities';
 import {
     CompanySettingsService,
@@ -100,7 +100,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
     private projectID: number;
-
+    private askedAboutSettingDimensionsOnItems: boolean = false;
     newOrderItem: CustomerOrderItem;
     order: CustomerOrder;
     orderItems: CustomerOrderItem[];
@@ -119,6 +119,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     currencyCodeID: number;
     currencyExchangeRate: number;
     private currentCustomer: Customer;
+    private currentDimensions: string;
     currentUser: User;
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
@@ -128,6 +129,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     selectConfig: any;
 
     sellers: Seller[];
+    contacts: Contact[];
 
     private currentOrderDate: LocalDate;
     dimensionTypes: any[];
@@ -163,6 +165,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Info.DefaultEmail',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
@@ -175,6 +178,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Customer',
         'Customer.Info',
         'Customer.Info.Addresses',
+        'Customer.Info.Contacts.Info',
         'Customer.Dimensions',
         'Customer.Dimensions.Project',
         'Customer.Dimensions.Department',
@@ -299,6 +303,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             : Observable.of([]),
                     ).subscribe(res => {
                         const order = <CustomerOrder>res[0];
+                        this.askedAboutSettingDimensionsOnItems = false;
+                        this.contacts = order.Customer.Info.Contacts;
                         this.companySettings = res[1];
                         this.currencyCodes = res[2];
                         this.paymentTerms = res[3];
@@ -371,6 +377,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.reportDefinitionService.GetAll('filter=ReportType eq 2')
                     ).subscribe(
                         (res) => {
+                            this.askedAboutSettingDimensionsOnItems = false;
                             let order = <CustomerOrder>res[0];
                             this.currentUser = res[1];
                             order.OurReference = this.currentUser.DisplayName;
@@ -378,8 +385,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             this.currencyCodes = res[3];
                             this.paymentTerms = res[4];
                             this.deliveryTerms = res[5];
+                            this.contacts = [];
                             if (res[6]) {
                                 order = this.tofHelper.mapCustomerToEntity(res[6], order);
+                                this.contacts = order.Customer.Info.Contacts;
                             }
                             if (res[7]) {
                                 order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
@@ -533,10 +542,20 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
+    updateContacts(order) {
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            this.contacts = this.currentCustomer.Info.Contacts;
+        } else if (order.Customer && order.Customer.Info && order.Customer.Info.Contacts) {
+            this.contacts = order.Customer.Info.Contacts;
+        } else {
+            this.contacts = [];
+        }
+    }
+
     onOrderChange(order) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
-
+        this.updateContacts(order);
         const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
             if ((!order.Customer.ID || order.Customer.ID === 0) && order.Customer.OrgNumber !== null) {
@@ -591,12 +610,22 @@ export class OrderDetails implements OnInit, AfterViewInit {
             this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
 
             const dimension = order['_updatedField'].split('.');
+
+            if (order['_updatedFields'] && order['_updatedFields'].toString().includes('Dimension')) {
+                this.askedAboutSettingDimensionsOnItems = false;
+            }
+
+
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[dimension[0]][dimension[1]]);
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.askedAboutSettingDimensionsOnItems = true;
+                this.currentDimensions = dimension;
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]]);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.askedAboutSettingDimensionsOnItems = true;
+                this.currentDimensions = dimension;
             }
             if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
                 this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);

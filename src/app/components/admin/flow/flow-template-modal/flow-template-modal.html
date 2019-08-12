@@ -11,8 +11,9 @@
         </label>
 
         <label *ngFor="let input of flowInputs">
-            <span>{{input.Label.no}}</span>
-            <input type="text" [(ngModel)]="input.Value" />
+            <span>{{input.Label.no}}</span>            
+            <input *ngIf="input.Type !== 'bool'" type="text" [(ngModel)]="input.Value" />
+            <input *ngIf="input.Type === 'bool'" type="checkbox" [(ngModel)]="input.Value" />
         </label>
     </article>
 

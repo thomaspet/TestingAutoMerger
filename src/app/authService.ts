@@ -84,10 +84,10 @@ export class AuthService {
         if (this.jwt && this.activeCompany) {
             this.setLoadIndicatorVisibility(true);
             this.loadCurrentSession().subscribe(
-                res => {
+                auth => {
                     this.filesToken$.next(this.filesToken);
 
-                    if (!res.hasActiveContract) {
+                    if (!auth.hasActiveContract) {
                         this.router.navigateByUrl('contract-activation');
                     }
 
@@ -97,7 +97,7 @@ export class AuthService {
                         this.setLoadIndicatorVisibility(false);
                     }, 250);
                 },
-                err => {
+                () => {
                     this.setLoadIndicatorVisibility(false);
                     this.authentication$.next({
                         activeCompany: undefined,
@@ -214,13 +214,9 @@ export class AuthService {
 
                 this.loadCurrentSession().take(1).subscribe(
                     authDetails => {
-                        const permissions = authDetails.user['Permissions'] || [];
-                        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
-                            redirect = '/assignments/approvals';
-                        }
-
-                        if (authDetails.user && !authDetails.hasActiveContract) {
-                            redirect = 'contract-activation';
+                        const forcedRedirect = this.getForcedRedirect(authDetails);
+                        if (forcedRedirect) {
+                            redirect = forcedRedirect;
                         }
 
                         setTimeout(() => {
@@ -236,6 +232,18 @@ export class AuthService {
                 );
             }
         });
+    }
+
+    private getForcedRedirect(authDetails: IAuthDetails) {
+        const permissions = authDetails.user['Permissions'] || [];
+
+        if (authDetails.user && !authDetails.hasActiveContract) {
+            return 'contract-activation';
+        }
+
+        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
+            return '/assignments/approvals';
+        }
     }
 
     private getSafeRoute(url: string): string {

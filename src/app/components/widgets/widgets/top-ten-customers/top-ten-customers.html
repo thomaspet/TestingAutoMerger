@@ -1,0 +1,45 @@
+<section class="widget-wrapper">
+    <!-- <section class="header">
+        {{widget.description}}
+    </section> -->
+
+    <section class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th class="customer">10 STØRSTE KUNDER</th>
+                    <th>SALG {{currentYear}}</th>
+                    <th>SALG {{currentYear - 1}}</th>
+                    <th>UTESTÅENDE</th>
+                    <th class="menu"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let customer of customers">
+                    <td class="customer">
+                        <a (click)="goToCustomer(customer.ID)">{{customer.Name}}</a>
+                    </td>
+                    <td>{{customer.SumThisYear | uninumberformat:'money'}}</td>
+                    <td>{{customer.SumPreviousYear | uninumberformat:'money'}}</td>
+                    <td>{{customer.SumRest | uninumberformat:'money'}}</td>
+
+                    <td class="menu" [matMenuTriggerFor]="contextMenu">
+                        <ng-container>
+                            <i class="material-icons" style="font-size: 15px; vertical-align: middle; cursor: pointer;">
+                                more_horiz
+                            </i>
+                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                <ul class="menu-list">
+                                    <li *ngFor="let item of contextMenuItems"
+                                        (click)="goToEntity(item.entity, customer.ID)">
+                                        {{item.label}}
+                                    </li>
+                                </ul>
+                            </mat-menu>
+                        </ng-container>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</section>

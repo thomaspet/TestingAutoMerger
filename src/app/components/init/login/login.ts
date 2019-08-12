@@ -56,8 +56,12 @@ export class Login {
             username: this.usernameControl.value,
             password: this.passwordControl.value
         }).subscribe(
-            (response) => this.selectCompany(),
-            (error) => {
+            () => {
+                this.usernameControl.setValue('');
+                this.passwordControl.setValue('');
+                this.selectCompany();
+            },
+            () => {
                 this.working = false;
                 this.usernameControl.enable();
                 this.passwordControl.enable();

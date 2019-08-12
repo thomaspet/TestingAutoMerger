@@ -314,6 +314,11 @@
             "Name": "CustomerInvoiceReminder",
             "Translated": "Purring",
             "Url": "/sales/reminders"
+        },
+        {
+            "Name": "Payment",
+            "Translated": "Betaling",
+            "Url": "/bank"
         }
     ]
 }

@@ -62,6 +62,15 @@ export const FLOW_TEMPLATES: FlowTemplate[] = [
             },
             Type: 'integer',
             DefaultValue: '60'
+        }, {
+            Placeholder: '$sendmail',
+            Name: 'sendmail',
+            Label: {
+                no: 'Send epost varsling',
+                en: 'Send email reminder to assignee'
+            },
+            Type: 'bool',
+            DefaultValue: 'true'
         }],
         Eventplan: <Eventplan>{
             Name: 'Automatisk tildeling av inngående faktura',
@@ -88,7 +97,7 @@ export const FLOW_TEMPLATES: FlowTemplate[] = [
         Eventplan: <Eventplan>{
             Name: 'Leverandørsynkronisering',
             OperationFilter: 'CUD',
-            ModelFilter: 'Supplier',
+            ModelFilter: 'Supplier,SubCompany',
             PlanType: EventplanType.Custom,
             JobNames: 'SupplierSync',
         }

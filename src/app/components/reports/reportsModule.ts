@@ -45,9 +45,6 @@ import {
 import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
 import {UniReports} from './reports';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
-import {
-    ReconciliationListParamsModalComponent
-} from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import { UniReportComments } from '@app/components/reports/modals/parameter/reportComments';
 import { UniReportSendModal } from '@app/components/reports/modals/parameter/reportSendModal';
 
@@ -85,7 +82,6 @@ import {MatProgressBarModule} from '@angular/material';
         UniPrintModal,
         UniReportParamsModal,
         AnnualSatementReportFilterModalComponent,
-        ReconciliationListParamsModalComponent,
         UniReportComments,
         UniReportSendModal,
     ],
@@ -100,7 +96,6 @@ import {MatProgressBarModule} from '@angular/material';
         UniReportParamsModal,
         UniPreviewModal,
         UniPrintModal,
-        ReconciliationListParamsModalComponent,
         UniReportComments,
         UniReportSendModal,
     ],
@@ -121,7 +116,6 @@ import {MatProgressBarModule} from '@angular/material';
         PaycheckReportFilterModalContent,
         UniReportParamsModal,
         AnnualSatementReportFilterModalComponent,
-        ReconciliationListParamsModalComponent,
     ]
 })
 export class ReportsModule {}

@@ -16,29 +16,48 @@ import {
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {LocalDate} from '@uni-entities';
 import {WorkEditor} from './workeditor';
+import {parseTime } from '../../common/utils/utils';
 
 @Component({
     selector: 'uni-time-modal',
     template: `
-        <section role="dialog" class="uni-modal">
-            <header><h1>Rediger timer</h1></header>
+        <section class="uni-modal uni-redesign" style="padding: 0;">
+            <header style="padding: 0 2rem"><h1 style="padding: 0">Rediger timer</h1></header>
 
             <i *ngIf="options.data.linkToCancel" class="material-icons arrow_back icon-blue">arrow_back</i>
             <a *ngIf="options.data.linkToCancel" (click)="close()">Tilbake til timevalg</a>
 
-            <article [attr.aria-busy]="busy" id="uniTableWrapper">
-            <div class="uniTable">
-                <h3>{{date|isotime:'Udddd DD.MM.YYYY'}}</h3>
-                <workeditor class="workEditor" [order]="options.data.order" [timesheet]="timesheet"> </workeditor>
-                <div class="sum">
-                    <h4 class="total">Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}</h4>
+            <article [attr.aria-busy]="busy" id="uniTableWrapper" style="padding: 0 2rem; overflow: visible">
+                <div class="uniTable">
+                    <div style="display: flex; align-items: center;">
+                        <a class="time-popup-date-text register-text">
+                            <i class="material-icons"> watch_later </i> Registrer timer for {{ date|isotime:'Udddd DD.MM.YYYY' }}
+                        </a>
+
+                        <div style="flex: 1"></div>
+
+                        <mat-form-field *ngIf="templates.length">
+                            <mat-select [value]="currentTemplate" (valueChange)="useTemplate($event)" placeholder="Bruk mal">
+                                <mat-option *ngFor="let template of templates" [value]="template">
+                                    {{ template.Name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <workeditor class="workEditor" [order]="options.data.order" [timesheet]="timesheet"> </workeditor>
+
+                    <div class="sum">
+                        <a class="time-popup-date-text total-text">
+                            <i class="material-icons"> work_outline </i> Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}
+                        </a>
+                    </div>
                 </div>
-            </div>
             </article>
 
-            <footer>
-                <button (click)="close('cancel')" class="cancel">Avbryt</button>
-                <button (click)="close('ok')" class="good">Lagre</button>
+            <footer style="flex: 0 0 3.5rem !important; ">
+                <button (click)="close('ok')" style="margin: 0 .5rem; background-color: #01a901; color: #FFF;">Lagre</button>
+                <button (click)="close('cancel')" class="cancel" style="margin: 0;">Avbryt</button>
             </footer>
         </section>
     `,
@@ -62,6 +81,9 @@ export class UniTimeModal implements IUniModal {
     public date: Date;
     public busy: boolean = false;
 
+    templates: any[] = [];
+    currentTemplate;
+
     constructor(
         private timesheetService: TimesheetService,
         private changeDetectorRef: ChangeDetectorRef,
@@ -73,6 +95,10 @@ export class UniTimeModal implements IUniModal {
         if (this.options.data.height) {
             const element = document.getElementById('uniTableWrapper');
             element.setAttribute('style', 'height:' + this.options.data.height + ';');
+        }
+
+        if (this.options.data.templates) {
+            this.templates = this.options.data.templates;
         }
 
         const ts = this.timesheetService.newTimeSheet(this.options.data.relation);
@@ -115,6 +141,40 @@ export class UniTimeModal implements IUniModal {
         this.refresh();
     }
 
+    public useTemplate(event) {
+        event.Items.forEach((item) => {
+            this.timesheet.addItem(this.mapTemplateToWorkItem({}, item));
+            if (item && item.Project && item.Project.ID) {
+                const value = {
+                    name: 'Dimensions.ProjectID',
+                    value: item.Project,
+                    isParsed: false,
+                    rowIndex: this.timesheet.items.length - 1
+                };
+                this.timesheet.setItemValue(value);
+            }
+        });
+
+        this.timesheet.recalc();
+        this.editor.refreshData();
+    }
+
+    private mapTemplateToWorkItem(workItem: any, template) {
+        const types = this.editor.getWorkTypes();
+        workItem.Date = this.options.data.date;
+        workItem.StartTime = template.StartTime ? parseTime(template.StartTime) : parseTime('8');
+        workItem.EndTime = template.EndTime ? parseTime(template.EndTime) : parseTime('8');
+        workItem.Minutes = template.Minutes;
+        workItem.LunchInMinutes = template.LunchInMinutes;
+        workItem.Description = template.Description;
+        if (template.Worktype && template.Worktype.ID) {
+            workItem.Worktype = types.find(t => t.ID === template.Worktype.ID);
+        } else {
+            workItem.Worktype = types[0];
+        }
+        workItem.WorkTypeID = workItem.Worktype.ID;
+        return workItem;
+    }
 
     @HostListener('keydown', ['$event'])
     public keyHandler(event: KeyboardEvent) {

@@ -1,6 +1,11 @@
-<ag-grid-wrapper
-    [config]="sellerTableConfig"    
+<ag-grid-wrapper #table
+    [config]="sellerTableConfig"
     [(resource)]="sellerLinks"
-    (resourceChange)="onSellerLinksChange()"
+    (rowChange)="onSellerChange($event)"
     (rowDelete)="onSellerLinkDeleted($event)">
 </ag-grid-wrapper>
+
+<section class="invalid-percent" *ngIf="totalPercent && totalPercent !== 100">
+    <i class="material-icons bad">error</i>
+    Selgerprosent er ikke 100, du bør endre dette før lagring.
+</section>

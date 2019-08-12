@@ -1,18 +1,22 @@
-import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
+import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
 import {
     ITickerActionOverride, ITickerColumnOverride
 } from '../../../../services/common/uniTickerService';
 import {
     CustomerInvoiceService,
     CustomerQuoteService,
-    CustomerOrderService
+    CustomerOrderService,
+    UserService
 } from '../../../../services/services';
-import {UniModalService} from '@uni-framework/uni-modal';
+import { UniModalService } from '@uni-framework/uni-modal';
 import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 import { environment } from 'src/environments/environment';
+import { DisclaimerModal } from '@app/components/admin/import-central/modals/disclaimer/disclaimer-modal';
+import { UserDto, User } from '@uni-entities';
+import { AuthService } from '@app/authService';
 
 @Component({
     selector: 'customer-list',
@@ -77,7 +81,7 @@ export class CustomerList implements OnInit {
         }
     ];
 
-    public columnOverrides: Array<ITickerColumnOverride> = [ ];
+    public columnOverrides: Array<ITickerColumnOverride> = [];
 
     public tickercode: string = 'customer_list';
 
@@ -99,7 +103,7 @@ export class CustomerList implements OnInit {
         main: true,
         disabled: false
     }
-];
+    ];
 
     customerTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER;
 
@@ -111,6 +115,7 @@ export class CustomerList implements OnInit {
         private customerQuoteService: CustomerQuoteService,
         private customerOrderService: CustomerOrderService,
         private modalService: UniModalService,
+        private userService: UserService
     ) { }
 
     public ngOnInit() {
@@ -138,24 +143,43 @@ export class CustomerList implements OnInit {
         });
     }
 
-    public openImportModal(done = () => {} ) {
-        this.modalService.open(ImportCentralTemplateModal,
-            {
-                header: 'Importer Kunder',
-                data: { 
-                    jobName: 'CustomerImportJob',
-                    entityType: 'Customer',
-                    description: 'Import central - customer',
-                    conditionalStatement:'Hvis kundenummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
-                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
-                    downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system', 
-                    downloadTemplateUrl: this.customerTemplateUrl }
+    public openImportModal(done = () => { }) {
+        this.userService.getCurrentUser().subscribe(res => {
+            if (res) {
+                if (res.HasAgreedToImportDisclaimer) {
+                    this.openCustomerImportModal();
+                }
+                else {
+                    this.modalService.open(DisclaimerModal)
+                        .onClose.subscribe((val) => {
+                            if (val) {
+                                this.openCustomerImportModal();
+                            }
+                        });
+                }
             }
-        );
+        });
         done();
     }
 
     private importLogs() {
         this.router.navigateByUrl('/admin/jobs');
     }
+
+    private openCustomerImportModal() {
+        this.modalService.open(ImportCentralTemplateModal,
+            {
+                header: 'Importer Kunder',
+                data: {
+                    jobName: 'CustomerImportJob',
+                    entityType: 'Customer',
+                    description: 'Import central - customer',
+                    conditionalStatement: 'Hvis kundenummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
+                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
+                    downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system',
+                    downloadTemplateUrl: this.customerTemplateUrl
+                }
+            }
+        );
+    };
 }

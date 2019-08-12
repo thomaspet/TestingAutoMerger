@@ -1,15 +1,19 @@
 
-import { BizHttp } from "@uni-framework/core/http/BizHttp";
-import { AccountMandatoryDimension, Dimensions, SalaryTransaction } from "@uni-entities";
-import { UniHttp } from "@uni-framework/core/http/http";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { RequestMethod } from "@angular/http";
+import { BizHttp } from '@uni-framework/core/http/BizHttp';
+import { Account, AccountMandatoryDimension, Dimensions, SalaryTransaction } from '@uni-entities';
+import { UniHttp } from '@uni-framework/core/http/http';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { RequestMethod } from '@angular/http';
 import {StatisticsService} from '../common/statisticsService';
+import { tap, map } from 'rxjs/operators';
 
 
 @Injectable()
 export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDimension> {
+
+    mandatoryDimensionsCache = [];
+    mandatoryDimensionsCacheIsValid = false;
 
     constructor(
         http: UniHttp,
@@ -20,9 +24,57 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         this.entityType = AccountMandatoryDimension.EntityType;
     }
 
+    invalidateMandatoryDimensionsCache() {
+        this.mandatoryDimensionsCache = [];
+        this.mandatoryDimensionsCacheIsValid = false;
+    }
+
+    getRequiredMessage(mandatoryDimensionLabels, account) {
+        if (!mandatoryDimensionLabels.length) {
+            return '';
+        }
+        return `Konto ${account} krever at dimensjonen(e) ${mandatoryDimensionLabels.join(',')} er satt`;
+    }
+
+    getWarningMessage(mandatoryDimensionLabels, account) {
+        if (!mandatoryDimensionLabels.length) {
+            return '';
+        }
+        return `Konto ${account} har forslag om a sette dimensjonene ${mandatoryDimensionLabels.join(',')}`;
+    }
+
+    getMandatoryDimensions() {
+        if (this.mandatoryDimensionsCacheIsValid) {
+            return of(this.mandatoryDimensionsCache);
+        }
+        return this.statisticsService.GetAll(
+            'model=accountmandatorydimension' +
+            '&select=AccountMandatoryDimension.DimensionNo as DimensionNo' +
+            ',AccountMandatoryDimension.MandatoryType as MandatoryType,' +
+            'AccountMandatoryDimension.AccountID as AccountID,' +
+            'DimensionSettings.Label as Label' +
+            '&filter=MandatoryType gt 0' +
+            '&join=accountmandatorydimension.DimensionNo eq DimensionSettings.Dimension'
+        ).pipe(
+            tap(result => this.mandatoryDimensionsCacheIsValid = true),
+            tap(result => this.mandatoryDimensionsCache = result.Data),
+            map(result => result.Data),
+            map(result => result.map(item => {
+                if (item.Label === null) {
+                    if (item.DimensionNo === 1) {
+                        item.Label = 'Prosjekt';
+                    }
+                    if (item.DimensionNo === 2) {
+                        item.Label = 'Avdeling';
+                    }
+                }
+                return item;
+            }))
+        );
+    }
 
     public getMandatoryDimensionsReports(items: any[]): Observable<any> {
-        let params: AccountDimension[] = [];
+        const params: AccountDimension[] = [];
         items.forEach(item => {
             const ad = new AccountDimension();
             ad.AccountID = item.AccountID;
@@ -36,8 +88,56 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         return super.ActionWithBody(null, params, `get-mandatory-dimensions-reports`, RequestMethod.Put);
     }
 
+    public getDimensionName(dimensionNo) {
+        if (dimensionNo === 1) {
+            return 'Project';
+        }
+        if (dimensionNo === 2) {
+            return 'Department';
+        } else {
+            return 'Dimension' + dimensionNo;
+        }
+    }
+
+    public getReport(account: Account, row: any) {
+        if (!account) {
+            return null;
+        }
+        const debitMandatoryDimensions = this.mandatoryDimensionsCache.filter(md => md.AccountID === account.ID);
+        const debitWarningDimensions = debitMandatoryDimensions.filter(md => {
+            const isWarning = md.MandatoryType === 2;
+            const hasValue = !!row.Dimensions[this.getDimensionName(md.DimensionNo)];
+            return isWarning && !hasValue;
+        });
+        const debitRequiredDimensions = debitMandatoryDimensions.filter(md => {
+            const isRequired = md.MandatoryType === 1;
+            const hasValue = !!row.Dimensions[this.getDimensionName(md.DimensionNo)];
+            return isRequired && !hasValue;
+        });
+        const debitWarningDimensionsLabels = debitWarningDimensions.map(md => md.Label);
+        const debitRequiredDimensionsLabels = debitRequiredDimensions.map(md => md.Label);
+        const arrayToObject = (dimensions) => {
+            const obj = {};
+            dimensions.forEach(item => {
+                obj[item.DimensionNo] = item.Label;
+            });
+            return obj;
+        };
+        const report = {
+            AccountID: account.ID,
+            AccountNumber: account.AccountNumber,
+            MissingOnlyWarningsDimensionsMessage: this.getWarningMessage(debitWarningDimensionsLabels, account.AccountNumber),
+            MissingRequiredDimensions: debitRequiredDimensions.map(md => md.DimensionNo),
+            MissingRequiredDimensionsMessage: this.getRequiredMessage(debitRequiredDimensionsLabels, account.AccountNumber),
+            MissingWarningDimensions: debitWarningDimensions.map(md => md.DimensionNo),
+            RequiredDimensions: arrayToObject(debitRequiredDimensions),
+            WarningDimensions: arrayToObject(debitWarningDimensions)
+        };
+        return report;
+    }
+
     public getMandatoryDimensionsReportsForPayroll(salaryTransactions: SalaryTransaction[]): Observable<any> {
-        let params: AccountDimension[] = [];
+        const params: AccountDimension[] = [];
         salaryTransactions
         .forEach(item => {
             const ad = new AccountDimension();

@@ -2,6 +2,10 @@ import {Component} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
 import {ListViewColumn} from '../list-view/list-view';
+import {ElsaContractService} from '@app/services/services';
+import {saveAs} from 'file-saver';
+import * as moment from 'moment';
+import {ElsaUserLicenseType} from '@app/models';
 
 export interface BillingDataItem {
     ProductID: number;
@@ -12,7 +16,7 @@ export interface BillingDataItem {
     Price: number;
     DiscountPrc: number;
     Sum: number;
-    Details: {Name: string; Counter: number}[];
+    Details: {Name: string; Counter: number, Tags?: string[]}[];
 }
 
 export interface BillingData {
@@ -56,6 +60,7 @@ export class Billing {
     constructor(
         private authService: AuthService,
         private http: UniHttp,
+        private contractService: ElsaContractService
     ) {
         const currentYear = new Date().getFullYear();
         this.yearSelectOptions = [currentYear - 2, currentYear - 1, currentYear];
@@ -71,7 +76,8 @@ export class Billing {
         const contractID = this.authService.currentUser.License.Company.ContractID;
         const endpoint = `/api/billing/contract/${contractID}`
             + `?year=${this.periodFilter.year}`
-            + `&month=${+this.periodFilter.month + 1}`;
+            + `&month=${+this.periodFilter.month + 1}`
+            + `&tags=true`;
 
         this.http.asGET()
             .usingElsaDomain()
@@ -94,5 +100,86 @@ export class Billing {
     onRowClick(row) {
         this.selectedRow = row;
         this.detailsVisible = true;
+    }
+
+    export() {
+        const formatNumber = value => value.toString().replace('.', ',');
+        const csv = [];
+
+        csv.push(
+            `${this.billingData.CustomerName};`
+            + `${this.contractService.getContractTypeText(this.billingData.ContractType)};`
+            + `${moment(this.billingData.FromDate).format('DD.MM.YYYY')};`
+            + `${moment(this.billingData.ToDate).format('DD.MM.YYYY')};`
+            + `;;;;;;`
+        );
+
+        csv.push(';;;;;;;;;;');
+        csv.push('ProductID;ProductName;User;Company;Days;Amount;Price;Unit;DiscountPrc;Sum');
+
+        this.billingData.Items.forEach(item => {
+            if (item.Unit === 'bruker') {
+                csv.push([
+                    item.ProductID,
+                    item.ProductName,
+                    '',
+                    '',
+                    item.Days,
+                    formatNumber(item.Amount),
+                    formatNumber(item.Price),
+                    item.Unit,
+                    formatNumber(item.DiscountPrc),
+                    formatNumber(item.Sum)
+                ].join(';'));
+
+                item.Details.forEach(details => {
+                    details.Tags.forEach(tag => {
+                        csv.push([
+                            item.ProductID,
+                            item.ProductName,
+                            details.Name,
+                            tag,
+                            formatNumber(details.Counter),
+                            '',
+                            '',
+                            item.Unit,
+                            formatNumber(item.DiscountPrc),
+                            ''
+                        ].join(';'));
+                    });
+                });
+            } else if (item.Unit === 'stk') {
+                csv.push([
+                    item.ProductID,
+                    item.ProductName,
+                    '',
+                    '',
+                    '',
+                    formatNumber(item.Amount),
+                    formatNumber(item.Price),
+                    item.Unit,
+                    formatNumber(item.DiscountPrc),
+                    formatNumber(item.Sum)
+                ].join(';'));
+
+                item.Details.forEach(details => {
+                    csv.push([
+                        item.ProductID,
+                        item.ProductName,
+                        '',
+                        details.Name,
+                        '',
+                        formatNumber(details.Counter),
+                        '',
+                        item.Unit,
+                        formatNumber(item.DiscountPrc),
+                        ''
+                    ].join(';'));
+                });
+            }
+        });
+
+        const csvBlob = new Blob([csv.join('\n')], {type: 'text/csv;charset=utf-8;'});
+        saveAs(csvBlob, 'estimert-forbruk.csv');
     }
 }

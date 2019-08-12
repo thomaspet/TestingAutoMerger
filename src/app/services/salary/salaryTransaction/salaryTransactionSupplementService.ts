@@ -1,11 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype, SalaryTransaction, WageType} from '../../../unientities';
+import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype} from '../../../unientities';
 import * as moment from 'moment';
-import {Observable} from 'rxjs';
 import {ErrorService} from '../../common/errorService';
-import {WageTypeService} from '../wageType/wageTypeService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 export enum SalaryTransactionSupplementValidationCodes {
@@ -19,7 +17,6 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
     constructor(
         protected http: UniHttp,
         private errorService: ErrorService,
-        private wageTypeService: WageTypeService,
         private toastService: ToastService
     ) {
         super(http);
@@ -37,11 +34,11 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
             case Valuetype.IsBool:
                 return supp.ValueBool ? 'JA' : 'NEI';
             case Valuetype.IsDate:
-                return this.getDate(supp.ValueDate);
+                return this.displayDate(supp.ValueDate);
             case Valuetype.IsMoney:
                 return '' + supp.ValueMoney;
             case Valuetype.Period:
-                return `${this.getDate(supp.ValueDate)} - ${supp.ValueDate2}`;
+                return `${this.displayDate(supp.ValueDate)} - ${this.displayDate(supp.ValueDate2)}`;
             default:
                 return supp.ValueString;
         }
@@ -55,8 +52,8 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
         return `${wtSupp.Description || wtSupp.Name} ${this.displayValue(supp, wtSupp)}`;
     }
 
-    private getDate(date: Date) {
-        return moment(date).format('dd.MM.yy');
+    private displayDate(date: Date) {
+        return moment(date).format('DD.MM.YYYY');
     }
 
     public anyUnfinished(supps: SalaryTransactionSupplement[], wtSupps: WageTypeSupplement[] = []) {
@@ -75,7 +72,7 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
 
         return !supp.ValueDate
             && !supp.ValueDate2
-            && !supp.ValueMoney || supp.ValueMoney === 0
+            && (!supp.ValueMoney || supp.ValueMoney === 0)
             && !supp.ValueString;
     }
 

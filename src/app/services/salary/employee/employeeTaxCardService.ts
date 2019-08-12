@@ -9,6 +9,11 @@ const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 
 @Injectable()
 export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
+    private freeAmountTypes = [
+        { id: FreeAmountType.None, name: 'Ingen' },
+        { id: FreeAmountType.WithAmount, name: 'Frikort med beløp' },
+        { id: FreeAmountType.NoLimit, name: 'Frikort uten beløp' }
+    ];
     constructor(protected http: UniHttp) {
         super(http);
         this.relativeURL = EmployeeTaxCard.RelativeUrl;
@@ -24,6 +29,11 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
         'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger',
         'ufoereYtelserAndre'
     ];
+
+    public getNameFromFreeAmountType(freeAmountType: FreeAmountType) {
+        const type = this.freeAmountTypes.find(t => t.id === freeAmountType);
+        return type && type.name || this.freeAmountTypes[0].name;
+    }
 
     public GetEmployeeTaxCard(employeeID: number, activeYear: number): Observable<EmployeeTaxCard> {
         return this.GetAll(

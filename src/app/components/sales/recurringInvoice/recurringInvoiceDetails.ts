@@ -82,12 +82,14 @@ export class UniRecurringInvoice implements OnInit {
 
     @Input() invoiceID: any;
 
-    private distributeEntityType = 'Models.Sales.CustomerInvoice';
+    private distributeEntityTypeInvoice = 'Models.Sales.CustomerInvoice';
+    private distributeEntityTypeOrder = 'Models.Sales.CustomerOrder';
     private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private deletables: SellerLink[] = [];
+    private askedAboutSettingDimensionsOnItems: boolean;
 
     readonly: boolean;
     invoice: RecurringInvoice;
@@ -121,8 +123,11 @@ export class UniRecurringInvoice implements OnInit {
     sellers: Seller[];
     dimensionTypes: any[];
     paymentInfoTypes: any[];
+    allDistributionPlans: any[];
     distributionPlans: any[];
+    allReports: any[];
     reports: any[];
+    reportType = 1;
     log: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
@@ -136,6 +141,7 @@ export class UniRecurringInvoice implements OnInit {
         'Info.DefaultContact.Info',
         'Info.Emails',
         'Info.DefaultEmail',
+        'Info.Contacts.Info',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
@@ -144,7 +150,7 @@ export class UniRecurringInvoice implements OnInit {
     ];
 
     private invoiceExpands: Array<string> = [
-        'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DeliveryTerms',
         'PaymentTerms',
@@ -242,8 +248,8 @@ export class UniRecurringInvoice implements OnInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
-                    this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 1')
+                    this.reportService.getDistributions2Types(this.distributeEntityTypeInvoice, this.distributeEntityTypeOrder),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1 or ReportType eq 2')
                 ).subscribe((res) => {
                     let invoice = <RecurringInvoice>res[0];
 
@@ -276,8 +282,9 @@ export class UniRecurringInvoice implements OnInit {
                     this.departments = res[12];
                     this.setUpDims(res[13]);
                     this.paymentInfoTypes = res[14];
-                    this.distributionPlans = res[15];
-                    this.reports = res[16];
+                    this.allDistributionPlans = res[15];
+                    this.allReports = res[16];
+                    this.setTypeSpecificValues(invoice);
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
                         this.invoiceID, this.numberSeries, 'Customer Invoice number series'
@@ -323,8 +330,8 @@ export class UniRecurringInvoice implements OnInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
-                    this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
+                    this.reportService.getDistributions2Types(this.distributeEntityTypeInvoice, this.distributeEntityTypeOrder),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1 or ReportType eq 2'),
                     this.numberSeriesService.GetAll(
                         `filter=NumberSeriesType.Name eq 'Customer Invoice number `
                         + `series' and Empty eq false and Disabled eq false`,
@@ -342,8 +349,9 @@ export class UniRecurringInvoice implements OnInit {
                     this.departments = res[8];
                     this.setUpDims(res[9]);
                     this.paymentInfoTypes = res[10];
-                    this.distributionPlans = res[11];
-                    this.reports = res[12];
+                    this.allDistributionPlans = res[11];
+                    this.allReports = res[12];
+                    this.setTypeSpecificValues(invoice);
                     this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[13]);
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
@@ -366,12 +374,26 @@ export class UniRecurringInvoice implements OnInit {
 
                     this.refreshInvoice(invoice);
                     this.tofHead.focus();
-                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
+    }
+
+    private setTypeSpecificValues(invoice: RecurringInvoice) {
+        this.reportType = this.getReportType(invoice);
+        this.reports = this.allReports.filter(x => x.ReportType === this.reportType);
+        if (this.reportType === 1) {
+            this.distributionPlans = this.allDistributionPlans.filter(x => x.EntityType === this.distributeEntityTypeInvoice);
+        } else {
+            this.distributionPlans = this.allDistributionPlans.filter(x => x.EntityType === this.distributeEntityTypeOrder);
+        }
+    }
+
+    private getReportType(invoice: any): number {
+        return invoice.ProduceAs === 1 ? 1 : 2;
     }
 
     private getInvoice(ID: number): Observable<RecurringInvoice> {
@@ -462,6 +484,7 @@ export class UniRecurringInvoice implements OnInit {
         return true;
     }
 
+
     onInvoiceChange(invoice: RecurringInvoice) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
@@ -497,9 +520,13 @@ export class UniRecurringInvoice implements OnInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
+        }
+
+        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('Dimension')) {
+            this.askedAboutSettingDimensionsOnItems = false;
         }
 
         if (invoice['_updatedField']) {
@@ -509,12 +536,12 @@ export class UniRecurringInvoice implements OnInit {
             const dimension = invoice['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]]);
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]]);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
             }
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID) {
+            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode !== StatusCodeRecurringInvoice.Active) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
@@ -548,6 +575,9 @@ export class UniRecurringInvoice implements OnInit {
             } else {
                 invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
             }
+        }
+        if (this.reportType !== this.getReportType(invoice)) {
+            this.setTypeSpecificValues(invoice);
         }
         this.invoice = invoice;
         this.updateSaveActions();
@@ -871,15 +901,7 @@ export class UniRecurringInvoice implements OnInit {
         this.saveActions = [
             {
                 label: 'Lagre',
-                action: done => this.saveInvoice(done).then(res => {
-                    if (res) {
-                        this.getInvoice(res.ID).subscribe(invoice => {
-                            this.refreshInvoice(invoice);
-                        });
-                    }
-                }).catch((err) => {
-                    done('Lagring avbrutt');
-                }),
+                action: done => this.saveAndRefreshInvoice(done),
                 disabled: false,
                 main: this.isDirty
             },
@@ -920,6 +942,24 @@ export class UniRecurringInvoice implements OnInit {
             }
         };
         this.modalService.open(UniRecurringInvoiceLogModal, options);
+    }
+
+    private saveAndRefreshInvoice(done) {
+        const requiresPageRefresh = !this.invoice.ID;
+        this.saveInvoice(done).then(res => {
+            if (res) {
+                this.isDirty = false;
+                if (requiresPageRefresh) {
+                    this.router.navigateByUrl('sales/recurringinvoice/' + res.ID);
+                } else {
+                    this.getInvoice(res.ID).subscribe(invoice => {
+                        this.refreshInvoice(invoice);
+                    });
+                }
+            }
+        }).catch((err) => {
+            done('Lagring avbrutt');
+        });
     }
 
     private saveInvoice(done = (msg: string) => {}): Promise<RecurringInvoice> {
@@ -967,7 +1007,10 @@ export class UniRecurringInvoice implements OnInit {
                             this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.invoiceItems);
                             done('Lagring fullført');
                         },
-                        err => reject(err));
+                        err => {
+                            this.errorService.handle(err);
+                            reject(err);
+                        });
                 } else {
                     done('Lagring avbrutt');
                 }

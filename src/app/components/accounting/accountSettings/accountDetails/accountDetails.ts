@@ -42,6 +42,7 @@ export class AccountDetails implements OnInit {
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
     public dimensionsConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public dimensionsFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public invalidateDimensionsCache = false;
 
     constructor(
         private accountService: AccountService,
@@ -253,6 +254,7 @@ export class AccountDetails implements OnInit {
     }
 
     public onDimensionsChange(change: SimpleChange) {
+        this.invalidateDimensionsCache = true;
         const dimensions = this.dimensions$.getValue();
         const account = this.account$.getValue();
         const key = _.keys(change)[0];
@@ -338,6 +340,10 @@ export class AccountDetails implements OnInit {
                         (response) => {
                             // completeEvent('Lagret');
                             resolve(true);
+                            if (this.invalidateDimensionsCache) {
+                                this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
+                                this.invalidateDimensionsCache = false;
+                            }
                             this.account$.next(response);
                             this.accountSaved.emit(account);
                             this.checkRecurringInvoices(account.ID);
@@ -355,6 +361,10 @@ export class AccountDetails implements OnInit {
                         (response) => {
                             // completeEvent('Lagret');
                             resolve(true);
+                            if (this.invalidateDimensionsCache) {
+                                this.accountMandatoryDimensionService.invalidateCache();
+                                this.invalidateDimensionsCache = false;
+                            }
                             this.accountSaved.emit(account);
                         },
                         (err) => {
@@ -393,6 +403,10 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
+                        if (this.invalidateDimensionsCache) {
+                            this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
+                            this.invalidateDimensionsCache = false;
+                        }
                         this.account$.next(response);
                         this.accountSaved.emit(account);
                         this.checkRecurringInvoices(account.ID);
@@ -408,6 +422,10 @@ export class AccountDetails implements OnInit {
                 .subscribe(
                     (response) => {
                         completeEvent('Lagret');
+                        if (this.invalidateDimensionsCache) {
+                            this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
+                            this.invalidateDimensionsCache = false;
+                        }
                         this.accountSaved.emit(account);
                     },
                     (err) => {

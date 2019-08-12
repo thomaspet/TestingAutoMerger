@@ -1,13 +1,12 @@
-import {Component, Input, SimpleChanges, ChangeDetectorRef} from '@angular/core';
-import {IUniWidget} from '../uniWidget';
+import {Component, Input, ChangeDetectorRef} from '@angular/core';
+import {Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
+
+import {IUniWidget} from '../uniWidget';
 import {ApiKeyService, TravelService, ErrorService} from '@app/services/services';
 import {ApiKey, TypeOfIntegration} from '@uni-entities';
-import * as _ from 'lodash';
-import {Router} from '@angular/router';
 import {WidgetDataService} from '@app/components/widgets/widgetDataService';
-import {ReplaySubject} from 'rxjs';
 
 interface IIntegrationConfig {
     label: string;
@@ -17,15 +16,16 @@ interface IIntegrationConfig {
 @Component({
     selector: 'uni-integration-counter-widget',
     template: `
-        <section class="positive-negative-widget" (click)="onClickNavigate()">
-            <span>{{(config$ | async)?.label}}</span>
-            <span class="value" [ngClass]="{'bad': (count$ | async) > 0}">
-                {{count$ | async}}
-            </span>
-        </section>
+        <div class="sum_widget" (click)="onClickNavigate()">
+            <div class="numbers-section">
+                <div class="header">{{(config$ | async)?.label}}</div>
+                <div>{{count$ | async}}</div>
+            </div>
+
+            <i class="material-icons">{{ widget.config.icon }}</i>
+        </div>
     `
 })
-
 export class UniIntegrationCounterWidget {
     @Input() public widget: IUniWidget;
 

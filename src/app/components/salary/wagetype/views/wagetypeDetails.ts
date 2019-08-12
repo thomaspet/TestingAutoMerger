@@ -516,7 +516,7 @@ export class WagetypeDetail extends UniView {
 
     private removeAndReturnValue(value: string) {
 
-        if (value !== null) {
+        if (value !== null && typeof value === 'string') {
             switch (value.toString().toLowerCase()) {
                 case 'ja/nei':
                     value = '';
@@ -531,6 +531,8 @@ export class WagetypeDetail extends UniView {
                 default:
                     break;
             }
+        } else {
+            value = '';
         }
 
         return value;
@@ -585,7 +587,13 @@ export class WagetypeDetail extends UniView {
     private setupTilleggspakkeConfig() {
         const tilleggsopplysning = new UniTableColumn('Name', 'Tilleggsopplysning', UniTableColumnType.Text);
         tilleggsopplysning.editable = false;
-        const suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
+        const suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text)
+            .setTemplate((supplement: WageTypeSupplement) => {
+                if (supplement.SuggestedValue && Object.keys(supplement.SuggestedValue).length) {
+                    return '';
+                }
+                return supplement.SuggestedValue;
+            });
 
         this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)
             .setFilters([

@@ -740,6 +740,11 @@ export class BillView implements OnInit {
             .subscribe((invoice: SupplierInvoice) => {
                 invoice.ID = this.currentID;
                 this.updateSummary([]);
+                const current = this.current.getValue();
+                if (current.TaxExclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
+                this.current.next(current);
                 this.toast.clear();
                 this.handleEHFResult(invoice);
                 this.flagUnsavedChanged();
@@ -966,6 +971,11 @@ export class BillView implements OnInit {
         setTimeout(() => {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
+                const current = this.current.getValue();
+                if (current.TaxExclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
+                this.current.next(current);
             }
         });
     }
@@ -980,6 +990,11 @@ export class BillView implements OnInit {
         this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
+                const current = this.current.getValue();
+                if (current.TaxExclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
+                this.current.next(current);
                 this.toast.clear();
 
                 const oldModel = this.current.value;
@@ -1213,7 +1228,7 @@ export class BillView implements OnInit {
 
     public onFormInput(event) {
         this.flagUnsavedChanged();
-        if (this.current.value.ID && this.current.value.SupplierID) {
+        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -1283,7 +1298,7 @@ export class BillView implements OnInit {
             );
         }
 
-        if (this.current.value.ID && this.current.value.SupplierID) {
+        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -1423,7 +1438,7 @@ export class BillView implements OnInit {
     public onFormChange(change: SimpleChanges) {
         try {
             this.onFormChanged(change);
-            if (this.current.value.ID && this.current.value.SupplierID) {
+            if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
                 this.getValidationMessage(
                     this.current.value.SupplierID,
                     this.current.value.DefaultDimensionsID,
@@ -1664,6 +1679,11 @@ export class BillView implements OnInit {
             this.updateJournalEntryAmountsWhenCurrencyChanges(lines);
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
+                const current = this.current.getValue();
+                if (current.TaxExclusiveAmountCurrency) {
+                    current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
+                }
+                this.current.next(current);
             }
 
             if (this.orgNumber && !change['TaxInclusiveAmountCurrency'].previousValue && !model.Supplier.CostAllocation) {
@@ -2853,19 +2873,21 @@ export class BillView implements OnInit {
     }
 
     public onJournalEntryManualChange(lines) {
-        console.log(this.current.value);
-        console.log(lines);
         let changes = false;
 
         this.updateSummary(lines);
-
+        let supplierInvoice = this.current.getValue();
+        if (supplierInvoice.TaxExclusiveAmountCurrency) {
+            supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
+        }
+        this.current.next(supplierInvoice);
         let previousLine = null;
 
         lines.map(line => {
-            const current = this.current.value;
+            const supplierInvoice = this.current.value;
 
             if (!line.VatDate) {
-                line.VatDate = current.InvoiceDate;
+                line.VatDate = supplierInvoice.InvoiceDate;
 
                 line = this.setVatDeductionPercent(line);
             }
@@ -2874,7 +2896,7 @@ export class BillView implements OnInit {
                 if (previousLine && previousLine.FinancialDate) {
                     line.FinancialDate = previousLine.FinancialDate;
                 } else {
-                    line.FinancialDate = current.DeliveryDate || current.InvoiceDate;
+                    line.FinancialDate = supplierInvoice.DeliveryDate || supplierInvoice.InvoiceDate;
                 }
             }
 
@@ -2887,29 +2909,29 @@ export class BillView implements OnInit {
                 line.Dimensions = {};
             }
 
-            line.CurrencyCodeID = current.CurrencyCodeID;
-            line.CurrencyCode = current.CurrencyCode;
-            line.CurrencyExchangeRate = current.CurrencyExchangeRate;
+            line.CurrencyCodeID = supplierInvoice.CurrencyCodeID;
+            line.CurrencyCode = supplierInvoice.CurrencyCode;
+            line.CurrencyExchangeRate = supplierInvoice.CurrencyExchangeRate;
 
-            if (!line.Dimensions.Project && current.DefaultDimensions && current.DefaultDimensions.Project) {
-                line.Dimensions.Project = current.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = current.DefaultDimensions.ProjectID;
+            if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
+                line.Dimensions.Project = supplierInvoice.DefaultDimensions.Project;
+                line.Dimensions.ProjectID = supplierInvoice.DefaultDimensions.ProjectID;
             }
 
-            if (!line.Dimensions.Department && !!current.DefaultDimensions && current.DefaultDimensions.Department) {
-                line.Dimensions.Department = current.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = current.DefaultDimensions.DepartmentID;
+            if (!line.Dimensions.Department && !!supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Department) {
+                line.Dimensions.Department = supplierInvoice.DefaultDimensions.Department;
+                line.Dimensions.DepartmentID = supplierInvoice.DefaultDimensions.DepartmentID;
             }
 
             this.customDimensions.forEach((dimension) => {
                 if (!line.Dimensions['Dimension' + dimension.Dimension]
-                    && current.DefaultDimensions
-                    && current.DefaultDimensions['Dimension' + dimension.Dimension]) {
+                    && supplierInvoice.DefaultDimensions
+                    && supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension]) {
 
                     line.Dimensions['Dimension' + dimension.Dimension] =
-                        current.DefaultDimensions['Dimension' + dimension.Dimension];
+                        supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension];
                     line.Dimensions['Dimension' + dimension.Dimension + 'ID'] =
-                        current.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
+                        supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
                 }
             });
 
@@ -2929,6 +2951,11 @@ export class BillView implements OnInit {
             // to recalculate this correctly
             setTimeout(() => {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
+                supplierInvoice = this.current.getValue();
+                if (supplierInvoice.TaxInclusiveAmountCurrency) {
+                    supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
+                }
+                this.current.next(supplierInvoice);
             });
         }
 
@@ -2955,7 +2982,7 @@ export class BillView implements OnInit {
 
     public onFormReady() {
         this.formReady = true;
-        if (this.current.value.ID && this.current.value.SupplierID) {
+        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,

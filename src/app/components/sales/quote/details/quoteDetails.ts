@@ -108,6 +108,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     currencyCodes: Array<CurrencyCode>;
     currencyExchangeRate: number;
     private currentCustomer: Customer;
+    private  askedAboutSettingDimensionsOnItems: boolean;
+
     currentUser: User;
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
@@ -139,6 +141,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Info.DefaultEmail',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -158,6 +161,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private quoteExpands: string[] = [
         'Customer',
+        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -283,6 +287,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.setUpDims(res[9]);
                     this.distributionPlans = res[10];
                     this.reports = res[11];
+
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -495,7 +500,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
         const customerChanged = this.didCustomerChange(quote);
-
         if (customerChanged) {
             if ((!quote.Customer.ID || quote.Customer.ID === 0) && quote.Customer.OrgNumber !== null) {
                 this.customerService.getCustomers(quote.Customer.OrgNumber).subscribe(res => {
@@ -540,6 +544,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, true);
         }
 
+        if (quote['_updatedFields'] && quote['_updatedFields'].toString().includes('Dimension')) {
+            this.askedAboutSettingDimensionsOnItems = false;
+        }
+
         if (quote['_updatedField']) {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, false);
             this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
@@ -547,10 +555,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             const dimension = quote['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]]);
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]]);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
             }
         }
 
@@ -1238,6 +1246,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private saveQuote(): Promise<CustomerQuote> {
         this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
+        if (this.quote.Sellers) {
+            this.quote.Sellers = this.quote.Sellers.filter(x => !x['_isEmpty']);
+        }
 
         // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
         if (this.quote.Sellers && this.quote.ID === 0) {
@@ -1420,5 +1431,11 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         return currencyCode ? currencyCode.Code : '';
+    }
+
+    public onTradeItemsChange($event) {
+        this.quote.Items = this.quoteItems;
+        this.quote = cloneDeep(this.quote);
+        this.recalcDebouncer.emit($event);
     }
 }

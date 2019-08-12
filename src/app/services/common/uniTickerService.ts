@@ -572,7 +572,10 @@ export class UniTickerService {
         if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
             const model = this.modelService.getModel(data[column.Alias]);
             if (model) {
-                const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                if (ticker.Name === 'Distribusjon' && column.Field === 'EntityType') {
+                    linkNavigationPropertyAlias = 'SharingEntityDisplayValue';
+                }
                 formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
             }
         }
@@ -585,7 +588,7 @@ export class UniTickerService {
             column.SubFields.forEach(sf => {
                 const subFieldValue = this.getFieldValue(sf, data, ticker, columnOverrides);
                 if (subFieldValue && subFieldValue !== '') {
-                    formattedFieldValue += ' - ' + subFieldValue;
+                    formattedFieldValue += column.Seperator ? column.Seperator + subFieldValue : ' - ' + subFieldValue;
                 }
             });
         }
@@ -1236,6 +1239,7 @@ export class TickerColumn {
     public SelectRequired?: boolean;
     public Alignment?: 'left' | 'right' | 'center';
     public EnableRowGroup?: boolean;
+    public Seperator?: string;
 }
 
 export interface ITickerColumnOverride {

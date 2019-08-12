@@ -1,0 +1,39 @@
+<div class="autocomplete" (clickOutside)="onClickOutside()">
+    <input #query
+           [attr.aria-describedby]="asideGuid"
+           class="autocomplete_input"
+           [formControl]="control"
+           [readonly]="readOnly$ | async"
+           [placeholder]="field?.Placeholder || ''"
+           (focus)="focusHandler()"
+           (blur)="emitChanges()"
+           role="combobox"
+           type="text"
+           tabindex="-1"
+    />
+    <button #toggleBtn class="uni-typeahead-searchBtn"
+            type="button"
+            tabIndex="-1"
+            (click)="toggle()"
+            [disabled]="readOnly$ | async">
+        Søk
+    </button>
+
+    <ul #list
+        *ngIf="lookupResults?.length"
+        class="uniTable_dropdown_list"
+        role="listbox"
+        tabindex="-1"
+        [attr.aria-expanded]="isExpanded">
+
+        <li *ngFor="let item of lookupResults; let idx = index"
+            class="autocomplete_result uniTable_dropdown_item"
+            role="option"
+            (mouseover)="selectedIndex = idx"
+            (click)="select(idx)"
+            [attr.aria-selected]="selectedIndex === idx">
+            {{ template(item) }}
+        </li>
+    </ul>
+    <ng-content></ng-content>
+</div>

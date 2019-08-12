@@ -26,6 +26,7 @@ import {
             </div>
 
             <ag-grid-wrapper
+                class="transquery-grid-font-size"
                 [resource]="posts"
                 [config]="uniTableConfig">
             </ag-grid-wrapper>

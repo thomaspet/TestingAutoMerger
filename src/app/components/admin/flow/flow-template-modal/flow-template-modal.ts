@@ -43,7 +43,8 @@ export class FlowTemplateModal implements IUniModal, OnInit {
         return (inputs || []).map(input => {
             const subscriber = eventplan.Subscribers.find(sub => sub.Name === input.Name);
             if (subscriber) {
-                input.Value = subscriber.Endpoint;
+                input.Value = input.Type === "bool" 
+                    ? subscriber.Endpoint === "true" : subscriber.Endpoint;
             } else {
                 input.Value = input.DefaultValue;
                 if (input.Value === '@@user_email') {
@@ -59,11 +60,11 @@ export class FlowTemplateModal implements IUniModal, OnInit {
         inputs.forEach(input => {
             const subscriber = eventplan.Subscribers.find(sub => sub.Name === input.Name);
             if (subscriber) {
-                subscriber.Endpoint = input.Value;
+                subscriber.Endpoint = this.mapValue(input);
             } else {
                 eventplan.Subscribers.push(<any> {
                     Name: input.Name,
-                    Endpoint: input.Value,
+                    Endpoint: this.mapValue(input),
                     _createguid: this.guidService.guid()
                 });
             }
@@ -72,8 +73,12 @@ export class FlowTemplateModal implements IUniModal, OnInit {
         return eventplan;
     }
 
+    private mapValue(input: FlowInput): string {
+        return input.Type === "bool" ? '' + input.Value : input.Value;
+    }
+
     save() {
-        const isValid = !this.flowInputs || this.flowInputs.every(i => i.Value);
+        const isValid = !this.flowInputs || this.flowInputs.every(i => i.Value || i.Value === false);
         if (!this.eventPlan.Name || !isValid) {
             this.toastService.addToast('Alle feltene må være fylt ut', ToastType.warn, 10);
             return;
@@ -87,6 +92,7 @@ export class FlowTemplateModal implements IUniModal, OnInit {
         this.eventPlan.Active = true;
 
         this.busy = true;
+
         this.eventPlanService.save(this.eventPlan).subscribe(
             () => this.onClose.emit(true),
             err => {

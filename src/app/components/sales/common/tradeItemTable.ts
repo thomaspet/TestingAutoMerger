@@ -275,9 +275,8 @@ export class TradeItemTable {
         }
     }
 
-    public setNonCustomDimsOnTradeItems(entity: string, id: number) {
+    public setNonCustomDimsOnTradeItems(entity: string, id: number, alreadyAskedDimensionChange: boolean = false) {
         let shouldAskBeforeChange: boolean = false;
-
         this.items.forEach((item) => {
             if (item.Dimensions
                 && item.Dimensions[entity]
@@ -308,8 +307,7 @@ export class TradeItemTable {
             });
             this.getMandatoryDimensionsReports();
         };
-
-        if (shouldAskBeforeChange) {
+        if (shouldAskBeforeChange && !alreadyAskedDimensionChange) {
             this.modalService.confirm({
                 header: `Endre dimensjon på alle varelinjer?`,
                 message: `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`,
@@ -327,7 +325,7 @@ export class TradeItemTable {
         }
     }
 
-    public setDimensionOnTradeItems(dimension: number, dimensionID: number) {
+    public setDimensionOnTradeItems(dimension: number, dimensionID: number, alreadyAskedDimensionChange: boolean = false) {
         const dim = this.dimensionTypes.find(dimType => dimType.Dimension === dimension).Data.find(item => item.ID === dimensionID);
         let shouldAskBeforeChange: boolean = false;
 
@@ -344,8 +342,7 @@ export class TradeItemTable {
                     shouldAskBeforeChange = true;
                 }
         });
-
-        if (shouldAskBeforeChange) {
+        if (shouldAskBeforeChange && !alreadyAskedDimensionChange) {
             this.modalService.confirm({
                 header: `Endre dimensjon på alle varelinjer?`,
                 message: `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`,

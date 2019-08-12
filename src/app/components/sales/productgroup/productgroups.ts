@@ -204,7 +204,10 @@ export class ProductGroups {
                     done('Gruppe slettet');
                 }
             },
-            err => this.errorService.handle(err)
+            err => {
+                this.errorService.handle(err);
+                done('Sletting avbrutt');
+            }
         );
     }
 

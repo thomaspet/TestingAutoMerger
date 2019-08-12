@@ -1,0 +1,40 @@
+<uni-toolbar [config]="{title: 'Importsentral - Logg', hideBreadcrumbs: true}"></uni-toolbar>
+<section class="application">
+    <section class="uni-container">
+        <div class="header-container">
+            <header>Logg</header>
+            <div class="drop-down-container">
+                <uni-select class="drop-down" [value]="selectedType" [config]="config" [items]="operators"
+                    (valueChange)="onSelectChange($event)">
+                </uni-select>
+            </div>
+            <!-- <input placeholder="Search" type="search"> -->
+        </div>
+
+        <div class="table-wrapper">
+            <table cellspacing="0">
+                <tr>
+                    <th>Nummer</th>
+                    <th>Jobbnummer</th>
+                    <th>Jobbnavn</th>
+                    <th>Startet</th>
+                    <th>Ferdig</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                <tr *ngFor="let job of jobLogs">
+                    <td><a>{{job.ID}}</a></td>
+                    <td><a>{{job.HangfireJobId}}</a></td>
+                    <td> <a>{{job.JobName}}</a> </td>
+                    <td>{{job.Created}}</td>
+                    <!-- <span class="time">12:20</span> -->
+                    <td>{{job.Ended}}</td>
+                    <!-- <span class="time">12:30</span> -->
+                    <td><label>{{job.Status}}</label> </td>
+                    <td><a (click)="onImportDetails(job)">More</a></td>
+                </tr>
+            </table>
+        </div>
+
+    </section>
+</section>

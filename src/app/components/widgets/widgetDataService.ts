@@ -21,7 +21,7 @@ export class WidgetDataService {
     public getData(endpoint: string) {
         // Should probably move these to separate functions if more replaces are needed
         if (endpoint.includes('<userID>')) {
-            endpoint = endpoint.replace('<userID>', this.authService.getTokenDecoded().nameid);
+            endpoint = this.replaceWithUserID(endpoint);
         }
 
         if (endpoint.includes('<year>')) {
@@ -30,6 +30,10 @@ export class WidgetDataService {
         }
 
         return this.request(endpoint);
+    }
+
+    public replaceWithUserID(string) {
+        return string.replace('<userID>', <any> this.authService.currentUser.ID);
     }
 
     public clearCache() {

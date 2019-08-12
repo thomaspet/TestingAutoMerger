@@ -35,7 +35,9 @@ import {
     CompanySettingsService,
     ReportDefinitionParameterService,
     CustomDimensionService,
-    WageTypeService
+    WageTypeService,
+    EmployeeTaxCardService,
+    SalarybalanceService
 } from '../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
@@ -51,7 +53,7 @@ import * as moment from 'moment';
 import {saveAs} from 'file-saver';
 import { map } from 'rxjs/operators';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
-declare const _;
+import * as _ from 'lodash';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk distribusjonsplan'},
@@ -133,6 +135,8 @@ export class UniTicker {
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private customDimensionService: CustomDimensionService,
         private wageTypeService: WageTypeService,
+        private taxService: EmployeeTaxCardService,
+        private salaryBalanceService: SalarybalanceService,
     ) {
         this.customDimensionService.getMetadata().subscribe(res => this.customDimensionsMetadata = res);
         this.lookupFunction = (urlParams: URLSearchParams) => {
@@ -333,12 +337,81 @@ export class UniTicker {
                     if (tickerType === 'table') {
                         if (this.tableConfig) {
                             const customerNrCol = this.tableConfig.columns.find(x => x.header === 'Kundenr.');
-                                if (customerNrCol) {
-                                    customerNrCol.setTemplate(x => {
+                            if (customerNrCol) {
+                                customerNrCol.setTemplate(x => {
                                     if (x.CustomerStatusCode === 20001) {
                                         return 'Lead';
                                     }
                                     return x.CustomerCustomerNumber;
+                                });
+                            }
+
+                            const getRateFromCol = this.tableConfig.columns.find(x => x.header === 'Sats hentes fra');
+                            const getRateFrom = ['Lønnsart', 'Månedslønn ansatt', 'Timelønn ansatt', 'Frisats ansatt'];
+                            if (getRateFromCol) {
+                                getRateFromCol.setTemplate(x => {
+                                    if (x.WageTypeGetRateFrom || x.WageTypeGetRateFrom === 0) {
+                                        return getRateFrom[x.WageTypeGetRateFrom];
+                                    }
+                                    return '';
+                                });
+                            }
+
+                            const otpStatusCol = this.tableConfig.columns.find(x => x.header === 'OTP status');
+                            const otpStatuses = ['Aktiv', 'Syk', 'Permittert', 'Lovfestet permisjon', 'Avtalt permisjon'];
+                            if (otpStatusCol) {
+                                otpStatusCol.setTemplate(x => {
+                                    if (x.EmployeeOtpStatus || x.EmployeeOtpStatus === 0) {
+                                        return otpStatuses[x.EmployeeOtpStatus];
+                                    }
+                                    return otpStatuses[0];
+                                });
+                            }
+
+                            const limitTypeCol = this.tableConfig.columns.find(x => x.header === 'Grenseverdi type');
+                            const limitTypes = ['Ingen', 'Antall', 'Beløp'];
+                            if (limitTypeCol) {
+                                limitTypeCol.setTemplate(x => {
+                                    if (x.WageTypeLimit_type || x.WageTypeLimit_type === 0) {
+                                        return `${x.WageTypeLimit_type} - ${limitTypes[x.WageTypeLimit_type]}`;
+                                    }
+                                    return '';
+                                });
+                            }
+
+                            const typeOfPaymentOtpCol = this.tableConfig.columns.find(x => x.header === 'Avlønningsform');
+                            const typesOfPaymentOtp = ['Fast', 'Time', 'Provisjon'];
+                            if (typeOfPaymentOtpCol) {
+                                typeOfPaymentOtpCol.setTemplate(x => {
+                                    if (x.EmployeeTypeOfPaymentOtp || x.EmployeeTypeOfPaymentOtp === 0) {
+                                        return typesOfPaymentOtp[x.EmployeeTypeOfPaymentOtp];
+                                    }
+                                    return typesOfPaymentOtp[0];
+                                });
+                            }
+
+                            const internationalIDTypeCol = this.tableConfig.columns
+                                .find(x => x.header === 'Internasjonal ID (type - land)');
+                            const internationalIDType = ['Ikke valgt', 'Passnr', 'Social sec. nr', 'Tax identit. nr', 'Value added nr'];
+                            if (internationalIDTypeCol) {
+                                internationalIDTypeCol.setTemplate(x => {
+                                    if (x.EmployeeInternasjonalIDType || x.EmployeeInternasjonalIDType === 0) {
+                                        const country = x.EmployeeInternasjonalIDCountry ? ' - ' + x.EmployeeInternasjonalIDCountry : '';
+                                        return internationalIDType[x.EmployeeInternasjonalIDType] + country;
+                                    }
+                                    return '';
+                                });
+                            }
+
+                            const genderCol = this.tableConfig.columns
+                                .find(x => x.header === 'Kjønn');
+                            const gender = ['Ikke satt', 'Kvinne', 'Mann'];
+                            if (genderCol) {
+                                genderCol.setTemplate(x => {
+                                    if (x.EmployeeSex || x.EmployeeSex === 0) {
+                                        return gender[x.EmployeeSex];
+                                    }
+                                    return '';
                                 });
                             }
                         }
@@ -917,6 +990,10 @@ export class UniTicker {
                 } else {
                     selects.push(column.SelectableFieldName + ' as ' + column.Alias);
                 }
+
+                if (this.ticker.Name === 'Distribusjon' && column.Field === 'EntityType') {
+                    selects.push('EntityDisplayValue');
+                }
                 if (column.SubFields) {
                     column.SubFields.forEach(subColumn => {
                         if (this.shouldAddColumnToQuery(subColumn, tableColumn)) {
@@ -1048,6 +1125,14 @@ export class UniTicker {
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.standardwagetypefor')) {
                         col.template = (rowModel) => this.wageTypeService.GetNameForStandardWageTypeFor(rowModel[column.Alias]);
                     }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('.freeamounttype')) {
+                        col.template = (rowModel) => this.taxService.getNameFromFreeAmountType(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('salarybalance.instalmenttype')) {
+                        col.template = (rowModel) => this.salaryBalanceService.getNameForInstalmentType(rowModel[column.Alias]);
+                    }
                 }
 
                 if (column.Type === 'attachment') {
@@ -1090,6 +1175,14 @@ export class UniTicker {
                             col.setTemplate(row =>  {
                                 const month = row[col.alias] ? moment(row[col.alias]).format('MM') : '';
                                 return month.startsWith('0') ? month.slice(1, 2) : month;
+                            });
+                            col.setAlignment('right');
+                            break;
+                        case 'DateYear':
+                            col.setType(UniTableColumnType.Text);
+                            col.setTemplate(row =>  {
+                                const year = row[col.alias] ? moment(row[col.alias]).format('YYYY') : '';
+                                return year;
                             });
                             col.setAlignment('right');
                             break;
@@ -1499,8 +1592,13 @@ export class UniTicker {
         if (tableColumns && tableColumns.length) {
             tableColumns.forEach(col => {
                 if (col.visible) {
-                    stringSelect.push(col.field + ' as ' + col.alias);
-                    headers.push(col.header);
+                    if (!col.field.includes('MandatoryDimensions')) {
+                        stringSelect.push(col.field + ' as ' + col.alias);
+                        headers.push(col.header);
+                    } else {
+                        stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
+                        headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
+                    }
                 }
             });
         } else {
@@ -1508,10 +1606,11 @@ export class UniTicker {
                 if (!col.DefaultHidden) {
                     if (col.Field.includes('MandatoryDimensions')) {
                         stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
+                        headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
                     } else {
                         stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                        headers.push(col.Header);
                     }
-                    headers.push(col.Header);
                 }
             });
         }
@@ -1521,14 +1620,15 @@ export class UniTicker {
             if (col.Type === 'dontdisplay') {
                 if (col.Field.includes('MandatoryDimensions')) {
                     stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
+                    headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
                 } else {
                     stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    headers.push(col.Header);
                 }
-                headers.push(col.Header);
             }
         });
 
-        const selectedFieldString = stringSelect.join(',');
+        const selectedFieldString = _.uniq(stringSelect).join(',');
 
         // Remove code after test!
         this.headers = this.headers
@@ -1544,7 +1644,7 @@ export class UniTicker {
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
-                this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
+                this.ticker.Expand, _.uniq(headers).join(','), this.ticker.Joins, this.ticker.Distinct)
                     .subscribe((result) => {
                         let filename = '';
                         // Get filename with filetype from headers
