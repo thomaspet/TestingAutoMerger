@@ -2271,7 +2271,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     // Summary
     private recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
         const items = invoiceItems && invoiceItems.filter(line => !line.Deleted);
-        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
+        const decimals = this.tradeItemHelper.getCompanySettingsNumberOfDecimals(this.companySettings, this.currencyCodeID);
 
         this.itemsSummaryData = items && items.length
             ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)

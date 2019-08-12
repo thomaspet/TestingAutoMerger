@@ -1263,7 +1263,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
     private recalcItemSums(orderItems: CustomerOrderItem[] = null) {
         const items = orderItems && orderItems.filter(item => !item.Deleted);
-        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
+        const decimals = this.tradeItemHelper.getCompanySettingsNumberOfDecimals(this.companySettings, this.currencyCodeID);
 
         this.itemsSummaryData = items && items.length
             ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)
