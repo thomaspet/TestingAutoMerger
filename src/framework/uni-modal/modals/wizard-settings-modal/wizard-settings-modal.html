@@ -41,7 +41,7 @@
                 </uni-form>
             </mat-step>
 
-            <mat-step label="Bank & Altinn" *ngIf="stepValidator[2].hasStep" [completed]="stepValidator[2].isValid">
+            <mat-step label="Bank" *ngIf="stepValidator[2].hasStep" [completed]="stepValidator[2].isValid">
                 <uni-form
                     [config]="{}"
                     [fields]="fields$"
@@ -93,6 +93,6 @@
                 Lagre og fullfør
         </button>
 
-        <button class="cancel" *ngIf="showCloseWhenError" (click)="close()">Lukk</button>
+        <button class="cancel" *ngIf="showCloseWhenError || currentStep === lastStep" (click)="close()">Lukk</button>
     </footer>
 </section>
