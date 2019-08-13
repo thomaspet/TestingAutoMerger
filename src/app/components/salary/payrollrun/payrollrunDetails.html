@@ -1,4 +1,4 @@
-<section class="coverView" [attr.aria-busy]="saving">
+<section class="coverView" [attr.aria-busy]="creatingRun">
 
     <uni-toolbar
         [config]="toolbarconfig"
@@ -30,7 +30,7 @@
 
             <span>
                 <i class="material-icons">people</i>
-                {{employees?.length || 0}} ansatte
+                {{empCount || 0}} ansatte
             </span>
 
             <span>
@@ -50,7 +50,7 @@
             </section>
         </section>
 
-        <salarytrans (emps)="getEmployeesFromChild($event)" (employee)="setEmployee($event)"></salarytrans>
+        <salarytrans></salarytrans>
     </section>
 
 

@@ -4,8 +4,24 @@
     margin-top: 1rem
 
     .salarytrans-list
-        flex: 1
-        min-width: 20rem
+        flex: 0
+        min-width: 22rem
+
+        ul
+            max-height: calc(100vh - 28rem)
+            li
+                height: 34px
+                cursor: pointer
+                align-items: center
+                span
+                    flex: 1
+                    margin-left: 5px
+                    font-weight: 400
+                div
+                    font-weight: bold
+                i
+                    font-size: 1.2rem
+
 
         .pagination
             justify-content: center
@@ -37,4 +53,26 @@ payrollrun-details .entityDetails
     .helpText
         width: 32rem
         left: calc(12.5rem - 17.7rem)
+
+.emp-button
+    @include uni-button(#ffffff)
+    padding: .25rem
+    color: $uni-color-positive
+
+.selected-employee-list
+    margin-top: 4rem
+    h5
+        margin: 0
+    ul
+        margin: 0
+        list-style: none
+        li
+            height: 34px
+            display: flex
+            align-items: center
+            span
+                flex: 1
+            i
+                color: $uni-color-bad
+                cursor: pointer
 

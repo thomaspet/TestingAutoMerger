@@ -25,7 +25,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
         'loennFraBiarbeidsgiver',
         'pensjon',
         'loennTilUtenrikstjenestemann',
-        ',loennKunTrygdeavgiftTilUtenlandskBorger',
+        'loennKunTrygdeavgiftTilUtenlandskBorger',
         'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger',
         'ufoereYtelserAndre'
     ];
