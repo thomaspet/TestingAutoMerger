@@ -19,9 +19,9 @@
             <p>{{remindersEmail.length}} purringer kan sendes på e-post eller sendes til fakturaprint</p>
             <ag-grid-wrapper
                 *ngIf="remindersEmail.length"
+                class="transquery-grid-font-size"
                 [resource]="remindersEmail"
-                [config]="reminderTable"
-                (rowChange)="onRowChanged($event)">
+                [config]="reminderTable">
             </ag-grid-wrapper>
         </section>
 
@@ -29,9 +29,9 @@
             <p>{{remindersPrint.length}} purringer må skrives ut på papir eller sendes til fakturaprint</p>
             <ag-grid-wrapper
                 *ngIf="remindersPrint.length"
+                class="transquery-grid-font-size"
                 [resource]="remindersPrint"
-                [config]="reminderTable"
-                (rowChange)="onRowChanged($event)">
+                [config]="reminderTable">
             </ag-grid-wrapper>
         </section>
     </section>
