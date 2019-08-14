@@ -33,6 +33,7 @@ import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
 import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminderConfirmModal';
 import {UniReminderSendingModal} from './reminder/sending/reminderSendingModal';
+import {UniReminderSendingEditModal} from './reminder/sending/reminderSendingEditModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 import {DebtCollection} from './reminder/debtCollection/debtCollection';
 import {SentToDebtCollection} from './reminder/sentToDebtCollection/sentToDebtCollection';
@@ -125,6 +126,7 @@ import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
         ReminderConfirmModal,
         ReminderConfirmForm,
         ReminderSending,
+        UniReminderSendingEditModal,
         UniReminderSendingModal,
         UniChooseOrderHoursModal,
         DebtCollection,
@@ -150,6 +152,7 @@ import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
         UniOrderToInvoiceModal,
         ReminderConfirmForm,
         UniReminderSendingModal,
+        UniReminderSendingEditModal,
         ReminderSending,
         InvoiceReminders,
         UniTofSelectModal,
