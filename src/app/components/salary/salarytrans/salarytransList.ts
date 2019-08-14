@@ -15,7 +15,7 @@ import {
 } from '../../../unientities';
 import {
     AccountService, UniCacheService,
-    ErrorService, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService
+    ErrorService, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService, IEmployee
 } from '../../../services/services';
 
 import {UniView} from '../../../../framework/core/uniView';
@@ -23,7 +23,6 @@ import {ImageModal, IUpdatedFileListEvent} from '../../common/modals/ImageModal'
 import {UniModalService} from '../../../../framework/uni-modal';
 import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
 import {tap, takeUntil} from 'rxjs/operators';
-import {IEmployee} from './salarytransactionSelectionList';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 const BUSY_KEY = 'transes_busy';

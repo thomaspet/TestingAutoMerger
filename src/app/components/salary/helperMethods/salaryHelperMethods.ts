@@ -8,9 +8,25 @@ export class SalaryHelperMethods {
 
     constructor() { }
 
+    public odataFilters(ids: number[], field: string = 'ID', exclude?: boolean, threshhold: number = 50): string[] {
+        const fromTos = this.getFromToFilter(this.getIdsToFilter(ids, exclude).sort((a, b) => a - b));
+        const pages = fromTos.reduce((acc, curr) => {
+            const index = acc.length - 1;
+            if (acc[index].length > threshhold) {
+                return [...acc, [curr]];
+            }
+            acc[index] = [...acc[index], curr];
+            return acc;
+        }, [[]]);
+        return pages.map(page => this.odataFilterFromToos(page, field, exclude));
+    }
+
     public odataFilter(ids: number[], field: string = 'ID', exclude?: boolean): string {
         const idsToFilter = this.getIdsToFilter(ids, exclude);
-        const fromTos = this.getFromToFilter(idsToFilter.sort((a, b) => a - b));
+        return this.odataFilterFromToos(this.getFromToFilter(idsToFilter.sort((a, b) => a - b)), field, exclude);
+    }
+
+    public odataFilterFromToos(fromTos: IFromToFilter[], field: string, exclude?: boolean): string {
         return `(${fromTos
             .filter((fromTo, index, arr) => {
                 if (!exclude) {

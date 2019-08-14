@@ -9,7 +9,7 @@ import {ISummaryConfig} from '../../common/summary/summary';
 import {UniView} from '../../../../framework/core/uniView';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {ILinkMenuItem} from '../../common/linkMenu/linkMenu';
-import {ReplaySubject, Observable, Subject, of} from 'rxjs';
+import {ReplaySubject, Observable, Subject, of, forkJoin} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniFindEmployeeModal} from './findEmployeeModal';
 import {
@@ -25,7 +25,8 @@ import {
     FinancialYearService,
     StatisticsService,
     EmploymentService,
-    PageStateService
+    PageStateService,
+    IEmployee
 } from '../../../services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -43,20 +44,6 @@ const REFRESH_SUMS_KEY: string = 'refresh_sums';
 const SUB_ENTITIES_KEY: string = 'sub_entities';
 const REFRESH_TAX: string = 'refresh_tax';
 const EMP_COUNT: string = 'employee_count';
-
-export interface IEmployee {
-    Name: string;
-    ID: number;
-    CategoryIDs: number[];
-    TaxCards: EmployeeTaxCard[];
-    BusinessRelationID: number;
-    DefaultBankAccountID: number;
-    SocialSecurityNumber: string;
-    Employments: Employment[];
-    SubEntity: SubEntity;
-    SubEntityID: number;
-    EmployeeNumber: number;
-}
 
 interface IEmpListFilter {
     name: string;
@@ -351,12 +338,15 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         if (!emps.length) {
             return of([]);
         }
-        return this.statisticsService
-            .GetAllUnwrapped(
-                `model=Employment&` +
-                `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName&` +
-                `filter=${this.helperMethods.odataFilter(emps.map(x => x.ID), 'EmployeeID')}`)
+        return forkJoin(this.helperMethods
+                .odataFilters(emps.map(x => x.ID), 'EmployeeID')
+                .map(empFilter => this.statisticsService.GetAllUnwrapped(
+                    `model=Employment&` +
+                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName&` +
+                    `filter=${empFilter}`
+            )))
             .pipe(
+                map((pagedEmployments: Employment[][]) => pagedEmployments.reduce((acc, curr) => [...acc, ...curr], [])),
                 tap(empl => this.updateState(EMPLOYMENTS_KEY, [...(this.employments || []), ...empl], false))
             );
     }
@@ -382,11 +372,15 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         }
         const year = this.financialYearService.getActiveYear();
 
-        return this.taxCardService
-            .GetAll(`filter=${this.helperMethods.odataFilter(emps.filter(e => !e.TaxCards).map(e => e.ID), 'EmployeeID')} and`
-                + ` year le ${year}&orderby=year DESC&expand=${this.taxCardService.taxExpands()}`)
+        return forkJoin(this.helperMethods
+            .odataFilters(emps.filter(e => !e.TaxCards).map(e => e.ID), 'EmployeeID')
+            .map(empFilter =>  this.taxCardService
+                .GetAll(`filter=${empFilter} and`
+                    + ` year le ${year}&orderby=year DESC&expand=${this.taxCardService.taxExpands()}`)
+            ))
             .pipe(
-                map((taxCards: EmployeeTaxCard[]) => {
+                map((taxCards: EmployeeTaxCard[][]) => taxCards.reduce((acc, curr) => [...acc, ...curr], [])),
+                map((taxCards) => {
                     const distinctCards: {[empID: number]: EmployeeTaxCard} = {};
                     taxCards.forEach(card => {
                         if (distinctCards[card.EmployeeID]) {

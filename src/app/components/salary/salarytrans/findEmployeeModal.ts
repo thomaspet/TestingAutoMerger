@@ -1,12 +1,11 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
-import { UniSearchEmployeeConfig, StatisticsService } from '@app/services/services';
+import { UniSearchEmployeeConfig, StatisticsService, IEmployee } from '@app/services/services';
 import { IUniSearchConfig } from '../../../../framework/ui/unisearch/index';
-import { allResolved } from 'q';
-import {IEmployee} from './salarytransactionSelectionList';
 import {SalaryHelperMethods} from '../helperMethods/salaryHelperMethods';
 import {EmployeeCategory} from '@uni-entities';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-find-employee-modal',
@@ -76,14 +75,18 @@ export class UniFindEmployeeModal implements IUniModal {
     }
 
     private getEmployeeData(search: string): Observable<IEmployee[]> {
-        const query = `model=Employee&`
-            + `expand=BusinessRelationInfo&`
-            + `join=${this.createEmpJoin()}&`
-            + `select=${this.createEmpSelect()}&`
-            + `filter=${this.createEmpFilter(this.options.data.categories, search)}&`
-            + `top=50`;
-        return this.statisticsService
-            .GetAllUnwrapped(query);
+        return forkJoin(this.createEmpFilters(this.options.data.categories, search)
+                .map(empFilter => `model=Employee&`
+                + `expand=BusinessRelationInfo&`
+                + `join=${this.createEmpJoin()}&`
+                + `select=${this.createEmpSelect()}&`
+                + `filter=${empFilter}&`
+                + `top=50`)
+                .map(query => this.statisticsService.GetAllUnwrapped(query))
+            )
+            .pipe(
+                map((result: IEmployee[][]) => result.reduce((acc, curr) => [...acc, ...curr], []))
+            );
     }
 
     private createEmpSelect() {
@@ -99,20 +102,20 @@ export class UniFindEmployeeModal implements IUniModal {
         return  `Employee.ID eq EmployeeCategoryLink.EmployeeID as CatLink`;
     }
 
-    private createEmpFilter(cats: EmployeeCategory[], search: string): string {
-        let query = this.handleEmpSearch(search) || '';
+    private createEmpFilters(cats: EmployeeCategory[], search: string): string[] {
         const catFilter = this.categoryFilter(cats);
-        const empIDs = [...this.options.data.employees, ...this.employees].map(emp => emp.ID);
-        const unSelectedEmpsFilter = this.filterOutExistingEmps(empIDs);
-        if (catFilter) {
-            query = `${(query && `${query} and `)}${catFilter}`;
-        }
+        return this.filterOutExistingEmps([...this.options.data.employees, ...this.employees].map(emp => emp.ID))
+            .map(unSelectedEmpsFilter => {
+                let query = this.handleEmpSearch(search) || '';
+                if (catFilter) {
+                    query = `${(query && `${query} and `)}${catFilter}`;
+                }
 
-        if (unSelectedEmpsFilter) {
-            query = `${(query && `${query} and `)}${unSelectedEmpsFilter}`;
-        }
-
-        return query;
+                if (unSelectedEmpsFilter) {
+                    query = `${(query && `${query} and `)}${unSelectedEmpsFilter}`;
+                }
+                return query;
+            });
     }
 
     private handleEmpSearch(search: string) {
@@ -129,11 +132,11 @@ export class UniFindEmployeeModal implements IUniModal {
         return this.helperMethods.odataFilter(cats.map(cat => cat.ID), 'CatLink.EmployeeCategoryID');
     }
 
-    private filterOutExistingEmps(empIDs: number[]) {
+    private filterOutExistingEmps(empIDs: number[]): string[] {
         if (!empIDs || !empIDs.length) {
-            return '';
+            return [''];
         }
-        return this.helperMethods.odataFilter(empIDs, 'ID', true);
+        return this.helperMethods.odataFilters(empIDs, 'ID', true);
     }
 
     public employeeSelected(emp) {

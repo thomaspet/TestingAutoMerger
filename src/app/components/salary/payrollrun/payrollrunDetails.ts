@@ -18,7 +18,7 @@ import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {SalaryTransactionSelectionList, IEmployee} from '../salarytrans/salarytransactionSelectionList';
+import {SalaryTransactionSelectionList} from '../salarytrans/salarytransactionSelectionList';
 import {UniView} from '../../../../framework/core/uniView';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
@@ -28,7 +28,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
-    SalarySumsService, StatisticsService, SubEntityService, BrowserStorageService, AccountMandatoryDimensionService
+    SalarySumsService, StatisticsService, SubEntityService, BrowserStorageService, AccountMandatoryDimensionService, IEmployee
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -142,6 +142,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private subEntityService: SubEntityService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private browserStorage: BrowserStorageService,
+        private employeeService: EmployeeService,
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -386,7 +387,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     openTaxCardModal() {
         this.modalService.open(TaxCardModal, {
-            data: this.selectedEmp,
+            data: this.employeeService.convertToEmployee(this.selectedEmp),
             modalConfig: { }
         }).onClose.subscribe(res => {
                 if (!res) { return; }
