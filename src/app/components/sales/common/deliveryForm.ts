@@ -41,16 +41,11 @@ export class TofDeliveryForm implements OnInit {
     ) {}
 
     ngOnInit() {
-        if (this.entity && !this.entity['PaymentInfoTypeID']
-            && (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice' || this.entityType === 'RecurringInvoice')) {
-                this.entity['PaymentInfoTypeID'] = this.paymentInfoTypes[0].ID;
-        }
-
         this.model$.next(this.entity);
         this.initFormLayout();
     }
 
-    public ngOnChanges(changes) {
+    public ngOnChanges() {
         if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
             const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
                 return addr.AddressLine1 === this.entity.ShippingAddressLine1
