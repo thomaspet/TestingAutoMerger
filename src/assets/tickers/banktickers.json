@@ -967,20 +967,38 @@
         "Group": "Bank",
         "Model": "StatusLog",
         "Expand": "",
-        "Joins": "StatusLog.CreatedBy eq User.GlobalIdentity",
+        "Joins": "StatusLog.CreatedBy eq User.GlobalIdentity and StatusLog.EntityID eq Payment.ID and Payment.InvoiceNumber eq CustomerInvoice.InvoiceNumber",
         "SubTickers": [],
         "UseParentTickerActions": false,
         "ParentFilter": {
-            "Field": "EntityID",
+            "Field": "Payment.PaymentBatchID",
             "Operator": "eq",
             "Value": "ID"
         },
-        "Filter": "EntityType eq 'PaymentBatch'",
+        "Filter": "EntityType eq 'Payment'",
+        "OrderBy": [
+            "Payment.InvoiceNumber DESC",
+            "CreatedAt DESC"
+        ],
         "Columns": [
             {
                 "Header": "Dato",
                 "Field": "CreatedAt",
                 "Format": "DateWithTime"
+            },
+            {
+                "Header": "Fakturanr",
+                "Field": "Payment.InvoiceNumber",
+                "FilterOperator": "startswith",
+                "Type": "Link",
+                "LinkNavigationProperty": "CustomerInvoice.ID",
+                "ExternalModel": "CustomerInvoice",
+                "Width": "7rem"
+            },
+            {
+                "Header": "Betaling",
+                "Field": "Payment.ID",
+                "DefaultHidden": true
             },
             {
                 "Header": "Fra",
@@ -1018,7 +1036,6 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": false,
                 "Resizeable" : false
-
             },
             {
                 "Header": "Sum Beløp",
@@ -1056,9 +1073,9 @@
         "Code": "payments_in_avtalegirobatch",
         "IsTopLevelTicker": false,
         "Group": "Bank",
-        "Model": "CustomerInvoice",
-        "Expand": "Customer",
-        "Joins": "CustomerInvoice.InvoiceNumber as Payment.InvoiceNumber",
+        "Model": "Payment",
+        "Expand": "",
+        "Joins": "Payment.InvoiceNumber eq CustomerInvoice.InvoiceNumber and CustomerInvoice.CustomerID eq Customer.ID",
         "SubTickers": [],
         "UseParentTickerActions": false,
         "ParentFilter": {
@@ -1072,7 +1089,9 @@
                 "Field": "InvoiceNumber",
                 "FilterOperator": "startswith",
                 "Type": "Link",
-                "LinkNavigationProperty": "ID"
+                "LinkNavigationProperty": "CustomerInvoice.ID",
+                "ExternalModel": "CustomerInvoice",
+                "Width": "7rem"
             },
             {
                 "Header": "Kundenr",
@@ -1081,20 +1100,24 @@
             },
             {
                 "Header": "Kundenavn",
-                "Field": "CustomerName",
+                "Field": "CustomerInvoice.CustomerName",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Fakturadato",
-                "Field": "InvoiceDate"
+                "Field": "CustomerInvoice.InvoiceDate",
+                "Type": "date",
+                "DefaultHidden": true
             },
             {
                 "Header": "Forfallsdato",
-                "Field": "PaymentDueDate"
+                "Field": "DueDate",
+                "Format": "DatePassed",
+                "Type": "date"
             },
             {
                 "Header": "KID",
-                "Field": "PaymentID",
+                "Field": "CustomerInvoice.PaymentID",
                 "FilterOperator": "contains",
                 "Alias": "PaymentID",
                 "DisplayField": "PaymentID"
@@ -1103,6 +1126,17 @@
                 "Header": "Status",
                 "Field": "StatusCode",
                 "FilterOperator": "contains"
+            },
+            {
+                "Header": "Type",
+                "Field": "casewhen(ispaymentcancellationrequest eq 1,'Sletteanmodning','Betalingskrav')",
+                "Alias": "Type"
+            },
+            {
+                "Header": "Statustekst",
+                "Field": "StatusText",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
             }
         ]
     }
