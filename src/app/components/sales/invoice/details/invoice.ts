@@ -1,6 +1,7 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of as observableOf } from 'rxjs';
+import {switchMap, map} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -15,7 +16,6 @@ import {
     Project,
     Seller,
     StatusCodeCustomerInvoice,
-    Terms,
     NumberSeries,
     VatType,
     Department,
@@ -41,14 +41,12 @@ import {
     ReportDefinitionService,
     ReportService,
     StatisticsService,
-    TermsService,
     JournalEntryService,
     UserService,
     NumberSeriesService,
     EmailService,
     SellerService,
     VatTypeService,
-    ElsaProductService,
     DimensionSettingsService,
     CustomDimensionService,
     DepartmentService,
@@ -148,8 +146,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     currencyExchangeRate: number;
     private currentCustomer: Customer;
     currentUser: User;
-    deliveryTerms: Terms[];
-    paymentTerms: Terms[];
     selectConfig: any;
 
     sellers: Seller[];
@@ -204,7 +200,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Sellers.Seller',
         'DefaultSeller',
         'CustomerInvoiceReminders'
-    ].concat(this.customerExpands.map(option => 'Customer.' + option));
+    ];
 
     private invoiceItemExpands: string[] = [
         'Product.VatType',
@@ -242,7 +238,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private route: ActivatedRoute,
         private statisticsService: StatisticsService,
         private tabService: TabService,
-        private termsService: TermsService,
         private toastService: ToastService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
@@ -251,7 +246,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
-        private elsaProductService: ElsaProductService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
         private journalEntryService: JournalEntryService,
@@ -303,8 +297,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         : Observable.of(null),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(
                         `filter=NumberSeriesType.Name eq 'Customer Invoice number `
@@ -328,22 +320,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     }
                     this.companySettings = res[3];
                     this.currencyCodes = res[4];
-                    this.paymentTerms = res[5];
-                    this.deliveryTerms = res[6];
-                    if (res[7]) {
+                    if (res[5]) {
                         invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
-                        invoice.DefaultDimensions.ProjectID = res[7].ID;
-                        invoice.DefaultDimensions.Project = res[7];
+                        invoice.DefaultDimensions.ProjectID = res[5].ID;
+                        invoice.DefaultDimensions.Project = res[5];
                     }
-                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
-                    this.projects = res[9];
-                    this.sellers = res[10];
-                    this.vatTypes = res[11];
-                    this.departments = res[12];
-                    this.setUpDims(res[13]);
-                    this.paymentInfoTypes = res[14];
-                    this.distributionPlans = res[15];
-                    this.reports = res[16];
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[6]);
+                    this.projects = res[7];
+                    this.sellers = res[8];
+                    this.vatTypes = res[9];
+                    this.departments = res[10];
+                    this.setUpDims(res[11]);
+                    this.paymentInfoTypes = res[12];
+                    this.distributionPlans = res[13];
+                    this.reports = res[14];
 
                     if (!!customerID && res[2] && res[2]['Distributions'] && res[2]['Distributions'].CustomerInvoiceDistributionPlanID) {
                         invoice.DistributionPlanID = res[2]['Distributions'].CustomerInvoiceDistributionPlanID;
@@ -391,8 +381,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.getInvoice(this.invoiceID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
@@ -406,16 +394,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
-                    this.projects = res[5];
-                    this.sellers = res[6];
-                    this.vatTypes = res[7];
-                    this.departments = res[8];
-                    this.setUpDims(res[9]);
-                    this.paymentInfoTypes = res[10];
-                    this.distributionPlans = res[11];
-                    this.reports = res[12];
+                    this.projects = res[3];
+                    this.sellers = res[4];
+                    this.vatTypes = res[5];
+                    this.departments = res[6];
+                    this.setUpDims(res[7]);
+                    this.paymentInfoTypes = res[8];
+                    this.distributionPlans = res[9];
+                    this.reports = res[10];
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -469,19 +455,33 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             );
         }
 
+        // Get invoice, invoicelines and customer in separate expands
+        // to avoid expand hell
         return Observable.forkJoin(
             this.customerInvoiceService.Get(ID, this.invoiceExpands, true),
             this.customerInvoiceItemService.GetAll(
                 `filter=CustomerInvoiceID eq ${ID}&hateoas=false`,
                 this.invoiceItemExpands
             )
-        ).map(res => {
-            const invoice: CustomerInvoice = res[0];
-            const invoiceItems: CustomerInvoiceItem[] = res[1];
+        ).pipe(
+            switchMap(res => {
+                const invoice: CustomerInvoice = res[0];
+                const invoiceItems: CustomerInvoiceItem[] = res[1];
 
-            invoice.Items = invoiceItems;
-            return invoice;
-        });
+                invoice.Items = invoiceItems;
+
+                if (!invoice.CustomerID) {
+                    return observableOf(invoice);
+                }
+
+                return this.customerService.Get(invoice.CustomerID, this.customerExpands).pipe(
+                    map(customer => {
+                        invoice.Customer = customer;
+                        return invoice;
+                    })
+                );
+            })
+        );
     }
 
     numberSeriesChange(selectedSerie) {

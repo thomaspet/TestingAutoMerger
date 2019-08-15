@@ -14,7 +14,6 @@ import {
     Project,
     Seller,
     StatusCodeCustomerQuote,
-    Terms,
     NumberSeries,
     VatType,
     Department,
@@ -34,7 +33,6 @@ import {
     ProjectService,
     ReportDefinitionService,
     ReportService,
-    TermsService,
     UserService,
     NumberSeriesService,
     EmailService,
@@ -111,8 +109,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private  askedAboutSettingDimensionsOnItems: boolean;
 
     currentUser: User;
-    deliveryTerms: Terms[];
-    paymentTerms: Terms[];
     projects: Project[];
     departments: Department[];
     sellers: Seller[];
@@ -215,7 +211,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private tofHelper: TofHelper,
         private projectService: ProjectService,
         private modalService: UniModalService,
-        private termsService: TermsService,
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
@@ -265,8 +260,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.getQuote(this.quoteID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
@@ -278,15 +271,13 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     const quote = res[0];
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
-                    this.projects = res[5];
-                    this.sellers = res[6];
-                    this.vatTypes = res[7];
-                    this.departments = res[8];
-                    this.setUpDims(res[9]);
-                    this.distributionPlans = res[10];
-                    this.reports = res[11];
+                    this.projects = res[3];
+                    this.sellers = res[4];
+                    this.vatTypes = res[5];
+                    this.departments = res[6];
+                    this.setUpDims(res[7]);
+                    this.distributionPlans = res[8];
+                    this.reports = res[9];
 
 
                     if (!quote.CurrencyCodeID) {
@@ -317,8 +308,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     customerID ? this.customerService.Get(
                         customerID, this.customerExpands
                     ) : Observable.of(null),
@@ -340,30 +329,28 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         quote.OurReference = this.currentUser.DisplayName;
                         this.companySettings = res[2];
                         this.currencyCodes = res[3];
-                        this.paymentTerms = res[4];
-                        this.deliveryTerms = res[5];
-                        if (res[6]) {
-                            quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
+                        if (res[4]) {
+                            quote = this.tofHelper.mapCustomerToEntity(res[4], quote);
                         }
-                        if (res[7]) {
+                        if (res[5]) {
                             quote.DefaultDimensions = quote.DefaultDimensions || new Dimensions();
-                            quote.DefaultDimensions.ProjectID = res[7].ID;
-                            quote.DefaultDimensions.Project = res[7];
+                            quote.DefaultDimensions.ProjectID = res[5].ID;
+                            quote.DefaultDimensions.Project = res[5];
                         }
-                        this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
+                        this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[6]);
                         this.selectConfig = this.numberSeriesService.getSelectConfig(
                             this.quoteID, this.numberSeries, 'Customer Quote number series'
                         );
-                        this.projects = res[9];
-                        this.sellers = res[10];
-                        this.vatTypes = res[11];
-                        this.departments = res[12];
-                        this.setUpDims(res[13]);
-                        this.distributionPlans = res[14];
-                        this.reports = res[15];
+                        this.projects = res[7];
+                        this.sellers = res[8];
+                        this.vatTypes = res[9];
+                        this.departments = res[10];
+                        this.setUpDims(res[11]);
+                        this.distributionPlans = res[12];
+                        this.reports = res[13];
 
-                        if (!!customerID && res[6] && res[6]['Distributions'] && res[6]['Distributions'].CustomerQuoteDistributionPlanID) {
-                            quote.DistributionPlanID = res[6]['Distributions'].CustomerQuoteDistributionPlanID;
+                        if (!!customerID && res[4] && res[4]['Distributions'] && res[4]['Distributions'].CustomerQuoteDistributionPlanID) {
+                            quote.DistributionPlanID = res[4]['Distributions'].CustomerQuoteDistributionPlanID;
                         } else if (this.companySettings['Distributions']) {
                             quote.DistributionPlanID = this.companySettings['Distributions'].CustomerQuoteDistributionPlanID;
                         }
