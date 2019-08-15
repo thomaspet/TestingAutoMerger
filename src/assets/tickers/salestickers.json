@@ -460,8 +460,8 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true,
-                "ExecuteWithoutSelection": true,
-                "SendParentModel": true
+                "SendParentModel": true,
+                "ExecuteWithoutSelection": true
             },
             {
                 "Name": "Registrer betaling",
