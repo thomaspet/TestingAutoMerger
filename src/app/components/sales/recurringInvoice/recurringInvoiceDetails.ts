@@ -15,7 +15,6 @@ import {
     Seller,
     SellerLink,
     StatusCodeCustomerInvoice,
-    Terms,
     NumberSeries,
     VatType,
     Department,
@@ -34,7 +33,6 @@ import {
     ProjectService,
     ReportDefinitionService,
     ReportService,
-    TermsService,
     UserService,
     NumberSeriesService,
     SellerService,
@@ -115,8 +113,7 @@ export class UniRecurringInvoice implements OnInit {
     currencyExchangeRate: number;
     private currentCustomer: Customer;
     currentUser: User;
-    deliveryTerms: Terms[];
-    paymentTerms: Terms[];
+
     selectConfig: any;
     hasWarned: boolean = false;
 
@@ -174,7 +171,6 @@ export class UniRecurringInvoice implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         private tabService: TabService,
-        private termsService: TermsService,
         private toastService: ToastService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
@@ -234,8 +230,6 @@ export class UniRecurringInvoice implements OnInit {
                         : Observable.of(null),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(
                         `filter=NumberSeriesType.Name eq 'Customer Invoice number `
@@ -268,22 +262,21 @@ export class UniRecurringInvoice implements OnInit {
                     }
                     this.companySettings = res[3];
                     this.currencyCodes = res[4];
-                    this.paymentTerms = res[5];
-                    this.deliveryTerms = res[6];
-                    if (res[7]) {
+
+                    if (res[5]) {
                         invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
-                        invoice.DefaultDimensions.ProjectID = res[7].ID;
-                        invoice.DefaultDimensions.Project = res[7];
+                        invoice.DefaultDimensions.ProjectID = res[5].ID;
+                        invoice.DefaultDimensions.Project = res[5];
                     }
-                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
-                    this.projects = res[9];
-                    this.sellers = res[10];
-                    this.vatTypes = res[11];
-                    this.departments = res[12];
-                    this.setUpDims(res[13]);
-                    this.paymentInfoTypes = res[14];
-                    this.allDistributionPlans = res[15];
-                    this.allReports = res[16];
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[6]);
+                    this.projects = res[7];
+                    this.sellers = res[8];
+                    this.vatTypes = res[9];
+                    this.departments = res[10];
+                    this.setUpDims(res[11]);
+                    this.paymentInfoTypes = res[12];
+                    this.allDistributionPlans = res[13];
+                    this.allReports = res[14];
                     this.setTypeSpecificValues(invoice);
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
@@ -322,8 +315,6 @@ export class UniRecurringInvoice implements OnInit {
                     this.getInvoice(this.invoiceID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
@@ -341,18 +332,16 @@ export class UniRecurringInvoice implements OnInit {
                     const invoice = res[0];
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
-                    this.projects = res[5];
-                    this.sellers = res[6];
-                    this.vatTypes = res[7];
-                    this.departments = res[8];
-                    this.setUpDims(res[9]);
-                    this.paymentInfoTypes = res[10];
-                    this.allDistributionPlans = res[11];
-                    this.allReports = res[12];
+                    this.projects = res[3];
+                    this.sellers = res[4];
+                    this.vatTypes = res[5];
+                    this.departments = res[6];
+                    this.setUpDims(res[7]);
+                    this.paymentInfoTypes = res[8];
+                    this.allDistributionPlans = res[9];
+                    this.allReports = res[10];
                     this.setTypeSpecificValues(invoice);
-                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[13]);
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[11]);
 
                     this.selectConfig = this.numberSeriesService.getSelectConfig(
                         0, this.numberSeries, 'Customer Invoice number series'

@@ -20,7 +20,6 @@ import {
     Project,
     Seller,
     StatusCodeCustomerOrder,
-    Terms,
     NumberSeries,
     VatType,
     Department,
@@ -40,7 +39,6 @@ import {
     ProjectService,
     ReportDefinitionService,
     ReportService,
-    TermsService,
     UserService,
     NumberSeriesService,
     EmailService,
@@ -121,8 +119,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private currentCustomer: Customer;
     private currentDimensions: string;
     currentUser: User;
-    deliveryTerms: Terms[];
-    paymentTerms: Terms[];
 
     projects: Project[];
     departments: Department[];
@@ -230,7 +226,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private route: ActivatedRoute,
         private router: Router,
         private tabService: TabService,
-        private termsService: TermsService,
         private toastService: ToastService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
@@ -288,8 +283,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.getOrder(this.orderID),
                         this.companySettingsService.Get(1),
                         this.currencyCodeService.GetAll(null),
-                        this.termsService.GetAction(null, 'get-payment-terms'),
-                        this.termsService.GetAction(null, 'get-delivery-terms'),
                         this.projectService.GetAll(null),
                         this.sellerService.GetAll(null),
                         this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
@@ -307,19 +300,17 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.contacts = order.Customer.Info.Contacts;
                         this.companySettings = res[1];
                         this.currencyCodes = res[2];
-                        this.paymentTerms = res[3];
-                        this.deliveryTerms = res[4];
-                        this.projects = res[5];
-                        this.sellers = res[6];
-                        this.vatTypes = res[7];
-                        this.departments = res[8];
-                        this.setUpDims(res[9]);
-                        this.paymentInfoTypes = res[10];
-                        this.distributionPlans = res[11];
-                        this.reports = res[12];
-                        if (res[13] && res[13][0]) {
-                            this.hoursOnOrderCount = res[13][0].SumMinutes / 60;
-                            this.nonTransferredHoursOnOrderCount = res[13][0]['SumNotTransfered'] / 60;
+                        this.projects = res[3];
+                        this.sellers = res[4];
+                        this.vatTypes = res[5];
+                        this.departments = res[6];
+                        this.setUpDims(res[7]);
+                        this.paymentInfoTypes = res[8];
+                        this.distributionPlans = res[9];
+                        this.reports = res[10];
+                        if (res[11] && res[11][0]) {
+                            this.hoursOnOrderCount = res[11][0].SumMinutes / 60;
+                            this.nonTransferredHoursOnOrderCount = res[11][0]['SumNotTransfered'] / 60;
                         }
 
                         if (!order.CurrencyCodeID) {
@@ -356,8 +347,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.userService.getCurrentUser(),
                         this.companySettingsService.Get(1),
                         this.currencyCodeService.GetAll(null),
-                        this.termsService.GetAction(null, 'get-payment-terms'),
-                        this.termsService.GetAction(null, 'get-delivery-terms'),
                         customerID ? this.customerService.Get(
                             customerID, this.customerExpands
                         ) : Observable.of(null),
@@ -383,34 +372,32 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             order.OurReference = this.currentUser.DisplayName;
                             this.companySettings = res[2];
                             this.currencyCodes = res[3];
-                            this.paymentTerms = res[4];
-                            this.deliveryTerms = res[5];
                             this.contacts = [];
-                            if (res[6]) {
-                                order = this.tofHelper.mapCustomerToEntity(res[6], order);
+                            if (res[4]) {
+                                order = this.tofHelper.mapCustomerToEntity(res[4], order);
                                 this.contacts = order.Customer.Info.Contacts;
                             }
-                            if (res[7]) {
+                            if (res[5]) {
                                 order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
-                                order.DefaultDimensions.ProjectID = res[7].ID;
-                                order.DefaultDimensions.Project = res[7];
+                                order.DefaultDimensions.ProjectID = res[5].ID;
+                                order.DefaultDimensions.Project = res[5];
                             }
-                            this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
+                            this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[6]);
                             this.selectConfig = this.numberSeriesService.getSelectConfig(
                                 this.orderID, this.numberSeries, 'Customer Order number series'
                             );
-                            this.projects = res[9];
-                            this.sellers = res[10];
-                            this.vatTypes = res[11];
-                            this.departments = res[12];
-                            this.setUpDims(res[13]);
-                            this.paymentInfoTypes = res[14];
-                            this.distributionPlans = res[15];
-                            this.reports = res[16];
+                            this.projects = res[7];
+                            this.sellers = res[8];
+                            this.vatTypes = res[9];
+                            this.departments = res[10];
+                            this.setUpDims(res[11]);
+                            this.paymentInfoTypes = res[12];
+                            this.distributionPlans = res[13];
+                            this.reports = res[14];
 
-                            if (!!customerID && res[6] && res[6]['Distributions']
-                            && res[6]['Distributions'].CustomerOrderDistributionPlanID) {
-                                order.DistributionPlanID = res[6]['Distributions'].CustomerOrderDistributionPlanID;
+                            if (!!customerID && res[4] && res[4]['Distributions']
+                            && res[4]['Distributions'].CustomerOrderDistributionPlanID) {
+                                order.DistributionPlanID = res[4]['Distributions'].CustomerOrderDistributionPlanID;
                             } else if (this.companySettings['Distributions']) {
                                 order.DistributionPlanID = this.companySettings['Distributions'].CustomerOrderDistributionPlanID;
                             }
