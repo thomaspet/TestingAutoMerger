@@ -127,12 +127,12 @@ export class CustomerList implements OnInit {
         this.router.navigateByUrl('/sales/customer/0');
     }
 
-    public newTOFWithCustomer(selectedRows, entity: string) {
+    public newTOFWithCustomer(parentModel, entity: string) {
+        const obj = parentModel[0] || parentModel;
         return new Promise(res => {
-            if (entity && selectedRows && selectedRows[0]) {
-                this.router.navigateByUrl(`/sales/${entity}/0;customerID=${selectedRows[0].ID}`);
+            if (entity && obj) {
+                this.router.navigateByUrl(`/sales/${entity}/0;customerID=${obj.ID}`);
             }
-
             res(true);
         });
     }
