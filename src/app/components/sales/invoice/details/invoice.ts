@@ -1,6 +1,7 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of as observableOf } from 'rxjs';
+import {switchMap, map} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -48,7 +49,6 @@ import {
     EmailService,
     SellerService,
     VatTypeService,
-    ElsaProductService,
     DimensionSettingsService,
     CustomDimensionService,
     DepartmentService,
@@ -204,7 +204,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Sellers.Seller',
         'DefaultSeller',
         'CustomerInvoiceReminders'
-    ].concat(this.customerExpands.map(option => 'Customer.' + option));
+    ];
 
     private invoiceItemExpands: string[] = [
         'Product.VatType',
@@ -251,7 +251,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
-        private elsaProductService: ElsaProductService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
         private journalEntryService: JournalEntryService,
@@ -469,19 +468,33 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             );
         }
 
+        // Get invoice, invoicelines and customer in separate expands
+        // to avoid expand hell
         return Observable.forkJoin(
             this.customerInvoiceService.Get(ID, this.invoiceExpands, true),
             this.customerInvoiceItemService.GetAll(
                 `filter=CustomerInvoiceID eq ${ID}&hateoas=false`,
                 this.invoiceItemExpands
             )
-        ).map(res => {
-            const invoice: CustomerInvoice = res[0];
-            const invoiceItems: CustomerInvoiceItem[] = res[1];
+        ).pipe(
+            switchMap(res => {
+                const invoice: CustomerInvoice = res[0];
+                const invoiceItems: CustomerInvoiceItem[] = res[1];
 
-            invoice.Items = invoiceItems;
-            return invoice;
-        });
+                invoice.Items = invoiceItems;
+
+                if (!invoice.CustomerID) {
+                    return observableOf(invoice);
+                }
+
+                return this.customerService.Get(invoice.CustomerID, this.customerExpands).pipe(
+                    map(customer => {
+                        invoice.Customer = customer;
+                        return invoice;
+                    })
+                );
+            })
+        );
     }
 
     numberSeriesChange(selectedSerie) {
