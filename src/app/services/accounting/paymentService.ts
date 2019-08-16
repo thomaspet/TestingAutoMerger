@@ -53,6 +53,8 @@ export class PaymentService extends BizHttp<Payment> {
                 return 'Feilet';
             case 44018:
                 return 'Ingen match';
+            case 44019:
+                return 'Slette forespørsel';
             default:
                 return '';
         }
