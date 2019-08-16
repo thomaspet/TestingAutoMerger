@@ -41,6 +41,8 @@ import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJour
 import {BehaviorSubject, Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
+import { UniJournalEntryLineModal } from '@uni-framework/uni-modal/modals/JournalEntryLineModal';
+
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -72,6 +74,7 @@ export class TransqueryDetails implements OnInit {
     useConfiguredFilter: boolean = false;
     loading$: Subject<boolean> = new Subject();
 
+    private currentRow: any;
     private journalEntryTypes: any[];
     private lastFilterString: string;
     private dimensionTypes: any[];
@@ -494,6 +497,28 @@ export class TransqueryDetails implements OnInit {
         });
     }
 
+    private editJournalEntryLine(journalEntryLine: any) {
+
+                this.currentRow = journalEntryLine;
+                this.modalService.open(UniJournalEntryLineModal, {
+                    header: `Redigere bilagsline (uten kreditering)`,
+                    buttonLabels: {
+                        accept: 'Lagre',
+                        cancel: 'Avbryt'
+                    },
+                    data: { journalEntryLine }
+                }).onClose.subscribe(
+                    (res) => {
+                        if (res != null) {
+                            this.currentRow['JournalEntryLineDescription'] = res.Description;
+                            this.currentRow['JournalEntryLinePaymentID'] = res.PaymentID;
+                            this.currentRow['JournalEntryLineJournalEntryTypeID'] = res.JournalEntryType;
+                            // this.currentRow['JournalEntryLineJournalEntryType'] = res.JournalEntryType;
+                            this.table.refreshTableData();
+                        }
+                });
+    }
+
     private editJournalEntry(journalEntryID, journalEntryNumber) {
         const url = '/accounting/journalentry/manual' + `;journalEntryNumber=${journalEntryNumber}`
             + `;journalEntryID=${journalEntryID};editmode=true`;
@@ -729,6 +754,11 @@ export class TransqueryDetails implements OnInit {
                     ),
                     disabled: (item) => false,
                     label: 'Korriger bilag'
+                },
+                {
+                    action: (item) => this.editJournalEntryLine(item),
+                    disabled: (item) => false,
+                    label: 'Rediger bilagslinje uten kreditering'
                 }
             ])
             .setColumns(columns);

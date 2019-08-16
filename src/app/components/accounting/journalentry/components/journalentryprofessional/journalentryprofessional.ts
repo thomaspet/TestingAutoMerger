@@ -1441,10 +1441,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setWidth('12%')
             .setOptions({
                 itemTemplate: (item) => {
-                    return (item.DisplayName);
+                    return (item.Number  + ': ' + item.DisplayName);
                 },
                 lookupFunction: (query) => {
-                    return this.statisticsService.GetAll(`model=JournalEntryType&select=DisplayName as DisplayName,ID as ID&filter=ID gt 5`)
+                    return this.statisticsService.GetAll(`model=JournalEntryType&select=Number as Number,DisplayName as DisplayName,ID as ID&orderby=Number&filter=Number gt 0 and startswith(Number\,'${query}')`)
                         .map(x => x.Data ? x.Data : []);
                     }
                 });

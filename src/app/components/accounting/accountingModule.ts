@@ -82,7 +82,7 @@ import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {UniBudgetView} from './budget/budgetview';
 import {UniBudgetEntryEditModal} from './budget/budgetEntryEditModal';
 import {UniBudgetEditModal} from './budget/budgetEditModal';
-
+import { UniJournalEntryLineModal } from '@uni-framework/uni-modal/modals/JournalEntryLineModal';
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
 import {UniCostAllocationList} from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
@@ -100,7 +100,6 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         FormsModule,
         ReactiveFormsModule,
         HttpClientModule,
-
         UniFrameworkModule,
 
         LayoutModule,
@@ -154,6 +153,7 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         NumberAsMoneyPipe,
         UniSmartBookingSettingsModal,
         NumberAsMoneyPipe,
+        UniJournalEntryLineModal,
 
         // vatreport
         CheckListVat,
@@ -213,7 +213,8 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         UniCostAllocationDetails,
         FileFromInboxModal,
         BillTransitionModal,
-        ReInvoiceInfoModal
+        ReInvoiceInfoModal,
+        UniJournalEntryLineModal
     ],
     exports: [
         AccountSettings,
