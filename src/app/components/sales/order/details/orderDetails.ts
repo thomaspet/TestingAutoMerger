@@ -297,7 +297,11 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     ).subscribe(res => {
                         const order = <CustomerOrder>res[0];
                         this.askedAboutSettingDimensionsOnItems = false;
-                        this.contacts = order.Customer.Info.Contacts;
+                        if (order && order.Customer && order.Customer.Info) {
+                            this.contacts = order.Customer.Info.Contacts;
+                        } else {
+                            this.contacts = [];
+                        }
                         this.companySettings = res[1];
                         this.currencyCodes = res[2];
                         this.projects = res[3];
