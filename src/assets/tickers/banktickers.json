@@ -18,6 +18,12 @@
                 "FilterOperator": "startswith"
             },
             {
+                "Header": "Debtor",
+                "Field": "Debtor",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Kunde",
                 "Field": "BusinessRelation.Name",
                 "FilterOperator": "contains"
@@ -94,6 +100,18 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "Proprietary",
+                "Field": "Proprietary",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Domain",
+                "Field": "Domain",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
             },
             {
                 "Header": "📎",
