@@ -1,5 +1,5 @@
 import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
@@ -37,7 +37,7 @@ import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
 import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 import * as _ from 'lodash';
-import {tap} from 'rxjs/operators';
+import {tap, switchMap, map, finalize} from 'rxjs/operators';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
@@ -1288,13 +1288,10 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             .of(transes)
             .switchMap((recurringPosts: SalaryTransaction[]) => {
                 const obsList: Observable<SalaryTransaction>[] = [];
-                let changeCount = 0;
-                let saveCount = 0;
                 let hasErrors = false;
 
                 recurringPosts.forEach((post, index) => {
                     if (!post['_isEmpty'] && post['_isDirty'] || post.Deleted) {
-                        changeCount++;
 
                         post.IsRecurringPost = true;
                         post.EmployeeID = employee.ID;
@@ -1346,22 +1343,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 trans['_WageType'] = wageTypes.find(wt => wt.ID === trans.WageTypeID);
                                 return <SalaryTransaction>trans;
                             })
-                            .finally(() => {
-                                saveCount++;
-                                if (saveCount === changeCount) {
-                                    this.saveStatus.completeCount++;
-                                    if (hasErrors) {
-                                        this.saveStatus.hasErrors = true;
-                                    }
-                                    if (!config.ignoreRefresh) {
-                                        super.updateState(RECURRING_POSTS_KEY,
-                                            recurringPosts.filter(x => !x.Deleted),
-                                            recurringPosts.some(trans => trans['_isDirty']));
-                                    }
-
-                                    this.checkForSaveDone(config.done);
-                                }
-                            })
                             .catch((err, obs) => {
                                 hasErrors = true;
                                 recurringPosts[index].Deleted = false;
@@ -1369,8 +1350,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                     `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
                                 const toastBody = (err && err.body && err.body.Messages) ? err.body.Messages[0].Message : '';
                                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                this.errorService.handle(err);
-                                return Observable.empty();
+                                return this.errorService.handleRxCatch(err, obs);
                             })
                             .map((res: SalaryTransaction) => {
                                 recurringPosts[index] = res;
@@ -1380,9 +1360,36 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         obsList.push(newObs);
                     }
                 });
-                return Observable
-                    .forkJoin(obsList)
-                    .do(() => this.payrollRunService.recalulateOnEmp(this.employeeID).subscribe());
+                if (!obsList.length) {
+                    return of([]);
+                }
+                const ret = [];
+                const retObs = obsList.pop().pipe(tap(trans => ret.push(trans)));
+                while (obsList.length) {
+                    retObs
+                        .pipe(
+                            switchMap(() => obsList.pop()),
+                            tap(trans => ret.push(trans))
+                        );
+                }
+                return retObs
+                    .pipe(
+                        tap(() => this.payrollRunService.recalulateOnEmp(this.employeeID).subscribe()),
+                        map(() => ret),
+                        finalize(() => {
+                            this.saveStatus.completeCount++;
+                            if (hasErrors) {
+                                this.saveStatus.hasErrors = true;
+                            }
+                            if (!config.ignoreRefresh) {
+                                super.updateState(RECURRING_POSTS_KEY,
+                                    recurringPosts.filter(x => !x.Deleted),
+                                    recurringPosts.some(trans => trans['_isDirty']));
+                            }
+
+                            this.checkForSaveDone(config.done);
+                        }),
+                    );
             });
     }
 
