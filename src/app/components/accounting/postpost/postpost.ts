@@ -285,6 +285,10 @@ export class PostPost {
                 action: this.autolock.bind(this),
                 disabled: false,
                 label: this.autolocking ? 'Deaktiver autolukking' : 'Aktiver autolukking'
+            }, {
+                action: this.cleanAndResetLinesWithWrongStatus.bind(this),
+                disabled: false,
+                label: 'Resett alle linjer u/motpost'
             }
         ];
     }

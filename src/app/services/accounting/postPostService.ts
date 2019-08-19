@@ -40,7 +40,7 @@ export class PostPostService extends BizHttp<PostPost> {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid + '&subAccountType=' + reskontroType)
+            .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid)
             .send()
             .map(response => response.json());
     }
