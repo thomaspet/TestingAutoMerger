@@ -50,6 +50,19 @@
                 "DefaultHidden": false
             },
             {
+                "Header": "Valutabeløp",
+                "Field": "AmountCurrency",
+                "FilterOperator": "contains",
+                "SumColumn": true,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Type": "text",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Beløp",
                 "Field": "Amount",
                 "FilterOperator": "contains",
@@ -209,7 +222,7 @@
         "Model": "Payment",
         "OrderBy":"ID desc",
         "Joins": "Payment.JournalEntryID eq JournalEntry.ID and JournalEntry.ID eq FileEntityLink.EntityID",
-        "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode",
+        "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode,CurrencyCode",
         "Columns": [
             {
                 "Header": "Betales til",
@@ -266,6 +279,11 @@
                 "Field": "AmountCurrency",
                 "FilterOperator": "contains",
                 "SumColumn": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Type": "text"
             },
             {
                 "Header": "Beløp",

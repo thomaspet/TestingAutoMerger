@@ -398,6 +398,15 @@ export class AddPaymentModal implements IUniModal {
             },
             {
                 EntityType: 'Payment',
+                Property: 'CurrencyCode.Code',
+                FieldType: FieldType.TEXT,
+                Label: 'Valuta',
+                FieldSet: 0,
+                Section: 0,
+                ReadOnly: true
+            },
+            {
+                EntityType: 'Payment',
                 Property: 'DueDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forfallsdato',

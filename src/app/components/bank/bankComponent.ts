@@ -529,7 +529,8 @@ export class BankComponent {
     public editPayment(selectedRows: any): Promise<any> {
         const row = selectedRows[0];
         return new Promise(() => {
-            this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).subscribe((payment: Payment) => {
+            this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount', 'CurrencyCode'])
+            .subscribe((payment: Payment) => {
                 // show addPaymentModel
                 this.modalService.open(AddPaymentModal, {
                     data: { model: payment },
@@ -551,7 +552,8 @@ export class BankComponent {
     public resetPayment(selectedRows: any, showModal: boolean): Promise<any> {
         const row = selectedRows[0];
         return new Promise(() => {
-            this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).subscribe((payment: Payment) => {
+            this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount', 'CurrencyCode'])
+            .subscribe((payment: Payment) => {
                 const newPayment = new Payment();
                 newPayment.PaymentDate = new LocalDate();
                 newPayment.DueDate =  payment.DueDate;
@@ -571,6 +573,7 @@ export class BankComponent {
                 newPayment.AutoJournal = payment.AutoJournal;
                 newPayment.IsCustomerPayment = payment.IsCustomerPayment;
                 newPayment.CurrencyCodeID = payment.CurrencyCodeID;
+                newPayment.CurrencyCode = payment.CurrencyCode;
 
                 if (showModal) {
                     // show addPaymentModel
