@@ -715,7 +715,7 @@ export class TradeItemTable {
             .setColumns(allCols)
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
-            .setDeleteButton(!this.readonly)
+            .setDeleteButton(!this.readonly, true)
             .setIsRowReadOnly(row => row.StatusCode === 41103)
             .setChangeCallback((event) => {
                 const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(

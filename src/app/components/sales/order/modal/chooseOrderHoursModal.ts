@@ -395,6 +395,7 @@ export class UniChooseOrderHoursModal implements IUniModal {
                     VatPercent: item['VatPercent'] || (vatType ? vatType.VatPercent : undefined),
                     Dimensions: item.Dimensions,
                     DiscountPercent: item.DiscountPercent,
+                    StatusCode: item['StatusCode'],
                     _createguid: item._createguid
                 };
                 this.tradeItemHelper.calculatePriceIncVat(customerOrderItem, this.order['CurrencyExchangeRate']);
