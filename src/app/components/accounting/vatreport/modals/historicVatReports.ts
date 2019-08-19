@@ -82,7 +82,7 @@ export class HistoricVatReportModal implements IUniModal {
         urlParams = urlParams.set('join', 'vatreport.ID eq auditlog.EntityID');
         urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'TerminPeriodID desc');
         urlParams = urlParams.set('expand', 'terminperiod,vatreporttype,journalentry,vatreportarchivedsummary');
-        urlParams = urlParams.set('filter', 'auditlog.newvalue eq 32004 and auditlog.EntityType eq \'VatReport\'');
+        urlParams = urlParams.set('filter', 'auditlog.newvalue eq 32004 and (auditlog.oldvalue eq 32002 or auditlog.oldvalue eq 32001) and auditlog.EntityType eq \'VatReport\'');
         return this.statisticsService.GetWrappedDataByHttpParams(urlParams);
     }
 
