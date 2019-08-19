@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {NumberFormat} from '@app/services/services';
+import {NumberFormat, ITaxAndAgaSums, ISystemTaxAndAgaSums, SalarySumsService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AmeldingData, SalaryTransactionPeriodSums, CompanySalary} from '@uni-entities';
 import {ISummaryConfig} from '../../../common/summary/summary';
@@ -10,11 +10,12 @@ import * as moment from 'moment';
     templateUrl: './period.html'
 })
 export class AmeldingPeriodSummaryView {
-    @Input() public systemData: SalaryTransactionPeriodSums[] = [];
+    @Input() public systemData: ITaxAndAgaSums;
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
     @Input() public companySalary: CompanySalary;
 
+    private systemSource: ISystemTaxAndAgaSums[] = [];
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
     private sumForskuddstrekk: number;
@@ -37,7 +38,10 @@ export class AmeldingPeriodSummaryView {
     public kidFinancial: string;
     public accountNumber: string;
 
-    constructor(private numberFormat: NumberFormat) {
+    constructor(
+        private numberFormat: NumberFormat,
+        private sumService: SalarySumsService,
+    ) {
         this.setupSystemTableConfig();
         this.setupAmeldingTableConfig();
     }
@@ -50,14 +54,12 @@ export class AmeldingPeriodSummaryView {
             this.sumForskuddstrekk = 0;
             this.sumFinansskattLoenn = 0;
 
-            this.systemData.forEach(dataElement => {
-                dataElement['_type'] = 'Grunnlag';
-                const sums = dataElement.Sums;
-                this.sumGrunnlagAga += dataElement.Sums.baseAGA;
-                this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
-                this.sumForskuddstrekk += sums.tableTax + sums.percentTax + sums.manualTax;
-                this.sumFinansskattLoenn += dataElement.Sums.calculatedFinancialTax;
-            });
+            this.sumGrunnlagAga = this.sumService.getAgaBase(this.systemData.Aga);
+            this.sumCalculatedAga = this.sumService.getAgaSum(this.systemData.Aga);
+            this.sumForskuddstrekk = this.systemData.WithholdingTax;
+            this.sumFinansskattLoenn = this.systemData.FinancialTax;
+
+            this.systemSource = this.sumService.getAgaList(this.systemData.Aga);
 
             this.systemPeriodSums = [
                 {
@@ -203,13 +205,13 @@ export class AmeldingPeriodSummaryView {
     }
 
     private setupSystemTableConfig() {
-        const orgnrCol = new UniTableColumn('OrgNumber', 'Org.nr.', UniTableColumnType.Text).setWidth('7rem');
-        const soneCol = new UniTableColumn('AgaZone', 'Sone', UniTableColumnType.Text).setWidth('4rem');
-        const municipalCol = new UniTableColumn('MunicipalName', 'Kommune', UniTableColumnType.Text);
-        const typeCol = new UniTableColumn('_type', 'Type', UniTableColumnType.Number).setWidth('7rem');
-        const rateCol = new UniTableColumn('AgaRate', 'Sats', UniTableColumnType.Number).setWidth('4rem')
-        const amountCol = new UniTableColumn('Sums.baseAGA', 'Grunnlag', UniTableColumnType.Money).setWidth('7rem');
-        const agaCol = new UniTableColumn('Sums.calculatedAGA', 'Aga', UniTableColumnType.Money).setWidth('7rem');
+        const orgnrCol = new UniTableColumn('orgNumber', 'Org.nr.', UniTableColumnType.Text).setWidth('7rem');
+        const soneCol = new UniTableColumn('zone', 'Sone', UniTableColumnType.Text).setWidth('4rem');
+        const municipalCol = new UniTableColumn('municipality', 'Kommune', UniTableColumnType.Text);
+        const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Number).setWidth('7rem');
+        const rateCol = new UniTableColumn('rate', 'Sats', UniTableColumnType.Number).setWidth('4rem');
+        const amountCol = new UniTableColumn('base', 'Grunnlag', UniTableColumnType.Money).setWidth('7rem');
+        const agaCol = new UniTableColumn('aga', 'Aga', UniTableColumnType.Money).setWidth('7rem');
 
         this.systemTableConfig = new UniTableConfig('salary.amelding.ameldingPeriod.system', false, true, 10)
             .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);

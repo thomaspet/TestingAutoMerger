@@ -17,7 +17,8 @@ import {
     FinancialYearService,
     ReportDefinitionService,
     CompanySalaryService,
-    PageStateService
+    PageStateService,
+    ITaxAndAgaSums
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
@@ -39,7 +40,7 @@ export class AMeldingView implements OnInit {
     public initialized: boolean;
     public currentPeriod: number;
     public currentMonth: string;
-    public currentSumsInPeriod: any[] = [];
+    public currentSumsInPeriod: ITaxAndAgaSums;
     public currentAMelding: any;
     public currentSumUp: any;
     public aMeldingerInPeriod: AmeldingData[];
@@ -355,7 +356,7 @@ export class AMeldingView implements OnInit {
 
     private getSumsInPeriod() {
         this._salarySumsService
-        .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
+        .getSumsFromPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
             .subscribe((currentSumsInPeriod) => {
                 this.currentSumsInPeriod = currentSumsInPeriod;
                 this.totalAGAFeedback = 0;
@@ -401,12 +402,9 @@ export class AMeldingView implements OnInit {
                 this.totalFtrekkSystem = 0;
                 this.totalFinancialSystem = 0;
 
-                currentSumsInPeriod.forEach(dataElement => {
-                    const sums = dataElement.Sums;
-                    this.totalAGASystem += dataElement.Sums.calculatedAGA;
-                    this.totalFtrekkSystem += sums.tableTax + sums.percentTax + sums.manualTax;
-                    this.totalFinancialSystem += dataElement.Sums.calculatedFinancialTax;
-                });
+                this.totalFtrekkSystem = currentSumsInPeriod.WithholdingTax;
+                this.totalFinancialSystem = currentSumsInPeriod.FinancialTax;
+                this.totalAGASystem = this._salarySumsService.getAgaSum(currentSumsInPeriod.Aga);
 
                 this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
                 this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
