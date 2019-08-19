@@ -12,12 +12,23 @@ import {
     selector: 'uni-budget-download-template-modal',
     template: `
     <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw; font-size: .9rem">
-        <header><h1>Budsjettspost</h1></header>
+        <header><h1>Budsjettspost </h1></header>
 
         <article class="budget-entry-modal-container">
+            <div *ngIf="currentDepartment">
+                <mat-form-field>
+                    <mat-select [value]="currentDepartment"
+                        (valueChange)="onDepartmentFilterChange($event)"
+                        placeholder="Velg avdeling">
+                        <mat-option *ngFor="let department of departments" [value]="department">
+                            {{ department.Name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
             <div class="budget-entry-modal-info-container">
                 <h4>
-                    Redigering av budsjettpost.
+                    {{ !options.data.fromResult ? 'Redigering av budsjettpost -' : ''}} {{ currentAccount ? accountMsg : '' }}
                 </h4>
 
                 <i class="material-icons tab-tooltip" matTooltip="{{ infoMessage }}">
@@ -30,10 +41,11 @@ import {
                 [resource]="posts"
                 [config]="uniTableConfig">
             </ag-grid-wrapper>
+            <small class="bad"> {{ errorMsg }} </small>
         </article>
 
         <footer>
-            <button (click)="save()" class="good">Lagre</button>
+            <button (click)="save()" class="good" [disabled]="lockSave">Lagre</button>
             <button (click)="close()" class="bad">Avbryt</button>
         </footer>
     </section>
@@ -51,17 +63,20 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
     @ViewChild(AgGridWrapper)
     private table: AgGridWrapper;
 
-    public posts: any[] = [
+    posts: any[] = [
         this.getEmptyLine()
     ];
 
-    private MONTHS_SHORT: string[] = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
-
-    public entriesArray = this.getEmptyEntriesArray();
-
-    public uniTableConfig: UniTableConfig;
-
-    public infoMessage = 'Om du setter verdi i Sum-kolonnen, vil den fordeles likt på 12mnd. ' +
+    MONTHS_SHORT: string[] = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
+    entriesArray = this.getEmptyEntriesArray();
+    uniTableConfig: UniTableConfig;
+    lockSave: boolean = false;
+    departments: any[] = [];
+    currentDepartment: any = {};
+    currentAccount: any = null;
+    accountMsg: string = '';
+    errorMsg: string = '';
+    infoMessage: string = 'Om du setter verdi i Sum-kolonnen, vil den fordeles likt på 12mnd. ' +
         'Hvis du velger en salgskonto (Kontogruppe 3), vil vi snu fortegn for deg.';
 
     constructor(
@@ -70,15 +85,66 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
     ) {}
 
     public ngOnInit() {
-        if (this.options && this.options.data && this.options.data.entries) {
-            this.options.data.entries.forEach((entry) => {
-                this.posts[0]['Amount' + entry.PeriodNumber] = entry.Amount;
-                this.entriesArray[entry.PeriodNumber - 1] = entry;
-            });
-            this.posts[0].Sum = this.sumAllAmounts(this.posts[0]);
-            this.posts[0].Account = this.options.data.entries[0].Account;
-            this.posts = [].concat(this.posts);
+        if (this.options.data.fromResult) {
+            this.currentDepartment = null;
+            this.setUpData(true);
+            this.setUpTable();
+        } else {
+            this.currentDepartment = this.options.data.department;
+            this.departments = [].concat(this.options.data.departments);
+
+            if (this.departments && this.departments.findIndex(dep => dep.ID === 0) < 0 ) {
+                this.departments.push({ Name: 'Ingen avdeling', ID: 0 });
+            }
+
+            if (this.options && this.options.data && this.options.data.entries) {
+                this.setUpData(!this.currentDepartment || this.currentDepartment.ID === 'ALLDEPARTMENTSID');
+            } else {
+                this.setUpTable();
+            }
         }
+    }
+
+    public setUpData(useAllEntries: boolean) {
+        if (useAllEntries) {
+            this.options.data.entries.forEach((entry) => {
+                this.posts[0]['Amount' + entry.PeriodNumber] += entry.Amount;
+            });
+
+            this.posts[0].Sum = this.options.data.entries.reduce((a, b) => a + b['Amount'], 0 );
+            this.posts[0].Account = this.options.data.entries[0].Account;
+            this.currentAccount = this.options.data.entries[0].Account;
+            this.accountMsg = 'Konto ' + this.currentAccount.AccountNumber + ': ' + this.currentAccount.AccountName;
+            this.posts = [].concat(this.posts);
+            this.errorMsg = 'Viser nå totalsum for alle avdelinger på denne konto. ' +
+            (this.options.data.fromResult ? 'Gå til budsjettsbilde for å redigere dette.' : 'For å redigere må du velge en avdeling.');
+            this.lockSave = true;
+
+        } else {
+            this.entriesArray = this.options.data.entries.filter((ent) => {
+                if (this.currentDepartment && this.currentDepartment.ID) {
+                    return ent.Dimensions && ent.Dimensions.DepartmentID === this.currentDepartment.ID;
+                } else {
+                    return !ent.Dimensions;
+                }
+            });
+
+            if (this.entriesArray.length) {
+                this.entriesArray.forEach((entry) => {
+                    this.posts[0]['Amount' + entry.PeriodNumber] = entry.Amount;
+                });
+
+                this.posts[0].Sum = this.sumAllAmounts(this.posts[0]);
+                this.posts[0].Account = this.options.data.entries[0].Account;
+                this.posts = [].concat(this.posts);
+            } else {
+                this.posts = [this.getEmptyLine()];
+                this.entriesArray = this.getEmptyEntriesArray();
+            }
+            this.errorMsg = '';
+            this.lockSave = false;
+        }
+
         this.setUpTable();
     }
 
@@ -92,13 +158,9 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
             // Create all budget entries and save them
             const entries = [];
 
-            const depID = (
-                this.options &&
-                this.options.data &&
-                this.options.data.department &&
-                this.options.data.department.ID !== 'ALLDEPARTMENTSID')
-            ? this.options.data.department.ID
-            : 0;
+            const depID = (this.currentDepartment.ID !== 'ALLDEPARTMENTSID')
+                ? this.currentDepartment.ID
+                : 0;
 
             this.entriesArray.forEach((entry) => {
                 if (entry._hasChanged) {
@@ -115,7 +177,10 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
                     entries.push(entry);
                 }
             });
-            this.onClose.emit(entries);
+            this.onClose.emit({
+                entries: entries,
+                department: this.currentDepartment
+            });
         });
     }
 
@@ -123,10 +188,21 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
         this.onClose.emit();
     }
 
+    public onDepartmentFilterChange(department) {
+        this.currentDepartment = department;
+        if (this.options.data.entries && this.options.data.entries.length) {
+            this.setUpData(department.ID === 'ALLDEPARTMENTSID');
+        } else {
+            this.posts = [this.getEmptyLine()];
+            this.entriesArray = this.getEmptyEntriesArray();
+        }
+    }
+
     private setUpTable() {
         const cols = [
             new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup )
                 .setDisplayField('Account.AccountNumber')
+                .setEditable(!this.options.data.entries)
                 .setTemplate((rowModel) => {
                     if (rowModel.Account) {
                         const account = rowModel.Account;
@@ -158,7 +234,7 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
             );
         }
 
-        this.uniTableConfig = new UniTableConfig('', true, false, 1)
+        this.uniTableConfig = new UniTableConfig('', !this.lockSave, false, 1)
             .setColumns(cols)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(false)
@@ -263,13 +339,13 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
         return this.budgetService.getEntriesFromBudgetIDAndAccount(
             this.options.data.BudgetID,
             account.AccountNumber,
-            this.options.data.department.ID !== 'ALLDEPARTMENTSID' ? this.options.data.department.ID : null
+            this.currentDepartment.ID !== 'ALLDEPARTMENTSID' ? this.currentDepartment.ID : null
         );
     }
 
     private getEmptyLine() {
         return {
-            Account: null,
+            Account: this.currentAccount || null,
             Sum: 0,
             Amount1: 0,
             Amount2: 0,

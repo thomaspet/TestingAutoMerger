@@ -87,7 +87,7 @@ export class UniBudgetView {
             this.departmentService.GetAll(null),
         ).subscribe((result) => {
             this.departments = result[1];
-            this.departments.unshift({ Name: 'Alle', ID: 'ALLDEPARTMENTSID' });
+            this.departments.unshift({ Name: 'Alle', ID: 'ALLDEPARTMENTSID', DepartmentNumber: 0 });
             this.currentDepartment = this.departments[0];
             if (!result[0].length) {
                 this.showEmptyBudgetView = true;
@@ -378,8 +378,7 @@ export class UniBudgetView {
         this.currentLine = line;
         this.budgetService.getEntriesFromBudgetIDAndAccount(
             this.currentBudget.ID,
-            line.AccountNumber,
-            this.currentDepartment && this.currentDepartment.ID !== 'ALLDEPARTMENTSID' ? this.currentDepartment.ID : 0
+            line.AccountNumber
         ).subscribe((entries: any[]) => {
             this.openEntryEditModal(entries);
         });
@@ -396,13 +395,14 @@ export class UniBudgetView {
                 data: {
                     BudgetID: this.currentBudget.ID,
                     entries: entries,
-                    department: this.currentDepartment
+                    department: this.currentDepartment,
+                    departments: this.departments
                 }
             }).onClose.subscribe((res) => {
-            if (res && res.length) {
-                const account = res[0].Account;
+            if (res) {
+                const account = res.entries[0].Account;
 
-                this.currentBudget.Entries = res;
+                this.currentBudget.Entries = res.entries;
 
                 this.budgetService.Put(this.currentBudget.ID, this.currentBudget).subscribe((response) => {
                     this.state = {};
@@ -414,7 +414,10 @@ export class UniBudgetView {
                             });
                         }
                     });
-                    if (this.currentLine && account) {
+                    if (this.currentDepartment.ID !== res.department.ID) {
+                        this.currentDepartment = res.department;
+                        this.getAndShowBudgetDetails();
+                    } else if (this.currentLine && account) {
                         const lineToEdit = this.originalBudgetData.find(data => data.AccountNumber === account.AccountNumber);
                         if (lineToEdit && response.Entries) {
                             response.Entries.forEach((ent) => {

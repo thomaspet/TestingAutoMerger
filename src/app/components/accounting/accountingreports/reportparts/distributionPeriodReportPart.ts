@@ -211,18 +211,21 @@ export class DistributionPeriodReportPart implements OnChanges {
             if (this.budgets.length && this.accountIDs && this.accountIDs.length) {
                 if (this.budgets.filter(bud => bud.AccountingYear === parseInt(this.accountYear1, 10) && bud.StatusCode === 47002).length) {
                     const budget = this.budgets.filter(bud => bud.AccountingYear === parseInt(this.accountYear1, 10));
-                    budgetquery1 = this.budgetService.getEntriesFromBudgetIDAndAccountID(
+
+                    budgetquery1 = this.budgetService.getEntriesFromDepartmentNumber(
                         budget[0].ID,
                         this.accountIDs[0],
-                        this.filter && this.filter.DepartmentID ? this.filter.DepartmentID : null);
+                        this.filter && (this.filter.DepartmentNumber || this.filter.DepartmentNumber === 0)
+                        ? this.filter.DepartmentNumber : null);
                 }
 
                 if (this.budgets.filter(bud => bud.AccountingYear === parseInt(this.accountYear2, 10) && bud.StatusCode === 47002).length) {
                     const budget = this.budgets.filter(bud => bud.AccountingYear === parseInt(this.accountYear2, 10));
-                    budgetquery2 = this.budgetService.getEntriesFromBudgetIDAndAccountID(
+                    budgetquery2 = this.budgetService.getEntriesFromDepartmentNumber(
                         budget[0].ID,
                         this.accountIDs[0],
-                        this.filter && this.filter.DepartmentID ? this.filter.DepartmentID : null);
+                        this.filter && (this.filter.DepartmentNumber || this.filter.DepartmentNumber === 0)
+                        ? this.filter.DepartmentNumber : null);
                 }
             }
 
@@ -268,16 +271,19 @@ export class DistributionPeriodReportPart implements OnChanges {
 
                 if (this.budgetEntries1 && this.budgetEntries1.length) {
                     this.hasBudgetYear1 = true;
+                    distributionPeriodData.map(dist => { dist.budgetPeriodYear1 = 0; return dist; });
+
                     this.budgetEntries1.forEach(bud => {
-                        distributionPeriodData[bud.PeriodNumber - 1].budgetPeriodYear1 =
+                        distributionPeriodData[bud.PeriodNumber - 1].budgetPeriodYear1 +=
                             bud.Amount * (this.doTurnAmounts ? -1 : 1);
                     });
                 }
 
                 if (this.budgetEntries2 && this.budgetEntries2.length) {
                     this.hasBudgetYear2 = true;
+                    distributionPeriodData.map(dist => { dist.budgetPeriodYear2 = 0; return dist; });
                     this.budgetEntries2.forEach(bud => {
-                        distributionPeriodData[bud.PeriodNumber - 1].budgetPeriodYear2 =
+                        distributionPeriodData[bud.PeriodNumber - 1].budgetPeriodYear2 +=
                             bud.Amount * (this.doTurnAmounts ? -1 : 1);
                     });
                 }
@@ -404,7 +410,9 @@ export class DistributionPeriodReportPart implements OnChanges {
                 data: {
                     BudgetID: entries[0].ID,
                     entries: entries,
-                    department: (this.filter && this.filter.DepartmentID) ? this.filter.DepartmentID : null
+                    department: (this.filter && this.filter.DepartmentID) ? this.filter.DepartmentID : null,
+                    departments: [],
+                    fromResult: true
                 }
             }).onClose.subscribe((result) => {
                 if (result && result.length) {
