@@ -140,14 +140,14 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     public sendPayments() {
         this.busy = true;
         if (this.options.data.sendAll) {
-            this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
+            return this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
                 this.onClose.emit('Sendingen er fullført');
                 this.busy = false;
             }, err => {
                 this.handleAutobankError(err);
             });
         } else {
-            this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
+            return this.paymentBatchService.sendAutobankPayment(this.model).subscribe((res) => {
                 this.busy = false;
                 this.onClose.emit('Sendingen er fullført');
             }, err => {
