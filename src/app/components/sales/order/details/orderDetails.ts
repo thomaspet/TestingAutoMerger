@@ -1528,4 +1528,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
             }
         });
     }
+
+    onTradeItemsChange() {
+        this.order.Items = this.orderItems;
+        this.order = cloneDeep(this.order);
+        this.recalcDebouncer.emit(this.orderItems);
+    }
 }

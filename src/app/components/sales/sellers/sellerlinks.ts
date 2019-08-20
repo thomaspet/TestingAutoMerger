@@ -110,7 +110,7 @@ export class SellerLinks {
         sellers = this.setAmountsOnSellers(this.entity, sellers);
 
         this.sellerLinks = sellers;
-        this.entity.Sellers = this.sellerLinks;
+        this.entity.Sellers = this.sellerLinks.filter(s => !s['_isEmpty']);
         this.entityChange.emit(this.entity);
 
         this.updateTotalPercent();
@@ -125,7 +125,7 @@ export class SellerLinks {
             }
         }
 
-        this.entity.Sellers = this.sellerLinks;
+        this.entity.Sellers = this.sellerLinks.filter(s => !s['_isEmpty']);
         this.entityChange.emit(this.entity);
         this.updateTotalPercent();
     }
@@ -139,7 +139,7 @@ export class SellerLinks {
             });
 
         const percentCol = new UniTableColumn('Percent', 'Prosent', UniTableColumnType.Number);
-        const amountCol = new UniTableColumn('Amount', 'Beløp (ink.mva)', UniTableColumnType.Number, false);
+        const amountCol = new UniTableColumn('Amount', 'Beløp (ink.mva)', UniTableColumnType.Money, false);
 
         const contextMenuItems: IContextMenuItem[] = [
             {
