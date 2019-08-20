@@ -59,4 +59,14 @@ export class PaymentService extends BizHttp<Payment> {
                 return '';
         }
     }
+
+    public cancelPaymentClaim(ids: number[]) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('/payments?action=batch-cancel-payment-claims')
+            .withBody(ids)
+            .send()
+            .map(response => response.body);
+    }
 }

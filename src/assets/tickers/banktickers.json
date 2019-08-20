@@ -1174,6 +1174,17 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": true
             }
+        ],
+        "Actions": [
+            {
+                "Name": "Kanseller betaling",
+                "Code": "cancel_payment_claims",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            }
         ]
     }
 ]

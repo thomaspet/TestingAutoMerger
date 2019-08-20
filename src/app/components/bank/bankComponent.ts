@@ -184,6 +184,11 @@ export class BankComponent {
             Code: 'revert_batch',
             ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentBatchStatusCode === 45009
+        },
+        {
+            Code: 'cancel_payment_claims',
+            ExecuteActionHandler: (selectedRows) => this.cancelPaymentClaims(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.Type === 'Sletteanmodning'
         }
     ];
 
@@ -545,6 +550,37 @@ export class BankComponent {
                         });
                     }
                 });
+            });
+        });
+    }
+
+    public cancelPaymentClaims(selectedRows: any) {
+        const ids = selectedRows.map(row => row.ID);
+        return new Promise((res, rej) => {
+            this.paymentService.cancelPaymentClaim(ids).subscribe((response) => {
+                const errorMessages = response.filter(r => r.statusCode === 3);
+
+                if (errorMessages.length) {
+                    // This code will be implemented later when added delete on whole batches instead on just one payment
+                    // const errorMessage =
+                    //     (errorMessages.length !== response.length)
+                    //     ? errorMessages.length + ' av ' + response.length + 'betalinger'
+                    //     : (errorMessages.length === 1)
+                    //     ?  'Betalingen'
+                    //     : 'Alle betalingene';
+
+                    // this.toastService.addToast('Noen kanselleringer feilet', ToastType.bad, 10,
+                    // errorMessage + '  kunne ikke kanselleres. Se logg for detaljer.');
+                    const errorMessage = errorMessages[0].errorMessage + ' ' + errorMessages[0].exception;
+                    this.toastService.addToast('Kansellering feilet', ToastType.bad, 15, errorMessage);
+                } else {
+                    this.toastService.addToast('Betalinger kansellert', ToastType.good, 5);
+                }
+
+                res(errorMessages);
+            }, error => {
+                this.toastService.addToast('Noe gikk galt', ToastType.bad, 15,
+                'Fikk ikke kontakt med server for å kansellere betaling. Prøv igjen.');
             });
         });
     }
