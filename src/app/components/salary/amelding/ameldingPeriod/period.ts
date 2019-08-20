@@ -15,7 +15,7 @@ export class AmeldingPeriodSummaryView {
     @Input() public aMeldingerInPeriod: AmeldingData[];
     @Input() public companySalary: CompanySalary;
 
-    private systemSource: ISystemTaxAndAgaSums[] = [];
+    public systemSource: ISystemTaxAndAgaSums[] = [];
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
     private sumForskuddstrekk: number;
