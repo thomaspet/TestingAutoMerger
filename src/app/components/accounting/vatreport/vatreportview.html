@@ -11,12 +11,14 @@
             <dl class="vatreport_poster_details">
                 <dt>Firmanavn</dt>
                 <dd>{{companySettings?.CompanyName}}</dd>
-
                 <dt>Juridisk enhet</dt>
                 <dd>{{companySettings?.OrganizationNumber | uninumberformat:'orgno'}}</dd>
-
                 <dt *ngIf="companySettings?.CompanyBankAccount?.AccountNumber">Kontonr. for tilbakebetaling</dt>
                 <dd *ngIf="companySettings?.CompanyBankAccount?.AccountNumber">{{companySettings?.CompanyBankAccount?.AccountNumber | uninumberformat:'bankacct'}}</dd>
+
+                <dt>Status for periode</dt>
+                <dd>{{statusCodePeriod}}</dd>
+
             </dl>
         </article>
 

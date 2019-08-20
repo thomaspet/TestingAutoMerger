@@ -10,6 +10,7 @@ import {
     VatReportNotReportedJournalEntryData,
     AltinnSigning
 } from '../../unientities';
+import { StatisticsService } from '@app/services/common/statisticsService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
@@ -30,7 +31,10 @@ export class VatReportService extends BizHttp<VatReport> {
         { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' }
     ];
 
-    constructor(http: UniHttp) {
+    constructor(
+        http: UniHttp,
+        private statisticsService: StatisticsService
+        ) {
         super(http);
         super.disableCache();
 
@@ -49,6 +53,12 @@ export class VatReportService extends BizHttp<VatReport> {
             .withEndPoint(this.relativeURL + `?action=current`)
             .send()
             .map(response => response.body);
+    }
+
+    public getPeriodStatus(periodID: number): Observable<any> {
+        return this.statisticsService.GetAll(`model=VatReport&select=ID as ID,StatusCode as StatusCode,VatReportTypeID as VatReportTypeID,Title as Title&` +
+                    `filter=TerminPeriodID eq '${periodID}'&orderby=ID DESC`)
+                    .map(x => x.Data ? x.Data[0] : []);
     }
 
     public getNextPeriod(vatReportId: number, periodId: number): Observable<VatReport> {

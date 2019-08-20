@@ -49,6 +49,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public isBusy: boolean = true;
     public isHistoricData: boolean = false;
     public actions: IUniSaveAction[];
+    public statusCodePeriod: string;
     private statusText: string;
     private subs: Subscription[] = [];
     private vatReportsInPeriod: VatReport[];
@@ -165,12 +166,27 @@ export class VatReportView implements OnInit, OnDestroy {
                     addStatus = false;
                 }
             }
+            const subStatusList: IStatus[] = [];
+            if (this.vatReportsInPeriod) {
+                this.vatReportsInPeriod.forEach(report => {
+                    subStatusList.push({
+                        title: report.Title,
+                        state: STATUSTRACK_STATES.Active,
+                        timestamp: report.ExecutedDate
+                            ? new Date(<any> report.ExecutedDate)
+                            : null,
+                        data: ''
+                    });
+                });
+            }
+
 
             if (addStatus) {
                 statustrack.push({
                     title: status.Text,
                     state: _state,
-                    code: status.Code
+                    code: status.Code,
+                    substatusList: _state === STATUSTRACK_STATES.Active ? subStatusList : null
                 });
             }
         });
@@ -182,8 +198,8 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe(settings => this.companySettings = settings, err => this.errorService.handle(err));
 
         this.spinner(this.vatReportService.getCurrentPeriod())
-            .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
-
+            .subscribe((vatReport) => this.setVatreport(vatReport)
+            , err => this.errorService.handle(err));
 
         this.subs.push(
             this.externalComment
@@ -222,6 +238,8 @@ export class VatReportView implements OnInit, OnDestroy {
                 vatTypes => this.vatTypes = vatTypes,
                 err => this.errorService.handle(err)
             );
+
+
     }
 
     private updateSaveActions() {
@@ -377,6 +395,10 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private updateStatusText() {
         this.statusText = this.vatReportService.getStatusText(this.currentVatReport.StatusCode);
+        this.vatReportService.getPeriodStatus(this.currentVatReport.TerminPeriodID)
+            .subscribe((status) => {
+                this.statusCodePeriod = status ? this.vatReportService.getStatusText(status.StatusCode) + ' (' + status.Title + ')' : 'Ikke kjørt';
+            }, err => this.errorService.handle(err));
     }
 
     public onBackPeriod() {
