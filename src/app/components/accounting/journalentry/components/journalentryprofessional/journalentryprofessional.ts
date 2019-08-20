@@ -1444,7 +1444,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return (item.Number  + ': ' + item.DisplayName);
                 },
                 lookupFunction: (query) => {
-                    return this.statisticsService.GetAll(`model=JournalEntryType&select=Number as Number,DisplayName as DisplayName,ID as ID&orderby=Number&filter=Number gt 0 and startswith(Number\,'${query}')`)
+                    return this.statisticsService.GetAll(`model=JournalEntryType&select=Number as Number,DisplayName as DisplayName,ID as ID&orderby=Number&filter=startswith(Number, '${query}') or startswith(DisplayName,'${query}') and Number gt 0`)
                         .map(x => x.Data ? x.Data : []);
                     }
                 });
