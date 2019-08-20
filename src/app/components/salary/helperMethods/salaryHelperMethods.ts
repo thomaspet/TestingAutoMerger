@@ -38,7 +38,7 @@ export class SalaryHelperMethods {
                     ? `${field} ge ${from} and ${field} le ${to}`
                     : `${field} eq ${from}`)
             .join(' or ')}` +
-            `${exclude && fromTos.length ? ` or ${field} gt ${fromTos[fromTos.length - 1].to}` : ''})`;
+            `${exclude && fromTos.length ? `${fromTos.length > 1 ? ' or ' : ''}${field} gt ${fromTos[fromTos.length - 1].to}` : ''})`;
     }
 
     private getIdsToFilter(ids: number[], exclude: boolean): number[] {

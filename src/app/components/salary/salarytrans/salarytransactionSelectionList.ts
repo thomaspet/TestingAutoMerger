@@ -44,6 +44,7 @@ const REFRESH_SUMS_KEY: string = 'refresh_sums';
 const SUB_ENTITIES_KEY: string = 'sub_entities';
 const REFRESH_TAX: string = 'refresh_tax';
 const EMP_COUNT: string = 'employee_count';
+const REFRESH_EMPS_ACTION: string = 'refresh_emps_action';
 
 interface IEmpListFilter {
     name: string;
@@ -70,13 +71,13 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     employeeIDFromParams: number = 0;
     hasInitialized: boolean = false;
     @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
-
-    employeeListfilters: IEmpListFilter[] = [
+    public standardEmployeeListfilters: IEmpListFilter[] = [
         { name: 'Ansattnummer', value: 'EmployeeNumber', multiplier: 1, initialMulitplier: 1, index: 0 },
         { name: 'Navn', value: 'Name', multiplier: 1, initialMulitplier: 1, index: 1 },
-        { name: 'Har feil', value: '_errors', multiplier: -1, initialMulitplier: 1, index: 2 }
+        { name: 'Har feil', value: '_errors', multiplier: 1, initialMulitplier: 1, index: 2 }
     ];
-    currentListFilter: IEmpListFilter; // = this.employeeListfilters[0];
+    public employeeListfilters: IEmpListFilter[] = [...this.standardEmployeeListfilters.map(x => ({...x}))];
+    public currentListFilter: IEmpListFilter; // = this.employeeListfilters[0];
 
     private employments: Employment[] = [];
     private taxCards: {[empID: number]: EmployeeTaxCard} = {};
@@ -138,6 +139,9 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
 
     private setupState(key: string) {
         super.updateCacheKey(key);
+        super.getStateSubject(REFRESH_EMPS_ACTION)
+            .takeUntil(this.destroy$)
+            .subscribe(() => this.getEmployeeData());
         super.getStateSubject(SELECTED_EMP_KEY)
                     .pipe(
                         takeUntil(this.destroy$),
@@ -223,18 +227,17 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         });
     }
 
-    public trackBy(i, emp: IEmployee) {
-        return this.compare(
-            this.currentListFilter.value,
-            this.currentListFilter.multiplier * this.currentListFilter.initialMulitplier);
-    }
-
-    public onActiveFilterChange(f) {
+    public onActiveFilterChange(f: IEmpListFilter) {
         this.currentListFilter = f;
-        this.filteredEmployees = this.getFilteredEmployees();
 
+        this.filteredEmployees = this.getFilteredEmployees();
         f.initialMulitplier *= -1;
 
+        this.employeeListfilters = [
+            ...this.standardEmployeeListfilters.filter(x => x.index < f.index).map(x => ({...x})),
+            f,
+            ...this.standardEmployeeListfilters.filter(x => x.index > f.index).map(x => ({...x})),
+        ];
         // Scroll to top when changing sort-value
         document.getElementById('role-info').scrollTop = 0;
         this.scrollbar.update();
@@ -309,15 +312,17 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     }
 
     public getFilteredEmployees() {
-        return this.employees.sort(this.compare(
-            this.currentListFilter.value,
-            this.currentListFilter.multiplier * this.currentListFilter.initialMulitplier)
-        ).filter((emp: IEmployee) => {
+        return this.employees
+        .filter((emp: IEmployee) => {
             if (emp.Name.toLowerCase().includes(this.employeeFilterString.toLowerCase()) ||
                 emp.EmployeeNumber.toString().toLowerCase().startsWith(this.employeeFilterString.toLowerCase())) {
                 return emp;
             }
-        });
+        })
+        .sort(this.compare(
+            this.currentListFilter.value,
+            this.currentListFilter.multiplier * this.currentListFilter.initialMulitplier)
+        );
     }
 
     private createEmpSelect(run?: PayrollRun): string {

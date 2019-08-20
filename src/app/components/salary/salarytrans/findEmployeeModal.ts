@@ -104,7 +104,7 @@ export class UniFindEmployeeModal implements IUniModal {
 
     private createEmpFilters(cats: EmployeeCategory[], search: string): string[] {
         const catFilter = this.categoryFilter(cats);
-        return this.filterOutExistingEmps([...this.options.data.employees, ...this.employees].map(emp => emp.ID))
+        return this.filterOutExistingEmps([...this.employees, ...this.newEmployees].map(emp => emp.ID))
             .map(unSelectedEmpsFilter => {
                 let query = this.handleEmpSearch(search) || '';
                 if (catFilter) {

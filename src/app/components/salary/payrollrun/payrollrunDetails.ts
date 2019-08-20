@@ -47,6 +47,7 @@ const REFRESH_SUMS_KEY: string = 'refresh_sums';
 const SUB_ENTITIES_KEY: string = 'sub_entities';
 const REFRESH_TAX: string = 'refresh_tax';
 const EMP_COUNT: string = 'employee_count';
+const REFRESH_EMPS_ACTION: string = 'refresh_emps_action';
 
 interface IFromToFilter {
     from: number;
@@ -939,8 +940,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     .onClose)
             .subscribe(needUpdate => {
                 if (needUpdate) {
-                    this.getPayrollRun();
-                    this.refreshTranses();
+                    this.refreshAll();
                 }
             });
     }
@@ -957,10 +957,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 .onClose)
             .subscribe(needUpdate => {
                 if (needUpdate) {
-                    this.getPayrollRun();
-                    this.refreshTranses();
+                    this.refreshAll();
                 }
             });
+    }
+
+    private refreshAll() {
+        this.getPayrollRun();
+        this.refreshTranses();
+        super.updateState(REFRESH_EMPS_ACTION, true, false);
     }
 
     public recalcTaxOnPayrun() {
