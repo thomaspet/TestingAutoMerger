@@ -2288,4 +2288,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 + `(kurs: ${this.numberFormat.asMoney(this.currencyExchangeRate)})`;
         }
     }
+
+    onTradeItemsChange() {
+        setTimeout(() => {
+            this.invoice.Items = this.invoiceItems;
+            this.invoice = cloneDeep(this.invoice);
+            this.recalcDebouncer.emit(this.invoiceItems);
+        });
+    }
 }
