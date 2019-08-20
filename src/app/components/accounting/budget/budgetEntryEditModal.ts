@@ -107,6 +107,7 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
 
     public setUpData(useAllEntries: boolean) {
         if (useAllEntries) {
+            this.setBackToZero();
             this.options.data.entries.forEach((entry) => {
                 this.posts[0]['Amount' + entry.PeriodNumber] += entry.Amount;
             });
@@ -360,6 +361,12 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
             Amount11: 0,
             Amount12: 0,
         };
+    }
+
+    private setBackToZero() {
+        for (let i = 1; i <= 12; i++) {
+            this.posts[0]['Amount' + i] = 0;
+        }
     }
 
     private getEmptyEntriesArray() {
