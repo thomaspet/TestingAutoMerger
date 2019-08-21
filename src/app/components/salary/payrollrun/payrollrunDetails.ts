@@ -328,6 +328,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     .subscribe(refresh => {
                         if (refresh) {
                             this.getData();
+                            this.updateState(REFRESH_SUMS_KEY, true, false);
                         }
                     });
                 },
