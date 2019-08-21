@@ -324,6 +324,11 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public saveReinvoiceAs(type: string) {
 
+        if (this.isSaving) {
+            this.toastr.addToast('Opprettelse av viderefakturering pågår fremdeles, vennligst vent...', ToastType.bad, 5);
+            return;
+        }
+
         this.isSaving = true;
         this.hasChanges = false;
         if (!this.currentReInvoice) {
@@ -379,15 +384,16 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         );
                 }
                 saveRequest
-                    .finally(() => this.isSaving = false)
                     .subscribe(reinvoice => {
                         if (type !== '') {
                             this.reinvoiceService.Action(reinvoice.ID, type).subscribe(() => {
                                 this.toastr.addToast('Faktura / ordre ble opprettet!', ToastType.good, 6);
                                 this.isSaving = false;
+                                this.currentReInvoice = reinvoice;
                                 this.ngOnInit(true);
                             });
                         } else {
+                            this.currentReInvoice = reinvoice;
                             this.ngOnInit(true);
                             this.toastr.addToast('Viderefakturering ble lagret !', ToastType.good, 6);
                             this.isSaving = false;
@@ -780,6 +786,11 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }
 
         data[0].Share = 100 - cumulativePercentage;
+
+        if (change && change.field === 'Share' && cumulativePercentage > 100) {
+            this.toastr.addToast('Du har fordelt mer enn 100%', ToastType.warn, 5);
+        }
+
         const customerGrossAmount = data.slice(1).reduce((prev: number, current) => {
             return prev + (current.GrossAmount || 0);
         }, 0);
