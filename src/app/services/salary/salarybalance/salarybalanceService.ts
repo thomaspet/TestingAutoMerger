@@ -247,7 +247,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         return salbal;
                     })
                 : Observable.of(salbal)
-            );
+            )
+            .do(() => this.clearRelatedCaches());
     }
 
     public deleteSalaryBalance(id: number): Observable<any> {
