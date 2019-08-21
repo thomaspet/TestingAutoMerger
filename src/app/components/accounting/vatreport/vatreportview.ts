@@ -171,11 +171,13 @@ export class VatReportView implements OnInit, OnDestroy {
                 this.vatReportsInPeriod.forEach(report => {
                     subStatusList.push({
                         title: report.Title,
-                        state: STATUSTRACK_STATES.Active,
+                        state:  report.ID === this.currentVatReport.ID
+                        ? STATUSTRACK_STATES.Active
+                        : STATUSTRACK_STATES.Obsolete,
                         timestamp: report.ExecutedDate
                             ? new Date(<any> report.ExecutedDate)
                             : null,
-                        data: ''
+                        data: report
                     });
                 });
             }
@@ -191,6 +193,11 @@ export class VatReportView implements OnInit, OnDestroy {
             }
         });
         return statustrack;
+    }
+
+    public setVatReportFromEvent(event) {
+        if (!event[0] || !event[0].data) { return; }
+        this.setVatreport(event[0].data);
     }
 
     public ngOnInit() {

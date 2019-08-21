@@ -1,6 +1,7 @@
 <uni-toolbar
     [config]="toolbarconfig"
-    [saveactions]="actions">
+    [saveactions]="actions"
+    (statusSelectEvent)="setVatReportFromEvent($event)">
 </uni-toolbar>
 
 <header class="poster">
