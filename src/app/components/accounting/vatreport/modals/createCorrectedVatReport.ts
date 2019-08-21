@@ -90,11 +90,11 @@ export class CreateCorrectedVatReportForm implements OnInit {
     public submit() {
         switch (this.model$.getValue().correctionChoice) {
             case 1:
-                console.log('submit() this.model.correctionChoice 1 for periodID: ' + this.period.ID);
+                //console.log('submit() this.model.correctionChoice 1 for periodID: ' + this.period.ID);
                 this.createAdjustedVatReport();
                 break;
             case 2:
-                console.log('submit() this.model.correctionChoice 2 for periodID: ' + this.period.ID);
+                //console.log('submit() this.model.correctionChoice 2 for periodID: ' + this.period.ID);
                 this.createAdditionalVatReport();
                 break;
         }

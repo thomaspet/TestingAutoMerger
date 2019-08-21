@@ -9449,6 +9449,7 @@ export enum StatusCodeVatReport{
     Rejected = 32003,
     Approved = 32004,
     Adjusted = 32005,
+    Cancelled = 32006,
 }
 
 

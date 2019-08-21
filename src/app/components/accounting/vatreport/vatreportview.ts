@@ -277,19 +277,13 @@ export class VatReportView implements OnInit, OnDestroy {
         this.actions.push({
             label: 'Godkjenn manuelt',
             action: (done) => this.approveManually(done),
-            disabled: this.IsSendActionDisabled()
-        });
-
-        this.actions.push({
-            label: 'Godkjenn manuelt',
-            action: (done) => this.approveManually(done),
-            disabled: this.IsSignActionDisabled ()
+            disabled: this.IsSendActionDisabled() && this.IsSignActionDisabled()
         });
 
         this.actions.push({
             label: 'Angre kjøring',
             action: (done) => this.UndoExecution(done),
-            disabled: this.IsSendActionDisabled()
+            disabled: this.IsUndoActionDisabled()
         });
 
 
@@ -327,6 +321,14 @@ export class VatReportView implements OnInit, OnDestroy {
             return false;
         }
         return true;
+    }
+    private IsUndoActionDisabled() {
+        if (this.currentVatReport.StatusCode === null ||
+            this.currentVatReport.StatusCode === 0  ||
+            this.currentVatReport.StatusCode === StatusCodeVatReport.Cancelled) {
+            return true;
+        }
+        return false;
     }
 
     private setVatreport(vatReport: VatReport) {
@@ -574,7 +576,35 @@ export class VatReportView implements OnInit, OnDestroy {
 
 
     public UndoExecution(done) {
+       if (this.currentVatReport.StatusCode !== StatusCodeVatReport.Executed) {
+            if (confirm(
+                'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i Uni Economy på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
+            )) {
+                this.UndoExecutionPeriod(done);
+            } else {
+                done('Angre kjøring avbrutt');
+            }
+        } else {
+            this.UndoExecutionReport(done);
+        }
+    }
+
+    public UndoExecutionReport(done) {
         this.vatReportService.undoReport(this.currentVatReport.ID)
+        .subscribe(res => {
+            this.spinner(this.vatReportService.getCurrentPeriod())
+            .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
+            done();
+        },
+        err => {
+            this.errorService.handle(err);
+            done('Det skjedde en feil, forsøk igjen senere');
+        }
+        );
+    }
+
+    public UndoExecutionPeriod(done) {
+        this.vatReportService.undoPeriod(this.currentVatReport.TerminPeriodID)
         .subscribe(res => {
             this.spinner(this.vatReportService.getCurrentPeriod())
             .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));

@@ -28,7 +28,8 @@ export class VatReportService extends BizHttp<VatReport> {
         { Code: StatusCodeVatReport.Submitted, Text: 'Innsendt' },
         { Code: StatusCodeVatReport.Rejected, Text: 'Avvist' },
         { Code: StatusCodeVatReport.Approved, Text: 'Godkjent' },
-        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' }
+        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' },
+        { Code: StatusCodeVatReport.Cancelled, Text: 'Angret' }
     ];
 
     constructor(
@@ -93,6 +94,15 @@ export class VatReportService extends BizHttp<VatReport> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=undo-execute&vatReportId=${vatReportId}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public undoPeriod(periodId: number): Observable<VatReport> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${periodId}?action=undo-execute-period&periodId=${periodId}`)
             .send()
             .map(response => response.body);
     }
