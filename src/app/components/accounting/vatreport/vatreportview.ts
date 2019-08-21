@@ -438,11 +438,11 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        if (!vatReport || !vatReport.ExternalRefNo && vatReport.StatusCode === 32005) {
+        if (!vatReport) {
             this.toastService.addToast(
                 'Kunne ikke vise MVA-melding',
                 ToastType.bad, 200,
-                'Historikk er ikke tilgjengelig siden MVA-meldingen ble korrigert uten å sendes inn til Altinn først'
+                'vatReport er tom'
             );
         } else {
             this.setVatreport(vatReport);
