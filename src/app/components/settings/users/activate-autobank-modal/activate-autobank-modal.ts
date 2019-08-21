@@ -73,7 +73,7 @@ export class ActivateAutobankModal implements IUniModal {
                     Phone: autobankData.Phone
                 })
                 .send()
-                .map(res => res.json());
+                .map(res => res.body);
         }).subscribe(
             () => this.onClose.emit(true),
             err => {

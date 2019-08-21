@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
-import {Response} from '@angular/http';
+import {HttpResponse} from '@angular/common/http';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaPurchase} from '@app/models';
 
 @Injectable()
 export class ElsaPurchaseService {
-    private cache: {[endpoint: string]: Observable<Response>} = {};
+    private cache: {[endpoint: string]: Observable<HttpResponse<any>>} = {};
 
     constructor(private uniHttp: UniHttp) {
         this.uniHttp.authService.authentication$.subscribe(() => {
@@ -51,7 +51,7 @@ export class ElsaPurchaseService {
             this.cache[cacheKey] = cachedRequest;
         }
 
-        return cachedRequest.map(res => res.json());
+        return cachedRequest.map(res => res.body);
     }
 
     massUpdate(updates: ElsaPurchase[], companyKeyOverride?: string) {

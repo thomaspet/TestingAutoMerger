@@ -1,4 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {HttpParams} from '@angular/common/http';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {ErrorService} from '../../../services/services';
@@ -40,16 +41,12 @@ export class UniTofSelectModal implements IUniModal {
         }
 
         this.lookupFunction = (urlParams: any) => {
-            let params = urlParams;
+            const params = (urlParams || new HttpParams()).set(
+                'expand',
+                'Customer,Customer.Info,DefaultDimensions,DefaultDimensions.Department,DefaultDimensions.Project'
+            );
 
-            if (params === null) {
-                params = new URLSearchParams();
-            }
-
-            params.set('expand',
-                'Customer,Customer.Info,DefaultDimensions,DefaultDimensions.Department,DefaultDimensions.Project');
-
-            return this.options.data.service.GetAllByUrlSearchParams(params)
+            return this.options.data.service.GetAllByHttpParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 

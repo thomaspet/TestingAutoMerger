@@ -364,7 +364,7 @@ export class PostPost {
 
         this.modalService.confirm({
             header: 'Tilbakestille linjer',
-            message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost?',
+            message: 'Vil du tilbakestille status og restbeløp på alle linjer uten motpost for alle kunder og leverandører?',
             buttonLabels: {
                 accept: 'Ja',
                 reject: 'Nei',
@@ -373,7 +373,8 @@ export class PostPost {
         }).onClose.subscribe(response => {
             switch (response) {
                 case ConfirmActions.ACCEPT:
-                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID, null);
+                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID, 'customer');
+                    this.postpost.ResetJournalEntrylinesPostPostStatus(this.activeSubAccountID, 'supplier');
                     done('Tilbakestilling ble kjørt.');
                 break;
                 default:

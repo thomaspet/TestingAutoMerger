@@ -111,7 +111,7 @@ export class UniReportComments implements IUniModal {
             .withEndPoint(route)
             .withBody(comment)
             .send({}, undefined, !companyKey)
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     private putComment(comment: ReportComment): Observable<ReportComment> {
@@ -124,7 +124,7 @@ export class UniReportComments implements IUniModal {
             .withEndPoint(route)
             .withBody(comment)
             .send({}, undefined, !companyKey)
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     private createTableConfig(): UniTableConfig {

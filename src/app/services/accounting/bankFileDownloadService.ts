@@ -21,6 +21,6 @@ export class BankFileDownloadService extends BizHttp<PaymentBatch> {
             .withBody(payload)
             .withEndPoint('api/bank/download')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 }

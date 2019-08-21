@@ -129,7 +129,7 @@ export class SubCompanyComponent implements OnInit {
                 .usingBusinessDomain()
                 .withEndPoint(`subcompanies?filter=customerid eq ${c.ID}`)
                 .send()
-                .map(res => res.json())
+                .map(res => res.body)
                 .subscribe(
                     res => {
                         if (res && res.length) {
@@ -223,7 +223,7 @@ export class SubCompanyComponent implements OnInit {
             .withEndPoint('/api/companylicenses')
             .send()
             .subscribe(
-                res => this.showLicenses(res.json()),
+                res => this.showLicenses(res.body),
                 err => console.error(err)
             );
     }

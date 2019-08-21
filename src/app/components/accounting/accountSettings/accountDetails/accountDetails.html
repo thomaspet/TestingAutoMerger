@@ -11,6 +11,7 @@
         [model]="dimensions$ | async"
         (changeEvent)="onDimensionsChange($event)"
     ></uni-form>
+    <button (click)="deleteAccount()" [disabled]="deleteButtonDisabled">Slett</button>
 </div>
 <div *ngIf="!(account$ | async)">
     Velg en konto i tabellen til venstre for å vise detaljer om kontoen

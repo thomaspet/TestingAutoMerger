@@ -2,11 +2,8 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryTransaction} from '../../../unientities';
-import {
-    SalaryTransSupplementsModal
-} from '../../../components/salary/modals/salaryTransSupplementsModal';
 import {Observable} from 'rxjs';
-import {RequestMethod} from '@angular/http';
+import {RequestMethod} from '@uni-framework/core/http';
 
 @Injectable()
 export class SalaryTransactionService extends BizHttp<SalaryTransaction> {

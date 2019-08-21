@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {StatisticsService, ProjectService, SupplierInvoiceService} from '@app/services/services';
 import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
@@ -50,8 +50,8 @@ export class ProjectSupplierInvoiceList {
         ).subscribe(project => {
             if (project) {
                 this.projectID = project.ID;
-                this.lookupFunction = (params: URLSearchParams) => this.getTableData(params);
-                this.sumResolver = (params: URLSearchParams) => this.getSumRow(params);
+                this.lookupFunction = (params: HttpParams) => this.getTableData(params);
+                this.sumResolver = (params: HttpParams) => this.getSumRow(params);
             }
         });
 
@@ -91,20 +91,20 @@ export class ProjectSupplierInvoiceList {
         this.router.navigateByUrl('/accounting/bills/' + row.ID);
     }
 
-    private getSumRow(tableParams: URLSearchParams) {
-        const params = this.getParams(tableParams);
+    private getSumRow(tableParams: HttpParams) {
         const select = [
             'sum(SupplierInvoice.TaxExclusiveAmountCurrency) as TaxExclusiveAmountCurrency',
             'sum(SupplierInvoice.TaxInclusiveAmountCurrency) as TaxInclusiveAmountCurrency',
             'sum(SupplierInvoice.RestAmountCurrency) as RestAmountCurrency'
         ].join(',');
 
-        params.set('select', select);
+        const params = this.getParams(tableParams)
+            .set('select', select);
+
         return this.statisticsService.GetAllUnwrapped(params.toString());
     }
 
-    private getTableData(tableParams: URLSearchParams) {
-        const params = this.getParams(tableParams);
+    private getTableData(tableParams: HttpParams) {
         const select = [
             'SupplierInvoice.ID as ID',
             'SupplierInvoice.InvoiceNumber as InvoiceNumber',
@@ -117,22 +117,24 @@ export class ProjectSupplierInvoiceList {
             'SupplierInvoice.StatusCode as StatusCode'
         ].join(',');
 
-        params.set('select', select);
-        return this.statisticsService.GetAllByUrlSearchParams(params, true);
+        const params = this.getParams(tableParams)
+            .set('select', select);
+
+        return this.statisticsService.GetAllByHttpParams(params, true);
     }
 
-    private getParams(tableParams: URLSearchParams) {
-        const params = tableParams.clone();
-        params.set('model', 'SupplierInvoice');
-        params.set('expand', 'DefaultDimensions.Project,Supplier.Info');
-        params.set('distinct', 'true');
+    private getParams(tableParams: HttpParams) {
+        let params = tableParams
+            .set('model', 'SupplierInvoice')
+            .set('expand', 'DefaultDimensions.Project,Supplier.Info')
+            .set('distinct', 'true');
 
         let filter = `(Project.ID eq ${this.projectID})`;
         if (params.has('filter')) {
             filter += ` and ${params.get('filter')}`;
         }
 
-        params.set('filter', filter);
+        params = params.set('filter', filter);
         return params;
     }
 }

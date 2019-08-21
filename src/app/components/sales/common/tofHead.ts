@@ -32,8 +32,6 @@ export class TofHead implements OnChanges {
     @Input() data: any;
     @Input() currencyCodes: Array<CurrencyCode>;
     @Input() projects: Project;
-    @Input() paymentTerms: Terms[];
-    @Input() deliveryTerms: Terms[];
     @Input() sellers: Seller[];
     @Input() contacts: any[];
     @Input() companySettings: CompanySettings;

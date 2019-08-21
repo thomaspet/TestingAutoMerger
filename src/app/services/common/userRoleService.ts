@@ -31,7 +31,7 @@ export class UserRoleService extends BizHttp<UserRole> {
                 .withEndPoint('userroles?bulk-insert-roles')
                 .withBody(addRoles)
                 .send()
-                .map(res => res.json());
+                .map(res => res.body);
         }
 
         const deleteRequest = removeRoles && removeRoles.length

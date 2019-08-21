@@ -4,7 +4,7 @@ import { WorkerService, ItemInterval, IFilterInterval } from './workerService';
 import {Observable} from 'rxjs';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt, safeDec} from '../../components/common/utils/utils';
 import {Dimension} from '../common/dimensionService';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import * as moment from 'moment';
 
 export class ValueItem {
@@ -423,11 +423,13 @@ export class TimesheetService {
     }
 
     public getFlexBalance(workRelationId: number, details: boolean = false): Observable<WorkBalance> {
-        const params = new URLSearchParams();
-        params.append('action', 'calc-flex-balance');
-        if (details) { params.append('details', 'true'); }
-        const obs: any = this.workerService.queryWithUrlParams(params, `workrelations/${workRelationId}` )
-            .map((response: any) => response.json());
+        let params = new HttpParams();
+        params = params.append('action', 'calc-flex-balance');
+        if (details) {
+            params = params.append('details', 'true');
+        }
+
+        const obs = this.workerService.queryWithUrlParams(params, `workrelations/${workRelationId}`)
         return obs;
     }
 

@@ -76,7 +76,7 @@ export class AccountService extends BizHttp<Account> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint('accountmandatorydimension?action=add-accounts-mandatory-dimensions&' + urldata.join('&'))
-            .send().pipe(map(res => res.json()));
+            .send().pipe(map(res => res.body));
     }
 
     public checkLinkedBankAccountsAndPostPost(FromAccountNumber: any, ToAccountNumber?: any) {

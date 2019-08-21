@@ -48,7 +48,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `?action=current`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getNextPeriod(vatReportId: number, periodId: number): Observable<VatReport> {
@@ -57,7 +57,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=next&periodid=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getPreviousPeriod(vatReportId: number, periodId: number): Observable<VatReport> {
@@ -66,7 +66,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=previous&periodid=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public runReport(vatReportId: number, periodId: number): Observable<VatReport> {
@@ -75,7 +75,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=execute&periodid=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public undoReport(vatReportId: number): Observable<VatReport> {
@@ -84,7 +84,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=undo-execute&vatReportId=${vatReportId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public sendReport(vatReportId: number): Observable<VatReport> {
@@ -93,7 +93,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=submit`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 
@@ -111,7 +111,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .withHeaders(headers)
             .withEndPoint(this.relativeURL + `?action=get-signing-text-altinn&vatReportID=${vatReportId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public signReport(vatReportId: number, authenticationData: AltinnAuthenticationData): Observable<AltinnSigning> {
@@ -128,7 +128,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .withHeaders(headers)
             .withEndPoint(this.relativeURL + `?action=sign-vatreport-altinn&vatReportID=${vatReportId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getVatReportSummary(vatReportId: number, periodId: number): Observable<VatReportSummary[]> {
@@ -137,7 +137,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=get-vat-report-summary&periodID=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
       public getVatReportSummaryFromPreviousPeriods(vatReportId: number, periodId: number): Observable<VatReportSummary[]> {
@@ -146,7 +146,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=get-vat-report-summary-from-previous-periods&periodID=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 
@@ -157,7 +157,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .withEndPoint(
                 this.relativeURL + `/${vatReportID}?action=get-vat-report-summary-per-post&periodid=${periodID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getVatReportMessages(vatReportID: number, periodID: number): Observable<VatReportMessage[]> {
@@ -167,7 +167,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .withEndPoint(
                 this.relativeURL + `/${vatReportID}?action=control-vatreport&periodID=${periodID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getNotReportedJournalEntryData(periodID: number): Observable<VatReportNotReportedJournalEntryData> {
@@ -177,7 +177,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .withEndPoint(
                 this.relativeURL + `?action=get-not-reported-journalentry-data&periodID=${periodID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public createAdjustedVatReport(vatReportId: number, periodId: number): Observable<VatReport> {
@@ -186,7 +186,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/?action=create-adjusted-vatreport&periodId=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public createAdditionalVatReport(vatReportId: number, periodId: number): Observable<VatReport> {
@@ -195,7 +195,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/?action=create-additional-vatreport&periodId=${periodId}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public tryToReadAndUpdateVatReportData(vatReportID: number, authenticationData: AltinnAuthenticationData): Observable<AltinnGetVatReportDataFromAltinnResult> {
@@ -211,7 +211,7 @@ export class VatReportService extends BizHttp<VatReport> {
             .withHeaders(headers)
             .withEndPoint(`${this.relativeURL}?action=read-and-update-altinn-vatreport-data&vatReportID=${vatReportID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getStatusText = (statusCode: number) => {

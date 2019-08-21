@@ -89,7 +89,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint('number-series?hateoas=false&orderby=AccountYear desc,NumberSeriesTaskID,FromNumber&expand=NumberSeriesType,NumberSeriesTask,MainAccount')
-            .send().map(response => response.json());
+            .send().map(response => response.body);
     }
 
     public getActiveNumberSeries(entityType: string, year: number): Observable<any> {
@@ -98,7 +98,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=get-active-numberseries&entityType=${entityType}&year=${year}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getNumberSeriesAsInvoice(): Observable<NumberSeries> {
@@ -107,7 +107,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=get-numberseries-asinvoice`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAvailableNumbersInNumberSeries(numberSeriesID: number): Observable<string[]> {
@@ -116,7 +116,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=get-available-numbers-in-numberseries&numberSeriesID=${numberSeriesID}`)
             .send()
-            .map(response => response.json())
+            .map(response => response.body)
             .map(numberIntervalsStrings => numberIntervalsStrings.map(x => x.replace(',', ' - ')));
     }
 
@@ -134,7 +134,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         .usingBusinessDomain()
         .withEndPoint(`${this.relativeURL}?action=get-max-used-number&numberSeriesID=${numberSeriesID}`)
         .send()
-        .map(response => response.json());
+        .map(response => response.body);
     }
 
     public getSelectConfig(ID: number, numberSeries: any[], numberSerieName: string): any {

@@ -20,7 +20,7 @@ export class DistributionPlanService extends BizHttp<DistributionPlan> {
             .usingStatisticsDomain()
             .withEndPoint('?model=DistributionPlanElementType&select=ID as ID,Name as Name,StatusCode as StausCode&wrap=false')
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public saveDistributionPlan(plan) {

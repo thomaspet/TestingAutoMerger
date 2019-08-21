@@ -14,8 +14,6 @@
         [data]="order"
         [currencyCodes]="currencyCodes"
         [projects]="projects"
-        [paymentTerms]="paymentTerms"
-        [deliveryTerms]="deliveryTerms"
         [sellers]="sellers"
         [contacts]="order?.Customer?.Info?.Contacts || []"
         [dimensionTypes]="dimensionTypes"
@@ -51,7 +49,7 @@
                 [dimensionTypes]="dimensionTypes"
                 [currencyCodeID]="currencyCodeID"
                 [currencyExchangeRate]="currencyExchangeRate"
-                (itemsChange)="recalcDebouncer.next($event)">
+                (itemsChange)="onTradeItemsChange()">
             </uni-tradeitem-table>
 
             <section class="tof-summary">

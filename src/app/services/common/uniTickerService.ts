@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs';
 import {NumberFormat} from './numberFormatService';
@@ -45,7 +45,7 @@ export class UniTickerService {
     private companySettings: CompanySettings;
 
     constructor(
-        private http: Http,
+        private http: HttpClient,
         private uniHttp: UniHttp,
         private numberFormatService: NumberFormat,
         private storageService: BrowserStorageService,
@@ -88,13 +88,13 @@ export class UniTickerService {
                         if (!this.tickers) {
                             // get statuses from API and add it to the cache
                             Observable.forkJoin(
-                                this.http.get('assets/tickers/accountingtickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/salarytickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/sharedtickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/banktickers.json').map(x => x.json())
+                                this.http.get('assets/tickers/accountingtickers.json', {observe: 'body'}),
+                                this.http.get('assets/tickers/salestickers.json', {observe: 'body'}),
+                                this.http.get('assets/tickers/toftickers.json', {observe: 'body'}),
+                                this.http.get('assets/tickers/timetickers.json', {observe: 'body'}),
+                                this.http.get('assets/tickers/salarytickers.json', {observe: 'body'}),
+                                this.http.get('assets/tickers/sharedtickers.json', {observe: 'body'}),
+                                this.http.get('assets/tickers/banktickers.json', {observe: 'body'})
                             ).map(tickerfiles => {
                                 const allTickers: Array<Ticker> = [];
 
@@ -1176,7 +1176,6 @@ export class Ticker {
     public Distinct?: boolean;
     public CountExpand?: string;
     public Joins?: string;
-    public ApiUrl?: string;
     public ListObject?: string;
     public DisableFiltering?: boolean;
     public Columns: Array<TickerColumn>;

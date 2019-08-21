@@ -28,7 +28,7 @@ export class IntegrationServerCaller {
                 apiDomain: environment.INTEGRATION_DOMAINS.ALTINN,
                 endPoint: '/testsystem'
             })
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getAltinnCorrespondence(altinn: Altinn, orgno: string, receiptID: number): Observable<any> {
@@ -57,7 +57,7 @@ export class IntegrationServerCaller {
                 apiDomain: environment.INTEGRATION_DOMAINS.ALTINN,
                 endPoint: 'receipt/' + receiptID + '/correspondence'
             })
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public businessRelationSearch(
@@ -77,7 +77,7 @@ export class IntegrationServerCaller {
             )
             .asGET()
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 }

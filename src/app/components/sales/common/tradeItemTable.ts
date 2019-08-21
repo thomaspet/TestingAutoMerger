@@ -135,10 +135,6 @@ export class TradeItemTable {
     }
 
     public ngOnChanges(changes) {
-        if (changes['items'] && this.items) {
-            this.updateVatPercentsAndItems();
-        }
-
         if (changes['readonly'] && this.table) {
             this.showTable = false;
             setTimeout(() => {
@@ -148,7 +144,12 @@ export class TradeItemTable {
         }
 
         if (changes['vatDate']) {
-            this.updateVatPercentsAndItems();
+            const prev = changes['vatDate'].previousValue;
+            const curr = changes['vatDate'].currentValue;
+
+            if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
+                this.updateVatPercentsAndItems();
+            }
         }
 
         if (changes['vatTypes']) {
@@ -175,21 +176,16 @@ export class TradeItemTable {
             // find the correct vatpercentage based on the either vatdate or current date,
             // in that order. VatPercent may change between years, so this needs to be checked each time
             // the date changes
-            const vatDate =
-                this.vatDate ?
-                    moment(this.vatDate) :
-                    moment(Date());
-
+            const vatDate = this.vatDate ? moment(this.vatDate) : moment(Date());
             const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
+                const validPercentageForVatType = vatType.VatTypePercentages.find(vatPercentage => {
+                    return moment(vatPercentage.ValidFrom) <= vatDate
+                        && (!vatPercentage.ValidTo || moment(vatPercentage.ValidTo) >= vatDate);
+                });
 
-                const validPercentageForVatType =
-                    vatType.VatTypePercentages.find(y =>
-                            (moment(y.ValidFrom) <= vatDate && y.ValidTo && moment(y.ValidTo) >= vatDate)
-                            || (moment(y.ValidFrom) <= vatDate && !y.ValidTo));
-
-                            const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
+                const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
 
                 // set the correct percentage on the VatType also, this is done to reflect it properly in
                 // the UI if changing a date leads to using a different vatpercent
@@ -201,34 +197,22 @@ export class TradeItemTable {
 
             if (changedVatTypeIDs.length > 0 || this.items.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
                 this.vatTypes = vatTypes;
-
-                // just because some vattypes might have changed by changing the dates, it doesnt mean
-                // any of the items actually use this vattype - so keep track of any real changes
-                let didAnythingReallyChange = false;
-
-                const itemsWithoutVatPercent = this.items.filter(x => x.VatType && !x.VatType.VatPercent);
-                const items = itemsWithoutVatPercent.length > 0 ?
-                    itemsWithoutVatPercent :
-                    this.items.filter(x => x.VatType && changedVatTypeIDs.indexOf(x.VatType.ID) !== -1);
-
-                items.forEach(item => {
+                this.items = this.items.map(item => {
                     if (item.VatType) {
-                        const newVatType = this.vatTypes.find(x => x.ID === item.VatType.ID);
-                        item.VatType = newVatType;
+                        item.VatType = this.vatTypes.find(vt => vt.ID === item.VatType.ID);
+                        if (item.VatType) {
+                            item.VatPercent = item.VatType.VatPercent;
+                        }
 
-                        didAnythingReallyChange = true;
+                        this.tradeItemHelper.calculatePriceIncVat(item, this.currencyExchangeRate);
+                        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
+                        this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
                     }
 
-                    item.VatPercent = item.VatType ? item.VatType.VatPercent : 0;
-
-                    this.tradeItemHelper.calculatePriceIncVat(item, this.currencyExchangeRate);
-                    this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
-                    this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
+                    return item;
                 });
 
-                if (didAnythingReallyChange) {
-                    this.itemsChange.emit(this.items);
-                }
+                setTimeout(() => this.itemsChange.emit(this.items));
             }
         }
     }
@@ -237,14 +221,25 @@ export class TradeItemTable {
         if (this.foreignVatType) {
             const isBaseCurrencyUsed: Boolean = (currencyCodeID === this.settings.BaseCurrencyCodeID) ? true : false;
             this.items.forEach(item => {
-                if (isBaseCurrencyUsed) {
-                    item.VatTypeID = (item.Product && item.Product.VatTypeID) || null;
-                    item.VatType = (item.Product && item.Product.VatType) || null;
-                } else {
-                    item.VatTypeID = this.foreignVatType.ID;
-                    item.VatType = this.foreignVatType;
+                if (!item['_isEmpty']) {
+                    if (isBaseCurrencyUsed) {
+                        item.VatTypeID = (item.Product && item.Product.VatTypeID) || null;
+                        item.VatType = (item.Product && item.Product.VatType) || null;
+                        if (item.VatTypeID && !item.VatType && this.vatTypes) {
+                            item.VatType = this.vatTypes.find(vt => vt.ID === item.VatTypeID);
+                        }
+                    } else {
+                        item.VatTypeID = this.foreignVatType.ID;
+                        item.VatType = this.foreignVatType;
+                    }
+
+                    if (item.VatType) {
+                        item.VatPercent = item.VatType.VatPercent || 0;
+                    }
                 }
             });
+
+            this.updateVatPercentsAndItems();
         }
     }
 

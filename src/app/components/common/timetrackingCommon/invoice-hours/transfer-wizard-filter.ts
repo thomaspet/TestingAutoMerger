@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, ViewChild} from '@angular/core';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import { IWizardOptions, WizardSource } from './wizardoptions';
 import { InvoiceHourService, ErrorService } from '@app/services/services';
 
@@ -61,7 +61,7 @@ export class WorkitemTransferWizardFilter implements OnInit {
         return { ok: false, msg: 'Du har ikke valgt noen som kan overføres.'};
     }
 
-    public dataSource(query: URLSearchParams) {
+    public dataSource(query: HttpParams) {
         this.busy = true;
         return this.invoiceHourService.getGroupedInvoicableHours(this.options)
         .finally( () => this.busy = false)

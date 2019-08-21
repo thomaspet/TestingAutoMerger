@@ -33,7 +33,30 @@ h1
         strong
             font-weight: 500
 
-        span
+        span, section
             text-align: right
             a
                 display: block
+
+        &.main-company > section
+            display: flex
+            align-items: center
+            cursor: pointer
+
+            select
+                border-radius: 3px
+                border: 1px solid #D2DAE2
+
+            i.material-icons
+                margin-left: 10px
+                & + i.material-icons
+                    margin-left: 5px
+
+                &.edit
+                    font-size: 21px
+                    margin-bottom: 2px
+
+                &.close
+                    color: #F53B57
+
+

@@ -1,12 +1,12 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {UniHttp} from '../../core/http/http';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {ErrorService, FileService, UniFilesService} from '../../../app/services/services';
 import {AuthService} from '../../../app/authService';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {environment} from 'src/environments/environment';
-import { Observable, Subject } from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 
 @Component({
     selector: 'uni-file-upload-modal',
@@ -101,7 +101,7 @@ export class UniFileUploadModal implements IUniModal {
     allFilesSelected: boolean = false;
 
     constructor(
-        private ngHttp: Http,
+        private ngHttp: HttpClient,
         private http: UniHttp,
         private errorService: ErrorService,
         private authService: AuthService,
@@ -155,7 +155,7 @@ export class UniFileUploadModal implements IUniModal {
                     .withEndPoint('/paymentbatches?action=get-statuses-from-file-ids')
                     .withBody(this.uploadedFileIds)
                     .send()
-                    .map(res => res.json())
+                    .map(res => res.body)
                     .subscribe((statueses: number[]) => {
                         this.loading$.next(false);
                         this.files = this.files.map((f, i) => {
@@ -191,7 +191,7 @@ export class UniFileUploadModal implements IUniModal {
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
 
-        return this.ngHttp.post(this.baseUrl + '/api/file', data).map(res => res.json());
+        return this.ngHttp.post(this.baseUrl + '/api/file', data, {observe: 'body'});
     }
 
     public removeFile(index) {

@@ -33,7 +33,7 @@ export class PostPostService extends BizHttp<PostPost> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=reset-journalentryline-postpost-status-to-open&journalentrylineid=' + journalentryLineid)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public ResetJournalEntryLinesPostStatus(subaccountid: number, reskontroType: string) {
@@ -42,7 +42,7 @@ export class PostPostService extends BizHttp<PostPost> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=reset-journalentrylines-postpost-status-to-open&subaccountid=' + subaccountid)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public markPosts(journalEntryLineCouples: Array<any>): Observable<any> {
@@ -53,7 +53,7 @@ export class PostPostService extends BizHttp<PostPost> {
             .withBody(journalEntryLineCouples)
             .withEndPoint(this.relativeURL + '?action=markposts')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public revertPostpostMarking(journalEntryLineIDs: Array<number>): Observable<any> {
@@ -64,7 +64,7 @@ export class PostPostService extends BizHttp<PostPost> {
             .withBody(journalEntryLineIDs)
             .withEndPoint(this.relativeURL + '?action=revert-postpost')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public async automarkAccount(
@@ -81,7 +81,7 @@ export class PostPostService extends BizHttp<PostPost> {
                 .asGET().usingBusinessDomain()
                 .withEndPoint(this.relativeURL + route).send()
                 .map(response => {
-                    const result: { Pairs: any[], Entries: any[]} = response.json();
+                    const result: { Pairs: any[], Entries: any[]} = response.body;
                     if (result && result.Entries) {
                         result.Entries.forEach(element => {
                             const match = items.find( x => x.ID === element.ID);
@@ -126,7 +126,7 @@ export class PostPostService extends BizHttp<PostPost> {
                 .usingStatisticsDomain()
                 .withEndPoint(query)
                 .send()
-                .map(res => res.json())
+                .map(res => res.body)
                 .subscribe((result) => {
 
                     if (!result) {
@@ -191,7 +191,7 @@ export class PostPostService extends BizHttp<PostPost> {
                                 .usingBusinessDomain()
                                 .withEndPoint(route)
                                 .send()
-                                .map(res => res.json())
+                                .map(res => res.body)
                                 .subscribe((suggestions) => {
                                     // Add new query to the allBatches array
                                     if (suggestions) {
@@ -221,7 +221,7 @@ export class PostPostService extends BizHttp<PostPost> {
                                                         })
                                                         .catch((err) => {
                                                             errors++;
-                                                            const error = err.json();
+                                                            const error = err.body;
                                                             let errorMessage = '';
                                                             if (error && error.Messages && error.Messages.length) {
                                                                 errorMessage = error.Messages[0].Message;

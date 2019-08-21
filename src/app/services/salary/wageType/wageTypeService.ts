@@ -91,7 +91,7 @@ export class WageTypeService extends BizHttp<WageType> {
             .usingBusinessDomain()
             .withEndPoint('subentities')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getTypes() {
@@ -100,7 +100,7 @@ export class WageTypeService extends BizHttp<WageType> {
             .asGET()
             .withEndPoint('wagetypes')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public syncWagetypes() {
@@ -109,7 +109,7 @@ export class WageTypeService extends BizHttp<WageType> {
             .asPUT()
             .withEndPoint(this.relativeURL + '/?action=synchronize')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public save(wt: WageType): Observable<WageType> {
@@ -142,7 +142,7 @@ export class WageTypeService extends BizHttp<WageType> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '/' + ID + '?action=used-in-payrollrun')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public manageReadOnlyIfCalculated(fields: any[], readOnly: boolean) {
@@ -183,7 +183,7 @@ export class WageTypeService extends BizHttp<WageType> {
                 .withEndPoint(this.relativeURL
                     + `?action=get-rate&wagetypeID=${wageTypeID}&employmentID=${employmentID}&employeeID=${employeeID}`)
                 .send()
-                .map(response => response.json());
+                .map(response => response.body);
         } else {
             return Observable.of(0);
         }

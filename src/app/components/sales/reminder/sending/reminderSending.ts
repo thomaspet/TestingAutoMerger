@@ -10,6 +10,8 @@ import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniReminderSendingEditModal} from './reminderSendingEditModal';
 import {
     StatisticsService,
     ErrorService,
@@ -20,7 +22,6 @@ import {
     PageStateService
 } from '../../../../services/services';
 import {
-    UniTable,
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
@@ -55,12 +56,13 @@ export interface CustomReminder extends CustomerInvoiceReminder {
 export class ReminderSending {
     @Input() config: any;
     @Input() modalMode: boolean;
-    @ViewChildren(UniTable) private tables: QueryList<UniTable>;
+    @ViewChildren(AgGridWrapper)
+    private tables: QueryList<AgGridWrapper>;
 
     public remindersEmail: CustomReminder[];
     public remindersPrint: CustomReminder[];
+    public reminderTable: UniTableConfig;
     private remindersAll: CustomReminder[];
-    private reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
         + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,'
         + 'InterestFeeCurrency as InterestFeeCurrency,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
@@ -78,7 +80,6 @@ export class ReminderSending {
     currentRunNumberData: IRunNumberData;
     runNumbers: IRunNumberData[];
     toolbarconfig: IToolbarConfig;
-    private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];
 
     searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -116,11 +117,6 @@ export class ReminderSending {
          {
              label: 'Slett valgte',
              action: (done) => this.deleteReminders(done),
-             disabled: !!this.remindersAll
-         },
-         {
-             label: 'Lagre endringer',
-             action: (done) => this.saveReminders(done),
              disabled: !!this.remindersAll
          }
     ];
@@ -172,32 +168,6 @@ export class ReminderSending {
         });
     }
 
-    onRowChanged(data) {
-        if (!this.isWarnedAboutRememberToSaveChanges) {
-            this.toastService.addToast(
-                'Lagre purringer',
-                ToastType.warn,
-                5,
-                'Huske å lagre endringer du gjør på purringene!'
-            );
-            this.isWarnedAboutRememberToSaveChanges = true;
-            this.saveactions[4].main = true;
-            this.saveactions[0].main = false;
-            this.saveactions = [...this.saveactions];
-        }
-
-        let rowExists = false;
-        for (let i = 0; i < this.changedReminders.length; i++) {
-            if (this.changedReminders[i].ID === data.rowModel.ID) {
-                this.changedReminders[i] = data.rowModel;
-                rowExists = true;
-            }
-        }
-        if (!rowExists) {
-            this.changedReminders.push(data.rowModel);
-        }
-    }
-
     saveReminders(done: (msg: string) => void = () => {}) {
         const requests = [];
         for (let i = 0; i < this.changedReminders.length; i++) {
@@ -211,7 +181,6 @@ export class ReminderSending {
         Observable.forkJoin(requests)
             .subscribe(resp => {
                 this.toastService.addToast('Purringer ble lagret.', ToastType.good, 5);
-                this.isWarnedAboutRememberToSaveChanges = false;
                 this.saveactions[4].main = false;
                 this.saveactions[0].main = true;
                 this.saveactions = [...this.saveactions];
@@ -441,8 +410,9 @@ export class ReminderSending {
                 ];
 
                 this.reportDefinitionService.GetAll(`filter=name eq 'Purring'`).subscribe(rd => {
-                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerInvoiceReminder', rd[0].ID, email, parameters, doneHandler);
-                })
+                    this.emailService.sendEmailWithReportAttachment(
+                        'Models.Sales.CustomerInvoiceReminder', rd[0].ID, email, parameters, doneHandler);
+                });
             });
         });
     }
@@ -493,37 +463,31 @@ export class ReminderSending {
     private setupReminderTable() {
         const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
             .setWidth('8%')
-            .setEditable(false)
             .setFilterOperator('contains');
 
         const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
             .setWidth('8%')
-            .setEditable(false)
             .setFilterOperator('contains');
 
         const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
 
         const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
-            .setWidth('100px').setFilterOperator('startswith')
-            .setEditable(false);
+            .setWidth('100px').setFilterOperator('startswith');
 
         const customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
             .setWidth('20%')
-            .setEditable(false)
             .setFilterOperator('contains');
 
         const emailCol = new UniTableColumn('EmailAddress', 'E-post', UniTableColumnType.Text)
             .setFilterOperator('contains');
 
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-            .setEditable(false)
             .setTemplate((reminder) => {
                 return this.reminderService.getStatusText(reminder.StatusCode);
             });
 
         const currencyCodeCol = new UniTableColumn('_CurrencyCode', 'Valuta', UniTableColumnType.Text)
             .setFilterOperator('contains')
-            .setEditable(false)
             .setWidth('5%');
 
         const taxInclusiveAmountCol = new UniTableColumn(
@@ -533,7 +497,6 @@ export class ReminderSending {
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
-            .setEditable(false)
             .setConditionalCls((item) => {
                 return (+item.TaxInclusiveAmountCurrency >= 0)
                     ? 'number-good' : 'number-bad';
@@ -545,7 +508,6 @@ export class ReminderSending {
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
-            .setEditable(false)
             .setConditionalCls((item) => {
                 return (+item._RestAmountCurrency <= 0) ? 'number-good' : 'number-bad';
             });
@@ -555,9 +517,9 @@ export class ReminderSending {
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
-            .setEditable(false)
             .setConditionalCls((item) => {
-                return (+item.RestAmountCurrency <= item.InterestFeeCurrency) || (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
+                return (+item.RestAmountCurrency <= item.InterestFeeCurrency)
+                    || (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
             });
 
         const interestAmountCol = new UniTableColumn('InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
@@ -565,7 +527,6 @@ export class ReminderSending {
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
-            .setEditable((item) => item.StatusCode != StatusCodeCustomerInvoiceReminder.Completed)
             .setVisible(false)
             .setConditionalCls((item) => {
                 return (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
@@ -583,13 +544,19 @@ export class ReminderSending {
 
         }
 
-        this.reminderTable = new UniTableConfig('sales.reminders.reminderSending', true, true, 25)
+        this.reminderTable = new UniTableConfig('sales.reminders.reminderSending', false, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setChangeCallback( x => this.onEditChange(x) )
+            .setSortable(true)
+            .setContextMenu([
+                {
+                    action: (rows) => this.openEditModal(rows),
+                    label: 'Rediger linje',
+                }
+            ])
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol,
@@ -597,8 +564,17 @@ export class ReminderSending {
             ]);
     }
 
-    onEditChange(event) {
-        return event.rowModel;
+    openEditModal(line) {
+        this.modalService.open(UniReminderSendingEditModal, { data: { line: line } }).onClose.subscribe((newLine) => {
+            // Replace old line with new line in the array. No need to get data again.
+            if (newLine) {
+                const index = this.remindersAll.findIndex(rem => rem.ID === newLine.ID);
+                this.remindersAll.splice(index, 1, newLine);
+
+                this.remindersEmail = this.remindersAll.filter(reminder => !!reminder.EmailAddress);
+                this.remindersPrint = this.remindersAll.filter(reminder => this.remindersEmail.indexOf(reminder) < 0);
+            }
+        });
     }
 
     onFormFilterChange(event) {

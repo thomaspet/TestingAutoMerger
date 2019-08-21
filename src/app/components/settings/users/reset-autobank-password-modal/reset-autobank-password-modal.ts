@@ -32,7 +32,7 @@ export class ResetAutobankPasswordModal implements IUniModal {
                 .withEndPoint('users/' + user.ID + '?action=reset-autobank-password')
                 .withBody({Password: this.adminPassword})
                 .send()
-                .map(res => res.json())
+                .map(res => res.body)
                 .subscribe(
                     () => {
                         this.toast.addToast(

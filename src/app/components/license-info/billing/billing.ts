@@ -86,7 +86,7 @@ export class Billing {
             .subscribe(
                 res => {
                     this.hasPermission = true;
-                    this.billingData = res.json();
+                    this.billingData = res.body;
                 },
                 err => {
                     console.error(err);

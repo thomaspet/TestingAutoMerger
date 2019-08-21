@@ -12,7 +12,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     TransqueryDetailsCalculationsSummary
 } from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
-import {URLSearchParams, Response} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {JournalEntry, FinancialYear} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -65,13 +65,14 @@ export class TransqueryDetails implements OnInit {
 
     summaryData: TransqueryDetailsCalculationsSummary;
     uniTableConfig: UniTableConfig;
-    lookupFunction: (urlParams: URLSearchParams) => any;
-    columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
+    lookupFunction: (urlParams: HttpParams) => any;
+    columnSumResolver: (urlParams: HttpParams) => Observable<{[field: string]: number}>;
     summary: ISummaryConfig[] = [];
     showCredited: boolean = false;
     useConfiguredFilter: boolean = false;
     loading$: Subject<boolean> = new Subject();
 
+    private journalEntryTypes: any[];
     private lastFilterString: string;
     private dimensionTypes: any[];
     private searchTimeout;
@@ -172,12 +173,12 @@ export class TransqueryDetails implements OnInit {
     }
 
     private setupFunction() {
-        this.lookupFunction = (urlParams: URLSearchParams) =>
+        this.lookupFunction = (urlParams: HttpParams) =>
             this.getTableData(urlParams)
                 .finally(() => { this.loading$.next(false); })
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-        this.columnSumResolver = (urlParams: URLSearchParams) =>
+        this.columnSumResolver = (urlParams: HttpParams) =>
             this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
@@ -185,9 +186,9 @@ export class TransqueryDetails implements OnInit {
         this.setupFunction();
     }
 
-    private getTableData(urlParams: URLSearchParams, isSum: boolean = false): Observable<Response> {
+    private getTableData(urlParams: HttpParams, isSum: boolean = false) {
         this.loading$.next(true);
-        urlParams = urlParams || new URLSearchParams();
+        urlParams = urlParams || new HttpParams();
 
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
@@ -264,28 +265,28 @@ export class TransqueryDetails implements OnInit {
             }
         });
 
-        urlParams.set('model', 'JournalEntryLine');
-        urlParams.set(
+        urlParams = urlParams.set('model', 'JournalEntryLine');
+        urlParams = urlParams.set(
             'expand',
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
-                + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
+                + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode,JournalEntryType'
                 + expandString
         );
-        urlParams.set('filter', filters.join(' and '));
+        urlParams = urlParams.set('filter', filters.join(' and '));
 
         if (isSum) {
-            urlParams.set('select', 'sum(Amount) as JournalEntryLineAmount');
-            urlParams.delete('orderby');
-            urlParams.delete('join');
-            return this.statisticsService.GetAllByUrlSearchParams(urlParams)
-                .map(res => res.json())
+            urlParams = urlParams.set('select', 'sum(Amount) as JournalEntryLineAmount');
+            urlParams = urlParams.delete('orderby');
+            urlParams = urlParams.delete('join');
+            return this.statisticsService.GetAllByHttpParams(urlParams)
+                .map(res => res.body)
                 .map(res => (res.Data && res.Data[0]) || []);
         } else {
-            urlParams.set('select', selectString );
-            urlParams.set('join',
+            urlParams = urlParams.set('select', selectString );
+            urlParams = urlParams.set('join',
                 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
-            urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
-            return this.statisticsService.GetAllByUrlSearchParams(urlParams);
+                urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
+            return this.statisticsService.GetAllByHttpParams(urlParams);
         }
     }
 
@@ -294,23 +295,24 @@ export class TransqueryDetails implements OnInit {
         let f = this.configuredFilter || filter;
         if (f) {
             f = f.split('Dimensions.').join('');
-            const urlParams = new URLSearchParams();
-            urlParams.set('model', 'JournalEntryLine');
-            urlParams.set('filter', f);
-            urlParams.set(
-                'select',
-                'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,'
-                    + 'sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,'
-                    + 'sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,'
-                    + 'sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,'
-                    + 'sum(JournalEntryLine.Amount) as SumBalance'
-            );
-            urlParams.set(
-                'expand',
-                'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,'
-                    + 'Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
-            );
-            this.statisticsService.GetDataByUrlSearchParams(urlParams).subscribe(summary => {
+            const urlParams = new HttpParams()
+                .set('model', 'JournalEntryLine')
+                .set('filter', f)
+                .set(
+                    'select',
+                    'sum(casewhen(JournalEntryLine.Amount gt 0\\,JournalEntryLine.Amount\\,0)) as SumDebit,'
+                        + 'sum(casewhen(JournalEntryLine.Amount lt 0\\,JournalEntryLine.Amount\\,0)) as SumCredit,'
+                        + 'sum(casewhen(JournalEntryLine.AccountID gt 0\\,JournalEntryLine.Amount\\,0)) as SumLedger,'
+                        + 'sum(JournalEntryLine.TaxBasisAmount) as SumTaxBasisAmount,'
+                        + 'sum(JournalEntryLine.Amount) as SumBalance'
+                )
+                .set(
+                    'expand',
+                    'Account,SubAccount,JournalEntry,VatType,Dimensions.Department,'
+                        + 'Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
+                );
+
+            this.statisticsService.GetDataByHttpParams(urlParams).subscribe(summary => {
                 this.summaryData = summary.Data[0];
                 this.summaryData.SumCredit *= -1;
                 this.setSums();
@@ -590,6 +592,10 @@ export class TransqueryDetails implements OnInit {
             .setFilterable(false)
                 .setVisible(showTaxBasisAmount)
                 .setTemplate(line => line.JournalEntryLineTaxBasisAmountCurrency),
+            new UniTableColumn('JournalEntryType.DisplayName', 'Bilagstype', UniTableColumnType.Text)
+                .setFilterable(true)
+                .setVisible(false)
+                .setTemplate(line => line.JournalEntryTypeDisplayName),
             new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
                 .setTemplate(line => line.JournalEntryLineVatReportID ? line.JournalEntryLineVatReportID : 'Nei')
                 .setFilterable(false)

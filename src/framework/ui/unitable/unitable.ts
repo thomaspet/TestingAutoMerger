@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, OnChanges, HostListener, ElementRef, ViewChild, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/fromEvent';
@@ -54,7 +54,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 export class UniTable implements OnChanges {
     @Input() public config: UniTableConfig;
 
-    @Input() private resource: (urlParams: URLSearchParams ) => any | any[];
+    @Input() private resource: (urlParams: HttpParams ) => any | any[];
 
     @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter();
@@ -75,7 +75,7 @@ export class UniTable implements OnChanges {
 
     private configStoreKey: string;
     private remoteData: boolean = false;
-    private urlSearchParams: URLSearchParams;
+    private HttpParams: HttpParams;
 
     private tableDataOriginal: Immutable.List<any>; // for sorting, filtering etc.
     public tableData: Immutable.List<any>;
@@ -180,7 +180,7 @@ export class UniTable implements OnChanges {
                 }
             } else {
                 this.remoteData = true;
-                this.urlSearchParams = new URLSearchParams();
+                this.HttpParams = new HttpParams();
             }
 
             this.filterAndSortTable(true);
@@ -622,19 +622,19 @@ export class UniTable implements OnChanges {
 
         // Remote data filter and sort
         if (this.remoteData) {
-            this.urlSearchParams.set('filter', filterString);
+            this.HttpParams = this.HttpParams.set('filter', filterString);
 
             if (this.sortInfo) {
                 switch (this.sortInfo.direction) {
                     case 0:
-                        this.urlSearchParams.delete('orderby');
-                        break;
+                        this.HttpParams = this.HttpParams.delete('orderby');
+                    break;
                     case 1:
-                        this.urlSearchParams.set('orderby', this.sortInfo.field + ' asc');
-                        break;
+                        this.HttpParams = this.HttpParams.set('orderby', this.sortInfo.field + ' asc');
+                    break;
                     case -1:
-                        this.urlSearchParams.set('orderby', this.sortInfo.field + ' desc');
-                        break;
+                        this.HttpParams = this.HttpParams.set('orderby', this.sortInfo.field + ' desc');
+                    break;
                 }
             }
 
@@ -729,11 +729,11 @@ export class UniTable implements OnChanges {
     private readRemoteData() {
         const message = 'Uncaught error in Unitable! Add a .catch() in the resource / lookup function!';
         if (this.config.pageable) {
-            this.urlSearchParams.set('skip', this.skip.toString());
-            this.urlSearchParams.set('top', this.config.pageSize.toString());
+            this.HttpParams = this.HttpParams.set('skip', this.skip.toString());
+            this.HttpParams = this.HttpParams.set('top', this.config.pageSize.toString());
         }
 
-        this.resource(this.urlSearchParams).subscribe(
+        this.resource(this.HttpParams).subscribe(
             (response) => {
                 this.rowCount = parseInt(response.headers.getAll('count'));
                 let numPages = Math.ceil(this.rowCount / this.config.pageSize) || 1;
@@ -742,7 +742,7 @@ export class UniTable implements OnChanges {
                     this.pager.goToPage(1);
                 }
 
-                let data = response.json();
+                let data = response.body;
 
                 if (this.config.dataMapper) {
                     data = this.config.dataMapper(data);
@@ -798,8 +798,8 @@ export class UniTable implements OnChanges {
         });
 
         let odata = `model=${this.config.entityType}&select=${sumSelects.join(',')}`;
-        if (this.urlSearchParams.get('filter')) {
-            odata += `&filter=` + this.urlSearchParams.get('filter');
+        if (this.HttpParams.get('filter')) {
+            odata += `&filter=` + this.HttpParams.get('filter');
         }
 
         this.statisticsService.GetAll(odata)

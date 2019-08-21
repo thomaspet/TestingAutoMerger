@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
+import {HttpParams} from '@angular/common/http';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import { CampaignTemplate } from '@uni-entities';
-import {URLSearchParams} from '@angular/http';
+import {CampaignTemplate} from '@uni-entities';
 
 @Injectable()
 export class CampaignTemplateService extends BizHttp<CampaignTemplate> {
@@ -16,23 +16,23 @@ export class CampaignTemplateService extends BizHttp<CampaignTemplate> {
     }
 
     public getInvoiceTemplatetext() {
-        const UrlSearchParams = new URLSearchParams();
-        UrlSearchParams.set('filter', "EntityName eq 'CustomerInvoice'");
+        const params = new HttpParams()
+            .set('filter', `EntityName eq 'CustomerInvoice'`);
 
-        return this.GetAllByUrlSearchParams(UrlSearchParams);
+        return this.GetAllByHttpParams(params, true);
     }
 
     public getOrderTemplateText() {
-        const UrlSearchParams = new URLSearchParams();
-        UrlSearchParams.set('filter', "EntityName eq 'CustomerOrder'");
+        const params = new HttpParams()
+            .set('filter', `EntityName eq 'CustomerOrder'`);
 
-        return this.GetAllByUrlSearchParams(UrlSearchParams);
+        return this.GetAllByHttpParams(params, true);
     }
 
      public getQuoteTemplateText() {
-        const UrlSearchParams = new URLSearchParams();
-        UrlSearchParams.set('filter', "EntityName eq 'CustomerQuote'");
+        const params = new HttpParams()
+            .set('filter', `EntityName eq 'CustomerQuote'`);
 
-        return this.GetAllByUrlSearchParams(UrlSearchParams);
+        return this.GetAllByHttpParams(params, true);
     }
 }

@@ -45,7 +45,7 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=change-period-series&periodSeriesID=${periodSeriesID}&accountYear=${accountYear}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
 

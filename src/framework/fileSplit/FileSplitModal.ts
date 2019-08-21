@@ -162,11 +162,12 @@ export class FileSplitModal implements IUniModal {
         if (this.file && this.activeCompany && this.token) {
             this.thumbnails = [];
 
-            this.uniFilesService.forceFullLoad(this.file.StorageReference)
-                .subscribe(force => {
+            this.uniFilesService.forceFullLoad(this.file.StorageReference).subscribe(
+                () => {
                     // poll for status on full load
                     this.checkFileStatusAndLoadImage();
-                }, err => this.errorService.handle(err)
+                },
+                err => this.errorService.handle(err)
             );
         }
     }
@@ -195,7 +196,7 @@ export class FileSplitModal implements IUniModal {
                     this.focusOnFirstThumbnail();
 
                     if (!res.SplitPages) {
-                        this.uniFilesService.getFileSplitList(this.file.StorageReference, true)
+                        this.uniFilesService.getFileSplitList(this.file.StorageReference)
                             .subscribe(splitRes => {
                                 if (splitRes && splitRes.SplitPages && splitRes.SplitPages.length > 0) {
                                     this.autoSplitOnSplitPages(splitRes.SplitPages);

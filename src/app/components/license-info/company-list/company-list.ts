@@ -9,6 +9,7 @@ import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {GrantAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
+import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 
 @Component({
     selector: 'license-info-company-list',
@@ -99,6 +100,12 @@ export class CompanyList {
 
     createCompany() {
         this.modalService.open(UniNewCompanyModal, {
+            data: { contractID: this.contractID }
+        });
+    }
+
+    deletedCompanies() {
+        this.modalService.open(DeletedCompaniesModal, {
             data: { contractID: this.contractID }
         });
     }

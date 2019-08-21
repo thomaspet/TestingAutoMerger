@@ -15,12 +15,6 @@
             [ngClass]="getClass(column, row)"
             [ngStyle]="{'flex': column.flex || 1}">
 
-            <span
-                *ngIf="column.statusIndicator"
-                [ngClass]="column.statusIndicator(row)"
-                class="status-indicator">
-            </span>
-
             {{row | cellValue: column}}
         </span>
 

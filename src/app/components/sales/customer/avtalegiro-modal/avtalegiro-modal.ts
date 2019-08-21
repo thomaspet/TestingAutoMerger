@@ -11,7 +11,7 @@ import {
     ErrorService
 } from '../../../../services/services';
 import {Observable} from 'rxjs';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 
 @Component({
     selector: 'uni-avtalegiro-modal',
@@ -33,12 +33,12 @@ import {URLSearchParams} from '@angular/http';
 export class AvtaleGiroModal implements IUniModal {
     @Input() options: IModalOptions;
     @Output() onClose: EventEmitter<any> = new EventEmitter<any>(true);
-    
-    @ViewChild(UniTable) 
+
+    @ViewChild(UniTable)
     public unitable: UniTable
 
     public uniTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
 
     constructor(
         private statisticsService: StatisticsService,
@@ -47,18 +47,18 @@ export class AvtaleGiroModal implements IUniModal {
 
     public ngOnInit() {
         this.uniTableConfig = this.generateUniTableConfig();
-        this.lookupFunction = (urlParams: URLSearchParams) =>
+        this.lookupFunction = (urlParams: HttpParams) =>
             this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<any> {
-        urlParams = urlParams || new URLSearchParams();
-        urlParams.set('model', 'AuditLog');
-        urlParams.set('select', 'AuditLog.NewValue as Subscribed,AuditLog.CreatedAt as CreatedAt,User.DisplayName as DisplayName');
-        urlParams.set('join', 'AuditLog.CreatedBy eq User.GlobalIdentity');
-        urlParams.set('filter', `AuditLog.EntityType eq \'Customer\' and AuditLog.Field eq \'AvtaleGiro\' and AuditLog.EntityID eq ${this.options.data}`);
-        urlParams.set('orderby', 'AuditLog.ID desc');
-        return this.statisticsService.GetWrappedDataByUrlSearchParams(urlParams);
+    private getTableData(urlParams: HttpParams): Observable<any> {
+        urlParams = (urlParams || new HttpParams())
+            .set('model', 'AuditLog')
+            .set('select', 'AuditLog.NewValue as Subscribed,AuditLog.CreatedAt as CreatedAt,User.DisplayName as DisplayName')
+            .set('join', 'AuditLog.CreatedBy eq User.GlobalIdentity')
+            .set('filter', `AuditLog.EntityType eq \'Customer\' and AuditLog.Field eq \'AvtaleGiro\' and AuditLog.EntityID eq ${this.options.data}`)
+            .set('orderby', 'AuditLog.ID desc');
+        return this.statisticsService.GetWrappedDataByHttpParams(urlParams);
     }
 
     private generateUniTableConfig(): UniTableConfig {

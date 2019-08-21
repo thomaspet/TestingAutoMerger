@@ -1,11 +1,9 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Http} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {File} from '../../app/unientities';
-import {UniHttp} from '../core/http/http';
 import {environment} from 'src/environments/environment';
-import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
+import {ErrorService, FileService} from '../../app/services/services';
 import {AuthService} from '../../app/authService';
-
 
 export interface IUploadConfig {
     isDisabled?: boolean;
@@ -26,36 +24,25 @@ export interface IUploadConfig {
     `,
 })
 export class UniUploadFileSaveAction {
-    @Input()
-    public buttonText: string;
-
-    @Output()
-    public fileUploaded: EventEmitter<File> = new EventEmitter<File>();
-
-    @Input()
-    public uploadConfig: IUploadConfig;
+    @Input() uploadConfig: IUploadConfig;
+    @Input() buttonText: string;
+    @Output() fileUploaded: EventEmitter<File> = new EventEmitter<File>();
 
     private baseUrl: string = environment.BASE_URL_FILES;
-    private token: any;
     private uniEconomyToken: any;
     private activeCompany: any;
-    private uploading: boolean;
-    public textOnButton: string = 'Last opp';
+    textOnButton: string = 'Last opp';
 
     constructor(
-        private ngHttp: Http,
-        private http: UniHttp,
+        private ngHttp: HttpClient,
         private errorService: ErrorService,
         private authService: AuthService,
-        private uniFilesService: UniFilesService,
         private fileService: FileService
     ) {
-        authService.authentication$.subscribe((authDetails) => {
+        this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
             this.uniEconomyToken = authDetails.token;
         });
-
-        authService.filesToken$.subscribe(token => this.token = token);
     }
 
     public ngOnInit() {
@@ -66,7 +53,6 @@ export class UniUploadFileSaveAction {
         const source = event.srcElement || event.target;
 
         if (source.files && source.files.length) {
-            this.uploading = true;
             this.textOnButton = 'Laster opp...';
             const newFile = source.files[0];
             source.value = '';
@@ -81,21 +67,22 @@ export class UniUploadFileSaveAction {
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
 
-        this.ngHttp.post(this.baseUrl + '/api/file', data)
-            .map(res => res.json())
-            .subscribe((res) => {
+        this.ngHttp.post<any>(this.baseUrl + '/api/file', data, {
+            observe: 'body'
+        }).subscribe(
+            (res) => {
                 // Files are uploaded to unifiles, and will get an externalid that
                 // references the file in UE - get the UE file and add that to the
                 // collection
-                this.uploading = false;
                 this.textOnButton = this.buttonText;
 
-                this.fileService.Get(res.ExternalId)
-                    .subscribe(newFile => {
-                        this.fileUploaded.emit(newFile);
-                    }, err => this.errorService.handle(err));
+                this.fileService.Get(res.ExternalId).subscribe(
+                    newFile => this.fileUploaded.emit(newFile),
+                    err => this.errorService.handle(err)
+                );
             }, err => {
                 this.errorService.handle(err);
-            });
+            }
+        );
     }
 }

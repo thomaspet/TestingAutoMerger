@@ -1,7 +1,5 @@
 import {Injectable} from '@angular/core';
-import {RequestMethod} from '@angular/http';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
+import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {AnnualStatement, Employee} from '../../../unientities';
 import {Observable} from 'rxjs';
 

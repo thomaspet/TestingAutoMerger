@@ -120,7 +120,7 @@ export class View implements OnInit {
             result.subscribe(results => {
                 resolve({success: true});
             }, err => {
-                reject({success: false, msg: err._body});
+                reject({success: false, msg: 'Lagring feilet'});
             });
         });
     }

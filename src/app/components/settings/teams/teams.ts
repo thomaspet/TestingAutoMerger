@@ -241,7 +241,7 @@ export class Teams {
             ht.usingBusinessDomain()
                 .withBody(this.current)
                 .withEndPoint(route)
-                .send().map(response => response.json())
+                .send().map(response => response.body)
                 .subscribe(
                     result => {
                         this.hasUnsavedChanges = false;
@@ -377,7 +377,7 @@ export class Teams {
             .usingBusinessDomain()
             .withEndPoint('teams?hateoas=false&orderby=name&expand=positions')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     private requestUsers() {
@@ -385,7 +385,7 @@ export class Teams {
             .usingBusinessDomain()
             .withEndPoint('users?hateoas=false&orderby=displayname')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     private showTeams(list: Array<Team>) {

@@ -870,7 +870,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveAllObs(config: IEmployeeSaveConfig, saveObjects: ISaveObject[]): Observable<any[]> {
-
         return this.saveEmployee(saveObjects)
             .catch((error, obs) => {
                 config.done('Feil ved lagring');
@@ -913,7 +912,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             };
 
                             const obsList: Observable<any>[] = saveObjects
-                                .map(obj => this.saveSubField(config, obj, emp))
+                                .map(obj => this.saveSubField(config, obj, _.cloneDeep(emp)))
                                 .filter(obs => !!obs);
 
                             if (!this.saveStatus.numberOfRequests) {
@@ -955,6 +954,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveEmployee(saveObj: ISaveObject[]): Observable<Employee> {
+        this.employeeService.invalidateCache();
         const empSaveObj = saveObj.find(obj => obj.key === EMPLOYEE_KEY);
         // If employee is untouched and exists in backend we dont have to save it again
         if (!empSaveObj || !empSaveObj.state || (!empSaveObj.dirty && this.employee.ID > 0)) {
@@ -1228,7 +1228,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 salarybalances[index].Deleted = false;
                                 const toastHeader =
                                     `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
-                                const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                const toastBody = (err && err.body && err.body.Messages) ? err.body.Messages[0].Message : '';
                                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                                 return this.errorService.handleRxCatch(err, obs);
                             })
@@ -1367,7 +1367,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 recurringPosts[index].Deleted = false;
                                 const toastHeader =
                                     `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                                const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                const toastBody = (err && err.body && err.body.Messages) ? err.body.Messages[0].Message : '';
                                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                                 this.errorService.handle(err);
                                 return Observable.empty();
@@ -1391,7 +1391,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         post.Deleted = false;
         const toastHeader =
             `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-        const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+        const toastBody = (err.body.Messages) ? err.body.Messages[0].Message : '';
         this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
         this.errorService.handle(err);
         return Observable.empty();
@@ -1408,7 +1408,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 .asGET()
                 .withEndPoint('/dimensions/' + post.DimensionsID)
                 .send()
-                .map(response => response.json());
+                .map(response => response.body);
         }
 
         return Observable.of(null);

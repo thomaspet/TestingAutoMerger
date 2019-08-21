@@ -17,9 +17,7 @@ interface IDownloadAction {
     changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'uni-preview-modal',
     template: `
-        <section class="uni-modal"
-            (clickOutside)="close()"
-            (keydown.esc)="close()">
+        <section class="uni-modal">
             <header>
                 <h1>{{options.header || 'Forhåndsvisning'}}</h1>
             </header>
@@ -117,7 +115,7 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
                 },
                 (err) => {
                     this.errorService.handle(err);
-                    this.close();
+                    this.close(true);
                 }
             );
         }
@@ -127,7 +125,7 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
         this.reportService.generateReportFormat(format, this.modalConfig.reportDefinition);
     }
 
-    public close() {
+    public close(bool: boolean) {
         this.onClose.emit();
     }
 }

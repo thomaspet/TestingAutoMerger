@@ -62,6 +62,7 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
         this.componentDestroyed$.next();
         this.componentDestroyed$.complete();
     }

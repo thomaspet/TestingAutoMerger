@@ -5,7 +5,7 @@ import {Observable} from 'rxjs';
 import {SubEntityService} from '../common/subEntityService';
 import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';
-import {RequestMethod} from '@angular/http';
+import {RequestMethod} from '@uni-framework/core/http';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 import {FieldType} from '../../../framework/ui/uniform/index';
 
@@ -44,7 +44,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=getpassword')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public setPassword(password: string): Observable<string> {
@@ -53,7 +53,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + '?action=setpassword&password=' + password)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public sendTaxRequestAction(
@@ -74,7 +74,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
             .withHeaders(this.getHeaders(authData))
             .withEndPoint(`employees/?action=read-tax-cards&receiptID=${receiptID}`)
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getA07Response(authData: AltinnAuthenticationData, receiptID: number) {

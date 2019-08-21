@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Router} from '@angular/router';
 
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -89,9 +89,9 @@ export class InvoiceHours {
         }
     }
 
-    public queryInvoiceOrders(query: URLSearchParams) {
-        query.set('model', 'customerorder');
-        query.set('select', 'id as ID'
+    public queryInvoiceOrders(query: HttpParams) {
+        query = query.set('model', 'customerorder');
+        query = query.set('select', 'id as ID'
             + ',ordernumber as OrderNumber'
             + ',orderdate as OrderDate'
             + ',customername as CustomerName'
@@ -102,7 +102,7 @@ export class InvoiceHours {
             + ',stuff(itemsourcedetail.itemsourceid) as ItemSourceIds'
         );
 
-        query.set('join', 'customerorder.id eq customerorderitem.customerorderid'
+        query = query.set('join', 'customerorder.id eq customerorderitem.customerorderid'
             + ' and customerorderitem.itemsourceid eq itemsource.id'
             + ' and itemsource.id eq itemsourcedetail.itemsourceid');
 
@@ -112,12 +112,12 @@ export class InvoiceHours {
             filter += ` and ${query.get('filter')}`;
         }
 
-        query.set('filter', filter);
+        query = query.set('filter', filter);
 
         if (!query.get('orderby')) {
-            query.set('orderby', 'id desc');
+            query = query.set('orderby', 'id desc');
         }
 
-        return this.statisticsService.GetAllByUrlSearchParams(query, true);
+        return this.statisticsService.GetAllByHttpParams(query, true);
     }
 }

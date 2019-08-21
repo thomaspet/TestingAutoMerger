@@ -4,6 +4,7 @@ import {NumberFormat} from '@app/services/services';
 
 import PerfectScrollbar from 'perfect-scrollbar';
 import {get} from 'lodash';
+import {DatePipe} from '@angular/common';
 
 export interface ListViewColumn {
     header: string;
@@ -20,8 +21,11 @@ export class CellValuePipe implements PipeTransform {
 
     transform(row: any, column: ListViewColumn) {
         const value = get(row, column.field, '');
-
-        if (column.numberFormat === 'money') {
+        if (column.field === 'DeletedAt') {
+            if (value) {
+                return new DatePipe('en-US').transform(value, 'dd.MM.yyyy');
+            }
+        } else if (column.numberFormat === 'money') {
             const numeric = parseInt(value, 10);
             if (numeric >= 0) {
                 return this.numberFormatter.asMoney(value) || '0';

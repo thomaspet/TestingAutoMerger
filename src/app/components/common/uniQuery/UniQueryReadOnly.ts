@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, SimpleChanges, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 
 import {UniTableColumn, UniTableConfig} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -29,7 +29,7 @@ export class UniQueryReadOnly implements OnChanges {
     public table: AgGridWrapper;
 
     public tableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: HttpParams) => any;
 
     public fields: Array<UniTableColumn>;
     private selects: string;
@@ -47,36 +47,37 @@ export class UniQueryReadOnly implements OnChanges {
         private statusService: StatusService,
         private errorService: ErrorService
     ) {
-        this.lookupFunction = (urlParams: URLSearchParams) => {
+        this.lookupFunction = (urlParams: HttpParams) => {
             let params = urlParams;
 
             if (params === null) {
-                params = new URLSearchParams();
+                params = new HttpParams();
             }
 
-            params.delete('skip'); // Temp workaround since with skip returns duplicate values
+            params = params.delete('skip'); // Temp workaround since with skip returns duplicate values
 
-            params.set('model', this.queryDefinition.MainModelName);
-            params.set('select', this.selects);
-            params.set('filter', this.getFilterString(params, this.queryDefinition));
+            params = params.set('model', this.queryDefinition.MainModelName)
+                .set('select', this.selects)
+                .set('filter', this.getFilterString(params, this.queryDefinition));
 
             if (this.projectID) {
                 const mainModelName = this.queryDefinition.MainModelName;
                 if (mainModelName === 'SupplierInvoice' || mainModelName === 'CustomerInvoice') {
-                    params.set('join', mainModelName + `.JournalEntryID eq JournalEntryLineDraft.JournalEntryID `
+                    params = params.set('join', mainModelName + `.JournalEntryID eq JournalEntryLineDraft.JournalEntryID `
                     + `and JournalEntryLineDraft.DimensionsID eq Dimensions.ID`);
                 } else if (mainModelName === 'CustomerOrder' || mainModelName === 'CustomerQuote') {
-                    params.set('join', mainModelName + `.ID eq ` + mainModelName + `Item.` + mainModelName + `ID and ` +
+                    params = params.set('join', mainModelName + `.ID eq ` + mainModelName + `Item.` + mainModelName + `ID and ` +
                     mainModelName + `Item.DimensionsID eq Dimensions.ID`);
                 }
             }
 
             if (this.expands) {
-                params.set('expand', this.expands);
+                params = params.set('expand', this.expands);
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                .GetAllByHttpParams(params, true)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
     }
 
@@ -95,7 +96,7 @@ export class UniQueryReadOnly implements OnChanges {
         }
     }
 
-    getFilterString(params: URLSearchParams, queryDefinition: UniQueryDefinition): string {
+    getFilterString(params: HttpParams, queryDefinition: UniQueryDefinition): string {
         const filterStrings = [];
 
         // QueryDefinition filters

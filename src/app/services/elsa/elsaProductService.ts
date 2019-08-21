@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
-import {Response} from '@angular/http';
+import {HttpResponse} from '@angular/common/http';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaProduct} from '@app/models';
 
 @Injectable()
 export class ElsaProductService {
-    private cache: {[endpoint: string]: Observable<Response>} = {};
+    private cache: {[endpoint: string]: Observable<HttpResponse<any>>} = {};
 
     constructor(private uniHttp: UniHttp) {}
 
@@ -28,7 +28,7 @@ export class ElsaProductService {
             this.cache[endpoint] = request;
         }
 
-        return request.map(res => res.json());
+        return request.map(res => res.body);
     }
 
     public Get(id: number): Observable<ElsaProduct> {

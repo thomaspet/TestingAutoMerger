@@ -2,7 +2,7 @@ import {ViewChild, Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {JournalEntryData} from '@app/models';
 import {
@@ -642,11 +642,11 @@ export class BillsView implements OnInit {
         useProgressBar = false
     ) {
         this.loading$.next(useProgressBar);
-        const params = new URLSearchParams();
+        let params = new HttpParams();
         if (filter && filter.filter) {
-            params.set('filter', filter.filter + ((searchFilter ? ' and ' : '') + (searchFilter || '')));
+            params = params.set('filter', filter.filter + ((searchFilter ? ' and ' : '') + (searchFilter || '')));
         } else if (searchFilter) {
-            params.set('filter', searchFilter);
+            params = params.set('filter', searchFilter);
         }
         this.currentFilter = filter;
         if (filter.route) {

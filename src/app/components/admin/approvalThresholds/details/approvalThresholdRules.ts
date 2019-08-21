@@ -133,22 +133,18 @@ export class ApprovalThresholdRules implements OnInit {
     }
 
     public onOperatorSelect(event, item?: TransitionThreshold) {
-        this.newThreshold.Operator = event.operator;
+        this.newThreshold.Operator = event ? event.operator : null;
 
-        if (item === undefined) {
-            this.newThreshold.Operator = event.operator;
-        } else {
+        if (item) {
             item.Operator = event.operator;
             this.onModifyRule(item);
         }
     }
 
     public onApproverSelect(event, item?: TransitionThreshold) {
-        this.newThreshold.SharedRoleId = event.ID;
+        this.newThreshold.SharedRoleId = event ? event.ID : null;
 
-        if (item === undefined) {
-            this.newThreshold.SharedRoleId = event.ID;
-        } else {
+        if (item) {
             item.SharedRoleId = event.ID;
             this.onModifyRule(item);
         }
@@ -199,22 +195,18 @@ export class ApprovalThresholdRules implements OnInit {
     }
 
     private isValidField(): boolean {
-        console.log(this.fields.filter(f => f === this.newThreshold.PropertyName)[0]);
         return this.fields.filter(f => f === this.newThreshold.PropertyName)[0];
     }
 
     private isValidOperator(): boolean {
-        console.log(this.operators.filter(o => o.operator === this.newThreshold.Operator)[0]);
         return this.operators.filter(o => o.operator === this.newThreshold.Operator)[0];
     }
 
     private isValidValue(): boolean {
-        console.log(this.newThreshold.Value !== undefined && this.newThreshold.Value.length > 0);
         return this.newThreshold.Value !== undefined && this.newThreshold.Value.length > 0;
     }
 
     private isValidApprover(): boolean {
-        console.log(this.approvers.filter(a => a.ID === this.newThreshold.SharedRoleId)[0]);
         return this.approvers.filter(a => a.ID === this.newThreshold.SharedRoleId)[0];
     }
 }

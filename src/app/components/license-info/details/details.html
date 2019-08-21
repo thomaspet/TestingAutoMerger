@@ -2,12 +2,33 @@
     <section class="info-card">
         <section class="info-field">
             <strong>Lisenseier</strong>
-            <span>{{licenseOwner?.Name || '-'}}</span>
+            <span>{{customer?.Name || '-'}}</span>
         </section>
 
         <section class="info-field">
             <strong>Org.nummer</strong>
-            <span>{{licenseOwner?.OrgNumber || '-'}}</span>
+            <span>{{customer?.OrgNumber || '-'}}</span>
+        </section>
+
+        <section *ngIf="isAdmin && companyLicenses?.length" class="info-field main-company">
+            <strong>Hovedselskap</strong>
+
+            <section *ngIf="!mainCompanyEditMode">
+                {{mainCompany?.CompanyName || 'Ikke satt'}}
+                <i (click)="mainCompanyEditMode = true" class="material-icons edit">edit</i>
+            </section>
+
+            <section *ngIf="mainCompanyEditMode">
+                <select [(ngModel)]="mainCompanyKey">
+                    <option *ngFor="let company of companyLicenses" [value]="company.CompanyKey">
+                        {{company.CompanyName}}
+                    </option>
+                </select>
+
+                <i (click)="saveMainCompany()" class="material-icons">check</i>
+                <i (click)="cancelMainCompanyEdit()" class="material-icons close">close</i>
+            </section>
+
         </section>
     </section>
 
@@ -15,9 +36,9 @@
         <section class="info-field">
             <strong>Kontaktperson</strong>
             <span>
-                {{licenseOwner?.ContactPerson || '-'}}
-                <a href="mailto:{{licenseOwner?.ContactEmail}}">{{licenseOwner?.ContactEmail || '-'}}</a>
-                <a *ngIf="licenseOwner?.ContactPhone" href="tel:{{licenseOwner?.ContactPhone}}">{{licenseOwner?.ContactPhone}}</a>
+                {{customer?.ContactPerson || '-'}}
+                <a href="mailto:{{customer?.ContactEmail}}">{{customer?.ContactEmail || '-'}}</a>
+                <span *ngIf="customer?.ContactPhone">{{customer?.ContactPhone}}</span>
             </span>
         </section>
     </section>

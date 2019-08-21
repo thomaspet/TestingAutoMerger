@@ -25,7 +25,7 @@ export class PaymentService extends BizHttp<Payment> {
             .withBody(paymentIDs)
             .withEndPoint(this.relativeURL + '?action=create-payment-batch')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getStatusText(statusCode: number): string {

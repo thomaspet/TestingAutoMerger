@@ -251,7 +251,7 @@ export class DrilldownResultReportPart implements OnChanges {
             finalize(() => this.busy = false)
         ).subscribe(
             res => {
-                res = res.json();
+                res = res.body;
                 const list = this.extractGroups(res);
                 this.getBudgetToCurrentMonth(res);
                 this.flattenedTreeSummaryList = list;

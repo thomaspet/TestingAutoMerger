@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+
 import {AuthService} from '../../authService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs';
@@ -8,24 +9,21 @@ import {StatisticsResponse} from '../../models/StatisticsResponse';
 @Injectable()
 export class BureauCustomHttpService {
     constructor(
-        private http: Http,
+        private http: HttpClient,
         private authService: AuthService,
         private browserStorage: BrowserStorageService,
     ) {}
 
     private getWithoutUnAuthenticatedHandling(url: string, companyKey: string): Observable<any> {
-        const token = this.authService.getToken();
-        const headers: Headers = new Headers;
-        headers.set('Accept', 'application/json');
-        headers.set('Authorization', `Bearer ${token}`);
-        headers.set('CompanyKey', companyKey);
-        headers.set('Year', this.getCompanyYear());
-        const options: BaseRequestOptions = new BaseRequestOptions();
-        options.method = 'GET';
-        options.url = url;
-        options.headers = headers;
-        options.body = '';
-        return this.http.request(new Request(options));
+        return this.http.request('get', url, {
+            observe: 'response',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${this.authService.getToken()}`,
+                'CompanyKey': companyKey,
+                'Year': this.getCompanyYear()
+            }
+        });
     }
 
     public get(url: string, companyKey: string): Observable<any> {
@@ -47,16 +45,16 @@ export class BureauCustomHttpService {
         }
     }
 
-    public statisticsExtractor(response: Response): any[] {
-        const obj: StatisticsResponse = response.json();
+    public statisticsExtractor(response: HttpResponse<any>): any[] {
+        const obj: StatisticsResponse = response.body;
         if (!obj.Success) {
             throw new Error(obj.Message);
         }
         return obj.Data;
     }
 
-    public singleStatisticsExtractor(response: Response): any {
-        const obj: StatisticsResponse = response.json();
+    public singleStatisticsExtractor(response: HttpResponse<any>): any {
+        const obj: StatisticsResponse = response.body;
         if (!obj.Success) {
             throw new Error(obj.Message);
         }

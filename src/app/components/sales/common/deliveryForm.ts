@@ -1,56 +1,75 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Address, LocalDate, Terms, PaymentInfoType} from '@app/unientities';
-import {AddressService, BusinessRelationService, ErrorService} from '@app/services/services';
+import {AddressService, BusinessRelationService, ErrorService, TermsService} from '@app/services/services';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, forkJoin} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
 
 @Component({
     selector: 'tof-delivery-form',
     template: `
-        <uni-form [fields]="fields$"
-                  [model]="model$"
-                  [config]="formConfig$"
-                  (changeEvent)="onFormChange($event)">
+        <uni-form
+            [fields]="fields$"
+            [model]="model$"
+            [config]="formConfig$"
+            (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDeliveryForm implements OnInit {
-    @Input() public readonly: boolean;
-    @Input() public entityType: string;
-    @Input() public entity: any;
-    @Input() public paymentTerms: Terms[];
-    @Input() public deliveryTerms: Terms[];
-    @Input() public paymentInfoTypes: PaymentInfoType[];
+    @Input() readonly: boolean;
+    @Input() entityType: string;
+    @Input() entity: any;
+    @Input() paymentInfoTypes: PaymentInfoType[];
 
-    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
+    @Output() entityChange: EventEmitter<any> = new EventEmitter();
 
-    public model$: BehaviorSubject<any> = new BehaviorSubject({});
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    paymentTerms: Terms[];
+    deliveryTerms: Terms[];
+
+    model$: BehaviorSubject<any> = new BehaviorSubject({});
+    formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private termsService: TermsService
     ) {}
 
     ngOnInit() {
-        if (this.entity && !this.entity['PaymentInfoTypeID']
-            && (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice' || this.entityType === 'RecurringInvoice')) {
-                this.entity['PaymentInfoTypeID'] = this.paymentInfoTypes[0].ID;
+        if (this.entity && !this.entity['PaymentInfoTypeID'] && this.entityType !== 'CustomerQuote') {
+            this.entity['PaymentInfoTypeID'] = this.paymentInfoTypes[0].ID;
         }
 
-        this.model$.next(this.entity);
-        this.initFormLayout();
+        forkJoin(
+            this.termsService.GetAction(null, 'get-payment-terms'),
+            this.termsService.GetAction(null, 'get-delivery-terms'),
+        ).subscribe(
+            res => {
+                this.paymentTerms = res[0] || [];
+                this.deliveryTerms = res[1] || [];
+
+                this.model$.next(this.entity);
+                this.initFormLayout();
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
-    public ngOnChanges(changes) {
+    ngOnDestroy() {
+        this.model$.complete();
+        this.formConfig$.complete();
+        this.fields$.complete();
+    }
+
+    ngOnChanges(changes) {
         if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
             const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
                 return addr.AddressLine1 === this.entity.ShippingAddressLine1
@@ -68,7 +87,7 @@ export class TofDeliveryForm implements OnInit {
         this.initFormLayout();
     }
 
-    public onFormChange(changes) {
+    onFormChange(changes) {
         const model = this.model$.getValue();
 
         if (changes['PaymentTermsID']) {

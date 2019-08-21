@@ -157,7 +157,7 @@ export class SentToDebtCollection implements OnInit {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        const configStoreKey = 'sales.reminders.reminderToDebtCollect';
+        const configStoreKey = 'sales.reminders.sentToDebtCollection';
         this.reminderToDebtCollectTable = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)

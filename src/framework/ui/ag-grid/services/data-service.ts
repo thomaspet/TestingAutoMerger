@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
 import {Observable, BehaviorSubject, Subject} from 'rxjs';
 import {cloneDeep, get} from 'lodash';
@@ -25,7 +25,7 @@ export class TableDataService {
     public advancedSearchFilters: ITableFilter[];
     public filterString: string;
 
-    public columnSumResolver: (params: URLSearchParams) => Observable<{[field: string]: number}>;
+    public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
 
     // Only maintained for local data grids!
     private originalData: any[];
@@ -138,17 +138,17 @@ export class TableDataService {
         return data;
     }
 
-    private getRemoteDatasource(resource: (urlParam: URLSearchParams) => any): IDatasource {
+    private getRemoteDatasource(resource: (urlParam: HttpParams) => any): IDatasource {
         this.loadedRowCount = 0;
         return {
             getRows: (params: IGetRowsParams) => {
-                const urlParams = new URLSearchParams();
-                urlParams.set('skip', params.startRow.toString());
-                urlParams.set('top', (params.endRow - params.startRow).toString());
+                let urlParams = new HttpParams();
+                urlParams = urlParams.set('skip', params.startRow.toString());
+                urlParams = urlParams.set('top', (params.endRow - params.startRow).toString());
 
                 // Filtering
                 if (this.filterString) {
-                    urlParams.set('filter', this.filterString);
+                    urlParams = urlParams.set('filter', this.filterString);
                 }
 
                 // Sorting
@@ -159,14 +159,14 @@ export class TableDataService {
                 }
 
                 if (orderby) {
-                    urlParams.set('orderby', orderby);
+                    urlParams = urlParams.set('orderby', orderby);
                 }
 
                 resource(urlParams).subscribe(
                     res => {
                         let totalRowCount, data;
-                        if (res.json) {
-                            data = res.json();
+                        if (res.body) {
+                            data = res.body;
                             totalRowCount = res.headers && res.headers.get('count');
                             this.totalRowCount$.next(totalRowCount);
 

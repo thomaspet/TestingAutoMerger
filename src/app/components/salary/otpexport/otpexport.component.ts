@@ -244,11 +244,12 @@ export class OTPExportComponent implements OnInit {
     .setTemplate(rowModel => {
       return this.statuses().find(s => s.short === rowModel.Status).full;
     });
+    const departmentCol = new UniTableColumn('Enhet', 'Avdeling', UniTableColumnType.Text);
     this.otpTableConfig = new UniTableConfig('salary.otpexport.data', false, true)
       .setColumns([
         numberCol, nameCol, birthCol, addressCol, address2Col, address3Col,
         postalCodeCol, cityCol, startdateCol, enddateCol, paymentformCol, yearwageCol,
-        employmentpercentCol, periodsalarySumCol, periodsalaryAmountCol, statusPensionCol
+        employmentpercentCol, periodsalarySumCol, departmentCol, periodsalaryAmountCol, statusPensionCol
       ])
       .setSearchable(true);
   }

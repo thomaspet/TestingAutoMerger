@@ -1,4 +1,3 @@
-import {RequestMethod} from '@angular/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
@@ -7,7 +6,6 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';
-import {environment} from 'src/environments/environment';
 import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniSendEmailModal} from '@uni-framework/uni-modal/modals/sendEmailModal';
@@ -81,7 +79,7 @@ export class EmailService extends BizHttp<Email> {
             .withEndPoint(`distributions?action=distribute-with-type&id=${id}&distributiontype=${disttype}&entityType=${type}`)
             .withBody(body)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {

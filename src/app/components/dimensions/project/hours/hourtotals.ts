@@ -183,7 +183,7 @@ export class ProjectHourTotals {
     private getStatistics(query: string) {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(`?${query}`).send()
-        .map(response => response.json()).map( x => x.Data );
+        .map(response => response.body).map( x => x.Data );
     }
 
 

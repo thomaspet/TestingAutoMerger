@@ -7,7 +7,7 @@ import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ProductService, WageTypeService, ErrorService} from '@app/services/services';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {isString} from 'util';
 
 const defaultSystemType = 1; // 1 - Hours (default)
@@ -121,14 +121,14 @@ export class WorktypeDetailview {
     }
 
     private findProduct(value: string, ignoreFilter = false) {
-        const search = new URLSearchParams();
+        let search = new HttpParams();
         const txt = filterInput( isString(value) ? value : '');
-        search.append('select', 'id,partname,name,priceexvat');
-        search.append('hateoas', 'false');
+        search = search.append('select', 'id,partname,name,priceexvat');
+        search = search.append('hateoas', 'false');
         if (txt && (!ignoreFilter)) {
-            search.append('filter', `partname eq '${txt}' or startswith(name,'${txt}')`);
+            search = search.append('filter', `partname eq '${txt}' or startswith(name,'${txt}')`);
         }
-        return this.productService.GetAllByUrlSearchParams(search)
-            .map((res) => res.json());
+        return this.productService.GetAllByHttpParams(search)
+            .map((res) => res.body);
     }
 }

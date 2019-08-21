@@ -174,7 +174,7 @@ export class EmployeeService extends BizHttp<Employee> {
             + employeeID
             + '/category')
             .send()
-            .map(response => response.json());
+            .map(response => response.body);
         // .send({expand: '', filter: 'EmployeeNumber eq ' + id});
     }
 
@@ -194,7 +194,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 .usingBusinessDomain()
                 .withBody(category)
                 .send()
-                .map(response => response.json());
+                .map(response => response.body);
         }
         return Observable.of(null);
     }

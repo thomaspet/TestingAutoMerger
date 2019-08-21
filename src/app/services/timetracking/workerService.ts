@@ -4,10 +4,11 @@ import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {UserService} from '../common/userService';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import {toIso, capitalizeFirstLetter} from '../../components/common/utils/utils';
 import * as moment from 'moment';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {map} from 'rxjs/operators';
 
 export enum ItemInterval {
     all = 0,
@@ -104,7 +105,7 @@ export class WorkerService extends BizHttp<Worker> {
             .usingBusinessDomain()
             .withEndPoint(`workrelations/${id}?action=timesheet&fromdate=${fromDate}&todate=${toDate}`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getWorkTimeOff(year: number) {
@@ -115,7 +116,7 @@ export class WorkerService extends BizHttp<Worker> {
             + `and TimeoffType eq 1&orderby=FromDate`
             + `&select=ToDate as ToDate,FromDate as FromDate,Description as Description`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public saveTimeOff(timeoff: any) {
@@ -127,7 +128,7 @@ export class WorkerService extends BizHttp<Worker> {
             .usingBusinessDomain()
             .withBody(timeoff)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public deleteTimeOff(id: number) {
@@ -136,7 +137,7 @@ export class WorkerService extends BizHttp<Worker> {
             .usingBusinessDomain()
             .withEndPoint('WorkTimeOff/' + id)
             .send()
-            .map(res => res.json())
+            .map(res => res.body)
     }
 
     public getWorkerFromUser(userid: number): Observable<Worker> {
@@ -344,31 +345,29 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public query(route: string, ...args: any[]): Observable<any[]> {
-        const params = new URLSearchParams();
+        let params = new HttpParams();
         for (let i = 0; i < args.length; i += 2) {
-            params.append(args[i], args[i + 1]);
+            params = params.append(args[i], args[i + 1]);
         }
-        return this.queryWithUrlParams(params, route)
-            .map(response => {
-                return response.json();
-            });
+        return this.queryWithUrlParams(params, route);
     }
 
     public queryWithUrlParams(
-        params?: URLSearchParams, route = 'worktypes', expand?: string, hateoas: boolean = false): Observable<any> {
+        params?: HttpParams, route = 'worktypes', expand?: string, hateoas: boolean = false): Observable<any> {
         if (expand) {
-            if (params === undefined) { params = new URLSearchParams(); }
-            params.append('expand', expand);
+            if (params === undefined) { params = new HttpParams(); }
+            params = params.append('expand', expand);
         }
         if (hateoas === false ) {
-            if (params === undefined) { params = new URLSearchParams(); }
-            params.append('hateoas', 'false');
+            if (params === undefined) { params = new HttpParams(); }
+            params = params.append('hateoas', 'false');
         }
         return this.http
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(route)
-            .send({}, params);
+            .send({}, params)
+            .pipe(map(res => res.body));
     }
 
     public saveByID<T>(item: T, baseRoute: string): Observable<T> {
@@ -390,7 +389,7 @@ export class WorkerService extends BizHttp<Worker> {
     public getStatistics(query: string): Observable<any> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint('?' + query).send()
-        .map(response => response.json());
+        .map(response => response.body);
 
     }
 
@@ -399,28 +398,28 @@ export class WorkerService extends BizHttp<Worker> {
     private GET(route: string, params?: any ): Observable<any> {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
-        .map(response => response.json());
+        .map(response => response.body);
     }
     private POST(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
             return this.http.asPOST().usingBusinessDomain().withBody(body)
             .withEndPoint(route).send(params)
-            .map(response => response.json());
+            .map(response => response.body);
         } else {
             return this.http.asPOST().usingBusinessDomain()
             .withEndPoint(route).send(params)
-            .map(response => response.json());
+            .map(response => response.body);
         }
     }
     private PUT(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
             return this.http.asPUT().usingBusinessDomain().withBody(body)
             .withEndPoint(route).send(params)
-            .map(response => response.json());
+            .map(response => response.body);
         } else {
             return this.http.asPUT().usingBusinessDomain()
             .withEndPoint(route).send(params)
-            .map(response => response.json());
+            .map(response => response.body);
         }
     }
 

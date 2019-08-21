@@ -128,7 +128,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
             + `?expand=DefaultAddress,DefaultEmail,DefaultPhone,CompanyBankAccount`,
             companyKey
         )
-            .map(response => response.json());
+            .map(response => response.body);
     }
 
     public getNumberOfUsersInCompany(companyKey: string): Observable<number> {
@@ -152,7 +152,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
     private getLogoUrl(companyKey: string): Observable<string> {
         const logoUrlObservable = this.customHttpService
             .get(`/api/biz/files/${CompanySettings.EntityType}/1`, companyKey)
-            .map(response => response.json())
+            .map(response => response.body)
             .map(files => files.length && files[0]
                     ? `${FILE_BASE}/api/image/?key=${companyKey}&token=${this.authToken}&id=${files[0].StorageReference}`
                     : '/assets/Logo-Placeholder.png'

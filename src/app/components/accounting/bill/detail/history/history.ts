@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
 import {SupplierInvoiceService, ErrorService} from '../../../../../services/services';
-import {URLSearchParams} from '@angular/http';
+import {HttpParams} from '@angular/common/http';
 import * as moment from 'moment';
 
 @Component({
@@ -42,9 +42,10 @@ export class BillHistoryView {
             return;
         }
 
-        const params = new URLSearchParams();
-        params.set('filter', 'SupplierID eq ' + this.supplierID);
-        params.set('top', '40');
+        const params = new HttpParams()
+            .set('filter', 'SupplierID eq ' + this.supplierID)
+            .set('top', '40');
+
         this.supplierInvoiceService.getInvoiceList(params).subscribe(
             list => {
                 this.removeSelfFromList(list);

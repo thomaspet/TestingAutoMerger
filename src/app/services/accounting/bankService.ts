@@ -45,7 +45,7 @@ export class BankService extends BizHttp<Bank> {
             .usingBusinessDomain()
             .withEndPoint(endpoint)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public postCompanyBankAccount(body) {
@@ -81,7 +81,7 @@ export class BankService extends BizHttp<Bank> {
         .usingBusinessDomain()
         .withEndPoint('bank-agreements?action=create-integration')
         .send()
-        .map(res => res.json());
+        .map(res => res.body);
     }
 
     public updateAutobankAgreement(id: any, password: string) {
@@ -91,7 +91,7 @@ export class BankService extends BizHttp<Bank> {
             .usingBusinessDomain()
             .withEndPoint(`bank-agreements/${id}?action=update-status`)
             .send()
-            .map(res => res.json());
+            .map(res => res.body);
     }
 
     public getBankPayments(id: number): Observable<any> {

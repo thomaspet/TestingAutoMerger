@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Agreement} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {RequestMethod} from '@angular/http';
 
 @Injectable()
 export class AgreementService extends BizHttp<Agreement> {

@@ -16,7 +16,6 @@ import {
     Project,
     Seller,
     StatusCodeCustomerInvoice,
-    Terms,
     NumberSeries,
     VatType,
     Department,
@@ -42,7 +41,6 @@ import {
     ReportDefinitionService,
     ReportService,
     StatisticsService,
-    TermsService,
     JournalEntryService,
     UserService,
     NumberSeriesService,
@@ -148,8 +146,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     currencyExchangeRate: number;
     private currentCustomer: Customer;
     currentUser: User;
-    deliveryTerms: Terms[];
-    paymentTerms: Terms[];
     selectConfig: any;
 
     sellers: Seller[];
@@ -242,7 +238,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private route: ActivatedRoute,
         private statisticsService: StatisticsService,
         private tabService: TabService,
-        private termsService: TermsService,
         private toastService: ToastService,
         private tofHelper: TofHelper,
         private tradeItemHelper: TradeItemHelper,
@@ -302,8 +297,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         : Observable.of(null),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(
                         `filter=NumberSeriesType.Name eq 'Customer Invoice number `
@@ -327,22 +320,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     }
                     this.companySettings = res[3];
                     this.currencyCodes = res[4];
-                    this.paymentTerms = res[5];
-                    this.deliveryTerms = res[6];
-                    if (res[7]) {
+                    if (res[5]) {
                         invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
-                        invoice.DefaultDimensions.ProjectID = res[7].ID;
-                        invoice.DefaultDimensions.Project = res[7];
+                        invoice.DefaultDimensions.ProjectID = res[5].ID;
+                        invoice.DefaultDimensions.Project = res[5];
                     }
-                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
-                    this.projects = res[9];
-                    this.sellers = res[10];
-                    this.vatTypes = res[11];
-                    this.departments = res[12];
-                    this.setUpDims(res[13]);
-                    this.paymentInfoTypes = res[14];
-                    this.distributionPlans = res[15];
-                    this.reports = res[16];
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[6]);
+                    this.projects = res[7];
+                    this.sellers = res[8];
+                    this.vatTypes = res[9];
+                    this.departments = res[10];
+                    this.setUpDims(res[11]);
+                    this.paymentInfoTypes = res[12];
+                    this.distributionPlans = res[13];
+                    this.reports = res[14];
 
                     if (!!customerID && res[2] && res[2]['Distributions'] && res[2]['Distributions'].CustomerInvoiceDistributionPlanID) {
                         invoice.DistributionPlanID = res[2]['Distributions'].CustomerInvoiceDistributionPlanID;
@@ -390,8 +381,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.getInvoice(this.invoiceID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
@@ -405,16 +394,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
-                    this.projects = res[5];
-                    this.sellers = res[6];
-                    this.vatTypes = res[7];
-                    this.departments = res[8];
-                    this.setUpDims(res[9]);
-                    this.paymentInfoTypes = res[10];
-                    this.distributionPlans = res[11];
-                    this.reports = res[12];
+                    this.projects = res[3];
+                    this.sellers = res[4];
+                    this.vatTypes = res[5];
+                    this.departments = res[6];
+                    this.setUpDims(res[7]);
+                    this.paymentInfoTypes = res[8];
+                    this.distributionPlans = res[9];
+                    this.reports = res[10];
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -578,7 +565,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
-            return this.modalService.openUnsavedChangesModal().onClose
+            const acceptBtnTxt = (this.invoiceID && this.invoiceID > 0) ? 'Lagre' : 'Lagre som kladd';
+            return this.modalService.openUnsavedChangesModal(acceptBtnTxt).onClose
                 .switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         if (!this.invoice.ID && !this.invoice.StatusCode) {
@@ -2299,5 +2287,13 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.currencyInfo = `${this.getCurrencyCode(this.currencyCodeID)} `
                 + `(kurs: ${this.numberFormat.asMoney(this.currencyExchangeRate)})`;
         }
+    }
+
+    onTradeItemsChange() {
+        setTimeout(() => {
+            this.invoice.Items = this.invoiceItems;
+            this.invoice = cloneDeep(this.invoice);
+            this.recalcDebouncer.emit(this.invoiceItems);
+        });
     }
 }

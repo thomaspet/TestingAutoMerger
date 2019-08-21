@@ -935,7 +935,7 @@ export class NumberSeries {
             this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint('companysettings?hateoas=false&expand=SupplierAccount,CustomerAccount')
-                .send().map(response => response.json()),
+                .send().map(response => response.body),
             this.numberSeriesService.getNumberSeriesAsInvoice()
         ]).subscribe(data => {
             const types = data[0];

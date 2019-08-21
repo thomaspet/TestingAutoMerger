@@ -1,2 +1,6 @@
 <h2>{{options?.title}}</h2>
-<uni-table [attr.aria-busy]="busy" [resource]="model$ | async" [config]="receiptTable"></uni-table>
+<ag-grid-wrapper
+    [attr.aria-busy]="busy"
+    [resource]="model$ | async"
+    [config]="receiptTable">
+</ag-grid-wrapper>

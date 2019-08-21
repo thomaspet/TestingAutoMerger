@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {EHFLog, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {RequestMethod} from '@angular/http';
+import {RequestMethod} from '@uni-framework/core/http';
 import {CompanySettingsService} from '../common/companySettingsService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 

@@ -3,34 +3,35 @@ import {ActivatedRoute} from '@angular/router';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     PayrollrunService, EmployeeService, ErrorService,
-    SalaryTransactionService, FinancialYearService, SupplementService
+    SalaryTransactionService, FinancialYearService, SupplementService, StatisticsService
 } from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {
     PayrollRun, SalaryTransaction, Employee,
      SalaryTransactionSupplement, Valuetype
 } from '../../../unientities';
-import {Observable, merge, ReplaySubject, forkJoin} from 'rxjs';
+import {Observable, ReplaySubject, forkJoin} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
+import {UniSupplementEditModal} from './editValueModal';
+import { ICellClickEvent } from '@uni-framework/ui/ag-grid/interfaces';
 
 @Component({
     selector: 'salary-transaction-supplement-list',
     templateUrl: './salaryTransactionSupplementsList.html'
 })
 export class SalaryTransactionSupplementList implements OnInit {
-    @ViewChild(UniTable)
-    private table: UniTable;
 
-    public model$: Observable<SalaryTransactionSupplement[]>;
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
+
+    public model$: SalaryTransactionSupplement[] = [];
     public tableConfig$: ReplaySubject<UniTableConfig>;
-    public saveActions: IUniSaveAction[] = [{
-        action: this.save.bind(this),
-        disabled: true,
-        label: 'Lagre',
-        main: true
-    }];
+
+    year: number = 0;
+    payrollRunID: number = 0;
 
     public toolbarConfig: IToolbarConfig = {
         title: 'Tilleggsopplysninger'
@@ -45,7 +46,8 @@ export class SalaryTransactionSupplementList implements OnInit {
         private supplementService: SupplementService,
         private tabService: TabService,
         private route: ActivatedRoute,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private statisticsService: StatisticsService
     ) {
         this.tableConfig$ = new ReplaySubject<UniTableConfig>(1);
 
@@ -56,12 +58,12 @@ export class SalaryTransactionSupplementList implements OnInit {
         });
 
         this.route.params.subscribe(params => {
-            const year = this.financialYearService.getActiveYear();
+            this.year = this.financialYearService.getActiveYear();
 
-            const payrollRunID = +params['runID'] || undefined;
+            this.payrollRunID = +params['runID'] || undefined;
 
-            if ((!this.model$ || !payrollRunID)) {
-                this.model$ = this.getModel(payrollRunID, year);
+            if ((!this.model$ || !this.payrollRunID)) {
+                this.getModel(this.payrollRunID, this.year).subscribe(res => this.model$ = res);
             }
         });
     }
@@ -71,6 +73,7 @@ export class SalaryTransactionSupplementList implements OnInit {
     }
 
     private getConfig(): UniTableConfig {
+
         const employeeCol = new UniTableColumn('', 'Ansatt', UniTableColumnType.Text, false)
             .setTemplate((rowModel: SalaryTransactionSupplement) =>
                 `${rowModel['_Employee'].EmployeeNumber} - ${rowModel['_Employee'].BusinessRelationInfo.Name}`);
@@ -90,19 +93,42 @@ export class SalaryTransactionSupplementList implements OnInit {
         const amountCol = new UniTableColumn('_Amount', 'Antall', UniTableColumnType.Number, false);
         const sumCol = new UniTableColumn('_Sum', 'Beløp', UniTableColumnType.Money, false);
 
-        return new UniTableConfig('salary.salaryTransactionSupplementsList')
+        let pageSize = window.innerHeight - 350;
+
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34);
+
+        return new UniTableConfig('salary.salaryTransactionSupplementsList', false, true, pageSize)
             .setAutoAddNewRow(false)
             .setColumns([employeeCol, wageTypeCol, textCol, supplementTextCol, valueCol,
                 fromDate, toDate, runCol, amountCol, sumCol])
             .setSearchable(true)
+            .setContextMenu([{
+                label: 'Rediger verdi',
+                action: line => this.editValue(line)
+            }])
             .setChangeCallback((event) => {
                 const row = event.rowModel;
                 if (row.WageTypeSupplement) {
                     row['_isDirty'] = true;
-                    this.saveActions[0].disabled = false;
                 }
                 return this.updateValue(row, row['_Value']);
             });
+    }
+
+    onCellClick(clickEvent: ICellClickEvent) {
+        if (clickEvent && clickEvent.column && clickEvent.column.field === '_Value') {
+            this.editValue(clickEvent.row);
+        }
+    }
+
+    public editValue(line) {
+        this.modalService.open(UniSupplementEditModal, { data: { line: line } }).onClose.subscribe((newLine) => {
+            // Replace old line with new line in the array. No need to get data again.
+            if (newLine) {
+                this.model$.splice(line._originalIndex, 1, newLine);
+                this.model$ = [...this.model$];
+            }
+        });
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -239,7 +265,6 @@ export class SalaryTransactionSupplementList implements OnInit {
                     .finally(() => {
                         if (saveStatus.started === (saveStatus.completed + saveStatus.error)) {
                             saveStatus.error ? done('Feil ved lagring') : done('Lagret');
-                            this.toggleSave();
                         }
                     })
                     .subscribe(saved => {
@@ -295,9 +320,5 @@ export class SalaryTransactionSupplementList implements OnInit {
             }
         }
         return supplement;
-    }
-
-    private toggleSave() {
-        this.saveActions[0].disabled = !this.table.getTableData().some(trans => trans['_isDirty']);
     }
 }

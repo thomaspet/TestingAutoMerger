@@ -44,7 +44,7 @@ export class ConfirmInvite {
                     .usingInitDomain()
                     .withEndPoint('user-verification/' + this.verificationCode)
                     .send()
-                    .map(response => response.json())
+                    .map(response => response.body)
                     .subscribe(
                         (response) => {
                             if (response.StatusCode === 0
@@ -79,7 +79,7 @@ export class ConfirmInvite {
             .withHeader('Content-Type', 'application/json')
             .withBody(this.confirmInviteForm.value)
             .send({action: 'confirm-invite'})
-            .map(response => response.json())
+            .map(response => response.body)
             .subscribe(
                 (data) => {
                     this.busy = false;
@@ -91,7 +91,7 @@ export class ConfirmInvite {
                     this.confirmInviteForm.enable();
                     this.errorMessage = 'Noe gikk galt ved oppretting av bruker, vennligst prøv igjen.';
                     try {
-                        const messages = JSON.parse(error._body).Messages;
+                        const messages = error.error.Messages;
                         if (messages.length) {
                             messages.forEach(element => {
                                 if ( element.PropertyName === 'UserName'
