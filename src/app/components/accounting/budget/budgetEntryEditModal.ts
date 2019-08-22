@@ -100,6 +100,8 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
             if (this.options && this.options.data && this.options.data.entries) {
                 this.setUpData(!this.currentDepartment || this.currentDepartment.ID === 'ALLDEPARTMENTSID');
             } else {
+                this.posts = [this.getEmptyLine()];
+                this.entriesArray = this.getEmptyEntriesArray();
                 this.setUpTable();
             }
         }
