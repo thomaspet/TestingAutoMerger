@@ -8,6 +8,7 @@ import {
 import {IUniWidget} from '../../uniWidget';
 import {FinancialYearService, StatisticsService} from '@app/services/services';
 import * as Chart from 'chart.js';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'uni-operating-chart',
@@ -38,10 +39,29 @@ export class OperatingProfitWidget {
     busy: boolean = true;
 
     constructor(
+        private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private financialYearService: FinancialYearService,
         private statisticsService: StatisticsService
-    ) {
+    ) {}
+
+    ngAfterViewInit() {
+        let hasAccess = true;
+        if (this.widget.permissions && this.widget.permissions.length) {
+            const user = this.authService.currentUser;
+            hasAccess = this.widget.permissions.some(p => this.authService.hasUIPermission(user, p));
+        }
+
+        if (hasAccess) {
+            this.init();
+        } else {
+            this.unauthorized = true;
+            this.busy = false;
+            this.cdr.markForCheck();
+        }
+    }
+
+    init() {
         this.prepChartType();
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         const year = new Date().getFullYear();
@@ -54,13 +74,8 @@ export class OperatingProfitWidget {
         } else {
             this.years.push(year - 2);
         }
-    }
 
-    ngAfterViewInit() {
-        if (this.widget) {
-            this.getDataAndLoadChart();
-        }
-
+        this.getDataAndLoadChart();
         const ShadowLineElement = (<any> Chart).elements.Line.extend({
             draw () {
                 const { ctx } = this._chart;

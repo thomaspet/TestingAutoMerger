@@ -328,6 +328,11 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             return;
         }
 
+        if (this.isSaving) {
+            this.toastr.addToast('Opprettelse av viderefakturering pågår fremdeles, vennligst vent...', ToastType.bad, 5);
+            return;
+        }
+
         this.isSaving = true;
         this.hasChanges = false;
         if (!this.currentReInvoice) {
@@ -383,7 +388,6 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                         );
                 }
                 saveRequest
-
                     .subscribe(reinvoice => {
                         if (type !== '') {
                             this.reinvoiceService.Action(reinvoice.ID, type).subscribe(() => {

@@ -5,6 +5,7 @@ import {FinancialYearService} from '@app/services/services';
 import {WidgetDataService} from '@app/components/widgets/widgetDataService';
 import * as Chart from 'chart.js';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
+import {take} from 'rxjs/operators';
 
 interface IKeyNumberObject {
     label: string;
@@ -38,13 +39,25 @@ export class KpiWidget {
     };
 
     constructor(
+        private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private dataService: WidgetDataService,
         private financialYearService: FinancialYearService
     ) {}
 
     public ngAfterViewInit() {
-        this.getKpiData();
+        let hasAccess = true;
+        if (this.widget.permissions && this.widget.permissions.length) {
+            const user = this.authService.currentUser;
+            hasAccess = this.widget.permissions.some(p => this.authService.hasUIPermission(user, p));
+        }
+
+        if (hasAccess) {
+            this.getKpiData();
+        } else {
+            this.unauthorized = true;
+            this.cdr.markForCheck();
+        }
     }
 
     ngOnDestroy() {
