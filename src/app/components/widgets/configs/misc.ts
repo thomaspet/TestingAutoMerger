@@ -2,6 +2,7 @@ export const MISC_WIDGETS = [
     {
         id: 'kpi_profitability',
         description: 'Lønnsomhet',
+        permissions: ['ui_accounting'],
         width: 3,
         height: 1,
         widgetType: 'kpi',
@@ -10,6 +11,7 @@ export const MISC_WIDGETS = [
     {
         id: 'kpi_liquidity',
         description: 'Likviditet',
+        permissions: ['ui_accounting'],
         width: 3,
         height: 1,
         widgetType: 'kpi',
@@ -18,6 +20,7 @@ export const MISC_WIDGETS = [
     {
         id: 'kpi_solidity',
         description: 'Soliditet',
+        permissions: ['ui_accounting'],
         width: 3,
         height: 1,
         widgetType: 'kpi',
@@ -49,6 +52,12 @@ export const MISC_WIDGETS = [
     {
         id: 'report_shortcuts',
         description: 'Rapporter',
+        permissions: [
+            'ui_accounting',
+            'ui_sales',
+            'ui_salary',
+            'ui_timetracking',
+        ],
         width: 3,
         height: 3,
         widgetType: 'reportlist',

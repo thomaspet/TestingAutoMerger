@@ -103,7 +103,7 @@ export const CHARTS = [
     {
         id: 'operatingprofit',
         description: 'Driftsresultat',
-        permissions: ['ui_accounting_accountingreports'],
+        permissions: ['ui_accounting'],
         width: 6,
         height: 4,
         widgetType: 'operatingprofit',

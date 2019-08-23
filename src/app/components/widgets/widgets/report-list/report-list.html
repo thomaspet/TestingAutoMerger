@@ -2,7 +2,7 @@
     <section class="header">
         <span>Rapportsnarveier</span>
 
-        <i *ngIf="selectedReports?.length > 0"
+        <i *ngIf="!unauthorized && selectedReports?.length > 0"
             role="button"
             (click)="openSetupModal()"
             class="material-icons">
@@ -11,14 +11,18 @@
     </section>
 
     <div class="content">
-        <section *ngIf="selectedReports?.length === 0" (click)="openSetupModal()" class="no-shortcuts">
+        <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>
+
+        <section *ngIf="!unauthorized && selectedReports?.length === 0" (click)="openSetupModal()" class="no-shortcuts">
             Sett opp snarveier
         </section>
 
         <ul id="report-list">
-            <li *ngFor="let report of selectedReports" (click)="openReport(report)">
-                {{ report.Name }}
-            </li>
+            <ng-container *ngIf="!unauthorized">
+                <li *ngFor="let report of selectedReports" (click)="openReport(report)">
+                    {{ report.Name }}
+                </li>
+            </ng-container>
         </ul>
     </div>
 </section>

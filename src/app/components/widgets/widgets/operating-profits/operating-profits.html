@@ -2,7 +2,7 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section class="filters uni-redesign">
+        <section *ngIf="!unauthorized" class="filters uni-redesign">
             <button *ngFor="let year of years"
                 class
                 [ngClass]="{'outline-c2a': year === currentYear}"
@@ -48,6 +48,7 @@
                 </section>
             </section>
 
+            <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>
             <canvas #operatingProfit></canvas>
         </div>
 

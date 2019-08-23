@@ -10,6 +10,7 @@ import {SelectReportsModal} from './select-reports-modal';
 import {UniReportParamsModal} from '@app/components/reports/modals/parameter/reportParamModal';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {AnnualSatementReportFilterModalComponent} from '@app/components/reports/modals/anualStatement/anualStatementReportFilterModal';
+import {AuthService} from '@app/authService';
 
 const LOCALSTORAGE_KEY = 'report_shortcuts_widget';
 
@@ -27,15 +28,37 @@ export class UniReportListWidget implements AfterViewInit {
 
     reportGroups: { name: string; reports: ReportDefinition[] }[];
     selectedReports: ReportDefinition[];
+    unauthorized: boolean;
 
     constructor(
+        private authService: AuthService,
         private modalService: UniModalService,
         private widgetDataService: WidgetDataService,
-        private router: Router,
         private cdr: ChangeDetectorRef
     ) {}
 
     ngAfterViewInit() {
+        let hasAccess = true;
+        if (this.widget.permissions && this.widget.permissions.length) {
+            const user = this.authService.currentUser;
+            hasAccess = this.widget.permissions.some(p => this.authService.hasUIPermission(user, p));
+        }
+
+        if (hasAccess) {
+            setTimeout(() => this.init());
+        } else {
+            this.unauthorized = true;
+            this.cdr.markForCheck();
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.scrollbar) {
+            this.scrollbar.destroy();
+        }
+    }
+
+    init() {
         this.scrollbar = new PerfectScrollbar('#report-list', {wheelPropagation: true});
         this.widgetDataService.getData('/api/biz/report-definitions?orderby=Category').subscribe(
             reports => {
@@ -90,12 +113,6 @@ export class UniReportListWidget implements AfterViewInit {
             },
             err => console.error(err)
         );
-    }
-
-    ngOnDestroy() {
-        if (this.scrollbar) {
-            this.scrollbar.destroy();
-        }
     }
 
     openReport(report: ReportDefinition) {
