@@ -1,5 +1,5 @@
 import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {Observable, of, from} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
@@ -37,7 +37,7 @@ import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
 import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 import * as _ from 'lodash';
-import {tap, switchMap, map, finalize} from 'rxjs/operators';
+import {tap, finalize} from 'rxjs/operators';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
@@ -1363,19 +1363,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 if (!obsList.length) {
                     return of([]);
                 }
-                const ret = [];
-                const retObs = obsList.pop().pipe(tap(trans => ret.push(trans)));
-                while (obsList.length) {
-                    retObs
-                        .pipe(
-                            switchMap(() => obsList.pop()),
-                            tap(trans => ret.push(trans))
-                        );
-                }
-                return retObs
+                return from(this.runTransSave(obsList))
                     .pipe(
                         tap(() => this.payrollRunService.recalulateOnEmp(this.employeeID).subscribe()),
-                        map(() => ret),
                         finalize(() => {
                             this.saveStatus.completeCount++;
                             if (hasErrors) {
@@ -1391,6 +1381,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         }),
                     );
             });
+    }
+
+    private async runTransSave(obsList: Observable<SalaryTransaction>[]) {
+        const ret: SalaryTransaction[] = [];
+        for (let i: number = 0; i < obsList.length; i++) {
+            const result = await obsList[i].toPromise();
+            ret.push(result);
+        }
+        return ret;
     }
 
     private reportRecurringPostError(post: SalaryTransaction, err: any, hasErrors: boolean) {
