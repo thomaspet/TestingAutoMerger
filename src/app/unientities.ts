@@ -393,8 +393,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Permission: Permission;
     public Role: Role;
+    public Permission: Permission;
     public CustomFields: any;
 }
 
@@ -890,10 +890,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -3895,23 +3895,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultAddress: Address;
-    public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultPhone: Phone;
+    public DefaultAddress: Address;
+    public BaseCurrencyCode: CurrencyCode;
+    public SalaryBankAccount: BankAccount;
+    public CompanyBankAccount: BankAccount;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
-    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -5824,12 +5824,14 @@ export class BankRule extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public ID: number;
+    public IsActive: boolean;
     public Name: string;
     public Priority: number;
     public Rule: string;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Account: Account;
     public CustomFields: any;
 }
 
@@ -6351,9 +6353,11 @@ export class Payment extends UniEntity {
     public CreatedBy: string;
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
+    public Debtor: string;
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
+    public Domain: string;
     public DueDate: LocalDate;
     public ExternalBankAccountNumber: string;
     public FromBankAccountID: number;
@@ -6371,6 +6375,7 @@ export class Payment extends UniEntity {
     public PaymentID: string;
     public PaymentNotificationReportFileID: number;
     public PaymentStatusReportFileID: number;
+    public Proprietary: string;
     public ReconcilePayment: boolean;
     public SerialNumberOrAcctSvcrRef: string;
     public StatusCode: number;
@@ -7038,11 +7043,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
     public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -8216,6 +8221,25 @@ export class BalanceDto extends UniEntity {
 }
 
 
+export class BankfileFormat extends UniEntity {
+    public FileExtension: string;
+    public IsFixed: boolean;
+    public LinePrefix: string;
+    public Name: string;
+    public Separator: string;
+    public SkipRows: number;
+    public Columns: Array<BankfileColumn>;
+}
+
+
+export class BankfileColumn extends UniEntity {
+    public DataType: BankfileDataType;
+    public FieldMapping: BankfileField;
+    public Length: number;
+    public StartPos: number;
+}
+
+
 export class ReportRow extends UniEntity {
     public AccountName: string;
     public AccountNumber: number;
@@ -9245,6 +9269,30 @@ export enum ReportType{
     regnearkOdsV1 = 1,
     xmlFormatV2 = 2,
     maskinlesbartFormatXmlV1 = 3,
+}
+
+
+export enum BankfileDataType{
+    Text = 1,
+    Decimal = 2,
+    Decimal_00 = 3,
+    NorDate = 4,
+    IsoDate = 5,
+    IsoDate2 = 6,
+}
+
+
+export enum BankfileField{
+    Date = 1,
+    Text = 2,
+    Amount = 3,
+    Debit = 4,
+    Credit = 5,
+    ArchiveCode = 6,
+    Presign = 7,
+    Text2 = 8,
+    SecondaryAccount = 9,
+    Category = 10,
 }
 
 
