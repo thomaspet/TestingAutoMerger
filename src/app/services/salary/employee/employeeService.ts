@@ -2,10 +2,9 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
-    Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity, InternationalIDType, Address, Country, OtpStatus, TypeOfPaymentOtp
+    Employee, EmployeeCategory, CompanySettings, SubEntity, InternationalIDType, OtpStatus, TypeOfPaymentOtp, EmployeeTaxCard, Employment, BusinessRelation
 } from '../../../unientities';
 import {Observable} from 'rxjs';
-import {MunicipalService} from '../../common/municipalsService';
 import {CompanySettingsService} from '../../common/companySettingsService';
 import {SubEntityService} from '../../common/subEntityService';
 import {ITag} from '../../../components/common/toolbar/tags';
@@ -15,6 +14,20 @@ import {ModulusService} from '@app/services/common/modulusService';
 interface IFromToFilter {
     from: number;
     to: number;
+}
+
+export interface IEmployee {
+    Name: string;
+    ID: number;
+    CategoryIDs: number[];
+    TaxCards: EmployeeTaxCard[];
+    BusinessRelationID: number;
+    DefaultBankAccountID: number;
+    SocialSecurityNumber: string;
+    Employments: Employment[];
+    SubEntity: SubEntity;
+    SubEntityID: number;
+    EmployeeNumber: number;
 }
 
 @Injectable()
@@ -84,7 +97,6 @@ export class EmployeeService extends BizHttp<Employee> {
 
     constructor(
         http: UniHttp,
-        private municipalService: MunicipalService,
         private companySettingsService: CompanySettingsService,
         private subEntityService: SubEntityService,
         private modulusService: ModulusService,
@@ -162,6 +174,13 @@ export class EmployeeService extends BizHttp<Employee> {
                     companySettings.OrganizationNumber !== '-' &&
                     !!subEntities.length;
             });
+    }
+
+    public convertToEmployee(employee: IEmployee): Employee {
+        const emp: Employee = <Employee>{};
+        Object.keys(employee).filter(key => key !== 'Name').forEach(key => emp[key] = employee[key]);
+        emp.BusinessRelationInfo = <BusinessRelation>{Name: employee.Name};
+        return emp;
     }
 
     public getEmployeeCategories(employeeID: number): Observable<EmployeeCategory[]> {

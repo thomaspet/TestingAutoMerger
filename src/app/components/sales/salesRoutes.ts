@@ -90,7 +90,8 @@ export const salesRoutes: Routes = [
     },
     {
         path: 'products/:id',
-        component: ProductDetails
+        component: ProductDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'productgroups',

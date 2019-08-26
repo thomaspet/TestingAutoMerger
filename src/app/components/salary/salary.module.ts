@@ -53,6 +53,7 @@ import {UniSalaryTransactionModal} from './variable-payrolls/editSalaryTransacti
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 import {SalaryTransViewService} from './sharedServices/salaryTransViewService';
+import {UniFindEmployeeModal} from './salarytrans/findEmployeeModal';
 
 import {
     SalaryTransSupplementsModal,
@@ -134,6 +135,7 @@ import {
     AmeldingPayrollsPeriodViewComponent
 } from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
+import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 
 @NgModule({
     imports: [
@@ -204,6 +206,7 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,
+        UniFindEmployeeModal,
         UniSalaryTransactionModal,
         UniSupplementEditModal,
 
@@ -278,6 +281,7 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         OtpFilterModalComponent,
         PeriodAdminModalComponent,
         OtpPeriodWagetypeModalComponent,
+        UniFindEmployeeModal,
         UniSupplementEditModal
     ],
     providers: [
@@ -290,7 +294,8 @@ import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype
         SalaryTransViewService,
         AltinnErrorHandlerService,
         EmpCanActivateGuard,
-        AltinnOverviewParser
+        AltinnOverviewParser,
+        SalaryHelperMethods
     ],
     exports: [
         UniSalary,

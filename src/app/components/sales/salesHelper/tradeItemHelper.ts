@@ -465,7 +465,8 @@ export class TradeItemHelper  {
             });
         }
 
-        if (sums.DecimalRoundingCurrency) {
+        if (sums.DecimalRoundingCurrency && 
+            ((this.round(sums.DecimalRoundingCurrency, 2) > 0.00) || (this.round(sums.DecimalRoundingCurrency, 2) < 0.00))) {
             summaryLines.push({
                 label: 'Øreavrunding',
                 value: this.numberFormat.asMoney(sums.DecimalRoundingCurrency)
@@ -532,4 +533,12 @@ export class TradeItemHelper  {
     public round(value, decimals) {
         return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
+
+    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number) : number {
+        if (currencyCodeID && currencyCodeID !== 1) {
+            return 2;
+        }
+        return companySettings && companySettings.RoundingNumberOfDecimals;
+    }
+
 }

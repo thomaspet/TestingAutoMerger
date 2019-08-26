@@ -152,19 +152,19 @@ export class UniFileUploadModal implements IUniModal {
                 this.http
                     .asPUT()
                     .usingBusinessDomain()
-                    .withEndPoint('/paymentbatches?action=get-statuses-from-file-ids')
+                    .withEndPoint('/paymentbatches?action=get-file-statuses-from-file-ids')
                     .withBody(this.uploadedFileIds)
                     .send()
                     .map(res => res.body)
-                    .subscribe((statueses: number[]) => {
+                    .subscribe((statuses: number[]) => {
                         this.loading$.next(false);
                         this.files = this.files.map((f, i) => {
-                            f.selected = statueses[i] === 0;
-                            f.status = statueses[i];
+                            f.selected = statuses[i] === 0 || statuses[i] === 30001;
+                            f.status = statuses[i];
                             if (!f.selected) {
                                 this.hasErrors = true;
                                 this.message = 'Noen av filene du har valgt har blitt brukt før. ' +
-                                'Disse er ikke sjekket av. Hvis du vil kjøre de på nytt, må dy krysse av checkboksen for de.';
+                                'Disse er ikke sjekket av. Hvis du vil kjøre de på nytt, må du krysse av checkboksen for de.';
                             }
                             return f;
                         });
@@ -264,7 +264,16 @@ export class UniFileUploadModal implements IUniModal {
     }
 
     public getStatusText(file) {
-        return file.status === 0 ? 'Ny' : 'Brukt';
+        switch (file.status) {
+            case 30001:
+                return 'Prossesering feilet';
+            case 20001:
+                return 'Prosserering allerede i gang';
+            case 40001:
+                return 'Allerede registrert';
+            default:
+                return 'Ny';
+        }
     }
 
     public getFileSizeFormatted(fileSize) {

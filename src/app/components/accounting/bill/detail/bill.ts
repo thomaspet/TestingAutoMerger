@@ -3066,7 +3066,7 @@ export class BillView implements OnInit {
             this.uniForm.editMode();
         }
 
-        if (this.hasLoadedCustomDimensions && false) {
+        if (this.hasLoadedCustomDimensions) {
             this.customDimensions.forEach((dim) => {
                 if (this.uniForm.field(`DefaultDimensions.Dimension${dim.Dimension}ID`)) {
                     if (dim.IsActive) {

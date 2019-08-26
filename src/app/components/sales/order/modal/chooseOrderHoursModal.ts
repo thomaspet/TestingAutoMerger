@@ -2,7 +2,16 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import { Observable } from 'rxjs';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {UniModalService} from '../../../../../framework/uni-modal';
-import { CompanySettings, LocalDate, WorkRelation, CustomerOrderItem, Product, VatType, CustomerOrder, StatusCodeCustomerOrder } from '@uni-entities';
+import {
+    CompanySettings,
+    LocalDate,
+    WorkRelation,
+    CustomerOrderItem,
+    Product,
+    VatType,
+    CustomerOrder,
+    StatusCodeCustomerOrder
+} from '@uni-entities';
 import {
     ErrorService,
     TimesheetService,
@@ -185,10 +194,7 @@ export class UniChooseOrderHoursModal implements IUniModal {
             .setCopyFromCellAbove(false)
             .setAutoAddNewRow(false)
             .setIsRowReadOnly((row: CustomWorkItem) => row._transferredToOrder)
-            .setIsRowSelectable((row: CustomWorkItem) => {
-                return !row._transferredToOrder
-                       && this.options.data.order.StatusCode !== StatusCodeCustomerOrder.TransferredToInvoice;
-            })
+            .setIsRowSelectable((row: CustomWorkItem) => !row._transferredToOrder)
             .setSearchable(true);
     }
 
@@ -389,6 +395,7 @@ export class UniChooseOrderHoursModal implements IUniModal {
                     VatPercent: item['VatPercent'] || (vatType ? vatType.VatPercent : undefined),
                     Dimensions: item.Dimensions,
                     DiscountPercent: item.DiscountPercent,
+                    StatusCode: item['StatusCode'],
                     _createguid: item._createguid
                 };
                 this.tradeItemHelper.calculatePriceIncVat(customerOrderItem, this.order['CurrencyExchangeRate']);

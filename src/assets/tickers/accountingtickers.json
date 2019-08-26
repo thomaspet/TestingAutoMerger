@@ -8,7 +8,7 @@
         "Group": "Regnskap",
         "Model": "JournalEntryLine",
         "OrderBy": "ID desc",
-        "Expand": "",
+        "Expand": "JournalEntryType",
         "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
             {
@@ -143,6 +143,11 @@
                 "Header": "Status",
                 "Field": "StatusCode",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "Bilagstype.",
+                "Field": "JournalEntryType.DisplayName",
+                "DefaultHidden": false
             },
             {
                 "Header": "Prosjektnr.",

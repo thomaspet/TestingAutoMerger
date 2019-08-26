@@ -1441,10 +1441,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setWidth('12%')
             .setOptions({
                 itemTemplate: (item) => {
-                    return (item.DisplayName);
+                    return (item.Number  + ': ' + item.DisplayName);
                 },
                 lookupFunction: (query) => {
-                    return this.statisticsService.GetAll(`model=JournalEntryType&select=DisplayName as DisplayName,ID as ID&filter=ID gt 5`)
+                    return this.statisticsService.GetAll(`model=JournalEntryType&select=Number as Number,DisplayName as DisplayName,ID as ID&orderby=Number&filter=startswith(Number, '${query}') or startswith(DisplayName,'${query}') and Number gt 0`)
                         .map(x => x.Data ? x.Data : []);
                     }
                 });
@@ -2591,7 +2591,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                 // passing in InvoiceNumber from journalentry if it has one
                 payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
-                payment.AutoJournal = true;
+                payment.AutoJournal = this.shouldAutoJournal(item);
                 this.modalService.open(AddPaymentModal, {data: { model: payment }}).onClose.subscribe((res) => {
                     if (res) {
                         if (!item.JournalEntryPaymentData) {
@@ -2641,6 +2641,20 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         return br;
+    }
+
+    private shouldAutoJournal(journalEntry: JournalEntryData): boolean {
+        let autojournal = false;
+        if ((journalEntry.DebitAccount && journalEntry.DebitAccount.UsePostPost) ||
+            (journalEntry.CreditAccount && journalEntry.CreditAccount.UsePostPost)) {
+            autojournal = true;
+        }
+        // Stops double booking when the Camt054 file is registered and generates the exact same JournalEntry
+        if (this.companySettings.BankAccounts.some(x => x.AccountID === journalEntry.CreditAccountID) &&
+            journalEntry.DebitAccount.UsePostPost) {
+            autojournal = false;
+        }
+        return autojournal;
     }
 
     public setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {

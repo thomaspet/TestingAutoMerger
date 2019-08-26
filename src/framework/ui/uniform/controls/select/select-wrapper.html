@@ -1,6 +1,7 @@
 <uni-select #uniselect
             [config]="field?.Options"
             [items]="items"
+            [searchFn]="field?.Options?.search"
             [value]="selectedItem"
             [readonly]="readOnly$ | async"
             [newButtonAction]="field?.Options?.newButtonAction"

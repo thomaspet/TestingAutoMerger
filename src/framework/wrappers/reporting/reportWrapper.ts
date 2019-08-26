@@ -112,6 +112,7 @@ export class StimulsoftReportWrapper {
         let runPromise = false;
         const options = new Stimulsoft.Viewer.StiViewerOptions();
         options.toolbar.visible = true;
+        options.toolbar.viewMode = Stimulsoft.Viewer.StiWebViewMode.Continuous;
         if (!this.viewer) {
             this.viewer = new Stimulsoft.Viewer.StiViewer(options, 'StiViewer', false);
         }
