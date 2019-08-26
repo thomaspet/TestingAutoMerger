@@ -74,7 +74,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     public standardEmployeeListfilters: IEmpListFilter[] = [
         { name: 'Ansattnummer', value: 'EmployeeNumber', multiplier: 1, initialMulitplier: 1, index: 0 },
         { name: 'Navn', value: 'Name', multiplier: 1, initialMulitplier: 1, index: 1 },
-        { name: 'Har feil', value: '_errors', multiplier: 1, initialMulitplier: 1, index: 2 }
+        { name: 'Har feil', value: '_errors', multiplier: -1, initialMulitplier: 1, index: 2 }
     ];
     public employeeListfilters: IEmpListFilter[] = [...this.standardEmployeeListfilters.map(x => ({...x}))];
     public currentListFilter: IEmpListFilter; // = this.employeeListfilters[0];
@@ -247,14 +247,21 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
 
     private compare(propName, rev) {
         return (a: IEmployee, b: IEmployee) => {
-            let propA = a[propName] || this.taxCards[a.ID];
-            let propB = b[propName] || this.taxCards[b.ID];
+            let propA = this.getPropValue(propName, a);
+            let propB = this.getPropValue(propName, b);
             if (typeof propA === 'string') {
-                propA = propA.toLowerCase();
-                propB = propB.toLowerCase();
+                propA = propA && propA.toLowerCase();
+                propB = propB && propB.toLowerCase();
             }
             return propA === propB ? 0 : propA < propB ? (-1 * rev) : (1 * rev);
         };
+    }
+
+    private getPropValue(name: string, emp: IEmployee) {
+        if (name === '_errors') {
+            return this.errors[emp.ID] ? 1 : 0;
+        }
+        return emp[name];
     }
 
     private fillInSubEntities(emps: IEmployee[]) {

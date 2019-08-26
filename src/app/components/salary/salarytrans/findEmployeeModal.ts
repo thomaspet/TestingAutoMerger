@@ -29,7 +29,7 @@ import {map} from 'rxjs/operators';
                 <ul>
                     <li *ngFor="let employee of newEmployees">
                         <span> {{ employee.EmployeeNumber }}. {{ employee.Name }} </span>
-                        <i class="material-icons"> clear </i>
+                        <i class="material-icons" (click)="remove(employee.ID)"> clear </i>
                     </li>
                 </ul>
             </div>
@@ -164,6 +164,10 @@ export class UniFindEmployeeModal implements IUniModal {
         };
 
         this.onClose.emit(obj);
+    }
+
+    public remove(id: number) {
+        this.newEmployees = this.newEmployees.filter(x => x.ID !== id);
     }
 
     public close() {
