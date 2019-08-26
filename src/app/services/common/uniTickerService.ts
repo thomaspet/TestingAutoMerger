@@ -1219,6 +1219,7 @@ export class TickerColumn {
     public Resizeable?: boolean;
     public DefaultHidden?: boolean;
     public ShowOnlyOnThisFilter?: number;
+    public DefaultHiddenOnGivenFilters?: string[];
     public CssClass?: string;
     public Type?: string;
     public SumFunction?: string;
@@ -1258,6 +1259,7 @@ export class TickerFilter {
     public Filter: string;
     public OrderBy?: string;
     public IsActive: boolean;
+    public tooltip?: string;
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
     public CurrentCount?: number;

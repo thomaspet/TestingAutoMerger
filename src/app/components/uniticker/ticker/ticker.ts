@@ -1211,7 +1211,8 @@ export class UniTicker {
                     col.setAlignment(column.Alignment);
                 }
 
-                if (column.DefaultHidden) {
+                if (column.DefaultHidden || (column.DefaultHiddenOnGivenFilters
+                    && column.DefaultHiddenOnGivenFilters.includes(this.selectedFilter.Code))) {
                     col.setVisible(false);
                 }
 

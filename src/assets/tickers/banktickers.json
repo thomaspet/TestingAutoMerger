@@ -243,6 +243,12 @@
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode,CurrencyCode",
         "Columns": [
             {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "FilterOperator": "contains",
+                "DefaultHiddenOnGivenFilters": ["not_payed", "payment_list", "payed_and_journaled"]
+            },
+            {
                 "Header": "Betales til",
                 "Field": "BusinessRelation.Name",
                 "LinkNavigationProperty": "InvoiceNumber",
@@ -330,11 +336,6 @@
                 "Field": "StatusText",
                 "FilterOperator": "contains",
                 "ShowOnlyOnThisFilter": 4
-            },
-            {
-                "Header": "Status",
-                "Field": "StatusCode",
-                "FilterOperator": "contains"
             },
             {
                 "Header": "Bilagnr.",
@@ -473,7 +474,7 @@
         ],
         "Filters": [
             {
-                "Name": "Ubetalt",
+                "Name": "Betalingsliste",
                 "Code": "not_payed",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
@@ -504,7 +505,7 @@
                 }]
             },
             {
-                "Name": "Overført bank",
+                "Name": "Under behandling",
                 "Code": "transferred_bank",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
@@ -575,10 +576,11 @@
                 }]
             },
             {
-                "Name": "Betalt ingen match",
+                "Name": "Krever behandling",
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
+                "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken med vi har ikke funnet en matchende post i Uni Economy. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -591,36 +593,6 @@
                             "Field": "StatusCode",
                             "Operator": "eq",
                             "Value": "44018"
-                        },
-                        {
-                            "Field": "isPaymentClaim",
-                            "Operator": "eq",
-                            "Value": "false"
-                        },
-                        {
-                            "Field": "isPaymentCancellationRequest",
-                            "Operator": "eq",
-                            "Value": "false"
-                        }
-                    ]
-                }]
-            },
-            {
-                "Name": "Betalt og fullført",
-                "Code": "payed_and_journaled",
-                "UseAllCriterias": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "IsCustomerPayment",
-                            "Operator": "eq",
-                            "Value": "false"
-                        },
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "eq",
-                            "Value": "44004"
                         },
                         {
                             "Field": "isPaymentClaim",
@@ -697,6 +669,36 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalt og fullført",
+                "Code": "payed_and_journaled",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44004"
                         },
                         {
                             "Field": "isPaymentClaim",
