@@ -94,6 +94,7 @@ export class AgGridWrapper {
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
 
     private isInitialLoad: boolean = true;
+    public suppressRowClick: boolean = false;
 
     // Used for custom cell renderers
     public context: any;
@@ -432,6 +433,15 @@ export class AgGridWrapper {
                 }
             }
         }
+    }
+
+    public setRowDragSuppressed(suppress: boolean) {
+        this.agGridApi.setSuppressRowDrag(suppress);
+    }
+
+    public setRowClickSuppressed(suppress: boolean) {
+        this.suppressRowClick = suppress;
+        this.cdr.markForCheck();
     }
 
     public paginate(action: 'next' | 'prev' | 'first' | 'last') {

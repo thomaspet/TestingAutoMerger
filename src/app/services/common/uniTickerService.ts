@@ -1213,6 +1213,7 @@ export interface IExpressionFilterValue {
 export class TickerColumn {
     public Header?: string;
     public Field: string;
+    public IsBankRuleField?: boolean;
     public SelectableFieldName?: string;
     public Format?: string;
     public Width?: string;

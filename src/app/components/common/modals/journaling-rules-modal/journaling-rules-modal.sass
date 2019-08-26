@@ -1,0 +1,72 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+.filters
+    flex: 4
+    overflow: visible
+    min-height: 6rem
+    padding: 1.5rem
+    margin-left: 2rem
+    border: 1px solid $uni-color-scale8
+    border-radius: 3px
+    font-size: 15px
+    position: relative
+
+    .filter
+        display: flex
+        margin-bottom: 10px
+
+        select
+            flex: 0 0 10rem
+            height: 2.25rem
+            border: 1px solid #C3CAD9
+            padding: 0 4px
+
+            &.operator-select
+                flex: 0 0 8rem
+                margin: 0 1rem
+
+            &.value-select
+                flex: 1
+
+        input, .date-input
+            flex: 1
+            height: 2.25rem
+
+        button.remove-filter
+            margin-left: 10px
+            i.material-icons
+                font-size: 21px
+
+    button.add-button
+        margin-top: .5rem
+        border: 1px solid #C3CAD9
+        i.material-icons
+            margin: 0 0 2px -5px
+
+    small
+        display: block
+        margin-top: 1rem
+
+.rule-grid-container
+    flex: 1 80px
+    display: flex
+    flex-direction: column
+
+    .new-rule-button
+        margin: 1rem auto
+        border-radius: 18px
+        width: 7rem
+
+.bankrules-account-search-contains
+    margin-top: 1rem
+    width: 50%
+
+::ng-deep .mat-radio-label-content
+    font-size: 15px !important
+
+
+.align-right
+    margin-left: auto !important
+
+footer input
+    font-size: 15px

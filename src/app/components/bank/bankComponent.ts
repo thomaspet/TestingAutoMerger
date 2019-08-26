@@ -46,6 +46,7 @@ import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/to
 import * as moment from 'moment';
 import { RequestMethod } from '@uni-framework/core/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
+import { JournalingRulesModal } from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
 
 @Component({
@@ -66,14 +67,6 @@ import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCus
                 </li>
             </ul>
 
-            <section class="autobank-section" *ngIf="hasAccessToAutobank">
-                <a (click)="openAgreementsModal()" *ngIf="agreements?.length > 0">Mine avtaler</a>
-                <button class="new-autobank-agreement-button"
-                    (click)="openAutobankAgreementModal()">
-                    Ny autobankavtale
-                </button>
-            </section>
-
             <section class="overview-ticker-section">
                 <uni-ticker-container
                     [ticker]="selectedTicker"
@@ -90,7 +83,6 @@ export class BankComponent {
 
     @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
 
-    private tickers: Ticker[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[] = [];
@@ -178,6 +170,11 @@ export class BankComponent {
         {
             Code: 'select_main_account',
             ExecuteActionHandler: (selectedRows) => this.setMainAccountForPayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
+            Code: 'bank_rule_nomatch',
+            ExecuteActionHandler: (selectedRows) => this.openJournalingRulesModalWithRule(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         },
         {
@@ -277,7 +274,6 @@ export class BankComponent {
             }
 
             this.uniTickerService.getTickers().then(tickers => {
-                this.tickers = tickers;
                 this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers)
                     .filter((group) => {
                         return group.Name === 'Bank';
@@ -299,6 +295,7 @@ export class BankComponent {
                         this.selectedTicker = ticker;
                         this.updateSaveActions(tickerCode);
                         this.toolbarconfig.title = this.selectedTicker.Name;
+                        this.toolbarconfig.contextmenu = this.getContextMenu();
                         this.cdr.markForCheck();
                     }
                     this.filter = params['filter'];
@@ -320,6 +317,36 @@ export class BankComponent {
             moduleID: UniModules.Bank,
             active: true
         });
+    }
+
+    public getContextMenu() {
+        const items = [ ];
+
+        if (this.selectedTicker.Code === 'bank_list') {
+            items.push({
+                label: 'Bokføringsregler bank',
+                action: () => this.openJournalingRulesModal(),
+                disabled: () => false
+            });
+        }
+
+        if (this.hasAccessToAutobank && (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
+            items.push({
+                label: 'Ny autobankavtale',
+                action: () => this.openAutobankAgreementModal(),
+                disabled: () => false
+            });
+
+            if (this.agreements.length) {
+                items.push({
+                    label: 'Mine autobankavtaler',
+                    action: () => this.openAgreementsModal(),
+                    disabled: () => false
+                });
+            }
+        }
+
+        return items;
     }
 
     public navigateToTicker(ticker: Ticker) {
@@ -519,6 +546,39 @@ export class BankComponent {
                 reject('Fil ikke tilgjengelig');
             }
         });
+    }
+
+    public openJournalingRulesModalWithRule(row) {
+        const rule = {
+            ActionCode: 1,
+            Name: 'Ny regel for innbetaling, ingen match',
+            Priority: 0,
+            Rule: '',
+            StatusCode: 30001,
+            IsActive: true
+        };
+        rule.Rule = `FromBankAccount.AccountNumber eq ${row[0].FromBankAccountAccountNumber || row[0].PaymentExternalBankAccountNumber} ` +
+        `and BusinessRelation.Name eq ${row[0].BusinessRelationName || ' '} and Description eq ${row[0].PaymentDescription || ' '} and ` +
+        `PaymentID eq ${row[0].PaymentPaymentID}`;
+
+        return new Promise(() => {
+            const opt = {
+                data: {
+                    headers: this.selectedTicker.Columns.filter(col => col.IsBankRuleField),
+                    rule: rule
+                }
+            };
+            this.modalService.open(JournalingRulesModal, opt);
+        });
+    }
+
+    public openJournalingRulesModal() {
+        const opt = {
+            data: {
+                headers: this.selectedTicker.Columns.filter(col => col.IsBankRuleField)
+            }
+        };
+        this.modalService.open(JournalingRulesModal, opt);
     }
 
     public openFailedFilesModal() {

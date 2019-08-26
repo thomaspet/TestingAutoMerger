@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Bank} from '../../unientities';
+import {Bank, BankRule} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BankData} from '@app/models';
@@ -135,5 +135,33 @@ export class BankService extends BizHttp<Bank> {
         + `payment.StatusCode ne 44010 and payment.StatusCode ne 44012 and `
         + `payment.StatusCode ne 44014 and payment.StatusCode ne 44018`
         + `&join=Tracelink.DestinationInstanceID eq Payment.ID`);
+    }
+
+    public getAllRules() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('bankrules?orderby=Priority&expand=Account')
+            .send()
+            .map(response => response.body);
+    }
+
+    public saveRule(rule: BankRule) {
+        const request = rule.ID ? this.http.asPUT() : this.http.asPOST();
+        const endpoint = `bankrules/${rule.ID ? rule.ID : ''}`;
+        return request.usingBusinessDomain()
+            .withEndPoint(endpoint)
+            .withBody(rule)
+            .send()
+            .map(response => response.body);
+
+    }
+
+    public deleteRule(ID: number) {
+        return this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('bankrules/' + ID)
+            .send()
+            .map(response => response.body);
     }
 }

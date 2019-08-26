@@ -54,11 +54,15 @@ import {
     InvoiceHours
 } from './timetrackingCommon';
 
+import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-rules-modal';
+
 import {
     MatProgressBarModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatRadioModule
 } from '@angular/material';
 
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
@@ -79,7 +83,9 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         MatProgressBarModule,
         MatMenuModule,
         MatCheckboxModule,
-        MatSelectModule
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatRadioModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -138,6 +144,7 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
 
         DeleteCompanyModal,
         UniNewCompanyModal,
+        JournalingRulesModal,
         ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
@@ -160,6 +167,7 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         UniNewCompanyModal,
         DeleteCompanyModal,
         ImportCentralTemplateModal,
+        JournalingRulesModal
     ],
     exports: [
         PredefinedDescriptionList,

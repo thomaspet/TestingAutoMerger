@@ -77,7 +77,7 @@
         (sortChanged)="onSortChange($event)"
 
         [rowSelection]="selectionMode"
-        [suppressRowClickSelection]="selectionMode === 'multiple'"
+        [suppressRowClickSelection]="selectionMode === 'multiple' || suppressRowClick"
         [isRowSelectable]="isRowSelectable"
         (selectionChanged)="onSelectionChange($event)"
         (rowSelected)="onRowSelected($event)"
