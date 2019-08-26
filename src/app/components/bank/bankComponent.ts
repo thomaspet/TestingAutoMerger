@@ -186,6 +186,11 @@ export class BankComponent {
             Code: 'cancel_payment_claims',
             ExecuteActionHandler: (selectedRows) => this.cancelPaymentClaims(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.Type === 'Sletteanmodning'
+        },
+        {
+            Code: 'set_to_paid',
+            ExecuteActionHandler: (selectedRows) => this.updatePaymentStatusToPaid(null, selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         }
     ];
 
@@ -818,43 +823,49 @@ export class BankComponent {
         });
     }
 
-    public updatePaymentStatusToPaid(doneHandler: (status: string) => any) {
-        this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
-        if (this.rows.length === 0) {
-            this.toastService.addToast(
-                'Ingen rader er valgt',
-                ToastType.bad,
-                10,
-                'Vennligst velg hvilke linjer du vil endre, eller kryss av for alle'
-            );
+    public updatePaymentStatusToPaid(doneHandler: (status: string) => any, data: any = null) {
+        return new Promise(() => {
+            const rows = data || this.tickerContainer.mainTicker.table.getSelectedRows();
+            if (rows.length === 0) {
+                this.toastService.addToast(
+                    'Ingen rader er valgt',
+                    ToastType.bad,
+                    10,
+                    'Vennligst velg hvilke linjer du vil endre, eller kryss av for alle'
+                );
 
-            doneHandler('Lagring og utbetaling avbrutt');
-            return;
-        }
-
-        const modal = this.modalService.open(UniConfirmModalV2, {
-            header: 'Oppdater betalingsstatus',
-            message: `Viktig, du må kun gjøre dette hvis du har manuelt bokført betalinger og hvis betalinger er fullført.`,
-            buttonLabels: {
-                accept: 'Oppdater',
-                reject: 'Avbryt'
-            }
-        });
-
-        modal.onClose.subscribe((result) => {
-            if (result === ConfirmActions.ACCEPT) {
-                const paymentIDs: number[] = [];
-                this.rows.forEach(x => {
-                    paymentIDs.push(x.ID);
-                });
-                this.paymentBatchService.updatePaymentsToPaid(paymentIDs).subscribe(paymentResponse => {
-                    this.tickerContainer.mainTicker.reloadData(); // refresh table
-                    this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
-                });
-            } else {
-                doneHandler('Status oppdatering avbrutt');
+                if (doneHandler) {
+                    doneHandler('Lagring og utbetaling avbrutt');
+                }
                 return;
             }
+
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Oppdater betalingsstatus',
+                message: `Viktig, du må kun gjøre dette hvis du har manuelt bokført betalinger og hvis betalinger er fullført.`,
+                buttonLabels: {
+                    accept: 'Oppdater',
+                    reject: 'Avbryt'
+                }
+            });
+
+            modal.onClose.subscribe((result) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    const paymentIDs: number[] = [];
+                    rows.forEach(x => {
+                        paymentIDs.push(x.ID);
+                    });
+                    this.paymentBatchService.updatePaymentsToPaid(paymentIDs).subscribe(paymentResponse => {
+                        this.tickerContainer.mainTicker.reloadData(); // refresh table
+                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
+                    });
+                } else {
+                    if (doneHandler) {
+                        doneHandler('Status oppdatering avbrutt');
+                    }
+                    return;
+                }
+            });
         });
     }
 
