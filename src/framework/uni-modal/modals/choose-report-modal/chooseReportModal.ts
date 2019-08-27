@@ -34,6 +34,7 @@ export class UniChooseReportModal implements IUniModal {
     inputFromLabel: string;
     inputToLabel: string;
     inputType: {name: string, secondInputType: string, secondName: string} = {name: 'nr', secondInputType: null, secondName: null};
+    defaultParameters: CustomReportParameter[] = [];
 
     constructor(
         private reportTypeService: ReportTypeService,
@@ -80,7 +81,6 @@ export class UniChooseReportModal implements IUniModal {
             return;
         }
 
-        this.setReportParameters();
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + this.selectedReport.ID).subscribe(
             res => {
                 const name = res[0].Name.includes('Number') ? 'nr' : res[0].Name.toLowerCase();
@@ -103,6 +103,20 @@ export class UniChooseReportModal implements IUniModal {
                     this.inputType.secondName = res[1].Name;
                     this.inputType.secondInputType = res[1].Type;
                 }
+
+                this.setReportParameters();
+
+                // Create default parameters
+                var keys = this.selectedReport.parameters.map(param => param.Name);
+                for (var i = 0; i < res.length; i++) {
+                    if (!keys.includes(res[i].Name))  {
+                        this.defaultParameters.push(<CustomReportParameter> {
+                            Name: res[i].Name,
+                            value: res[i].DefaultValue
+                        });
+                    }
+                }
+                this.selectedReport.parameters.concat(this.defaultParameters);
             },
             err => this.errorService.handle(err)
         );
@@ -116,12 +130,12 @@ export class UniChooseReportModal implements IUniModal {
             }, <CustomReportParameter> {
                 Name: this.inputType.secondName,
                 value: this.toNr
-            }];
+            }].concat(this.defaultParameters);
         }
         return this.selectedReport.parameters = [ <CustomReportParameter> {
             Name: this.inputType.name,
             value: this.fromNr
-        }];
+        }].concat(this.defaultParameters)
     }
 
     acceptAndSendEmail() {
