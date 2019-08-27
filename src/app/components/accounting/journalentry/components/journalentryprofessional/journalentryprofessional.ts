@@ -9,7 +9,7 @@ import {
     EventEmitter,
     ChangeDetectorRef
 } from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin, from} from 'rxjs';
 import {
     UniTable,
     UniTableColumn,
@@ -38,7 +38,7 @@ import {
     InvoicePaymentData,
     NumberSeries
 } from '../../../../../unientities';
-import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData} from '@app/models';
+import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData, AccountingCostSuggestion} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
@@ -83,6 +83,8 @@ import {JournalEntryMode} from '../../../../../services/accounting/journalEntryS
 import {RequestMethod} from '@uni-framework/core/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
+import { pipe } from '@angular/core/src/render3';
+import { concatAll } from 'rxjs-compat/operator/concatAll';
 
 @Component({
     selector: 'journal-entry-professional',
@@ -3028,6 +3030,84 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.showAgioDialog(data)
                 .then(journalEntryData => this.addJournalEntryLines([journalEntryData]));
         }
+    }
+
+    private mapAccountingCostSuggestionLine(line: AccountingCostSuggestion) {
+        return this.journalEntryService.getAccountsFromSuggeestions(line.konto).switchMap((accounts) => {
+            if (accounts.length) {
+                return forkJoin(
+                    this.statisticsService.GetAllUnwrapped(`model=Project&select=ID as ID,Name as Name,ProjectNumber as ProjectNumber&filter=startswith(Name\,'${line.prosj}') or startswith(ProjectNumber\,'${line.prosj}')&top=1`),
+                    this.statisticsService.GetAllUnwrapped(`model=Department&select=ID as ID,Name as Name,DepartmentNumber as DepartmentNumber&filter=startswith(Name\,'${line.avd}') or startswith(DepartmentNumber\,'${line.avd}')&top=1`),
+                    this.statisticsService.GetAllUnwrapped(`model=VatType&select=ID as ID&filter=startswith(Name\,'${line.mvakode}') or startswith(VatCode\,'${line.mvakode}')&top=1`)
+                ).map(res => {
+                    const project = line.prosj.length && res[0][0] ? res[0][0] : null;
+                    const department = line.avd.length && res[1][0] ? res[1][0] : null;
+                    const vattype = line.mvakode.length && res[2][0] ? res[2][0] : null;
+                    
+                    let match = accounts.find(acc => acc.AccountNumber === line.konto);
+                    match = match ? match : accounts[0];
+
+                    // Create the new line
+                    let newLine;
+                    newLine = {
+                        Dimensions: {},
+                        DebitAccount: match,
+                        DebitAccountID: match.ID,
+                        Description: line.Description,
+                        Amount: line.Amount,
+                        NetAmountCurrency: line.AmountCurrency,
+                        FinancialDate: line.FinancialDate
+                    };
+
+                    // Add project/department/vattype
+                    if (project) {
+                        newLine.Dimensions.Project = project;
+                        newLine.Dimensions.ProjectID = project.ID;
+                    }
+
+                    if (department) {
+                        newLine.Dimensions.Department = department;
+                        newLine.Dimensions.DepartmentID = department.ID;
+                    }
+
+                    if (vattype) {
+                        newLine.DebitVatType = this.vattypes.find(x => x.ID === vattype.ID);
+                        newLine.DebitVatTypeID = vattype.ID;
+                    } else {
+                        newLine.DebitVatType = this.vattypes.find(x => x.ID === match.VatTypeID);
+                        newLine.DebitVatTypeID = match.VatTypeID;
+                    }
+
+                    const calc = this.journalEntryService.calculateJournalEntryData(
+                        newLine.DebitAccount,
+                        newLine.DebitVatType,
+                        null,
+                        newLine.NetAmountCurrency,
+                        newLine
+                    );
+                    newLine.AmountCurrency = UniMath.round(calc.amountGrossCurrency, 2);
+
+                    return newLine;
+                }).take(1);
+            }
+        });
+    }
+
+    public addCostAllocationJournalEntryDataLines(suggestionlines: AccountingCostSuggestion[]) {
+        const returnValue: any = {
+            type: ToastType.good
+        };
+
+        return new Promise((resolve,reject) => {
+            from(suggestionlines)
+            .map(line => this.mapAccountingCostSuggestionLine(line))
+            .combineAll()
+            .subscribe((journalentrylines) => {
+                this.addJournalEntryLines(journalentrylines);
+                returnValue.msg = 'Konteringsforslag lagt til basert på EHF linjene sin konteringsstreng.';
+                resolve(returnValue);
+            });    
+        });
     }
 
     private toggleImageVisibility(journalEntry: JournalEntryData) {
