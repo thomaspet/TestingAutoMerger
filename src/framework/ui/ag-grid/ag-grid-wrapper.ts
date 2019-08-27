@@ -647,7 +647,7 @@ export class AgGridWrapper {
     private sumTotalInGroup(values) {
         const nums = values.map(value => {
             value = value.toString().replace('\u2009', '').replace(' ', '');
-            return isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10);
+            return isNaN(parseFloat(value)) ? 0 : parseFloat(value);
         });
 
         const options = {
