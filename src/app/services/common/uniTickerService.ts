@@ -1233,6 +1233,7 @@ export class TickerColumn {
     public Placeholder?: string;
     public FieldSetColumn?: number;
     public SumColumn?: boolean;
+    public MarkedRowsSumCol?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public DisplayField?: string;
     public Expand?: string;

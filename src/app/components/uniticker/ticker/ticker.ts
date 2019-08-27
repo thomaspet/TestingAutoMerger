@@ -1022,6 +1022,7 @@ export class UniTicker {
                 col.alias = column.Alias;
                 col.width = column.Width;
                 col.isSumColumn = column.SumColumn;
+                col.markedRowsSumCol = column.MarkedRowsSumCol;
                 col.sumFunction = column.SumFunction;
                 col.enableRowGroup = this.groupingIsOn;
 

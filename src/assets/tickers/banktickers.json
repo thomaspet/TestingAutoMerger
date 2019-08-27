@@ -337,7 +337,8 @@
                 "FilterOperator": "contains",
                 "Alias": "Amount",
                 "DisplayField": "Amount",
-                "SumColumn": true
+                "SumColumn": true,
+                "MarkedRowsSumCol": true
             },
             {
                 "Header": "Betalingsdato",

@@ -86,6 +86,7 @@ export interface IUniTableColumn {
     jumpToColumn?: string;
     onCellClick?: (rowModel) => void;
     isSumColumn?: boolean;
+    markedRowsSumCol?: boolean;
     tooltipResolver?: (rowModel) => IColumnTooltip;
     hasLink?: (rowModel) => boolean;
     linkResolver?: (rowModel) => string;
@@ -123,6 +124,7 @@ export class UniTableColumn implements IUniTableColumn {
     public width: number|string;
     public sortMode: UniTableColumnSortMode;
     public isSumColumn: boolean;
+    public markedRowsSumCol: boolean;
     public aggFunc: (items: any[]) => number;
 
     public filterable: boolean;

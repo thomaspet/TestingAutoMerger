@@ -72,6 +72,7 @@ export class AgGridWrapper {
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
     public markedRowCount: number = 0;
+    public sumMarkedRows: any = 0;
     private configStoreKey: string;
     private agGridApi: GridApi;
     public rowModelType: 'clientSide' | 'infinite';
@@ -95,6 +96,7 @@ export class AgGridWrapper {
 
     private isInitialLoad: boolean = true;
     public suppressRowClick: boolean = false;
+    public sumColName: string = '';
 
     // Used for custom cell renderers
     public context: any;
@@ -120,6 +122,7 @@ export class AgGridWrapper {
                 this.agGridApi.refreshHeader();
                 const rows = event.api.getSelectedRows();
                 this.markedRowCount = rows ? rows.length : 0;
+                this.sumMarkedRows = (rows && this.sumColName) ? this.sumTotalInGroup(rows.map(row => row[this.sumColName])) : 0;
                 this.rowSelectionChange.emit(rows);
             });
 
@@ -147,6 +150,11 @@ export class AgGridWrapper {
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {
+            const sumCols = this.config.columns.filter(col => col.markedRowsSumCol);
+
+            if (sumCols && sumCols.length) {
+                this.sumColName = sumCols[0].alias || sumCols[0].field;
+            }
             this.columns = this.tableUtils.getTableColumns(this.config);
             this.agColDefs = this.getAgColDefs(this.columns);
 
