@@ -42,7 +42,6 @@ export class InvoicedWidget implements AfterViewInit {
     MONTHS = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
     currentLabels: string[] = [];
     currentLabelsFull: string[] = [];
-    totalInvoiced = [];
     periodes: IPeriode[] = [
         {
             label: 'Siste 12 mnd',
@@ -92,27 +91,36 @@ export class InvoicedWidget implements AfterViewInit {
 
     private getDataAndLoadChart() {
         Observable.forkJoin(
-            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&select=${this.generateSelect(false)}`),
-            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&select=${this.generateSelect(true)}`)
-        ).subscribe(([result, paid]) => {
+            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&filter=InvoiceType eq 0&select=${this.generateSelect('TaxInclusiveAmount')}`),
+            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&filter=InvoiceType eq 0&select=${this.generateSelect('RestAmount')}`)
+        ).subscribe(([invoiced, rest]) => {
             this.chartConfig = this.getEmptyResultChart();
-            const invoiceData = [];
-            const paidInvoiceData = [];
-            this.totalInvoiced = [];
 
-            for (const key in result[0]) {
+            const invoicedDataset = [];
+            const paidDataset = [];
+
+            let totalInvoiced = 0;
+            let totalPaid = 0;
+
+            for (const key in invoiced[0]) {
                 if (key) {
-                    this.totalInvoiced.push(result[0][key]);
-                    paidInvoiceData.push(paid[0][key]);
-                    invoiceData.push(result[0][key] - paid[0][key] > 0 ? result[0][key] - paid[0][key] : 0);
+                    const invoicedAmount = invoiced[0][key] || 0;
+                    const restAmount = rest[0][key] || 0;
+                    const paidAmount = invoicedAmount - restAmount;
+
+                    totalInvoiced += invoicedAmount;
+                    totalPaid += paidAmount;
+
+                    invoicedDataset.push(invoicedAmount);
+                    paidDataset.push(paidAmount);
                 }
             }
 
-            this.chartConfig.data.datasets[0].data = paidInvoiceData.map(m => m);
-            this.chartConfig.data.datasets[1].data = invoiceData.map(m => m);
+            this.chartConfig.data.datasets[0].data = paidDataset;
+            this.chartConfig.data.datasets[1].data = invoicedDataset;
 
-            this.totalInvoiceInPeriod = this.numberFormatService.asMoney(this.totalInvoiced.reduce((a, b) => a + b));
-            this.totalPaidInPeriod = this.numberFormatService.asMoney(paidInvoiceData.reduce((a, b) => a + b));
+            this.totalInvoiceInPeriod = this.numberFormatService.asMoney(totalInvoiced);
+            this.totalPaidInPeriod = this.numberFormatService.asMoney(totalPaid);
 
             this.drawChart();
         });
@@ -125,7 +133,7 @@ export class InvoicedWidget implements AfterViewInit {
         }
     }
 
-    public generateSelect(includeStatusCode: boolean = false) {
+    public generateSelect(sumField) {
         this.currentLabels = [];
         this.currentLabelsFull = [];
 
@@ -157,10 +165,9 @@ export class InvoicedWidget implements AfterViewInit {
             dateStringTo = moment().subtract(momentNumber - i, this.currentPeriod.timeSpan)
                 .endOf(this.currentPeriod.timeSpan).format('YYYYMMDD');
 
-            dateStringTo += includeStatusCode ? `' and StatusCode eq '42004' and add(TaxInclusiveAmount, CreditedAmount) ne '0'`
-                : `' and StatusCode ne '42001'`;
-            selectString += `sum(casewhen(InvoiceDate ge '${dateString}' and ` +
-                `InvoiceDate le '${dateStringTo}\,TaxInclusiveAmount\,0) ) as sum` + i + (i !== momentNumber ? ',' : '');
+            selectString += `sum(casewhen(InvoiceDate ge '${dateString}' `
+                + `and InvoiceDate le '${dateStringTo}' and StatusCode ne '42001' and add(TaxInclusiveAmount, CreditedAmount) ne '0'`
+                + `\,${sumField}\,0) ) as sum` + i + (i !== momentNumber ? ',' : '');
         }
         return selectString;
     }
@@ -186,20 +193,18 @@ export class InvoicedWidget implements AfterViewInit {
             data: {
                 labels: this.currentLabels,
                 datasets: [
-                {
-                    label: 'Innbetalt',
-                    data: [],
-                    backgroundColor: '#62B2FF',
-                    stack: 1
-                },
-                {
-                    label: 'Fakturert',
-                    data: [],
-                    backgroundColor: '#4898F3',
-                    hoverBackgroundColor: '#4898F3',
-                    stack: 1
-                }
-            ]
+                    {
+                        label: 'Innbetalt',
+                        data: [],
+                        backgroundColor: '#62B2FF',
+                    },
+                    {
+                        label: 'Fakturert',
+                        data: [],
+                        backgroundColor: '#4898F3',
+                        hoverBackgroundColor: '#4898F3',
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -207,10 +212,8 @@ export class InvoicedWidget implements AfterViewInit {
                 legend: { display: false },
                 scales: {
                     yAxes: [{
-                        // gridLines: { display: false },
                         ticks: {
                             maxTicksLimit: 8,
-                            // callback: this.localAsMoney.bind(this)
                             callback: function(value) {
                                 if (value === 0 || (value < 999 && value > -999)) {
                                     return value;
@@ -225,6 +228,7 @@ export class InvoicedWidget implements AfterViewInit {
                         }
                     }],
                     xAxes: [{
+                        stacked: true,
                         gridLines: { display: false },
                     }]
                 },
@@ -238,13 +242,13 @@ export class InvoicedWidget implements AfterViewInit {
                             const index = data[0].index;
 
                             const paid = data[0].yLabel || 0;
-                            const unpaid = data[1].yLabel || 0;
+                            const invoiced = data[1].yLabel || 0;
 
                             this.tooltip = {
                                 label: this.currentLabelsFull[index],
-                                invoiced: paid + unpaid,
+                                invoiced: invoiced,
                                 paid: paid,
-                                unpaid: unpaid,
+                                unpaid: invoiced - paid,
                                 style: {
                                     top: tooltip.y + 'px',
                                     left: tooltip.x + 'px',
