@@ -582,11 +582,6 @@
                         {
                             "Field": "StatusCode",
                             "Operator": "ne",
-                            "Value": "44013"
-                        },
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "ne",
                             "Value": "44014"
                         },
                         {
@@ -696,6 +691,11 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44011"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44013"
                         },
                         {
                             "Field": "StatusCode",
