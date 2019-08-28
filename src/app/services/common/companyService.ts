@@ -104,7 +104,6 @@ export class CompanyService extends BizHttp<Company> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(`companies?action=undelete-company&key=${companyKey}`)
-            .withHeader('CompanyKey', companyKey)
             .send({}, null, false)
             .do(() => super.invalidateCache());
     }
