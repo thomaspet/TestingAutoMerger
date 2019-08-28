@@ -59,6 +59,7 @@ export class UniBankAccountModal implements IUniModal {
     public hasChanges: boolean = false;
     private saveBankAccountInModal: boolean = false;
     public bankAccounts: Array<BankAccount> = [];
+    public accountInfo: any;
 
     constructor(
         private bankService: BankService,
@@ -71,21 +72,22 @@ export class UniBankAccountModal implements IUniModal {
     ) {}
 
     public ngOnInit() {
-        const accountInfo = this.options.data.bankAccount || this.options.data || {};
+        this.accountInfo = this.options.data.bankAccount || this.options.data || {};
         this.bankAccounts = this.options.data.bankAccounts || [];
+
         const fields = this.getFormFields();
-        if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
-            accountInfo[fields[0].Property] = accountInfo._initValue;
+        if (this.accountInfo._initValue && fields[0] && !this.accountInfo[fields[0].Property]) {
+            this.accountInfo[fields[0].Property] = this.accountInfo._initValue;
         }
-        if (accountInfo._saveBankAccountInModal) {
+        if (this.accountInfo._saveBankAccountInModal) {
             this.saveBankAccountInModal = true;
         }
         this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
-            accountInfo['BankList'] = banks;
-            if (accountInfo.BankID && !accountInfo.Bank) {
-                accountInfo.Bank = banks.find(x => x.ID === accountInfo.BankID);
+            this.accountInfo['BankList'] = banks;
+            if (this.accountInfo.BankID && !this.accountInfo.Bank) {
+                this.accountInfo.Bank = banks.find(x => x.ID === this.accountInfo.BankID);
             }
-            this.formModel$.next(accountInfo);
+            this.formModel$.next(this.accountInfo);
             this.formFields$.next(this.getFormFields());
         });
     }
@@ -101,10 +103,11 @@ export class UniBankAccountModal implements IUniModal {
                 .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
                 .subscribe(() => this.close(true));
         }
-        if (this.options.data._ibanAccountSearch) {
+
+        if (this.accountInfo._ibanAccountSearch) {
             this.onFormChange({
                 _ibanAccountSearch: {
-                    currentValue: this.options.data._ibanAccountSearch
+                    currentValue: this.accountInfo._ibanAccountSearch
                 }
             });
         }
