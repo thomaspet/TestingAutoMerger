@@ -117,22 +117,22 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     public generateSelect() {
         // Ikke forfalt
         return `sum(casewhen(PaymentDueDate gt '${moment().format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 30101\,RestAmount\,0) ) as sum,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum,`
         // 0 - 30 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(30, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().format('YYYYMMDD')}' and RestAmount gt 0 and `
-        + `StatusCode ne 30107 and StatusCode ne 30101\,RestAmount\,0) ) as sum1,`
+        + `StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum1,`
         // 30 - 60 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(60, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().subtract(31, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 30101\,RestAmount\,0) ) as sum2,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum2,`
         // 60 - 90 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(90, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().subtract(61, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 30101\,RestAmount\,0) ) as sum3,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum3,`
         // Over 90 dager
         + `sum(casewhen(PaymentDueDate lt '${moment().subtract(90, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 30101\,RestAmount\,0) ) as sum4`;
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum4`;
     }
 
     public ngAfterViewInit() {
