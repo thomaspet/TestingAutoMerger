@@ -14,6 +14,7 @@ import {FormControl} from '@angular/forms';
 import * as _ from 'lodash';
 
 import {NavbarLinkService, INavbarLinkSection} from '../navbar-link-service';
+import { INavbarLink } from '../navbar-links';
 
 @Component({
     selector: 'uni-mega-menu',
@@ -27,6 +28,7 @@ export class UniMegaMenu {
     public linkSections: INavbarLinkSection[];
     public filteredLinkSections: INavbarLinkSection[];
     public searchControl: FormControl = new FormControl('');
+    public editMode: boolean = false;
 
     constructor(
         private navbarService: NavbarLinkService,
@@ -79,11 +81,28 @@ export class UniMegaMenu {
     }
 
     public navigate(url: string) {
+        if (this.editMode) {
+            return;
+        }
+
         if (url) {
             this.router.navigateByUrl(url);
         }
 
         this.close();
+    }
+
+    public linkSelect(link: INavbarLink) {
+        link.activeInSidebar = !link.activeInSidebar;
+    }
+
+    public onEditModeChange() {
+        if (!this.editMode) {
+            this.editMode = true;
+        } else {
+            this.editMode = false;
+            this.navbarService.saveSidebarLinks(this.filteredLinkSections);
+        }
     }
 
     public close() {

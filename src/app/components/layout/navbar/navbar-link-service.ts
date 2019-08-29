@@ -1,10 +1,15 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {AuthService} from '@app/authService';
-import {NAVBAR_LINKS, INavbarLinkSection, INavbarLink} from './navbar-links';
+import {
+    NO_UNI_NAVBAR_LINKS,
+    NO_SR_NAVBAR_LINKS,
+    INavbarLinkSection,
+    INavbarLink
+} from './navbar-links';
 import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
-import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
+import {BrowserStorageService, DimensionSettingsService, UniTranslationService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {UniHttp} from '@uni-framework/core/http/http';
 import * as _ from 'lodash';
@@ -15,23 +20,42 @@ export type SidebarState = 'collapsed' | 'expanded';
 @Injectable()
 export class NavbarLinkService {
     private user: UserDto;
+    public localeValue: string = '';
     public linkSections$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
 
     public megaMenuVisible$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public sidebarState$: BehaviorSubject<SidebarState>;
     public dimensions: any[];
+    public company: any = {};
+    public links = {
+        NO_UNI_NAVBAR_LINKS: NO_UNI_NAVBAR_LINKS,
+        NO_SR_NAVBAR_LINKS: NO_SR_NAVBAR_LINKS
+    };
+    public NAVBAR_LINKS;
 
     constructor(
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
         private browserStorage: BrowserStorageService,
-        private http: UniHttp
+        private http: UniHttp,
+        private translationService: UniTranslationService
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';
         this.sidebarState$ = new BehaviorSubject(initState);
         this.sidebarState$.subscribe(state => browserStorage.setItem('sidebar_state', state));
 
+        this.translationService.locale.subscribe((locale) => {
+            this.localeValue = locale;
+            if (locale !== 'EN') {
+                this.NAVBAR_LINKS = this.links[`${locale}_NAVBAR_LINKS`];
+            } else {
+                this.NAVBAR_LINKS = this.links.NO_UNI_NAVBAR_LINKS;
+            }
+            this.resetNavbar();
+        });
+
         authService.authentication$.subscribe(authDetails => {
+            this.company = authDetails.activeCompany;
             if (authDetails.user) {
                 this.user = authDetails.user;
                 this.resetNavbar();
@@ -40,13 +64,14 @@ export class NavbarLinkService {
     }
 
     public resetNavbar() {
+
         this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
 
         this.getDimensionRouteSection(this.user).subscribe(
             dimensionLinks => {
                 if (dimensionLinks) {
                     const linkSections = this.linkSections$.getValue();
-                    const dimensionsIdx = linkSections.findIndex(section => section.name === 'Dimensjoner');
+                    const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
 
                     // Insert before settings (or marketplace if no settings access)
                     const insertIndex = linkSections.findIndex(section => {
@@ -70,7 +95,15 @@ export class NavbarLinkService {
     }
 
     private getLinksFilteredByPermissions(user): any[] {
-        const routeSections: INavbarLinkSection[] = _.cloneDeep(NAVBAR_LINKS);
+
+        const fromLocalStorage = this.company.Key ? localStorage.getItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`) : null;
+        let routeSections: INavbarLinkSection[];
+
+        if (fromLocalStorage) {
+            routeSections = JSON.parse(fromLocalStorage);
+        } else {
+            routeSections = _.cloneDeep(this.NAVBAR_LINKS);
+        }
 
         // Filter out links the user doesnt have access to for every section
         routeSections.forEach(section => {
@@ -97,7 +130,7 @@ export class NavbarLinkService {
         if (this.authService.canActivateRoute(user, 'dimensions/customdimensionlist')) {
             return this.dimensionSettingsService.GetAll(null).map((dimensions) => {
                 return {
-                    name: 'Dimensjoner',
+                    name: 'NAVBAR.DIMENSION',
                     url: '',
                     icon: 'dimension',
                     isSuperSearchComponent: true,
@@ -122,16 +155,19 @@ export class NavbarLinkService {
     }
 
     public getDimensionLinks(dimensions) {
+        console.log(this.linkSections$.getValue());
         const links: any = [
             {
                 name: 'Prosjekt',
                 url: '/dimensions/overview/1' ,
-                moduleID: UniModules.Dimensions
+                moduleID: UniModules.Dimensions,
+                activeInSidebar: true
             },
             {
                 name: 'Avdeling',
                 url: '/dimensions/overview/2' ,
-                moduleID: UniModules.Dimensions
+                moduleID: UniModules.Dimensions,
+                activeInSidebar: true
             }
         ];
 
@@ -142,6 +178,7 @@ export class NavbarLinkService {
                     name: dim.Label,
                     url: '/dimensions/overview/' + dim.Dimension ,
                     moduleID: UniModules.Dimensions,
+                    activeInSidebar: true,
                     isSuperSearchComponent: false,
                     moduleName: 'Dimension' + dim.Dimension,
                     selects: [
@@ -161,5 +198,11 @@ export class NavbarLinkService {
             moduleID: UniModules.Dimensions
         });
         return links;
+    }
+
+    public saveSidebarLinks(linkSection: any[]) {
+        localStorage.setItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`, JSON.stringify(linkSection));
+        this.resetNavbar();
+        this.megaMenuVisible$.next(false);
     }
 }

@@ -1,8 +1,9 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Router} from '@angular/router';
 import {NavbarLinkService} from './navbar-link-service';
 import {AuthService} from '@app/authService';
 import {TabService} from './tabstrip/tabService';
-import {UserService} from '@app/services/services';
+import {UserService, UniTranslationService} from '@app/services/services';
 import {User, ContractLicenseType} from '@uni-entities';
 
 import {SmartSearchService} from '../smart-search/smart-search.service';
@@ -60,6 +61,28 @@ import * as moment from 'moment';
                 <uni-company-dropdown></uni-company-dropdown>
                 <notifications></notifications>
 
+                <i
+                    role="button"
+                    class="material-icons"
+                    [matMenuTriggerFor]="langMenu" title="Språk">
+                    language
+                </i>
+
+                <mat-menu #langMenu="matMenu" yPosition="below" [overlapTrigger]="false">
+                    <ng-template matMenuContent>
+                        <section class="navbar-link-dropdown">
+                            <section class="link-section" >
+                                <strong>Språk (BETA)</strong>
+                                <ul>
+                                    <li *ngFor="let lang of languages">
+                                        <a (click)="changeLanguage(lang)">{{ lang.label }}</a>
+                                    </li>
+                                </ul>
+                            </section>
+                        </section>
+                    </ng-template>
+                </mat-menu>
+
                 <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length)">
                     <i
                         role="button"
@@ -75,7 +98,7 @@ import * as moment from 'moment';
                                     <strong>Innstillinger</strong>
                                     <ul>
                                         <li *ngFor="let link of settingsLinks">
-                                            <a [routerLink]="link.url">{{link.name}}</a>
+                                            <a [routerLink]="link.url">{{link.name | translate}}</a>
                                         </li>
                                     </ul>
                                 </section>
@@ -84,7 +107,7 @@ import * as moment from 'moment';
                                     <strong>Admin</strong>
                                     <ul>
                                         <li *ngFor="let link of adminLinks">
-                                            <a [routerLink]="link.url">{{link.name}}</a>
+                                            <a [routerLink]="link.url">{{link.name | translate}}</a>
                                         </li>
                                     </ul>
                                 </section>
@@ -94,6 +117,7 @@ import * as moment from 'moment';
                 </section>
 
                 <navbar-user-dropdown></navbar-user-dropdown>
+
             </section>
 
         </section>
@@ -119,6 +143,11 @@ export class UniNavbar {
 
     settingsLinks: any[] = [];
     adminLinks: any[] = [];
+    languages = [
+        { label: 'Norsk (UNI)', locale: 'NO_UNI' },
+        { label: 'Norsk (SR-BANK)', locale: 'NO_SR' },
+        { label: 'Engelsk', locale: 'EN' },
+    ];
 
     onDestroy$ = new Subject();
 
@@ -129,6 +158,8 @@ export class UniNavbar {
         public tabService: TabService,
         public cdr: ChangeDetectorRef,
         private smartSearchService: SmartSearchService,
+        private translationService: UniTranslationService,
+        private router: Router
     ) {
         this.authService.authentication$.pipe(
             takeUntil(this.onDestroy$)
@@ -189,6 +220,15 @@ export class UniNavbar {
             } catch (e) {/* dont care, just means the user doesnt have settings permissions */}
 
             this.cdr.markForCheck();
+        });
+    }
+
+    changeLanguage(language) {
+        this.translationService.setLocale(language.locale);
+        const route = this.router.url;
+        // Reload view to update components with onpush change detection stratagy
+        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(navigationSuccess => {
+            this.router.navigateByUrl(route);
         });
     }
 

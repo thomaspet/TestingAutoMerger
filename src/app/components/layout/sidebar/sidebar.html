@@ -23,7 +23,7 @@
                         (click)="navigateToSectionUrl(section.url, $event)">
                         {{section.mdIcon}}
                     </i>
-                    <span>{{section.name}}</span>
+                    <span>{{ section.name | translate }}</span>
 
                     <i class="material-icons expanded-section-icon">
                         {{expandedSectionIndex === idx ? 'expand_more' : 'keyboard_arrow_right'}}
@@ -41,7 +41,7 @@
                                 routerLinkActive="active-sidebar-link"
                                 [routerLinkActiveOptions]="{exact: link.routerLinkActiveExact}">
 
-                                {{link.name}}
+                                {{ link.name | translate }}
                             </a>
                         </li>
                     </ul>

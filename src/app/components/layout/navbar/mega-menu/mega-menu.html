@@ -16,16 +16,19 @@
 
     <section class="link-group" *ngFor="let section of filteredLinkSections">
         <span [ngClass]="{'hamburger-link-header': section.url}" (click)="navigate(section.url)">
-            {{section.name}}
+            {{ section.name | translate }}
         </span>
         <ul class="link-list">
             <ng-template ngFor let-group [ngForOf]="section.linkGroups">
                 <li *ngFor="let link of group.links" (click)="isExpanded = false">
-                    <a (click)="navigate(link.url)">{{link.name}}</a>
+                    <i class="material-icons c2a" *ngIf="editMode" (click)="linkSelect(link)"> {{ link.activeInSidebar ? 'check_box' : 'check_box_outline_blank' }} </i>
+                    <a (click)="navigate(link.url)">{{ link.name | translate}}</a>
                 </li>
                 <br>
             </ng-template>
         </ul>
     </section>
-
+</section>
+<section style="display: flex; justify-content: center;">
+    <button class="c2a" (click)="onEditModeChange()"> {{ editMode ? 'Lagre' : 'Rediger' }} menyelementer </button>
 </section>
