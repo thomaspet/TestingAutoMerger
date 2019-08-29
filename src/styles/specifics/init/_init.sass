@@ -16,7 +16,8 @@
 
     uni-init
         #marketing-content
-            margin: 1rem 2.5% 2rem 2.5%
+            flex: 1 1 100% !important
+            margin: 0 2.5% 1rem 2.5%
             padding-top: 2rem !important
             img
                 display: none
@@ -40,9 +41,6 @@
     #marketing-content
         h1
             font-size: 2rem !important
-        input, #ue-video
-            width: 100% !important
-
 
 uni-init
     display: block
@@ -68,7 +66,7 @@ uni-init
 
     #marketing-content
         order: 1
-        flex: 1 1 57%
+        flex: 0 1 50%
         box-sizing: border-box
         background: $uni-color-negative
         color: $uni-color-positive
@@ -76,11 +74,14 @@ uni-init
         display: flex
         flex-flow: row
         justify-content: center
+        padding: 1rem 4rem
+
+        .marketing-content-wrapper
+            margin: 0 auto
 
         img
             width: 3rem
-            position: absolute
-            top: 1rem
+            margin-bottom: 2rem
 
         h1
             font-size: 2.5rem
@@ -93,28 +94,23 @@ uni-init
 
         button.signup-link
             height: 4rem
-            font-size: 1.5rem
-            font-weight: 300
             border-radius: 0
             min-width: 10rem
             margin: 2rem 0 2.5rem 0
             background: #c43012
-            color: $uni-color-negative
 
-            &[aria-busy]:not([aria-busy=false]):before
-                height: 15px !important
-                width: 15px !important
-                border-top: 1px solid $uni-color-negative !important
+            a
+                color: #fff
+                font-size: 24px
+                font-weight: 300
+                text-decoration: none
 
             &:hover, &:focus
                 background: darken(#c43012, 5%)
 
-        #ue-video
-            width: 90%
-
     #init-content
         order: 2
-        flex: 1 1 43%
+        flex: 1
         position: relative
         box-sizing: border-box
 
