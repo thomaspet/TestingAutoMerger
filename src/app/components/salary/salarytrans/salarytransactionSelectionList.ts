@@ -354,7 +354,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                 .odataFilters(emps.map(x => x.ID), 'EmployeeID')
                 .map(empFilter => this.statisticsService.GetAllUnwrapped(
                     `model=Employment&` +
-                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName&` +
+                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName,Standard as Standard&` +
                     `filter=${empFilter}`
             )))
             .pipe(
