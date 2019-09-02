@@ -444,7 +444,9 @@ export class AgGridWrapper {
     }
 
     public setRowDragSuppressed(suppress: boolean) {
-        this.agGridApi.setSuppressRowDrag(suppress);
+        if (this.agGridApi) {
+            this.agGridApi.setSuppressRowDrag(suppress);
+        }
     }
 
     public setRowClickSuppressed(suppress: boolean) {
