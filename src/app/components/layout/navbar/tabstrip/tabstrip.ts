@@ -61,7 +61,7 @@ interface ITabContextMenuData {
             </ng-template>
         </ul>
 
-        <ul class="tab-context-menu"
+        <section class="dropdown-menu"
             *ngIf="tabContextMenu"
             (clickOutside)="closeContextMenu()"
             [ngStyle]="{
@@ -69,19 +69,19 @@ interface ITabContextMenuData {
                 top: tabContextMenu.top + 'px'
             }">
 
-            <li (click)="contextMenuClick(tabContextMenu.index, 'tab')">
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'tab')">
                 Lukk fane
-            </li>
-            <li (click)="contextMenuClick(tabContextMenu.index, 'left')">
+            </section>
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'left')">
                 Lukk faner til venstre
-            </li>
-            <li (click)="contextMenuClick(tabContextMenu.index, 'right')">
+            </section>
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'right')">
                 Lukk faner til høyre
-            </li>
-            <li (click)="contextMenuClick(tabContextMenu.index, 'others')">
+            </section>
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'others')">
                 Lukk alle andre faner
-            </li>
-        </ul>
+            </section>
+        </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

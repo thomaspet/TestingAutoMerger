@@ -64,13 +64,16 @@ ul.sidebar-menu
             white-space: nowrap
 
             &:hover
-                background-color: var(--sidebar-active-section-color)
+                background-color: var(--sidebar-active-section-background)
+                color: var(--sidebar-hover-color)
+                // i.material-icons, i.material-icons-outlined
+                //     color: var(--sidebar)
 
             i.material-icons, i.material-icons-outlined
                 flex: 0 0 $sidebar-collapsed-width
                 text-align: center
                 line-height: 2rem
-                color: var(--sidebar-icon-color)
+                // color: var(--sidebar-color)
                 font-size: 22px
 
                 &.expanded-section-icon
@@ -122,12 +125,15 @@ ul.sidebar-menu
 
                         &:hover,
                         &.active-sidebar-link
-                            background: var(--sidebar-link-hover-background)
-                            color: var(--sidebar-link-hover-color, --sidebar-color)
+                            color: var(--sidebar-hover-color)
                             border-radius: 3px
+                            font-weight: 500
 
         &[aria-expanded]:not([aria-expanded=false])
-            background: var(--sidebar-active-section-color)
+            .sidebar-section-header
+                background: var(--sidebar-active-section-background)
+                color: var(--sidebar-hover-color)
+                margin-bottom: 10px
             .sidebar-link-group
                 display: block
 

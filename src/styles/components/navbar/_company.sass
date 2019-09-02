@@ -1,43 +1,44 @@
 uni-company-dropdown
-    text-align: right
-
-.navbar_company
-    display: inline-block
     position: relative
-    padding: 0
-    user-select: none
+    display: inline-flex
+    align-items: center
+    height: 100%
+    margin: 0 1rem
+    font-size: 15px
 
-    &:hover,
-    &:focus
-        background: rgba(0, 0, 0, 0.2)
-
-.navbar-company-info
-    display: inline-block
+.company-dropdown
+    display: inline-flex
+    align-items: center
+    height: 34px
+    border-radius: 4px
+    padding: 0 1rem
     cursor: pointer
-    padding: 0 .5rem
+
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    position: relative
-    line-height: 2.5rem
+    max-width: 30rem
+
+    background: var(--company-dropdown-background, rgba(0, 0, 0, .2))
+    color: var(--company-dropdown-color, #fff)
+    border: var(--company-dropdown-border, none)
+
 
     .company-name
         overflow: hidden
         text-overflow: ellipsis
 
     .active-year
-        opacity: .75
+        // opacity: .75
         display: inline-block
-        margin: 0 .5rem
+        margin: 0 .5rem 0 .75rem
+        font-size: 14px
 
     > i.material-icons
         vertical-align: middle
         font-size: 21px
-        margin-bottom: 4px
-
-    .user-dropdown
-        margin-left: .5rem
-
+        margin-bottom: 2px
+        color: var(--company-dropdown-color, #fff)
 
 .navbar_company_dropdown
     @extend %mainNavDropdown
@@ -45,7 +46,7 @@ uni-company-dropdown
     position: absolute
     display: none
     list-style: none
-    right: 0
+    left: 0
     top: 1rem
     text-align: left
     width: 18rem

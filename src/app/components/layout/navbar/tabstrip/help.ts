@@ -3,10 +3,7 @@ import {Component, ChangeDetectionStrategy} from '@angular/core';
 @Component({
     selector: 'uni-tabstrip-help',
     template: `
-        <section #toggle class="help-toggle" role="button">
-            <span>Hjelp</span>
-            <i class="material-icons">expand_more</i>
-        </section>
+        <i #toggle role="button" class="material-icons">help</i>
 
         <dropdown-menu [trigger]="toggle">
             <ng-template>

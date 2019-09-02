@@ -35,22 +35,23 @@ input[type=time],
 input[type=week]
     display: inline-block
     height: $input-height
-    padding: pxToRem(3) pxToRem(8)
+    padding: 3px 8px
     background-color: #fff
     background-image: none
-    border: pxToRem(1) solid $uni-color-scale8
-    border-radius: pxToRem(2)
+    border: 1px solid $uni-color-scale8
+    border-radius: 2px
     transition: box-shadow .3s ease
     overflow: hidden
     text-overflow: ellipsis
     box-sizing: border-box
+    font-size: 15px
 
     &[disabled],
     &[readonly]
         background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
         cursor: normal
-        border-radius: pxToRem(3)
-        border-right: pxToRem(1) solid $uni-color-scale8
+        // border-radius: pxToRem(3)
+        // border-right: pxToRem(1) solid $uni-color-scale8
 
     &[required]
         box-shadow: 0 0 0 pxToRem(1) $uni-color-negative, 0 0 0 pxToRem(2) $uni-color-scale9
@@ -120,3 +121,4 @@ textarea
 
         i.material-icons
             vertical-align: middle
+            font-size: 22px

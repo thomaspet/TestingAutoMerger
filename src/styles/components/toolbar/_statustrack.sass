@@ -1,4 +1,4 @@
-$statustrack-background: $uni-color-scale9
+$statustrack-background: #fff
 $statustrack-height: 1.5rem
 $statustrack-border: .0625rem
 
@@ -13,6 +13,8 @@ uni-statustrack > ol
     box-sizing: border-box
     height: $statustrack-height + $statustrack-border
     margin: 0
+    border: var(--container-borders)
+    font-size: 15px
 
     & > li
         position: relative
@@ -29,15 +31,14 @@ uni-statustrack > ol
 
         &.completed,
         &.future
-            background: $uni-color-scale9
+            background: $statustrack-background
             color: $uni-color-scale5
 
         &.active,
         &.obsolete
             z-index: #{map-get($zindex, toolbar) + 2}
-            background: var(--color-c2a)
-            color: $uni-color-negative
-            font-weight: 600
+            color: var(--color-c2a)
+            font-weight: 500
 
         &.obsolete
             background: $uni-color-warn
@@ -47,16 +48,16 @@ uni-statustrack > ol
                 border-left-color: $statustrack-background
 
             &:before
-                border-left-color: $uni-color-scale7
+                border-left-color: #ccc
 
-            &.completed:after
-                border-left-color: $uni-color-scale9
+            // &.completed:after
+            //     border-left-color: $uni-color-scale9
 
-            &.active:after
-                border-left-color: var(--color-c2a)
+            // &.active:after
+            //     border-left-color: var(--color-c2a)
 
-            &.obsolete:after
-                border-left-color: $uni-color-warn
+            // &.obsolete:after
+            //     border-left-color: $uni-color-warn
 
             &.active:before,
             & + .active:before
@@ -69,7 +70,7 @@ uni-statustrack > ol
             display: block
             height: 0
             width: 0
-            top: 0
+            top: -1px
             border-color: transparent
             border-style: solid
             border-width: (($statustrack-height/2) + ($statustrack-border/2)) 0 (($statustrack-height/2) + ($statustrack-border/2)) .5rem

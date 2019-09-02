@@ -13,9 +13,10 @@
     padding: 0
     box-sizing: border-box
     border-radius: 3px
-    border: 1px solid $uni-color-scale8
-    &:hover
-        border: 1px solid $uni-color-scale6
+    background-color: #fff
+    border: var(--container-borders) // 1px solid rgba(0, 0, 0, .1)
+    // &:hover
+    //     border: 1px solid var(--color-c2a)
 
 
 .toolbar_tools
@@ -40,15 +41,16 @@
     .next
         background-image: unicon-next($uni-color-scale5)
     .new
-        font-size: 16px
+        font-size: 15px
         text-shadow: none
         color: $uni-color-scale3
         width: auto
-        padding: 0 1rem 0 .75rem
+        padding: 2px 1rem 0 .75rem
 
         .material-icons
             vertical-align: middle
             font-size: 20px
+            margin-bottom: 2px
             color: $uni-color-scale4
 
     .contextmenu_button[type=button]

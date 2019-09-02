@@ -4,8 +4,8 @@
     width: 100%
     height: 32px
     background: var(--tabstrip-background)
-    border-top: var(--tabstrip-border)
-    border-bottom: var(--tabstrip-border)
+    border-top: var( --container-borders)
+    border-bottom: var( --container-borders)
     padding: 0 2rem 0 .75rem
     box-sizing: border-box
 
@@ -21,27 +21,9 @@
     uni-tabstrip-help
         color: var(--tabstrip-color)
 
-.tab-context-menu
+uni-tabstrip .dropdown-menu
     position: absolute
-    width: 11rem
-    margin: 0
-    box-sizing: border-box
-    list-style: none
-    background: #fff
-    z-index: 999
-    border: 1px solid $uni-color-scale8
-    border-radius: 2px
-
-    li
-        padding: 4px 10px
-        font-size: 15px
-        cursor: pointer
-        + li
-            border-top: 1px solid $uni-color-scale9
-
-        &:hover
-            background: $uni-color-scale9
-
+    width: 12rem
 
 .collapsed-tab-container
     position: relative
@@ -97,7 +79,7 @@
         cursor: pointer
         height: 30px
         line-height: 30px
-        padding: 0 1rem
+        padding-left: 1.25rem
         font-size: 14px
         max-width: 15rem
         min-width: 4rem
@@ -108,13 +90,17 @@
         color: var(--tabstrip-color)
 
         .close-tab
+            visibility: hidden
             color: var(--tabstrip-color)
             vertical-align: middle
-            font-size: 13px
-            margin-left: 5px
+            font-size: 15px
+            margin-left: 2px
             line-height: 2rem
 
-        &:hover,
-        &.router-tab-active
+
+        &:hover .close-tab
+            visibility: visible
+
+        &:hover, &.router-tab-active
             background: var(--tabstrip-active-tab-background)
             color: var(--tabstrip-active-tab-color)

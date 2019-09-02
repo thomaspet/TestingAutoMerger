@@ -5,7 +5,7 @@ import {AuthService} from '@app/authService';
     selector: 'navbar-create-new',
     template: `
         <ng-container *ngIf="links">
-            <i #toggle class="material-icons" role="button">add_circle</i>
+            <i #toggle class="material-icons" role="button">add_box</i>
 
             <dropdown-menu [trigger]="toggle" minWidth="12rem">
                 <ng-template>
