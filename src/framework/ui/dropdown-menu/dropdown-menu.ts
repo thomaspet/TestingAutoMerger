@@ -44,12 +44,9 @@ export class DropdownMenu {
     }
 
     ngOnDestroy() {
+        this.hide();
         this.onDestroy$.next();
         this.onDestroy$.complete();
-
-        if (this.overlayRef) {
-            this.overlayRef.detach();
-        }
     }
 
     show() {
@@ -61,8 +58,11 @@ export class DropdownMenu {
     }
 
     hide() {
-        this.overlayRef.detach();
-        this.visible = false;
+        if (this.overlayRef) {
+            this.overlayRef.detach();
+            this.overlayRef.dispose();
+            this.visible = false;
+        }
     }
 
     protected getOverlayConfig(): OverlayConfig {

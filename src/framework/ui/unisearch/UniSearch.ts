@@ -8,8 +8,9 @@ import {IUniSearchConfig} from './IUniSearchConfig';
 @Component({
     selector: 'uni-search',
     template: `
-        <section class="input-with-button" (clickOutside)="onClickOutside()">
+        <section class="input-with-button" style="width: 100%" (clickOutside)="onClickOutside()">
             <input type="text"
+                style="width: 100%"
                 role="combobox"
                 autocomplete="false"
                 aria-autocomplete="inline"

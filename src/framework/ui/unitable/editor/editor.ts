@@ -50,7 +50,6 @@ export class UnitableEditor {
     @Output()
     public copyFromAbove: EventEmitter<any> = new EventEmitter();
 
-    public static parentModule: any;
     public isOpen: boolean = false;
 
     private initValue: string | LocalDate;
@@ -190,7 +189,6 @@ export class UnitableEditor {
             let i = 0;
             let dropdownClick = false;
             while (!dropdownClick && el.parentElement && i < 100) {
-                console.log(el.parentElement);
                 const classList = el.parentElement.classList;
                 if (classList) {
                     dropdownClick = classList.contains('input-dropdown-menu')
@@ -198,10 +196,6 @@ export class UnitableEditor {
                         || classList.contains('mat-datepicker-popup')
                         || classList.contains('cdk-overlay-pane');
                 }
-
-                // if (el.parentElement.classList && el.parentElement.classList.contains('input-dropdown-menu')) {
-                //     dropdownClick = true;
-                // }
 
                 i++;
                 el = el.parentElement;

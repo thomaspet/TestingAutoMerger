@@ -1151,19 +1151,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
-            .setWidth('110px')
-            .setOptions({
-                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
-                useLastMonthsPreviousYearUntilMonth: 4
-            });
+            .setWidth('110px');
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setVisible(false)
-            .setOptions({
-                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
-                useLastMonthsPreviousYearUntilMonth: 4
-            });
+            .setVisible(false);
 
         const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
 

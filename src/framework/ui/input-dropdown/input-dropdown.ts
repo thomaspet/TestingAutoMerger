@@ -25,25 +25,37 @@ export class InputDropdownMenu {
     constructor(protected overlay: Overlay) {}
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['visible'] && this.visible !== changes['visible'].previousValue) {
-            if (this.visible) {
-                this.show();
-            } else {
-                this.hide();
+        if (changes['visible']) {
+            // !! because it might not be a boolean
+            const current = !!this.visible;
+            const previous = !!changes['visible'].previousValue;
+
+            if (current !== previous) {
+                if (this.visible) {
+                    if (this.overlayRef) {
+                        console.log(this.overlayRef, this.overlayRef.hasAttached());
+                    }
+
+                    this.show();
+                } else {
+                    this.hide();
+                }
             }
         }
     }
 
     ngOnDestroy() {
+        this.hide();
         this.onDestroy$.next();
         this.onDestroy$.complete();
-
-        if (this.overlayRef) {
-            this.overlayRef.detach();
-        }
     }
 
     show() {
+        if (this.overlayRef && this.overlayRef.dispose) {
+            this.overlayRef.detach();
+            this.overlayRef.dispose();
+        }
+
         this.overlayRef = this.overlay.create(this.getOverlayConfig());
         this.overlayRef.attach(this.contentTemplate);
         const refRect = this.input.getBoundingClientRect();
@@ -56,6 +68,8 @@ export class InputDropdownMenu {
         if (this.overlayRef) {
             this.visible = false;
             this.overlayRef.detach();
+            this.overlayRef.dispose();
+            this.overlayRef = undefined;
         }
     }
 

@@ -1,8 +1,7 @@
 $labelLength: pxToRem(200)
-$inputHeight: 2rem
+$input-height: 2.5rem
 
 @import 'labels'
-@import 'inputButtons'
 @import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
@@ -10,7 +9,6 @@ $inputHeight: 2rem
 @import 'linebreaks'
 @import 'select'
 @import 'validation'
-@import 'password'
 @import 'labelLength'
 
 uni-form
@@ -33,11 +31,12 @@ uni-field
         position: relative
         > span
             display: inline-block
-            line-height: $inputHeight
+            line-height: $input-height
             width: $labelLength
             white-space: nowrap
             overflow: hidden
             text-overflow: ellipsis
+            font-size: 15px
 
             & + *
                 width: calc(100% - #{$labelLength})

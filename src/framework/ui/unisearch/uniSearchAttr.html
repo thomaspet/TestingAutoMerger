@@ -42,8 +42,7 @@
                         (click)="selectItem()"
                         [attr.aria-selected]="selectedIndex === idx">
 
-                        <td *ngFor="let column of rowTemplate(item)"
-                            [ngClass]="{'is_number': isNumber(column)}">
+                        <td *ngFor="let column of rowTemplate(item)">
                             {{column}}
                         </td>
                     </tr>

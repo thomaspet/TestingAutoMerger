@@ -1,4 +1,4 @@
-<div (clickOutside)="onClickOutside($event)">
+<div (clickOutside)="onClickOutside()">
     <section class="input-with-button">
         <input #inputElement
             [formControl]="control"
@@ -10,10 +10,10 @@
             type="text"
             tabindex="-1"
         />
-        <button #toggleBtn
-                type="button"
+        <button type="button"
                 tabIndex="-1"
-                [disabled]="readOnly$ | async">
+                [disabled]="readOnly$ | async"
+                (click)="onSearchButtonClick()">
             <i class="material-icons">search</i>
         </button>
     </section>

@@ -11,7 +11,7 @@ import {
     HostListener
 } from '@angular/core';
 
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {BaseControl} from '../baseControl';
 import {BehaviorSubject} from 'rxjs';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces';
@@ -29,11 +29,7 @@ import 'rxjs/add/operator/share';
 import * as _ from 'lodash';
 import {IGroupConfig} from '@uni-framework/ui/unitable/controls/autocomplete';
 import {KeyCodes} from '@app/services/common/keyCodes';
-
-export interface IAutocompleteCache {
-    templates?: string[];
-    search?: any[];
-}
+import {take, debounceTime} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-autocomplete-input',
@@ -41,7 +37,6 @@ export interface IAutocompleteCache {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniAutocompleteInput extends BaseControl {
-    @ViewChild('toggleBtn') private toggleButton: ElementRef;
     @ViewChild('list') private list: ElementRef;
     @ViewChild('inputElement') private inputElement: ElementRef;
 
@@ -63,19 +58,13 @@ export class UniAutocompleteInput extends BaseControl {
     private value: string | Object;
     private initialDisplayValue: string;
     private selectedIndex: number = -1;
-    private selectedItem: any = null;
     public lookupResults: any[] = [];
     public isExpanded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    private items$: Observable<any> = new Observable<any>();
-    private focusPositionTop: number = 0;
-    private preventSearch: boolean = false;
-    private subscriptions: any[] = [];
     private groupConfig: IGroupConfig;
-    private cache: IAutocompleteCache = {
-        search: [],
-        templates: []
-    };
-    constructor(private el: ElementRef, private cd: ChangeDetectorRef) {
+
+    controlSubscription: Subscription;
+
+    constructor(private cd: ChangeDetectorRef) {
         super();
         this.guid = 'autocomplete-' + performance.now();
     }
@@ -88,14 +77,12 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     public cleanSubscriptions() {
-        this.subscriptions.forEach(subscription => {
-            subscription.unsubscribe();
-        });
-        this.subscriptions = [];
+        if (this.controlSubscription) {
+            this.controlSubscription.unsubscribe();
+        }
     }
 
     public ngOnChanges(changes) {
-
         if (changes['field']) {
             this.readOnly$.next(this.field && this.field.ReadOnly);
         }
@@ -109,21 +96,6 @@ export class UniAutocompleteInput extends BaseControl {
             this.groupConfig = this.options['groupConfig'];
         }
 
-        // Perform initial lookup to get display value
-        if (this.control.value === null) {
-            this.control.setValue('');
-        }
-        /*if (!this.cache.templates[this.control.value]) {
-            this.getInitialDisplayValue(this.control.value).subscribe(result => {
-                this.currentValue = result[0];
-                this.initialDisplayValue = this.template(result[0]) || '';
-                this.cache.templates[this.control.value] = this.initialDisplayValue;
-                this.createControl(this.initialDisplayValue);
-            });
-        } else {
-            this.initialDisplayValue = this.cache.templates[this.control.value];
-            this.createControl(this.initialDisplayValue);
-        }*/
         this.getInitialDisplayValue(this.control.value).subscribe(result => {
             if (result[0]) {
                 this.currentValue = result[0];
@@ -133,63 +105,64 @@ export class UniAutocompleteInput extends BaseControl {
             }
             this.createControl(this.initialDisplayValue);
             this.cleanSubscriptions();
-            let target = this.toggleButton.nativeElement;
-            let fromButton = Observable.fromEvent(target, 'click')
-                .switchMap((event: Event) => {
-                    return Observable.of(this.control.value);
-                })
-                .do(input => {
-                    this.focusEvent.emit(this);
-                    return this.isExpanded$.next(!this.isExpanded$.getValue());
-                })
-                .filter(input => {
-                    return this.isExpanded$.getValue();
-                })
-                .switchMap((input: string) => {
-                    this.busy$.next(true);
-                    return this.search(input);
-                });
 
-            let fromControl = this.control.valueChanges
-                .filter(value => !this.options.searchOnButtonClick)
-                .debounceTime(this.options.debounceTime || 100)
-                .do((input) => {
-                    this.busy$.next(true);
-                    this.isExpanded$.next(false);
-                })
-                .switchMap((input: string) => {
-                    return this.search(input);
-                })
-                .do((items) => {
-                    if (this.control.value === '') {
-                        this.selectedIndex = -1;
-                    } else {
-                        this.selectedIndex = 0;
-                    }
-                    if (items.length) {
-                        this.isExpanded$.next(true);
-                    }
+            this.controlSubscription = this.control.valueChanges.pipe(
+                debounceTime(150)
+            ).subscribe(query => {
+                this.busy$.next(true);
+                this.lookup(query);
+            });
+        });
+    }
+
+    onSearchButtonClick() {
+        this.lookup();
+        try {
+            this.inputElement.nativeElement.focus();
+            this.inputElement.nativeElement.select();
+        } catch (e) {}
+    }
+
+    lookup(query?: string) {
+        // Mostly copy paste from old search function. Should rewrite (the entire component tbh)
+        if (!query || this.initialDisplayValue === query) {
+            query = '';
+        }
+
+        let searchResult;
+
+        if (this.options.search) {
+            searchResult = this.options.search(query);
+        } else if (Array.isArray(this.source)) {
+            if (query && query.length) {
+                searchResult = this.source.filter((item) => {
+                    return this.template(item).toLowerCase().indexOf(query.toLowerCase()) >= 0;
                 });
-            this.items$ = fromControl.merge(fromButton).share();
-            let itemsSubscription = this.items$
-                .subscribe((value) => {
-                    this.busy$.next(false);
-                    this.lookupResults = value;
-                    if (this.groupConfig) {
-                        this.formatGrouping();
-                    }
-                    this.cache.search[this.control.value] = value;
-                    if (this.inputElement.nativeElement !== document.activeElement
-                        && this.toggleButton.nativeElement !== document.activeElement) {
-                        if (this.lookupResults.length) {
-                            this.confirmSelection(this.lookupResults[0]);
-                        }else {
-                            this.confirmSelection(null);
-                        }
-                    }
-                });
-            // let eventSubscription = Observable.fromEvent(this.el.nativeElement, 'keydown').subscribe(this.onKeyDown.bind(this));
-            this.subscriptions.push(itemsSubscription); // , eventSubscription
+            } else {
+                searchResult = this.source;
+            }
+        }
+
+        if (!searchResult || !searchResult.subscribe) {
+            searchResult = Observable.of(searchResult || []);
+        }
+
+        searchResult.pipe(take(1)).subscribe(items => {
+            // Apprently the old search function allowed us to return the items
+            // inside an array (Array<Array<any>>) so now we'll have to support it
+            // "forever".
+            if (items && items[0] && Array.isArray(items[0])) {
+                items = items[0];
+            }
+
+            this.lookupResults = items || [];
+            if (this.groupConfig) {
+                this.formatGrouping();
+            }
+
+            this.busy$.next(false);
+            this.isExpanded$.next(true);
+            this.selectedIndex = this.control.value ? 0 : -1;
         });
     }
 
@@ -206,12 +179,10 @@ export class UniAutocompleteInput extends BaseControl {
         } catch (e) {}
     }
 
-    public onClickOutside(event) {
+    public onClickOutside() {
         if (this.isExpanded$.getValue()) {
             this.isExpanded$.next(false);
             this.selectedIndex = -1;
-            this.selectedItem = null;
-            this.preventSearch = true;
 
             if (this.control.value === '') {
                 this.confirmSelection(null);
@@ -275,35 +246,6 @@ export class UniAutocompleteInput extends BaseControl {
         this.lookupResults = [].concat.apply([], groupedArray);
     }
 
-    private search(query: string): Observable<any> {
-        // Commenting this out because of bug https://github.com/unimicro/UniForm/issues/57
-        // if (this.cache.search[query]) {
-        //     return Observable.of(this.cache.search[query]);
-        // }
-        if (this.initialDisplayValue === query) {
-            query = '';
-        }
-        if (this.options.search) {
-            return this.options.search(query);
-        }
-        if (!this.source) {
-            return Observable.of([]);
-        }
-
-        // Local search
-        if (Array.isArray(this.source)) {
-            let filteredResults;
-            if (query && query.length) {
-                filteredResults = this.source.filter((item) => {
-                    return this.template(item).toLowerCase().indexOf(query.toLowerCase()) >= 0;
-                });
-            } else {
-                filteredResults = this.source;
-            }
-            return Observable.of(filteredResults.slice(0, 50));
-        }
-    }
-
     private confirmSelection(item) {
         if ((item && item.isHeader) || (!item && this.control.value !== '')) {
             this.control.setValue(this.initialDisplayValue || '', {emitEvent: false});
@@ -314,7 +256,6 @@ export class UniAutocompleteInput extends BaseControl {
         const undefinedToNull = val => val === undefined ? null : val;
         let previousValue = this.currentValue;
         this.isExpanded$.next(false); // = false;
-        this.focusPositionTop = 0;
 
         if (this.selectedIndex < 0) {
             if (this.control.value === '') { // allow empty string as value
@@ -343,28 +284,11 @@ export class UniAutocompleteInput extends BaseControl {
         this.busy$.next(false);
     }
 
-    private toggle() {
-        if (this.isExpanded$.getValue()) {
-            this.close();
-        } else {
-            this.open();
-        }
-    }
-
-    public open() {
-        this.isExpanded$.next(true);
-    }
-
-    public close() {
-        this.isExpanded$.next(false);
-    }
-
     public onMouseOver(isHeader: boolean = false, item: any, index: number) {
         if (isHeader) {
             return;
         }
         this.selectedIndex = index;
-        this.selectedItem = item;
     }
 
     private findIndex(value) {
@@ -373,11 +297,6 @@ export class UniAutocompleteInput extends BaseControl {
             result = this.options.source.findIndex((item) => {
                 return this.template(item) === value;
             });
-            // _.forEach(this.options.source, (item, index) => {
-            //     if (this.template(item) === value) {
-            //         result = index;
-            //     }
-            // });
         }
         return result;
     }
@@ -397,9 +316,8 @@ export class UniAutocompleteInput extends BaseControl {
                         }
                     }
                 }
-                this.selectedItem = this.lookupResults[this.selectedIndex];
-                this.confirmSelection(this.selectedItem);
-                this.close();
+                this.confirmSelection(this.lookupResults[this.selectedIndex]);
+                this.isExpanded$.next(false);
                 this.selectedIndex = -1;
                 break;
             case KeyCodes.ENTER:
@@ -417,53 +335,52 @@ export class UniAutocompleteInput extends BaseControl {
                             }
                         }
                     }
-                    this.selectedItem = this.lookupResults[this.selectedIndex];
-                    this.confirmSelection(this.selectedItem);
-                    this.close();
+                    this.confirmSelection(this.lookupResults[this.selectedIndex]);
+                    this.isExpanded$.next(false);
                     this.selectedIndex = -1;
                 }
                 break;
             case KeyCodes.ESCAPE:
-                this.isExpanded$.next(false);
-                this.selectedIndex = -1;
-                this.selectedItem = null;
-                this.control.setValue(this.initialDisplayValue, {emitEvent: false});
-                this.inputElement.nativeElement.focus();
-                try {
-                    this.inputElement.nativeElement.select();
-                } catch (e) {
+                if (this.isExpanded$.getValue()) {
+                    this.isExpanded$.next(false);
+                } else {
+                    this.control.setValue(this.initialDisplayValue, {emitEvent: false});
                 }
+
+                this.selectedIndex = -1;
+                try {
+                    this.inputElement.nativeElement.focus();
+                    this.inputElement.nativeElement.select();
+                } catch (e) {}
                 break;
             case KeyCodes.SPACE:
                 if (!this.isExpanded$.getValue() && (!this.control.value || !this.control.value.length)) {
                     event.preventDefault();
-                    this.toggle();
+                    this.lookup();
                 }
                 break;
             case KeyCodes.UP_ARROW:
                 event.preventDefault();
                 if (this.selectedIndex >= 0) {
                     this.selectedIndex--;
-                    this.selectedItem = this.lookupResults[this.selectedIndex];
                     this.scrollToListItem();
                 }
                 break;
             case KeyCodes.DOWN_ARROW:
                 event.preventDefault();
                 if (event.altKey && !this.isExpanded$.getValue()) {
-                    this.open();
+                    this.isExpanded$.next(true);
                     return;
                 }
 
                 let limitDown = this.field.Options.editor ? this.lookupResults.length : this.lookupResults.length - 1;
                 if (this.selectedIndex < limitDown) {
                     this.selectedIndex++;
-                    this.selectedItem = this.lookupResults[this.selectedIndex];
                     this.scrollToListItem();
                 }
                 break;
             case KeyCodes.F4:
-                this.toggle();
+                this.lookup();
                 break;
         }
         this.cd.markForCheck();

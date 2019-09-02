@@ -296,20 +296,23 @@ export class UnitableAutocomplete implements OnInit {
         return observable;
     }
 
-    private confirmSelection() {
-        const item = this.lookupResults[this.selectedIndex];
+    private confirmSelection(index?: any) {
+        index = index >= 0 ? index : this.selectedIndex;
+        const item = this.lookupResults[index];
 
         if (item) {
             const displayValue = this.options.itemTemplate(item);
             this.inputControl.setValue(displayValue, {emitEvent: false});
+            this.selectedIndex = index;
         }
     }
 
-    public itemClicked(index: number, isHeader = false) {
-        if (isHeader) {
+    public itemClicked(index: number, isHeader: boolean) {
+        if (isHeader || !this.lookupResults || !this.lookupResults[index]) {
             return;
         }
-        this.confirmSelection();
+
+        this.confirmSelection(index);
         this.expanded = false;
         setTimeout(() => {
             this.inputElement.nativeElement.focus();
@@ -319,6 +322,7 @@ export class UnitableAutocomplete implements OnInit {
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode || 0;
 
+        // Enter, no element available and add button exists
         if (key === 13
             && this.inputControl.value
             && this.inputControl.value.length > 0
@@ -326,13 +330,12 @@ export class UnitableAutocomplete implements OnInit {
             && !this.busy && this.expanded
             && this.options.addNewButtonVisible
         ) {
-            // enter, no element available and add button exists
             this.addNewItem();
+        // Enter
         } else if (key === 13 && this.selectedIndex >= 0) {
-            // enter
             this.confirmSelection();
+        // Escape
         } else if (key === 27 && this.expanded) {
-            // Escape
             event.stopPropagation();
             this.expanded = false;
             this.inputElement.nativeElement.focus();

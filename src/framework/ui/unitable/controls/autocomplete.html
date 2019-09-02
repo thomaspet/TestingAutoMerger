@@ -21,7 +21,6 @@
             <ng-container *ngIf="!options.showResultAsTable">
                 <section
                     *ngFor="let item of lookupResults; let idx = index"
-                    (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
                     (click)="itemClicked(idx, item.isHeader)"
                     [ngClass]="item.isHeader ? 'dropdown-menu-header' : 'dropdown-menu-item'"
                     [attr.aria-selected]="selectedIndex === idx">
@@ -58,7 +57,6 @@
                                 [attr.aria-selected]="selectedIndex === idx"
                                 class="result-item"
                                 role="option"
-                                (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
                                 (click)="itemClicked(idx, item.isHeader)">
 
                                 <td *ngFor="let field of options.resultTableConfig.fields"

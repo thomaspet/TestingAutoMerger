@@ -233,10 +233,6 @@ export class UniSearchAttr implements OnInit, OnChanges {
         this.performLookup(this.inputElement.nativeElement.value || '');
     }
 
-    private isNumber(obj: any) {
-        return typeof obj === 'number';
-    }
-
     private performLookup(query: string) {
         this.lookupResults = null;
         this.busy = true;

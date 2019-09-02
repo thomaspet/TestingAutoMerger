@@ -13,7 +13,6 @@ import {UnitableContextMenu} from './contextMenu';
 import {UniTableSearch} from './search/search';
 import {UniTablePipe} from './unitablePipe';
 import {UniCalendar} from './controls/common/calendar';
-import {DateUtil} from './controls/common/DateUtil';
 import {UniTableColumnConfigEditor} from './columnMenu/columnConfigEditor';
 import {UnitableTextInput} from './controls/text';
 import {UnitableAutocomplete} from './controls/autocomplete';
@@ -77,7 +76,6 @@ import {UniDateAdapter} from '@app/date-adapter';
     ],
     providers: [
         UniTableUtils,
-        DateUtil,
         {provide: DateAdapter, useClass: UniDateAdapter},
     ],
     exports: [
@@ -102,8 +100,4 @@ import {UniDateAdapter} from '@app/date-adapter';
         ColumnTooltipPipe,
     ]
 })
-export class UniTableModule {
-    constructor() {
-        UnitableEditor.parentModule = UniTableModule;
-    }
-}
+export class UniTableModule {}

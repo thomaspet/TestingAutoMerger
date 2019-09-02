@@ -187,14 +187,6 @@ export class UniTable implements OnChanges {
         }
     }
 
-    @HostListener('document:click', ['$event'])
-    private checkForClickOutside(event: MouseEvent) {
-        if (!this.el.nativeElement.contains(event.target)) {
-
-            this.lastFocusPosition = undefined;
-        }
-    }
-
     // Event hooks
     private openEditor(cell: HTMLTableElement, column, rowModel) {
         this.currentRowModel = rowModel;
