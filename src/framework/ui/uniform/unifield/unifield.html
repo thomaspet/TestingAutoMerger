@@ -18,15 +18,6 @@
                             (inputEvent)="onInputHandler($event)"
                             (focusEvent)="onFocusHandler($event)"
     ></uni-autocomplete-input>
-    <uni-date-input #selectedComponent *ngIf="field?.FieldType === 2"
-                    [field]="field"
-                    [model]="model"
-                    [asideGuid]="asideGuid"
-                    (readyEvent)="onReadyHandler($event)"
-                    (changeEvent)="onChangeHandler($event)"
-                    (inputEvent)="onInputHandler($event)"
-                    (focusEvent)="onFocusHandler($event)"
-    ></uni-date-input>
     <uni-select-input #selectedComponent *ngIf="field?.FieldType === 3"
                       [field]="field"
                       [model]="model"

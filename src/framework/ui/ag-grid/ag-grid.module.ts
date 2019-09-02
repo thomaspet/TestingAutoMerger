@@ -18,6 +18,7 @@ import {RowMenuRenderer} from './cell-renderer/row-menu';
 import {TABLE_CONTROLS} from '../unitable/controls';
 import {UniDateAdapter} from '@app/date-adapter';
 import {DropdownMenuModule} from '../dropdown-menu/dropdown-menu';
+import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 
 @NgModule({
     imports: [
@@ -29,6 +30,7 @@ import {DropdownMenuModule} from '../dropdown-menu/dropdown-menu';
         MatAutocompleteModule,
         AppPipesModule,
         DropdownMenuModule,
+        InputDropdownModule,
         AgGridModule.withComponents([
             RowMenuRenderer
         ])

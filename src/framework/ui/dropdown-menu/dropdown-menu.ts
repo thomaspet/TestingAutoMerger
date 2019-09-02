@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {OverlayModule, OverlayRef, Overlay, OverlayConfig, ConnectedPosition} from '@angular/cdk/overlay';
 import {PortalModule, TemplatePortalDirective} from '@angular/cdk/portal';
 import {fromEvent, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {takeUntil, take} from 'rxjs/operators';
 
 @Component({
     selector: 'dropdown-menu',
@@ -38,14 +38,6 @@ export class DropdownMenu {
                     this.show();
                 }
             });
-
-            fromEvent(document, 'keydown').pipe(
-                takeUntil(this.onDestroy$)
-            ).subscribe((event: KeyboardEvent) => {
-                if (this.visible && event.keyCode === 27) {
-                    this.hide();
-                }
-            });
         } else {
             console.warn('Missing trigger for DropdownMenu, add: [trigger]="<reference to toggle element>"');
         }
@@ -64,10 +56,7 @@ export class DropdownMenu {
         this.overlayRef = this.overlay.create(this.getOverlayConfig());
         this.overlayRef.attach(this.contentTemplate);
         this.syncWidth();
-        this.overlayRef.backdropClick().pipe(
-            takeUntil(this.onDestroy$)
-        ).subscribe(() => this.hide());
-
+        this.overlayRef.backdropClick().pipe(take(1)).subscribe(() => this.hide());
         this.visible = true;
     }
 

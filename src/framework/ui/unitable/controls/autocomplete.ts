@@ -60,95 +60,12 @@ export interface IGroupConfig {
 
 @Component({
     selector: 'unitable-autocomplete',
-    template: `
-        <article class="autocomplete">
-            <input
-                type="text"
-                #input
-                class="uniAutocomplete_input"
-                [formControl]="inputControl"
-                (keypress)="busy = true"
-                (keydown)="onKeyDown($event)"
-                role="combobox"
-            />
-
-            <button class="uni-autocomplete-searchBtn"
-                    (click)="toggle()"
-                    (keydown)="onKeyDown($event)"
-                    tabIndex="-1">Søk
-            </button>
-
-            <ul #list class="uniTable_dropdown_list"
-                id="autocomplete-results"
-                role="listbox"
-                tabindex="-1"
-                *ngIf="!options.showResultAsTable"
-                [attr.aria-expanded]="expanded">
-
-                <li *ngFor="let item of lookupResults; let idx = index"
-                    class="uniTable_dropdown_item"
-                    role="option"
-                    (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
-                    (click)="itemClicked(idx, item.isHeader)"
-                    [ngClass]="{ 'group_list_header' : item.isHeader }"
-                    [attr.aria-selected]="selectedIndex === idx">
-                    {{ item.isHeader ? item.header : options.itemTemplate(item) }}
-                </li>
-                <li *ngIf="!busy && options.addNewButtonVisible" class="autocomplete-add-button">
-                    <button (click)="addNewItem()">
-                        {{ options.addNewButtonText ? options.addNewButtonText : 'Legg til' }}
-                    </button>
-                </li>
-            </ul>
-            <div
-                *ngIf="options.showResultAsTable && options.resultTableConfig"
-                class="unitable_dropdown_table"
-                [attr.aria-expanded]="expanded"
-                [attr.aria-upwards]="showDropdownAbove">
-                <div *ngIf="options.resultTableConfig.createNewButton">
-                    <button (click)="onActionClick(options.resultTableConfig.createNewButton)">
-                        {{ options.resultTableConfig.createNewButton.buttonText }}
-                    </button>
-                </div>
-                <div class="result_table_container" *ngIf="lookupResults.length > 0" #container>
-                    <table #list>
-                        <thead>
-                            <tr>
-                                <th *ngFor="let field of options.resultTableConfig.fields"
-                                    [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }">
-                                    {{ field.header }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of lookupResults; let idx = index"
-                                [attr.aria-selected]="selectedIndex === idx"
-                                role="option"
-                                (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
-                                (click)="itemClicked(idx, item.isHeader)">
-
-                                <td *ngFor="let field of options.resultTableConfig.fields"
-                                    [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }"
-                                    [ngClass]="field.class">
-                                    <span class="result_td" *ngIf="!field.isMoneyField"> {{item[field.key]}} </span>
-                                    <span *ngIf="field.isMoneyField">
-                                        {{ item[field.key] | uninumberformat: 'money' }}
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <p *ngIf="lookupResults.length === 0">{{ emptySearchString }}</p>
-            </div>
-        </article>
-    `,
+    templateUrl: './autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UnitableAutocomplete implements OnInit {
     @ViewChild('input') public inputElement: ElementRef;
-    @ViewChild('list')  private list: ElementRef;
-    @ViewChild('container')  private container: ElementRef;
+    @ViewChild('dropdown') private dropdown: ElementRef;
 
     @Input()
     private column: any;
@@ -275,6 +192,7 @@ export class UnitableAutocomplete implements OnInit {
     }
 
     public onActionClick(button: any) {
+        this.expanded = false;
         this.addValuePromise = new Promise((resolve) => {
             button.action().subscribe(item => {
                 if (item) {
@@ -454,24 +372,15 @@ export class UnitableAutocomplete implements OnInit {
     }
 
     private scrollToListItem() {
-        let list = this.list.nativeElement;
-        let currItem = list.children[this.selectedIndex];
-        // If result is table, change elements
-        if (this.options.showResultAsTable) {
-            currItem = list.children[1].children[this.selectedIndex];
-            list = this.container.nativeElement;
-        }
-
-        if (!currItem) {
-            return;
-        }
-
-        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
-
-        if (currItem.offsetTop <= list.scrollTop) {
-            list.scrollTop = currItem.offsetTop;
-        } else if (currItem.offsetTop >= bottom) {
-            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
-        }
+        setTimeout(() => {
+            if (this.dropdown && this.dropdown.nativeElement) {
+                const activeItem: HTMLElement = this.dropdown.nativeElement.querySelector('[aria-selected=true]');
+                if (activeItem) {
+                    activeItem.scrollIntoView({
+                        block: 'nearest'
+                    });
+                }
+            }
+        });
     }
 }

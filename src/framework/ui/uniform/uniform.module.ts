@@ -20,15 +20,24 @@ import {UniField} from './unifield/unifield';
 import {UniSection} from './unisection/unisection';
 import {CONTROLS} from './controls/index';
 import {ShowError} from './showError.component';
-import {UniCalendar} from './controls/calendar/calendar';
 import {UniLineBreak} from './uni-linebreak.component';
 import {LayoutBuilder} from './services/index';
 
 import {UniSearchModule} from '../unisearch/index';
 import {UniTooltipModule} from '../tooltip/tooltip.module';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule, MatTooltipModule} from '@angular/material';
-import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
+import {UniSelectModule} from '@uni-framework/ui/uni-select/select.module';
+import {InputDropdownModule} from '../input-dropdown/input-dropdown';
+import {UniDateAdapter} from '@app/date-adapter';
+
+import {
+    MatCheckboxModule,
+    MatRadioModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatDatepickerModule,
+    DateAdapter
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -42,13 +51,13 @@ import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
         MatRadioModule,
         MatSlideToggleModule,
         MatTooltipModule,
+        MatDatepickerModule,
         UniSelectModule,
+        InputDropdownModule,
         ClickOutsideModule
     ],
     declarations: [
         UniForm,
-        // UniSelect,
-        UniCalendar,
         UniField,
         UniSection,
         ShowError,
@@ -66,12 +75,12 @@ import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
         MarkLastFieldPipe
     ],
     providers: [
-        LayoutBuilder
+        LayoutBuilder,
+        {provide: DateAdapter, useClass: UniDateAdapter},
     ],
     exports: [
         UniForm,
         UniSelectModule,
-        UniCalendar,
         UniField,
         UniSection,
         ShowError,

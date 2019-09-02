@@ -9,32 +9,20 @@
 
     // THE INPUT
     input[type=text]
-        @extend %inputButtonParent
-
         background: #fff
-
-    // THE ADD-BUTTON
-    .uni-multivalue-moreBtn
-        @extend %inputButton
-        background-image: unicon-plus($uni-color-scale4)
-
-    &.-has-values .uni-multivalue-moreBtn
-        background-image: unicon-down($uni-color-scale4)
-
-    input:focus + .uni-multivalue-moreBtn
-        border-color: var(--color-c2a)
+        cursor: pointer
 
 .multivalue-section-container
-  position: absolute
-  top: 2rem
+  // position: absolute
+  // top: 2.5rem
   width: 100%
-  background-color: white
-  border: 1px solid #d9d9d9
+  // background-color: white
+  // border: 1px solid #d9d9d9
   border-top: 0
-  border-radius: 3px
+  // border-radius: 3px
   padding-top: 1rem
-  z-index: 999
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
+  // z-index: 999
+  // box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
 
   input
     width: 92%

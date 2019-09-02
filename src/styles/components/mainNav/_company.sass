@@ -83,33 +83,10 @@ uni-company-dropdown
             font-weight: 400
 
 
-.navbar_company_select
-    .uniSelect
-        margin-bottom: .5rem
-
-    .uniSelect > .uniSelect_input[role=combobox][aria-readonly]
-        margin-top: .3rem
-        font-size: 1.1rem
-        font-weight: 400
-        height: 1.7rem
-        color: $uni-color-scale3
-        background-color: transparent
-        border-style: dotted
-        border-color: $uni-color-scale9
-        border-right-color: $uni-color-scale9
-
-        &:hover,
-        &:focus
-            border-style: solid
-            border-color: var(--color-c2a)
-
-.navbar_company_activeYear,
 .navbar_company_taxyearselect
-    float: right
-
-.navbar_company_taxyearselect
-    .uniSelect,
-    .uniSelect_dropdown,
-    .uniSelect_dropdown ul.uniSelect_dropdown_list
-        min-width: 6.2rem
-        width: 6.2rem
+    display: flex
+    align-items: center
+    justify-content: space-between
+    margin: 1rem 0
+    uni-select
+        width: 6rem

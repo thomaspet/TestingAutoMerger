@@ -55,6 +55,8 @@ import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 
 import {ReloadHelper} from './reload';
 import { ImportCentralServicesModule } from './services/importCentralServiceModule';
+import {DateAdapter} from '@angular/material';
+import {UniDateAdapter} from './date-adapter';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -118,7 +120,8 @@ moment.locale('nb');
         TabService,
         ToastService,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
-        {provide: ErrorHandler, useClass: UniAngularErrorHandler}
+        {provide: ErrorHandler, useClass: UniAngularErrorHandler},
+        {provide: DateAdapter, useClass: UniDateAdapter},
     ],
 })
 export class AppModule {}

@@ -13,10 +13,8 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
-import {IEditorData} from '../config/unitableConfig';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/fromPromise';
-import * as moment from 'moment';
 import * as Immutable from 'immutable';
 import {LocalDate} from '../../../../app/unientities';
 
@@ -188,8 +186,31 @@ export class UnitableEditor {
         }
 
         if (event.target.tagName !== 'TABLE' && event.target.tagName !== 'TD' && !this.el.nativeElement.contains(event.target)) {
-            this.emitAndClose();
-            this.close();
+            let el = event.target;
+            let i = 0;
+            let dropdownClick = false;
+            while (!dropdownClick && el.parentElement && i < 100) {
+                console.log(el.parentElement);
+                const classList = el.parentElement.classList;
+                if (classList) {
+                    dropdownClick = classList.contains('input-dropdown-menu')
+                        || classList.contains('mat-calendar')
+                        || classList.contains('mat-datepicker-popup')
+                        || classList.contains('cdk-overlay-pane');
+                }
+
+                // if (el.parentElement.classList && el.parentElement.classList.contains('input-dropdown-menu')) {
+                //     dropdownClick = true;
+                // }
+
+                i++;
+                el = el.parentElement;
+            }
+
+            if (!dropdownClick) {
+                this.emitAndClose();
+                this.close();
+            }
         }
     }
 

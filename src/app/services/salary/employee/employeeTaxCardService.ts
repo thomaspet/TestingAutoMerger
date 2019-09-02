@@ -209,7 +209,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     {
                         EntityType: 'EmployeeTaxCard',
                         Property: '_lastUpdated',
-                        FieldType: FieldType.DATE_TIME_PICKER,
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
                         ReadOnly: true,
                         Label: 'Sist oppdatert',
                         FieldSet: 1,
@@ -573,7 +573,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     {
                         EntityType: 'EmployeeTaxCard',
                         Property: '_lastUpdated',
-                        FieldType: FieldType.DATE_TIME_PICKER,
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
                         ReadOnly: true,
                         Label: 'Sist oppdatert',
                         FieldSet: 10,

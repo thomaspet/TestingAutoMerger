@@ -43,7 +43,7 @@ export interface IAutocompleteCache {
 export class UniAutocompleteInput extends BaseControl {
     @ViewChild('toggleBtn') private toggleButton: ElementRef;
     @ViewChild('list') private list: ElementRef;
-    @ViewChild('query') private inputElement: ElementRef;
+    @ViewChild('inputElement') private inputElement: ElementRef;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
@@ -476,16 +476,11 @@ export class UniAutocompleteInput extends BaseControl {
 
     private scrollToListItem() {
         const list = this.list.nativeElement;
-        const currItem = list.children[this.selectedIndex];
+        const currItem: HTMLElement = list.children[this.selectedIndex];
         if (!currItem) {
             return;
         }
-        const bottom = list.scrollTop + list.offsetHeight - currItem.offsetHeight;
 
-        if (currItem.offsetTop <= list.scrollTop) {
-            list.scrollTop = currItem.offsetTop;
-        } else if (currItem.offsetTop >= bottom) {
-            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
-        }
+        currItem.scrollIntoView(false);
     }
 }

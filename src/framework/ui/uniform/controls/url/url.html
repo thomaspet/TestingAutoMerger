@@ -1,19 +1,19 @@
-<input
-    #input
-    [attr.aria-describedby]="asideGuid"
-    class="nir-url-input"
-    *ngIf="control"
-    type="url"
-    [formControl]="control"
-    [readonly]="readOnly$ | async"
-    [placeholder]="field?.Placeholder || ''"
-    (blur)="blurHandler()"
-    (focus)="focusHandler()"
-    [title]="control?.value || ''"
-    tabindex="-1"
-/>
-<button class="uni-url-openBtn" type="button"
-        (click)="openUrl()"
-        type="button"
-        [disabled]="!validateURL(control?.value)">...</button>
-<ng-content></ng-content>
+<section class="input-with-button">
+    <input #input
+        [attr.aria-describedby]="asideGuid"
+        class="nir-url-input"
+        *ngIf="control"
+        type="url"
+        [formControl]="control"
+        [readonly]="readOnly$ | async"
+        [placeholder]="field?.Placeholder || ''"
+        (blur)="blurHandler()"
+        (focus)="focusHandler()"
+        [title]="control?.value || ''"
+        tabindex="-1"
+    />
+
+    <button type="button" (click)="openUrl()" tabindex="-1">
+        <i class="material-icons">link</i>
+    </button>
+</section>

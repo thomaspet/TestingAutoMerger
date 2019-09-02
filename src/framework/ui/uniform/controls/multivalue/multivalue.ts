@@ -138,6 +138,11 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.moveForwardEvent.emit({event: null, field: this.field});
     }
 
+    onClick(event) {
+        console.log(event);
+        this.toggle();
+    }
+
     public toggle() {
         if (this.isOpen) {
             this.close();

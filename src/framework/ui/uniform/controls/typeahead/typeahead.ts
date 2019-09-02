@@ -26,8 +26,8 @@ import {KeyCodes} from '@app/services/common/keyCodes';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniTypeaheadInput extends BaseControl {
-    @ViewChild('list') private list: ElementRef;
-    @ViewChild('query') private inputElement: ElementRef;
+    @ViewChild('dropdown') private dropdown: ElementRef;
+    @ViewChild('inputElement') private inputElement: ElementRef;
 
     @Input() field: UniFieldLayout;
     @Input() model: any;
@@ -224,17 +224,12 @@ export class UniTypeaheadInput extends BaseControl {
     }
 
     private scrollToListItem() {
-        const list = this.list.nativeElement;
-        const currItem = list.children[this.selectedIndex];
-        if (!currItem) {
-            return;
-        }
-        const bottom = list.scrollTop + list.offsetHeight - currItem.offsetHeight;
-
-        if (currItem.offsetTop <= list.scrollTop) {
-            list.scrollTop = currItem.offsetTop;
-        } else if (currItem.offsetTop >= bottom) {
-            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
+        if (this.dropdown && this.dropdown.nativeElement) {
+            const list = this.dropdown.nativeElement;
+            const item = list.children[this.selectedIndex];
+            if (item) {
+                item.scrollIntoView(false);
+            }
         }
     }
 }

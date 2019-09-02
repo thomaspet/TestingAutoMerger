@@ -268,7 +268,21 @@ export class TableEditor {
 
     public checkForClickOutside(event) {
         if (this.elRef && !this.elRef.nativeElement.contains(event.target)) {
-            this.emitAndClose();
+            let el = event.target;
+            let i = 0;
+            let dropdownClick = false;
+            while (!dropdownClick && el.parentElement && i < 100) {
+                if (el.parentElement.classList && el.parentElement.classList.contains('input-dropdown-menu')) {
+                    dropdownClick = true;
+                }
+
+                i++;
+                el = el.parentElement;
+            }
+
+            if (!dropdownClick) {
+                this.emitAndClose();
+            }
         }
     }
 

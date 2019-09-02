@@ -22,14 +22,14 @@ import {UnitableNumberInput} from './controls/number';
 import {UnitableDateTimepicker} from './controls/dateTimePicker/dateTimePicker';
 import {UnitableSelect} from './controls/select';
 import {LocalDatePicker} from './controls/localDatePicker/LocalDatePicker';
-import {UniSearchWrapper} from './controls/uniSearchWrapper';
-import {UniSearchModule} from '../unisearch/index';
 
 import {ColumnMenuModal} from './columnMenu/columnMenuModal';
 import {ColumnTooltipPipe} from './columnTooltipPipe';
 import {UniTableHeader} from './header/unitable-header';
 
-import {MatMenuModule} from '@angular/material';
+import {MatMenuModule, MatDatepickerModule, DateAdapter} from '@angular/material';
+import {InputDropdownModule} from '../input-dropdown/input-dropdown';
+import {UniDateAdapter} from '@app/date-adapter';
 
 @NgModule({
     imports: [
@@ -37,8 +37,9 @@ import {MatMenuModule} from '@angular/material';
         FormsModule,
         ReactiveFormsModule,
         MatMenuModule,
+        MatDatepickerModule,
         AppPipesModule,
-        UniSearchModule
+        InputDropdownModule
     ],
     declarations: [
         UniTable,
@@ -60,7 +61,6 @@ import {MatMenuModule} from '@angular/material';
 
         UniTablePipe,
         ColumnTooltipPipe,
-        UniSearchWrapper,
         ColumnMenuModal,
 
         UniTableHeader
@@ -73,12 +73,12 @@ import {MatMenuModule} from '@angular/material';
         UnitableDateTimepicker,
         UnitableSelect,
         LocalDatePicker,
-        UniSearchWrapper,
         ColumnMenuModal
     ],
     providers: [
         UniTableUtils,
-        DateUtil
+        DateUtil,
+        {provide: DateAdapter, useClass: UniDateAdapter},
     ],
     exports: [
         UniTable,
@@ -100,7 +100,6 @@ import {MatMenuModule} from '@angular/material';
 
         UniTablePipe,
         ColumnTooltipPipe,
-        UniSearchWrapper,
     ]
 })
 export class UniTableModule {

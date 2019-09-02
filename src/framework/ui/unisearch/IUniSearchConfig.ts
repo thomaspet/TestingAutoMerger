@@ -20,5 +20,4 @@ export interface IUniSearchConfig {
     placeholder?: string;
     unfinishedValueFn?: (val: any) => Observable<any>;
     searchType1880?: SearchType1880;
-    disableSearchButton?: boolean;
 }

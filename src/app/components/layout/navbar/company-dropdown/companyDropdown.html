@@ -8,7 +8,7 @@
 
         <section class="navbar_company_dropdown" [attr.aria-expanded]="companyDropdownActive">
 
-            <section class="company-info">
+            <section class="company-info" *ngIf="companyDropdownActive">
                 <uni-select *ngIf="availableCompanies"
                     class="navbar_company_select"
                     [config]="selectCompanyConfig"
@@ -17,13 +17,15 @@
                     (valueChange)="companySelected($event)">
                 </uni-select>
 
-                <label>Regnskapsår</label>
-                <uni-select class="navbar_company_taxyearselect"
-                    [config]="selectYearConfig"
-                    [items]="selectYear"
-                    [value]="activeYear"
-                    (valueChange)="onYearDropdownChange($event)">
-                </uni-select>
+                <label class="navbar_company_taxyearselect">
+                    <span>Regnskapsår</span>
+                    <uni-select
+                        [config]="selectYearConfig"
+                        [items]="selectYear"
+                        [value]="activeYear"
+                        (valueChange)="onYearDropdownChange($event)">
+                    </uni-select>
+                </label>
 
                 <dl>
                     <dt *ngIf="companySettings?.OrganizationNumber">Org.nr</dt>

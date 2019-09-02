@@ -5,7 +5,6 @@ import {UnitableNumberInput} from '../controls/number';
 import {UnitableDateTimepicker} from '../controls/dateTimePicker/dateTimePicker';
 import {UnitableSelect} from '../controls/select';
 import {LocalDatePicker} from '../controls/localDatePicker/LocalDatePicker';
-import {UniSearchWrapper} from '../controls/uniSearchWrapper';
 
 /*
     Dont make changes to this unless you know what you're doing!
@@ -27,7 +26,6 @@ export enum UniTableColumnType {
     Percent = 8,
     LocalDate = 9,
     Boolean = 10,
-    UniSearch = 11,
     Typeahead = 12,
     Link = 13
 }
@@ -260,10 +258,6 @@ export class UniTableColumn implements IUniTableColumn {
 
             case UniTableColumnType.LocalDate:
                 this.editor = LocalDatePicker;
-            break;
-
-            case UniTableColumnType.UniSearch:
-                this.editor = UniSearchWrapper;
             break;
         }
 

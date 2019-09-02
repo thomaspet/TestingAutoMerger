@@ -523,7 +523,7 @@ export class UniDimensionView implements OnInit {
                         Property: 'Description',
                     },
                     <any>{
-                        FieldType: FieldType.DATE_TIME_PICKER,
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Opprettet',
                         Property: 'CreatedAt',
                         ReadOnly: true

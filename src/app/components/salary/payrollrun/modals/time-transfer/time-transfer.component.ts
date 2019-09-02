@@ -151,7 +151,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
             });
     }
 
-    private createTimeTransactions() {
+    createTimeTransactions() {
         this.modalService
             .confirm({
                 header: 'Overfør timer',
