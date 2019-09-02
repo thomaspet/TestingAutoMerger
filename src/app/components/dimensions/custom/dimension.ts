@@ -427,7 +427,8 @@ export class UniDimensionView implements OnInit {
                 });
             },
             (err) => {
-                done('Lagring feilet');
+                this.errorService.handle(err);
+                done();
             });
         }
     }

@@ -297,7 +297,11 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     ).subscribe(res => {
                         const order = <CustomerOrder>res[0];
                         this.askedAboutSettingDimensionsOnItems = false;
-                        this.contacts = order.Customer.Info.Contacts;
+                        if (order && order.Customer && order.Customer.Info) {
+                            this.contacts = order.Customer.Info.Contacts;
+                        } else {
+                            this.contacts = [];
+                        }
                         this.companySettings = res[1];
                         this.currencyCodes = res[2];
                         this.projects = res[3];
@@ -1250,7 +1254,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
     private recalcItemSums(orderItems: CustomerOrderItem[] = null) {
         const items = orderItems && orderItems.filter(item => !item.Deleted);
-        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
+        const decimals = this.tradeItemHelper.getCompanySettingsNumberOfDecimals(this.companySettings, this.currencyCodeID);
 
         this.itemsSummaryData = items && items.length
             ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)

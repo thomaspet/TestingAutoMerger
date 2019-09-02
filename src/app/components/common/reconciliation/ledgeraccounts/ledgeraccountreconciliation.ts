@@ -9,7 +9,8 @@ import {
     Payment,
     BusinessRelation,
     Customer,
-    CompanySettings
+    CompanySettings,
+    CurrencyCode
 } from '../../../../unientities';
 import {
     UniTableColumn,
@@ -817,6 +818,7 @@ export class LedgerAccountReconciliation {
                  'Tilbakebetaling overbetalt beløp.';
                 newPayment.IsCustomerPayment = false;
                 newPayment.AutoJournal = true;
+                newPayment.CurrencyCode = payment.CurrencyCode || new CurrencyCode();
                 this.modalService.open(AddPaymentModal, {
                     data: {
                         model: newPayment,
@@ -837,7 +839,8 @@ export class LedgerAccountReconciliation {
     }
 
     private editPayment(paymentID: number) {
-        this.paymentService.Get(paymentID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).switchMap(existingPayment => {
+        this.paymentService.Get(paymentID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount', 'CurrencyCode'])
+        .switchMap(existingPayment => {
             return this.modalService.open(AddPaymentModal, {
                 data: {
                     model: existingPayment,
@@ -855,7 +858,7 @@ export class LedgerAccountReconciliation {
     }
 
     private getPaymentByPaymentReferenceID(id): Observable<Payment> {
-        return this.paymentService.Get(id, ['BusinessRelation']).switchMap(payment => {
+        return this.paymentService.Get(id, ['BusinessRelation', 'CurrencyCode']).switchMap(payment => {
             if (!payment.FromBankAccountID) {
                 payment.ToBankAccountID = null;
                 payment.ToBankAccount = null;

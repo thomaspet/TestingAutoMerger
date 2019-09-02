@@ -1,37 +1,61 @@
 <section class="salarytrans-splitview">
-    <section class="uni-container salarytrans-list">
-        <ag-grid-wrapper
-            [attr.aria-busy]="busy"
-            [config]="salarytransSelectionTableConfig"
-            [resource]="employeeList"
-            (rowSelectionChange)="rowSelected($event)"
-            (dataLoaded)="focusRow(0)">
-        </ag-grid-wrapper>
+    <section class="uni-container salarytrans-list small-split-view-list"  [attr.aria-busy]="busy">
+        <section class="emp-header">
+
+            <mat-form-field class="emp-sort">
+                <mat-select [value]="currentListFilter" placeholder="Sorter etter">
+                    <mat-option *ngFor="let filter of employeeListfilters" [value]="filter" (click)="onActiveFilterChange(filter)">
+                        {{ filter.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button class="button-clean" (click)="getEmployee()"><i class="material-icons" style="color:green; vertical-align: middle"> person_add </i> Hent ansatt</button>
+
+            <input type="search" [(ngModel)]="employeeFilterString" [formControl]="searchControl" class="emp-search"/>
+            <i class="material-icons info" matTooltip="Kun ansatte med lønnsposter i lønnsavregningen vises i listen. Dersom du ønsker å registrere lønnsposter på ansatte som ikke er i listen, klikk på knappen &quot;hent ansatt&quot; for å hente den ansatte inn i listen. Det er ikke nødvendig å hente inn ansatte i listen før man importerer data eller registrerer i bildet for variable lønnsposter. Listen oppdateres automatisk når ansatt har lønnsposter på lønnsavregningen">
+                 info
+            </i>
+
+        </section>
+
+        <cdk-virtual-scroll-viewport id="role-info" class="emp-list" itemSize="34" >
+            <li *cdkVirtualFor="let employee of filteredEmployees; templateCacheSize: 100"
+                [class.selected]="employee.ID === selectedEmp?.ID"
+                class="emp-item"
+                (click)="rowSelected(employee)" style="display: flex; flex-direction: row;">
+                <div> {{ employee.EmployeeNumber }} </div>
+                <span> {{ employee.Name }} </span>
+                <i class="material-icons bad" *ngIf="errors[employee.ID]" title="{{ errors[employee.ID] }}"> warning </i>
+            </li>
+            <li *ngIf="hasInitialized && !(filteredEmployees).length" style="padding: 0; line-height: 34px;">
+                <span (click)="getEmployee()" style="font-weight: 600;"> Ingen ansatte å vise. Legg til ny </span>
+            </li>
+        </cdk-virtual-scroll-viewport>
     </section>
 
     <section class="uni-container salarytrans-details">
-        <header *ngIf="employeeList?.length && employeeList[selectedIndex] && agaZone">
-            <a [routerLink]="['/salary/employees/' + employeeList[selectedIndex].ID]">
-                {{employeeList[selectedIndex].EmployeeNumber}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}
+        <header *ngIf="selectedEmp && agaZone">
+            <a [routerLink]="['/salary/employees/' + selectedEmp.ID]">
+                {{selectedEmp.EmployeeNumber}} - {{selectedEmp?.Name}}
             </a>
             &ensp;|&ensp;
-            Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
+            Virksomhet: {{selectedEmp.SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
             <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
 
 
             <section class="navigation-buttons">
-                <i class="material-icons" role="button" (click)="goToPreviousEmployee()">
+                <i class="material-icons" role="button" (click)="prevRow()">
                     keyboard_arrow_left
                 </i>
-                <i class="material-icons" role="button" (click)="goToNextEmployee()">
+                <i class="material-icons" role="button" (click)="nextRow()">
                     keyboard_arrow_right
                 </i>
             </section>
         </header>
 
         <link-menu [menu]="linkMenu$ | async"></link-menu>
-        <salary-transactions-employee *ngIf="selectedIndex !== undefined" [employee]="employeeList[selectedIndex]"></salary-transactions-employee>
-        <section class="detail_tables" *ngIf="employeeList && employeeList[selectedIndex]">
+        <salary-transactions-employee *ngIf="selectedEmp" [employee]="selectedEmp"></salary-transactions-employee>
+        <section class="detail_tables" *ngIf="employees && selectedEmp">
             <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':hasDirty()}"></uni-summary>
         </section>
     </section>

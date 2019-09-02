@@ -10,6 +10,7 @@ import {
     VatReportNotReportedJournalEntryData,
     AltinnSigning
 } from '../../unientities';
+import { StatisticsService } from '@app/services/common/statisticsService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
@@ -27,10 +28,14 @@ export class VatReportService extends BizHttp<VatReport> {
         { Code: StatusCodeVatReport.Submitted, Text: 'Innsendt' },
         { Code: StatusCodeVatReport.Rejected, Text: 'Avvist' },
         { Code: StatusCodeVatReport.Approved, Text: 'Godkjent' },
-        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' }
+        { Code: StatusCodeVatReport.Adjusted, Text: 'Korrigert' },
+        { Code: StatusCodeVatReport.Cancelled, Text: 'Angret' }
     ];
 
-    constructor(http: UniHttp) {
+    constructor(
+        http: UniHttp,
+        private statisticsService: StatisticsService
+        ) {
         super(http);
         super.disableCache();
 
@@ -49,6 +54,12 @@ export class VatReportService extends BizHttp<VatReport> {
             .withEndPoint(this.relativeURL + `?action=current`)
             .send()
             .map(response => response.body);
+    }
+
+    public getPeriodStatus(periodID: number): Observable<any> {
+        return this.statisticsService.GetAll(`model=VatReport&select=ID as ID,StatusCode as StatusCode,VatReportTypeID as VatReportTypeID,Title as Title&` +
+                    `filter=TerminPeriodID eq '${periodID}'&orderby=ID DESC`)
+                    .map(x => x.Data ? x.Data[0] : []);
     }
 
     public getNextPeriod(vatReportId: number, periodId: number): Observable<VatReport> {
@@ -83,6 +94,15 @@ export class VatReportService extends BizHttp<VatReport> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${vatReportId}?action=undo-execute&vatReportId=${vatReportId}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public undoPeriod(periodId: number): Observable<VatReport> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${periodId}?action=undo-execute-period&periodId=${periodId}`)
             .send()
             .map(response => response.body);
     }

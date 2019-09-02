@@ -53,8 +53,20 @@ export class PaymentService extends BizHttp<Payment> {
                 return 'Feilet';
             case 44018:
                 return 'Ingen match';
+            case 44019:
+                return 'Slette forespørsel';
             default:
                 return '';
         }
+    }
+
+    public cancelPaymentClaim(ids: number[]) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('/payments?action=batch-cancel-payment-claims')
+            .withBody(ids)
+            .send()
+            .map(response => response.body);
     }
 }

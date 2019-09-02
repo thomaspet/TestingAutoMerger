@@ -31,6 +31,7 @@ import {
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
+import { ConfirmActions, IModalOptions, UniModalService } from '@uni-framework/uni-modal';
 declare const _; // lodash
 
 @Component({
@@ -82,6 +83,7 @@ export class ProductDetails {
 
     private expandOptions: Array<string> = ['Dimensions', 'Account', 'VatType'];
     public toolbarconfig: IToolbarConfig;
+    public isDirty = false;
 
     public saveactions: IUniSaveAction[] = [
         {
@@ -120,7 +122,8 @@ export class ProductDetails {
         private productCategoryService: ProductCategoryService,
         private toastService: ToastService,
         private customDimensionService: CustomDimensionService,
-        private uniSearchDimensionConfig: UniSearchDimensionConfig
+        private uniSearchDimensionConfig: UniSearchDimensionConfig,
+        private modalService: UniModalService
     ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
@@ -192,7 +195,7 @@ export class ProductDetails {
         }
 
         subject.subscribe(response => {
-            this.product$.next(response[0]);
+            this.product$.next(Object.assign({}, response[0])); // to avoid run over cached object in BizHttp
             this.descriptionControl.setValue(response[0] && response[0].Description);
 
             if (!this.modalMode) {
@@ -225,6 +228,7 @@ export class ProductDetails {
     }
 
     public textareaChange() {
+        this.isDirty = true;
         const description = this.descriptionControl.value;
         const product = this.product$.getValue();
         if (description && product) {
@@ -234,6 +238,7 @@ export class ProductDetails {
     }
 
     public change(changes: SimpleChanges) {
+        this.isDirty = true;
         if (changes['CalculateGrossPriceBasedOnNetPrice']) {
             this.showHidePriceFields(changes['CalculateGrossPriceBasedOnNetPrice'].currentValue);
         }
@@ -249,13 +254,11 @@ export class ProductDetails {
         }
     }
 
-    public saveProduct(completeEvent) {
+    public save() {
         const product = this.product$.getValue();
         if (product.Dimensions && (!product.Dimensions.ID || product.Dimensions.ID === 0)) {
             product.Dimensions['_createguid'] = this.productService.getNewGuid();
         }
-
-        // clear Account and VatType, IDs are used when saving
         product.Account = null;
         product.VatType = null;
 
@@ -265,8 +268,15 @@ export class ProductDetails {
         }
 
         if (this.productId > 0) {
-            this.productService.Put(product.ID, product).subscribe(
-                (updatedValue) => {
+            return this.productService.Put(product.ID, product);
+        } else {
+            return this.productService.Post(this.product$.getValue());
+        }
+    }
+
+    public saveProduct(completeEvent) {
+        if (this.productId > 0) {
+            this.save().subscribe((updatedValue) => {
                     if (this.modalMode) {
                         this.productSavedInModalMode.emit(updatedValue);
                     } else {
@@ -274,6 +284,7 @@ export class ProductDetails {
                         this.loadProduct();
                         this.setTabTitle();
                     }
+                    this.isDirty = false;
                 },
                 (err) => {
                     completeEvent('Feil oppsto ved lagring');
@@ -282,22 +293,21 @@ export class ProductDetails {
                 }
             );
         } else {
-            this.productService.Post(this.product$.getValue())
-                .subscribe(
-                    (newProduct) => {
-                        if (this.modalMode) {
-                            this.productSavedInModalMode.emit(newProduct);
-                        } else {
-                            completeEvent('Produkt lagret');
-                            this.router.navigateByUrl('/sales/products/' + newProduct.ID);
-                        }
-                    },
-                    (err) => {
-                        completeEvent('Feil oppsto ved lagring');
-                        this.errorService.handle(err);
-                        this.productSavedInModalMode.emit(null);
+            this.save().subscribe((newProduct) => {
+                    if (this.modalMode) {
+                        this.productSavedInModalMode.emit(newProduct);
+                    } else {
+                        completeEvent('Produkt lagret');
+                        this.router.navigateByUrl('/sales/products/' + newProduct.ID);
                     }
-                );
+                    this.isDirty = false;
+                },
+                (err) => {
+                    completeEvent('Feil oppsto ved lagring');
+                    this.errorService.handle(err);
+                    this.productSavedInModalMode.emit(null);
+                }
+            );
         }
     }
 
@@ -475,8 +485,9 @@ export class ProductDetails {
                                 this.product$.getValue().VatTypeID = this.product$.getValue().Account.VatTypeID;
                                 this.product$.getValue().VatType = this.product$.getValue().Account.VatType;
                                 this.calculateAndUpdatePrice();
-
+                                console.log('updateAccount:', (this.product$.getValue() && this.product$.getValue().PriceExVat));
                                 this.product$.next(this.product$.getValue());
+                                console.log('UpdateAccount:', (this.product$.getValue() && this.product$.getValue().PriceExVat));
                             }
                         }
                     },
@@ -685,5 +696,31 @@ export class ProductDetails {
         });
 
         return layout;
+    }
+
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (!this.isDirty) {
+            return true;
+        }
+
+        const product = this.product$.value;
+        const modalOptions: IModalOptions = {
+            header: 'Ulagrede endringer',
+            message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast',
+                cancel: 'Avbryt'
+            }
+        };
+
+        return this.modalService.confirm(modalOptions).onClose.switchMap(modalResult => {
+            if (modalResult === ConfirmActions.ACCEPT) {
+                return this.save()
+                    .catch(err => Observable.of(false))
+                    .map(res => !!res);;
+            }
+            return Observable.of(modalResult !== ConfirmActions.CANCEL);
+        });
     }
 }

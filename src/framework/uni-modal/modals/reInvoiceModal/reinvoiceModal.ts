@@ -323,6 +323,10 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     public saveReinvoiceAs(type: string) {
+        if (this.isSaving) {
+            this.toastr.addToast('Opprettelse av viderefakturering pågår fremdeles, vennligst vent...', ToastType.bad, 5);
+            return;
+        }
 
         if (this.isSaving) {
             this.toastr.addToast('Opprettelse av viderefakturering pågår fremdeles, vennligst vent...', ToastType.bad, 5);
@@ -391,6 +395,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                                 this.isSaving = false;
                                 this.currentReInvoice = reinvoice;
                                 this.ngOnInit(true);
+
                             });
                         } else {
                             this.currentReInvoice = reinvoice;
@@ -522,7 +527,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
     }
 
     public updateItemsData(product?: Product) {
-        const line: any = {};
+           const line: any = {};
         if (product) {
             line.Product = product;
         } else {
@@ -750,6 +755,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     onReinvoicingCustomerChange(change) {
         this.hasChanges = true;
+
         const total = this.supplierInvoice && this.supplierInvoice.TaxInclusiveAmount;
         const data = [].concat(this.reinvoicingCustomers);
         if (data.length === 0) {

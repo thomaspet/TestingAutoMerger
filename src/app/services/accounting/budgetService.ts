@@ -54,7 +54,21 @@ export class BudgetService extends BizHttp<Budget> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('budgetentries?filter=' + filter  + '&expand=account' + (departmentID ? ',dimensions' : ''))
+            .withEndPoint('budgetentries?filter=' + filter  + '&expand=Account,Dimensions')
+            .send()
+            .map(res => res.body);
+    }
+
+    public getEntriesFromDepartmentNumber(budgetID: number, accountID: number, departmentNumber?: number) {
+        let filter = `BudgetID eq ${budgetID} and accountID eq ${accountID}`;
+        if (departmentNumber) {
+            filter += ' and Dimensions.Department.DepartmentNumber eq ' + departmentNumber;
+        }
+
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('budgetentries?filter=' + filter  + '&expand=Account,Dimensions,Dimensions.Department')
             .send()
             .map(res => res.body);
     }
@@ -68,7 +82,7 @@ export class BudgetService extends BizHttp<Budget> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('budgetentries?filter=' + filter + '&expand=account' + (departmentID ? ',dimensions' : ''))
+            .withEndPoint('budgetentries?filter=' + filter + '&expand=Account,Dimensions')
             .send()
             .map(res => res.body);
     }

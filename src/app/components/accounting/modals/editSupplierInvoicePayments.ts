@@ -210,7 +210,8 @@ export class EditSupplierInvoicePayments implements IUniModal {
     }
 
     private editPayment(row: any) {
-        this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).subscribe((payment: Payment) => {
+        this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount', 'CurrencyCode'])
+        .subscribe((payment: Payment) => {
             // show addPaymentModel
             this.modalService.open(AddPaymentModal, {
                 data: { model: payment },

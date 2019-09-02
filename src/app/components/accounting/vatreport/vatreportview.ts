@@ -49,6 +49,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public isBusy: boolean = true;
     public isHistoricData: boolean = false;
     public actions: IUniSaveAction[];
+    public statusCodePeriod: string;
     private statusText: string;
     private subs: Subscription[] = [];
     private vatReportsInPeriod: VatReport[];
@@ -165,16 +166,38 @@ export class VatReportView implements OnInit, OnDestroy {
                     addStatus = false;
                 }
             }
+            const subStatusList: IStatus[] = [];
+            if (this.vatReportsInPeriod) {
+                this.vatReportsInPeriod.forEach(report => {
+                    subStatusList.push({
+                        title: report.Title,
+                        state:  report.ID === this.currentVatReport.ID
+                        ? STATUSTRACK_STATES.Active
+                        : STATUSTRACK_STATES.Obsolete,
+                        timestamp: report.ExecutedDate
+                            ? new Date(<any> report.ExecutedDate)
+                            : null,
+                        data: report
+                    });
+                });
+            }
+
 
             if (addStatus) {
                 statustrack.push({
                     title: status.Text,
                     state: _state,
-                    code: status.Code
+                    code: status.Code,
+                    substatusList: _state === STATUSTRACK_STATES.Active ? subStatusList : null
                 });
             }
         });
         return statustrack;
+    }
+
+    public setVatReportFromEvent(event) {
+        if (!event[0] || !event[0].data) { return; }
+        this.setVatreport(event[0].data);
     }
 
     public ngOnInit() {
@@ -182,8 +205,8 @@ export class VatReportView implements OnInit, OnDestroy {
             .subscribe(settings => this.companySettings = settings, err => this.errorService.handle(err));
 
         this.spinner(this.vatReportService.getCurrentPeriod())
-            .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
-
+            .subscribe((vatReport) => this.setVatreport(vatReport)
+            , err => this.errorService.handle(err));
 
         this.subs.push(
             this.externalComment
@@ -222,6 +245,8 @@ export class VatReportView implements OnInit, OnDestroy {
                 vatTypes => this.vatTypes = vatTypes,
                 err => this.errorService.handle(err)
             );
+
+
     }
 
     private updateSaveActions() {
@@ -259,19 +284,13 @@ export class VatReportView implements OnInit, OnDestroy {
         this.actions.push({
             label: 'Godkjenn manuelt',
             action: (done) => this.approveManually(done),
-            disabled: this.IsSendActionDisabled()
-        });
-
-        this.actions.push({
-            label: 'Godkjenn manuelt',
-            action: (done) => this.approveManually(done),
-            disabled: this.IsSignActionDisabled ()
+            disabled: this.IsSendActionDisabled() && this.IsSignActionDisabled()
         });
 
         this.actions.push({
             label: 'Angre kjøring',
             action: (done) => this.UndoExecution(done),
-            disabled: this.IsSendActionDisabled()
+            disabled: this.IsUndoActionDisabled()
         });
 
 
@@ -309,6 +328,14 @@ export class VatReportView implements OnInit, OnDestroy {
             return false;
         }
         return true;
+    }
+    private IsUndoActionDisabled() {
+        if (this.currentVatReport.StatusCode === null ||
+            this.currentVatReport.StatusCode === 0  ||
+            this.currentVatReport.StatusCode === StatusCodeVatReport.Cancelled) {
+            return true;
+        }
+        return false;
     }
 
     private setVatreport(vatReport: VatReport) {
@@ -377,6 +404,10 @@ export class VatReportView implements OnInit, OnDestroy {
 
     private updateStatusText() {
         this.statusText = this.vatReportService.getStatusText(this.currentVatReport.StatusCode);
+        this.vatReportService.getPeriodStatus(this.currentVatReport.TerminPeriodID)
+            .subscribe((status) => {
+                this.statusCodePeriod = status ? this.vatReportService.getStatusText(status.StatusCode) + ' (' + status.Title + ')' : 'Ikke kjørt';
+            }, err => this.errorService.handle(err));
     }
 
     public onBackPeriod() {
@@ -414,11 +445,11 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        if (!vatReport || !vatReport.ExternalRefNo && vatReport.StatusCode === 32005) {
+        if (!vatReport) {
             this.toastService.addToast(
                 'Kunne ikke vise MVA-melding',
                 ToastType.bad, 200,
-                'Historikk er ikke tilgjengelig siden MVA-meldingen ble korrigert uten å sendes inn til Altinn først'
+                'vatReport er tom'
             );
         } else {
             this.setVatreport(vatReport);
@@ -552,7 +583,35 @@ export class VatReportView implements OnInit, OnDestroy {
 
 
     public UndoExecution(done) {
+       if (this.currentVatReport.StatusCode !== StatusCodeVatReport.Executed) {
+            if (confirm(
+                'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i Uni Economy på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
+            )) {
+                this.UndoExecutionPeriod(done);
+            } else {
+                done('Angre kjøring avbrutt');
+            }
+        } else {
+            this.UndoExecutionReport(done);
+        }
+    }
+
+    public UndoExecutionReport(done) {
         this.vatReportService.undoReport(this.currentVatReport.ID)
+        .subscribe(res => {
+            this.spinner(this.vatReportService.getCurrentPeriod())
+            .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
+            done();
+        },
+        err => {
+            this.errorService.handle(err);
+            done('Det skjedde en feil, forsøk igjen senere');
+        }
+        );
+    }
+
+    public UndoExecutionPeriod(done) {
+        this.vatReportService.undoPeriod(this.currentVatReport.TerminPeriodID)
         .subscribe(res => {
             this.spinner(this.vatReportService.getCurrentPeriod())
             .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));

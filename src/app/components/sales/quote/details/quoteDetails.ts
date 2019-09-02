@@ -1040,7 +1040,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     recalcItemSums(quoteItems: CustomerQuoteItem[]) {
         const items = quoteItems && quoteItems.filter(item => !item.Deleted);
-        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
+        const decimals = this.tradeItemHelper.getCompanySettingsNumberOfDecimals(this.companySettings, this.currencyCodeID);
 
         this.itemsSummaryData = items && items.length
             ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)
