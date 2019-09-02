@@ -200,17 +200,19 @@ export class JournalingRulesModal implements OnInit, IUniModal {
     }
 
     public onPriorityChange(event) {
-        this.priorityHasChanged = true;
-        this.dirty = true;
-        this.activeIndex = event.findIndex(rule => rule.ID === this.currentRule.ID);
+        if (event && event.filter(rule => rule.Priority !== (rule._originalIndex + 1)).length) {
+            this.priorityHasChanged = true;
+            this.dirty = true;
+            this.activeIndex = event.findIndex(rule => rule.ID === this.currentRule.ID);
 
-        event.map((rule) => {
-            rule.Priority = rule['_originalIndex'] + 1;
-            return rule;
-        });
+            event.map((rule) => {
+                rule.Priority = rule['_originalIndex'] + 1;
+                return rule;
+            });
 
-        this.bankRules = [...event];
-        this.saveRules();
+            this.bankRules = [...event];
+            this.saveRules();
+        }
     }
 
     public onAccountSelected(account) {
