@@ -138,4 +138,23 @@ export class App {
             }
         });
     }
+
+
+    applyUeTheme() {
+        document.body.classList.remove('sr-theme');
+
+        // const styles = document.documentElement.style;
+        // Object.keys(THEMES.UE).forEach(key => {
+        //     styles.setProperty(key, THEMES.UE[key]);
+        // });
+    }
+
+    applySrTheme() {
+        document.body.classList.add('sr-theme');
+
+        // const styles = document.documentElement.style;
+        // Object.keys(THEMES.SR).forEach(key => {
+        //     styles.setProperty(key, THEMES.SR[key]);
+        // });
+    }
 }
