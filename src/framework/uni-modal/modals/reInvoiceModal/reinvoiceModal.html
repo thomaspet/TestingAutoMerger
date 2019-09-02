@@ -109,17 +109,11 @@
         ></ag-grid-wrapper>
     </article>
     <footer>
-        <section role="group" class="comboButton" *ngIf="saveactions?.length">
-            <button class="comboButton_btn good" type="button"
-                    (click)="getMainAction().action()" [attr.aria-busy]="busy"
-                    [attr.aria-busy]="isSaving"
-                    [disabled]="getMainAction()?.disabled || isSaving || !isReinvoiceValid"
-            >{{getMainAction()?.label}}</button>
-            <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open" [disabled]="!isReinvoiceValid || isSaving">More options</button>
-            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
-                <li *ngFor="let action of saveactions" (click)="open = !open; action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
-            </ul>
-        </section>
+        <combo-button buttonClass="good"
+            [actions]="actions"
+            [mainAction]="mainAction">
+        </combo-button>
+
         <button (click)="saveReinvoiceAs('')" class="good" [attr.aria-busy]="isSaving" [disabled]="isSaving || currentReInvoice?.StatusCode === 30203">Lagre</button>
         <button (click)="this.closeModal()" class="bad" [disabled]="isSaving">Lukk</button>
     </footer>

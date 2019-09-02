@@ -13,17 +13,19 @@ import * as moment from 'moment';
                 <span> Nye </span>
 
                 <section class="filters uni-redesign">
-                    <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+                    <button #toggle class="toggle-button">
                         {{ currentTimeSpan.label }}
                         <i class="material-icons">expand_more</i>
                     </button>
-                    <mat-menu #contextMenu="matMenu">
-                        <ul class="widget-filter-menu">
-                            <li *ngFor="let ts of timespans" role="button" (click)="changeTimeSpan(ts)">
+                    <dropdown-menu [trigger]="toggle">
+                        <ng-template>
+                            <a class="dropdown-menu-item"
+                                *ngFor="let ts of timespans"
+                                (click)="changeTimeSpan(ts)">
                                 {{ ts.label }}
-                            </li>
-                        </ul>
-                    </mat-menu>
+                            </a>
+                        </ng-template>
+                    </dropdown-menu>
                 </section>
             </section>
 

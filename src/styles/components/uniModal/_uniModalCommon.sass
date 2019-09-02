@@ -186,16 +186,18 @@ body.modal-open
             overflow-y: auto
 
     footer
+        display: flex
+        justify-content: flex-end
+        align-items: center
         width: 100%
         box-sizing: border-box
-        padding: 0 1rem 1rem 1rem
-        text-align: right
+        padding: 1rem
         border-top: 1px solid $uni-color-scale9
 
         button
             display: inline-block
             min-width: 5rem
-            margin: 1rem 0 0 1rem
+            margin: 0 0 0 1rem
 
 
 uni-bankaccount-modal fieldset
@@ -223,14 +225,13 @@ uni-send-vipps-invoice-modal
 
     *[aria-busy]:not([aria-busy=false]):not(button):not(input):not(textarea):not(.multiselectADropdown):not(label):not(.progress-item),
     .loading
-        position: relative;
-        display: inline;
-        background-color: transparent;
-        border-radius: .3125rem;
-        min-height: 4rem;
-        border: none;
+        position: relative
+        display: inline
+        background-color: transparent
+        border-radius: .3125rem
+        min-height: 4rem
+        border: none
         margin: 0 10px 0 10px
-
 
 uni-preview-modal .uni-modal
     max-height: 95vh
@@ -240,34 +241,8 @@ uni-preview-modal .uni-modal
         overflow: auto
         text-align: center
 
-    .main-action-button
-        border-radius: pxToRem(3) 0 0 pxToRem(3)
-
-    .action-list-toggle
-        @extend %hideText
-        border-radius: 0 pxToRem(3) pxToRem(3) 0
-        margin-left: 0
-        border-left: none
-        float: right
-        min-width: 0
-        width: 2rem
-        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
-        background-size: .75rem auto
-
-        &:hover,
-        &:focus
-            border-left: 0
-            background-color: darken($uni-color-good, 5%)
-
-    .download-action-list
-        @extend %contextMenu
-        bottom: 3rem
-        right: 1rem
-
 uni-login-modal uni-field
     @include labelLength(9rem)
-
-
 
 .uni-confirm-with-checkbox-modal
     article

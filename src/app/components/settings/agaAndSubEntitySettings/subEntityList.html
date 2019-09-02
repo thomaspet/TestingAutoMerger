@@ -12,39 +12,7 @@
             (rowClick)="rowSelected($event)">
         </ag-grid-wrapper>
 
-        <div role="group" class="comboButton">
-
-            <button class="comboButton_btn good"
-                type="button"
-                (click)="addSubEntitiesFromExternal()">
-                Hent inn virksomheter fra enhetsregisteret
-            </button>
-
-            <button class="comboButton_more good"
-                type="button"
-                (click)="open = !open"
-                (clickOutside)="open = false"
-                aria-owns="saveActionMenu"
-                [attr.aria-expanded]="open">
-                More options
-            </button>
-
-            <ul class="comboButton_moreList"
-                [attr.aria-expanded]="open"
-                role="menu">
-
-                <li (click)="addSubEntitiesFromExternal()"
-                    role="menuitem">
-                    Hent inn virksomheter fra enhetsregisteret
-                </li>
-
-                <li (click)="addNewSubEntity()"
-                    role="menuitem">
-                    Legg til virksomhet manuelt
-                </li>
-
-            </ul>
-        </div>
+        <combo-button style="margin-top: 1rem;" [actions]="actions"></combo-button>
     </nav>
 
     <main class="splitview_detail">

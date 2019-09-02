@@ -27,18 +27,16 @@ export interface IToolbarSearchConfig {
             autocorrect="off"
         />
 
-        <ul class="toolbar-dropdown-list"
-            [attr.aria-expanded]="expanded"
-            (clickOutside)="close()">
-
-            <li *ngFor="let item of searchResults; let idx = index"
+        <section class="dropdown-menu" *ngIf="expanded" (clickOutside)="close()">
+            <a *ngFor="let item of searchResults; let idx = index"
+                class="dropdown-menu-item"
                 [attr.aria-selected]="idx === selectedIndex"
                 (mouseover)="selectedIndex = idx"
                 (click)="itemSelected(idx)">
 
                 {{item._displayValue}}
-            </li>
-        </ul>
+            </a>
+        </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

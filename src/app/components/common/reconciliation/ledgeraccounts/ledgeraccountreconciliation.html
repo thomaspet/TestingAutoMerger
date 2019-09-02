@@ -32,19 +32,17 @@
                     <span *ngIf="!col.template" (click)="onLinkClick(col, row)" title="{{ row[col.field] }}"> {{ row[col.field] }} </span>
                     <span *ngIf="col.template" title="{{ col.template(row) }}"> {{ col.template(row) }} </span>
                 </td>
-                <td [matMenuTriggerFor]="contextMenu">
-                    <ng-container>
-                        <i class="material-icons timetable-context-menu">
-                            more_horiz
-                        </i>
-                        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                            <ul class="menu-list">
-                                <li *ngFor="let item of getActions(row)" (click)="actionClicked(item, row)">
-                                    {{item.label}}
-                                </li>
-                            </ul>
-                        </mat-menu>
-                    </ng-container>
+                <td>
+                    <i #toggle class="material-icons timetable-context-menu">more_horiz</i>
+                    <dropdown-menu [trigger]="toggle">
+                        <ng-template>
+                            <a class="dropdown-menu-item"
+                                *ngFor="let item of getActions(row)"
+                                (click)="actionClicked(item, row)">
+                                {{item.label}}
+                            </a>
+                        </ng-template>
+                    </dropdown-menu>
                 </td>
             </tr>
         </tbody>

@@ -14,6 +14,12 @@ export class TopTenCustomersWidget {
     customers: any[];
     currentYear = new Date().getFullYear();
 
+    contextMenuItems = [
+        { label: 'Ny faktura', entity: 'invoices' },
+        { label: 'Ny ordre', entity: 'orders' },
+        { label: 'Nytt tilbud', entity: 'quotes' },
+    ];
+
     constructor(
         private dataService: WidgetDataService,
         private router: Router,

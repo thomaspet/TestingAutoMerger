@@ -1,58 +1,38 @@
 import {Component, Input} from '@angular/core';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {GuidService} from '../../../../app/services/services';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 
 @Component({
     selector: 'uni-context-menu',
     template: `
-    <section (clickOutside)="close()" *ngIf="actions && actions.length">
-        <button type="button"
-            class="contextmenu_button"
-            [id]="guid + '-btn'"
-            (click)="expanded = !expanded"
-            [attr.aria-pressed]="expanded">
+    <section *ngIf="actions && actions.length">
+        <button #toggle type="button" class="contextmenu_button">
             Flere valg for valgt entitet
         </button>
 
-        <ul role="menu"
-           class="toolbar-dropdown-list"
-           [attr.aria-labelledby]="guid + '-btn'"
-           [attr.aria-expanded]="expanded">
-           <li *ngFor="let action of actions"
-               (click)="runAction(action)"
-               role="menuitem"
-               [attr.aria-disabled]="isActionDisabled(action)"
-               [title]="action.label"
-               >
-               {{action.label}}
-           </li>
-       </ul>
+        <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'12rem'">
+            <ng-template>
+                <section class="dropdown-menu-item"
+                    *ngFor="let action of actions"
+                    (click)="runAction(action)"
+                    [attr.aria-disabled]="isActionDisabled(action)">
+
+                    {{action.label}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
     </section>
     `
 })
 export class ContextMenu {
-
-    @Input() public actions: IContextMenuItem[];
-
-    public expanded: boolean;
-    private guid: string;
-
-    constructor(gs: GuidService) {
-        this.guid = gs.guid();
-    }
+    @Input() actions: IContextMenuItem[];
 
     private isActionDisabled(action: IContextMenuItem) {
         return action.disabled && action.disabled();
     }
 
     public runAction(action: IContextMenuItem) {
-       if (!this.isActionDisabled(action)) {
-           this.close();
-           action.action();
-       }
-   }
-
-    public close() {
-        this.expanded = false;
+        if (!this.isActionDisabled(action)) {
+            action.action();
+        }
     }
 }

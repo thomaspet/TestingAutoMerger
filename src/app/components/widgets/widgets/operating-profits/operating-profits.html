@@ -10,21 +10,21 @@
                 {{year}}
             </button>
 
-            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+            <button #toggle class="toggle-button">
                 {{showAccumulatedResult ? 'Akkumulert resultat' : 'Månedlig resultat'}}
                 <i class="material-icons">expand_more</i>
             </button>
-            <mat-menu #contextMenu="matMenu">
-                <ul class="widget-filter-menu">
-                    <li role="button" (click)="changeResultLine(false)">
+            <dropdown-menu [trigger]="toggle">
+                <ng-template>
+                    <a class="dropdown-menu-item" (click)="changeResultLine(false)">
                         Vis månedlig resultat
-                    </li>
+                    </a>
 
-                    <li role="button" (click)="changeResultLine(true)">
+                    <a class="dropdown-menu-item" (click)="changeResultLine(true)">
                         Vis akkumulert resultat
-                    </li>
-                </ul>
-            </mat-menu>
+                    </a>
+                </ng-template>
+            </dropdown-menu>
         </section>
     </section>
 

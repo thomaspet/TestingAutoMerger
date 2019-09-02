@@ -1,0 +1,49 @@
+.dropdown-menu
+    display: block
+    background: #fff
+    width: 100%
+    overflow-y: auto
+    box-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
+    border: 1px solid rgba(0, 0, 0, .1)
+    z-index: 999
+    margin: 5px 0
+    border-radius: 2px
+
+    .dropdown-menu-header, .dropdown-menu-item
+        display: flex
+        height: 2.75rem
+        align-items: center
+        padding: 0 1rem
+        font-size: 14px
+
+    .dropdown-menu-header
+        font-weight: 500
+        color: var(--text-color)
+
+    .dropdown-menu-item
+        padding: 0 1rem
+        cursor: pointer
+        color: #485460
+        text-decoration: none
+
+        &:hover, &.selected, &[aria-selected]:not([aria-selected=false])
+            background: var(--color-c2a)
+            color: #fff
+
+        &.disabled, &[aria-disabled]:not([aria-disabled=false])
+            color: #D2DAE2
+            background: unset
+            cursor: default
+            pointer-events: none
+
+        .align-right
+            margin-left: auto
+
+        i.material-icons
+            margin-left: .5rem
+            padding: 1px
+            font-size: 21px
+            vertical-align: middle
+            &:hover
+                background: rgba(255, 255, 255, .15)
+                border-radius: 3px

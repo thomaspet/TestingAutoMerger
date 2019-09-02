@@ -353,9 +353,7 @@ export class UniBudgetView {
         }
     }
 
-    public onActionClick(event: any, action: any, item: Budget) {
-        event.stopPropagation();
-
+    public onActionClick(action: any, item: Budget) {
         switch (action.name) {
             case 'edit':
                 this.openEditModal(item, null);

@@ -130,7 +130,7 @@
     "no-output-rename": true,
     "use-pipe-transform-interface": true,
     "component-class-suffix": false,
-    "directive-class-suffix": true,
+    "directive-class-suffix": false,
     "invoke-injectable": true
   }
 }

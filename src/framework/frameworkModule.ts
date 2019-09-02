@@ -5,7 +5,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
 import {FileSplitModal} from './fileSplit/FileSplitModal';
 import {UniSave} from './save/save';
-import {UniUploadFileSaveAction} from './save/upload';
 import {UniImage, EHFViewer} from './uniImage/uniImage';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
@@ -36,6 +35,8 @@ import { UniModalService, MODALS, UniShowReinvoiceStatus } from './uni-modal';
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
 import {UniDateselectorpModule} from './ui/dateselector/dateselector.module';
 import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
+import {DropdownMenuModule} from './ui/dropdown-menu/dropdown-menu';
+import {ComboButtonModule} from './ui/combo-button/combo-button';
 
 import {
     MatCheckboxModule,
@@ -79,13 +80,14 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniFormModule,
         UniTableModule,
         AgGridWrapperModule,
-        NgSelectModule
+        NgSelectModule,
+        DropdownMenuModule,
+        ComboButtonModule,
     ],
     declarations: [
         UniComponentLoader,
         UniModal,
         UniSave,
-        UniUploadFileSaveAction,
         UniImage,
         EHFViewer,
         FileSplitModal,
@@ -126,11 +128,12 @@ import {NgSelectModule} from '@ng-select/ng-select';
         AgGridWrapperModule,
         ClickOutsideModule,
         NgSelectModule,
+        DropdownMenuModule,
+        ComboButtonModule,
 
         // Components
         UniModal,
         UniSave,
-        UniUploadFileSaveAction,
         UniImage,
         EHFViewer,
         UniToast,

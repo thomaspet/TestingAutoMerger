@@ -428,8 +428,7 @@ export class BankComponent {
                     done();
                     this.recieptUploaded();
                 },
-                disabled: false,
-                isUpload: false
+                disabled: false
             });
 
             this.actions.push({
@@ -471,8 +470,7 @@ export class BankComponent {
                     this.fileUploaded(done);
                 },
                 disabled: false,
-                main: true,
-                isUpload: false
+                main: true
             });
         }
     }

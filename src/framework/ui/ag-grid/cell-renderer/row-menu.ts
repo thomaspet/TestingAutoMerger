@@ -15,16 +15,17 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
             </i>
 
             <ng-template [ngIf]="contextMenuItems?.length">
-                <i class="material-icons" [matMenuTriggerFor]="contextMenu" (click)="onContextMenuToggle()">
+                <i class="material-icons" #toggle (click)="onContextMenuToggle()">
                     more_horiz
                 </i>
-                <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                    <ul class="menu-list">
-                        <li *ngFor="let item of filteredContextMenuItems" (click)="item.action(rowData)">
+
+                <dropdown-menu [trigger]="toggle" minWidth="12rem">
+                    <ng-template>
+                        <a class="dropdown-menu-item" *ngFor="let item of filteredContextMenuItems" (click)="item.action(rowData)">
                             {{item.label}}
-                        </li>
-                    </ul>
-                </mat-menu>
+                        </a>
+                    </ng-template>
+                </dropdown-menu>
             </ng-template>
         </span>
     `,

@@ -38,4 +38,13 @@
         <button class="bad">Test</button>
         <button class="warning">Test</button>
     </section>
+
+    <button class="c2a" #test>Dropdown menu test</button>
+    <dropdown-menu [trigger]="test">
+        <ng-template>
+            <section class="dropdown-menu-item">Option 1</section>
+            <section class="dropdown-menu-item">Option 2</section>
+            <section class="dropdown-menu-item">Option 3</section>
+        </ng-template>
+    </dropdown-menu>
 </section>

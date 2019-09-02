@@ -74,19 +74,17 @@
                             <button class="good send-in-button" (click)="assignWeek(week)" title="Send timer til godkjenning">Send inn</button>
                         </span>
                     </td>
-                    <td class="center hovereffect" [matMenuTriggerFor]="contextMenu">
-                        <ng-container>
-                            <i class="material-icons timetable-context-menu">
-                                more_horiz
-                            </i>
-                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                <ul class="menu-list">
-                                    <li *ngFor="let item of getActions(week)" (click)="onActionClick(item)">
-                                        {{item.label}}
-                                    </li>
-                                </ul>
-                            </mat-menu>
-                        </ng-container>
+                    <td class="center hovereffect" #toggle>
+                        <i class="material-icons timetable-context-menu" role="button">more_horiz</i>
+                        <dropdown-menu [trigger]="toggle">
+                            <ng-template>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let item of getActions(week)"
+                                    (click)="onActionClick(item)">
+                                    {{item.label}}
+                                </a>
+                            </ng-template>
+                        </dropdown-menu>
                     </td>
                 </tr>
 

@@ -8,10 +8,9 @@ import {
 } from '@uni-framework/ui/unitable/config/unitableColumn';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { ErrorService, StatisticsService } from '@app/services/services';
-import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     CompanyAccountingSettings, Customer, Product, ReInvoice, ReInvoiceItem,
-    SupplierInvoice, VatType, StatusCodeReInvoice, Tracelink
+    SupplierInvoice, StatusCodeReInvoice, Tracelink
 } from '@app/unientities';
 import { CustomerService } from '@app/services/sales/customerService';
 import { MatRadioChange } from '@angular/material';
@@ -25,10 +24,11 @@ import { RequestMethod } from '@uni-framework/core/http';
 import { getNewGuid } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { SupplierInvoiceService } from '@app/services/accounting/supplierInvoiceService';
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
+import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
 
 @Component({
     selector: 'uni-reinvoice-modal',
@@ -36,27 +36,30 @@ import { Router } from '@angular/router';
 })
 export class UniReinvoiceModal implements OnInit, IUniModal {
 
-    @Input() public options: IModalOptions;
-    @Output() public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() options: IModalOptions;
+    @Output() onClose: EventEmitter<any> = new EventEmitter();
 
-    public isSaving = false;
-    public isReinvoiceValid = true;
-    public currentReInvoice: ReInvoice;
-    public supplierInvoice: SupplierInvoice;
-    public open = false;
-    public saveactions: IUniSaveAction[] = [];
-    public reinvoicingCustomers = [];
-    public items = [];
-    public customersTableConfig = null;
-    public customersTableConfigTurnOver = null;
-    public itemsTableConfig = null;
-    public invoiceSum: number = 4000;
-    public forReinvoice: boolean = false;
-    public reinvoiceType: number = 0;
     private hasChanges: boolean = false;
-    public companyAccountSettings: CompanyAccountingSettings;
+
+    isSaving = false;
+    isReinvoiceValid = true;
+    currentReInvoice: ReInvoice;
+    supplierInvoice: SupplierInvoice;
+    open = false;
+    reinvoicingCustomers = [];
+    items = [];
+    customersTableConfig = null;
+    customersTableConfigTurnOver = null;
+    itemsTableConfig = null;
+    invoiceSum: number = 4000;
+    forReinvoice: boolean = false;
+    reinvoiceType: number = 0;
+    companyAccountSettings: CompanyAccountingSettings;
+
+    actions: ComboButtonAction[] = [];
+    mainAction: ComboButtonAction;
+
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private router: Router,
         private statisticsService: StatisticsService,
         private customerService: CustomerService,
@@ -182,7 +185,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             this.customersTableConfig = this.updateCustomersTableConfig(false);
             this.customersTableConfigTurnOver = this.updateCustomersTableConfig(true);
             this.itemsTableConfig = this.updateItemsTableConfig(false);
-            this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
+            this.updateActions();
         });
     }
 
@@ -228,45 +231,39 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         );
     }
 
-    public getMainAction() {
-        return this.saveactions.find((item) => item.main);
-    }
+    public updateActions() {
+        const createActionsDisabled = !this.isReinvoiceValid
+            || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced
+            || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
 
-    public updateActions(positionInArray: number) {
-        this.saveactions = [
+        this.actions = [
             {
                 label: 'Lag faktura (Kladd)',
-                action: () => {
-                    this.saveReinvoiceAs('create-invoices-draft');
-                },
-                main: !positionInArray,
-                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
+                action: () => this.saveReinvoiceAs('create-invoices-draft'),
+                disabled: createActionsDisabled
             },
             {
                 label: 'Lag faktura (Fakturert)',
-                action: () => {
-                    this.saveReinvoiceAs('create-invoices');
-                },
-                main: positionInArray === 1,
-                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
+                action: () => this.saveReinvoiceAs('create-invoices'),
+                disabled: createActionsDisabled
             },
             {
                 label: 'Lag ordre (Registrert)',
-                action: () => {
-                    this.saveReinvoiceAs('create-orders');
-                },
-                main: positionInArray === 2,
-                disabled: !this.isReinvoiceValid || this.currentReInvoice.StatusCode === StatusCodeReInvoice.ReInvoiced || (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
+                action: () => this.saveReinvoiceAs('create-orders'),
+                disabled: createActionsDisabled
             },
             {
                 label: 'Slett viderefakturering',
-                action: () => {
-                    this.deleteReinvoice();
-                },
+                action: () => this.deleteReinvoice(),
                 disabled: (!this.currentReInvoice || this.currentReInvoice.ID === 0),
-                main: (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1)
             }
         ];
+
+        if (!this.isSupplierInvoiceJournaled() && this.reinvoiceType === 1) {
+            this.mainAction = this.actions[3];
+        } else {
+            this.mainAction = this.actions[this.companyAccountSettings.ReInvoicingMethod] || this.actions[0];
+        }
     }
 
     public deleteReinvoice() {
@@ -413,12 +410,12 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
 
     public setInitialConfig(lastReinvoicing: ReInvoice | null) {
         this.reinvoiceType = lastReinvoicing === null ? 0 : lastReinvoicing.ReInvoicingType;
-        this.updateActions(this.saveactions.findIndex(x => x === this.getMainAction()));
+        this.updateActions();
         let product = null;
         if (this.companyAccountSettings) {
             product = this.reinvoiceType === 0
                 ? this.companyAccountSettings.ReInvoicingCostsharingProduct
-                : this.companyAccountSettings.ReInvoicingTurnoverProduct
+                : this.companyAccountSettings.ReInvoicingTurnoverProduct;
         }
         if (lastReinvoicing && lastReinvoicing.Product) {
             product = lastReinvoicing.Product;
@@ -721,7 +718,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
             this.updateItemsData(this.companyAccountSettings && this.companyAccountSettings.ReInvoicingTurnoverProduct);
             this.onReinvoicingCustomerTurnOverChange(null);
         }
-        this.updateActions(this.saveactions.findIndex(x => x === this.getMainAction()));
+        this.updateActions();
     }
 
     public isSupplierInvoiceJournaled(): boolean {
@@ -807,8 +804,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.items[0].GrossAmount = this.calcItemGrossAmount(this.items[0]);
         this.items = [].concat(this.items);
         this.isReinvoiceValid = true;
-        const mainActionIndex = this.saveactions.findIndex(item => item === this.getMainAction());
-        this.updateActions(mainActionIndex);
+        this.updateActions();
     }
 
     getNetAmountOnTurnOverReInvoice() {
@@ -896,8 +892,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.items[0].GrossAmount = this.calcItemGrossAmount(this.items[0]);
         this.items = [].concat(this.items);
         this.isReinvoiceValid = true;
-        const mainActionIndex = this.saveactions.findIndex(action => action === this.getMainAction());
-        this.updateActions(mainActionIndex);
+        this.updateActions();
     }
 
     validate(items: ReInvoiceItem[]) {
@@ -930,7 +925,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         }).onClose.subscribe(result => {
             if (result) {
                 this.companyAccountSettings = result;
-                this.updateActions(this.companyAccountSettings.ReInvoicingMethod);
+                this.updateActions();
                 this.updateItemsData();
             }
         });

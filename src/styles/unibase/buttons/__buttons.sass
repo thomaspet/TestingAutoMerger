@@ -1,8 +1,6 @@
 $buttons-list: 'button', 'input[type=button]', 'input[type=reset]', 'input[type=submit]'
 $all-buttons: assign-inputs($buttons-list)
 
-@import 'comboButton'
-
 @keyframes rotate
     from
         transform: rotate(0deg)
@@ -17,11 +15,12 @@ $all-buttons: assign-inputs($buttons-list)
 
 #{$all-buttons}, a.button
     position: relative
+    height: 38px
     font: 400 15px var(--font-family)
     border: none
     box-sizing: border-box
     border-radius: .2rem
-    padding: 10px 1rem
+    padding: 0 1rem
     margin: .5rem 1rem
     cursor: pointer
     min-height: 1.6667rem
@@ -98,3 +97,4 @@ button.button-clean
 
     i.material-icons
         vertical-align: middle
+

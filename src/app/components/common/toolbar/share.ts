@@ -1,36 +1,36 @@
 import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {IShareAction} from './toolbar';
-import {ErrorService} from '../../../services/services';
+import {ErrorService} from '@app/services/services';
 
 @Component({
     selector: 'uni-toolbar-share',
     template: `
-        <ng-template [ngIf]="shareActions?.length">
-            <button class="toolbar-share" type="button"
+        <ng-container *ngIf="shareActions?.length">
+            <button #toggle class="toolbar-share"
+                type="button"
                 title="Deling/utskrift/sending"
-                [attr.aria-busy]="busy"
-                (click)="expanded = !expanded"
-                (clickOutside)="expanded = false">
+                [attr.aria-busy]="busy">
 
                 Del
             </button>
 
-            <ul class="toolbar-dropdown-list" [attr.aria-expanded]="expanded">
-                <li *ngFor="let action of shareActions"
-                    (click)="onActionClick(action)"
-                    [attr.aria-disabled]="action.disabled()">
-
-                    {{action.label}}
-                </li>
-            </ul>
-        </ng-template>
+            <dropdown-menu [trigger]="toggle" [alignRight]="true">
+                <ng-template>
+                    <a class="dropdown-menu-item"
+                        *ngFor="let action of shareActions"
+                        (click)="onActionClick(action)"
+                        [attr.aria-disabled]="action.disabled()">
+                        {{action.label}}
+                    </a>
+                </ng-template>
+            </dropdown-menu>
+        </ng-container>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToolbarShare {
-    @Input() public shareActions: IShareAction[];
+    @Input() shareActions: IShareAction[];
 
-    public expanded: boolean;
     public busy: boolean;
 
     constructor(
@@ -45,7 +45,7 @@ export class UniToolbarShare {
 
         this.busy = true;
         shareAction.action().subscribe(
-            (res) => {},
+            () => {},
             (err) => {
                 this.errorService.handle(err);
             },

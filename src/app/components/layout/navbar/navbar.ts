@@ -55,36 +55,29 @@ import * as moment from 'moment';
                 <notifications></notifications>
 
                 <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length)">
-                    <i
-                        role="button"
-                        class="material-icons"
-                        [matMenuTriggerFor]="settingsMenu">
-                        settings
-                    </i>
+                    <i class="material-icons" #settingsToggle role="button">settings</i>
 
-                    <mat-menu #settingsMenu="matMenu" yPosition="below" [overlapTrigger]="false">
-                        <ng-template matMenuContent>
-                            <section class="navbar-link-dropdown">
-                                <section class="link-section" *ngIf="settingsLinks?.length">
-                                    <strong>Innstillinger</strong>
-                                    <ul>
-                                        <li *ngFor="let link of settingsLinks">
-                                            <a [routerLink]="link.url">{{link.name}}</a>
-                                        </li>
-                                    </ul>
-                                </section>
+                    <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
+                        <ng-template>
+                            <ng-container *ngIf="settingsLinks?.length">
+                                <span class="dropdown-menu-header">Innstillinger</span>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let link of settingsLinks"
+                                    [routerLink]="link.url">
+                                    {{link.name}}
+                                </a>
+                            </ng-container>
 
-                                <section class="link-section" *ngIf="adminLinks?.length">
-                                    <strong>Admin</strong>
-                                    <ul>
-                                        <li *ngFor="let link of adminLinks">
-                                            <a [routerLink]="link.url">{{link.name}}</a>
-                                        </li>
-                                    </ul>
-                                </section>
-                            </section>
+                            <ng-container *ngIf="adminLinks?.length">
+                                <span class="dropdown-menu-header">Admin</span>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let link of adminLinks"
+                                    [routerLink]="link.url">
+                                    {{link.name}}
+                                </a>
+                            </ng-container>
                         </ng-template>
-                    </mat-menu>
+                    </dropdown-menu>
                 </section>
 
                 <navbar-user-dropdown></navbar-user-dropdown>
