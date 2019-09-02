@@ -1130,14 +1130,21 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             done('');
             return;
         }
-
+        let refreshEmps: boolean;
         this.setEditableOnChildren(false);
         super.getStateSubject(PAYROLL_RUN_KEY)
             .pipe(
                 takeUntil(this.destroy$),
                 take(1),
+                tap(run => refreshEmps = run[DIRTY_KEY]),
                 tap((run) => this.creatingRun = !run.ID),
                 switchMap(run => this.savePayrollrun(run, done)),
+                tap(() => {
+                    if (!refreshEmps) {
+                        return;
+                    }
+                    super.updateState(REFRESH_EMPS_ACTION, null, false);
+                }),
                 tap(() => this._salaryTransactionService.invalidateCache()),
                 tap(() => this._wageTypeService.invalidateCache()),
                 filter(() => updateView),
@@ -1208,6 +1215,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }))
             .map(payrollRun => {
                 payrollRun.ExcludeRecurringPosts = !payrollRun['_IncludeRecurringPosts'];
+                const refreshFields = [
+                    '_IncludeRecurringPosts',
+                    'FromDate',
+                    'ToDate',
+                    'PayDate',
+                ];
+                payrollRun[DIRTY_KEY] = refreshFields.some(field => !!changes[field]);
                 return payrollRun;
             })
             .subscribe(payrollRun => super.updateState(PAYROLL_RUN_KEY, payrollRun, true));
