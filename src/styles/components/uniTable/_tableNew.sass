@@ -194,7 +194,7 @@ ag-grid-angular.col-menu-hidden
         padding: 0 5px
         line-height: 25px // row height - margin
         text-decoration: underline
-        color: $uni-color-c2a !important // #0082c0 !important
+        color: var(--color-c2a) !important // #0082c0 !important
         &:hover
             background: darken(#d4dfee, 5%)
 
@@ -240,7 +240,7 @@ ag-grid-angular .disabled-row
 
 .ag-icon-checkbox-checked
     &:before
-        border-color: $uni-color-c2a !important
+        border-color: var(--color-c2a) !important
         background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
 
     &:after
@@ -251,7 +251,7 @@ ag-grid-angular .disabled-row
     @extend %checkboxStyle
     &.checked
         &:before
-            border-color: $uni-color-c2a !important
+            border-color: var(--color-c2a) !important
             background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
 
         &:after

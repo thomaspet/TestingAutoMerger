@@ -2,7 +2,6 @@ uni-company-dropdown
     text-align: right
 
 .navbar_company
-    @extend %navbarText
     display: inline-block
     position: relative
     padding: 0
@@ -10,11 +9,11 @@ uni-company-dropdown
 
     &:hover,
     &:focus
-        background: darken($navbarBackground, 10%)
+        background: rgba(0, 0, 0, 0.2)
 
 .navbar-company-info
-    @extend %clickable
     display: inline-block
+    cursor: pointer
     padding: 0 .5rem
     white-space: nowrap
     overflow: hidden
@@ -102,7 +101,7 @@ uni-company-dropdown
         &:hover,
         &:focus
             border-style: solid
-            border-color: $uni-color-c2a
+            border-color: var(--color-c2a)
 
 .navbar_company_activeYear,
 .navbar_company_taxyearselect

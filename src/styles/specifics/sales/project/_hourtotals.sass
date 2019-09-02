@@ -1,18 +1,11 @@
 project-hourtotals
-
-    table.toolbar
-        margin-bottom: pxToRem(10)
+    .hourtotals-toolbar
+        display: flex
+        align-items: flex-start
+        justify-content: space-between
         width: 100%
+        margin-bottom: 1rem
         white-space: nowrap
-
-        button
-            margin: 0
-
-        td.right
-            text-align: right
-
-        td:first-of-type
-            width: 100%
 
     table.report
         width: 100%
@@ -49,45 +42,8 @@ project-hourtotals
 
         tr td:first-of-type, th:first-of-type
             width: 15em
-            overflow: hidden;
+            overflow: hidden
             white-space: nowrap
             text-overflow: ellipsis
             border-left: 0
             text-align: left
-
-    .filter-nav
-        margin: 0 0 pxToRem(5) 0
-        width: 100%
-
-        ul
-            margin: 0
-            width: 100%
-            overflow: hidden
-            list-style: none
-            display: flex
-            flex-direction: row
-            align-items: right
-
-            li
-                padding: pxToRem(5) 1em pxToRem(5) 1em
-                border-color: $navbarBackground
-                border-style: solid
-                border-width: pxToRem(1) 0 pxToRem(1) pxToRem(1)
-                cursor: pointer
-
-                &:first-of-type
-                    border-radius: 7px 0 0 7px
-
-                &:last-of-type
-                    border-radius: 0 7px 7px 0
-                    border-width: pxToRem(1) pxToRem(1) pxToRem(1) pxToRem(1)
-
-                &.is-active, &:hover
-                    background: $navbarBackground
-                    color: $navbarTextColor
-
-.totals-bold
-    font-weight: bold
-
-.totals-view-data
-    flex: 1

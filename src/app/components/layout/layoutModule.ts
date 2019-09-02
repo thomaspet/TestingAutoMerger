@@ -19,8 +19,6 @@ import {NavbarLinkService} from './navbar/navbar-link-service';
 import {NavbarUserDropdown} from './navbar/user-dropdown/user-dropdown';
 import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
 
-import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
-
 import {UniCompanySearch} from './smart-search/company-search/company-search';
 import {UniSmartSearch} from './smart-search/smart-search';
 import {UniSmartSearchItem} from './smart-search/smart-search-item';
@@ -68,7 +66,6 @@ import {
         UniTabs,
         UniNavbar,
         UniSidebar,
-        UniMegaMenu,
         NavbarCreateNew,
         UniTabStrip,
         UniTabstripHelp,

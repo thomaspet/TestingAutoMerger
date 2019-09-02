@@ -11,7 +11,7 @@ $toolbar-grey: $uni-color-scale6
 
 uni-toolbar
     position: fixed
-    top: $reserved-height-for-navbar
+    top: var(--navbar-height)
     width: 100%
     height: 5.5rem
     box-sizing: border-box
@@ -25,12 +25,11 @@ uni-toolbar
 
     background: #fff
     color: $toolbar-grey
-    // border-bottom: 1px solid $uni-color-scale9
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.14)
+    border-bottom: var(--container-borders)
     z-index: map-get($zindex, toolbar)
 
     .toolbar-title
-        color: #1d2b33 // $uni-color-c2a
+        color: #1d2b33
         font-size: 1.45rem
         font-weight: 600
         .material-icons
@@ -54,7 +53,6 @@ uni-toolbar
 .toolbar-left,
 .toolbar-center,
 .toolbar-right
-    background: #fff
     height: 100%
 
 .toolbar-left

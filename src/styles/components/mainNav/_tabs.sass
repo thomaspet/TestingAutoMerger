@@ -1,15 +1,11 @@
-$tabstrip-background: $uni-color-toolbar // #194b85
-$active-tab-background: darken($tabstrip-background, 5%) // #2a71cb
-$tab-color: #fff
-$active-tab-color: $tab-color
-
 .tab-strip
-    // position: relative
-
     display: flex
+    align-items: center
     width: 100%
-    height: 2rem
-    background: $tabstrip-background
+    height: 32px
+    background: var(--tabstrip-background)
+    border-top: var(--tabstrip-border)
+    border-bottom: var(--tabstrip-border)
     padding: 0 2rem 0 .75rem
     box-sizing: border-box
 
@@ -23,7 +19,7 @@ $active-tab-color: $tab-color
             left: $sidebar-collapsed-width
 
     uni-tabstrip-help
-        color: $tab-color
+        color: var(--tabstrip-color)
 
 .tab-context-menu
     position: absolute
@@ -49,7 +45,7 @@ $active-tab-color: $tab-color
 
 .collapsed-tab-container
     position: relative
-    color: $uni-color-c2a
+    color: var(--color-c2a)
     padding-right: 2rem !important
 
     &:after
@@ -98,33 +94,27 @@ $active-tab-color: $tab-color
     list-style: none
 
     li
-        @extend %navbarText
-        @extend %clickable
-        display: inline-block
-        height: 2rem
-        line-height: 2rem
+        cursor: pointer
+        height: 30px
+        line-height: 30px
         padding: 0 1rem
-        margin: 0
-        text-align: center
-        font-size: 15px
+        font-size: 14px
         max-width: 15rem
         min-width: 4rem
         white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
         position: relative
-        flex-shrink: 1
-        color: $tab-color
+        color: var(--tabstrip-color)
 
         .close-tab
+            color: var(--tabstrip-color)
             vertical-align: middle
             font-size: 13px
-            margin-left: .5rem
+            margin-left: 5px
             line-height: 2rem
-            &:hover
-                font-size: 15px
 
         &:hover,
         &.router-tab-active
-            background: $active-tab-background
-            color: $active-tab-color
+            background: var(--tabstrip-active-tab-background)
+            color: var(--tabstrip-active-tab-color)

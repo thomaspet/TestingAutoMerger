@@ -17,14 +17,13 @@ export class NavbarLinkService {
     private user: UserDto;
     public linkSections$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
 
-    public megaMenuVisible$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public sidebarState$: BehaviorSubject<SidebarState>;
     public dimensions: any[];
 
     constructor(
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
-        private browserStorage: BrowserStorageService,
+        browserStorage: BrowserStorageService,
         private http: UniHttp
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';

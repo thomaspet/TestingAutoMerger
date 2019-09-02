@@ -109,8 +109,4 @@ export class UniSidebar {
             this.router.navigateByUrl(url);
         }
     }
-
-    public showMegaMenu() {
-        this.navbarService.megaMenuVisible$.next(true);
-    }
 }

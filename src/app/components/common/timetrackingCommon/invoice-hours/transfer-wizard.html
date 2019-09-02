@@ -3,9 +3,9 @@
         <h1 class="new">Overføring av timer</h1>
     </header>
 
-    <article [attr.aria-busy]="busy" [class.wait-cursor]="fetching" >
+    <article [attr.aria-busy]="busy">
         <div class="stepheader">{{steps[step].label}}:</div>
-        
+
         <section class="wizard-step-container" [hidden]="step !== 0">
             <uni-form [fields]="fields$"
                 [model]="model$"
@@ -21,10 +21,10 @@
         <section class="wizard-step-container" [hidden]="step !== 2">
             <workitem-transfer-wizard-products [options]="wizardOptions"></workitem-transfer-wizard-products>
         </section>
-        
+
         <section class="wizard-step-container" [hidden]="step !== 3">
             <workitem-transfer-wizard-preview [options]="wizardOptions"></workitem-transfer-wizard-preview>
-        </section>        
+        </section>
 
         <section class="wizard-step-container" [hidden]="step !== 4 || workInProgress">
             Trykk "Fullfør" for å starte generering av {{wizardOptions?.orders.length}} ordre(r).
@@ -33,7 +33,7 @@
         <section class="wizard-step-container" *ngIf="workInProgress">
             {{workIndex}} / {{wizardOptions?.orders?.length}}
             <div [attr.aria-busy]="transferBusy">...</div>
-        </section>        
+        </section>
 
     </article>
 

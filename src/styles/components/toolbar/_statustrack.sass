@@ -35,7 +35,7 @@ uni-statustrack > ol
         &.active,
         &.obsolete
             z-index: #{map-get($zindex, toolbar) + 2}
-            background: $uni-color-c2a
+            background: var(--color-c2a)
             color: $uni-color-negative
             font-weight: 600
 
@@ -53,7 +53,7 @@ uni-statustrack > ol
                 border-left-color: $uni-color-scale9
 
             &.active:after
-                border-left-color: $uni-color-c2a
+                border-left-color: var(--color-c2a)
 
             &.obsolete:after
                 border-left-color: $uni-color-warn
@@ -126,7 +126,7 @@ uni-statustrack > ol
             color: $uni-color-scale5
 
         &:hover
-            background: $uni-color-c2a
+            background: var(--color-c2a)
             color: $uni-color-negative
             padding: .5rem 1rem
 

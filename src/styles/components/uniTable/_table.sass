@@ -3,7 +3,7 @@ $cellpadding: pxToRem(3) pxToRem(10)
 $unitable-border: 1px solid $uni-color-scale9
 
 %unitable-selected-cell
-    box-shadow: inset 0 0 0 1px $uni-color-c2a
+    box-shadow: inset 0 0 0 1px var(--color-c2a)
     padding: $cellpadding
     margin: 1px
     min-height: calc(1.5rem + #{pxToRem(10)})
@@ -92,7 +92,7 @@ table.uni-table
             color: $uni-color-warn
 
         &.focus
-            border: 1px solid $uni-color-c2a
+            border: 1px solid var(--color-c2a)
 
     tr
         box-sizing: border-box
@@ -138,7 +138,7 @@ table.uni-table
             content: '\25BC'
 
     table.editable-table td:focus
-        border: 1px solid $uni-color-c2a
+        border: 1px solid var(--color-c2a)
 
     table:not(.editable-table) tr
         cursor: pointer
@@ -202,7 +202,7 @@ unitable-editor
 
     &[aria-selected=true]
         font-weight: 400
-        background: $uni-color-c2a
+        background: var(--color-c2a)
         color: $uni-color-negative
 
 .autocomplete-add-button

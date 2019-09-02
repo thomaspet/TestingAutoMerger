@@ -34,7 +34,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         name: 'Nøkkeltall',
         url: '/',
         icon: 'key-figures',
-        mdIcon: 'equalizer',
+        mdIcon: 'bar_chart',
         linkGroups: [
             {
                 name: '',
@@ -508,7 +508,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         name: 'Prosjekt [BETA]',
         url: '/dimensions/projects',
         icon: 'projects',
-        mdIcon: 'work',
+        mdIcon: 'work_outline',
         linkGroups: [{
             name: '',
             links: [

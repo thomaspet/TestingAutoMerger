@@ -13,15 +13,9 @@ import * as moment from 'moment';
 @Component({
     selector: 'uni-navbar',
     template: `
-        <uni-mega-menu *ngIf="navbarService.megaMenuVisible$ | async"></uni-mega-menu>
-
         <section class="navbar">
             <section class="navbar-left">
-                <img class="ue-logo"
-                    src="../../../../../assets/ue-logo-small.png"
-                    alt="Uni Economy logo"
-                    routerLink="/"
-                />
+                <section routerLink="/" id="logo"></section>
 
                 <i *ngIf="hasActiveContract"
                     class="material-icons hamburger-toggle"

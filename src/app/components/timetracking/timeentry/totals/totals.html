@@ -29,14 +29,14 @@
 
 <div style="display: flex;" [attr.aria-busy]="busy">
 
-    <div class="totals-view-data" id="totals-grid-container">
+    <div style="flex: 1" id="totals-grid-container">
         <ag-grid-wrapper
             [resource]="tableData"
             [config]="tableConfig">
         </ag-grid-wrapper>
     </div>
 
-    <div class="totals-view-data" *ngIf="showChart">
+    <div style="flex: 1; margin-left: 2rem;" *ngIf="showChart">
         <section>
             <canvas #worktypeChart style="height: 300px !important;" id="myChart"></canvas>
         </section>

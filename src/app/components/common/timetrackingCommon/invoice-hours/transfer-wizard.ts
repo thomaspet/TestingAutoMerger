@@ -1,5 +1,4 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnInit, AfterViewInit} from '@angular/core';
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ErrorService } from '@app/services/common/errorService';
 import { WorkitemTransferWizardFilter } from './transfer-wizard-filter';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
@@ -15,7 +14,6 @@ import {
     UserService,
     CustomerOrderService,
     CustomerService,
-    FinancialYearService,
     InvoiceHourService,
     ISumHours
 } from '@app/services/services';
@@ -26,8 +24,8 @@ import {
     templateUrl: './transfer-wizard.html',
 })
 export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit {
-    @Input() public options: IModalOptions = {};
-    @Output() public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
     @ViewChild(WorkitemTransferWizardFilter) private wizardFilter: WorkitemTransferWizardFilter;
     @ViewChild(WorkitemTransferWizardProducts) private wizardProducts: WorkitemTransferWizardProducts;
     @ViewChild(WorkitemTransferWizardPreview) private wizardPreview: WorkitemTransferWizardPreview;
@@ -47,7 +45,6 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
     public finalOrderList = [];
     public sumHours: ISumHours[];
     public busy: boolean = false;
-    public fetching: boolean = false;
     public transferBusy = false;
     public choices: Array<{ type: WizardSource, label: string, labelType: string, checked?: boolean, hours?: number }> = [
         { type: WizardSource.CustomerHours, label: 'Kunder', labelType: 'Kunder', checked: true, hours: 0},
@@ -87,18 +84,16 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
 
     constructor(
         private errorService: ErrorService,
-        private modalService: UniModalService,
         private userService: UserService,
         private toastService: ToastService,
         private orderService: CustomerOrderService,
         private customerService: CustomerService,
         private invoiceHourService: InvoiceHourService,
-        private x: FinancialYearService
     ) {
         const yr = new Date().getFullYear();
         this.formOptions.periodFrom = new LocalDate(`${yr - 1}-01-01`);
         this.formOptions.periodTo = new LocalDate(`${yr}-12-31`);
-        userService.getCurrentUser().subscribe( user => {
+        this.userService.getCurrentUser().subscribe( user => {
             this.wizardOptions.currentUser = user;
             this.fetchSums();
         });
@@ -170,9 +165,7 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
             this.showSums(this.sumHours);
             return;
         }
-        this.fetching = true;
         this.invoiceHourService.getHourTotals(this.wizardOptions)
-            .finally( () => this.fetching = false )
             .subscribe( result => {
                 this.showSums(result);
             });
@@ -276,7 +269,7 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
             .subscribe( customer => {
             if (order && order.CustomerID > 0) {
                 // set customer email
-                order.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress 
+                order.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress
                     ? customer.Info.DefaultEmail.EmailAddress
                     : customer.EmailAddress;
 

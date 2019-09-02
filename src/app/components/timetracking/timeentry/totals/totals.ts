@@ -222,7 +222,7 @@ export class RegtimeTotals {
                     cols.push(col);
                 }
             }
-            cols[cols.length - 1].setCls('totals-bold');
+
             cols[cols.length - 1].setIsSumColumn(true);
         } else {
             const worktypeCol = new UniTableColumn('WorkTypeName', 'Timeart', UniTableColumnType.Text);

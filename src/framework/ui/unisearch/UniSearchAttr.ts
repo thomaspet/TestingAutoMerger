@@ -195,6 +195,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     private createNewItem() {
         this.closeSearchResult();
+        console.log(this.config);
         this.config.createNewFn(this.currentInputValue).subscribe(
             item => {
                 this.componentElement.nativeElement.value = this.inputTemplate(item);

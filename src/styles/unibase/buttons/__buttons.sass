@@ -9,57 +9,47 @@ $all-buttons: assign-inputs($buttons-list)
     to
         transform: rotate(360deg)
 
-@mixin uni-button($color)
-    color: $uni-color-negative
-    background-color: $color
-    // text-shadow: 0 0 .15rem darken($color, 8%)
-    font-weight: 400
-    // box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
+@mixin btn-coloring($type)
+    color: #fff
+    background-color: var(--color-#{$type})
+    &:hover, &:focus, &:active
+        background-color: var(--color-#{$type}-hover)
 
-    // The below part doesn't really _need_ to repeat, so a DRYer solution would
-    // be to place this outside the mixin, but this way we'll be able to call
-    // `@include uni-button($color)` from anywhere, even on objects that aren't
-    // buttons. Which is a good thing.
+#{$all-buttons}, a.button
+    position: relative
+    font: 400 15px var(--font-family)
     border: none
     box-sizing: border-box
-    font-size: 1rem
     border-radius: .2rem
-    padding: .5rem 1rem
+    padding: 10px 1rem
     margin: .5rem 1rem
     cursor: pointer
     min-height: 1.6667rem
     -webkit-appearance: none
 
-    &:hover,
+    &[disabled], &[aria-disabled]:not([aria-disabled=false])
+        opacity: 0.55
+
+    &.busy, &[aria-busy]:not([aria-busy=false])
+        color: rgba(0,0,0,0) !important
+        &:before
+            display: inline-block
+            content: ''
+            height: 15px
+            width: 15px
+            background: transparent
+            border-radius: 50%
+            border: 1px dotted rgba(255,255,255,.75)
+            border-top: 2px solid #fff
+            animation: rotate .5s infinite linear
+            margin: 0
+            position: absolute
+            top: calc(50% - 7.5px)
+            left: 0
+            margin-left: calc(50% - 7.5px)
+
     &:focus
-        background-color: darken($color, 5%)
         outline: none
-
-    &:active
-        background-color: darken($color, 5%)
-        transform: scale(.98)
-
-    &[disabled],
-    &[aria-disabled]:not([aria-disabled=false])
-        background-color: desaturate(mix($color, $uni-color-negative, 50%), 10%)
-        text-shadow: none
-        cursor: not-allowed
-
-        &:hover,
-        &:focus
-            background-color: desaturate(mix($color, $uni-color-negative, 80%), 10%)
-
-    &[aria-busy]:not([aria-busy=false]):before
-        display: inline-block
-        content: ''
-        height: 10px
-        width: 10px
-        background: transparent
-        border-radius: 50%
-        border: 1px solid transparentize($color, .5)
-        border-top: 1px solid darken($color, 20%)
-        animation: rotate .5s infinite linear
-        margin: 0 7px -1px -7px
 
     &.small
         font-size: .9rem
@@ -71,20 +61,21 @@ $all-buttons: assign-inputs($buttons-list)
         &[aria-busy]:not([aria-busy=false]):before
             margin: 0 5px -2px -5px
 
-#{$all-buttons}, a.button
-    @include uni-button($uni-color-action)
+    // REVISIT: warn probably shouldn't be default
+    @include btn-coloring(warn)
+
+    &.c2a, &.primary
+        @include btn-coloring(c2a)
 
     &.good
-        @include uni-button($uni-color-good)
+        @include btn-coloring(good)
 
     &.bad
-        @include uni-button($uni-color-bad)
+        @include btn-coloring(bad)
 
-    &.warning
-        @include uni-button($uni-color-warn)
+    &.warning, &.warn
+        @include btn-coloring(warn)
 
-    &.c2a
-        @include uni-button($uni-color-c2a)
 
 button[type=submit]
     @extend button.c2a
@@ -93,8 +84,8 @@ button[type=submit]
 // This will be removed once the button redesign is done
 button.button-clean
     height: 2.25rem
-    // font: 500 14px 'Roboto', sans-serif
-    font: 400 15px 'Roboto', sans-serif
+    // font: 500 14px var(--font-family)
+    font: 400 15px var(--font-family)
     color: rgba(0, 0, 0, 0.87)
     background: 0 0
     text-shadow: none

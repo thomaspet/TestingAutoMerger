@@ -18,7 +18,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of items" (click)="onItemClicked(item)" [class.alternateRow]="item._isSelected">
+                    <tr *ngFor="let item of items" (click)="onItemClicked(item)" [class.active-row]="item._isSelected">
                         <td>{{item.Description}}</td>
                         <td>{{item.FromDate|isotime}}</td>
                         <td>{{item.ToDate|isotime}}</td>

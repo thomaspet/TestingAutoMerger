@@ -93,14 +93,6 @@ export interface IGroupConfig {
                     [ngClass]="{ 'group_list_header' : item.isHeader }"
                     [attr.aria-selected]="selectedIndex === idx">
                     {{ item.isHeader ? item.header : options.itemTemplate(item) }}
-                    <span *ngIf="options.showEditOnLine && options.editOnLineCallBack"
-                        class="uni-multivalue_edit_action-edit"
-                        (click)="options.editOnLineCallBack(item)">
-                    </span>
-                    <span *ngIf="options.showEditOnLine && options.deleteOnLineCallBack"
-                        class="uni-multivalue_edit_action-delete"
-                        (click)="options.deleteOnLineCallBack(item)">
-                    </span>
                 </li>
                 <li *ngIf="!busy && options.addNewButtonVisible" class="autocomplete-add-button">
                     <button (click)="addNewItem()">
