@@ -56,6 +56,18 @@
               "namedChunks": true,
               "vendorChunk": true
             },
+            "dev-serve-faster": {
+              "aot": false,
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "sourceMap": false,
+              "showCircularDependencies": false,
+              "extractLicenses": false,
+              "extractCss": false,
+              "namedChunks": true,
+              "vendorChunk": true
+            },
             "test": {
               "aot": true,
               "optimization": true,
@@ -201,6 +213,9 @@
           "configurations": {
             "dev-serve": {
               "browserTarget": "economy-frontend:build:dev-serve"
+            },
+            "dev-serve-faster": {
+              "browserTarget": "economy-frontend:build:dev-serve-faster"
             },
             "test-serve": {
               "browserTarget": "economy-frontend:build:test-serve"
