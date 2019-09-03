@@ -66,7 +66,6 @@ import {
 } from '@angular/material';
 
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
-import {DeleteCompanyModal} from './modals/company-modals/delete-company-modal/delete-company-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
 
@@ -142,7 +141,6 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
-        DeleteCompanyModal,
         UniNewCompanyModal,
         JournalingRulesModal,
         ...NEW_COMPANY_VIEWS,
@@ -165,7 +163,6 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         WorkitemTransferWizard,
         GrantAccessModal,
         UniNewCompanyModal,
-        DeleteCompanyModal,
         ImportCentralTemplateModal,
         JournalingRulesModal
     ],

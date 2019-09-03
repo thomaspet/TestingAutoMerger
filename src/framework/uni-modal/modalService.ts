@@ -38,7 +38,9 @@ export class UniModalService {
     public forceClose(modalRef: ComponentRef<IUniModal>): void {
         const options = modalRef && modalRef.instance.options || {};
 
-        if (options.hasOwnProperty('cancelValue')) {
+        if (modalRef.instance.forceCloseValueResolver) {
+            modalRef.instance.onClose.emit(modalRef.instance.forceCloseValueResolver());
+        } else if (options.hasOwnProperty('cancelValue')) {
             modalRef.instance.onClose.emit(options.cancelValue);
         } else {
             modalRef.instance.onClose.emit(null);
