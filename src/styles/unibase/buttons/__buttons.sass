@@ -1,100 +1,127 @@
-$buttons-list: 'button', 'input[type=button]', 'input[type=reset]', 'input[type=submit]'
-$all-buttons: assign-inputs($buttons-list)
-
 @keyframes rotate
     from
         transform: rotate(0deg)
     to
         transform: rotate(360deg)
 
-@mixin btn-coloring($type)
+@mixin main-btn($type)
     color: #fff
     background-color: var(--color-#{$type})
-    &:hover, &:focus, &:active
-        background-color: var(--color-#{$type}-hover)
-
-#{$all-buttons}, a.button
-    position: relative
-    height: 38px
-    font: 400 15px var(--font-family)
     border: none
+    &:hover, &:focus, &:active, &.test
+        background-color: var(--color-#{$type}-hover)
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2)
+    &:before
+        border-color: #fff
+
+button, a.button
+    position: relative
+    height: 2.5rem
+    font-size: 15px
+    font-weight: 400
+
     box-sizing: border-box
-    border-radius: .2rem
+    border-radius: 2px
     padding: 0 1rem
-    margin: .5rem 1rem
+    margin: 0 .5rem 0 0
     cursor: pointer
-    min-height: 1.6667rem
     -webkit-appearance: none
 
     &[disabled], &[aria-disabled]:not([aria-disabled=false])
-        opacity: 0.55
+        opacity: 0.65
+        pointer-events: none
 
     &.busy, &[aria-busy]:not([aria-busy=false])
         color: rgba(0,0,0,0) !important
+        pointer-events: none
         &:before
-            display: inline-block
+            display: block
             content: ''
-            height: 15px
-            width: 15px
-            background: transparent
-            border-radius: 50%
-            border: 1px dotted rgba(255,255,255,.75)
-            border-top: 2px solid #fff
-            animation: rotate .5s infinite linear
-            margin: 0
             position: absolute
-            top: calc(50% - 7.5px)
-            left: 0
-            margin-left: calc(50% - 7.5px)
+            top: calc(50% - 9px)
+            left: calc(50% - 9px)
+            width: 18px
+            height: 18px
+
+            border: 2px solid #666
+            border-top-color: rgba(0, 0, 0, 0) !important
+            border-left-color: rgba(0, 0, 0, 0) !important
+
+            border-radius: 50%
+            animation: rotate .7s infinite linear
 
     &:focus
         outline: none
 
-    &.small
-        font-size: .9rem
-        line-height: 1.5em
-        padding: .2rem 1rem
-        font-weight: 400
-        text-shadow: none
+    &.icon-button
+        background-color: unset
+        padding: 0
+        border: none
 
-        &[aria-busy]:not([aria-busy=false]):before
-            margin: 0 5px -2px -5px
+    i.material-icons
+        vertical-align: middle
+        margin-bottom: 2px
 
-    // REVISIT: warn probably shouldn't be default
-    @include btn-coloring(warn)
+    // Default
+    background-color: #fff
+    color: #666
+    border: 1px solid #dbdbdb
+    &:hover, &:focus, &:active, .test
+        background-color: #fafafa
 
-    &.c2a, &.primary
-        @include btn-coloring(c2a)
+    // Main buttons
+    &:not(.secondary):not(.tertiary)
+        &.c2a
+            @include main-btn(c2a)
 
-    &.good
-        @include btn-coloring(good)
+        &.good
+            @include main-btn(good)
 
-    &.bad
-        @include btn-coloring(bad)
+        &.bad
+            @include main-btn(bad)
 
-    &.warning, &.warn
-        @include btn-coloring(warn)
+        &.warning, &.warn
+            @include main-btn(warn)
 
+    // Secondary
+    &.secondary
+        color: var(--color-c2a)
+        background-color: #fff
+        border: 2px solid #ccc
+        font-weight: 500
+
+        &:hover, &:focus, &:active, &.test
+            border-color: var(--color-c2a)
+
+        &:before
+            border-color: var(--color-c2a) !important
+
+    // Tertiary
+    &.tertiary
+        background-color: unset
+        color: var(--color-c2a)
+        border: none
+        font-weight: 500
+
+        &:hover, &:focus, &:active, &.test
+            color: var(--color-c2a-hover)
+            // text-decoration: underline
+
+        &.busy, &[aria-busy]:not([aria-busy=false])
+            &:before
+                border-color: var(--color-c2a)
+
+        &.bad
+            color: var(--color-bad)
+            &:hover, &:focus, &:active, &.test
+                color: var(--color-bad-hover)
+
+            &.busy, &[aria-busy]:not([aria-busy=false])
+                &:before
+                    border-color: var(--color-bad)
 
 button[type=submit]
     @extend button.c2a
 
-
-// This will be removed once the button redesign is done
-button.button-clean
-    height: 2.25rem
-    // font: 500 14px var(--font-family)
-    font: 400 15px var(--font-family)
-    color: rgba(0, 0, 0, 0.87)
-    background: 0 0
-    text-shadow: none
-    padding: 0 10px
-    margin: 0
-
-    &:hover
-        background-color: rgba(0,0,0,.12)
-        transition: background-color .25s ease
-
-    i.material-icons
-        vertical-align: middle
-
+.button-group
+    display: inline-flex

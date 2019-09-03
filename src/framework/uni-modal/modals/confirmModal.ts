@@ -5,7 +5,7 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
 @Component({
     selector: 'uni-confirm-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>

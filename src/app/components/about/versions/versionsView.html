@@ -18,33 +18,86 @@
         </tbody>
     </table>
 
-    <section>
-        <button class="c2a">Test</button>
-        <button class="good">Test</button>
-        <button class="bad">Test</button>
-        <button class="warning">Test</button>
+    <section style="margin-top: 2rem;">
+        <button>Default</button>
+        <button disabled>Disabled</button>
+        <button class="test">Hover</button>
+        <button [attr.aria-busy]="true">Loading</button>
     </section>
 
-    <section>
-        <button disabled class="c2a">Test</button>
-        <button disabled class="good">Test</button>
-        <button disabled class="bad">Test</button>
-        <button disabled class="warning">Test</button>
+    <section style="margin-top: 2rem;">
+        <button class="c2a">Primary</button>
+        <button class="c2a" disabled>Primary</button>
+        <button class="c2a test">Primary</button>
+        <button class="c2a" [attr.aria-busy]="true">Loading</button>
     </section>
 
-    <section class="uni-redesign" style="margin-top: 3rem">
-        <button class="c2a">Test</button>
-        <button class="good">Test</button>
-        <button class="bad">Test</button>
-        <button class="warning">Test</button>
+    <section style="margin-top: 2rem;">
+        <button class="good">Action</button>
+        <button class="good" disabled>Action</button>
+        <button class="good test">Action</button>
+        <button class="good" [attr.aria-busy]="true">Loading</button>
     </section>
 
-    <input style="margin: 2rem 0" type="text" placeholder="Tes av input felt">
+    <section style="margin-top: 2rem;">
+        <button class="warn">Warn</button>
+        <button class="warn" disabled>Warn</button>
+        <button class="warn test">Warn</button>
+        <button class="warn" [attr.aria-busy]="true">Loading</button>
+    </section>
 
-    <section class="input-with-button">
-        <input type="text" placeholder="Input med ikon">
-        <button tabindex="-1">
-            <i class="material-icons">link</i>
+    <section style="margin-top: 2rem;">
+        <button class="bad">Destructive</button>
+        <button class="bad" disabled>Destructive</button>
+        <button class="bad test">Destructive</button>
+        <button class="bad" [attr.aria-busy]="true">Loading</button>
+    </section>
+
+    <!-- Secondary -->
+    <section style="margin-top: 2rem;">
+        <button class="secondary">Secondary</button>
+        <button class="secondary" disabled>Secondary</button>
+        <button class="secondary test">Secondary</button>
+        <button class="secondary" [attr.aria-busy]="true">Loading</button>
+    </section>
+
+    <!-- Tertiary -->
+    <section style="margin-top: 2rem;">
+        <button class="tertiary">Tertiary</button>
+        <button class="tertiary" disabled>Tertiary</button>
+        <button class="tertiary test">Tertiary</button>
+        <button class="tertiary" [attr.aria-busy]="true">Loading</button>
+    </section>
+
+    <section style="margin-top: 2rem;">
+        <button class="tertiary bad">Tertiary</button>
+        <button class="tertiary bad" disabled>Tertiary</button>
+        <button class="tertiary bad test">Tertiary</button>
+        <button class="tertiary bad" [attr.aria-busy]="true">Loading</button>
+    </section>
+
+    <!-- Icons -->
+    <section style="margin: 2rem 0 4rem;">
+        <button>
+            <i class="material-icons">add</i>
+            Knapp med ikon
+        </button>
+
+        <button class="c2a">
+            <i class="material-icons">add</i>
+            Knapp med ikon
+        </button>
+
+        <button class="secondary">
+            Knapp med ikon
+            <i class="material-icons">add</i>
+        </button>
+
+        <button class="tertiary">
+            <i class="material-icons">add</i>
+            Knapp med ikon
         </button>
     </section>
+
+
 </section>
