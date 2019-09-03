@@ -452,7 +452,7 @@ export class AMeldingView implements OnInit {
                 _state = STATUSTRACK_STATES.Completed;
             } else if (amldStatus.Code === activeStatus) {
 
-                if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
+                if (!!this.currentAMelding && this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                     _state = STATUSTRACK_STATES.Active;
                 } else {
                     // If we're not on the last of the A-meldings in the period, we'll assume the data is obsolete.
