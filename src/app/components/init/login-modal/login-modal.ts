@@ -9,9 +9,7 @@ import {BehaviorSubject} from 'rxjs';
     selector: 'uni-login-modal',
     template: `
         <section role="dialog" class="uni-modal" (keydown.enter)="authenticate()">
-            <header>
-                <h1>Autentisering</h1>
-            </header>
+            <header>Autentisering</header>
 
             <article>
                 <small class="validation warn" *ngIf="!errorMessage?.length">
@@ -31,7 +29,7 @@ import {BehaviorSubject} from 'rxjs';
 
             <footer>
                 <button class="cancel" (click)="goToLogin()">Avbryt og gå til login</button>
-                <button class="good" (click)="authenticate()" [attr.aria-busy]="working">
+                <button class="c2a" (click)="authenticate()" [attr.aria-busy]="working">
                     Logg inn
                 </button>
             </footer>

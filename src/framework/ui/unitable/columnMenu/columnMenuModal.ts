@@ -102,9 +102,9 @@ import * as Immutable from 'immutable';
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Lagre</button>
+                <button class="secondary pull-left" (click)="close(false)">Avbryt</button>
                 <button class="bad" (click)="resetAll()">Nullstill</button>
-                <button class="cancel" (click)="close(false)">Avbryt</button>
+                <button class="good" (click)="close(true)">Lagre</button>
             </footer>
         </section>
     `,

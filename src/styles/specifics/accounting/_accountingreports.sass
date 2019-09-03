@@ -37,18 +37,6 @@ accounting-reports, accounting-details-report
     h1
         margin-bottom: pxToRem(5)
 
-    button
-        @extend a:link
-        display: inline-block
-        background: 0 0
-        box-shadow: none
-        text-shadow: none
-        border: none
-        padding: 0
-        margin-left: .3rem
-        margin-right: .3rem
-        text-decoration: none
-
     .amount
         text-align: right !important
         min-width: 6em
@@ -211,19 +199,6 @@ dimension-type-report
 
     .accounting-report-drilldown, .dimension-result
         margin-top: 0
-
-.iconbutton
-    color: var(--color-c2a)
-    padding: pxToRem(5) pxToRem(8) pxToRem(5) pxToRem(5)
-    cursor: pointer
-    border-radius: pxToRem(5)
-    border: 1px solid $uni-color-scale8
-
-    &:hover, &:focus
-        background-color: $uni-color-scale8
-
-.leftpadding
-    margin-left: 1em
 
 .vertical-middle
     vertical-align: middle

@@ -40,9 +40,6 @@ uni-statustrack > ol
             color: var(--color-c2a)
             font-weight: 500
 
-        &.obsolete
-            background: $uni-color-warn
-
         &:not(:last-of-type)
             &:after
                 border-left-color: $statustrack-background
@@ -50,8 +47,7 @@ uni-statustrack > ol
             &:before
                 border-left-color: #ccc
 
-            &.active:before,
-            & + .active:before
+            &.active:before
                 border-left-color: #ccc
 
         &:before,

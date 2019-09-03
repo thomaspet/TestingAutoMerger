@@ -23,7 +23,6 @@ button, a.button
     box-sizing: border-box
     border-radius: 2px
     padding: 0 1rem
-    margin: 0 .5rem 0 0
     cursor: pointer
     -webkit-appearance: none
 
@@ -57,10 +56,14 @@ button, a.button
         background-color: unset
         padding: 0
         border: none
+        width: 2.25rem
 
     i.material-icons
         vertical-align: middle
         margin-bottom: 2px
+
+    & + button
+        margin-left: 1rem
 
     // Default
     background-color: #fff
@@ -125,3 +128,6 @@ button[type=submit]
 
 .button-group
     display: inline-flex
+
+combo-button + button
+    margin-left: 1rem

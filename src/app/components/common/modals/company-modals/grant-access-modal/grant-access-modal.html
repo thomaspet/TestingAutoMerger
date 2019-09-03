@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesign">
+<section role="dialog" class="uni-modal">
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
@@ -55,29 +55,25 @@
     </article>
 
     <footer>
-        <button class="back"
+        <button class="secondary pull-left" (click)="close()">Avbryt</button>
+
+        <button class="secondary"
             *ngIf="!showReceipt"
             (click)="stepper.previous()"
             [disabled]="currentPage === 0">
-
             Tilbake
         </button>
 
         <button class="c2a"
             *ngIf="!showReceipt && currentPage < 4"
             (click)="stepper.next()">
-
             Neste
         </button>
 
         <button class="good"
             *ngIf="!showReceipt && currentPage >= 4"
             (click)="sendInvites()">
-
             Gi tilganger
         </button>
-
-
-        <button class="cancel" (click)="close()">Avbryt</button>
     </footer>
 </section>

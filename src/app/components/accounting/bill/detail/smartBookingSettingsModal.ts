@@ -8,7 +8,7 @@ import {BehaviorSubject} from 'rxjs';
     selector: 'add-file-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 35vw; min-width: 640px;">
-            <header><h1>Innstillinger for smart bokføring</h1></header>
+            <header>Innstillinger for smart bokføring</header>
 
             <article class="bill-container">
                 <article class="bill-list">
@@ -22,8 +22,8 @@ import {BehaviorSubject} from 'rxjs';
             </article>
 
             <footer class="center">
-                <button class="c2a rounded" (click)="close(true)">Lagre</button>
-                <button (click)="close()">Avbryt</button>
+                <button class="secondary" (click)="close()">Avbryt</button>
+                <button class="c2a" (click)="close(true)">Lagre</button>
             </footer>
         </section>
     `

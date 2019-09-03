@@ -31,7 +31,9 @@
     <uni-tabs [tabs]="tabs" [(activeIndex)]="tabIndex" (activeIndexChange)="tabChange($event)"></uni-tabs>
 
     <section class="uni-container" *ngIf="tabIndex === 0">
-        <button (click)="toggleFilter()" class="leftpadding iconbutton"><i class="material-icons vertical-middle">settings</i> filter </button>
+        <button (click)="toggleFilter()" class="tertiary">
+            <i class="material-icons">filter_list</i> Filter
+        </button>
         <uni-form
             *ngIf="filterVisible"
             [config]="config$"

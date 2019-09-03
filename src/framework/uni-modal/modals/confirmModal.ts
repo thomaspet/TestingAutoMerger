@@ -6,9 +6,7 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
     selector: 'uni-confirm-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
 
             <article>
                 <p class="warn" *ngIf="options.warning" [innerHtml]="options.warning"></p>
@@ -16,16 +14,16 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
             </article>
 
             <footer>
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                    {{options.buttonLabels.accept}}
+                <button *ngIf="options.buttonLabels.cancel" class="pull-left cancel" (click)="cancel()">
+                    {{options.buttonLabels.cancel}}
                 </button>
 
                 <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
                     {{options.buttonLabels.reject}}
                 </button>
 
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                    {{options.buttonLabels.cancel}}
+                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
+                    {{options.buttonLabels.accept}}
                 </button>
             </footer>
         </section>
