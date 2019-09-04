@@ -67,7 +67,9 @@ import {
 
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
-import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
+import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
+import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
+import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
 
 @NgModule({
     imports: [
@@ -132,6 +134,8 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         ApikeyLineModal,
 
         ImportCentralTemplateModal,
+        DisclaimerModal,
+        ImportTemplateModal,
 
         WorkEditor,
         UniTimeModal,
@@ -164,6 +168,8 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         GrantAccessModal,
         UniNewCompanyModal,
         ImportCentralTemplateModal,
+        DisclaimerModal,
+        ImportTemplateModal,
         JournalingRulesModal
     ],
     exports: [

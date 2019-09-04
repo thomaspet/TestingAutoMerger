@@ -54,6 +54,7 @@ import {SharingsModule} from './components/sharings/sharingsModule';
 import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 
 import {ReloadHelper} from './reload';
+import { ImportCentralServicesModule } from './services/importCentralServiceModule';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -79,6 +80,7 @@ moment.locale('nb');
         AdminServicesModule.forRoot(),
         AssignmentServicesModule.forRoot(),
         ElsaServicesModule.forRoot(),
+        ImportCentralServicesModule.forRoot(),
 
         APP_ROUTES,
 

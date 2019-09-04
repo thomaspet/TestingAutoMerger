@@ -1,6 +1,8 @@
 @import '~src/styles/uni-redesign/_color.sass'
-@import './import-central-common.sass'
-
+@import '../import-central-common.sass'
+.all-cards
+    justify-content: center
+    
 .card-container
     padding: 15px
 
@@ -11,6 +13,15 @@
         position: relative
         transition: .25s ease-in-out
         overflow: hidden
+
+        &.no-access
+            min-height: 350px
+            display: flex
+            align-items: center
+            justify-content: center
+            label
+                margin-top: 15px
+    
 
         &:hover
             box-shadow: 0 1px 14px 0px rgba(0, 0, 0, 0.14)
