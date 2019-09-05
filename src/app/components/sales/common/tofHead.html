@@ -99,13 +99,13 @@
             </uni-attachments>
         </section>
 
-        <uni-dimension-tof-view
+        <uni-dimension-view
             *ngIf="activeTabIndex === indexes[5]"
             (entityChange)="onDataChange($event)"
             [dimensionTypes]="dimensionTypes"
             [entity]="data"
             [entityType]="entityName">
-        </uni-dimension-tof-view>
+        </uni-dimension-view>
 
         <uni-distribute
             *ngIf="activeTabIndex === indexes[6]"

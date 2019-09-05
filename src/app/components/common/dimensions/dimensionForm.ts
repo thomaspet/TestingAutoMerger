@@ -4,7 +4,7 @@ import { FieldType, UniForm } from '@uni-framework/ui/uniform';
 declare const _;
 
 @Component({
-    selector: 'uni-dimension-tof-view',
+    selector: 'uni-dimension-view',
     template: `
     <uni-form
         [fields]="dimfields$"
@@ -20,6 +20,7 @@ export class UniDimensionTOFView implements OnInit {
     @Input() public dimensionTypes: any[] = [];
     @Input() public entity: any;
     @Input() public entityType: string;
+    @Input() public isModal: boolean = false;
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     public dimfields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -28,11 +29,11 @@ export class UniDimensionTOFView implements OnInit {
     constructor() {}
 
     public ngOnInit() {
-        this.setUpDimensions();
     }
 
     public ngOnChanges(changes) {
         this.model$.next(this.entity);
+        this.setUpDimensions();
     }
 
     public onFormChange(changes) {
@@ -71,7 +72,7 @@ export class UniDimensionTOFView implements OnInit {
             }
             fields.push(
                 {
-                    FieldSet: 1,
+                    FieldSet: this.isModal ? 0 : 1,
                     FieldSetColumn: fieldsetIndex,
                     EntityType: this.entityType,
                     Property: dim.Property,
@@ -89,7 +90,6 @@ export class UniDimensionTOFView implements OnInit {
                 }
             );
         });
-
         this.dimfields$.next(fields);
     }
 
