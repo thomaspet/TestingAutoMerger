@@ -102,9 +102,6 @@ export class UniJournalEntryLineModal implements IUniModal {
             if (jelType && jelType.ID !== jel.JournalEntryTypeID) {
                 jel.JournalEntryTypeID = jelType.ID;
             }
-
-            console.log(this.journalEntryLine);
-
             const jelToSave: any = new JournalEntryLine();
             jelToSave.ID = jel.ID;
             jelToSave.Description = jel.Description;
@@ -124,7 +121,7 @@ export class UniJournalEntryLineModal implements IUniModal {
     }
 
     onDataChange(line?: JournalEntryLine) {
-        console.log('Line from dimensionform', line);
+
         const updatedEntity = line || this.journalEntryLine;
         this.journalEntryLine = updatedEntity;
     }
