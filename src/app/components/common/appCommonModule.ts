@@ -15,7 +15,7 @@ import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarShare} from './toolbar/share';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
-
+import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
@@ -109,7 +109,7 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         LedgerAccountReconciliation,
         UniAutomarkModal,
         UniMarkingDetailsModal,
-
+        UniDimensionTOFView,
         ReminderSettings,
         UniReminderSettingsModal,
         ReminderRules,
@@ -183,6 +183,7 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         UniAttachments,
         UniTags,
         AddPaymentModal,
+        UniDimensionTOFView,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,

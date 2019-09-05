@@ -56,7 +56,6 @@ import {SellerList} from './sellers/sellerList';
 import {SellerLinks} from './sellers/sellerlinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
-import {UniDimensionTOFView} from './common/dimensionForm';
 import {UniDistibutionTOFView} from './common/distibutionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
@@ -104,7 +103,6 @@ import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
         TradeItemTable,
         UniRecurringInvoiceSettingsView,
         UniTofSelectModal,
-        UniDimensionTOFView,
         UniDistibutionTOFView,
 
         InvoiceList,
