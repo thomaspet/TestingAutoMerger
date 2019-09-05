@@ -32,4 +32,11 @@ export interface IModalOptions {
 export interface IUniModal {
     onClose: EventEmitter<any>;
     options?: IModalOptions;
+
+    /**
+        Called by modalService when force-closing a dialog (clickOutside, escape, close icon)
+
+        Allows you to resolve a value for the onClose emit in these cases.
+    */
+    forceCloseValueResolver?: () => any;
 }

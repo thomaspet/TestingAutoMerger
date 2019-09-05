@@ -23,7 +23,9 @@ import {UserList} from './user-list/license-user-list';
 import {UserDetails} from './user-list/license-user-details/license-user-details';
 import {AddAdminModal} from './add-admin-modal/add-admin-modal';
 import {DeletedCompaniesModal} from './company-list/deleted-companies-modal/deleted-companies-modal';
+import {DeleteCompanyModal} from './company-list/delete-company-modal/delete-company-modal';
 import {AppCommonModule} from '../common/appCommonModule';
+
 
 @NgModule({
     imports: [
@@ -64,8 +66,9 @@ import {AppCommonModule} from '../common/appCommonModule';
         CellValuePipe,
         ListView,
         AddAdminModal,
-        DeletedCompaniesModal
+        DeletedCompaniesModal,
+        DeleteCompanyModal
     ],
-    entryComponents: [AddAdminModal, DeletedCompaniesModal]
+    entryComponents: [AddAdminModal, DeletedCompaniesModal, DeleteCompanyModal]
 })
 export class LicenseInfoModule {}

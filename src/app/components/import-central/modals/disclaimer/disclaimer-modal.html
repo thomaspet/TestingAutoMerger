@@ -23,20 +23,20 @@
                 per
                 time etter medgått tid fra UniMicro AS sin side.
             </p>
-
-            <label class="check-box-container" *ngIf='!hasAgreed'>
-                <mat-checkbox class="check-box" [(ngModel)]="isSelected" [ngModelOptions]="{standalone: true}"
-                    (click)="$event.stopPropagation()">
-                </mat-checkbox>
-                <label class="option-text">
-                    Jeg godtar vilkår og betingelser
+            <div [attr.aria-busy]="busy">
+                <label class="check-box-container" *ngIf='!hasAgreed'>
+                    <mat-checkbox class="check-box" [(ngModel)]="isSelected" [ngModelOptions]="{standalone: true}"
+                        (click)="$event.stopPropagation()">
+                    </mat-checkbox>
+                    <label class="option-text">
+                        Jeg godtar vilkår og betingelser
+                    </label>
                 </label>
-            </label>
 
-            <div class="alert-success" *ngIf='hasAgreed' role="alert">
-                Disse vilkårene og betingelsene ble godtatt av deg den <b>{{approvedDate}}</b>
+                <div class="alert-success" *ngIf='hasAgreed' role="alert">
+                    Disse vilkårene og betingelsene ble godtatt av deg den <b>{{approvedDate}}</b>
+                </div>
             </div>
-
 
 
         </form>

@@ -77,7 +77,7 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
     }
 
     private isDateUnfinished(date: Date) {
-        return !(date === (new Date('0001-01-01T00:00:00Z') || null));
+        return !date || date === new Date('0001-01-01T00:00:00Z');
     }
 
     public supplementsCleanUpToast() {

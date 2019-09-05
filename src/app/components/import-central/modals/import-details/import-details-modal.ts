@@ -16,7 +16,6 @@ export class ImportDetailsModal implements OnInit, IUniModal {
 
     constructor(private jobService: JobService, private router: Router) { }
 
-    fileName: string = 'Customer_All.xlsx';
     jobRun: any;
     log: any = [];
     progress: any = [];

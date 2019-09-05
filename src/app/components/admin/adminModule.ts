@@ -27,23 +27,13 @@ import {FlowModal} from './flow/flow-modal/flow-modal';
 import {FlowList} from './flow/flow-list/flow-list';
 import {FlowTemplates} from './flow/templates/templates';
 import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
-import { DownloadTemplateModal } from './import-central/modals/download-template/download-template-modal';
-import { ImportTemplateModal } from './import-central/modals/import-template/import-template-modal';
-import { ImportDetailsModal } from './import-central/modals/import-details/import-details-modal';
-import { ImportCentralComponent } from './import-central/import-central.component';
-import { ImportCentralLogHistoryComponent } from './import-central/log-history/import-central-log-history';
-import { DisclaimerModal } from './import-central/modals/disclaimer/disclaimer-modal';
 
 @NgModule({
     entryComponents: [
         SaftImportModal,
         SaftExportModal,
         FlowTemplateModal,
-        FlowModal,
-        DownloadTemplateModal,
-        ImportTemplateModal,
-        ImportDetailsModal,
-        DisclaimerModal
+        FlowModal
     ],
     imports: [
         BrowserModule,
@@ -79,14 +69,7 @@ import { DisclaimerModal } from './import-central/modals/disclaimer/disclaimer-m
         FlowModal,
         FlowTemplateModal,
         FlowList,
-        FlowTemplates,
-
-        ImportCentralComponent,
-        ImportCentralLogHistoryComponent,
-        DownloadTemplateModal,
-        ImportTemplateModal,
-        ImportDetailsModal,
-        DisclaimerModal
+        FlowTemplates
     ],
     providers: [
         PeopleService,
@@ -97,9 +80,7 @@ import { DisclaimerModal } from './import-central/modals/disclaimer/disclaimer-m
         JobDetails,
         JobLog,
         ApprovalThresholds,
-        UniGdprPeopleList,
-        ImportCentralComponent,
-        ImportCentralLogHistoryComponent
+        UniGdprPeopleList
     ]
 })
 export class AdminModule {}

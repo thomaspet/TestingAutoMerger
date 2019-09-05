@@ -1,9 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal';
-import { UserService, ErrorService } from '@app/services/services';
+import { UserService, ErrorService, ImportCentralService } from '@app/services/services';
 import { Subject } from 'rxjs';
 import { User } from '@uni-entities';
-import { ImportCentralService } from '@app/services/admin/import-central/importCentralService';
 import *  as moment from 'moment';
 
 @Component({
@@ -23,23 +22,30 @@ export class DisclaimerModal implements OnInit, IUniModal {
     user: User;
     hasAgreed: boolean = false;
     approvedDate: string;
+    busy: boolean = true;
 
     constructor(
         private userService: UserService,
         private importCentralService: ImportCentralService,
-        private errorService: ErrorService, ) {
+        private errorService: ErrorService) {
         this.userService.getCurrentUser().subscribe(res => {
             if (res) {
                 this.user = res;
                 this.hasAgreed = res.HasAgreedToImportDisclaimer;
+                this.busy = false;
                 if (this.hasAgreed) {
+                    this.busy = true;
                     this.importCentralService.getDiclaimerAudit(this.user.ID).subscribe(audit => {
                         if (audit) {
+                            this.busy = false;
                             this.approvedDate = moment(audit.pop().CreatedAt).format('DD.MM.YY');
                         }
                     })
                 }
             }
+        }, err => {
+            this.busy = false;
+            this.errorService.handle('En feil oppstod, vennligst prøv igjen senere')
         });
     }
 
@@ -55,7 +61,10 @@ export class DisclaimerModal implements OnInit, IUniModal {
                 this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
             }
             this.loading$.next(false);
-        }, () => { })
+        }, err => {
+            this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
+            this.loading$.next(false);
+        })
     }
 
     public close() {
