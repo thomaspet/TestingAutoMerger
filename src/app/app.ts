@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init';
-import {ErrorService} from './services/services';
+import {ErrorService, UniTranslationService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
 import {UserDto} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
@@ -42,6 +42,7 @@ export class App {
         public navbarService: NavbarLinkService,
         private browserStorage: BrowserStorageService,
         private router: Router,
+        private translationService: UniTranslationService
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
@@ -142,19 +143,19 @@ export class App {
 
     applyUeTheme() {
         document.body.classList.remove('sr-theme');
-
-        // const styles = document.documentElement.style;
-        // Object.keys(THEMES.UE).forEach(key => {
-        //     styles.setProperty(key, THEMES.UE[key]);
-        // });
+        this.translationService.setLocale('NO_UNI');
+        const route = this.router.url;
+        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(() => {
+            this.router.navigateByUrl(route);
+        });
     }
 
     applySrTheme() {
         document.body.classList.add('sr-theme');
-
-        // const styles = document.documentElement.style;
-        // Object.keys(THEMES.SR).forEach(key => {
-        //     styles.setProperty(key, THEMES.SR[key]);
-        // });
+        this.translationService.setLocale('NO_SR');
+        const route = this.router.url;
+        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(() => {
+            this.router.navigateByUrl(route);
+        });
     }
 }
