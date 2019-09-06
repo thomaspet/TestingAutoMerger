@@ -121,6 +121,7 @@ export class UniJournalEntryLineModal implements IUniModal {
     }
 
     onDataChange(line?: JournalEntryLine) {
+
         const updatedEntity = line || this.journalEntryLine;
         this.journalEntryLine = updatedEntity;
     }

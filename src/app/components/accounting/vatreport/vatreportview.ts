@@ -156,7 +156,7 @@ export class VatReportView implements OnInit, OnDestroy {
             } else if (status.Code < activeStatus) {
                 _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                if (this.currentVatReport && this.vatReportsInPeriod && this.vatReportsInPeriod.length > 0 && 
+                if (this.currentVatReport && this.vatReportsInPeriod && this.vatReportsInPeriod.length > 0 &&
                     this.currentVatReport.ID !== this.vatReportsInPeriod[this.vatReportsInPeriod.length - 1].ID) {
                     _state = STATUSTRACK_STATES.Obsolete;
                 } else {
@@ -349,7 +349,8 @@ export class VatReportView implements OnInit, OnDestroy {
         this.currentVatReport = vatReport;
         this.vatReportService.refreshVatReport(this.currentVatReport);
 
-        this.tabs[2].hidden = !this.isSent();
+        this.tabs[2].hidden = !this.currentVatReport.ExternalRefNo || !this.isSent();
+
         this.tabs[3].hidden = !this.currentVatReport.JournalEntryID;
         this.tabs = [...this.tabs];
 
