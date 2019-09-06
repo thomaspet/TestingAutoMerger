@@ -9,7 +9,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 @Component({
     selector: 'project-supplier-invoice-list',
     template: `
-        <button (click)="addNew()" class="outline-c2a">
+        <button (click)="addNew()" class="tertiary c2a">
             Opprett ny
         </button>
 
@@ -22,7 +22,6 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
         </ag-grid-wrapper>
     `,
     styleUrls: ['./supplier-invoice-list.sass'],
-    host: {class: 'uni-redesign'}
 })
 export class ProjectSupplierInvoiceList {
     onDestroy$ = new Subject();

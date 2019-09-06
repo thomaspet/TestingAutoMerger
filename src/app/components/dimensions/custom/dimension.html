@@ -5,7 +5,7 @@
 
 <section class="application">
 
-    <section class="dimension-list uni-container">
+    <section class="dimension-list uni-container" style="margin-right: 1rem">
         <select #selectElem (change)="dimChange(selectElem.value)">
             <option *ngFor="let dim of dimensionMetaData"
                 [value]="dim.Dimension"

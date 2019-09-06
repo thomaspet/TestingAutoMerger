@@ -17,7 +17,7 @@ uni-bill
 			min-width: 35rem
 			margin: 0 .5rem
 			.uni-container
-				margin-right: 0
+				margin-left: 0
 
 			.freetext-tab-view
 				display: flex
@@ -60,7 +60,7 @@ uni-bill
 	// Remove margin/padding/shadow that is on journal entry by default
 	journal-entry-manual .uni-container
 		margin: 0
-		box-shadow: none
+		border: none
 		.journalentry-input-components
 			padding: 0
 
@@ -160,7 +160,6 @@ supplier-invoice-table-minus
 
 		.refreshbutton
 			cursor: pointer
-			color: $uni-color-scale2
 			position: absolute
 			top: 4px
 			left: 18rem
@@ -174,9 +173,11 @@ supplier-invoice-table-minus
 			top: 1.25rem
 			right: 1rem
 			padding: 0
+			font-size: 15px
 
 	.bill-preview
 		flex: 1
+		margin-left: 1rem
 
 		.accounting-preview-links
 			margin-bottom: .5rem

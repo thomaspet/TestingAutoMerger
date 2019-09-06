@@ -10,7 +10,11 @@
     <section class="bill-left-side">
 
         <section class="uni-container">
-            <uni-tabs [tabs]="detailsTabs" [(activeIndex)]="detailsTabIndex" (activeIndexChange)="onDetailsTabClick($event)"></uni-tabs>
+            <uni-tabs class="scoped"
+                [tabs]="detailsTabs"
+                [(activeIndex)]="detailsTabIndex"
+                (activeIndexChange)="onDetailsTabClick($event)">
+            </uni-tabs>
             <uni-form
                 *ngIf="detailsTabIndex === 0"
                 [config]="formConfig$"
@@ -34,7 +38,7 @@
         </section>
 
         <section class="uni-container" style="margin-bottom: 0">
-            <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+            <uni-tabs class="scoped" [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
             <ng-template [ngIf]="activeTabIndex === 0">
                 <journal-entry-manual

@@ -2,20 +2,7 @@ uni-information
     display: block
     position: relative
     z-index: 1
-    box-shadow: .1rem .1rem .2rem transparentize($uni-color-scale3, .5)
     margin: 0.3rem 1rem 4rem .3rem
-
-    &:after
-        position: absolute
-        z-index: -1
-        content: ''
-        background: red
-        height: 5rem
-        width: 15rem
-        right: .6rem
-        bottom: .8rem
-        box-shadow: 0 1rem 2rem transparentize($uni-color-scale3, .2)
-        transform: skew(15deg) rotate(6deg)
 
 .information_sheet
     padding: .5rem 1rem 1rem
@@ -29,15 +16,3 @@ uni-information
     .information-content
         font-size: .9rem
 
-    &:before
-        $peg-size: .6rem
-        content: ''
-        display: block
-        position: absolute
-        height: $peg-size
-        width: $peg-size
-        border-radius: ($peg-size / 2)
-        background: $uni-color-negative
-        left: calc(50% - #{$peg-size / 2})
-        top: 1rem
-        box-shadow: .1rem .1rem .3rem transparentize($uni-color-scale3, .5)

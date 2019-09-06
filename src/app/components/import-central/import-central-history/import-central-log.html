@@ -1,39 +1,37 @@
-<section class="application">
-    <section class="uni-container">
-        <div class="header-container">
-            <header>Logg</header>
-            <div class="drop-down-container">
-                <uni-select class="drop-down" [value]="selectedType" [config]="config" [items]="operators"
-                    (valueChange)="onSelectChange($event)">
-                </uni-select>
-            </div>
+<section class="uni-container">
+    <div class="header-container">
+        <header>Logg</header>
+        <div class="drop-down-container">
+            <uni-select class="drop-down" [value]="selectedType" [config]="config" [items]="operators"
+                (valueChange)="onSelectChange($event)">
+            </uni-select>
         </div>
+    </div>
 
-        <div class="table-wrapper">
-            <div [attr.aria-busy]="busy">
-                <table cellspacing="0" *ngIf="jobLogs.length != 0">
-                    <tr>
-                        <th>Nummer</th>
-                        <th>Jobbnummer</th>
-                        <th>Jobbnavn</th>
-                        <th>Startet</th>
-                        <th>Ferdig</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                    <tr *ngFor="let job of jobLogs">
-                        <td><a>{{job.ID}}</a></td>
-                        <td><a>{{job.HangfireJobId}}</a></td>
-                        <td> <a>{{job.JobName}}</a> </td>
-                        <td>{{job.Created}}</td>
-                        <td>{{job.Ended}}</td>
-                        <td class="job-status">{{job.Status}}</td>
-                        <td><a (click)="onImportDetails(job)">More</a></td>
-                    </tr>
-                </table>
-                <p *ngIf="jobLogs.length == 0" class="no-logs">Ingen logg</p>
-            </div>
+    <div class="table-wrapper">
+        <div [attr.aria-busy]="busy">
+            <table cellspacing="0" *ngIf="jobLogs.length != 0">
+                <tr>
+                    <th>Nummer</th>
+                    <th>Jobbnummer</th>
+                    <th>Jobbnavn</th>
+                    <th>Startet</th>
+                    <th>Ferdig</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                <tr *ngFor="let job of jobLogs">
+                    <td><a>{{job.ID}}</a></td>
+                    <td><a>{{job.HangfireJobId}}</a></td>
+                    <td> <a>{{job.JobName}}</a> </td>
+                    <td>{{job.Created}}</td>
+                    <td>{{job.Ended}}</td>
+                    <td class="job-status">{{job.Status}}</td>
+                    <td><a (click)="onImportDetails(job)">More</a></td>
+                </tr>
+            </table>
+            <p *ngIf="jobLogs.length == 0" class="no-logs">Ingen logg</p>
         </div>
+    </div>
 
-    </section>
 </section>

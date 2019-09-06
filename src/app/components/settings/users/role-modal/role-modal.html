@@ -29,7 +29,7 @@
 
                     <section class="panel-right" *ngIf="group.product && !userStatusInvited">
                         <button
-                            [ngClass]="group.productPurchased ? 'outline-bad' : 'outline-c2a'"
+                            [ngClass]="group.productPurchased ? 'tertiary bad' : 'tertiary c2a'"
                             (click)="togglePurchase(group, $event)">
                             {{group.productPurchased ? 'Deaktiver' : 'Kjøp produkt'}}
                         </button>

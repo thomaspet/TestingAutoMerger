@@ -25,6 +25,9 @@ uni-comments
 .comments-view
     @extend %mainNavDropdown
     position: absolute
+    display: flex
+    flex-direction: column
+    padding: 1rem
     box-sizing: border-box
     height: 30rem
     width: 30rem
@@ -34,21 +37,20 @@ uni-comments
 
     display: none
     &[aria-expanded]:not([aria-expanded=false])
-        display: block
+        display: flex
 
     uni-comment-list
-        height: calc(100% - 3rem)
-        padding: 1.5rem .5rem .5rem .25rem
+        flex: 1
 
     uni-comment-input
-        height: 3rem
-        padding: .5rem .25rem .5rem 1rem
+        flex: 0 0 auto
+        margin-top: 1rem
         ul
             bottom: 2rem
             left: 1rem
         button
-            height: 2rem
-            line-height: 1rem
+            width: 6rem
+            margin-left: 1rem
 
 ol.comment-list
     overflow-y: auto
@@ -106,14 +108,7 @@ uni-comment-input
     box-sizing: border-box
 
     input
-        order: 1
         flex: 1
-        resize: none
-
-    button
-        order: 2
-        flex: 0 1 6rem
-        margin-top: 0 !important
 
     ul
         @extend .uni-multivalue-values
@@ -145,6 +140,6 @@ uni-comment-input
 
         ul
             bottom: 2.5rem
-            left: 1rem
+            left: 0
         button
             margin-right: 0
