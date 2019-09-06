@@ -326,6 +326,7 @@ export class UniTickerService {
         c.Alias = c.Alias ? c.Alias : aliasColName;
         c.SelectableFieldName = selectableColName;
 
+
         // if not fieldtype is configured for the ticker column, try to find
         // type based on the model that is retrieved from the API
         if (model &&  (!c.Type || c.Type === '')) {
@@ -1168,10 +1169,12 @@ export class Ticker {
     public Type?: string;
     public Group: string;
     public IsTopLevelTicker: boolean;
+    public AvoidAutoExpand?: boolean;
     public HideCounter?: boolean;
     public Model: string;
     public OrderBy?: string;
     public ApiModel?: ApiModel;
+    public Select?: string;
     public Expand?: string;
     public Distinct?: boolean;
     public CountExpand?: string;
