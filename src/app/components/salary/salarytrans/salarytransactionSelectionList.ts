@@ -26,7 +26,8 @@ import {
     StatisticsService,
     EmploymentService,
     PageStateService,
-    IEmployee
+    IEmployee,
+    Dimension
 } from '../../../services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -354,13 +355,30 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                 .odataFilters(emps.map(x => x.ID), 'EmployeeID')
                 .map(empFilter => this.statisticsService.GetAllUnwrapped(
                     `model=Employment&` +
-                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName,Standard as Standard&` +
+                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName,Standard as Standard,` +
+                    `Dimensions.DepartmentID as DepartmentID,Dimensions.ProjectID as ProjectID&` +
+                    `expand=Dimensions&` +
                     `filter=${empFilter}`
             )))
             .pipe(
-                map((pagedEmployments: Employment[][]) => pagedEmployments.reduce((acc, curr) => [...acc, ...curr], [])),
+                map((pagedEmployments: any[][]) => pagedEmployments.map(empls => this.createEmployments(empls))),
+                map(pagedEmployments => pagedEmployments.reduce((acc, curr) => [...acc, ...curr], [])),
                 tap(empl => this.updateState(EMPLOYMENTS_KEY, [...(this.employments || []), ...empl], false))
             );
+    }
+
+    private createEmployments(emps: any[]): Employment[] {
+        return emps.map(emp => this.createEmployment(emp));
+    }
+
+    private createEmployment(emp: any): Employment {
+        const ret: Employment = emp;
+        if (emp['DepartmentID'] || emp['ProjectID']) {
+            ret.Dimensions = <Dimension>{};
+            ret.Dimensions.DepartmentID = emp['DepartmentID'];
+            ret.Dimensions.ProjectID = emp['ProjectID'];
+        }
+        return ret;
     }
 
     private updateErrors(employees: IEmployee[]) {
