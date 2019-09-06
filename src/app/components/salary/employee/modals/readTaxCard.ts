@@ -2,7 +2,7 @@ import {Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable';
 import {Observable} from 'rxjs';
 import {AltinnReceipt} from '@uni-entities';
-import {AltinnReceiptService, ErrorService} from '@app/services/services';
+import {AltinnReceiptService, ErrorService, FinancialYearService} from '@app/services/services';
 import {TaxResponseModal} from './taxResponseModal';
 import {AltinnAuthenticationModal} from '../../../common/modals/AltinnAuthenticationModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
@@ -24,18 +24,20 @@ export class ReadTaxCard implements OnInit {
     constructor(
         private altinnReceiptService: AltinnReceiptService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private financialYearService: FinancialYearService,
     ) {
 
         const dateSendtColumn = new UniTableColumn(
             'TimeStamp', 'Dato sendt', UniTableColumnType.LocalDate).setFormat('DD.MM.YYYY HH:mm'
-        );
-        const receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
+        ).setWidth('4rem');
+        const receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number).setWidth('4rem');
         const signatureColumn = new UniTableColumn('UserSign', 'Signatur', UniTableColumnType.Text);
         const isReadColumn = new UniTableColumn('HasBeenRegistered', 'Innlest', UniTableColumnType.Text)
             .setTemplate((rowModel) => {
                 return rowModel['HasBeenRegistered'] === true ? 'X' : '';
-            });
+            })
+            .setWidth('4rem');
 
         const contextMenuItem = {
             label: 'Hent og les inn',
@@ -82,9 +84,13 @@ export class ReadTaxCard implements OnInit {
 
     public getReceipts() {
         this.altinnReceiptService.invalidateCache();
-        this.altinnReceiptService.GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`).subscribe(
-            res => this.altinnReceipts = res,
-            err => this.errorService.handle(err)
-        );
+        this.altinnReceiptService
+            .GetAll(`orderby=ID DESC&filter=Form eq 'RF-1211'`
+                + ` and timestamp ge '${this.financialYearService.getActiveYear() - 1}-12-01'`
+                + ` and timestamp le '${this.financialYearService.getActiveYear()}-12-31'`)
+            .subscribe(
+                res => this.altinnReceipts = res,
+                err => this.errorService.handle(err)
+            );
     }
 }
