@@ -840,5 +840,157 @@
                 "NeedsActionOverride": true
             }
         ]
+    },
+    {
+        "Name": "Solgte Produkter",
+        "Code": "sold_products",
+        "RequiredUIPermissions": ["ui_sales_invoices"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "AvoidAutoExpand": true,
+        "Group": "Salg",
+        "Model": "CustomerInvoiceItem",
+        "Expand": "CustomerInvoiceItem.Dimensions,CustomerInvoiceItem.Dimensions.Department,CustomerInvoiceItem.Dimensions.Project,CustomerInvoiceItem.Dimensions.Dimension5,CustomerInvoiceItem.Dimensions.Dimension6,CustomerInvoiceItem.Dimensions.Dimension7,CustomerInvoiceItem.Dimensions.Dimension8,CustomerInvoiceItem.Dimensions.Dimension9,CustomerInvoiceItem.Dimensions.Dimension10,CustomerInvoiceItem.Product,Product.ProductCategoryLinks,Product.ProductCategoryLinks.ProductCategory",
+        "OrderBy": "ID DESC",
+        "Joins": "CustomerInvoiceItem.CustomerInvoiceID eq CustomerInvoice.ID and CustomerInvoice.CustomerID eq Customer.ID and CustomerInvoice.DefaultSellerID eq Seller.ID",
+        "Filter": "(CustomerInvoice.Credited eq 1 or CustomerInvoice.StatusCode eq 42002)",
+        "Columns": [
+            {
+                "Header": "Produktnr.",
+                "Field": "Product.PartName",
+                "FilterOperator": "startswith",
+                "Width": 100
+            },
+            {
+                "Header": "Tekst fakturalinje",
+                "Field": "ItemText",
+                "FilterOperator": "startswith",
+                "Width": 300
+            },
+            {
+                "Header": "Produktgrouppe",
+                "Field": "ProductCategory.Name",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Fakturanr",
+                "Field": "CustomerInvoice.InvoiceNumber",
+                "FilterOperator": "startswith",
+                "Width": 100
+            },
+            {
+                "Header": "Kundenr.",
+                "Field": "Customer.CustomerNumber",
+                "FilterOperator": "startswith",
+                "Width": 100
+            },
+            {
+                "Header": "Kundenavn",
+                "Field": "CustomerInvoice.CustomerName",
+                "FilterOperator": "startswith",
+                "Width": 300
+            },
+            {
+                "Header": "Enhet",
+                "Field": "Unit",
+                "Width": 75
+            },
+            {
+                "Header": "Antall",
+                "Field": "NumberOfItems",
+                "Type": "number",
+                "Width": 75
+            },
+            {
+                "Header": "Pris ekskl. mva",
+                "Field": "PriceExVat",
+                "Type": "money"
+            },
+            {
+                "Header": "Sum ekskl. mva",
+                "Field": "SumTotalExVat",
+                "Type": "money"
+            },
+            {
+                "Header": "Dimension5Name",
+                "Field": "Dimension5.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dimension6Name",
+                "Field": "Dimension6.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dimension7Name",
+                "Field": "Dimension7.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dimension8Name",
+                "Field": "Dimension8.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dimension9Name",
+                "Field": "Dimension9.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dimension10Name",
+                "Field": "Dimension10.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Project",
+                "Field": "Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Department",
+                "Field": "Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Hoved Selger",
+                "Field": "Seller.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "CustomerInvoice.InvoiceDate",
+                "DefaultHidden": true,
+                "Type": "date"
+            },
+            {
+                "Header": "Forfallsdato",
+                "Field": "CustomerInvoice.PaymentDueDate",
+                "DefaultHidden": true,
+                "Type": "date"
+            },
+            {
+                "Header": "Productnavn",
+                "Field": "Product.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum Inkl mva",
+                "Field": "SumTotalIncVat",
+                "DefaultHidden": true,
+                "Type": "money"
+            },
+            {
+                "Header": "Rabatt",
+                "Field": "DiscountCurrency",
+                "DefaultHidden": true,
+                "Type": "money"
+            },
+            {
+                "Header": "Rabatt %",
+                "Field": "DiscountPercent",
+                "DefaultHidden": true,
+                "Type": "percent"
+            }
+        ]
     }
 ]
