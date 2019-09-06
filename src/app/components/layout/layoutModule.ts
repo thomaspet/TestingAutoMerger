@@ -36,6 +36,7 @@ import {
     MatExpansionModule,
     MatProgressBarModule
 } from '@angular/material';
+import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
 @NgModule({
     imports: [
@@ -60,6 +61,7 @@ import {
         UniTabs,
         UniNavbar,
         UniSidebar,
+        UniMegaMenu,
         NavbarCreateNew,
         UniTabStrip,
         UniTabstripHelp,

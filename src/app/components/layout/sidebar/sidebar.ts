@@ -4,6 +4,7 @@ import {BreakpointObserver, BreakpointState} from '@angular/cdk/layout';
 import {NavbarLinkService, INavbarLinkSection, SidebarState} from '../navbar/navbar-link-service';
 import {Observable} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-sidebar',
@@ -15,7 +16,7 @@ export class UniSidebar {
     public popover: boolean;
 
     public expandedSectionIndex: number = 0;
-    public navbarLinkSections: INavbarLinkSection[];
+    public navbarLinkSections: INavbarLinkSection[] = [];
 
     private scrollbar: PerfectScrollbar;
 
@@ -27,7 +28,24 @@ export class UniSidebar {
         this.navbarService.sidebarState$.subscribe(state => this.state = state);
 
         this.navbarService.linkSections$.subscribe(sections => {
-            this.navbarLinkSections = sections;
+
+            // this.navbarLinkSections = ;
+            this.navbarLinkSections = _.cloneDeep(sections).filter(section => {
+                section.linkGroups = section.linkGroups.filter(group => {
+                    group.links = group.links.filter(link => {
+                        return link.activeInSidebar;
+                    });
+
+                    if (group.links.length) {
+                        return group;
+                    }
+                });
+
+                if (section.linkGroups.length) {
+                    return section;
+                }
+            });
+
             this.getActiveSection();
 
             setTimeout(() => {
@@ -108,5 +126,9 @@ export class UniSidebar {
             clickEvent.stopPropagation();
             this.router.navigateByUrl(url);
         }
+    }
+
+    showMegaMenu() {
+        this.navbarService.megaMenuVisible$.next(true);
     }
 }

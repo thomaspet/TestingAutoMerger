@@ -20,6 +20,8 @@
 
 #sidebar-container
     position: fixed
+    display: flex
+    flex-direction: column
     top: var(--navbar-height)
     left: 0
     width: 240px
@@ -42,7 +44,7 @@
 
 
 #scroll-container
-    height: 100%
+    flex: 1
     position: relative
 
 ul.sidebar-menu
@@ -141,3 +143,23 @@ ul.sidebar-menu
     .sidebar-link-group[aria-expanded]:not([aria-expanded=false])
         .sidebar-section-header
                 margin-bottom: 5px
+
+.mega-menu-toggle
+    flex: 0 0 2.5rem
+    width: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    border-top: 1px solid var(--border-color)
+    cursor: pointer
+    font-size: 13px
+    color: var(--sidebar-color)
+    background: var(--sidebar-background)
+    white-space: nowrap
+    overflow: hidden
+    &:hover
+        background: var(--sidebar-active-section-background)
+        color: var(--sidebar-hover-color)
+
+    i.material-icons
+        font-size: 19px
