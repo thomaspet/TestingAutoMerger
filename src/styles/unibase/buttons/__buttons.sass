@@ -102,17 +102,18 @@ button, a.button
     // Tertiary
     &.tertiary
         background-color: unset
-        color: var(--color-c2a)
+        padding-left: 0
         border: none
         font-weight: 500
 
-        &:hover, &:focus, &:active, &.test
-            color: var(--color-c2a-hover)
-            // text-decoration: underline
+        &.c2a
+            color: var(--color-c2a)
+            &:hover, &:focus, &:active, &.test
+                color: var(--color-c2a-hover)
 
-        &.busy, &[aria-busy]:not([aria-busy=false])
-            &:before
-                border-color: var(--color-c2a)
+            &.busy, &[aria-busy]:not([aria-busy=false])
+                &:before
+                    border-color: var(--color-c2a)
 
         &.bad
             color: var(--color-bad)

@@ -12,7 +12,7 @@ import {Observable} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
 import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
 import {StatisticsService, NumberFormat, PageStateService} from '../../../services/services';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { IUniTab } from '@app/components/layout/uni-tabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({
@@ -53,12 +53,12 @@ export class PostPost {
     ];
 
     mainTabs: IUniTab[] = [
-        {name: 'Alle', value: 'EVERY', hidden: false},
-        {name: 'Alle med åpne poster', value: 'ALL', hidden: false},
+        {name: 'Alle', value: 'EVERY', disabled: false},
+        {name: 'Alle med åpne poster', value: 'ALL', disabled: false},
         {
             name: `Differanser`,
             value: 'DIFF',
-            hidden: true,
+            disabled: true,
             tooltip: 'Differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
         }
     ];
@@ -125,8 +125,8 @@ export class PostPost {
             this.checkForDiff().then((hideDiff: boolean) => {
 
                 // Hide/show correct tabs
-                this.mainTabs[2].hidden = hideDiff;
-                this.mainTabs[1].hidden = this.register === 'account';
+                this.mainTabs[2].disabled = hideDiff;
+                this.mainTabs[1].disabled = this.register === 'account';
                 this.mainTabs = [...this.mainTabs];
 
                 // Wait for the tab update before settings mainTabIndex. Check that the number is not corrupt (to big)
@@ -669,14 +669,14 @@ export class PostPost {
     public changeRegister(register) {
         this.register = register;
         this.mainActiveIndex = 0;
-        this.mainTabs[1].hidden = this.register === 'account';
+        this.mainTabs[1].disabled = this.register === 'account';
         this.addTab();
         this.setupToolbarConfig();
 
         switch (this.register) {
             case 'customer':
                 this.checkForDiff().then((res: boolean) => {
-                    this.mainTabs[2].hidden = res;
+                    this.mainTabs[2].disabled = res;
                     this.mainTabs = [...this.mainTabs];
                     this.supplier$.next(null);
                     this.account$.next(null);
@@ -685,7 +685,7 @@ export class PostPost {
                 break;
             case 'supplier':
                 this.checkForDiff().then((res: boolean) => {
-                    this.mainTabs[2].hidden = res;
+                    this.mainTabs[2].disabled = res;
                     this.mainTabs = [...this.mainTabs];
                     this.customer$.next(null);
                     this.account$.next(null);
@@ -693,8 +693,8 @@ export class PostPost {
                 });
                 break;
             case 'account':
-                this.mainTabs[1].hidden = true;
-                this.mainTabs[2].hidden = true;
+                this.mainTabs[1].disabled = true;
+                this.mainTabs[2].disabled = true;
                 this.mainTabs = [...this.mainTabs];
                 this.customer$.next(null);
                 this.supplier$.next(null);

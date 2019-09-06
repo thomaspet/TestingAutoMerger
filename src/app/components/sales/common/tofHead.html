@@ -18,7 +18,7 @@
     </section>
 
     <section class="uni-container tof-forms">
-        <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+        <uni-tabs class="scoped" [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
         <uni-recurring-invoice-settings-view
             *ngIf="activeTabIndex === 0 && entityName === 'RecurringInvoice'"

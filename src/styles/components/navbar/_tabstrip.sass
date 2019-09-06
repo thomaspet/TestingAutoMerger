@@ -4,22 +4,18 @@
     width: 100%
     height: 32px
     background: var(--tabstrip-background)
-    // border-top: var( --container-borders)
-    border-bottom: var( --container-borders)
+    border-bottom: 1px solid var(--border-color)
     padding: 0 2rem 0 .75rem
     box-sizing: border-box
 
     &.sidebar-expanded
-        padding-left: $sidebar-expanded-width
+        padding-left: calc(#{$sidebar-expanded-width} + 1.5rem)
         .collapsed-tab-list
-            left: $sidebar-expanded-width
+            left: calc(#{$sidebar-expanded-width} + 1.5rem)
     &.sidebar-collapsed
-        padding-left: $sidebar-collapsed-width
+        padding-left: calc(#{$sidebar-collapsed-width} + 1.5rem)
         .collapsed-tab-list
-            left: $sidebar-collapsed-width
-
-    uni-tabstrip-help
-        color: var(--tabstrip-color)
+            left: calc(#{$sidebar-collapsed-width} + 1.5rem)
 
 uni-tabstrip .dropdown-menu
     position: absolute
@@ -69,10 +65,14 @@ uni-tabstrip .dropdown-menu
                 float: right
                 line-height: 2.5rem
 
+.tabstrip-description
+    font-size: 14px
+    color: var(--tabstrip-color)
+
 .navbar_tabs
     margin: 0
     white-space: nowrap
-    display: flex
+    display: inline-flex
     list-style: none
 
     li
@@ -87,20 +87,16 @@ uni-tabstrip .dropdown-menu
         overflow: hidden
         text-overflow: ellipsis
         position: relative
-        color: var(--tabstrip-color)
+        color: var(--tabstrip-link-color)
 
         .close-tab
             visibility: hidden
-            color: var(--tabstrip-color)
             vertical-align: middle
-            font-size: 15px
+            font-size: 16px
             margin-left: 2px
-            line-height: 2rem
-
 
         &:hover .close-tab
             visibility: visible
 
         &:hover, &.router-tab-active
-            background: var(--tabstrip-active-tab-background)
-            color: var(--tabstrip-active-tab-color)
+            color: var(--tabstrip-active-link-color)

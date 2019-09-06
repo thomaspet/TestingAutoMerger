@@ -11,7 +11,7 @@ import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTabs} from './uniTabs/uniTabs';
+import {UniTabs} from './uni-tabs/uni-tabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
 import {NavbarLinkService} from './navbar/navbar-link-service';
@@ -31,12 +31,9 @@ import {OverlayModule} from '@angular/cdk/overlay';
 import {NotificationsModule} from './notifications/notifications.module';
 
 import {
-    MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
     MatExpansionModule,
-    MatIconModule,
-    MatButtonModule,
     MatProgressBarModule
 } from '@angular/material';
 
@@ -50,12 +47,9 @@ import {
 
         A11yModule,
         OverlayModule,
-        MatTabsModule,
         MatTooltipModule,
         MatMenuModule,
         MatExpansionModule,
-        MatIconModule,
-        MatButtonModule,
         MatProgressBarModule,
 
         UniFrameworkModule,

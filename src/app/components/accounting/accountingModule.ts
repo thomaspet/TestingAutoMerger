@@ -5,7 +5,6 @@ import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
 import {
-    MatTabsModule,
     MatSelectModule,
     MatIconModule,
     MatTooltipModule,
@@ -89,7 +88,6 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
 
 @NgModule({
     imports: [
-        MatTabsModule,
         MatSelectModule,
         MatIconModule,
         MatTooltipModule,

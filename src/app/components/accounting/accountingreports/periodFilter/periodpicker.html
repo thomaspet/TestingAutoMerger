@@ -1,4 +1,4 @@
-<button class="tertiary" (click)="togglePicker()">{{periodFilter.name}}</button>
+<button class="tertiary c2a" (click)="togglePicker()">{{periodFilter.name}}</button>
 
 <div *ngIf="pickerAreaVisible" class="picker-area">
     År:
@@ -7,5 +7,5 @@
     <input [(ngModel)]="periodFilterData.fromPeriodNo" />
     Til periode:
     <input [(ngModel)]="periodFilterData.toPeriodNo" />
-    <button class="tertiary" (click)="update()">Oppdater</button>
+    <button class="tertiary c2a" (click)="update()">Oppdater</button>
 </div>

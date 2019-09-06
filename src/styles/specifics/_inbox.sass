@@ -19,26 +19,6 @@ uni-form
   .quarter-width
     @include unigrid-flush(4)
 
-.new-button
-  &,
-  &:hover,
-  &:focus,
-  &:active
-    @extend %unbutton
-    position: absolute
-    display: block
-    cursor: pointer
-    margin-left: 19rem
-    padding-top: .55rem
-    font: 500 14px var(--font-family)
-    color: #1565C0
-    z-index: #{map-get($zindex, base) + 1}
-
-  &:hover,
-  &:focus,
-  &:active
-    text-decoration: underline
-
 %popover
   display: none
   position: absolute

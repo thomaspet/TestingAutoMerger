@@ -1,7 +1,12 @@
 <article class="salarybalance" [attr.aria-busy]="busy">
-    <button *ngIf="lightWeight" class="new-button" (click)="createSalarybalance()">
+    <button *ngIf="lightWeight"
+        class="tertiary c2a"
+        style="margin-bottom: 1rem"
+        (click)="createSalarybalance()">
+        <i class="material-icons">add</i>
         Nytt forskudd/trekk
     </button>
+
     <uni-table
         [resource]="salaryBalances$ | async"
         [config]="tableConfig"

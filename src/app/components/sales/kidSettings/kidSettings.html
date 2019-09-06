@@ -1,24 +1,24 @@
-<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveactions">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
 </uni-toolbar>
 
 <section class="application">
     <section class="splitview">
         <nav class ="splitview_list">
-            <section class="uni-container">
-                <mat-slide-toggle
-                    [(ngModel)]="showInactiveInList"
-                    (change)="checkInactive()"
-                    [labelPosition]="'before'">
-                    Vis inaktive
-                </mat-slide-toggle>
+            <mat-slide-toggle
+                [(ngModel)]="showInactiveInList"
+                (change)="checkInactive()"
+                [labelPosition]="'before'"
+                style="margin-bottom: 1rem;">
+                Vis inaktive
+            </mat-slide-toggle>
 
-                <ag-grid-wrapper #listTable
-                    [config]="listTableConfig"
-                    [(resource)]="paymentInfoTypes"
-                    (rowClick)="onKidSelect($event)">
-                </ag-grid-wrapper>
-            </section>
+            <ag-grid-wrapper #listTable
+                [config]="listTableConfig"
+                [(resource)]="paymentInfoTypes"
+                (rowClick)="onKidSelect($event)">
+            </ag-grid-wrapper>
         </nav>
 
         <main class="splitview_detail">

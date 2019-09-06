@@ -4,20 +4,16 @@ import {
     CompanySettings,
     CurrencyCode,
     Project,
-    Terms,
     Seller,
-    SellerLink,
     User,
     ValidationLevel,
-    CustomerInvoice,
-    AccountDimension,
     Dimensions,
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import { ValidationMessage } from '@app/models/validationResult';
-import { AccountMandatoryDimensionService } from '@app/services/services';
+import {IUniTab} from '@app/components/layout/uni-tabs';
+import {ValidationMessage} from '@app/models/validationResult';
+import {AccountMandatoryDimensionService} from '@app/services/services';
 
 @Component({
     selector: 'uni-tof-head',

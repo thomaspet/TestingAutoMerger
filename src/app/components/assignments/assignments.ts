@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '../layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 
 @Component({
     selector: 'uni-assignments',

@@ -1,9 +1,15 @@
 <section class="splitview">
     <nav class="splitview_list">
         <article>
-            <button class="new-button" (click)="newEmployment()" [disabled]="employee?.ID === 0 || btnDisabled()">
+            <button class="tertiary c2a"
+                style="margin-bottom: 1rem"
+                (click)="newEmployment()"
+                [disabled]="employee?.ID === 0 || btnDisabled()">
+
+                <i class="material-icons">add</i>
                 Nytt Arbeidsforhold
             </button>
+
             <ag-grid-wrapper
                 [config]="tableConfig"
                 [(resource)]="employments"

@@ -9,7 +9,7 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, EmployeeService, UserService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 
 @Component({
     selector: 'workers',

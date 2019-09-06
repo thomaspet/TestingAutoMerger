@@ -13,7 +13,7 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
                 <input type="text"
                     id="text_input"
                     style="width: 100%;"
-                    (keydown.enter)="accept()"
+                    (keydown.enter)="onClose.emit(text)"
                     [(ngModel)]="text"
                 />
             </article>

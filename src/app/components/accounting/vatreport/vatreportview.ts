@@ -26,7 +26,7 @@ import {
     VatTypeService,
     CompanySettingsService
 } from '../../../services/services';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 
 @Component({
     selector: 'vat-report-view',
@@ -61,8 +61,8 @@ export class VatReportView implements OnInit, OnDestroy {
     public tabs: IUniTab[] = [
         {name: 'Kontroll'},
         {name: 'MVA-melding'},
-        {name: 'Altinn, kvittering/tilbakemelding', hidden: true},
-        {name: 'Oppgjørsbilag', hidden: true},
+        {name: 'Altinn, kvittering/tilbakemelding', disabled: true},
+        {name: 'Oppgjørsbilag', disabled: true},
     ];
 
     constructor(
@@ -349,9 +349,8 @@ export class VatReportView implements OnInit, OnDestroy {
         this.currentVatReport = vatReport;
         this.vatReportService.refreshVatReport(this.currentVatReport);
 
-        this.tabs[2].hidden = !this.currentVatReport.ExternalRefNo || !this.isSent();
-
-        this.tabs[3].hidden = !this.currentVatReport.JournalEntryID;
+        this.tabs[2].disabled = !this.currentVatReport.ExternalRefNo || !this.isSent();
+        this.tabs[3].disabled = !this.currentVatReport.JournalEntryID;
         this.tabs = [...this.tabs];
 
         this.vatReportSummary = null;

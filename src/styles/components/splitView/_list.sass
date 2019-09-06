@@ -1,15 +1,16 @@
 .splitview_list
-    padding: 0
+    padding: 1rem
+    background: #fff
+    border: 1px solid var(--border-color)
+    border-radius: 3px
     min-width: 15rem
     max-width: 33%
+    margin-bottom: 1rem
 
-    > button, .splitview-list-button
+    > button
         margin: .75rem 0
         height: 2rem
         line-height: 0
 
     input[type=search].unitableSearch_input
         display: inline-block
-
-    @include media(small)
-        width: 100%

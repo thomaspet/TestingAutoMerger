@@ -15,7 +15,7 @@ import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IToolbarConfig, ICommentsConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';

@@ -1,13 +1,15 @@
 <section class="navbar">
     <section class="navbar-left">
-        <section routerLink="/" id="logo"></section>
+        <!-- <section class="logo-and-hamburger-container"> -->
+            <section routerLink="/" id="logo"></section>
 
-        <i *ngIf="hasActiveContract"
-            class="material-icons hamburger-toggle"
-            role="button"
-            (click)="toggleSidebarState()">
-            menu
-        </i>
+            <i *ngIf="hasActiveContract"
+                class="material-icons hamburger-toggle"
+                role="button"
+                (click)="toggleSidebarState()">
+                menu
+            </i>
+        <!-- </section> -->
 
         <uni-company-dropdown></uni-company-dropdown>
     </section>

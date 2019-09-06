@@ -21,6 +21,10 @@ interface ITabContextMenuData {
 @Component({
     selector: 'uni-tabstrip',
     template: `
+        <span class="tabstrip-description" *ngIf="tabs?.length">
+            Nylig brukt:
+        </span>
+
         <ul class="navbar_tabs">
             <!-- Collapsed tabs -->
             <ng-template [ngIf]="collapseTabs" [ngIfElse]="tabsExpanded">
