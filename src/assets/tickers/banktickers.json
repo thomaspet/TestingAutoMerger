@@ -34,8 +34,7 @@
             {
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
-                "FilterOperator": "contains",
-                "IsBankRuleField": true
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Konto til",

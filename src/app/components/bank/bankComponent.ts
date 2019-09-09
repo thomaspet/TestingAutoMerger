@@ -562,9 +562,10 @@ export class BankComponent {
             StatusCode: 30001,
             IsActive: true
         };
-        rule.Rule = `FromBankAccount.AccountNumber eq ${row[0].FromBankAccountAccountNumber || row[0].PaymentExternalBankAccountNumber} ` +
-        `and BusinessRelation.Name eq ${row[0].BusinessRelationName || ' '} and Description eq ${row[0].PaymentDescription || ' '} and ` +
-        `PaymentID eq ${row[0].PaymentPaymentID}`;
+        rule.Rule = `ExternalBankAccountNumber eq ${row[0].FromBankAccountAccountNumber
+            || row[0].PaymentExternalBankAccountNumber} and BusinessRelation.Name eq ${row[0].BusinessRelationName
+            || ' '} and Description eq ${row[0].PaymentDescription || ' '} and ` +
+            `PaymentID eq ${row[0].PaymentPaymentID}`;
 
         return new Promise(() => {
             const opt = {

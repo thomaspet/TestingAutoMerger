@@ -78,7 +78,7 @@ export class JournalingRulesModal implements OnInit, IUniModal {
                 const newFilter = {
                     field: fieldAndValue[0],
                     operator: values[0],
-                    value: value.replace(/^\s+/, '') || ' ',
+                    value: value.replace(/^\s+/, '') || '',
                     _availableOperators: defaultOperators
                 };
                 this.filters.push(newFilter);
@@ -92,7 +92,7 @@ export class JournalingRulesModal implements OnInit, IUniModal {
                 this.filters.push({
                     field: values[0],
                     operator: values[1],
-                    value: value.replace(/^\s+/, '') || ' ',
+                    value: value.replace(/^\s+/, '') || '',
                     _availableOperators: defaultOperators
                 });
             }
@@ -195,12 +195,11 @@ export class JournalingRulesModal implements OnInit, IUniModal {
 
     public onRowDelete(row) {
         row.Deleted = true;
-        this.bankRules.splice(row._originalIndex, 1);
         this.toast.addToast('Regel slettet', ToastType.good, 10);
     }
 
     public onPriorityChange(event) {
-        if (event && event.filter(rule => rule.Priority !== (rule._originalIndex + 1)).length) {
+        if (event && event.filter(rule => rule.Priority !== (rule._originalIndex + 1) || rule.Deleted).length) {
             this.priorityHasChanged = true;
             this.dirty = true;
             this.activeIndex = event.findIndex(rule => rule.ID === this.currentRule.ID);
