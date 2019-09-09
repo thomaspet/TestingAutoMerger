@@ -18,7 +18,7 @@ uni-widget-canvas
     &.valid-anchor
         border: 2px solid $uni-color-positive
     &.invalid-anchor
-        border: 2px solid $uni-color-bad
+        border: 2px solid var(--color-bad)
 
 .widget-canvas
     width: 95%
@@ -201,9 +201,9 @@ uni-widget-canvas
             margin: .25rem 0
             color: $uni-color-toolbar
             &.warn
-                color: $uni-color-warn
+                color: var(--color-warn)
             &.bad
-                color: $uni-color-bad
+                color: var(--color-bad)
 
             @include media(1600px)
                 font-size: 20px
@@ -526,7 +526,7 @@ header.dashboard-header
             margin-left: 5px
 
     a.dashboard-link
-        font-size: 13px
+        font-size: 14px
         font-weight: 500
         color: #707D90
         text-decoration: none

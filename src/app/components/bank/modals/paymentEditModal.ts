@@ -37,7 +37,7 @@ import * as moment from 'moment';
     selector: 'uni-payment-edit-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>Rediger utbetalinger</h1></header>
+            <header>Rediger utbetalinger</header>
 
             <article style="max-height: 70vh;">
                 <mat-form-field>

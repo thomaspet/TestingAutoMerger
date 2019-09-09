@@ -8,7 +8,7 @@ import {ErrorService} from '../../../services/services';
     selector: 'uni-select-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>Ny basert på</h1></header>
+            <header>Ny basert på</header>
             <article>
                 <ag-grid-wrapper
                     [resource]="lookupFunction"

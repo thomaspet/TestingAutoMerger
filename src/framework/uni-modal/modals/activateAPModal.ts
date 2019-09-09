@@ -22,9 +22,7 @@ import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountMo
     selector: 'uni-activate-ap-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign">
-            <header>
-                <h1>{{options.header || 'Aktiver EHF'}}</h1>
-            </header>
+            <header>{{options.header || 'Aktiver EHF'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

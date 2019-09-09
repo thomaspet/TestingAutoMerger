@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal amelding-advanced-period-modal">
-  <header>
-    <h1>A-meldinger - periode {{options.data.period}}</h1>
-  </header>
+  <header>A-meldinger - periode {{options.data.period}}</header>
   <article class="application">
     <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
     <section [ngSwitch]="activeTabIndex">

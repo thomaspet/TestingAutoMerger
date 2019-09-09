@@ -5,9 +5,7 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
     selector: 'uni-unsaved-changes-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>Ulagrede endringer</h1>
-            </header>
+            <header>Ulagrede endringer</header>
 
             <article>
                 <p>Du har ulagrede endringer. Ønsker du å forkaste disse?</p>

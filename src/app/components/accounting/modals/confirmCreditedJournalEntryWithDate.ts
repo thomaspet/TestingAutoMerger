@@ -3,10 +3,9 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
 import {CompanySettingsService} from '../../../../app/services/common/companySettingsService';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
-import {LocalDate, CompanySettings} from '@uni-entities';
-import {FieldType} from '../../../../framework/ui/uniform/index';
-import { JournalEntryService } from '@app/services/services';
-import { Observable } from 'rxjs';
+import {CompanySettings} from '@uni-entities';
+import {JournalEntryService} from '@app/services/services';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'confirm-credited-journalEntry-with-date-modal',
@@ -14,7 +13,7 @@ import { Observable } from 'rxjs';
         <section role="dialog" class="uni-modal"
             (keydown.esc)="cancel($event)">
             <header>
-                <h1 class="new">{{options.header}}</h1>
+                {{options.header}}
                 <i (click)="cancel($event)" class="material-icons close-button" role="button">
                     close
                 </i>
@@ -34,12 +33,12 @@ import { Observable } from 'rxjs';
             </article>
 
             <footer>
-                <button class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady">
-                    {{options.buttonLabels.accept}}
-                </button>
-
                 <button class="cancel" (click)="cancel($event)">
                     {{options.buttonLabels.cancel}}
+                </button>
+
+                <button class="c2a" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady">
+                    {{options.buttonLabels.accept}}
                 </button>
             </footer>
         </section>
@@ -204,29 +203,13 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
         });
     }
 
-    public accept(event) {
+    public accept() {
         const current = this.creditingData$.getValue();
         return this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.ACCEPT});
     }
 
-    public cancel(event) {
+    public cancel() {
         const current = this.creditingData$.getValue();
         this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.CANCEL});
-    }
-
-    private getLayout() {
-        return {
-            Name: 'TransqueryList',
-            BaseEntity: 'Account',
-            Fields: [
-                {
-                    EntityType: 'CreditData',
-                    Property: 'creditDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Krediteringsdato',
-                    Placeholder: 'Krediteringsdato'
-                }
-            ]
-        };
     }
 }

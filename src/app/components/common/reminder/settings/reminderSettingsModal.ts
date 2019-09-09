@@ -11,9 +11,7 @@ import { CustomerInvoiceReminderSettings, CompanySettings } from '@uni-entities'
             (clickOutside)="close(false)"
             (keydown.esc)="close(false)">
 
-            <header>
-                <h1>Instillinger for purring</h1>
-            </header>
+            <header>Instillinger for purring</header>
 
             <article>
                 <reminder-settings [reminderSettings]="reminderSettings"></reminder-settings>

@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal vacationPay">
-    <header>
-        <h1>Feriepenger - oppsett og utbetaling</h1>
-    </header>
+    <header>Feriepenger - oppsett og utbetaling</header>
     <article [attr.aria-busy]="!vacationpayBasis && !companysalary" class="scrollable">
         <section [attr.aria-busy]="!companysalary" class="vacationpay_Flexheader">
             <uni-form class="vacationpay_settings_left" [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>

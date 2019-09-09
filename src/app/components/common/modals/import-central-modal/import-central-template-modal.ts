@@ -14,9 +14,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
     selector: 'import-central-template-modal',
     template:
         `<section role="dialog" class="uni-modal uni-redesign" style="width: 25vw; min-width: 35rem">
-            <header>
-                <h1>{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
             <article>
                 <form class="uni-html-form">
                     <label>
@@ -129,7 +127,7 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
             // NOTE: comment when testing and hardcode the file in backend.
             this.uploadFile(this.file).subscribe((res) => {
                 var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
-               
+
                 this.importModel = {
                     CompanyKey: this.activeCompany.Key,
                     CompanyName: this.companyName,

@@ -11,7 +11,7 @@ import {
     selector: 'uni-edit-salarytransaction-modal',
     template: `
     <section role="dialog" class="uni-modal uni-redesign" style="width: 90vw; font-size: .9rem">
-        <header><h1> {{ options.header }} </h1></header>
+        <header>{{ options.header }}</header>
 
         <article style="overflow: visible">
             <section *ngIf="busy" class="modal-spinner">

@@ -28,7 +28,7 @@ import * as _ from 'lodash';
     styles: [`.uni-modal { width: 75vw;}`],
     template: `
         <section role="dialog" class="uni-modal uni-redesign">
-            <header><h1>Oversikt over MVA meldinger</h1></header>
+            <header>Oversikt over MVA meldinger</header>
             <article class='modal-content'>
                 <p>Trykk på en av linjene under for å vise detaljer om MVA meldingen</p>
                 <ag-grid-wrapper

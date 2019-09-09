@@ -13,9 +13,7 @@ import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
     selector: 'uni-preview-modal',
     template: `
         <section class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Forhåndsvisning'}}</h1>
-            </header>
+            <header>{{options.header || 'Forhåndsvisning'}}</header>
 
             <article>
                 <section *ngIf="busy" class="report-loading">

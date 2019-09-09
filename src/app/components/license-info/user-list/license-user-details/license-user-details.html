@@ -1,7 +1,5 @@
 <section class="list-container" (click)="$event.stopPropagation()">
-    <section class="header">
-        <h1>{{user?.UserName}}</h1>
-    </section>
+    <section class="header">{{user?.UserName}}</section>
 
     <license-info-list
         [columns]="columns"

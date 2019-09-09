@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal large taxCardRequest">
-    <header>
-        <h1>Elektronisk skattekort</h1>
-    </header>
+    <header>Elektronisk skattekort</header>
     <article>
         <tax-card-request [employee]="employee" (newReceipt)="getReceipts()"></tax-card-request>
         <read-tax-card [changeEvent]="changeEvent" (updateTax)="triggerUpdate()"></read-tax-card>

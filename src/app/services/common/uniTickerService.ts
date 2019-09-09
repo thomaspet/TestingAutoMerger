@@ -1189,7 +1189,6 @@ export class Ticker {
     public Pagesize?: number;
     public IsActive?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
-    public EditToggle?: boolean;
     public MultiRowSelect?: boolean;
     public RequiredUIPermissions?: string[];
     public DefaultTabIndex?: number;

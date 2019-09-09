@@ -10,7 +10,7 @@ import {
     selector: 'activate-ocr-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>Aktiver OCR-scan</h1></header>
+            <header>Aktiver OCR-scan</header>
 
             <article [innerHtml]="terms" class="scrollable"></article>
 

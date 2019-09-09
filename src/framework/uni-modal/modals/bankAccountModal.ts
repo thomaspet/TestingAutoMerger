@@ -16,9 +16,7 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
     selector: 'uni-bankaccount-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign">
-            <header>
-                <h1>{{options.header || 'Bankkonto'}}</h1>
-            </header>
+            <header>{{options.header || 'Bankkonto'}}</header>
             <article [attr.aria-busy]="busy" style="overflow: visible;">
                 <uni-form
                     [config]="formConfig$"

@@ -8,9 +8,7 @@ import { LocalDate } from '@uni-entities';
     selector: 'uni-remindersending-edit-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 35vw;">
-            <header>
-                <h1> Redigering </h1>
-            </header>
+            <header>Redigering</header>
             <article>
                 <span style="font-size: 14px;">
                     Purring nr. <strong> {{ line.ReminderNumber }} </strong> for faktura <strong> {{ line.InvoiceNumber }} </strong>

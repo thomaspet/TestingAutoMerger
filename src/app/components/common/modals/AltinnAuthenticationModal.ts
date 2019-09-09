@@ -18,9 +18,7 @@ enum LoginState {
     selector: 'altinn-authentication-modal',
     template: `
         <section role="dialog" class="uni-modal" (keydown)="onKeyDown($event)">
-            <header>
-                <h1>Resultat</h1>
-            </header>
+            <header>Resultat</header>
             <p [innerHTML]="userMessage" class="altinn-user-message"></p>
             <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
                 <article>

@@ -9,9 +9,7 @@ import {Valuetype} from '@app/unientities';
     selector: 'uni-supplement-edit-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 35vw;">
-            <header>
-                <h1> Tilleggsopplysninger </h1>
-            </header>
+            <header>Tilleggsopplysninger</header>
             <article>
                 <span style="font-size: 14px;">
                     <strong>{{ line._Name }} </strong> for ansatt

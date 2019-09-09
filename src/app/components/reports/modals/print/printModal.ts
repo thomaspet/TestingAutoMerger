@@ -5,9 +5,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 @Component({
     selector: 'uni-print-modal',
     template: `<section class="uni-modal large">
-        <header>
-            <h1>Skriv ut</h1>
-        </header>
+        <header>Skriv ut</header>
         <article>
             <iframe
                 style="min-height: 80vh; min-width: 87vw;"

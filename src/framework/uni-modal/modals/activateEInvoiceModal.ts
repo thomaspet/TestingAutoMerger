@@ -19,9 +19,7 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
     selector: 'uni-activate-einvoice-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Aktiver Efaktura'}}</h1>
-            </header>
+            <header>{{options.header || 'Aktiver Efaktura'}}</header>
             <article>
                 <p *ngIf="!isMissingData">
                    Opplysningene under vil oversendes Nets for aktivering av Efaktura. Vennligst se over at

@@ -7,9 +7,7 @@ import {EHFService} from '@app/services/services';
     selector: 'uni-reminder-sending-modal',
     template: `
         <section class="uni-modal medium">
-            <header>
-                <h1>Utsendelse av purringer</h1>
-            </header>
+            <header>Utsendelse av purringer</header>
 
             <article>
                 <reminder-sending [modalMode]="true"></reminder-sending>

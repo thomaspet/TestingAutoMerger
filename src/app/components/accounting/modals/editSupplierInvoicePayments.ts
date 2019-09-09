@@ -16,9 +16,7 @@ import * as moment from 'moment';
     selector: 'view-connected-payments-modal',
     template: `
         <section role="dialog" class="uni-modal large">
-            <header>
-                <h1>{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
 
             <article>
                 <p>{{options.warning}}</p>

@@ -11,9 +11,7 @@ import {map} from 'rxjs/operators';
     selector: 'uni-find-employee-modal',
     template: `
     <section role="dialog" class="uni-modal uni-redesign" style="width: 40vw; font-size: .9rem">
-        <header>
-            <h1>Finn ansatte</h1>
-        </header>
+        <header>Finn ansatte</header>
         <article style="overflow: visible">
             <div>
                 Søk etter ansatte

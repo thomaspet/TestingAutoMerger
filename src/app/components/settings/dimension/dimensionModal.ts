@@ -1,17 +1,14 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
-import {FormControl, FormGroup} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs';
-import {DimensionSettings} from '../../../unientities';
 import {DimensionSettingsService} from '../../../services/common/dimensionSettingsService';
 
 @Component({
     selector: 'uni-dimension-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 40vw;">
-            <header><h1>{{ options.header }}</h1></header>
+            <header>{{ options.header }}</header>
 
             <article>
                 <uni-form

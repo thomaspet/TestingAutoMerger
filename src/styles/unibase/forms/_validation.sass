@@ -31,8 +31,8 @@ p[role=alert]
     background-color: transparentize($uni-color-scale9, .5)
 
     &.error
-        border-color: $uni-color-bad !important
-        color: $uni-color-bad !important
+        border-color: var(--color-bad) !important
+        color: var(--color-bad) !important
         background-color: transparentize($uni-color-bad, .9) !important
 
     &.info
@@ -41,10 +41,10 @@ p[role=alert]
 
     &.good,
     &.success
-        color: $uni-color-good
+        color: var(--color-good)
         background-color: transparentize($uni-color-good, .9)
 
     &.warn
-        border-color: $uni-color-warn
-        color: $uni-color-warn
+        border-color: var(--color-warn)
+        color: var(--color-warn)
         background-color: transparentize($uni-color-warn, .9)

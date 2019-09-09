@@ -1,11 +1,9 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {Email, Bank} from '../../../app/unientities';
+import {Bank} from '../../../app/unientities';
 
 import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {ErrorService, BankService} from '@app/services/services';
@@ -14,9 +12,7 @@ import {ErrorService, BankService} from '@app/services/services';
     selector: 'uni-bank-modal',
     template: `
             <section role="dialog" class="uni-modal">
-            <header>
-                <h1>Bank</h1>
-            </header>
+            <header>Bank</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

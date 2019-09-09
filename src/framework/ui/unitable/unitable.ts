@@ -401,11 +401,6 @@ export class UniTable implements OnChanges {
         this.columnsChange.emit(this.tableColumns.toJS());
     }
 
-    public toggleEditmode() {
-        this.config.editable = !this.config.editable;
-        this.editModeChange.emit(this.config.editable);
-    }
-
     public onFiltersChange(event) {
         // Reset row selection
         if (this.config.multiRowSelect) {

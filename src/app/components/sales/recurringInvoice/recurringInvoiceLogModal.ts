@@ -16,12 +16,7 @@ import {RecurringInvoiceService} from '../../../services/services';
     selector: 'uni-recurringinvoice-log-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 75vw;">
-
-            <header>
-                <h1>
-                    {{ options.header }}
-                </h1>
-            </header>
+            <header>{{ options.header }}</header>
 
             <article>
                 <section *ngIf="resource">

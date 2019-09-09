@@ -27,7 +27,7 @@ export enum TemplateCloseOptions {
     selector: 'uni-template-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw; padding: 0;">
-            <header style="padding: 0 2rem;"><h1>Opprett ny timeføringsmal</h1></header>
+            <header style="padding: 0 2rem;">Opprett ny timeføringsmal</header>
 
             <article style="overflow: visible; padding: 0 2rem;">
                 <label>Navn </label><input type="text" class="template-modal-input-field" [(ngModel)]="template.Name"><br>

@@ -201,7 +201,7 @@ ag-grid-angular.col-menu-hidden
     &.number-good
         color: #0082c0 !important
     &.number-bad, &.date-bad
-        color: $uni-color-bad !important
+        color: var(--color-bad) !important
 
 .align-left
     text-align: left !important
@@ -336,13 +336,13 @@ ag-grid-angular .disabled-row
         float: left
 
     &.good
-        background: $uni-color-good unicon-info($uni-color-negative) no-repeat center
+        background: var(--color-good) unicon-info(#fff) no-repeat center
     &.warn
-        background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
+        background: var(--color-warn) unicon-info(#fff) no-repeat center
     &.neutral
-        background: #638bb3 unicon-info($uni-color-negative) no-repeat center
+        background: #638bb3 unicon-info(#fff) no-repeat center
     &.bad
-        background: unicon-warning($uni-color-bad) no-repeat center
+        background: unicon-warning(#F53B57) no-repeat center
         background-size: 1.4rem
         height: 1.9rem
 

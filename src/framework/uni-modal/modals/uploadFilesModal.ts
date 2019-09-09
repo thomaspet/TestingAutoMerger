@@ -12,9 +12,7 @@ import {Observable, Subject} from 'rxjs';
     selector: 'uni-file-upload-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign">
-            <header>
-                <h1 class="new">Velg filer som skal lastes opp</h1>
-            </header>
+            <header>Velg filer som skal lastes opp</header>
 
             <article>
                 <p *ngIf="options?.message"> {{ options.message }}</p>

@@ -71,11 +71,8 @@ uni-ticker-detail-view
                 border: 1px solid $uni-color-scale9
                 border-radius: pxToRem(3)
                 white-space: pre-wrap
-
-                &.date-good
-                    background: mix($uni-color-negative, $uni-color-good, 60%)
                 &.date-bad
-                    background: mix($uni-color-negative, $uni-color-bad, 60%)
+                    color: var(--color-bad)
 
 uni-sub-ticker-container
     overflow: auto
@@ -113,15 +110,6 @@ uni-sub-ticker-container
 
                 .contextmenu_button
                     border: none
-
-                .sub-ticker-open-button
-                    padding: 0 .5rem 0 1.5rem
-                    background: transparent
-                    color: $uni-color-positive
-                    text-shadow: none
-
-                    background: unicon-edit($uni-color-positive) left no-repeat
-                    background-size: 1rem
 
         .ticker-data
             padding: 1rem 0 0

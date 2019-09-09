@@ -18,7 +18,7 @@ import {saveAs} from 'file-saver';
     styles: [`.material-icons { line-height: 2; cursor: pointer}`],
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>{{ options?.header }}</h1></header>
+            <header>{{ options?.header }}</header>
 
             <article>
                 <ag-grid-wrapper

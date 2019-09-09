@@ -177,7 +177,7 @@ vacation .timeentriesTable
         background-color: lighten($uni-color-c2a, 66%)
 
 div.bad
-    color: $uni-color-bad
+    color: var(--color-bad)
 
 .minus
 	color: $uni-color-minus
@@ -245,7 +245,7 @@ div.bad
         color: var(--color-c2a)
 
     td.good
-        color: $uni-color-good
+        color: var(--color-good)
 
 .clickablecell
     cursor: pointer
@@ -313,10 +313,10 @@ uni-file-import input
         transition: all 300ms ease
 
     &.-is-complete
-        box-shadow: 0 0 0 pxToRem(1) $uni-color-good
+        box-shadow: 0 0 0 pxToRem(1) var(--color-good)
 
         &::-webkit-progress-value
-            background: $uni-color-good
+            background: var(--color-good)
 
 .vacation_section
     .splitview_list

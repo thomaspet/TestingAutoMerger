@@ -111,11 +111,9 @@ export class NavbarLinkService {
             section.linkGroups = section.linkGroups.map(group => {
                 group.links = group.links.filter(link => {
                     const canActivate = this.authService.canActivateRoute(user, link.url);
-                    // console.log('Checking: ' + link.url + ' - ' + canActivate);
                     return canActivate;
                 });
 
-                // console.log(group);
                 return group;
             });
         });
@@ -156,7 +154,6 @@ export class NavbarLinkService {
     }
 
     public getDimensionLinks(dimensions) {
-        console.log(this.linkSections$.getValue());
         const links: any = [
             {
                 name: 'Prosjekt',

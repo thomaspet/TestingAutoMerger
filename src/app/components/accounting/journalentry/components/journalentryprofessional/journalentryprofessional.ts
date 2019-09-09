@@ -3035,7 +3035,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     const project = line.prosj.length && res[0][0] ? res[0][0] : null;
                     const department = line.avd.length && res[1][0] ? res[1][0] : null;
                     const vattype = line.mvakode.length && res[2][0] ? res[2][0] : null;
-                    
+
                     let match = accounts.find(acc => acc.AccountNumber === line.konto);
                     match = match ? match : accounts[0];
 
@@ -3098,7 +3098,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.addJournalEntryLines(journalentrylines);
                 returnValue.msg = 'Konteringsforslag lagt til basert på EHF linjene sin konteringsstreng.';
                 resolve(returnValue);
-            });    
+            });
         });
     }
 

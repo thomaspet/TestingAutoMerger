@@ -13,7 +13,7 @@ export interface IUpdatedFileListEvent {
     selector: 'image-modal',
     template: `
         <section role="dialog" class="uni-modal medium">
-            <header><h1>Forhåndsvisning</h1></header>
+            <header>Forhåndsvisning</header>
             <article class="image-modal-body">
                 <uni-image *ngIf="options?.data"
                     [singleImage]="singleImage"

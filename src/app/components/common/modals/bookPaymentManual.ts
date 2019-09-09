@@ -13,9 +13,7 @@ import { Observable } from 'rxjs';
     selector: 'book-payment-manual-modal',
     template: `
         <section role="dialog" class="uni-modal large">
-            <header>
-                <h1>Bøkfor manuelt</h1>
-            </header>
+            <header>Bøkfor manuelt</header>
             <article>
                 <p>Velg en motpost for betalingen</p>
                 <label>Vis:

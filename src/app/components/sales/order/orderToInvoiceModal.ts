@@ -13,9 +13,7 @@ import {CustomerOrder, StatusCodeCustomerOrderItem} from '../../../unientities';
     selector: 'uni-order-to-invoice-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Overfør til faktura'}}</h1>
-            </header>
+            <header>{{options.header || 'Overfør til faktura'}}</header>
             <article>
                 <ag-grid-wrapper
                     [resource]="order?.Items"

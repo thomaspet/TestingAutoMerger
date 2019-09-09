@@ -6,16 +6,16 @@
     vertical-align: bottom
 
     .flexplus
-        border-bottom: 2px solid $uni-color-good
+        border-bottom: 2px solid var(--color-good)
 
     .flexminus
-        border-bottom: 2px solid $uni-color-bad
+        border-bottom: 2px solid var(--color-bad)
 
     .timesick
-        color: $uni-color-warn
+        color: var(--color-warn)
 
     .timeoff
-        color: $uni-color-good
+        color: var(--color-good)
 
 .hasOvertime
     background-color: rgba(255,255,0,0.15)
@@ -101,10 +101,10 @@ tr.sum td
     padding-right: 2rem
 
 .timesheet td.good
-    color: $uni-color-good
+    color: var(--color-good)
 
 .timesheet td.warn
-    color: $uni-color-warn
+    color: var(--color-warn)
 
 .timesheet td.c2a
     color: var(--color-c2a)
@@ -170,7 +170,7 @@ tr.sum td
                 i
                     vertical-align: middle
                     font-size: .8rem
-                    color: $uni-color-good
+                    color: var(--color-good)
 
         .timeoff-month-header
             height: 35px
@@ -249,7 +249,7 @@ tr.sum td
                         background-color: rgba(123, 203, 69, .7)
                     &.isToday
                         font-weight: bold
-                        color: $uni-color-good
+                        color: var(--color-good)
                     &.selected
                         background-color: #E2E6F0
                         border-radius: 2%

@@ -29,9 +29,8 @@ uni-toolbar
 
     .toolbar-title
         color: var(--header-color)
-        font: var(--toolbar-header-font)
-        // font-size: 1.35rem
-        // font-weight: 500
+        font-size: 22px
+        font-weight: 500
         .material-icons
             font-size: 22px
             margin-top: 3px
@@ -112,7 +111,7 @@ uni-toolbar
                 font-size: inherit
 
             &.bad
-                color: $uni-color-bad
+                color: var(--color-bad)
 
         .toolbar_uniselect
             margin-left: 1.5rem
@@ -122,6 +121,8 @@ uni-toolbar
                 display: inline-block
                 width: 12rem
                 margin-left: .25rem
+                input
+                    height: 2rem !important
 
 .toolbar-extras, .toolbar-left
     small

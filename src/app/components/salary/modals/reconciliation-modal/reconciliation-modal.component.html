@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal large">
-    <header>
-        <h1>Avstemming fra Altinn</h1>
-    </header>
+    <header>Avstemming fra Altinn</header>
     <article>
         <uni-reconciliation-request (newReconciliation)="onReconciliationRequest()"></uni-reconciliation-request>
         <uni-altinn-receipt-list [options]="receiptListOptions$ | async"></uni-altinn-receipt-list>

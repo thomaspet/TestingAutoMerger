@@ -1,23 +1,21 @@
 <section role="dialog" class="uni-modal">
-  <header>
-    <h1>OTP-eksport - utvalg på lønnsavregninger</h1>
-  </header>
+  <header>OTP-eksport - utvalg på lønnsavregninger</header>
   <article class="application">
     <uni-form
-      [config]="formFilterConfig$" 
-      [fields]="fields$" 
-      [model]="otpexportFilterModel$" 
+      [config]="formFilterConfig$"
+      [fields]="fields$"
+      [model]="otpexportFilterModel$"
       (changeEvent)="change($event)">
     </uni-form>
     <p *ngIf="selectedOTPPeriod">Velg en eller flere lønnsavregninger som skal være med i rapportering for aktuell måned</p>
     <ag-grid-wrapper *ngIf="selectedOTPPeriod"
       [attr.aria-busy]="busy"
-      [config]="otpFilterTableConfig" 
+      [config]="otpFilterTableConfig"
       [resource]="payrolls"
       (rowSelectionChange)="onRowSelectionChange($event)">
     </ag-grid-wrapper>
   </article>
-  
+
   <footer>
     <section>
       <button class="good" (click)="closeModal(true)" [disabled]="!selectedPayrolls.length">Bruk</button>

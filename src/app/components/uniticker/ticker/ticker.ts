@@ -1425,7 +1425,6 @@ export class UniTicker {
             .setColumnMenuVisible(true)
             .setMultiRowSelect(this.isMultiRowSelect())
             .setSearchListVisible(true)
-            .setAllowEditToggle(this.ticker.EditToggle)
             .setContextMenu(contextMenuItems, true, false)
             .setShowTotalRowCount(true)
             .setSearchable(true)

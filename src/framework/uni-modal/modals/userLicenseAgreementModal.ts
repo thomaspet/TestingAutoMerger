@@ -1,5 +1,4 @@
-import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Component, Output, EventEmitter} from '@angular/core';
 import {IUniModal, ConfirmActions} from '../interfaces';
 
 
@@ -7,9 +6,7 @@ import {IUniModal, ConfirmActions} from '../interfaces';
     selector: 'user-license-agreement-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>Databehandleravtale</h1>
-            </header>
+            <header>Databehandleravtale</header>
 
             <article class="scrollable">
                 <h3>

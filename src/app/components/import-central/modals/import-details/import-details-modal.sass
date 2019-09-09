@@ -12,13 +12,13 @@
         display: flex
         align-items: center
 
-.fetch-detail 
+.fetch-detail
     display: flex
     justify-content: center
     align-items: center
     flex-flow: column
     margin: 70px
-    
+
 .success-import
     display: flex
     justify-content: center
@@ -26,7 +26,7 @@
     flex-flow: column
     .success-icon
         font-size: 50px
-        color: $redesign-good
+        color: var(--color-good)
     .success-message
         max-height: 170px
         overflow-y: auto
@@ -43,7 +43,7 @@
                 position: relative
                 top: 4px
                 font-size: 18px
-                color: $redesign-good
+                color: var(--color-good)
             .progress-time
                 margin: 0
                 margin-right: 12px
@@ -68,24 +68,24 @@
         background-color: #fdd3d9
         display: flex
         align-items: center
-    
+
         label
             margin: 0px 10px
             font-size: 14px
 
-            .error-count 
+            .error-count
                 font-weight: bold
                 margin: 0
 
         i
             margin-left: 10px
             font-size: 15px
-            color: $redesign-bad
+            color: var(--color-bad)
 
 // section.uni-modal.uni-redesign
 //     max-width: 35rem
-    
-@media #{$xs-and-less}         
+
+@media #{$xs-and-less}
     section.uni-modal.uni-redesign
         min-width: auto !important
 

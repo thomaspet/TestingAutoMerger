@@ -7,16 +7,13 @@ import {
     ErrorService
 } from '../../../../src/app/services/services';
 
-import { Observable } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'uni-send-vipps-invoice-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{'Send til Vipps'}}</h1>
-            </header>
+            <header>{{'Send til Vipps'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

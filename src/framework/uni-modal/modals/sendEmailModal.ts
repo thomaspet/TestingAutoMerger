@@ -17,9 +17,7 @@ import { ReportDefinitionParameterService } from '@app/services/reports/reportDe
     selector: 'uni-send-email-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Send e-post'}}</h1>
-            </header>
+            <header>{{options.header || 'Send e-post'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

@@ -31,9 +31,7 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
     selector: 'uni-register-payment-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Registrer betaling'}}</h1>
-            </header>
+            <header>{{options.header || 'Registrer betaling'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

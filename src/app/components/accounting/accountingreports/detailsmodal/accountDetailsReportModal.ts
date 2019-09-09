@@ -21,7 +21,7 @@ export interface IDetailsModalInput {
     selector: 'account-details-report-modal',
     template: `
         <section role="dialog" class="uni-modal large">
-            <header><h1>Søk på konto: {{ config?.accountNumber }}</h1></header>
+            <header>Søk på konto: {{ config?.accountNumber }}</header>
             <article>
                 <accounting-details-report [config]="config"></accounting-details-report>
             </article>

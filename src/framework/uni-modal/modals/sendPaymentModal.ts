@@ -9,9 +9,7 @@ import {
 @Component({
     template: `
         <section role="dialog" class="uni-modal uni-send-payment-modal uni-redesign">
-            <header>
-                <h1>{{options.header || 'Send med autobank'}}</h1>
-            </header>
+            <header>{{options.header || 'Send med autobank'}}</header>
             <article>
                 <section *ngIf="busy" class="modal-spinner">
                     <mat-spinner class="c2a"></mat-spinner>

@@ -8,9 +8,7 @@ import {ErrorService} from '../../../../services/services';
     selector: 'uni-new-supplier-modal',
     template: `
         <section role ="dialog" class="uni-modal large">
-            <header>
-                <h1>Ny leverandør</h1>
-            </header>
+            <header>Ny leverandør</header>
 
             <article class="modal-content">
                 <supplier-details

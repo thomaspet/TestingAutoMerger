@@ -23,10 +23,8 @@ import {environment} from 'src/environments/environment';
 @Component({
     selector: 'uni-report-params-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 36vw">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+        <section role="dialog" class="uni-modal" style="width: 45rem">
+            <header>{{options.header}}</header>
 
             <article [attr.aria-busy]="busy" class="modal-content">
                 <p [innerHtml]="options.message"></p>
@@ -55,25 +53,18 @@ import {environment} from 'src/environments/environment';
             </div>
 
             <footer>
-                <table style="width: 100%"><tr>
-                    <td class="nowrap left">
-                        <button class="good btn-left" (click)="trySend()">Epost</button>
+                <button *ngIf="options.buttonLabels.cancel" class="secondary pull-left" (click)="cancel()">
+                    {{options.buttonLabels.cancel}}
+                </button>
 
-                        <button *ngIf="commentConfig" [class.bad]="comments?.length" class="good btn-left" (click)="editComments()">
-                            Kommentarer ({{comments?.length}})
-                        </button>
-                    </td>
+                <button *ngIf="commentConfig" class="secondary" (click)="editComments()">
+                    Kommentarer ({{comments?.length}})
+                </button>
 
-                    <td class="nowrap right">
-                        <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                            {{options.buttonLabels.accept}}
-                        </button>
-
-                        <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                            {{options.buttonLabels.cancel}}
-                        </button>
-                    </td>
-                </tr></table>
+                <button class="secondary" (click)="trySend()">Epost</button>
+                <button *ngIf="options.buttonLabels.accept" class="c2a" id="good_button_ok" (click)="accept()">
+                    {{options.buttonLabels.accept}}
+                </button>
             </footer>
         </section>
     `

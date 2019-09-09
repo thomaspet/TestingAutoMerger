@@ -16,7 +16,7 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
     selector: 'uni-automark-modal',
     template: `
         <section role="dialog" class="uni-modal uni-automark-modal uni-redesign" style="width: 50vw;" (keydown.esc)="reject()">
-            <header><h1>{{ header }}</h1></header>
+            <header>{{ header }}</header>
 
             <article *ngIf="!disabled">
                 <uni-table

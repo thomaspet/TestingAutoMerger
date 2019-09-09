@@ -1,9 +1,7 @@
 <section role="dialog" class="uni-modal"
         (clickOutside)="close(false)"
         (keydown.esc)="close(false)">
-	<header>
-		<h1>{{options.header || 'Tilleggsopplysninger'}}</h1>
-    </header>
+	<header>{{options.header || 'Tilleggsopplysninger'}}</header>
 
 	<article>
         <uni-form

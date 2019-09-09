@@ -22,7 +22,7 @@ import {parseTime } from '../../common/utils/utils';
     selector: 'uni-time-modal',
     template: `
         <section class="uni-modal uni-redesign" style="padding: 0;">
-            <header style="padding: 0 2rem"><h1 style="padding: 0">Rediger timer</h1></header>
+            <header style="padding: 0 2rem">Rediger timer</header>
 
             <i *ngIf="options.data.linkToCancel" class="material-icons arrow_back icon-blue">arrow_back</i>
             <a *ngIf="options.data.linkToCancel" (click)="close()">Tilbake til timevalg</a>

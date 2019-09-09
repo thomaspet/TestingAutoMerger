@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal">
-    <header>
-        <h1 class="new">{{options.header}}</h1>
-    </header>
+    <header>{{options.header}}</header>
 
     <article id="article" *ngIf="!hasContinued">
         <uni-tabs [tabs]="tabs" [activeIndex]="0" (tabClick)="onFilterClick($event)"></uni-tabs>

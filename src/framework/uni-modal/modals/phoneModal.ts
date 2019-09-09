@@ -11,9 +11,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
     selector: 'uni-phone-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Telefon'}}</h1>
-            </header>
+            <header>{{options.header || 'Telefon'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

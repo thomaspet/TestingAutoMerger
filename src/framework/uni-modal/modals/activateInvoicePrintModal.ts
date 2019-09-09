@@ -22,9 +22,7 @@ import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountMo
     selector: 'uni-activate-invoiceprint-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Aktiver Fakturaprint'}}</h1>
-            </header>
+            <header>{{options.header || 'Aktiver Fakturaprint'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

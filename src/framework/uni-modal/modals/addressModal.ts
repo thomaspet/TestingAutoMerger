@@ -16,9 +16,7 @@ import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
     selector: 'uni-address-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Adresse'}}</h1>
-            </header>
+            <header>{{options.header || 'Adresse'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

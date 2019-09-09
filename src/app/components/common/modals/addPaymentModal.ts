@@ -34,7 +34,7 @@ import { PaymentCodeService } from '@app/services/accounting/paymentCodeService'
     selector: 'add-payment-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>{{options?.header||'Legg til betaling'}}</h1></header>
+            <header>{{options?.header||'Legg til betaling'}}</header>
 
             <article>
                 <uni-form

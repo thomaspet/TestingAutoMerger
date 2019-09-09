@@ -11,9 +11,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
     selector: 'uni-email-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Epost'}}</h1>
-            </header>
+            <header>{{options.header || 'Epost'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

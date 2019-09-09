@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal timeTransfer">
-  <header>
-    <h1>Overføre timer</h1>
-  </header>
+  <header>Overføre timer</header>
   <article [attr.aria-busy]="busy">
     <section class="timeTransfer_uniform">
       <uni-form [config]="uniformConfig$" [fields]="uniformFields$" [model]="options.data" (changeEvent)="uniformChange($event)"></uni-form>

@@ -7,9 +7,7 @@ import {BehaviorSubject} from 'rxjs';
     selector: 'uni-confirm-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
 
             <article>
                 <uni-form

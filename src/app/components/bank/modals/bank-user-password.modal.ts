@@ -27,7 +27,7 @@ const fields = [{
     ],
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>Admin passord</h1></header>
+            <header>Admin passord</header>
             <article>
                 <section [attr.aria-busy]="working">
                     <uni-form
@@ -35,7 +35,7 @@ const fields = [{
                         [fields]="fields"
                         [model]="adminPassword">
                     </uni-form>
-    
+
                     <footer>
                         <button (click)="accept()" class="good">Lagre og lukk</button>
                         <button (click)="close()" class="bad">Avbryt</button>

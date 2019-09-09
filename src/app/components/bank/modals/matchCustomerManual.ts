@@ -9,9 +9,7 @@ import { StatusCodePaymentInfoType } from '@uni-entities';
     selector: 'book-payment-manual-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{ options.header }}</h1>
-            </header>
+            <header>{{ options.header }}</header>
             <article style="min-height: 12rem;">
                 <p>Velg en {{ options.data.isSupplier ? 'leverandør' : 'kunde'}} for betaling</p>
                 <uni-search
