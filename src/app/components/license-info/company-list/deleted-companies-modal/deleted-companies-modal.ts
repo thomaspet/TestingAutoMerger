@@ -15,6 +15,7 @@ export class DeletedCompaniesModal implements IUniModal, OnInit {
     deletedCompanies: ElsaCompanyLicense[];
     data: any;
     busy: boolean;
+    companyRevived = false;
     columns: ListViewColumn[] = [
         {
             header: 'Selskapsnavn',
@@ -41,6 +42,7 @@ export class DeletedCompaniesModal implements IUniModal, OnInit {
                 this.companyService.reviveCompany(company.CompanyKey).subscribe(
                     () => {
                         this.fetchDeletedCompanies();
+                        this.companyRevived = true;
                     },
                     err => {
                         this.errorService.handle(err);
@@ -60,6 +62,10 @@ export class DeletedCompaniesModal implements IUniModal, OnInit {
     ngOnInit() {
         this.data = this.options.data || {};
         this.fetchDeletedCompanies();
+    }
+
+    forceCloseValueResolver() {
+        return this.companyRevived;
     }
 
     fetchDeletedCompanies() {

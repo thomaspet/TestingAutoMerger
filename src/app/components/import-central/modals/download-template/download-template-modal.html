@@ -1,0 +1,37 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>
+        {{options.header}}
+        {{options.data.Permisions.hasTemplateDataAccess}}
+    </header>
+    <div class="under-line"></div>
+    <article>
+        <form class="uni-html-form">
+            <div class="dropdown-section">
+                <label class="title">File Type</label>
+                <label class="drop-down-container">
+                    <uni-select class="drop-down" [config]="config" [value]="selectedFileType" [items]="operators"
+                        (valueChange)="onSelectChange($event)">
+                    </uni-select>
+                </label>
+            </div>
+            <div class="check-box-section" *ngIf="options.data.Permisions.hasTemplateDataAccess">
+                <label class="title"></label>
+                <label class="check-box-container">
+                    <mat-checkbox class="check-box" [(ngModel)]="isSelected" [disabled]="options.data.EntityType == payrollType" [ngModelOptions]="{standalone: true}"
+                        (click)="$event.stopPropagation()">
+                    </mat-checkbox>
+                    <label class="option-text">
+                        {{options.message}}
+                    </label>
+                </label>
+            </div>
+        </form>
+        <section *ngIf="loading$ | async" class="modal-spinner">
+            <mat-spinner></mat-spinner>
+        </section>
+    </article>
+    <footer class="center">
+        <button class="c2a rounded" (click)="onDownloadTempalte()">Eksportmal</button>
+        <button (click)="close()">Avbryt</button>
+    </footer>
+</section>

@@ -100,6 +100,10 @@ const routes = [
         path: 'approval-rules',
         loadChildren: './components/approval-rules/approval-rules.module#ApprovalRulesModule',
     },
+    {
+        path: 'import',
+        loadChildren: './components/import-central/import-central.module#ImportCentralModule',
+    },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {

@@ -555,7 +555,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {name: 'Nummerserier', url: '/settings/numberseries'},
                     {name: 'Betingelser', url: '/settings/terms'},
                     {name: 'Dimensjoner', url: '/settings/dimension'},
-                    {name: 'Godkjenningsregler', url: '/approval-rules'}
+                    {name: 'Godkjenningsregler', url: '/approval-rules'},
+                    {name: 'Importsentral', url: '/import'},
                 ]
             },
             {
@@ -580,10 +581,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Flyt',
                         url: '/admin/flow',
                         moduleID: UniModules.Flow
-                    },
-                    {
-                        name:'Importsentral',
-                        url:'/admin/import-central'
                     }
                 ]
             }

@@ -48,7 +48,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     }
 
     public getStatusText(statusCode: number, isCustomerPayment: boolean): string {
-        let word = isCustomerPayment ? 'Innbetaling' : 'Kvittering';
+        const word = isCustomerPayment ? 'Innbetaling' : 'Kvittering';
 
         if (!statusCode) {
             return '';
@@ -72,8 +72,9 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             return 'Fullført';
         } else if (statusCode === 45010) {
             return 'Transit til bank';
+        } else if (statusCode === 45014) {
+            return 'Kommunikasjonsfeil. Vennligst dobbelsjekk i nettbanken';
         }
-
         return 'Ukjent status: ' + statusCode;
     }
 

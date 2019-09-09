@@ -10,6 +10,7 @@ import {CompanyService} from '@app/services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {GrantAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
+import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 
 @Component({
     selector: 'license-info-company-list',
@@ -36,6 +37,14 @@ export class CompanyList {
             header: 'Organisasjonsnummer',
             field: '_orgNumberText'
         },
+    ];
+    contextMenu = [
+        {
+            label: 'Slett selskap',
+            action: (company: ElsaCompanyLicense) => {
+                this.deleteCompanyModal(company);
+            }
+        }
     ];
 
     constructor(
@@ -104,9 +113,23 @@ export class CompanyList {
         });
     }
 
+    deleteCompanyModal(company: ElsaCompanyLicense) {
+        this.modalService.open(DeleteCompanyModal, {
+            data: { company: company }
+        }).onClose.subscribe(companyDeleted => {
+            if (companyDeleted) {
+                this.loadData();
+            }
+        });
+    }
+
     deletedCompanies() {
         this.modalService.open(DeletedCompaniesModal, {
             data: { contractID: this.contractID }
+        }).onClose.subscribe(companyRevived => {
+            if (companyRevived) {
+                this.loadData();
+            }
         });
     }
 }

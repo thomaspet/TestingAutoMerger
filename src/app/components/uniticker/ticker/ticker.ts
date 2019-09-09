@@ -42,7 +42,7 @@ import {
 } from '../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
-import {Observable, empty} from 'rxjs';
+import { Observable, empty, forkJoin } from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
@@ -137,7 +137,6 @@ export class UniTicker {
         private taxService: EmployeeTaxCardService,
         private salaryBalanceService: SalarybalanceService,
     ) {
-        this.customDimensionService.getMetadata().subscribe(res => this.customDimensionsMetadata = res);
         this.lookupFunction = (urlParams: HttpParams) => {
             this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
@@ -237,9 +236,10 @@ export class UniTicker {
 
         const countSearchParams = new HttpParams()
             .set('select', 'count(ID) as count')
-            .set('filter', searchParams.get('filter'))
-            .set('model', searchParams.get('model'))
-            .set('expand', searchParams.get('expand'));
+            .set('filter', searchParams.get('filter') ||'')
+            .set('model', searchParams.get('model') ||'')
+            .set('join', searchParams.get('join') ||'')
+            .set('expand', searchParams.get('expand') ||'');
 
         Observable.forkJoin(
             this.statisticsService.GetAllByHttpParams(searchParams),
@@ -489,8 +489,9 @@ export class UniTicker {
                 .delete('filter');
         }
 
+
         params = params.set('model', this.ticker.Model);
-        params = params.set('select', this.selects);
+        params = params.set('select', this.ticker.Select || this.selects);
 
         if (!params.get('orderby')) {
             if (this.selectedFilter && this.selectedFilter.OrderBy) {
@@ -510,6 +511,9 @@ export class UniTicker {
         }
 
         if (this.ticker.Expand) {
+            if (this.ticker.AvoidAutoExpand) {
+                this.ticker.Expand = this.defaultExpand;
+            }
             params = params.set('expand', this.ticker.Expand);
         }
 
@@ -557,10 +561,10 @@ export class UniTicker {
 
         if (this.selectedFilter) {
             const uniTableFilter = urlParams.get('filter');
-            let tickerFilter = '';
+            let tickerFilter = this.ticker.Filter;
 
             if (this.selectedFilter.Filter) {
-                tickerFilter = this.selectedFilter.Filter;
+                tickerFilter = this.selectedFilter.Filter || this.ticker.Filter;
 
                 if (tickerFilter.indexOf(':currentuserid') >= 0) {
                     const expressionFilterValue = this.expressionFilters.find(x => x.Expression === ':currentuserid');
@@ -916,7 +920,12 @@ export class UniTicker {
                     ? this.customDimensionService.getMetadata()
                     : Observable.of([]);
 
-                getDimensionColumns.subscribe(res => {
+                forkJoin(
+                    this.customDimensionService.getMetadata(),
+                    getDimensionColumns
+                ).subscribe((data: any) => {
+                    this.customDimensionsMetadata = data[0];
+                    const res = data[1];
                     if (res && res.length) {
                         res.forEach(customDimension => {
                             const dimFieldNo = `Dimension${customDimension.Dimension}.Number`;
@@ -943,10 +952,35 @@ export class UniTicker {
     }
 
 
+    private removeDisabledDimensionAndUpdatenHeaders() {
+        if (this.ticker.Code === 'sold_products') {
+            const columnsToDelete = [];
+            this.ticker.Columns.forEach((col) => {
+                if (col.Field.includes('Dimension')) {
+                    let found = false;
+                    this.customDimensionsMetadata.forEach(dim => {
+                        if (col.Field.includes(dim.Dimension + '')) {
+                            col.Header = dim.Label;
+                            found = true;
+                        }
+                    });
+                    if (!found) {
+                        const index = this.ticker.Columns.indexOf(col);
+                        columnsToDelete.push(index);
+                    }
+                }
+            });
+            while (columnsToDelete.length) {
+                this.ticker.Columns.splice(columnsToDelete.pop(), 1);
+            }
+        }
+    }
 
     private buildTableConfig() {
         // Define configStoreKey
         const configStoreKey = `uniTicker.${this.ticker.Code}`;
+
+        this.removeDisabledDimensionAndUpdatenHeaders();
 
         // Define columns to use in the table
         const columns: UniTableColumn[] = [];
@@ -1022,6 +1056,7 @@ export class UniTicker {
                 col.alias = column.Alias;
                 col.width = column.Width;
                 col.isSumColumn = column.SumColumn;
+                col.markedRowsSumCol = column.MarkedRowsSumCol;
                 col.sumFunction = column.SumFunction;
                 col.enableRowGroup = this.groupingIsOn;
 
@@ -1211,7 +1246,8 @@ export class UniTicker {
                     col.setAlignment(column.Alignment);
                 }
 
-                if (column.DefaultHidden) {
+                if (column.DefaultHidden || (column.DefaultHiddenOnGivenFilters
+                    && column.DefaultHiddenOnGivenFilters.includes(this.selectedFilter.Code))) {
                     col.setVisible(false);
                 }
 

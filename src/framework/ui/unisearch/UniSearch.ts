@@ -19,6 +19,7 @@ import {IUniSearchConfig} from './IUniSearchConfig';
                 [disabled]="disabled"
                 [title]="getTitle()"
                 tabindex="-1"
+                placeholder="{{ config && config.placeholder ? config.placeholder : '' }}"
                 (focus)="onFocus($event)"
                 (blur)="onBlur()"
             />

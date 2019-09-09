@@ -393,8 +393,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Role: Role;
     public Permission: Permission;
+    public Role: Role;
     public CustomFields: any;
 }
 
