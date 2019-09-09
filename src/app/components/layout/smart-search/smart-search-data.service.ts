@@ -9,6 +9,7 @@ import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamMo
 import {UserSettingsModal} from '../navbar/user-dropdown/user-settings-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AuthService} from '@app/authService';
+import {UniTranslationService} from '@app/services/common/translationService';
 
 @Injectable()
 export class SmartSearchDataService {
@@ -65,6 +66,7 @@ export class SmartSearchDataService {
     constructor(
         private navbarLinkService: NavbarLinkService,
         private uniModalService: UniModalService,
+        private translate: UniTranslationService,
         private authService: AuthService
     ) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
@@ -356,7 +358,7 @@ export class SmartSearchDataService {
 
         this.componentLookupSource.forEach((component) => {
             const name = component && component.name;
-            if (name && name.toLowerCase().indexOf(query) !== -1) {
+            if (name && this.translate.translate(name).toLowerCase().indexOf(query) !== -1) {
                 component.type = 'link';
                 results.push(component);
             }
