@@ -35,23 +35,16 @@ export class ReadTaxCard implements OnInit {
         const signatureColumn = new UniTableColumn('UserSign', 'Signatur', UniTableColumnType.Text);
         const isReadColumn = new UniTableColumn('HasBeenRegistered', 'Innlest', UniTableColumnType.Text)
             .setTemplate((rowModel) => {
-                return rowModel['HasBeenRegistered'] === true ? 'X' : '';
+                return rowModel['HasBeenRegistered'] === true ? 'X' : 'Les og hent inn';
             })
-            .setWidth('4rem');
-
-        const contextMenuItem = {
-            label: 'Hent og les inn',
-            action: (rowModel) => {
-                this.readTaxCard(rowModel['ReceiptID']);
-            }
-        };
+            .setWidth('4rem')
+            .setLinkClick(rowModel => this.readTaxCard(rowModel['ReceiptID']));
 
         this.receiptTable = new UniTableConfig('salary.employee.modals.readTaxCard')
             .setColumns([
                 dateSendtColumn, receiptIDColumn, signatureColumn, isReadColumn
             ])
             .setEditable(false)
-            .setContextMenu([contextMenuItem], false)
             .setPageSize(10);
 
 
