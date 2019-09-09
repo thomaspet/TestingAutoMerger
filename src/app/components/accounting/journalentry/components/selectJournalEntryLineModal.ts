@@ -6,7 +6,7 @@ import {JournalEntryLineService} from '../../../../services/services';
 @Component({
     selector: 'select-journalentryline-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw">
+        <section role="dialog" class="uni-modal" style="width: 80vw">
             <header><h1>Velg faktura</h1></header>
             <article class='modal-content' *ngIf="config">
                 <p>Trykk på en av linjene under for å knytte bilagslinjen til en av fakturaene</p>

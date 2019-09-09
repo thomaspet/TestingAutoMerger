@@ -18,7 +18,7 @@ uni-toolbar
     padding: .25rem 1.5rem
     display: flex
     flex-direction: row
-    background: var(--toolbar-background)
+    background: var(--body-background)
 
     &.static
         position: static
@@ -28,9 +28,10 @@ uni-toolbar
     z-index: map-get($zindex, toolbar)
 
     .toolbar-title
-        color: var(--toolbar-header-color)
-        font-size: 1.35rem
-        font-weight: 500
+        color: var(--header-color)
+        font: var(--toolbar-header-font)
+        // font-size: 1.35rem
+        // font-weight: 500
         .material-icons
             font-size: 22px
             margin-top: 3px

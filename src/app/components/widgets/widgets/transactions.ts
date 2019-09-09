@@ -23,8 +23,8 @@ enum PayrollRunPaymentStatus {
         <section class="header">
             <span>{{ current?.header }}</span>
 
-            <section class="filters uni-redesign">
-                <button #toggle class="toggle-button">
+            <section class="filters">
+                <button #toggle class="tertiary toggle-button">
                     {{ current?.label }}
                     <i class="material-icons">expand_more</i>
                 </button>

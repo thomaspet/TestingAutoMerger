@@ -7,7 +7,7 @@ import {BehaviorSubject} from 'rxjs';
 @Component({
     selector: 'add-file-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 35vw; min-width: 640px;">
+        <section role="dialog" class="uni-modal" style="width: 35vw; min-width: 640px;">
             <header>Innstillinger for smart bokføring</header>
 
             <article class="bill-container">

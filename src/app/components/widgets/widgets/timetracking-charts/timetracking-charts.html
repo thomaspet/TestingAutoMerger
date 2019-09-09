@@ -2,8 +2,8 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section class="filters uni-redesign" *ngIf="showPeriodSelector">
-            <button #toggle class="toggle-button">
+        <section class="filters" *ngIf="showPeriodSelector">
+            <button #toggle class="tertiary toggle-button">
                 {{ currentPeriod.label }}
                 <i class="material-icons">expand_more</i>
             </button>

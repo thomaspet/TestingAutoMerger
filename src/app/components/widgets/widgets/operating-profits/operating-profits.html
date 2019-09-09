@@ -2,15 +2,15 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section *ngIf="!unauthorized" class="filters uni-redesign">
+        <section *ngIf="!unauthorized" class="filters">
             <button *ngFor="let year of years"
-                class
-                [ngClass]="{'outline-c2a': year === currentYear}"
+                class="tertiary"
+                [ngClass]="{'c2a': year === currentYear}"
                 (click)="yearChange(year)">
                 {{year}}
             </button>
 
-            <button #toggle class="toggle-button">
+            <button #toggle class="tertiary toggle-button">
                 {{showAccumulatedResult ? 'Akkumulert resultat' : 'Månedlig resultat'}}
                 <i class="material-icons">expand_more</i>
             </button>

@@ -139,19 +139,13 @@ uni-widget-canvas
         padding: 0 1.5rem
         .filters
             margin-left: auto
-            button
+            button.tertiary
                 font-weight: 400
-                padding: 1px .5rem 0
+                padding: 0
+                font-size: 14px
 
-                &.outline-c2a
+                &.c2a
                     font-weight: 500
-                    color: #198CEE
-
-                & + button
-                    margin: 0
-
-                &:focus
-                    background: unset
 
                 &.toggle-button i.material-icons
                     font-size: 21px
@@ -310,7 +304,7 @@ uni-widget-canvas
 
             font-size: 13px
             font-family: var(--font-family)
-            color: #198CEE
+            color: var(--color-c2a)
             white-space: nowrap
             text-overflow: ellipsis
             overflow: hidden
