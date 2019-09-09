@@ -15,13 +15,13 @@ import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {AppPipesModule} from '@app/pipes/appPipesModule';
 
-import {InvoiceList} from './invoice/list/invoiceList';
-import {OrderDetails} from './order/details/orderDetails';
-import {TradeItemHelper} from './salesHelper/tradeItemHelper';
-import {OrderList} from './order/list/orderList';
-import {UniOrderToInvoiceModal} from './order/orderToInvoiceModal';
-import {QuoteDetails} from './quote/details/quoteDetails';
-import {QuoteList} from './quote/list/quoteList';
+import { InvoiceList } from './invoice/list/invoiceList';
+import { OrderDetails } from './order/details/orderDetails';
+import { TradeItemHelper } from './salesHelper/tradeItemHelper';
+import { OrderList } from './order/list/orderList';
+import { UniOrderToInvoiceModal } from './order/orderToInvoiceModal';
+import { QuoteDetails } from './quote/details/quoteDetails';
+import { QuoteList } from './quote/list/quoteList';
 
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
@@ -61,8 +61,10 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
-import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule, MatSelectModule, MatOptionModule} from '@angular/material';
+import { MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule, MatSelectModule, MatOptionModule } from '@angular/material';
 import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
+import { AprilaOfferModal } from './invoice/modals/aprila-offer/aprila-offer-modal';
+import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
 
 @NgModule({
     imports: [
@@ -144,7 +146,9 @@ import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
         SellerSalesList,
         KIDSettings,
         KidModalComponent,
-        AvtaleGiroModal
+        AvtaleGiroModal,
+        AprilaOfferModal,
+        AprilaCreditNoteModal
     ],
     entryComponents: [
         UniOrderToInvoiceModal,
@@ -158,7 +162,9 @@ import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
         KidModalComponent,
         UniChooseOrderHoursModal,
         UniRecurringInvoiceLogModal,
-        AvtaleGiroModal
+        AvtaleGiroModal,
+        AprilaOfferModal,
+        AprilaCreditNoteModal
     ],
     providers: [
         TradeItemHelper,

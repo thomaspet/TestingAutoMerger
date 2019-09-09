@@ -16,6 +16,7 @@ export class NotificationItem {
     notificationText: string;
     icon: string;
     timestamp: string;
+    hasHtml = false;
 
     ngOnChanges() {
         if (this.notification) {
@@ -29,7 +30,7 @@ export class NotificationItem {
                 this.notificationText = `Du har blitt nevnt i en kommentar på ${entityType} ${entityID}`;
                 this.icon = 'comment';
             }
-            
+
             if (sourceEntityType === 'File') {
                 this.notificationType = 'inbox';
                 this.icon = 'description';
@@ -39,7 +40,7 @@ export class NotificationItem {
                 } else {
                     this.notificationText = `Ny leverandørfaktura i innboks`;
                 }
-            } 
+            }
 
             if (entityType === 'Approval') {
                 this.notificationType = 'approval';
@@ -50,11 +51,17 @@ export class NotificationItem {
                 this.icon = 'alarm';
                 this.notificationText = this.notification.Message;
                 if (isNullOrUndefined(this.notification.Message)) {
-                    this.notificationText = 'Faktura er klar til inkasso';    
+                    this.notificationText = 'Faktura er klar til inkasso';
+                }
+            } else if (entityType === 'ApiKey') {
+                this.notificationType = 'inbox';
+                this.icon = 'info';
+                if (this.notification.Message.indexOf('<') !== -1 && this.notification.Message.indexOf('>') !== -1) {
+                    this.hasHtml = true;
                 }
             }
 
-            if (isNullOrUndefined(this.notificationText) && !isNullOrUndefined(this.notification.Message) 
+            if (isNullOrUndefined(this.notificationText) && !isNullOrUndefined(this.notification.Message)
                 && this.notification.EntityType !== 'Contract') {   //All Contract varsler (iallefall i dev) er feilmeldinger, som ikke er relevante for brukeren.
                 this.notificationText = this.notification.Message;
             }
