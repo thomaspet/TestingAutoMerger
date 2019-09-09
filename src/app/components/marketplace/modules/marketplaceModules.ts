@@ -23,12 +23,14 @@ import {
     UniActivateInvoicePrintModal,
     ProductPurchasesModal,
     UniAutobankAgreementModal,
-    MissingPurchasePermissionModal
+    MissingPurchasePermissionModal,
+    ConfirmActions
 } from '@uni-framework/uni-modal';
 
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -56,7 +58,8 @@ export class MarketplaceModules implements AfterViewInit {
         private route: ActivatedRoute,
         private modalService: UniModalService,
         private ehfService: EHFService,
-        private paymentBatchService: PaymentBatchService
+        private paymentBatchService: PaymentBatchService,
+        private toastService: ToastService
     ) {
         tabService.addTab({
             name: 'Markedsplass', url: '/marketplace/modules', moduleID: UniModules.Marketplace, active: true
@@ -210,6 +213,32 @@ export class MarketplaceModules implements AfterViewInit {
         } else {
             this.modalService.open(MissingPurchasePermissionModal);
         }
+    }
+
+    deletePurchaseExtension(product: ElsaProduct) {
+        this.modalService.confirm({
+            header: 'Bekreft avbestilling',
+            message: `Er du sikker på at du vil oppheve kjøpet av ${product.Name}?`
+        }).onClose.subscribe(modalResponse => {
+            if (modalResponse === ConfirmActions.ACCEPT) {
+                this.elsaPurchaseService.getPurchaseByProductName(product.Name).subscribe(purchase => {
+                    if (purchase) {
+                        this.elsaPurchaseService.deletePurchase(purchase.ID).subscribe(ok => {
+                            if (ok) {
+                                this.toastService.addToast('Kjøp opphevet', ToastType.good, ToastTime.medium);
+                                this.elsaPurchaseService.getAll().subscribe(purchases => {
+                                    this.setPurchaseInfo(purchases);
+                                });
+                            } else {
+                                this.toastService.addToast('Oppheving av kjøp feilet', ToastType.bad, ToastTime.medium);
+                            }
+                        }, err => this.errorService.handle(err));    
+                    } else {
+                        this.toastService.addToast(`Ingen eksisterende kjøp å finne for ${product.Name}`, ToastType.warn, ToastTime.medium);
+                    }
+                });
+            }
+        });
     }
 
     openLinkInNewTab(url: string){
