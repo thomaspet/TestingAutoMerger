@@ -356,7 +356,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                 .map(empFilter => this.statisticsService.GetAllUnwrapped(
                     `model=Employment&` +
                     `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName,Standard as Standard,` +
-                    `Dimensions.DepartmentID as DepartmentID,Dimensions.ProjectID as ProjectID&` +
+                    `Dimensions.DepartmentID as DepartmentID,Dimensions.ProjectID as ProjectID,DimensionsID as DimensionsID&` +
                     `expand=Dimensions&` +
                     `filter=${empFilter}`
             )))
@@ -375,6 +375,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         const ret: Employment = emp;
         if (emp['DepartmentID'] || emp['ProjectID']) {
             ret.Dimensions = <Dimension>{};
+            ret.Dimensions.ID = emp['DimensionsID'];
             ret.Dimensions.DepartmentID = emp['DepartmentID'];
             ret.Dimensions.ProjectID = emp['ProjectID'];
         }
