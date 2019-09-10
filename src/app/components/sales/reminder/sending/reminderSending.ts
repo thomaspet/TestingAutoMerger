@@ -59,7 +59,7 @@ export class ReminderSending {
     private table: AgGridWrapper;
 
     public reminderTable: UniTableConfig;
-    private remindersAll: CustomReminder[];
+    public remindersAll: CustomReminder[];
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
         + 'RunNumber as RunNumber,RemindedDate as RemindedDate,'
         + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,'
