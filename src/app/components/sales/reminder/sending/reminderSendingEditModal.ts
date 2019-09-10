@@ -63,6 +63,12 @@ export class UniReminderSendingEditModal implements OnInit, IUniModal {
         if (typeof this.line.DueDate === 'string') {
             this.line.DueDate = new LocalDate(this.line.DueDate.toString());
         }
+        if (typeof this.line.RemindedDate === 'string') {
+            this.line.RemindedDate = new LocalDate(this.line.RemindedDate.toString());
+        }
+        this.line.LastDistributionDate = undefined;
+        this.line.LastDistributionStatus = undefined;
+        this.line.LastDistributionType = undefined;
         this.reminderService.Put(this.line.ID, this.line).subscribe(() => {
             this.onClose.emit(this.line);
             this.toast.addToast('Endringer lagret', ToastType.good, 5);

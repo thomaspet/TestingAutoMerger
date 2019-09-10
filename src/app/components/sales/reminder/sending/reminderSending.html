@@ -5,34 +5,12 @@
 </uni-toolbar>
 
 <section [ngClass]="{'application': !modalMode}">
-    <section class="uni-container">
-        <p *ngIf="!runNumbers || runNumbers.length === 0">Ingen kjøringer</p>
-        <uni-form
-            *ngIf="!modalMode && (runNumbers && runNumbers.length > 0)"
-            [config]="config$"
-            [fields]="fields$"
-            [model]="searchParams$"
-            (changeEvent)="onFormFilterChange($event)">
-        </uni-form>
-
-        <section *ngIf="remindersEmail">
-            <p>{{remindersEmail.length}} purringer kan sendes på e-post eller sendes til fakturaprint</p>
-            <ag-grid-wrapper
-                *ngIf="remindersEmail.length"
-                class="transquery-grid-font-size"
-                [resource]="remindersEmail"
-                [config]="reminderTable">
-            </ag-grid-wrapper>
-        </section>
-
-        <section *ngIf="remindersPrint">
-            <p>{{remindersPrint.length}} purringer må skrives ut på papir eller sendes til fakturaprint</p>
-            <ag-grid-wrapper
-                *ngIf="remindersPrint.length"
-                class="transquery-grid-font-size"
-                [resource]="remindersPrint"
-                [config]="reminderTable">
-            </ag-grid-wrapper>
-        </section>
+    <section class="uni-container" *ngIf="remindersAll">
+        <ag-grid-wrapper
+            *ngIf="remindersAll.length"
+            class="transquery-grid-font-size"
+            [resource]="remindersAll"
+            [config]="reminderTable">
+        </ag-grid-wrapper>
     </section>
 </section>

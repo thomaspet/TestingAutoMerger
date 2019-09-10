@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
-import {CustomerInvoiceReminder, StatusCodeCustomerInvoiceReminder} from '../../unientities';
+import {CustomerInvoiceReminder, StatusCodeCustomerInvoiceReminder, SharingType} from '../../unientities';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 
@@ -108,4 +108,19 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         const statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
     }
+
+    public getSharingTypeText(sharingType: number): string {
+        switch(sharingType) {
+            case SharingType.Email:
+                return 'E-post';
+            case SharingType.Print:
+                return 'Utskrift';
+            case SharingType.InvoicePrint:
+                return 'Fakturaprint';
+            default:
+                return '';
+        }
+    }
+
+
 }

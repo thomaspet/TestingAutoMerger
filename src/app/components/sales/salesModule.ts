@@ -33,6 +33,7 @@ import {Reminder} from './reminder/reminder';
 import {ReminderList} from './reminder/list/reminderList';
 import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminderConfirmModal';
 import {UniReminderSendingModal} from './reminder/sending/reminderSendingModal';
+import {UniReminderSendingMethodModal} from './reminder/sending/reminderSendingMethodModal';
 import {UniReminderSendingEditModal} from './reminder/sending/reminderSendingEditModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 import {DebtCollection} from './reminder/debtCollection/debtCollection';
@@ -128,6 +129,7 @@ import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/april
         ReminderSending,
         UniReminderSendingEditModal,
         UniReminderSendingModal,
+        UniReminderSendingMethodModal,
         UniChooseOrderHoursModal,
         DebtCollection,
         SentToDebtCollection,
@@ -155,6 +157,7 @@ import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/april
         ReminderConfirmForm,
         UniReminderSendingModal,
         UniReminderSendingEditModal,
+        UniReminderSendingMethodModal,
         ReminderSending,
         InvoiceReminders,
         UniTofSelectModal,

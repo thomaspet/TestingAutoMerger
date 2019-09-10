@@ -151,7 +151,12 @@ export class ReminderList {
             this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist(selected);
 
         method.subscribe((reminders) => {
-            this.router.navigateByUrl('/sales/reminders/reminded');
+            let filter = '';
+            if (reminders && reminders.length > 0)
+            {
+                filter = '?runNumber=' + reminders[0].RunNumber
+            }
+            this.router.navigateByUrl('/sales/reminders/reminded' + filter);
             /*
             TODO:   discarded modal view of sending av printing,
             completely remove modal view if BA approves of this simplified prosess
@@ -345,6 +350,7 @@ export class ReminderList {
             .setDeleteButton(false)
             .setAutoAddNewRow(false)
             .setSearchListVisible(true)
+            .setEditable(false)
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
