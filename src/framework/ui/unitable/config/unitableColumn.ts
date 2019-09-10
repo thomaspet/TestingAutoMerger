@@ -261,6 +261,10 @@ export class UniTableColumn implements IUniTableColumn {
             break;
         }
 
+        if (type === UniTableColumnType.LocalDate || type === UniTableColumnType.DateTime) {
+            this.setWidth('6rem');
+        }
+
         return this;
     }
 

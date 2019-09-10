@@ -94,9 +94,6 @@ ag-grid-angular
 ag-grid-angular.editable
     .ag-header
         border-top: 1px solid var(--border-color)
-        // border-right: 1px solid var(--border-color)
-    // .ag-body
-    //     border-right: 1px solid var(--border-color)
     .ag-body-container .ag-cell,
     .ag-header-container .ag-header-cell
         border-left: 1px solid var(--border-color)
@@ -114,9 +111,6 @@ ag-grid-angular.editable
     display: inline-flex !important
     align-items: center
     padding: 0 10px
-
-    // > span
-    //     display: flex
 
     &:focus
         outline: none
@@ -207,12 +201,12 @@ ag-grid-angular.editable
         background: #fff
 
     &.ag-row-hover
-        background: rbga(0, 0, 0, .1)
+        background: #d9efff // rgba(0, 0, 0, .1)
 
 ag-grid-angular:not(.editable)
     .ag-row-selected,
     .ag-row-dragging
-        background: #d4dfee
+        background: #d9efff
 
 ag-grid-angular.editable .readonly-row,
 ag-grid-angular .disabled-row

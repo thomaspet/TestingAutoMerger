@@ -299,20 +299,23 @@ export class AgGridWrapper {
             const loadedRowCount = this.dataService.loadedRowCount;
             const pageSize = this.config.pageSize || 20;
 
-            if (loadedRowCount < pageSize) {
-                this.tableHeight = loadedRowCount > 0
-                    ? 75 + (loadedRowCount * this.rowHeight) + 'px'
-                    : '95px';
-            } else {
-                let height = 75 + (pageSize * this.rowHeight);
+            let height = 0;
+            const hasSumRow = this.columns.some(col => col.isSumColumn);
 
-                // Make room for the bar displaying active filters
+            if (loadedRowCount < pageSize) {
+                height = ((loadedRowCount || 1) + 1) * this.rowHeight;
+            } else {
+                height = (pageSize + 1) * this.rowHeight;
                 if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
                     height -= 40;
                 }
-
-                this.tableHeight = height + 'px';
             }
+
+            if (hasSumRow) {
+                height += this.rowHeight;
+            }
+
+            this.tableHeight = height + 'px';
 
             setTimeout(() => {
                 api.doLayout();
@@ -762,9 +765,11 @@ export class AgGridWrapper {
                 agCol.width = +col.width;
             }
 
-            if (!col.width || col.width >= 64) {
-                agCol.minWidth = 64;
+            if (!col.width || col.width >= 125) {
+                agCol.minWidth = 125;
             }
+
+            agCol.minWidth = 125;
 
             agCol.colId = col.field;
 
