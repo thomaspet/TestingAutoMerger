@@ -223,12 +223,10 @@ export class MarketplaceModules implements AfterViewInit {
             if (modalResponse === ConfirmActions.ACCEPT) {
                 this.elsaPurchaseService.getPurchaseByProductName(product.Name).subscribe(purchase => {
                     if (purchase) {
-                        this.elsaPurchaseService.deletePurchase(purchase.ID).subscribe(ok => {
+                        this.elsaPurchaseService.cancelPurchase(product.ID).subscribe(ok => {
                             if (ok) {
                                 this.toastService.addToast('Kjøp opphevet', ToastType.good, ToastTime.medium);
-                                this.elsaPurchaseService.getAll().subscribe(purchases => {
-                                    this.setPurchaseInfo(purchases);
-                                });
+                                product['_isBought'] = false;
                             } else {
                                 this.toastService.addToast('Oppheving av kjøp feilet', ToastType.bad, ToastTime.medium);
                             }

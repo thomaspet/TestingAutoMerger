@@ -72,12 +72,12 @@ export class ElsaPurchaseService {
             .map(res => res.status === 200);
     }
 
-    deletePurchase(id: number) {
+    cancelPurchase(productId: number) {
         return this.uniHttp
             .asDELETE()
-            .usingElsaDomain()
-            .withEndPoint(`/api/purchases/${id}`)
+            .usingEmptyDomain()
+            .withEndPoint(`api/elsa/cancelpurchase/${productId}`)
             .send()
-            .map(res => res.status === 204);
+            .map(res => res.status === 200);
     }
 }
