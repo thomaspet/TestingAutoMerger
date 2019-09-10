@@ -26,7 +26,7 @@
         [agGridApi]="agGridApi"
         [config]="config"
         [columns]="columns"
-        [rowHeight]="35"
+        [rowHeight]="50"
         (valueChange)="onEditorChange($event)">
     </table-editor>
 
@@ -51,8 +51,8 @@
 
         [suppressNoRowsOverlay]="true"
         [suppressDragLeaveHidesColumns]="true"
-        [headerHeight]="35"
-        [rowHeight]="35"
+        [headerHeight]="rowHeight"
+        [rowHeight]="rowHeight"
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"

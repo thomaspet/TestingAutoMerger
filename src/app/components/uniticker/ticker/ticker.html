@@ -50,6 +50,7 @@
                 {{ this.ticker.DefaultTableFilter.label }}
             </mat-checkbox>
             <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
+                class="contained"
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"

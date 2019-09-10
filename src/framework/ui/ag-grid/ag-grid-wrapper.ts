@@ -71,23 +71,26 @@ export class AgGridWrapper {
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
-    public markedRowCount: number = 0;
-    public sumMarkedRows: any = 0;
     private configStoreKey: string;
-    private agGridApi: GridApi;
-    public rowModelType: 'clientSide' | 'infinite';
-    public localData: boolean;
-    public cacheBlockSize: number;
-    public tableHeight: string;
-    public flex: string = '1';
-    public usePagination: boolean;
-    public selectionMode: string = 'single';
-    public paginationInfo: any;
-    public allIsExpanded = true;
 
-    public columns: UniTableColumn[];
-    private agColDefs: ColDef[];
-    public rowClassResolver: (params) => string;
+    agGridApi: GridApi;
+    agColDefs: ColDef[];
+    rowClassResolver: (params) => string;
+
+    rowHeight = 50;
+    markedRowCount: number = 0;
+    sumMarkedRows: any = 0;
+
+    rowModelType: 'clientSide' | 'infinite';
+    localData: boolean;
+    cacheBlockSize: number;
+    tableHeight: string;
+    flex: string = '1';
+    usePagination: boolean;
+    selectionMode: string = 'single';
+    paginationInfo: any;
+    allIsExpanded = true;
+    columns: UniTableColumn[];
 
     private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
@@ -150,6 +153,7 @@ export class AgGridWrapper {
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {
+            this.rowHeight = this.config.editable ? 50 : 45;
             const sumCols = this.config.columns.filter(col => col.markedRowsSumCol);
 
             if (sumCols && sumCols.length) {
@@ -212,7 +216,7 @@ export class AgGridWrapper {
                 this.localData = false;
                 this.rowModelType = 'infinite';
                 this.cacheBlockSize = 50;
-                this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
+                this.tableHeight = 80 + (this.config.pageSize * this.rowHeight) + 'px';
             }
 
             if (this.agGridApi) {
@@ -297,10 +301,10 @@ export class AgGridWrapper {
 
             if (loadedRowCount < pageSize) {
                 this.tableHeight = loadedRowCount > 0
-                    ? 75 + (loadedRowCount * 35) + 'px'
+                    ? 75 + (loadedRowCount * this.rowHeight) + 'px'
                     : '95px';
             } else {
-                let height = 75 + (pageSize * 35);
+                let height = 75 + (pageSize * this.rowHeight);
 
                 // Make room for the bar displaying active filters
                 if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
@@ -710,7 +714,8 @@ export class AgGridWrapper {
                     }
 
                     return this.tableUtils.getColumnValue(data, col);
-                }
+                },
+                cellRenderer: (params) => `<span>${params.value}</span>`
             };
 
             if (col.rowGroup) {

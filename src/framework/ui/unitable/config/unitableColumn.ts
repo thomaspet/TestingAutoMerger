@@ -306,14 +306,12 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setLinkResolver(linkResolver: (rowModel) => string) {
         this.linkResolver = linkResolver;
-        this.setAlignment('center');
         this.cls += ' link-cell';
         return this;
     }
 
     public setLinkClick(clickHandler: (rowModel) => void) {
         this.linkClick = clickHandler;
-        this.setAlignment('center');
         this.cls += ' link-cell';
         return this;
     }

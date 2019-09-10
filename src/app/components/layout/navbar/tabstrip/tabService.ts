@@ -114,6 +114,7 @@ export class TabService {
         private browserStorage: BrowserStorageService,
         private titleService: Title,
     ) {
+        console.log('tabService contstructor');
         this.tabs = this.getMemStore() || [];
 
         this.tabs.forEach((tab, i) => {
