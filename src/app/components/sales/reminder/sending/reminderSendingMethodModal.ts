@@ -40,8 +40,8 @@ export class UniReminderSendingMethodModal implements IUniModal {
     @Output()
     onClose: EventEmitter<string> = new EventEmitter();
 
-    private reminders: CustomReminder[];
-    tableConfig: UniTableConfig;
+    public reminders: CustomReminder[];
+    public tableConfig: UniTableConfig;
 
     constructor( public ehfService: EHFService) { }
 
