@@ -11,7 +11,8 @@ import {
     CompanySalaryService,
     CompanyVacationRateService,
     PeriodSeriesService,
-    DistributionPlanService
+    DistributionPlanService,
+    AccountService
 } from '@app/services/services';
 
 enum SETTINGS_STEPS {
@@ -62,6 +63,8 @@ export class WizardSettingsModal implements IUniModal {
     companySalary: any = {};
     vacationRates: any;
     periodSeries: any;
+    defaultCompanyAccount: any;
+    defaultTaxAccount: any;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -69,7 +72,8 @@ export class WizardSettingsModal implements IUniModal {
         private companyVacationRateService: CompanyVacationRateService,
         private modalService: UniModalService,
         private periodeSeriesService: PeriodSeriesService,
-        private distributionPlanService: DistributionPlanService
+        private distributionPlanService: DistributionPlanService,
+        private accountService: AccountService
     ) { }
 
     ngOnInit() {
@@ -86,13 +90,17 @@ export class WizardSettingsModal implements IUniModal {
             this.companyVacationRateService.getCurrentRates(new Date().getFullYear() - 4),
             this.periodeSeriesService.GetAll(null),
             this.companySalaryService.getCompanySalary(),
-            this.distributionPlanService.getElementTypes()
-        ).subscribe(([settings, vaycay, periodes, salary, types]) => {
+            this.distributionPlanService.getElementTypes(),
+            this.accountService.searchAccounts('AccountNumber eq 1920', 1),
+            this.accountService.searchAccounts('AccountNumber eq 1950', 1)
+        ).subscribe(([settings, vaycay, periodes, salary, types, companyAccount, taxAccount]) => {
             this.companySettings = settings;
             this.vacationRates = vaycay;
             this.periodSeries = periodes;
             this.companySalary = salary || {};
             this.distributionTypes = types.slice(0, 4);
+            this.defaultCompanyAccount = companyAccount[0];
+            this.defaultTaxAccount = taxAccount[0];
 
             // Uniform setup
             this.accountSettings$.next(settings);
@@ -279,6 +287,18 @@ export class WizardSettingsModal implements IUniModal {
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.companySettings.ID;
                     bankaccount.ID = 0;
+                    switch (bankAccountType) {
+                        case 'Company':
+                            bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
+                            break;
+
+                        case 'tax':
+                            bankaccount.Account = !bankaccount.Account ? this.defaultTaxAccount : bankaccount.Account;
+                            break;
+
+                        default:
+                            break;
+                    }
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {

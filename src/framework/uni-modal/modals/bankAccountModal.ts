@@ -119,7 +119,7 @@ export class UniBankAccountModal implements IUniModal {
             account = this.formModel$.getValue();
             if (this.options.modalConfig
                 && this.options.modalConfig.ledgerAccountVisible
-                && !account.AccountID) {
+                && !account.AccountID && !(account.Account && account.Account.ID)) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
                     header: 'Bekreft manglende konto',
@@ -134,6 +134,10 @@ export class UniBankAccountModal implements IUniModal {
                     }
                 });
             } else {
+                if (account.Account) {
+                    account.AccountID = account.Account.ID;
+                    account.Account = null;
+                }
                 if (this.saveBankAccountInModal) {
                     this.SaveBankAccount(account);
                 } else {
@@ -206,6 +210,11 @@ export class UniBankAccountModal implements IUniModal {
                     this.checkIsAccountNumberAlreadyRegistered(account, changes['_ibanAccountSearch'].currentValue);
                 }
             }
+        }
+        if (changes['AccountID'] && changes['AccountID'].currentValue === null) {
+            const account = this.formModel$.getValue();
+            account.Account = null;
+            this.formModel$.next(account);
         }
     }
 
