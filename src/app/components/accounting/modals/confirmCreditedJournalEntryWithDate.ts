@@ -11,10 +11,10 @@ import {Observable} from 'rxjs';
     selector: 'confirm-credited-journalEntry-with-date-modal',
     template: `
         <section role="dialog" class="uni-modal"
-            (keydown.esc)="cancel($event)">
+            (keydown.esc)="cancel()">
             <header>
                 {{options.header}}
-                <i (click)="cancel($event)" class="material-icons close-button" role="button">
+                <i (click)="cancel()" class="material-icons close-button" role="button">
                     close
                 </i>
             </header>
@@ -33,11 +33,11 @@ import {Observable} from 'rxjs';
             </article>
 
             <footer>
-                <button class="cancel" (click)="cancel($event)">
+                <button class="cancel" (click)="cancel()">
                     {{options.buttonLabels.cancel}}
                 </button>
 
-                <button class="c2a" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady">
+                <button class="c2a" id="good_button_ok" (click)="accept()" [disabled]="!formReady">
                     {{options.buttonLabels.accept}}
                 </button>
             </footer>
