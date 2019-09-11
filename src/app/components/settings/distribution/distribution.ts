@@ -1,13 +1,14 @@
 import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig} from '../../../../framework/ui/unitable/index';
-import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {DistributionPlanService} from '@app/services/common/distributionService';
+import {DistributionPlanService, CompanySettingsService} from '@app/services/services';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
-import {DistributionPlan, DistributionPlanElementType, DistributionPlanElement} from '../../../unientities';
+import {DistributionPlan, DistributionPlanElementType, CompanySettings, Distributions} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
 import { Observable } from 'rxjs';
-import {SettingsService} from '../settings-service';
+import {DistributionPlanModal} from './distribution-plan-modal';
+import {CustomerListModal} from './customer-list-modal';
+import {UniModalService, UniConfirmModalV2, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal';
+
 declare const _; // lodash
 
 @Component({
@@ -16,348 +17,238 @@ declare const _; // lodash
 })
 
 export class UniDistributionSettings {
-    public detailsTableConfig: UniTableConfig;
-    public unitableConfig: IUniTableConfig;
-    public plans: DistributionPlan[];
-    public elements: any = [];
-    public currentPriority: number = 0;
-    public deletedElements: any = [];
-    public plan: BehaviorSubject<any> = new BehaviorSubject({});
-    public elementTypes: DistributionPlanElementType[];
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public hasUnsavedChanges: boolean = false;
-    public planIndex: number = 0;
-    public entityTypes = [
+    plans: DistributionPlan[];
+    elements: any = [];
+    currentPriority: number = 0;
+    deletedElements: any = [];
+    plan: BehaviorSubject<any> = new BehaviorSubject({});
+    elementTypes: DistributionPlanElementType[];
+    hasUnsavedChanges: boolean = false;
+    active: boolean = true;
+    busy: boolean = true;
+    companySettings: CompanySettings;
+    entityTypes = [
         {
             value: 'Models.Sales.CustomerInvoice',
-            label: 'Faktura'
+            label: 'Faktura',
+            showPlansView: false,
+            defaultPlan: null,
+            keyValue: 'CustomerInvoiceDistributionPlanID',
+            plans: []
         },
         {
             value: 'Models.Sales.CustomerOrder',
-            label: 'Ordre'
+            label: 'Ordre',
+            showPlansView: false,
+            defaultPlan: null,
+            keyValue: 'CustomerOrderDistributionPlanID',
+            plans: []
         },
         {
             value: 'Models.Sales.CustomerQuote',
-            label: 'Tilbud'
+            label: 'Tilbud',
+            showPlansView: false,
+            defaultPlan: null,
+            keyValue: 'CustomerQuoteDistributionPlanID',
+            plans: []
         },
         {
             value: 'Models.Sales.CustomerInvoiceReminder',
-            label: 'Purring'
-        },
-        {
-            value: 'Models.Salary.PayCheck',
-            label: 'Lønnsslipp'
-        },
-        {
-            value: 'Models.Salary.AnnualStatement',
-            label: 'Årsregnskap'
+            label: 'Purring',
+            showPlansView: false,
+            defaultPlan: null,
+            keyValue: 'CustomerInvoiceReminderDistributionPlanID',
+            plans: []
         }
+    ];
+
+    actions: any[] = [
+        { label: 'Sett som standard', name: 'standard' },
+        { label: 'Administrer kunder', name: 'customer' },
+        { label: 'Rediger', name: 'edit' },
+        { label: 'Slett', name: 'delete' }
     ];
 
     constructor(
         private distributionPlanService: DistributionPlanService,
-        private settingsService: SettingsService,
+        private companySettingsService: CompanySettingsService,
         private route: ActivatedRoute,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private modalService: UniModalService
     ) { }
 
     public ngOnInit() {
         this.route.queryParams.subscribe((params) => {
-            this.planIndex = params['plan'] || 0;
             this.getDistributionPlans();
         });
     }
 
-    public updateSaveActions() {
-        this.settingsService.setSaveActions([
-            {
-                label: 'Lagre plan',
-                action: (done) => this.save(done),
-                main: true,
-                disabled: !this.hasUnsavedChanges
-            },
-            {
-                label: 'Ny plan',
-                action: (done) => this.newPlan(done),
-                main: false,
-                disabled: this.hasUnsavedChanges
-            }
-        ]);
-    }
-
-    private save(done) {
-        const plan = this.plan.getValue();
-
-        if (!plan.Name || plan.Name === ' ') {
-            this.toastService.addToast('Ikke lagret', ToastType.bad, 5, 'En plan må ha et navn');
-            done('Ikke lagret, navn mangler på plan!');
-            return;
-        }
-
-        if (!plan.EntityType) {
-            this.toastService.addToast('Ikke lagret', ToastType.bad, 5, 'En plan må ha en type');
-            done('Ikke lagret, type mangler på plan!');
-            return;
-        }
-
-        const newTypes = [];
-
-        for (let i = 0; i < this.elementTypes.length; i++) {
-            if (plan['pri' + (i + 1)] && plan['pri' + (i + 1)].ID) {
-                newTypes.push({
-                    ID: 0,
-                    _createguid: this.distributionPlanService.getNewGuid(),
-                    DistributionPlanElementTypeID: plan['pri' + (i + 1)].ID,
-                    ElementType: this.elementTypes.filter(type => type.ID ===  plan['pri' + (i + 1)].ID)[0],
-                    Priority: newTypes.length + 1
-                });
-            }
-        }
-
-        plan.Elements = this.elements
-            .filter(type => !!type.ID)
-            .map(type => { type.Deleted = true; return type; })
-            .concat(newTypes);
-
-        this.distributionPlanService.saveDistributionPlan(plan).subscribe((savedPlan) => {
-            if (!plan.ID) { this.planIndex = this.plans.length; }
-
-            this.hasUnsavedChanges = false;
-            this.updateSaveActions();
-            this.getDistributionPlans();
-            done('Plan lagret');
-        });
-    }
-
-    private newPlan(done) {
-        let newPlan: DistributionPlan = new DistributionPlan();
-        newPlan.Elements = new Array(3);
-        this.plan.next(this.mapDataModelForUniform(newPlan));
-        this.setUpForm();
-        done();    
-    }
-
-    public getDistributionPlans(searchValue?: string) {
-        let query = 'expand=Elements,Elements.ElementType';
-
-        if (searchValue) {
-            query += `&filter=contains(Name, '${searchValue}') or contains(EntityType, '${searchValue}')`;
-        }
-
+    public getDistributionPlans() {
         this.distributionPlanService.invalidateCache();
 
-        Observable.forkJoin(
-            [
-                this.distributionPlanService.GetAll(query),
-                this.distributionPlanService.getElementTypes()
-            ]
-        ).subscribe((result) => {
-            this.plans = result[0];
-            this.elementTypes = result[1];
-            this.setUpTable();
+        Observable.forkJoin([
+            this.distributionPlanService.GetAll('', ['Elements', 'Elements.ElementType']),
+            this.distributionPlanService.getElementTypes(),
+            this.companySettingsService.Get(1, ['Distributions'])
+        ]).subscribe(([plans, types, companySettings]) => {
+            this.plans = plans;
+            this.elementTypes = types;
+            this.companySettings = companySettings;
+            this.active = this.companySettings.AutoDistributeInvoice;
 
-            if (this.planIndex > this.plans.length) {
-                this.planIndex = 0;
-            }
+            this.distributionPlanService.getCustomerCount(this.plans).subscribe((response) => {
+                this.busy = false;
+                // Map count to correct plan
+                this.plans = this.plans.map(plan => {
+                    plan['_count'] = response.Data[0]['count' + plan.ID];
+                    return plan;
+                });
 
-            this.elements = _.cloneDeep(this.plans[this.planIndex].Elements);
-            this.plan.next(this.mapDataModelForUniform(this.plans[this.planIndex]));
-            this.setUpForm();
-            this.updateSaveActions();
+                this.entityTypes.map((ent) => {
+                    ent.plans = plans.filter(plan => plan.EntityType === ent.value);
+                    ent.defaultPlan = plans.find(plan => {
+                        return plan.EntityType === ent.value && (this.companySettings && this.companySettings.Distributions
+                            && plan.ID === this.companySettings.Distributions[ent.keyValue]);
+                    });
+                    if (ent.defaultPlan) {
+                        ent.plans.map(plan => {
+                            if (plan.ID === ent.defaultPlan.ID) {
+                                plan['_count'] += response.Data[0][ent.label];
+                            }
+                        });
+                    }
+                    return ent;
+                });
+            }, err => {
+                this.busy = false;
+                this.toastService.addToast('Kunne ikke laste data', ToastType.bad, ToastTime.medium);
+            });
         }, (err) => {
-            console.log(err);
+            this.busy = false;
+            this.toastService.addToast('Kunne ikke laste data', ToastType.bad, ToastTime.medium);
         });
     }
 
-    private setUpTable() {
-        const nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text)
-            .setFilterOperator('contains');
-
-        const statusCol = new UniTableColumn('StatusCode', 'Status',  UniTableColumnType.Text)
-            .setFilterable(false).setWidth('15%');
-
-        const typeCol = new UniTableColumn('EntityType', 'Type',  UniTableColumnType.Text)
-            .setFilterOperator('contains')
-            .setTemplate((item) => {
-                if (!item || !item.EntityType) {
-                    return '';
-                }
-                return this.entityTypes.filter(res => res.value === item.EntityType)[0].label;
-            });
-
-        this.unitableConfig = new UniTableConfig('settings.distribution.planlist', false, true, 15)
-            .setSearchable(true)
-            .setSortable(false)
-            .setColumns([nameCol, statusCol, typeCol])
-            .setColumnMenuVisible(false);
+    public onActionClick(action: any, plan: DistributionPlan, type: any) {
+        switch (action.name) {
+            case 'standard':
+                this.setNewStandard(plan, type);
+                break;
+            case 'edit':
+                this.openPlanModal(plan, type);
+                break;
+            case 'delete':
+                this.deletePlan(plan, type);
+                break;
+            case 'customer':
+                this.openCustomerModal(plan, type);
+                break;
+        }
     }
 
-    private setUpForm() {
-        this.fields$.next([]);
-        const plan = this.plan.getValue();
+    public openPlanModal(plan: DistributionPlan, type) {
+        if (!plan) {
+            plan = new DistributionPlan();
+            plan.Name = 'Min nye plan';
+            plan.EntityType = type.value;
+            plan.ID = 0;
+            plan.Elements = [];
+        }
+        const header = `${plan.ID
+            ? 'Rediger plan for utsendelse av ' + type.label.toLowerCase()
+            : 'Ny plan for utsendelses av ' + type.label.toLowerCase()}`;
+        const data = {
+            plan: plan,
+            types: this.filterElementTypes(type.value),
+            currentType: type
+        };
 
-        const disableForm = (plan.Name || '').toLowerCase() === 'ingen utsendelse';
-
-        const fields: any = [
-            {
-                EntityType: 'DistributionPlan',
-                Property: 'Name',
-                FieldType: FieldType.TEXT,
-                Label: 'Navn',
-                Placeholder: 'Navn på distribusjonsplan',
-                ReadOnly: disableForm
-
-            },
-            {
-                EntityType: 'DistributionPlan',
-                Property: 'EntityType',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Type',
-                Placeholder: '',
-                ReadOnly: plan.ID,
-                Options: {
-                    source: this.entityTypes,
-                    valueProperty: 'value',
-                    debounceTime: 200,
-                    displayProperty: 'label',
-                    searchable: false
+        this.modalService.open(DistributionPlanModal,
+            { data: data, header: header, closeOnClickOutside: false })
+        .onClose.subscribe((response) => {
+            if (response) {
+                if (!type.defaultPlan || (response.setAsDefault && response.plan.ID !== type.defaultPlan.ID)) {
+                    this.setNewStandard(response.plan, type);
+                } else {
+                    this.getDistributionPlans();
                 }
             }
-        ];
+        });
+    }
 
-        const filteredElements = this.filterElementTypes(plan.EntityType, this.elementTypes);
+    public openCustomerModal(plan, type) {
+        const data = {
+            plan: plan,
+            type: type
+        };
+        this.modalService.open(CustomerListModal, { data: data }).onClose.subscribe(() => {
+            this.getDistributionPlans();
+        });
+    }
 
-        // Dynamically add priority elements
-        for (let i = 1; i <= this.elementTypes.length; i++) {
-            fields.push(
-                {
-                    EntityType: 'DistributionPlan',
-                    Property: `pri${i}.ID`,
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Prioritet ' + i,
-                    Placeholder: '',
-                    ReadOnly: i > filteredElements.length || disableForm,
-                    Hidden: i > this.currentPriority,
-                    Options: {
-                        source: filteredElements,
-                        valueProperty: 'ID',
-                        debounceTime: 200,
-                        displayProperty: 'Name',
-                        searchable: false,
-                        hideDeleteButton: i === 1
-                    }
-                }
-            );
+    public deletePlan(plan: DistributionPlan, type: any) {
+        if (type.defaultPlan && type.defaultPlan.ID === plan.ID) {
+            this.toastService.addToast('Sletting avbrutt', ToastType.warn, ToastTime.short, 'Kan ikke slette standardplan.');
+            return;
         }
-        this.fields$.next(fields);
+
+        const msg = !plan['_count'] ? '' : `<strong>${plan.Name}</strong> er koblet til ${plan['_count']} ` +
+        `kunde${plan['_count'] > 1 ? 'r' : ''}. Hvis du sletter denne planen, ` +
+        `vil disse kunden${plan['_count'] > 1 ? 'e' : ''} følge standardplan for firma. <br/> <br/>`;
+
+        const options: IModalOptions = {
+            header: 'Slette plan: ' + plan.Name,
+            message: msg + 'Er du sikker på at du vil slette denne planen? Dette steget kan ikke angres.',
+            footerCls: 'center',
+            buttonLabels: {
+                reject: 'Slett',
+                cancel: 'Avbryt'
+            }
+        };
+
+        this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((action: ConfirmActions) => {
+            if (action === ConfirmActions.REJECT) {
+                this.distributionPlanService.Remove(plan.ID).subscribe(() => {
+                    this.toastService.addToast('Plan slettet', ToastType.good, ToastTime.short);
+                    this.getDistributionPlans();
+                });
+            }
+        });
+    }
+
+    public setNewStandard(plan, type) {
+        if (!this.companySettings.Distributions) {
+            const newDist = new Distributions();
+            newDist._createguid = this.distributionPlanService.getNewGuid();
+            this.companySettings.Distributions = newDist;
+        }
+
+        this.companySettings.Distributions[type.keyValue] = plan.ID;
+        this.companySettings.DefaultDistributionsID = null;
+
+        this.companySettingsService.Put(1, this.companySettings).subscribe((settings) => {
+            this.getDistributionPlans();
+        });
+    }
+
+    public turnOnOffAutomaticDistribution() {
+        this.companySettings.AutoDistributeInvoice = this.active;
+
+        this.companySettingsService.Put(1, this.companySettings).subscribe((settings) => {
+           this.toastService.addToast(
+               `Automatisk utsendelse av faktura slått ${ settings.AutoDistributeInvoice ? 'på' : 'av'}`,
+               ToastType.good, ToastTime.short);
+        });
     }
 
     // Filter elementtypes based on what type is set
-    private filterElementTypes(type: string, elements: any[]) {
+    private filterElementTypes(type: string) {
         if (type === 'Models.Sales.CustomerInvoice') {
-            return elements;
+            return this.elementTypes;
         } else if (type === 'Models.Sales.CustomerInvoiceReminder') {
-            return elements.filter(res => res.ID === 2 || res.ID === 3);
+            return this.elementTypes.filter(res => res.ID === 2 || res.ID === 3);
         } else {
-            return elements.filter(res => res.ID === 2);
+            return this.elementTypes.filter(res => res.ID === 2);
         }
-    }
-
-    public onRowSelected(event) {
-        // Update local variables and update the form with new plan
-        this.planIndex = event['_originalIndex'];
-        this.elements = _.cloneDeep(event.Elements);
-        this.plan.next(this.mapDataModelForUniform(event));
-        this.setUpForm();
-    }
-
-    public onFormChange(event) {
-        this.hasUnsavedChanges = true;
-        this.updateSaveActions();
-
-        let key, value;
-
-        for (const prop in event) {
-            if (event.hasOwnProperty(prop)) {
-                key = prop;
-                value = event[prop];
-            }
-        }
-
-        // Find the priority changed
-        const index = parseInt(key.substr(3, 1), 10);
-
-        // Check to see if selected priority is allowed
-        if (key.includes('pri') && value.currentValue) {
-            const plan = this.plan.getValue();
-            for (let i = 1; i <= this.currentPriority; i++) {
-
-                // An already selected type is selected again
-                if (plan['pri' + i].ID === value.currentValue && i !== index) {
-
-                    // If same as first priority and field had no old value to swap, show toast warning
-                    // Priority 1 cannot be empty
-                    if (i === 1 && !value.previousValue) {
-                        this.toastService.addToast('Første prioritet', ToastType.warn, 5,
-                        'Dette valget er satt som første prioritet. Du må endre prioritet 1 for å' +
-                        ' få sette denne verdien på en lavere prioritet.');
-                        plan['pri' + index].ID = 0;
-
-                        // A lower priority is selected and swapped with 0 (Empty)
-                    } else if (!value.previousValue) {
-                        plan['pri' + i].ID = 0;
-                        // Priorities are swapped
-                    } else {
-                        plan['pri' + i].ID = value.previousValue;
-                    }
-                    i = 99;
-                }
-            }
-            // Use timeout so the form dont change back after
-            setTimeout(() => {
-                this.plan.next(plan);
-            });
-        } else if (key === 'EntityType') {
-            this.setUpForm();
-        }
-    }
-
-    private mapDataModelForUniform(plan) {
-        this.currentPriority = 0;
-        const currentPlan: any = plan;
-        // Make sure there are at least 3 elements in the array
-        const length = currentPlan.Elements.length > 3 ? currentPlan.Elements.length : 3;
-
-        // Set the elementtype-object directly on the planobject to match UniForm buildup
-        for (let i = 0; i < length; i++) {
-            currentPlan[`pri${i + 1}`] = (currentPlan.Elements[i] && currentPlan.Elements[i].ElementType)
-                ? currentPlan.Elements[i].ElementType
-                : {ID: 0, Name: ''};
-        }
-
-        this.currentPriority = length;
-
-        return currentPlan;
-    }
-
-    public addPriority() {
-
-        const fields = this.fields$.getValue();
-        const currentPlan: any = this.plan.getValue();
-
-        // Add new PRI-Object to the plan Object
-        currentPlan['pri' + (this.currentPriority + 1)] = {ID: 0, Name: ''};
-        this.plan.next(currentPlan);
-        this.currentPriority++;
-
-        // Find next hidden field and show it
-        for (let i = 2; i < fields.length; i++) {
-            if (fields[i].Hidden) {
-                fields[i].Hidden = false;
-                i = 999;
-            }
-        }
-        this.fields$.next(fields);
     }
 }

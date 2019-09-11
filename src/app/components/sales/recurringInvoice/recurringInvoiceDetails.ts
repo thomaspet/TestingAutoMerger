@@ -546,18 +546,18 @@ export class UniRecurringInvoice implements OnInit {
                 invoice.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
                 this.modalService.open(UniConfirmModalV2,
                     {
-                        header: 'Oppdatere distribusjonsplan?',
+                        header: 'Oppdatere utsendelsesplanen?',
                         buttonLabels: {
                             accept: 'Oppdater',
                             reject: 'Ikke oppdater'
                         },
-                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                        'denne faktura. Ønsker du å oppdatere distribusjonsplanen for denne faktura til å matche kundens?'
+                        message: 'Kunden du har valgt har en annen utsendelsesplanen enn den som allerede er valgt for ' +
+                        'denne faktura. Ønsker du å oppdatere utsendelsesplanenen for denne faktura til å matche kundens?'
                     }
                 ).onClose.subscribe((res) => {
                     if (res === ConfirmActions.ACCEPT) {
                         invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
-                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Utsendelsesplanen oppdatert');
                         this.invoice = invoice;
                     }
                 });
@@ -1075,14 +1075,14 @@ export class UniRecurringInvoice implements OnInit {
 
         // If the recurring invoice is active and the client has not activated auto distribution in company settings
         if (this.invoice.StatusCode === 46002 && !this.companySettings.AutoDistributeInvoice) {
-            this.toastService.addToast('Automatisk distribusjon avslått', ToastType.warn, 15,
-            'Du har ikke aktivert automatisk distribusjon. Det vil ikke sendes noe før du aktiverer det under firmainnstillinger.' +
+            this.toastService.addToast('Automatisk utsendelse avslått', ToastType.warn, 15,
+            'Du har ikke aktivert automatisk utsendelse. Det vil ikke sendes noe før du aktiverer det under firmainnstillinger.' +
             '<br/><a href="/#/settings/company">Gå til firmainnstillinger</a>');
             this.hasWarned = true;
         } else if (this.invoice.StatusCode === 46002 && !this.invoice.DistributionPlanID) {
-            this.toastService.addToast('Distribusjonsplan mangler', ToastType.warn, 15,
-            'Det er ikke definert en distribusjonsplan på denne repeterende faktura. Gå til fanen "Distribusjon" for å velge en,' +
-            ' eller gå til Innstillinger -> Distribusjon for å lage en ny plan.');
+            this.toastService.addToast('Utsendelsesplan mangler', ToastType.warn, 15,
+            'Det er ikke definert en utsendelsesplan på denne repeterende faktura. Gå til fanen "Utsendelse" for å velge en,' +
+            ' eller gå til Innstillinger -> Utsendelse for å lage en ny plan.');
             this.hasWarned = true;
         }
     }

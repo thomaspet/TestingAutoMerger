@@ -49,7 +49,7 @@ export class UniDistibutionTOFView implements OnInit {
                 EntityType: this.entityType,
                 Property: 'DistributionPlanID',
                 FieldType: FieldType.DROPDOWN,
-                Label: 'Distribusjon',
+                Label: 'Utsendelse',
                 ReadOnly: false,
                 Options: {
                     source: this.distributionPlans,

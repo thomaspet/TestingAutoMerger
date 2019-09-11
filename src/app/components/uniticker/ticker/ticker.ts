@@ -57,7 +57,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 import * as _ from 'lodash';
 
 export const SharingTypeText = [
-    {ID: 0, Title: 'Bruk distribusjonsplan'},
+    {ID: 0, Title: 'Bruk utsendelsesplan'},
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
@@ -1006,7 +1006,7 @@ export class UniTicker {
                     selects.push(column.SelectableFieldName + ' as ' + column.Alias);
                 }
 
-                if (this.ticker.Name === 'Distribusjon' && column.Field === 'EntityType') {
+                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
                     selects.push('EntityDisplayValue');
                 }
                 if (column.SubFields) {

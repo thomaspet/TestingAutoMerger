@@ -15,7 +15,7 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
                 <section [innerHtml]="options.message"></section>
             </article>
 
-            <footer>
+            <footer [ngClass]="options?.footerCls">
                 <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
                     {{options.buttonLabels.accept}}
                 </button>

@@ -63,7 +63,7 @@ export class TofHead implements OnChanges {
             {name: 'Selgere'},
             {name: 'Dokumenter'},
             {name: 'Dimensjoner'},
-            {name: 'Distribusjon'}
+            {name: 'Utsendelse'}
         ];
 
         if (this.entityName === 'CustomerInvoice') {

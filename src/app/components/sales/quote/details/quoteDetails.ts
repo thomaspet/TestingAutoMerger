@@ -564,18 +564,18 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 quote.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
                 this.modalService.open(UniConfirmModalV2,
                     {
-                        header: 'Oppdatere distribusjonsplan?',
+                        header: 'Oppdatere utsendelsesplan?',
                         buttonLabels: {
                             accept: 'Oppdater',
                             reject: 'Ikke oppdater'
                         },
-                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                        'dette tilbudet. Ønsker du å oppdatere distribusjonsplanen for dette tilbudet til å matche kundens?'
+                        message: 'Kunden du har valgt har en annen utsendelsesplan enn den som allerede er valgt for ' +
+                        'dette tilbudet. Ønsker du å oppdatere utsendelsesplanen for dette tilbudet til å matche kundens?'
                     }
                 ).onClose.subscribe((res) => {
                     if (res === ConfirmActions.ACCEPT) {
                         quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
-                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Utsendelsesplanen oppdatert');
                         this.quote = quote;
                     }
                 });
@@ -1117,7 +1117,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         return Observable.create((obs) => {
             this.reportService.distribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
                 this.toastService.addToast(
-                    'Tilbud er lagt i kø for distribusjon',
+                    'Tilbud er lagt i kø for utsendelse',
                     ToastType.good,
                     ToastTime.short);
                 obs.complete();

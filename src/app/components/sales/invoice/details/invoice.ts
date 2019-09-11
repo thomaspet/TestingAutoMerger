@@ -691,18 +691,18 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 invoice.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
                 this.modalService.open(UniConfirmModalV2,
                     {
-                        header: 'Oppdatere distribusjonsplan?',
+                        header: 'Oppdatere utsendelsesplan?',
                         buttonLabels: {
                             accept: 'Oppdater',
                             reject: 'Ikke oppdater'
                         },
-                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                            'denne faktura. Ønsker du å oppdatere distribusjonsplanen for denne faktura til å matche kundens?'
+                        message: 'Kunden du har valgt har en annen utsendelsesplan enn den som allerede er valgt for ' +
+                        'denne faktura. Ønsker du å oppdatere utsendelsesplanen for denne faktura til å matche kundens?'
                     }
                 ).onClose.subscribe((res) => {
                     if (res === ConfirmActions.ACCEPT) {
                         invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
-                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Utsendelsesplan oppdatert');
                         this.invoice = invoice;
                     }
                 });
@@ -2020,13 +2020,13 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.reportService.distributeWithType(this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF').subscribe(
                             () => {
                                 this.toastService.addToast(
-                                    'Faktura lagt i kø for EHF-distribusjon',
+                                    'Faktura lagt i kø for EHF-utsendelse',
                                     ToastType.good,
                                     ToastTime.medium,
-                                    'Status på sendingen oppdateres løpende under Nøkkeltall \\ Distribusjon');
+                                    'Status på sendingen oppdateres løpende under Nøkkeltall \\ Utsendelse');
 
                                 if (doneHandler) {
-                                    doneHandler('EHF lagt i kø for distribusjon');
+                                    doneHandler('EHF lagt i kø for utsendelse');
                                     this.invoice.PrintStatus = 300;
                                     this.updateSaveActions();
                                 }
@@ -2188,8 +2188,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             && x.SharingStatusCode !== StatusCodeSharing.Cancelled))) {
                         this.modalService.confirm({
                             header: 'Allerede distribuert?',
-                            message: 'Det ser ut som fakturaen allerede er distribuert eller at ' +
-                                'distribusjon er bestilt, vil du distribuere den på ny likevel?',
+                            message: 'Det ser ut som fakturaen allerede er utsendt eller at ' +
+                                'utsendelse er bestilt. Vil du sende den på nytt likevel?',
                             buttonLabels: {
                                 accept: 'Ja',
                                 cancel: 'Nei'
@@ -2215,7 +2215,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private doDistribute(obs) {
         this.reportService.distribute(this.invoice.ID, this.distributeEntityType).subscribe(() => {
             this.toastService.addToast(
-                'Faktura er lagt i kø for distribusjon',
+                'Faktura er lagt i kø for utsendelse',
                 ToastType.good,
                 ToastTime.short);
             obs.complete();

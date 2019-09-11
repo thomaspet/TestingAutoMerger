@@ -1645,7 +1645,7 @@ export class CompanySettingsComponent implements OnInit {
                 },
                 FieldSet: 8,
                 Section: 1,
-                Legend: 'Distribusjonsplaner',
+                Legend: 'Utsendelsesplaner',
                 Hidden: false
             },
             {

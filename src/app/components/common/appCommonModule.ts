@@ -70,6 +70,7 @@ import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new
 import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
 import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
 import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
+import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
 
 @NgModule({
     imports: [
@@ -147,6 +148,7 @@ import { ImportTemplateModal } from '../import-central/modals/import-template/im
 
         UniNewCompanyModal,
         JournalingRulesModal,
+        SelectDistributionPlanModal,
         ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
@@ -168,6 +170,8 @@ import { ImportTemplateModal } from '../import-central/modals/import-template/im
         GrantAccessModal,
         UniNewCompanyModal,
         ImportCentralTemplateModal,
+        JournalingRulesModal,
+        SelectDistributionPlanModal,
         DisclaimerModal,
         ImportTemplateModal,
         JournalingRulesModal

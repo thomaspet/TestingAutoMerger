@@ -30,6 +30,8 @@ import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
 import {UniDistributionSettings} from './distribution/distribution';
+import {DistributionPlanModal} from './distribution/distribution-plan-modal';
+import {CustomerListModal} from './distribution/customer-list-modal';
 import {UniDimensionSettings} from './dimension/dimension';
 import {UniDimensionModal} from './dimension/dimensionModal';
 
@@ -97,6 +99,8 @@ import {SalaryModule} from '../salary/salary.module';
         NumberSeries,
         UniTerms,
         UniDistributionSettings,
+        DistributionPlanModal,
+        CustomerListModal,
         UniDimensionSettings,
         GrantModal,
         FreeAmountModal,
@@ -118,6 +122,8 @@ import {SalaryModule} from '../salary/salary.module';
         UniDimensionModal,
         UniRoleModal,
         InviteUsersModal,
+        DistributionPlanModal,
+        CustomerListModal
     ],
     exports: [
         RouterModule,

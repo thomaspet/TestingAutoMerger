@@ -57,11 +57,11 @@
         ]
     },
     {
-        "Name": "Distribusjon",
+        "Name": "Utsendelse",
         "Code": "sharings_list",
         "Type": "Table",
         "IsTopLevelTicker": true,
-        "Group": "Distribusjon",
+        "Group": "Utsendelse",
         "Model": "Sharing",
         "Expand": "",
         "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
@@ -269,7 +269,7 @@
         ]
     },
     {
-        "Name": "Distribusjon",
+        "Name": "Utsendelse",
         "Code": "invoice_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,
@@ -353,7 +353,7 @@
         }
     },
     {
-        "Name": "Distribusjon",
+        "Name": "Utsendelse",
         "Code": "order_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,
@@ -431,7 +431,7 @@
         }
     },
     {
-        "Name": "Distribusjon",
+        "Name": "Utsendelse",
         "Code": "quote_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,

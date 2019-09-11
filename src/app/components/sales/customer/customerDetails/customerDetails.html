@@ -54,8 +54,38 @@
         </article>
     </ng-template>
 
+    <!-- Distribution tab -->
+    <section *ngIf="activeTabIndex === 1" class="uni-distribution-customer-view">
+        <header>
+            Utsendelse
+        </header>
+        <section class="distribution-type-container customer-view" *ngFor="let type of entityTypes">
+            <div class="content-container customer-view">
+                <section class="entity-name-container">
+                    <span> {{ type.label }} </span>
+                </section>
+
+                <section class="entity-priority-container">
+                    <span>  {{ type.defaultPlan ? 'Standardplan: ' + type.defaultPlan.Name :
+                        companySettings && companySettings.Distributions && companySettings.Distributions[type.keyValue] ? 'Standardplan for firma' : 'Ingen plan satt' }} </span>
+                    <ul class="distribution-elements-stepper" *ngIf="type.defaultPlan">
+                        <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
+                            <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                            <li class="divider" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
+                        </ng-container>
+                        <li class="list-item" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
+                    </ul>
+                </section>
+
+                <section class="entity-functionality-container">
+                    <button class="change-customer-distribution-button" (click)="changeDistributionPlan(type)"> Endre plan </button>
+                </section>
+            </div>
+        </section>
+    </section>
+
     <!-- Reconciliation tab -->
-    <section *ngIf="activeTabIndex === 1" class="uni-container customer-post-post-view">
+    <section *ngIf="activeTabIndex === 2" class="uni-container customer-post-post-view">
         <div style="display: flex;">
             <uni-tabs
                 [tabs]="postposttabs"
@@ -75,12 +105,12 @@
     </section>
 
     <!-- Products sold tab -->
-    <customer-products-sold *ngIf="activeTabIndex === 2"
+    <customer-products-sold *ngIf="activeTabIndex === 3"
         [customerID]="(customer$ | async)?.ID">
     </customer-products-sold>
 
     <!-- Attachments tab -->
-    <section *ngIf="activeTabIndex === 3" class="uni-container">
+    <section *ngIf="activeTabIndex === 4" class="uni-container">
         <uni-attachments
             id="attachments"
             [entity]="'Customer'"
@@ -90,7 +120,7 @@
 
     <!-- Company tab -->
     <subcompanycomponent
-        [hidden]="activeTabIndex !== 4"
+        [hidden]="activeTabIndex !== 5"
         [customer]="customer$"
         (change)="onSubCompanyChange($event)">
     </subcompanycomponent>

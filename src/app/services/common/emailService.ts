@@ -62,10 +62,10 @@ export class EmailService extends BizHttp<Email> {
                 () => {
                     this.toastService.removeToast(this.emailtoast);
                     this.toastService.addToast(
-                        'E-post lagt i kø for distribusjon',
+                        'E-post lagt i kø for utsendelse',
                         ToastType.good,
                         ToastTime.medium,
-                        'Status på sendingen oppdateres løpende under Nøkkeltall \\ Distribusjon');
+                        'Status på sendingen oppdateres løpende under Nøkkeltall \\ Utsendelse');
                 },
                 (err) => this.errorService.handle(err)
             );

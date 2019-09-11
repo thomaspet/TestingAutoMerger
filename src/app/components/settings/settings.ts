@@ -30,7 +30,7 @@ export class Settings {
 
         this.childRoutes = [
             { name: 'Firma', path: 'company' },
-            { name: 'Distribusjon', path: 'distribution' },
+            { name: 'Utsendelse', path: 'distribution' },
             { name: 'Lønn', path: 'aga-and-subentities' },
             { name: 'Integrasjoner', path: 'webhooks' },
             { name: 'Brukere', path: 'users' },

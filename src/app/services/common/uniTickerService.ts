@@ -574,7 +574,7 @@ export class UniTickerService {
             const model = this.modelService.getModel(data[column.Alias]);
             if (model) {
                 let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
-                if (ticker.Name === 'Distribusjon' && column.Field === 'EntityType') {
+                if (ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
                     linkNavigationPropertyAlias = 'SharingEntityDisplayValue';
                 }
                 formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
@@ -1023,7 +1023,7 @@ export class UniTickerService {
         switch (configKey) {
             case 'SharingType':
                 return [
-                    {ID: 0,                         Name: 'Bruk distribusjonsplan'},
+                    {ID: 0,                         Name: 'Bruk utsendelsesplan'},
                     {ID: SharingType.AP,            Name: 'Aksesspunkt'},
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},

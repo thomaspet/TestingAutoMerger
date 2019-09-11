@@ -1,0 +1,71 @@
+<section role="dialog" class="uni-modal uni-redesign distribution-customer-list-modal-container">
+    <header>
+        <h1> {{ 'Kunder' }} </h1>
+    </header>
+    <article style="overflow: visible; padding-bottom: 0;">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+        <section class="count-and-standard-section">
+            <small> {{ customers?.length }} kunder koblet til {{ currentPlan?.Name }} </small>
+            <span class="standard-span-box" *ngIf="type.defaultPlan && currentPlan && type.defaultPlan.ID === currentPlan.ID"> Standard </span>
+        </section>
+        <section class="search-section" >
+            <input type="text" placeholder="Søk etter kunde i listen under" [formControl]="searchControl">
+            <a #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="newCustomerPart" (click)="openNewCustomerSearch()"> + Legg til kunde </a>
+
+            <mat-menu #newCustomerPart="matMenu" [overlapTrigger]="false" yPosition="below">
+                <div class="add-new_search-conatiner container-for-spinner" (click)="$event.stopPropagation()">
+                    <section *ngIf="busySearch" class="modal-spinner">
+                        <mat-spinner class="c2a"></mat-spinner>
+                    </section>
+                    <input
+                        class="new-customer-search-input"
+                        id="new-customer-search-input"
+                        type="search"
+                        placeholder="Søk etter ny kunde"
+                        [formControl]="newCustomerSearchControl"
+                        [(ngModel)]="newCustomerSearchString">
+
+                    <ul id="new-customer-search">
+                        <li *ngFor="let customer of newCustomers" (click)="customerSelect(customer, menuTrigger)">
+                            <span> {{ customer.CustomerNumber }} </span>
+                            <span> {{ customer.Info.Name }} </span>
+                        </li>
+                        <li *ngIf="!newCustomers.length" class="empty-msg">
+                            <i class="material-icons">contacts</i> Endre søket for å finne kunder
+                        </li>
+                    </ul>
+                </div>
+            </mat-menu>
+        </section>
+        <section class="customer-list-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th> Navn </th>
+                        <th> Nummer </th>
+                        <th>  </th>
+                    </tr>
+                </thead>
+
+                <tbody id="customer-scroll">
+                    <tr *ngFor="let customer of filteredCustomers">
+                        <td title="{{ customer.Info.Name }}"> {{ customer.Info.Name }} </td>
+                        <td title="{{ customer.CustomerNumber }}"> {{ customer.CustomerNumber }} </td>
+                        <td> <i class="material-icons" title="Fjern kunde" (click)="removeCustomer(customer)"> delete_outline </i> </td>
+                    </tr>
+                </tbody>
+            </table>
+            <span class="new-customers-no-customers-msg" *ngIf="!filteredCustomers.length && !busy">
+                Ingen kunde er koblet til denne planen spesifikt. Om dette er standardplan for firma,
+                vil alle kunder uten annen spesifisert plan bruke denne. <br/>
+                Trykk på <strong>"+ Legg til kunde"</strong> over for å legge kunde til denne planen.
+            </span>
+        </section>
+    </article>
+
+    <footer class="center">
+        <button (click)="close()">Lukk</button>
+    </footer>
+</section>
