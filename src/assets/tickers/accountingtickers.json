@@ -145,11 +145,6 @@
                 "DefaultHidden": true
             },
             {
-                "Header": "Bilagstype.",
-                "Field": "JournalEntryType.DisplayName",
-                "DefaultHidden": false
-            },
-            {
                 "Header": "Prosjektnr.",
                 "Field": "Dimensions.Project.ProjectNumber",
                 "DefaultHidden": false
