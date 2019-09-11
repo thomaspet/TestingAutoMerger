@@ -153,7 +153,7 @@ export class AgGridWrapper {
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {
-            this.rowHeight = this.config.editable ? 50 : 45;
+            this.rowHeight = this.config.editable ? 45 : 50;
             const sumCols = this.config.columns.filter(col => col.markedRowsSumCol);
 
             if (sumCols && sumCols.length) {

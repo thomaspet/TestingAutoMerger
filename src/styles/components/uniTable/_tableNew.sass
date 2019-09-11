@@ -81,8 +81,15 @@ ag-grid-angular
     border-bottom: 1px solid var(--border-color)
 
 .ag-row
-    border-bottom: 1px solid var(--border-color)
     color: #485460
+    border-bottom: 1px solid var(--border-color)
+//     &:last-of-type
+//         border-bottom: none
+
+// .ag-body
+//     border: 1px solid var(--border-color)
+//     border-top: none
+
 
 // Hide resize indicator
 .ag-header-cell::after
@@ -111,6 +118,9 @@ ag-grid-angular.editable
     display: inline-flex !important
     align-items: center
     padding: 0 10px
+
+    &:first-of-type
+        padding-left: 15px
 
     &:focus
         outline: none
