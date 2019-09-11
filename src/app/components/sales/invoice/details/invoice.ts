@@ -1340,6 +1340,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private updateShareActions() {
         this.shareActions = [
             {
+                label: 'Send via utsendelsesplan',
+                action: () => this.distribute(),
+                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
+            },
+            {
                 label: 'Skriv ut / send e-post',
                 action: () => this.chooseForm(),
                 disabled: () => !this.invoice.ID
@@ -1351,13 +1356,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.invoice.DontSendReminders ||
                     this.invoice.StatusCode === StatusCode.Completed ||
                     this.invoice.StatusCode === 42004
-            },
-            {
-                label: 'Distribuer',
-                action: () => this.distribute(),
-                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
             }
-
         ];
     }
 
@@ -2187,7 +2186,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             x.SharingStatusCode !== StatusCodeSharing.Failed
                             && x.SharingStatusCode !== StatusCodeSharing.Cancelled))) {
                         this.modalService.confirm({
-                            header: 'Allerede distribuert?',
+                            header: 'Allerede utsendt?',
                             message: 'Det ser ut som fakturaen allerede er utsendt eller at ' +
                                 'utsendelse er bestilt. Vil du sende den på nytt likevel?',
                             buttonLabels: {

@@ -1101,13 +1101,13 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private updateShareActions() {
         this.shareActions = [
             {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
+                label: 'Send via utsendelsesplan',
+                action: () => this.distribute(),
                 disabled: () => !this.quote.ID
             },
             {
-                label: 'Distribuer',
-                action: () => this.distribute(),
+                label: 'Skriv ut / send e-post',
+                action: () => this.chooseForm(),
                 disabled: () => !this.quote.ID
             }
         ];

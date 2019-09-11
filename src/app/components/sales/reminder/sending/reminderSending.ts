@@ -232,7 +232,7 @@ export class ReminderSending {
             if (selectedWithDistribution.length > 0)
             {
                 this.doDistribute(done, selectedWithDistribution.slice(0, -1));
-                done('Purringer distribuert');
+                done('Purringer sendt');
             }
             if (selectedWithoutDistribution.length > 0)
             {
@@ -244,7 +244,7 @@ export class ReminderSending {
     private doDistribute(done, ids) {
         this.reportService.distributeList(ids, this.distributeEntityType).subscribe(() => {
             this.toastService.addToast(
-                'Purring(er) er lagt i kø for distribusjon',
+                'Purring(er) er lagt i kø for utsendelse',
                 ToastType.good,
                 ToastTime.short);
             done;
@@ -254,7 +254,7 @@ export class ReminderSending {
         });
     }
 
-    /* 
+    /*
     printonly = false -> sendEmail to selected in email list, sendPrint to selected in print list
     printonly = true -> sendPrint to all selected
     */
@@ -310,8 +310,8 @@ export class ReminderSending {
 
     updateReminderList(reminders?) {
         let filter = '';
-        if (this.modalMode && reminders) { 
-            this.currentRunNumber = reminders[0].RunNumber; 
+        if (this.modalMode && reminders) {
+            this.currentRunNumber = reminders[0].RunNumber;
             filter = `and (`;
             reminders.forEach(reminder => {
                 let id = reminder.ID;
@@ -332,9 +332,9 @@ export class ReminderSending {
                         return reminder;
                     });
                 }
-                else 
+                else
                 {
-                    this.remindersAll = remindersAll;                    
+                    this.remindersAll = remindersAll;
                 }
         });
     }
