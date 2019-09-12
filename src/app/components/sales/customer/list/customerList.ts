@@ -187,9 +187,9 @@ export class CustomerList implements OnInit {
                     type: 'Customer',
                     entity: TemplateType.Customer,
                     downloadTemplateUrl: this.customerTemplateUrl,
-                    conditionalStatement: 'Dersom kundenummer i filen eksisterer i Uni Economy vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
+                    conditionalStatement: '',
                     formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
-                    downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system',
+                    downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
                     hasTemplateAccess: this.customerPermissions.hasTemplateAccess,
                     isExternal: true
                 }

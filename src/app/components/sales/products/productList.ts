@@ -22,7 +22,7 @@ export class ProductList {
     public lookupFunction: (urlParams: HttpParams) => any;
     public saveActions: IUniSaveAction[];
     private productPermissions: ImportUIPermission;
-    
+
     productTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
 
     constructor(
@@ -31,7 +31,7 @@ export class ProductList {
         private tabService: TabService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private userService: UserService,   
+        private userService: UserService,
         private importCentralService: ImportCentralService
     ) {
         this.tabService.addTab({
@@ -183,7 +183,7 @@ export class ProductList {
                     jobName: ImportJobName.Product,
                     type: 'Product',
                     entity: TemplateType.Product,
-                    conditionalStatement: 'Hvis produktnummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret.',
+                    conditionalStatement: '',
                     formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)',
                     downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
                     downloadTemplateUrl: this.productTemplateUrl,

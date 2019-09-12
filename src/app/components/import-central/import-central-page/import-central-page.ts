@@ -78,37 +78,47 @@ export class ImportCentralPage {
   }
 
   public openImportModal(templateType: TemplateType) {
-    let header, jobName, type, templateUrl;
+    let header, jobName, type, templateUrl, formatStatement, downloadStatement;
     switch (templateType) {
       case TemplateType.Product:
         header = 'Produkt Importer';
         jobName = ImportJobName.Product;
         type = 'Produkt';
+        formatStatement = 'Importen støtter Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)';
+        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT
         break;
       case TemplateType.Customer:
         header = 'Kunde Importer';
         jobName = ImportJobName.Customer;
         type = 'Kunde';
+        formatStatement = 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.';
+        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER
         break;
       case TemplateType.Supplier:
         header = 'Leverandør Importer';
         jobName = ImportJobName.Supplier;
         type = 'Leverandør';
+        formatStatement = 'Importen støtter Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.';
+        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER
         break;
       case TemplateType.MainLedger:
         header = 'Kontoplan Importer';
         jobName = ImportJobName.MainLedger;
         type = 'MainLedger';
+        formatStatement = '';
+        downloadStatement = '';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
         break;
       case TemplateType.Payroll:
-        header = 'Lønnsposter Importer';
+        header = 'Import av variable lønnsposter';
         jobName = ImportJobName.Payroll;
         type = 'Payroll';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL 
+        formatStatement = '';
+        downloadStatement = '';
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL
         break;
       default:
         header = 'SAF-T Importer';
@@ -123,7 +133,9 @@ export class ImportCentralPage {
           jobName: jobName,
           type: type,
           entity: templateType,
-          downloadTemplateUrl: templateUrl,
+          formatStatement: formatStatement,
+          downloadStatement: downloadStatement,
+          downloadTemplateUrl: templateUrl
         }
       });
   }

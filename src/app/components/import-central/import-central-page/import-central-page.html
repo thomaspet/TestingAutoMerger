@@ -81,7 +81,7 @@
             </div>
 
             <!-- main ledger -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.ledger.hasComponentAccess"> 
+            <div class="col-lg-4 card-container" *ngIf="uiPermission.ledger.hasComponentAccess">
                 <div class="import-card">
                     <div class="card-header">
                         <a (click)="navigateToLogs(ledgerType)">Logg</a>
@@ -107,7 +107,7 @@
             </div>
 
             <!-- payroll -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.payroll.hasComponentAccess"> 
+            <div class="col-lg-4 card-container" *ngIf="uiPermission.payroll.hasComponentAccess">
                 <div class="import-card">
                     <div class="card-header">
                         <a (click)="navigateToLogs(payrollType)">Logg</a>
@@ -121,7 +121,7 @@
                     <div class="card-footer">
                         <label class="upload-input" (click)="openImportTemplateModal(payrollType)">
                             <i class="material-icons">cloud_upload</i>
-                            <span>Importer Payroll</span>
+                            <span>Importer variable lønnsposter</span>
                         </label>
                         <label class="upload-input" (click)="openDownloadTemplateModal(payrollType)"
                             *ngIf="uiPermission.payroll.hasTemplateAccess"><!-- TODO::implemente ui permission -->

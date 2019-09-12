@@ -34,7 +34,7 @@ export class SupplierList {
 
     constructor(
         private tabService: TabService,
-         private router: Router, 
+         private router: Router,
          private modalService: UniModalService,
          private userService: UserService,
          private importCentralService: ImportCentralService,
@@ -107,7 +107,7 @@ export class SupplierList {
                     jobName: ImportJobName.Supplier,
                     type: 'Supplier',
                     entity: TemplateType.Supplier,
-                    conditionalStatement: 'Hvis leverandørnummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret.Leverandørnumrene blir validert mot leverandørnummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
+                    conditionalStatement: '',
                     formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.',
                     downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
                     downloadTemplateUrl: this.supplierTemplateUrl,

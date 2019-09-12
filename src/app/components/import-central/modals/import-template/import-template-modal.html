@@ -12,8 +12,8 @@
                 </span>
             </label>
 
-            <div *ngIf="options.data.isExternal" class="external-details">
-                <label class="title" *ngIf="options.data.hasTemplateAccess">
+            <div class="external-details" >
+                <label class="title" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
                     Last ned mal
                     <span class="value">
                         <a href="{{options.data.downloadTemplateUrl}}">{{options.data.downloadTemplateUrl.split("/").pop()}}</a>
@@ -28,13 +28,14 @@
                 <label class="statement">
                     {{options.data.downloadStatement}}
                 </label>
-                <label class="statement">
-                    Before you upload files into Uni Economy, please read our <a (click)="openDisclaimerNote()">disclaimer note.</a>
+                <label class="statement" *ngIf="options.data.isExternal" >
+                    Før du laster opp filen til Uni Economy, så vær vennlig og les gjennom våre vilkår. <a (click)="openDisclaimerNote()">disclaimer note.</a>
                 </label>
             </div>
 
             <div class="dropdown-section" *ngIf="options.data.entity === payrollType && operators.length">
-                <label class="title">File Type</label>
+                <label *ngIf="options.data.entity === payrollType" class="title">Velg lønnsavregning</label>
+                <label *ngIf="options.data.entity != payrollType" class="title">File Type</label>
                 <label class="drop-down-container">
                     <uni-select class="drop-down" [config]="config" [value]="selectedPayroll" [items]="operators"
                         (valueChange)="onSelectChange($event)">
