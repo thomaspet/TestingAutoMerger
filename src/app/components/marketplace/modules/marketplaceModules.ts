@@ -23,8 +23,7 @@ import {
     UniActivateInvoicePrintModal,
     ProductPurchasesModal,
     UniAutobankAgreementModal,
-    MissingPurchasePermissionModal,
-    ConfirmActions
+    MissingPurchasePermissionModal
 } from '@uni-framework/uni-modal';
 
 import {CompanySettings} from '@uni-entities';
@@ -213,30 +212,6 @@ export class MarketplaceModules implements AfterViewInit {
         } else {
             this.modalService.open(MissingPurchasePermissionModal);
         }
-    }
-
-    deletePurchaseExtension(product: ElsaProduct) {
-        this.modalService.confirm({
-            header: 'Bekreft avbestilling',
-            message: `Er du sikker på at du vil oppheve kjøpet av ${product.Name}?`
-        }).onClose.subscribe(modalResponse => {
-            if (modalResponse === ConfirmActions.ACCEPT) {
-                this.elsaPurchaseService.getPurchaseByProductName(product.Name).subscribe(purchase => {
-                    if (purchase) {
-                        this.elsaPurchaseService.cancelPurchase(product.ID).subscribe(ok => {
-                            if (ok) {
-                                this.toastService.addToast('Kjøp opphevet', ToastType.good, ToastTime.medium);
-                                product['_isBought'] = false;
-                            } else {
-                                this.toastService.addToast('Oppheving av kjøp feilet', ToastType.bad, ToastTime.medium);
-                            }
-                        }, err => this.errorService.handle(err));    
-                    } else {
-                        this.toastService.addToast(`Ingen eksisterende kjøp å finne for ${product.Name}`, ToastType.warn, ToastTime.medium);
-                    }
-                });
-            }
-        });
     }
 
     openLinkInNewTab(url: string){

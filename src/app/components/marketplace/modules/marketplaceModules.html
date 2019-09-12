@@ -63,14 +63,6 @@
                     (click)="extension._activationFunction.click()">
                     {{extension?._activationFunction?.label}}
                 </button>
-
-                <!-- Delete purchase -->
-                <button
-                    class="unsubscribe-button"
-                    *ngIf="extension._isBought && extension.Name == 'EHF'"
-                    (click)="deletePurchaseExtension(extension)">
-                    Avbestill
-                </button>
             </section>
 
             <a (click)="openSubscribeModal(extension)" class="read-more">Les mer</a>
