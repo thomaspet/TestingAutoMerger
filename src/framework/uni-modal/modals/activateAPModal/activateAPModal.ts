@@ -15,8 +15,9 @@ import {
 } from '../../../../app/services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {UniModalService, ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountModal';
+import {ConfirmActions, IModalOptions, IUniModal} from '../../interfaces';
+import {UniModalService} from '../../modalService';
+import {UniBankAccountModal} from '../bankAccountModal';
 
 @Component({
     selector: 'uni-activate-ap-modal',
@@ -171,7 +172,7 @@ export class UniActivateAPModal implements IUniModal {
                             } else {
                                 this.toastService.addToast('Oppheving av kjøp feilet', ToastType.bad, ToastTime.medium);
                             }
-                        }, err => this.errorService.handle(err));    
+                        }, err => this.errorService.handle(err));
                     } else {
                         this.toastService.addToast('Ingen eksisterende kjøp å finne for EHF', ToastType.warn, ToastTime.medium);
                     }
