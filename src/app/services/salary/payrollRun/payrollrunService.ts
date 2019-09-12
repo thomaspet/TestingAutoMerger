@@ -270,7 +270,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
     public getCategoriesOnRun(id: number) {
         return id
-            ? super.Get(`/${id}/category`)
+            ? super.Get(`${id}/category`)
             : Observable.of([]);
     }
 
