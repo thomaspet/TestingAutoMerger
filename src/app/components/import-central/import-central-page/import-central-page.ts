@@ -81,35 +81,35 @@ export class ImportCentralPage {
     let header, jobName, type, templateUrl, formatStatement, downloadStatement;
     switch (templateType) {
       case TemplateType.Product:
-        header = 'Produkt Importer';
+        header = 'Importer produkt';
         jobName = ImportJobName.Product;
         type = 'Produkt';
-        formatStatement = 'Importen støtter Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)';
+        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)';
         downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT
         break;
       case TemplateType.Customer:
-        header = 'Kunde Importer';
+        header = 'Importer kunde';
         jobName = ImportJobName.Customer;
         type = 'Kunde';
-        formatStatement = 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.';
+        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.';
         downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER
         break;
       case TemplateType.Supplier:
-        header = 'Leverandør Importer';
+        header = 'Importer leverandør';
         jobName = ImportJobName.Supplier;
         type = 'Leverandør';
-        formatStatement = 'Importen støtter Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.';
+        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.';
         downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER
         break;
       case TemplateType.MainLedger:
-        header = 'Kontoplan Importer';
+        header = 'Importer kontoplan';
         jobName = ImportJobName.MainLedger;
         type = 'MainLedger';
-        formatStatement = '';
-        downloadStatement = '';
+        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'20\'). For bruk til import fra Uni økonomi V3.';
+        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
         break;
       case TemplateType.Payroll:
@@ -121,7 +121,7 @@ export class ImportCentralPage {
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL
         break;
       default:
-        header = 'SAF-T Importer';
+        header = 'SAF-T Import';
         jobName = 'SAFTImportJob';
         type = 'SAFT';
         break;
@@ -162,11 +162,6 @@ export class ImportCentralPage {
         header = 'Kontoplan Eksportmal';
         message = 'Inkluder eksisterende';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger }
-        break;
-      case TemplateType.Payroll:
-        header = 'Lønnsposter Eksportmal';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll }
         break;
       default:
         header = 'SAF-T Eksportmal';
