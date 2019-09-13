@@ -852,8 +852,7 @@
         "Model": "CustomerInvoiceItem",
         "Expand": "CustomerInvoiceItem.Dimensions,CustomerInvoiceItem.Dimensions.Department,CustomerInvoiceItem.Dimensions.Project,CustomerInvoiceItem.Dimensions.Dimension5,CustomerInvoiceItem.Dimensions.Dimension6,CustomerInvoiceItem.Dimensions.Dimension7,CustomerInvoiceItem.Dimensions.Dimension8,CustomerInvoiceItem.Dimensions.Dimension9,CustomerInvoiceItem.Dimensions.Dimension10,CustomerInvoiceItem.Product,Product.ProductCategoryLinks,Product.ProductCategoryLinks.ProductCategory",
         "OrderBy": "ID DESC",
-        "Joins": "CustomerInvoiceItem.CustomerInvoiceID eq CustomerInvoice.ID and CustomerInvoice.CustomerID eq Customer.ID and CustomerInvoice.DefaultSellerID eq Seller.ID",
-        "Filter": "(CustomerInvoice.Credited eq 1 or CustomerInvoice.StatusCode eq 42002)",
+        "Joins": "CustomerInvoiceItem.CustomerInvoiceID eq CustomerInvoice.ID and CustomerInvoice.CustomerID eq Customer.ID and CustomerInvoice.DefaultSellerID eq Seller.ID and CustomerInvoiceItem.DimensionsID eq DimensionsInfo.DimensionsID",
         "Columns": [
             {
                 "Header": "Produktnr.",
@@ -868,7 +867,7 @@
                 "Width": 300
             },
             {
-                "Header": "Produktgrouppe",
+                "Header": "Produktgruppe",
                 "Field": "ProductCategory.Name",
                 "FilterOperator": "startswith"
             },
@@ -899,60 +898,64 @@
                 "Header": "Antall",
                 "Field": "NumberOfItems",
                 "Type": "number",
-                "Width": 75
+                "Width": 75,
+                "SumColumn": true
             },
             {
                 "Header": "Pris ekskl. mva",
                 "Field": "PriceExVat",
-                "Type": "money"
+                "Type": "money",
+                "Format": "NumberPositiveNegative"
             },
             {
                 "Header": "Sum ekskl. mva",
                 "Field": "SumTotalExVat",
-                "Type": "money"
+                "Type": "money",
+                "Format": "NumberPositiveNegative",
+                "SumColumn": true
             },
             {
                 "Header": "Dimension5Name",
-                "Field": "Dimension5.Name",
+                "Field": "DimensionsInfo.Dimension5Name",
                 "DefaultHidden": true
             },
             {
                 "Header": "Dimension6Name",
-                "Field": "Dimension6.Name",
+                "Field": "DimensionsInfo.Dimension6Name",
                 "DefaultHidden": true
             },
             {
                 "Header": "Dimension7Name",
-                "Field": "Dimension7.Name",
+                "Field": "DimensionsInfo.Dimension7Name",
                 "DefaultHidden": true
             },
             {
                 "Header": "Dimension8Name",
-                "Field": "Dimension8.Name",
+                "Field": "DimensionsInfo.Dimension8Name",
                 "DefaultHidden": true
             },
             {
                 "Header": "Dimension9Name",
-                "Field": "Dimension9.Name",
+                "Field": "DimensionsInfo.Dimension9Name",
                 "DefaultHidden": true
             },
             {
                 "Header": "Dimension10Name",
-                "Field": "Dimension10.Name",
+                "Field": "DimensionsInfo.Dimension10Name",
                 "DefaultHidden": true
             },
             {
-                "Header": "Project",
-                "Field": "Project.Name",
+                "Header": "Prosjekt",
+                "Field": "DimensionsInfo.ProjectName",
                 "DefaultHidden": true
             },
             {
-                "Header": "Department",
-                "Field": "Department.Name",
+                "Header": "Avdeling",
+                "Field": "DimensionsInfo.DepartmentName",
                 "DefaultHidden": true
             },
             {
-                "Header": "Hoved Selger",
+                "Header": "Hovedselger",
                 "Field": "Seller.Name",
                 "DefaultHidden": true
             },
@@ -969,7 +972,7 @@
                 "Type": "date"
             },
             {
-                "Header": "Productnavn",
+                "Header": "Produktnavn",
                 "Field": "Product.Name",
                 "DefaultHidden": true
             },
@@ -977,7 +980,9 @@
                 "Header": "Sum Inkl mva",
                 "Field": "SumTotalIncVat",
                 "DefaultHidden": true,
-                "Type": "money"
+                "Type": "money",
+                "Format": "NumberPositiveNegative",
+                "SumColumn": true
             },
             {
                 "Header": "Rabatt",
@@ -990,6 +995,29 @@
                 "Field": "DiscountPercent",
                 "DefaultHidden": true,
                 "Type": "percent"
+            }
+        ],
+        "Filters": [
+            {
+                "Name": "Solgte Produkter",
+                "Code": "sold_products",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "CustomerInvoice.StatusCode",
+                                "Operator": "eq",
+                                "Value": "42002"
+                            },
+                            {
+                                "Field": "CustomerInvoice.Credited",
+                                "Operator": "eq",
+                                "Value": "1"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }

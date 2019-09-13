@@ -179,6 +179,7 @@ export class UniTicker {
                 .set('model', tickerParams.get('model'))
                 .set('filter', tickerParams.get('filter') || '')
                 .set('expand', tickerParams.get('expand') || '')
+                .set('join', tickerParams.get('join') || '')
                 .set('select', selects.join(','));
 
             return this.statisticsService.GetAllByHttpParams(sumParams)
@@ -236,10 +237,10 @@ export class UniTicker {
 
         const countSearchParams = new HttpParams()
             .set('select', 'count(ID) as count')
-            .set('filter', searchParams.get('filter') ||'')
-            .set('model', searchParams.get('model') ||'')
-            .set('join', searchParams.get('join') ||'')
-            .set('expand', searchParams.get('expand') ||'');
+            .set('filter', searchParams.get('filter') || '')
+            .set('model', searchParams.get('model') || '')
+            .set('join', searchParams.get('join') || '')
+            .set('expand', searchParams.get('expand') || '');
 
         Observable.forkJoin(
             this.statisticsService.GetAllByHttpParams(searchParams),
@@ -956,7 +957,7 @@ export class UniTicker {
         if (this.ticker.Code === 'sold_products') {
             const columnsToDelete = [];
             this.ticker.Columns.forEach((col) => {
-                if (col.Field.includes('Dimension')) {
+                if (col.Header.includes('Dimension')) {
                     let found = false;
                     this.customDimensionsMetadata.forEach(dim => {
                         if (col.Field.includes(dim.Dimension + '')) {
