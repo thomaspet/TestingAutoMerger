@@ -116,6 +116,16 @@ export class TofDetailsForm {
                 },
                 <any> {
                     FieldSet: 1,
+                    FieldSetColumn: 1,
+                    EntityType: this.entityType,
+                    Property: 'ReadyToInvoice',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Klar til faktura',
+                    Section: 0,
+                    Hidden: true
+                },
+                <any> {
+                    FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
                     Property: 'YourReference',
@@ -185,6 +195,7 @@ export class TofDetailsForm {
                 fields[0].Label = 'Ordredato';
                 fields[0].Property = 'OrderDate';
                 fields[1].Hidden = true;
+                fields[4].Hidden = false;
             }
 
             if (this.entityType !== 'CustomerInvoice') {
