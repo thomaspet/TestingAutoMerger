@@ -11,6 +11,7 @@ import {
 
 import {Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
+import {UniTranslationService} from '@app/services/services';
 import * as _ from 'lodash';
 
 import {NavbarLinkService, INavbarLinkSection} from '../navbar-link-service';
@@ -28,12 +29,12 @@ export class UniMegaMenu {
     public linkSections: INavbarLinkSection[];
     public filteredLinkSections: INavbarLinkSection[];
     public searchControl: FormControl = new FormControl('');
-    public editMode: boolean = false;
 
     constructor(
         private navbarService: NavbarLinkService,
         private cdr: ChangeDetectorRef,
-        private router: Router
+        private router: Router,
+        private translate: UniTranslationService,
     ) {
         this.navbarService.linkSections$.subscribe(sections => {
             this.linkSections = sections.filter(section => !section.hidden);
@@ -51,7 +52,7 @@ export class UniMegaMenu {
             sections = sections.map(section => {
                 section.linkGroups = section.linkGroups.map(group => {
                     group.links = group.links.filter(link => {
-                        return link.name && link.name.toLowerCase().includes(searchText.toLowerCase());
+                        return link.name && this.translate.translate(link.name).toLowerCase().includes(searchText.toLowerCase());
                     });
 
                     return group;
@@ -81,10 +82,6 @@ export class UniMegaMenu {
     }
 
     public navigate(url: string) {
-        if (this.editMode) {
-            return;
-        }
-
         if (url) {
             this.router.navigateByUrl(url);
         }
@@ -96,13 +93,8 @@ export class UniMegaMenu {
         link.activeInSidebar = !link.activeInSidebar;
     }
 
-    public onEditModeChange() {
-        if (!this.editMode) {
-            this.editMode = true;
-        } else {
-            this.editMode = false;
-            this.navbarService.saveSidebarLinks(this.filteredLinkSections);
-        }
+    public saveMenuStructure() {
+        this.navbarService.saveSidebarLinks(this.filteredLinkSections);
     }
 
     public close() {

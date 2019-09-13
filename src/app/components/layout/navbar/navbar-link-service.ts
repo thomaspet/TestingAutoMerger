@@ -10,6 +10,7 @@ import {
 import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService, UniTranslationService} from '@app/services/services';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Observable} from 'rxjs';
 import {UniHttp} from '@uni-framework/core/http/http';
 import * as _ from 'lodash';
@@ -38,6 +39,7 @@ export class NavbarLinkService {
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
         private http: UniHttp,
+        private toastService: ToastService,
         private translationService: UniTranslationService,
         browserStorage: BrowserStorageService,
     ) {
@@ -200,7 +202,7 @@ export class NavbarLinkService {
 
     public saveSidebarLinks(linkSection: any[]) {
         localStorage.setItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`, JSON.stringify(linkSection));
+        this.toastService.addToast('Ny menystruktur lagret', ToastType.good, ToastTime.short);
         this.resetNavbar();
-        this.megaMenuVisible$.next(false);
     }
 }

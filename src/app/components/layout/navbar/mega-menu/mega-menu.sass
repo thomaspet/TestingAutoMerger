@@ -22,16 +22,24 @@ header
     flex-direction: column
     margin-top: 10vh
 
-    img
+    section
         width: 200px
-        margin: 0 auto
+        margin: 0 auto !important
 
     input[type=search]
-        margin: 2rem auto
+        margin: 1rem auto
         width: 25rem
         height: 2.5rem
         font-size: 17px
 
+    .span-info-space
+        display: flex
+        align-items: center
+        justify-content: center
+        margin: 1rem 0 0 0
+        text-align: center
+        font-size: 15px
+        font-weight: 500
 
 .link-groups
     display: flex
@@ -56,8 +64,9 @@ header
 
                 i
                     cursor: pointer
-                    margin-right: .3rem
-                    color: $uni-color-c2a
+                    margin-right: .5rem
+                    color: lighten($uni-color-c2a, 10%)
+                    font-size: 30px
 
         > span
             display: block

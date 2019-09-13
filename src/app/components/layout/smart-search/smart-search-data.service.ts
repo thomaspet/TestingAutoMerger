@@ -83,6 +83,8 @@ export class SmartSearchDataService {
                         if (link.shortcutName) {
                             this.shortcuts.push(link);
                         }
+
+                        link['_section'] = section.name;
                     });
                     this.componentLookupSource.push(...group.links);
                 });
@@ -358,7 +360,9 @@ export class SmartSearchDataService {
 
         this.componentLookupSource.forEach((component) => {
             const name = component && component.name;
-            if (name && this.translate.translate(name).toLowerCase().indexOf(query) !== -1) {
+
+            if (name && this.translate.translate(name).toLowerCase().indexOf(query) !== -1
+                || this.translate.translate(component._section).toLowerCase().indexOf(query) !== -1 ) {
                 component.type = 'link';
                 results.push(component);
             }
