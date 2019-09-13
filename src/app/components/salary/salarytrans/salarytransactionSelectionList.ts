@@ -124,9 +124,9 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         this.route.params.subscribe(param => {
             this.errors = {};
             this.payrollRunID = +param['id'];
-            if (this.payrollRunID) {
-                this.getEmployeeData();
-            } else {
+            this.getEmployeeData(this.payrollRunID)
+
+            if (!this.payrollRunID)  {
                 this.employees = [];
                 this.filteredEmployees = [];
                 this.selectedEmp = null;
@@ -142,7 +142,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         super.updateCacheKey(key);
         super.getStateSubject(REFRESH_EMPS_ACTION)
             .takeUntil(this.destroy$)
-            .subscribe(() => this.getEmployeeData());
+            .subscribe(() => this.getEmployeeData(this.payrollRunID));
         super.getStateSubject(SELECTED_EMP_KEY)
                     .pipe(
                         takeUntil(this.destroy$),
@@ -276,7 +276,9 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
             );
     }
 
-    public getEmployeeData() {
+    public getEmployeeData(payRunID: number) {
+        if (!payRunID) {return;}
+
         this.busy = true;
         let query = `model=SalaryTransaction&expand=Employee.BusinessRelationInfo&join=SalaryTransaction.EmployeeID eq ` +
         `EmployeeCategoryLink.EmployeeID as CatLink&filter=PayrollRunID eq ${this.payrollRunID}`;
@@ -422,6 +424,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                     return distinctCards;
                 }),
                 tap(taxCards => Object.keys(taxCards).forEach(key => this.taxCards[key] = taxCards[key])),
+                map(() => this.taxCards),
                 map(taxCards => emps.map(emp => {
                     const cards = [];
                     if (taxCards[emp.ID]) {
