@@ -242,8 +242,7 @@ export class UniHttp {
         const baseurl = request.baseUrl || this.baseUrl;
         const apidomain = request.apiDomain || this.apiDomain;
         const endpoint = request.endPoint || this.endPoint;
-
-        const url = baseurl + apidomain + endpoint;
+        const url = (baseurl + '/' + apidomain + endpoint).replace(/([^:]\/)\/+/g, '$1');
         this.baseUrl = environment.BASE_URL;
         this.apiDomain = environment.API_DOMAINS.BUSINESS;
         this.endPoint = undefined;
@@ -255,7 +254,6 @@ export class UniHttp {
             headers: this.headers,
             responseType: request.responseType || 'json'
         };
-
         const body = request.body || this.body;
         if (body) {
             options.body = (body instanceof FormData) ? body : JSON.stringify(body);
