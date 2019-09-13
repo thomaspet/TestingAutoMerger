@@ -239,10 +239,11 @@ export class UniHttp {
 
         this.headers = this.headers.set('Accept', 'application/json');
 
-        const baseurl = request.baseUrl || this.baseUrl;
+        let baseurl = request.baseUrl || this.baseUrl ;
+        baseurl = baseurl !== '' ? baseurl + '/' : baseurl;
         const apidomain = request.apiDomain || this.apiDomain;
         const endpoint = request.endPoint || this.endPoint;
-        const url = (baseurl + '/' + apidomain + endpoint).replace(/([^:]\/)\/+/g, '$1');
+        const url = (baseurl + apidomain + endpoint).replace(/([^:]\/)\/+/g, '$1');
         this.baseUrl = environment.BASE_URL;
         this.apiDomain = environment.API_DOMAINS.BUSINESS;
         this.endPoint = undefined;
