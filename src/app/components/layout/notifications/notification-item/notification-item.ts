@@ -61,8 +61,9 @@ export class NotificationItem {
                 }
             }
 
+            // All Contract varsler (iallefall i dev) er feilmeldinger, som ikke er relevante for brukeren.
             if (isNullOrUndefined(this.notificationText) && !isNullOrUndefined(this.notification.Message)
-                && this.notification.EntityType !== 'Contract') {   //All Contract varsler (iallefall i dev) er feilmeldinger, som ikke er relevante for brukeren.
+                && this.notification.EntityType !== 'Contract') {
                 this.notificationText = this.notification.Message;
             }
 

@@ -4,10 +4,13 @@ import {Notification} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
 import * as moment from 'moment';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class NotificationService extends BizHttp<Notification> {
     readTimestamp: Date;
+
+    unreadCount$: BehaviorSubject<number> = new BehaviorSubject(null);
 
     constructor(uniHttp: UniHttp) {
         super(uniHttp);
@@ -32,8 +35,8 @@ export class NotificationService extends BizHttp<Notification> {
         );
     }
 
-    getNotifications(filter?: string) {
-        let query = 'top=99';
+    getNotifications(filter?: string, reducePayload = false) {
+        let query = reducePayload ? 'top=1' : 'top=99';
         if (filter) {
             query += '&filter=' + filter;
         }

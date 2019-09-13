@@ -64,7 +64,7 @@ export class NotificationsDropdown {
         private toastService: ToastService,
         private companyService: CompanyService,
         public authService: AuthService,
-        public notificationService: NotificationService
+        public notificationService: NotificationService,
     ) {
         try {
             this.currentCompanyOnly = JSON.parse(sessionStorage.getItem('notifications_current_company_only'));
@@ -76,10 +76,13 @@ export class NotificationsDropdown {
             this.selectedFilter = this.typeFilters[0];
         }
 
+        this.notificationService.unreadCount$.next(0);
+
         this.getNotifications();
     }
 
     getNotifications() {
+
         const filters = [];
 
         if (this.currentCompanyOnly) {
