@@ -789,6 +789,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private getProjectsObservable() {
         return this.projects
             ? Observable.of(this.projects)
+                .do(x => super.updateState('projects', x, false))
             : this._projectService
                 .GetAll('')
                 .do(x => super.updateState('projects', x, false));
@@ -797,6 +798,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private getDepartmentsObservable() {
         return this.departments
             ? Observable.of(this.departments)
+                .do(x => super.updateState('departments', x, false))
             : this._departmentService
                 .GetAll('')
                 .do(x => super.updateState('departments', x, false));

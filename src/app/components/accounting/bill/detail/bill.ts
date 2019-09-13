@@ -1004,7 +1004,7 @@ export class BillView implements OnInit {
                 this.handleOcrResult(new OcrValuables(result));
 
                 const model = this.current.value;
-                this.updateJournalEntryManualFinancialDate(model.InvoiceDate);
+                this.updateJournalEntryManualDates(model.InvoiceDate, model.InvoiceDate);
 
                 this.flagUnsavedChanged();
                 this.ocrData = result;
@@ -1617,27 +1617,28 @@ export class BillView implements OnInit {
                     );
             }
 
-            this.updateJournalEntryManualVatDate(model.InvoiceDate);
-
             // if invoicedate has the same value as deliverydate, update deliverydate also
             // when invoicedate is changed
             if ((!model.DeliveryDate && model.InvoiceDate)
                 || (change['InvoiceDate'].previousValue
                 && model.DeliveryDate.toString() === change['InvoiceDate'].previousValue.toString())) {
-                this.updateJournalEntryManualFinancialDate(model.InvoiceDate);
                 // deliverydate is default value for financialdate in the journalentry draftlines, so
                 // if any of the lines have the same value as the old deliverydate, update them to the
                 // new delivery date
                 model.DeliveryDate = model.InvoiceDate;
             }
+            this.updateJournalEntryManualDates(model.DeliveryDate, change['InvoiceDate'].currentValue);
+
         }
 
         if (change['DeliveryDate']) {
             // deliverydate is default value for financialdate in the journalentry draftlines, so
             // if any of the lines have the same value as the old deliverydate, update them to the
             // new delivery date
-            this.updateJournalEntryManualFinancialDate(change['DeliveryDate'].currentValue);
+            this.updateJournalEntryManualDates(change['DeliveryDate'].currentValue, model['InvoiceDate']);
         }
+
+
 
         if (change['CurrencyCodeID']) {
             if (model.CurrencyCodeID) {
@@ -2997,21 +2998,19 @@ export class BillView implements OnInit {
     }
 
 
-    private updateJournalEntryManualVatDate(newDate: LocalDate) {
-    if (this.journalEntryManual) {
+    private updateJournalEntryManualDates(financialDate: LocalDate, vatDate: LocalDate) {
+        if (this.journalEntryManual) {
             const lines = this.journalEntryManual.getJournalEntryData();
-            lines.map(line => { line.VatDate = newDate; });
+            lines.map(line => {
+                line.VatDate = vatDate;
+                line.FinancialDate = financialDate;
+            });
             this.journalEntryManual.setJournalEntryData(lines);
         }
     }
 
-    private updateJournalEntryManualFinancialDate(newDate: LocalDate) {
-        if (this.journalEntryManual) {
-            const lines = this.journalEntryManual.getJournalEntryData();
-            lines.map(line => { line.FinancialDate = newDate; });
-            this.journalEntryManual.setJournalEntryData(lines);
-        }
-    }
+
+
 
     public onDetailsTabClick(index: number) {
         // Check lock status when activating the details tab to avoid
