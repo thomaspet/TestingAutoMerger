@@ -2004,6 +2004,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             paymentModal.onClose.subscribe((paymentData) => {
                 if (!paymentData) {
                     resolve(journalEntryRow);
+                    return;
                 }
 
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
