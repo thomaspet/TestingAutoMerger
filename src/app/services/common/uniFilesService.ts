@@ -24,6 +24,26 @@ export class UniFilesService {
         });
     }
 
+    upload(file, entityType?: string, entityID?: number) {
+        const data = new FormData();
+        data.append('Token', this.authService.getToken());
+        data.append('Key', this.authService.getCompanyKey());
+        data.append('CacheOnUpload', 'true');
+        data.append('File', file);
+
+        if (entityType) {
+            data.append('EntityType', entityType);
+        }
+
+        if (entityID) {
+            data.append('EntityID', entityID.toString());
+        }
+
+        return this.http.post<any>(this.uniFilesBaseUrl + '/api/file', data, {
+            observe: 'body'
+        });
+    }
+
     getEhfData(storageReference: string) {
         const url = `${this.uniFilesBaseUrl}/api/download?format=json`
             + `&id=${storageReference}`

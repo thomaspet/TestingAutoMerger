@@ -205,7 +205,7 @@ export class EditSupplierInvoicePayments implements IUniModal {
     }
 
     private goToPayments() {
-        this.router.navigateByUrl('/bank?code=payment_list');
+        this.router.navigateByUrl('/bank/ticker?code=payment_list');
         this.close();
     }
 

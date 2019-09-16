@@ -47,7 +47,8 @@ import {
     MatProgressBarModule,
     MatStepperModule,
     MatListModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    MatSlideToggleModule
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -69,6 +70,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
         MatListModule,
         ScrollingModule,
         MatDatepickerModule,
+        MatSlideToggleModule,
 
         ClickOutsideModule,
         AppPipesModule,
@@ -154,7 +156,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
         MatStepperModule,
         MatListModule,
         ScrollingModule,
-        MatDatepickerModule
+        MatDatepickerModule,
+        MatSlideToggleModule
     ]
 })
 export class UniFrameworkModule {}

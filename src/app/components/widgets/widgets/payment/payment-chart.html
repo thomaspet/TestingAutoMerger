@@ -1,0 +1,70 @@
+<section class="widget-wrapper">
+    <section class="header">
+        <span>Inn- og utbetalinger</span>
+
+        <section class="filters uni-redesign">
+            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+                {{ currentPeriod.label }}
+                <i class="material-icons">expand_more</i>
+            </button>
+
+            <mat-menu #contextMenu="matMenu">
+                <ul class="widget-filter-menu">
+                    <li role="button" (click)="updateData(0)">
+                        Vis siste 12 måneder
+                    </li>
+
+                    <li role="button" (click)="updateData(1)">
+                        Vis siste 10 uker
+                    </li>
+
+                    <li role="button" (click)="updateData(2)">
+                        Vis siste 10 dager
+                    </li>
+                </ul>
+            </mat-menu>
+        </section>
+    </section>
+
+    <div class="content">
+        <div class="canvas-container">
+            <section class="custom-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
+                <span>{{tooltip.label}}</span>
+                <section class="data-row">
+                    <span>Totalt innbetalt: </span>
+                    <span>{{( tooltip.incomming | uninumberformat:'money') || '0,00' }}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Antall innbetalinger</span>
+                    <span>{{ tooltip.incommingCounter }}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Totalt utbetalt</span>
+                    <span>{{( tooltip.outgoing | uninumberformat:'money') || '0,00' }}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Antall utbetalinger</span>
+                    <span>{{ tooltip.outgoingCounter }}</span>
+                </section>
+
+            </section>
+
+            <canvas #chartCanvas></canvas>
+        </div>
+
+        <section class="chart-legend">
+            <section class="legend">
+                <span class="indicator incomming"></span>
+                Totalt innbetalt: <strong>{{ totalIncommmingInPeriod }}</strong>
+            </section>
+
+            <section class="legend">
+                <span class="indicator outgoing"></span>
+                Totalt utbetalt: <strong>{{ totalOutgoingInPeriod }}</strong>
+            </section>
+        </section>
+    </div>
+</section>

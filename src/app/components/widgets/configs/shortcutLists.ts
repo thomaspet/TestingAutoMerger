@@ -353,6 +353,42 @@ export const SHORTCUT_LISTS = [
         }
     },
     {
+        id: 'shortcut_list_bank',
+        description: 'Snartvei liste - Bank',
+        width: 3,
+        height: 3,
+        widgetType: 'shortcutlist',
+        config: {
+            header: 'Snarveier',
+            shortcuts: [
+                {
+                    label: 'Innbetalinger',
+                    link: '/bank/ticker?code=bank_list'
+                },
+                {
+                    label: 'Utbetalinger',
+                    link: '/bank/ticker?code=payment_list'
+                },
+                {
+                    label: 'Bankavstemning',
+                    link: '/bank/reconciliation',
+                },
+                {
+                    label: 'Avtalegirobunter',
+                    link: '/bank/ticker?code=avtalegiro_list'
+                },
+                {
+                    label: 'Rapporter',
+                    link: '/reports?category=Accounting'
+                },
+                {
+                    label: 'Innstillinger',
+                    link: '/settings/company'
+                }
+            ]
+        }
+    },
+    {
         id: 'shortcut_list_timetracking',
         description: 'Snartvei liste - Timeføring',
         width: 2,

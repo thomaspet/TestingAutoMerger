@@ -1,0 +1,127 @@
+<section class="application uni-redesign">
+    <section class="reconciliation-toolbar">
+        <h1>Bankavstemming</h1>
+
+        <label>
+            <span>Konto</span>
+            <select [(ngModel)]="selectedBankAccount" (change)="onBankPeriodChange()">
+                <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount">
+                    {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
+                    ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
+                </option>
+            </select>
+        </label>
+
+        <label>
+            <span>Periode</span>
+            <month-picker
+                [(value)]="bankPeriod"
+                (valueChange)="onBankPeriodChange()">
+            </month-picker>
+        </label>
+
+        <section class="pull-right">
+
+            <button [disabled]="!loaded" class="outline-c2a tight" (click)="startAutoMatch()">
+                <i class="material-icons">sync_alt</i>
+                Automatisk kobling
+            </button>
+
+            <button [disabled]="!loaded" class="outline-c2a tight" (click)="openJournalModal()">
+                <i class="material-icons">edit</i>
+                Bilagsføring
+            </button>
+
+            <button [disabled]="!loaded" class="outline-c2a tight" (click)="openImportModal()">
+                <i class="material-icons">cloud_upload</i>
+                Importer
+            </button>
+
+            <button class="good" (click)="save()" [disabled]="!session.closedGroups?.length">
+                Lagre
+            </button>
+        </section>
+    </section>
+
+    <section class="reconciliation-view">
+        <section class="list-section">
+            <section class="list-header" [attr.aria-busy]="session.busy">
+                <span>{{selectedBankAccount?.AccountNumber}} {{(selectedBankAccount?.Bank?.Name || selectedBankAccount?.Account?.AccountName)|slice:0:20}}</span>
+                <small>Saldo</small>
+                <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'">{{session.bankBalance | uninumberformat: 'money'}}</span>
+            </section>
+
+            <bank-statement-entries *ngIf="!cleanUp"
+                [items]="session.bankEntries"
+                (itemSelected)="session.checkOrUncheck($event)">
+            </bank-statement-entries>
+        </section>
+
+        <section class="reconciliation-summary" [attr.aria-busy]="session.preparing" >
+
+            <section class="warning-label" *ngIf="session.totalImbalance">                
+                <span><i style="vertical-align: bottom" class="material-icons">error</i> Avvik i saldo: </span>
+                <span [ngClass]="session.totalImbalance >= 0 ? 'positive' : 'negative'">{{session.totalImbalance | uninumberformat: 'money'}}</span>
+            </section>
+
+            <section class="header">
+                <mat-slide-toggle (change)="checkSuggest(true)" [(ngModel)]="autoSuggest" class="max-width" [labelPosition]="'before'">
+                    Foreslå koblinger
+                </mat-slide-toggle>
+            </section>
+
+            <section class="content">
+                <section *ngIf="!session.stage?.length" class="no-match-drafts">
+                    Koble poster ved å klikke på transaksjonene
+                </section>
+
+                <ul *ngIf="session.stage?.length" class="match-drafts">
+                    <ng-container *ngFor="let entry of session.stage">
+                        <li>
+                        <span>{{entry.Date | date: 'dd.MM'}} - {{(entry.IsBankEntry ? 'Bank' : 'Regnskap')}}</span>
+                        <span [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
+                            {{entry.Amount | uninumberformat: 'money' || 0}}
+                        </span>
+                        </li>
+                    </ng-container>
+
+                    <li *ngIf="session.stageTotal" class="diff">
+                        <span>Differanse</span>
+                        <span [ngClass]="{'has-diff': !!session.stageTotal}">
+                            {{session.stageTotal | uninumberformat: 'money' || 0}}
+                        </span>
+                    </li>
+                </ul>
+
+                <button (click)="closeStage()" class="c2a" [disabled]="!session.canCloseStage">
+                    <i class="material-icons">link</i>
+                    Koble sammen
+                </button>
+
+
+                <section *ngIf="session.closedGroups?.length > 0" class="no-match-drafts">
+                    <span class="bullet">{{session.closedGroups.length}}</span>
+                    <p>Sammenkoblinger klar for lagring</p>
+                    <button (click)="reset()" class="rounded">
+                        <i class="material-icons">remove_shopping_cart</i>
+                        Nullstill
+                    </button>
+                </section>
+
+            </section>
+        </section>
+
+        <section class="list-section">
+            <section class="list-header" [attr.aria-busy]="session.busy">
+                <span>Regnskap - {{selectedBankAccount?.Account?.AccountNumber}}</span>
+                <small>Saldo</small>
+                <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'">{{session.journalEntryBalance | uninumberformat: 'money'}}</span>
+            </section>
+
+            <bank-statement-entries *ngIf="!cleanUp"
+                [items]="session.journalEntries"
+                (itemSelected)="session.checkOrUncheck($event)">
+            </bank-statement-entries>
+        </section>
+    </section>
+</section>

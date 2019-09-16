@@ -1,0 +1,73 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+.reconciliation-list-container
+    table
+        width: 100%
+        table-layout: fixed
+        border-collapse: collapse
+        border: 1px solid $uni-color-scale9
+        border-radius: 3px
+
+        thead, tbody
+            tr
+                height: 60px
+                border-bottom: 1px solid $uni-color-scale9
+
+                td:first-of-type
+                    padding-left: 1rem
+
+        thead
+            tr
+                th
+                    text-align: left
+                    color: $uni-color-scale7
+
+                    &:last-of-type
+                        width: 50px
+                    &:first-of-type
+                        padding-left: 1rem
+
+        tbody
+            font-size: .9rem
+            tr
+                &:last-of-type
+                    border-bottom: none
+
+                td
+                    color: $uni-color-scale1
+                    font-weight: 500
+
+                    &:first-of-type
+                        padding-left: 1rem
+
+                    &:last-of-type
+                        i
+                            cursor: pointer
+
+                    i
+                        vertical-align: middle
+                        font-size: 20px
+                        margin-right: .5rem
+
+                    a
+                        text-decoration: none
+                        font-weight: 600
+                        &.recwork
+                            color: $uni-color-warn
+                        &.recdone
+                            color: $uni-color-good
+                        &.recstart
+                            color: $uni-color-c2a
+
+.comming-soon
+    display: flex
+    font-size: 1.2rem
+    font-weight: 600
+    align-items: center
+
+    i
+        font-size: 40px
+
+    span
+        margin: 0 1rem
+

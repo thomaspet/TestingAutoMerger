@@ -21,6 +21,7 @@ import {UniTimetrackingCharts} from './timetracking-charts/timetracking-charts';
 import {AssignmentsWidget} from './assignments/assignments-widget';
 import {ExpensesWidget} from './expenses/expenses-widget';
 import {BalanceWidget} from './balance/balance-widget';
+import {PaymentWidget} from './payment/payment-chart';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -44,7 +45,8 @@ export const UNI_WIDGETS = [
     UniTimetrackingCharts,
     AssignmentsWidget,
     ExpensesWidget,
-    BalanceWidget
+    BalanceWidget,
+    PaymentWidget
 ];
 
 export * from './shortcuts';
@@ -69,3 +71,4 @@ export * from './timetracking-charts/timetracking-charts';
 export * from './assignments/assignments-widget';
 export * from './expenses/expenses-widget';
 export * from './balance/balance-widget';
+export * from './payment/payment-chart';

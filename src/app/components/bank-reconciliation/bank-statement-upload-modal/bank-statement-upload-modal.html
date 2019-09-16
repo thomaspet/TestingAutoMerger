@@ -1,0 +1,104 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Importer bankdata</header>
+
+    <article class="scrollable">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <!-- Account/file selection step -->
+        <section *ngIf="!previewStep">
+            <label>
+                <span>Velg konto</span>
+                <select [(ngModel)]="selectedAccountID">
+                    <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount.AccountID">
+                        {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
+                        ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
+                    </option>
+                </select>
+            </label>
+
+            <section class="file-select">
+                <span>Velg fil</span>
+
+                <label class="bank-statement-upload">
+                    <i class="material-icons">cloud_upload</i>
+                    <span>Last opp</span>
+                    <input type="file" (change)="uploadFile($event)" />
+                </label>
+
+                <ul *ngIf="files?.length" class="file-selection-list">
+                    <li *ngFor="let file of files"
+                        (click)="selectedFileID = file.ID"
+                        [class.selected]="selectedFileID === file.ID">
+                        {{file.Name}}
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- Preview/confirm step -->
+        <section *ngIf="previewStep">
+            <label>
+                <span>Velg filformat</span>
+                <select [(ngModel)]="selectedImportTemplate" (ngModelChange)="loadPreviewLines()">
+                    <option *ngFor="let template of importTemplates" [ngValue]="template">
+                        {{template.Name}}
+                    </option>
+                </select>
+            </label>
+
+            <span *ngIf="!previewLines?.length && !busy" class="warn" style="font-size: 15px;">
+                Klarte ikke tolke filen. Vennligst påse at filformat er riktig.
+            </span>
+
+            <section class="reconciliation-list-view" *ngIf="previewLines?.length">
+                <section class="header">
+                    <span class="date">Dato</span>
+                    <span class="description">Tekst</span>
+                    <span class="amount">Sum</span>
+                </section>
+
+                <ul>
+                    <li *ngFor="let entry of previewLines">
+                        <span class="date">{{entry.BookingDate | date: 'dd.MM.yy'}}</span>
+                        <span class="description">{{entry.Description}}</span>
+                        <span class="amount" [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
+                            {{entry.Amount | uninumberformat: 'money'}}
+                        </span>
+                    </li>
+                </ul>
+
+                <small *ngIf="previewLines?.length >= 10" style="margin-top: 1rem; padding-left: 1rem;">
+                    Viser bare de første 20 linjene i forhåndsvisning, det kan være flere linjer i filen.
+                </small>
+            </section>
+        </section>
+    </article>
+
+    <footer>
+        <button class="outline" style="margin-right: auto" (click)="onClose.emit()">
+            Avbryt
+        </button>
+
+        <button class="outline"
+            [disabled]="!previewStep"
+            (click)="previewStep = false">
+            Tilbake
+        </button>
+
+        <button class="c2a"
+            *ngIf="!previewStep"
+            [disabled]="!selectedAccountID || !selectedFileID"
+            (click)="goToPreviewStep()">
+            Neste
+        </button>
+
+        <button class="good"
+            *ngIf="previewStep"
+            [disabled]="!previewLines?.length"
+            (click)="import()">
+            Fullfør
+        </button>
+    </footer>
+</section>

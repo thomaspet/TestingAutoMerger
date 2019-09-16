@@ -341,22 +341,22 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             links: [
                 {
                     name: 'Innbetalinger',
-                    url: '/bank?code=bank_list',
+                    url: '/bank/ticker?code=bank_list',
                     moduleID: UniModules.Payment
                 },
                 {
                     name: 'Utbetalinger',
-                    url: '/bank?code=payment_list',
+                    url: '/bank/ticker?code=payment_list',
                     moduleID: UniModules.Payment
                 },
                 {
                     name: 'Utbetalingsbunter',
-                    url: '/bank?code=payment_batch_list',
+                    url: '/bank/ticker?code=payment_batch_list',
                     moduleID: UniModules.Payment
                 },
                 {
                     name: 'Avtalegirobunter',
-                    url: '/bank?code=avtalegiro_list',
+                    url: '/bank/ticker?code=avtalegiro_list',
                     moduleID: UniModules.Payment
                 },
             ]

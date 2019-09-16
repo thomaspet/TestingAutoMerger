@@ -34,7 +34,8 @@ import {
     UniTimetrackingCharts,
     AssignmentsWidget,
     ExpensesWidget,
-    BalanceWidget
+    BalanceWidget,
+    PaymentWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -79,7 +80,8 @@ export const WIDGET_MAP = {
     ttchart: UniTimetrackingCharts,
     assignments: AssignmentsWidget,
     expenses: ExpensesWidget,
-    balance: BalanceWidget
+    balance: BalanceWidget,
+    payment_chart: PaymentWidget
 };
 
 @Directive({

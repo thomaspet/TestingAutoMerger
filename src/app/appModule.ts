@@ -45,16 +45,19 @@ import {TimeTrackingServicesModule} from './services/timetrackingServicesModule'
 import {SalesServicesModule} from './services/salesServicesModule';
 import {AdminServicesModule} from './services/adminServicesModule';
 import {AssignmentServicesModule} from './services/assignmentServicesModule';
+import {ElsaServicesModule} from '@app/services/elsaServicesModule';
+import {BankServicesModule} from '@app/services/bankServicesModule';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {AboutModule} from './components/about/aboutModule';
 import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 import {SharingsModule} from './components/sharings/sharingsModule';
-import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 
 import {ReloadHelper} from './reload';
 import { ImportCentralServicesModule } from './services/importCentralServiceModule';
+import {DateAdapter} from '@angular/material';
+import {UniDateAdapter} from './date-adapter';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -81,9 +84,9 @@ moment.locale('nb');
         AssignmentServicesModule.forRoot(),
         ElsaServicesModule.forRoot(),
         ImportCentralServicesModule.forRoot(),
+        BankServicesModule.forRoot(),
 
         APP_ROUTES,
-
 
         // COMMON MODULES
         LayoutModule.forRoot(),
@@ -118,7 +121,8 @@ moment.locale('nb');
         TabService,
         ToastService,
         {provide: LocationStrategy, useClass: HashLocationStrategy},
-        {provide: ErrorHandler, useClass: UniAngularErrorHandler}
+        {provide: ErrorHandler, useClass: UniAngularErrorHandler},
+        {provide: DateAdapter, useClass: UniDateAdapter},
     ],
 })
 export class AppModule {}

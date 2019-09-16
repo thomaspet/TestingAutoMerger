@@ -144,9 +144,74 @@ export const COUNTERS = [
             dataEndpoint: `/api/statistics?model=Payment&select=count(payment.id) as sum&filter=(Payment.IsCustomerPayment eq 'true' and Payment.StatusCode eq '44018' )&join=Payment.JournalEntryID eq JournalEntry.ID and JournalEntry.ID eq FileEntityLink.EntityID`,
             title: 'Innbetalt ingen match',
             positive: false,
-            link: '/bank?code=bank_list&filter=incomming_without_match',
+            link: '/bank/ticker?code=bank_list&filter=incomming_without_match',
             icon: 'account_balance',
             class: 'pink-counter'
+        }
+    },
+    {
+        id: 'payment_list',
+        description: 'Utbetalingsliste',
+        permissions: [],
+        width: 3,
+        height: 1,
+        widgetType: 'sum',
+        config: {
+            dataEndpoint: `/api/statistics?model=payment&select=count(ID) as sum&filter=(Payment.IsCustomerPayment eq 'false' and Payment.StatusCode eq '44001' and Payment.isPaymentClaim eq 'false' and Payment.isPaymentCancellationRequest eq 'false' )`,
+            title: 'Utbetalingsliste',
+            positive: false,
+            link: '/bank/ticker?code=payment_list',
+            icon: 'payment',
+            class: 'yellow-counter'
+        }
+    },
+    {
+        id: 'reconciliation_list',
+        description: 'Bankavstemning',
+        permissions: [],
+        width: 3,
+        height: 1,
+        widgetType: 'sum',
+        config: {
+            dataEndpoint: `/api/statistics?model=BankStatementEntry&select=sum(casewhen(isnull(StatusCode, 0) ne 48002,1,0)) as sum`,
+            title: 'Bankavstemning',
+            positive: true,
+            link: '/bank/reconciliation',
+            icon: 'compare_arrows',
+            class: 'blue-counter'
+        }
+    },
+
+    {
+        id: 'autobank_agreements',
+        description: 'Autobankavtaler',
+        permissions: [],
+        width: 3,
+        height: 1,
+        widgetType: 'sum',
+        config: {
+            dataEndpoint: `/api/statistics?model=BankIntegrationAgreement&select=count(ID) as sum`,
+            title: 'Autobankavtaler',
+            positive: false,
+            link: '/bank/ticker?code=avtalegiro_list',
+            icon: 'attach_money',
+            class: 'green-counter'
+        }
+    },
+    {
+        id: 'customers_with_avtalegiro',
+        description: 'Avtalegiro',
+        permissions: [],
+        width: 3,
+        height: 1,
+        widgetType: 'sum',
+        config: {
+            dataEndpoint: `/api/statistics?model=Customer&select=count(ID) as sum&filter=AvtaleGiro eq 'true'`,
+            title: 'Kunder med avtalegiro',
+            positive: false,
+            link: '/bank/ticker?code=avtalegiro_list',
+            icon: 'people',
+            class: 'blue-counter'
         }
     },
     {

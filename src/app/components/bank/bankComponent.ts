@@ -310,7 +310,7 @@ export class BankComponent {
     }
 
     private updateTab() {
-        let url = '/bank';
+        let url = '/bank/ticker';
         const queryParams = window.location.href.split('?')[1];
         if (queryParams) {
             url += '?' + queryParams;
@@ -355,7 +355,7 @@ export class BankComponent {
     }
 
     public navigateToTicker(ticker: Ticker) {
-        this.router.navigate(['/bank'], {
+        this.router.navigate(['/bank/ticker'], {
             queryParams: { code: ticker.Code },
             skipLocationChange: false
         });
@@ -971,7 +971,7 @@ export class BankComponent {
                                     this.paymentBatchService.waitUntilJobCompleted(res.ID).subscribe(jobResponse => {
                                         if (jobResponse && !jobResponse.HasError) {
                                             this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
-                                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                                            `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
                                         } else {
                                             this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
                                         }

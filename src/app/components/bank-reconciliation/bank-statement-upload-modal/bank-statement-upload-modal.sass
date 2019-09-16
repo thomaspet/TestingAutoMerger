@@ -1,0 +1,72 @@
+footer
+    button.c2a, button.good
+        min-width: 8rem
+
+.bank-statement-upload
+    display: flex
+    align-items: center
+    width: 8rem
+    height: 36px
+    cursor: pointer
+    margin: 1rem 0
+    padding: 0 16px 0 14px
+    border-radius: 3px
+    color: #fff
+    background: #1565c0
+    &:hover
+        background: lighten(#1565c0, 10%)
+    i.material-icons
+        font-size: 20px
+        margin-right: 5px
+    span
+        margin-left: 5px
+    input
+        visibility: hidden
+        width: 0px
+        height: 0px
+
+
+.uni-selection-list
+    li:hover, li.selected
+        background: rgba(0,145,255,0.15)
+        color: #1565C0
+
+    li.selected
+        border: 1px solid #1565C0
+
+ul.file-selection-list
+    list-style: none
+    max-height: 20rem
+    overflow: auto
+    li
+        display: flex
+        height: 45px
+        align-items: center
+        cursor: pointer
+        padding: 0 1rem
+        font-size: 14px
+        border-radius: 3px
+        background: #f7f7f7
+        &:hover
+            background: #f3f3f3
+        &.selected
+            background: rgba(0,145,255,0.15)
+            color: #1565C0
+
+        & + li
+            margin-top: .5rem
+
+.reconciliation-list-view
+    ul
+        max-height: 20rem
+        overflow: auto
+        li
+            pointer-events: none
+
+label
+    select
+        height: 2.5rem
+        margin: .5rem 0 1.5rem
+        padding-left: 5px
+        border: 1px solid rgba(0, 0, 0, .15)
+        border-radius: 3px

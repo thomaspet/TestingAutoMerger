@@ -147,7 +147,7 @@ export class UniHttp {
         return this;
     }
 
-    public as(method: RequestMethod) {
+    public as(method: RequestMethod | string) {
         this.method = method;
         return this;
     }

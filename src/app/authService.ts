@@ -34,6 +34,7 @@ const PUBLIC_ROOT_ROUTES = [
     'gdpr',
     'contract-activation',
     'license-info',
+    'bank-reconciliation' // TODO: ADD PERMISSION AND REMOVE
 ];
 
 const PUBLIC_ROUTES = [];
