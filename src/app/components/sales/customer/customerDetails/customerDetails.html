@@ -79,6 +79,9 @@
 
                 <section class="entity-functionality-container">
                     <button class="change-customer-distribution-button" (click)="changeDistributionPlan(type)"> Endre plan </button>
+                    <button class="remove-customer-distribution-button" (click)="removeDistributionPlan(type)" [ngClass]="!type.defaultPlan ? 'disabled' : ''" [disabled]="!type.defaultPlan" title="{{ !type.defaultPlan ? 'Ingen plan å fjerne' : 'Fjerne plan fra kunde' }}">
+                        <i class="material-icons"> delete_outline </i>
+                    </button>
                 </section>
             </div>
         </section>

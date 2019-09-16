@@ -140,14 +140,27 @@ uni-distibution
 
         span
             font-size: 15px
+        &.settings-view
 
-        i
-            margin-left: 1rem
-            cursor: pointer
+            i
+                margin-left: 1rem
+                cursor: pointer
 
         .change-customer-distribution-button
             line-height: 16px
-            background-color: $uni-color-c2a
+            background-color: $uni-color-plus
+            margin: 0
+
+        .remove-customer-distribution-button
+            color: $uni-color-bad
+            background-color: transparent
+            margin: 0
+
+            &.disabled
+                opacity: .25
+
+            i
+                margin: 0
 
 .distribution-elements-stepper
     list-style: none

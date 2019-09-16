@@ -32,7 +32,7 @@
                 </ul>
             </section>
 
-            <section class="entity-functionality-container">
+            <section class="entity-functionality-container settings-view">
                 <span *ngIf="type.value === 'Models.Sales.CustomerInvoice'"> Automatisk utsendelse </span>
 
                 <mat-slide-toggle [(ngModel)]="active" (change)="turnOnOffAutomaticDistribution()" [labelPosition]="'before'" *ngIf="type.value === 'Models.Sales.CustomerInvoice'" > </mat-slide-toggle>

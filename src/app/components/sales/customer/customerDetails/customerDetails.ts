@@ -665,7 +665,6 @@ export class CustomerDetails implements OnInit {
 
     private mapDistibutionPlans() {
         const customer = this.customer$.getValue();
-        console.log(customer);
         this.entityTypes.map((ent) => {
             ent.plans = this.distributionPlans.filter(plan => plan.EntityType === ent.value);
             ent.defaultPlan = this.distributionPlans.find(plan => {
@@ -1613,6 +1612,14 @@ export class CustomerDetails implements OnInit {
         layout.Fields.splice.apply(layout.Fields, [15, 0].concat(dims));
 
         return layout;
+    }
+
+    public removeDistributionPlan(type) {
+        const customer = this.customer$.getValue();
+        customer.Distributions[type.keyValue] = null;
+        this.customer$.next(customer);
+        this.onContactsChange();
+        this.mapDistibutionPlans();
     }
 
     public changeDistributionPlan(type) {
