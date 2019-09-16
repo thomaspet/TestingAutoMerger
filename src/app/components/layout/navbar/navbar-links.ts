@@ -72,7 +72,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.AccountingReports
                     },
                     {
-                        name: 'Utsendelse',
+                        name: 'Utsendinger - liste',
                         url: '/sharings',
                         moduleID: UniModules.Sharings
                     },

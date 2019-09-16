@@ -6,7 +6,11 @@
 
     <section class="distribution-header-section">
         <span> Utsendelse </span>
-        <i class="material-icons">info</i>
+        <i class="material-icons"
+            matTooltip="Oppsett for utsendelse. Her kan du definere prioriteringsrekkefølge for sending av entitene under. Sett en plan som standard for at den skal automatisk brukes på alle.
+            Slå på Automatisk utsendelse for å sende ut faktura automatisk.">
+            info
+        </i>
     </section>
 
     <section class="distribution-type-container" *ngFor="let type of entityTypes">
@@ -61,7 +65,7 @@
                                 </ng-container>
                             </ul>
                         </td>
-                        <td> <a (click)="onActionClick(actions[1], plan, type)"> {{ plan._count }} kunder </a> </td>
+                        <td> <a (click)="onActionClick({ label: 'Administrer kunder', name: 'customer' }, plan, type)"> {{ plan._count }} kunder </a> </td>
                         <td>
                             <span *ngIf="type.defaultPlan && type.defaultPlan.ID === plan.ID"> Standard </span>
                             <i class="material-icons" [matMenuTriggerFor]="contextMenu">
@@ -69,7 +73,7 @@
                             </i>
                             <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
                                 <ul class="menu-list">
-                                    <li *ngFor="let action of actions" (click)="onActionClick(action, plan, type)">
+                                    <li *ngFor="let action of getActions(plan, type)" (click)="onActionClick(action, plan, type)">
                                         {{ action.label }}
                                     </li>
                                 </ul>

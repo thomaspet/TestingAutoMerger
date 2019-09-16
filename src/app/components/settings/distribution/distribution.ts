@@ -62,13 +62,6 @@ export class UniDistributionSettings {
         }
     ];
 
-    actions: any[] = [
-        { label: 'Sett som standard', name: 'standard' },
-        { label: 'Administrer kunder', name: 'customer' },
-        { label: 'Rediger', name: 'edit' },
-        { label: 'Slett', name: 'delete' }
-    ];
-
     constructor(
         private distributionPlanService: DistributionPlanService,
         private companySettingsService: CompanySettingsService,
@@ -129,10 +122,29 @@ export class UniDistributionSettings {
         });
     }
 
+    public getActions(plan, type) {
+        const actions: any[] = [
+            { label: 'Administrer kunder', name: 'customer' },
+            { label: 'Rediger', name: 'edit' },
+            { label: 'Slett', name: 'delete' }
+        ];
+        if (type.defaultPlan && plan.ID === type.defaultPlan.ID) {
+            actions.unshift({ label: 'Fjern standard', name: 'remove' } );
+            return actions;
+        } else {
+            actions.unshift({ label: 'Sett som standard', name: 'standard' } );
+            return actions;
+        }
+    }
+
     public onActionClick(action: any, plan: DistributionPlan, type: any) {
         switch (action.name) {
             case 'standard':
                 this.setNewStandard(plan, type);
+                break;
+            case 'remove':
+                const fakePlan = { ID: null};
+                this.setNewStandard(fakePlan, type);
                 break;
             case 'edit':
                 this.openPlanModal(plan, type);
@@ -156,7 +168,7 @@ export class UniDistributionSettings {
         }
         const header = `${plan.ID
             ? 'Rediger plan for utsendelse av ' + type.label.toLowerCase()
-            : 'Ny plan for utsendelses av ' + type.label.toLowerCase()}`;
+            : 'Ny utsendelsesplan for ' + type.label.toLowerCase()}`;
         const data = {
             plan: plan,
             types: this.filterElementTypes(type.value),
@@ -168,6 +180,10 @@ export class UniDistributionSettings {
         .onClose.subscribe((response) => {
             if (response) {
                 if (!type.defaultPlan || (response.setAsDefault && response.plan.ID !== type.defaultPlan.ID)) {
+                    this.setNewStandard(response.plan, type);
+                } else if (type.defaultPlan && response.plan.ID === type.defaultPlan.ID && !response.setAsDefault) {
+                    // Remove standard plan
+                    response.plan.ID = null;
                     this.setNewStandard(response.plan, type);
                 } else {
                     this.getDistributionPlans();
@@ -227,6 +243,7 @@ export class UniDistributionSettings {
         this.companySettings.DefaultDistributionsID = null;
 
         this.companySettingsService.Put(1, this.companySettings).subscribe((settings) => {
+            this.toastService.addToast(`${plan.ID ? 'Ny standardplan satt' : 'Standardplan fjernet'}`, ToastType.good, 5);
             this.getDistributionPlans();
         });
     }
