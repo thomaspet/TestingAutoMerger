@@ -9,6 +9,16 @@ import * as moment from 'moment';
 import { IMatchEntry, BankUtil, StageGroup, BankStatmentMatchDto } from './bankStatmentModels';
 export { IMatchEntry } from './bankStatmentModels';
 
+export enum BankSessionStatus {
+    NoData = 1,
+    MissingBankEntries = 2,
+    ReadyToMatch = 3,
+    ReadyToJournal = 4,
+    UnmatchedJournal = 5,
+    CompleteIfSaved = 6,
+    Complete = 7
+}
+
 @Injectable()
 export class BankStatementSession {
     busy: boolean;
@@ -25,6 +35,8 @@ export class BankStatementSession {
     bankBalance: number;
     journalEntryBalance: number;
     totalImbalance: number;
+
+    status: BankSessionStatus = BankSessionStatus.NoData;
 
     private _prevStartDate: Date;
     private _prevEndDate: Date;
@@ -81,6 +93,8 @@ export class BankStatementSession {
                 this.bankBalance = res[2] && res[2].Balance;
                 this.journalEntryBalance = res[3] && res[3][0] && res[3][0].sum;
                 this.totalImbalance = (this.bankBalance || 0) - (this.journalEntryBalance || 0);
+
+                this.status = this.calcStatus();
             }),
             finalize (() => this.busy = false)
         );
@@ -92,6 +106,7 @@ export class BankStatementSession {
 
     clear() {
         this.clearStage();
+        this.status = BankSessionStatus.NoData;
         this.suggestions = undefined;
         this.closedGroups = [];
         this.bankEntries = [];
@@ -107,6 +122,7 @@ export class BankStatementSession {
         this.closedGroups = [];
         this.bankEntries.forEach( x => x.StageGroupKey = undefined );
         this.journalEntries.forEach( x => x.StageGroupKey = undefined );
+        this.status = this.calcStatus();
     }
 
     checkOrUncheck(item: IMatchEntry) {
@@ -130,6 +146,7 @@ export class BankStatementSession {
             this.closedGroups.push(group);
             this.clearStage();
             this.prepareGroups();
+            this.status = this.calcStatus();
             return true;
         }
         return false;
@@ -189,6 +206,51 @@ export class BankStatementSession {
     }
 
     // private
+
+    private calcStatus(): BankSessionStatus {
+
+        if (this.bankEntries.length === 0) {
+            return BankSessionStatus.MissingBankEntries;
+        }
+
+        const bankInfo = this.countEntries(this.bankEntries);
+        const journalInfo = this.countEntries(this.journalEntries);
+
+        // Has open, unmatched items ?
+        if (bankInfo.openCount > 0) {
+            // Has open journalentries ?
+            if (journalInfo.openCount > 0) { return BankSessionStatus.ReadyToMatch; }
+            // Ok, they probably should be posted?
+            return BankSessionStatus.ReadyToJournal;
+        }
+
+        // Ready to save and complete?
+        if (bankInfo.stagedCount > 0 && journalInfo.stagedCount > 0) {
+            return (bankInfo.openCount === 0 && journalInfo.openCount === 0)
+                ?  BankSessionStatus.CompleteIfSaved : BankSessionStatus.ReadyToMatch;
+        }
+
+        // Only journalentries ?
+        if (journalInfo.openCount > 0) {
+            return BankSessionStatus.UnmatchedJournal;
+        }
+
+        return BankSessionStatus.Complete;
+    }
+
+    private countEntries(list: IMatchEntry[]): { openCount: number, stagedCount: number } {
+        const diff = { openCount: 0, stagedCount: 0 };
+        list.forEach( x => {
+            if (!x.Closed) {
+                if (x.StageGroupKey) {
+                    diff.stagedCount++;
+                } else {
+                    diff.openCount++;
+                }
+            }
+        });
+        return diff;
+    }
 
     private resetSuggestions() {
         if (this.suggestions !== undefined && this.suggestions.length > 0) {

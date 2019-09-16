@@ -4,7 +4,7 @@
     <article class="scrollable">
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
-        </section> 
+        </section>
 
         <ag-grid-wrapper class="compactcells"
             [resource]="session?.items"
@@ -21,12 +21,12 @@
             <i style="vertical-align: bottom" class="material-icons">error</i>
             Differanse:  {{ session?.balance | uninumberformat: 'money'}}
         </span>
-        
+
         <button class="outline" (click)="onClose.emit()">
             Avbryt
         </button>
 
-        <button [disabled]="session?.balance" class="good"            
+        <button [disabled]="session?.balance" class="good"
             (click)="import()">
             Fullfør
         </button>

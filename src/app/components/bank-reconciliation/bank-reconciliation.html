@@ -66,10 +66,14 @@
         </section>
 
         <section class="reconciliation-summary" [attr.aria-busy]="session.preparing" >
+
             <section class="header">
-                <mat-slide-toggle (change)="checkSuggest(true)" [(ngModel)]="autoSuggest" class="max-width" [labelPosition]="'before'">
+                <mat-slide-toggle *ngIf="session.status == 3" (change)="checkSuggest(true)" [(ngModel)]="autoSuggest" class="max-width" [labelPosition]="'before'">
                     Foreslå koblinger
                 </mat-slide-toggle>
+                <span *ngIf="session.status != 3">
+                    Avstemming
+                </span>
             </section>
 
             <section class="content">
@@ -83,8 +87,34 @@
                     </span>
                 </section>
 
-                <section *ngIf="!session.stage?.length" class="no-match-drafts">
+                <section *ngIf="session.status == 2" class="info-box">
+                    <article>Du har ingen bankposter.</article>
+                    <article>Velg "Importer" for å lese inn en bankfil manuelt.</article>
+                    <i style="font-size: 20pt" class="material-icons">cloud_upload</i>
+                </section>
+
+                <section *ngIf="session.status == 3" class="no-match-drafts c2a">
                     Koble poster ved å klikke på transaksjonene
+                </section>
+
+                <section *ngIf="session.status == 4" class="info-box warn">
+                    <article>Du har bankposter som ikke finnes i regnskapet.</article>
+                    <article>Tips: du kan bruke "Bilagsføring" for å bokføre disse.</article>
+                    <i style="font-size: 20pt" class="material-icons">edit</i>
+                </section>
+
+                <section *ngIf="session.status == 5" class="info-box warn">
+                    Du har poster i regnskapet som ikke finnes på bankutskriften.
+                </section>
+
+                <section *ngIf="session.status == 6" class="info-box c2a">
+                    Du er nesten ferdig!
+                    <article>Klikk på 'Lagre' for å fullføre merkingen!</article>
+                </section>
+
+                <section *ngIf="session.status == 7" class="info-box good">
+                    <i style="font-size: 40pt" class="material-icons">done</i>
+                    <article>Alle poster er avstemt for perioden</article>
                 </section>
 
                 <ul *ngIf="session.stage?.length" class="match-drafts">
@@ -105,15 +135,15 @@
                     </li>
                 </ul>
 
-                <button (click)="closeStage()" class="c2a" [disabled]="!session.canCloseStage">
+                <button (click)="closeStage()" *ngIf="session.status == 3" class="c2a" [disabled]="!session.canCloseStage">
                     <i class="material-icons">link</i>
                     Koble sammen
                 </button>
 
 
                 <section *ngIf="session.closedGroups?.length > 0" class="closed-groups-summary">
-                    <span class="bullet">{{session.closedGroups.length}}</span>
-                    <p>Koblinger klar for lagring</p>
+                    <span class="bullet" [class.good-bullet]="session.status == 6" >{{session.closedGroups.length}}</span>
+                    <p>koblinger klar for lagring</p>
                     <button (click)="reset()" class="reset-button tertiary">
                         <i class="material-icons">settings_backup_restore</i>
                         Nullstill
