@@ -61,6 +61,7 @@
 
             <bank-statement-entries *ngIf="!cleanUp"
                 [items]="session.bankEntries"
+                [stageInfo]="session.stageInfo.bank"
                 (itemSelected)="session.checkOrUncheck($event)">
             </bank-statement-entries>
         </section>
@@ -73,7 +74,7 @@
                 </mat-slide-toggle>
                 <span *ngIf="session.status != 3">
                     Avstemming
-                </span>
+                </span>                
             </section>
 
             <section class="content">
@@ -161,6 +162,7 @@
 
             <bank-statement-entries *ngIf="!cleanUp"
                 [items]="session.journalEntries"
+                [stageInfo]="session.stageInfo.journal"
                 (itemSelected)="session.checkOrUncheck($event)">
             </bank-statement-entries>
         </section>

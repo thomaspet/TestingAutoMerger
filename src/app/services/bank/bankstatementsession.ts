@@ -38,6 +38,8 @@ export class BankStatementSession {
 
     status: BankSessionStatus = BankSessionStatus.NoData;
 
+    stageInfo = { bank: { count: 0, balance: 0 }, journal: { count: 0, balance: 0 } };
+
     private _prevStartDate: Date;
     private _prevEndDate: Date;
 
@@ -114,6 +116,7 @@ export class BankStatementSession {
         this.bankBalance = 0;
         this.totalImbalance = 0;
         this.journalEntryBalance = 0;
+        this.stageInfo = { bank: { count: 0, balance: 0 }, journal: { count: 0, balance: 0 } };
     }
 
     reset() {
@@ -122,6 +125,7 @@ export class BankStatementSession {
         this.closedGroups = [];
         this.bankEntries.forEach( x => x.StageGroupKey = undefined );
         this.journalEntries.forEach( x => x.StageGroupKey = undefined );
+        this.stageInfo = { bank: { count: 0, balance: 0 }, journal: { count: 0, balance: 0 } };
         this.status = this.calcStatus();
     }
 
@@ -148,6 +152,11 @@ export class BankStatementSession {
                 group.balance = this.addItemSum(group.balance, x);
                 x.StageGroupKey = group.key;
                 x.Checked = false;
+                if (x.IsBankEntry) {
+                    this.addInfo(this.stageInfo.bank, x.OpenAmount);
+                } else {
+                    this.addInfo(this.stageInfo.journal, x.OpenAmount);
+                }
             });
             this.closedGroups.push(group);
             this.clearStage();
@@ -298,6 +307,11 @@ export class BankStatementSession {
         item.Checked = true;
         this.stageTotal = this.sumStage();
         return this.stageTotal;
+    }
+
+    private addInfo(info: { count: number, balance: number }, amount: number, remove = false) {
+        info.count += remove ? -1 : 1;
+        info.balance = BankUtil.safeAdd(info.balance, remove ? -amount : amount);
     }
 
     private stageRemove(item: IMatchEntry): number {

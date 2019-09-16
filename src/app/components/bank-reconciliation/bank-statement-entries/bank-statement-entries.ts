@@ -45,6 +45,7 @@ export class FilterPipe implements PipeTransform {
 })
 export class BankStatementEntries {
     @Input() items: IMatchEntry[];
+    @Input() stageInfo: { count: number, balance: number };
     @Output() itemSelected = new EventEmitter<IMatchEntry>();
 
     searchText: string;
