@@ -133,6 +133,12 @@ export class BankStatementSession {
         }
     }
 
+    tryCheck(item: IMatchEntry): boolean {
+        if (item.Closed || item.StageGroupKey) { return false; }
+        this.stageTotal = this.stageAdd(item);
+        return true;
+    }
+
     closeStage(): boolean {
         const group = new StageGroup();
         if (BankUtil.isCloseToZero(this.stageTotal) && this.stage.length > 0) {
@@ -180,23 +186,25 @@ export class BankStatementSession {
     }
 
     tryNextSuggestion(list?: BankStatementMatch[] ): boolean {
+        this.clearStage();
         this.suggestions = list || this.suggestions;
         if (this.suggestions === undefined) {
             this.requestSuggestions().subscribe( x => { if (x) { this.tryNextSuggestion(x); } } );
             return false;
         }
         if (this.suggestions.length > 0) {
-            const grp = this.suggestions.find( x => !x['_used']);
+            const grp = this.suggestions.find( x => !this.isSuggestionUsed(x));
             if (grp) {
                 let suggestionAdded = false;
                 this.suggestions.forEach( (x: BankStatementMatch) => {
                     if (x.Group === grp.Group) {
                         const b1 = x.BankStatementEntryID ? this.bankEntries.find( b => b.ID === x.BankStatementEntryID ) : undefined;
                         const j1 = x.JournalEntryLineID ? this.journalEntries.find( j => j.ID === x.JournalEntryLineID ) : undefined;
-                        if (b1) { this.checkOrUncheck(b1); }
-                        if (j1) { this.checkOrUncheck(j1); }
-                        x['_used'] = true;
-                        suggestionAdded = true;
+                        let used = false;
+                        if (b1) { used = this.tryCheck(b1); }
+                        if (j1) { used = this.tryCheck(j1) || used; }
+                        x['_used'] = used;
+                        suggestionAdded = used;
                     }
                 });
                 return suggestionAdded;
@@ -206,6 +214,19 @@ export class BankStatementSession {
     }
 
     // private
+
+    private isSuggestionUsed(x) {
+        if (x['_used']) { return true; }
+        let entry = x.BankStatementEntryID ? this.bankEntries.find( b => b.ID === x.BankStatementEntryID ) : undefined;
+        if (entry && (entry.Closed || entry.Checked || entry.StageGroupKey )) {
+            return true;
+        }
+        entry = x.JournalEntryLineID ? this.journalEntries.find( j => j.ID === x.JournalEntryLineID ) : undefined;
+        if (entry && (entry.Closed || entry.Checked || entry.StageGroupKey )) {
+            return true;
+        }
+        return false;
+    }
 
     private calcStatus(): BankSessionStatus {
 
