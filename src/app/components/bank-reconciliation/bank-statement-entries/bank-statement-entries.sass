@@ -1,3 +1,72 @@
 .closed
     opacity: .5
     cursor: default
+
+.reconciliation-list-view
+    display: flex
+    flex-direction: column
+    color: rgba(72, 72, 74, 0.97)
+
+    input[type=search]
+        width: 100%
+        flex: 0 0 2.5rem
+        border: 1px solid #DDDEE0
+        margin-bottom: 1rem
+
+    .header
+        display: flex
+        padding: 0 .5rem
+        font-size: 14px
+        font-weight: 500
+        color: #485460
+
+    ul
+        flex: 1
+        position: relative
+        list-style: none
+        margin: .5rem 0 1rem
+        li
+            display: flex
+            height: 2.4rem
+            align-items: center
+            padding: 0 1rem
+            background: #F5F6F9
+            border-radius: 3px
+            font-size: 14px
+            cursor: pointer
+            border: 1px solid rgba(0, 0, 0, 0)
+            &:hover
+                background: darken(#F5F6F9, 5%)
+            &.selected
+                border-color: #2699FB
+                background: rgba(38, 153, 251, 0.1)
+            & + li
+                margin-top: .5rem
+
+    span
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+        &.date
+            flex: 0 0 5rem
+        &.description
+            flex: 1
+        &.amount
+            flex: 0 0 8rem
+            text-align: right
+            font-weight: 500
+        & + span
+            margin-left: 1rem
+
+    @media (max-width: 1400px)
+        li
+            font-size: 12px !important
+        span.date
+            flex-basis: 4rem
+        span.amount
+            flex-basis: 7rem
+
+.positive
+    color: rgba(22, 93, 190, 0.96)
+.negative
+    color: #D12323

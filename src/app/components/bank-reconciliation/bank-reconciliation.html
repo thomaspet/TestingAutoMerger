@@ -1,27 +1,29 @@
-<section class="application uni-redesign">
+<section class="application view-wrapper uni-redesign">
     <section class="reconciliation-toolbar">
-        <h1>Bankavstemming</h1>
+        <section class="left-side">
+            <h1>Bankavstemming</h1>
+            <section class="select-wrapper">
+                <label>
+                    <span>Konto</span>
+                    <select [(ngModel)]="selectedBankAccount" (change)="onBankPeriodChange()">
+                        <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount">
+                            {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
+                            ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
+                        </option>
+                    </select>
+                </label>
 
-        <label>
-            <span>Konto</span>
-            <select [(ngModel)]="selectedBankAccount" (change)="onBankPeriodChange()">
-                <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount">
-                    {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
-                    ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
-                </option>
-            </select>
-        </label>
-
-        <label>
-            <span>Periode</span>
-            <month-picker
-                [(value)]="bankPeriod"
-                (valueChange)="onBankPeriodChange()">
-            </month-picker>
-        </label>
+                <label>
+                    <span>Periode</span>
+                    <month-picker
+                        [(value)]="bankPeriod"
+                        (valueChange)="onBankPeriodChange()">
+                    </month-picker>
+                </label>
+            </section>
+        </section>
 
         <section class="pull-right">
-
             <button [disabled]="!loaded" class="outline-c2a tight" (click)="startAutoMatch()">
                 <i class="material-icons">sync_alt</i>
                 Automatisk kobling
@@ -46,7 +48,13 @@
     <section class="reconciliation-view">
         <section class="list-section">
             <section class="list-header" [attr.aria-busy]="session.busy">
-                <span>{{selectedBankAccount?.AccountNumber}} {{(selectedBankAccount?.Bank?.Name || selectedBankAccount?.Account?.AccountName)|slice:0:20}}</span>
+                <section class="overflow-ellipsis">
+                    <span>
+                        {{selectedBankAccount?.AccountNumber}}
+                        {{(selectedBankAccount?.Bank?.Name || selectedBankAccount?.Account?.AccountName)}}
+                    </span>
+                </section>
+
                 <small>Saldo</small>
                 <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'">{{session.bankBalance | uninumberformat: 'money'}}</span>
             </section>
@@ -58,12 +66,6 @@
         </section>
 
         <section class="reconciliation-summary" [attr.aria-busy]="session.preparing" >
-
-            <section class="warning-label" *ngIf="session.totalImbalance">                
-                <span><i style="vertical-align: bottom" class="material-icons">error</i> Avvik i saldo: </span>
-                <span [ngClass]="session.totalImbalance >= 0 ? 'positive' : 'negative'">{{session.totalImbalance | uninumberformat: 'money'}}</span>
-            </section>
-
             <section class="header">
                 <mat-slide-toggle (change)="checkSuggest(true)" [(ngModel)]="autoSuggest" class="max-width" [labelPosition]="'before'">
                     Foreslå koblinger
@@ -71,6 +73,16 @@
             </section>
 
             <section class="content">
+                <section class="warning-label" *ngIf="session.totalImbalance">
+                    <span>
+                        <i class="material-icons">error</i>
+                        Avvik i saldo:
+                    </span>
+                    <span [ngClass]="session.totalImbalance >= 0 ? 'positive' : 'negative'">
+                        {{session.totalImbalance | uninumberformat: 'money'}}
+                    </span>
+                </section>
+
                 <section *ngIf="!session.stage?.length" class="no-match-drafts">
                     Koble poster ved å klikke på transaksjonene
                 </section>
@@ -99,15 +111,14 @@
                 </button>
 
 
-                <section *ngIf="session.closedGroups?.length > 0" class="no-match-drafts">
+                <section *ngIf="session.closedGroups?.length > 0" class="closed-groups-summary">
                     <span class="bullet">{{session.closedGroups.length}}</span>
-                    <p>Sammenkoblinger klar for lagring</p>
-                    <button (click)="reset()" class="rounded">
-                        <i class="material-icons">remove_shopping_cart</i>
+                    <p>Koblinger klar for lagring</p>
+                    <button (click)="reset()" class="reset-button tertiary">
+                        <i class="material-icons">settings_backup_restore</i>
                         Nullstill
                     </button>
                 </section>
-
             </section>
         </section>
 

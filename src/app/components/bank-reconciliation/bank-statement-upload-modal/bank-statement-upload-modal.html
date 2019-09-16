@@ -27,7 +27,7 @@
                     <input type="file" (change)="uploadFile($event)" />
                 </label>
 
-                <ul *ngIf="files?.length" class="file-selection-list">
+                <ul *ngIf="files?.length" class="selectable file-selection-list">
                     <li *ngFor="let file of files"
                         (click)="selectedFileID = file.ID"
                         [class.selected]="selectedFileID === file.ID">
@@ -52,13 +52,7 @@
                 Klarte ikke tolke filen. Vennligst påse at filformat er riktig.
             </span>
 
-            <section class="reconciliation-list-view" *ngIf="previewLines?.length">
-                <section class="header">
-                    <span class="date">Dato</span>
-                    <span class="description">Tekst</span>
-                    <span class="amount">Sum</span>
-                </section>
-
+            <section *ngIf="previewLines?.length">
                 <ul>
                     <li *ngFor="let entry of previewLines">
                         <span class="date">{{entry.BookingDate | date: 'dd.MM.yy'}}</span>
