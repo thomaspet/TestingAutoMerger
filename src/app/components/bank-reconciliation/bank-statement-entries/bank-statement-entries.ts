@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, Pipe, PipeTransform} from '@angular/core';
+import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, SimpleChanges} from '@angular/core';
 import {IMatchEntry} from '@app/services/services';
 import {trigger, style, transition, animate, group} from '@angular/animations';
 
@@ -48,4 +48,21 @@ export class BankStatementEntries {
     @Output() itemSelected = new EventEmitter<IMatchEntry>();
 
     searchText: string;
+    showClosed: false;
+    closedEntries = 0;
+    closedSum = 0;
+
+    ngOnChanges(changes) {
+        if (changes.items) {
+            if (changes.items) {
+                const items = <IMatchEntry[]>changes.items.currentValue;
+                if (Array.isArray(items)) {
+                    const closed = items.filter( x => x.Closed );
+                    this.closedSum = 0;
+                    items.forEach( x => this.closedSum += x.Amount);
+                    this.closedEntries = closed.length;
+                }
+            }
+        }
+    }
 }

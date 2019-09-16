@@ -9,7 +9,7 @@
 
     <ul id="bank-statement-entry-list">
         <ng-container *ngFor="let entry of items | reconciliationItemFilter: searchText">
-            <li *ngIf="!entry.StageGroupKey"
+            <li *ngIf="(!entry.StageGroupKey) && (showClosed || !entry.Closed)"
                 [@itemAnim]="items.length"
                 (click)="itemSelected.next(entry)"
                 [ngClass]="{'selected': entry.Checked, 'closed': entry.Closed}">
@@ -21,5 +21,13 @@
                 </span>
             </li>
         </ng-container>
+
+        <li *ngIf="(!showClosed) && closedEntries" class="closed">
+            <span class="description">{{closedEntries}} lukkede poster</span>
+            <span class="amount" [ngClass]="closedSum >= 0 ? 'positive' : 'negative'">
+                {{closedSum | uninumberformat: 'money'}}
+            </span>
+        </li>
+
     </ul>
 </section>
