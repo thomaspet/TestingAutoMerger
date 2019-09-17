@@ -9,7 +9,7 @@
 
     <ul id="bank-statement-entry-list">
 
-        <li *ngIf="stageInfo?.count" class="saveable">
+        <li *ngIf="stageInfo?.count" class="saveable" (click)="showClosedGroups.emit()">
             <span class="description">{{stageInfo?.count}} lukkede poster klar for lagring</span>
             <span class="amount" [ngClass]="stageInfo?.balance >= 0 ? 'positive' : 'negative'">
                 {{stageInfo?.balance | uninumberformat: 'money'}}

@@ -13,6 +13,7 @@ import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {MonthPicker} from './month-picker/month-picker';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
+import {ClosedReconciliations} from './closed-reconciliations/closed-reconciliations';
 
 @NgModule({
     imports: [
@@ -37,8 +38,12 @@ import {BankStatementJournalModal} from './bank-statement-journal/bank-statement
         FilterPipe,
         MonthPicker,
         BankStatementUploadModal,
-        BankStatementJournalModal
+        BankStatementJournalModal,
+        ClosedReconciliations
     ],
-    entryComponents: [BankStatementUploadModal, BankStatementJournalModal]
+    entryComponents: [
+        BankStatementUploadModal,
+        BankStatementJournalModal,
+    ]
 })
 export class BankReconciliationModule {}

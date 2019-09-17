@@ -6,18 +6,6 @@ import * as moment from 'moment';
 export class CustomDateAdapter extends UniDateAdapter {
     format(date: Date): string {
         return moment(date).format('MMMM YYYY');
-
-        // const dateAsMoment = moment(date);
-        // if (dateAsMoment.isValid()) {
-
-        //     if (parseFormat && !parseFormat.day && parseFormat.month === 'short') {
-        //         return dateAsMoment.format('MMM YYYY');
-        //     }
-
-        //     return dateAsMoment.format('MMMM YYYY');
-        // }
-
-        // return '';
     }
 }
 

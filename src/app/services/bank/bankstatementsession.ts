@@ -129,6 +129,24 @@ export class BankStatementSession {
         this.status = this.calcStatus();
     }
 
+    resetGroup(groupKey: string) {
+        const group = this.closedGroups.find(g => g.key === groupKey);
+        if (group) {
+            group.items.forEach(item => {
+                item.StageGroupKey = undefined;
+                if (item.IsBankEntry) {
+                    this.addInfo(this.stageInfo.bank, item.OpenAmount, true);
+                } else {
+                    this.addInfo(this.stageInfo.journal, item.OpenAmount, true);
+                }
+            });
+
+            this.closedGroups = this.closedGroups.filter(g => g.key !== groupKey);
+        } else {
+            console.warn('Unable to find group in BankStatementSession > resetGroup(..)');
+        }
+    }
+
     checkOrUncheck(item: IMatchEntry) {
         if (item.Closed || item.StageGroupKey) {
             this.stageTotal = this.sumStage();

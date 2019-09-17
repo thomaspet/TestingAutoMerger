@@ -26,6 +26,7 @@ export class BankReconciliation {
     autoSuggest: false;
     cleanUp = false;
     loaded = false;
+    closedGroupDetailsVisible = false;
 
     constructor(
         tabService: TabService,

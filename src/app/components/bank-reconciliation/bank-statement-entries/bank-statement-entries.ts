@@ -47,6 +47,7 @@ export class BankStatementEntries {
     @Input() items: IMatchEntry[];
     @Input() stageInfo: { count: number, balance: number };
     @Output() itemSelected = new EventEmitter<IMatchEntry>();
+    @Output() showClosedGroups = new EventEmitter();
 
     searchText: string;
     showClosed: false;

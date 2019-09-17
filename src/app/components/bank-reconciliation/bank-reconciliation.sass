@@ -14,13 +14,6 @@
         margin-bottom: .5rem
         flex-wrap: no-wrap
 
-        button.nav-cal
-            width: 1em
-            text-align: center
-
-            i
-                margin-left: -0.5em
-
         .left-side
             display: flex
             flex-wrap: wrap
@@ -45,9 +38,15 @@
             padding: 0 5px
             font-size: 14px
             width: 14rem
-        month-picker
-            height: 2.5rem
-            width: 10rem
+
+        .period-picker
+            display: inline-flex
+            align-items: center
+            month-picker
+                height: 2.5rem
+                width: 10rem
+            button.icon-button
+                margin: 0 1px
 
         .pull-right
             margin-left: auto
@@ -101,15 +100,29 @@
         @media (max-width: 1300px)
             min-width: 22rem
 
-.reconciliation-summary
+.center-section
     position: sticky
     top: 0
     flex: 0 0 18rem
-    margin: 2.5rem 2rem auto
+    margin: 0 2rem
+    position: relative
 
+    .warning-label
+        position: absolute
+        display: block
+        top: 0
+        width: 100%
+        text-align: center
+
+        i.material-icons
+            font-size: 21px
+            vertical-align: middle
+            margin-bottom: 2px
+
+.reconciliation-summary
     display: flex
     flex-direction: column
-
+    margin: 2.5rem 0 auto
     font-size: 14px
     border-radius: 3px
     min-height: 12rem
@@ -129,10 +142,6 @@
 
         .no-match-drafts
             margin-top: 1rem
-            text-align: center
-
-        .closed-groups-summary
-            margin-top: 0.5rem
             text-align: center
 
         .info-box
@@ -161,6 +170,28 @@
                     border-top: 1px solid rgba(112, 112, 112, 0.2)
                     .has-diff
                         color: #EF8538
+
+    .footer
+        display: flex
+        flex-direction: column
+        margin-top: 0.5rem
+        text-align: center
+        padding: 10px 1.5rem
+        font-size: 15px
+        background: #F5F6F9
+
+        .save-actions
+            display: flex
+            margin: .75rem 0 .25rem
+            justify-content: center
+            button
+                padding-left: 5px
+                &.good
+                    flex: 1
+                    border-radius: 25px
+
+            i.material-icons
+                margin-bottom: 2px
 
     button.c2a
         width: 100%
@@ -191,14 +222,6 @@
 
 .good-bullet
     background-color: green
-
-.warning-label
-    text-align: center
-    display: block
-    padding: 0.6rem
-    i.material-icons
-        font-size: 21px
-        vertical-align: middle
 
 .nowrap
     white-space: nowrap
