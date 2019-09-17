@@ -67,7 +67,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     public mainAction: IUniSaveAction;
     private saveIsActive: boolean;
     private createTransesIsActive: boolean;
-    private gridBusy: boolean;
+    public gridBusy: boolean;
     private runID: number;
     constructor(
         private basicamountService: BasicAmountService,
