@@ -142,6 +142,7 @@ export class BankStatementSession {
             });
 
             this.closedGroups = this.closedGroups.filter(g => g.key !== groupKey);
+            this.resetSuggestions();
         } else {
             console.warn('Unable to find group in BankStatementSession > resetGroup(..)');
         }
