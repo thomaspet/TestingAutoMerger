@@ -2,6 +2,7 @@ import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {Notification} from '@uni-entities';
 import * as moment from 'moment';
 import { isNullOrUndefined } from 'util';
+import { EntitytypeTranslationPipe } from '@app/pipes/entitytype-translation.pipe';
 
 @Component({
     selector: 'notification-item',
@@ -18,6 +19,8 @@ export class NotificationItem {
     timestamp: string;
     hasHtml = false;
 
+    constructor(private entitytypeTranslationPipe: EntitytypeTranslationPipe) {}
+
     ngOnChanges() {
         if (this.notification) {
             const sourceEntityType = this.notification.SourceEntityType;
@@ -27,7 +30,8 @@ export class NotificationItem {
 
             if (sourceEntityType === 'Comment') {
                 this.notificationType = 'mention';
-                this.notificationText = `Du har blitt nevnt i en kommentar på ${entityType} ${entityID}`;
+                this.notificationText = `Du har blitt nevnt i en kommentar på ${this.entitytypeTranslationPipe
+                    .transform(entityType)} ID ${entityID}`;
                 this.icon = 'comment';
             }
 
@@ -44,7 +48,8 @@ export class NotificationItem {
 
             if (entityType === 'Approval') {
                 this.notificationType = 'approval';
-                this.notificationText = `Du har blitt bedt om å godkjenne ${sourceEntityType} ${sourceEntityID}`;
+                this.notificationText = `Du har blitt bedt om å godkjenne ${this.entitytypeTranslationPipe
+                    .transform(sourceEntityType)} ID ${sourceEntityID}`;
                 this.icon = 'assignment_turned_in'; // 'thumb_up_alt';
             } else if (entityType === 'CustomerInvoiceReminder') {
                 this.notificationType = 'reminder';

@@ -4,12 +4,14 @@ import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '@app/authService';
 import { environment } from 'src/environments/environment';
 import { PushMessage } from '@app/models';
+import { UserDto } from '@uni-entities';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SignalRService {
 
+    user: UserDto;
     userToken: string;
     userGlobalIdentity: string;
     currentCompanyKey: string;
@@ -23,6 +25,7 @@ export class SignalRService {
     constructor(private authService: AuthService) {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
+                this.user = auth.user;
                 this.userToken = auth.token;
                 this.userGlobalIdentity = auth.user.GlobalIdentity;
                 this.currentCompanyKey = auth.activeCompany.Key;
@@ -49,17 +52,6 @@ export class SignalRService {
         });
     }
 
-    /*   addBroadcastDataListener = () => {
-        this.hubConnection.on('SendMessage', () => {
-
-        });
-    }
-
-    broadcastData() {
-        this.hubConnection.invoke('SendMessage')
-        .catch(err => console.error(err));
-    } */
-
     startConnection() {
         this.hubConnection = new signalR.HubConnectionBuilder()
         .withUrl(
@@ -71,21 +63,23 @@ export class SignalRService {
         }
 
     async start() {
-        await this.hubConnection.start()
-            .then(() => {
-                console.log('SignalR connection started');
-                this.addGlobalListener();
-            })
-            .catch(err => {
-                console.log('Error while starting SignalR connection: ' + this.userToken);
-                if (this.retryConnectionCounter < 5) {
-                    console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
-                    setTimeout(() => this.start(), 5000);
-                    this.retryConnectionCounter++;
-                } else {
-                    console.log('Tried to reconnect too many times');
-                    delete this.hubConnection;
-                }
-        });
+        if (this.hubConnection) {
+            await this.hubConnection.start()
+                .then(() => {
+                    console.log('SignalR connection started');
+                    this.addGlobalListener();
+                })
+                .catch(err => {
+                    console.log('Error while starting SignalR connection: ' + this.userToken);
+                    if (this.retryConnectionCounter < 5) {
+                        console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
+                        setTimeout(() => this.start(), 5000);
+                        this.retryConnectionCounter++;
+                    } else {
+                        console.log('Tried to reconnect too many times');
+                        delete this.hubConnection;
+                    }
+            });
+        }
     }
 }

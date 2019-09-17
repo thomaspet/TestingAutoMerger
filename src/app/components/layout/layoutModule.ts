@@ -39,8 +39,10 @@ import {
     MatExpansionModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatCardModule
 } from '@angular/material';
+import { ChatBoxComponent } from './chat-box/chat-box.component';
 
 @NgModule({
     imports: [
@@ -59,6 +61,7 @@ import {
         MatIconModule,
         MatButtonModule,
         MatProgressBarModule,
+        MatCardModule,
 
         UniFrameworkModule,
         AppPipesModule,
@@ -78,7 +81,8 @@ import {
         YearModal,
         UniCompanySearch,
         UniSmartSearch,
-        UniSmartSearchItem
+        UniSmartSearchItem,
+        ChatBoxComponent
     ],
     providers: [
         UniNumberFormatPipe,
@@ -98,6 +102,7 @@ import {
         NavbarCreateNew,
         UniCompanyDropdown,
         YearModal,
+        ChatBoxComponent,
     ]
 })
 export class LayoutModule {

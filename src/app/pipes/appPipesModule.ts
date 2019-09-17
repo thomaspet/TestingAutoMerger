@@ -6,6 +6,7 @@ import {UniCurrencyPipe} from './uniCurrencyPipe';
 import {UniDateFormatPipe} from './uniDateFormatPipe';
 import {UniNumberFormatPipe} from './uniNumberFormatPipe';
 import {SkipSanitizationPipe} from './skipSanitizationPipe';
+import { EntitytypeTranslationPipe } from './entitytype-translation.pipe';
 
 @NgModule({
     imports: [
@@ -17,7 +18,8 @@ import {SkipSanitizationPipe} from './skipSanitizationPipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniDateFormatPipe,
-        UniNumberFormatPipe
+        UniNumberFormatPipe,
+        EntitytypeTranslationPipe,
     ],
     providers: [
         SkipSanitizationPipe,
@@ -25,7 +27,8 @@ import {SkipSanitizationPipe} from './skipSanitizationPipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniDateFormatPipe,
-        UniNumberFormatPipe
+        UniNumberFormatPipe,
+        EntitytypeTranslationPipe,
     ],
     exports: [
         SkipSanitizationPipe,
@@ -34,7 +37,8 @@ import {SkipSanitizationPipe} from './skipSanitizationPipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniDateFormatPipe,
-        UniNumberFormatPipe
+        UniNumberFormatPipe,
+        EntitytypeTranslationPipe,
     ]
 })
 export class AppPipesModule { }

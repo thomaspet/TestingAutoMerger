@@ -5,13 +5,13 @@ import {ReplaySubject} from 'rxjs';
 
 @Injectable()
 export class CommentService {
-    public comments$: ReplaySubject<Comment[]> = new ReplaySubject(1);
+    comments$: ReplaySubject<Comment[]> = new ReplaySubject(1);
 
     constructor(protected http: UniHttp) {
         this.comments$.next([]);
     }
 
-    public getAll(entity: string, entityID: number) {
+    getAll(entity: string, entityID: number) {
         const route = `comments?filter=entitytype eq '${entity}' and entityid eq ${entityID}`;
         return this.http.asGET()
             .usingBusinessDomain()
@@ -20,13 +20,13 @@ export class CommentService {
             .map(res => res.body || []);
     }
 
-    public loadComments(entity: string, entityID: number) {
+    loadComments(entity: string, entityID: number) {
         this.getAll(entity, entityID).subscribe((res) => {
             this.comments$.next(res);
         });
     }
 
-    public post(entity: string, entityID: number, message: string) {
+    post(entity: string, entityID: number, message: string) {
         return this.http.asPOST()
             .usingBusinessDomain()
             .withEndPoint(`${Comment.RelativeUrl}/${entity}/${entityID}`)
@@ -35,7 +35,7 @@ export class CommentService {
             .map(res => res.body);
     }
 
-    public put(comment: Comment) {
+    put(comment: Comment) {
         return this.http.asPUT()
             .usingBusinessDomain()
             .withEndPoint(`${Comment.RelativeUrl}/${comment.ID}`)
@@ -47,7 +47,7 @@ export class CommentService {
             .map(res => res.body);
     }
 
-    public delete(comment: Comment) {
+    delete(comment: Comment) {
         return this.http.asDELETE()
             .usingBusinessDomain()
             .withEndPoint(`${Comment.RelativeUrl}/${comment.ID}`)

@@ -11,4 +11,4 @@ export * from './reportTypeEnum';
 export * from './elsa-models';
 export * from './accounting/CostAllocationData';
 export * from './pushMessage';
-export * from './pushRegister';
+export * from './business-object.model';

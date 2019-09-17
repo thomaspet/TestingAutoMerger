@@ -1,6 +1,6 @@
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
 import {NgModule, ErrorHandler} from '@angular/core';
-import {HashLocationStrategy, LocationStrategy} from '@angular/common';
+import {HashLocationStrategy, LocationStrategy, registerLocaleData} from '@angular/common';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -58,6 +58,9 @@ import {ReloadHelper} from './reload';
 import { ImportCentralServicesModule } from './services/importCentralServiceModule';
 import {DateAdapter} from '@angular/material';
 import {UniDateAdapter} from './date-adapter';
+
+import localeNb from '@angular/common/locales/nb';
+registerLocaleData(localeNb);
 
 // Set moment locale
 // TODO: Allow users to change this during runtime

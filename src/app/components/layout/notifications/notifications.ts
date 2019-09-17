@@ -6,7 +6,7 @@ import {take} from 'rxjs/operators';
 import {NotificationService} from './notification-service';
 import {NotificationsDropdown} from './notifications-dropdown/notifications-dropdown';
 
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType, ToastTime, IToastAction } from '@uni-framework/uniToast/toastService';
 import { SignalRService } from '@app/services/common/signal-r.service';
 
 @Component({
@@ -25,7 +25,7 @@ export class Notifications {
         private cdr: ChangeDetectorRef,
         public notificationService: NotificationService,
         public signalRService: SignalRService,
-        private toastService: ToastService
+        private toastService: ToastService,
     ) {
         this.notificationService.getNotifications().subscribe(
             notifications => {
@@ -47,14 +47,22 @@ export class Notifications {
         this.dropdownPortal = new ComponentPortal(NotificationsDropdown);
 
         this.signalRService.pushMessage$.subscribe(message => {
-            if (message && message.entityName === 'notification') {
+            if (message && message.entityType === 'notification') {
                 this.notificationService.getNotifications('', true).subscribe(
                     notifications => {
                         notifications.forEach(notification => {
                             if (notification['_unread']) {
                                 this.notificationService.unreadCount$.next(this.notificationService.unreadCount$.value + 1);
                                 this.toastService.addToast(
-                                    notification.SenderDisplayName, ToastType.good, ToastTime.medium, notification.Message);
+                                    notification.SenderDisplayName,
+                                    ToastType.good,
+                                    ToastTime.medium,
+                                    notification.Message,
+                                    <IToastAction>{
+                                        label: 'Åpne',
+                                        click: () => this.notificationService.onNotificationClick(notification)
+                                    }
+                                );
                             }
                         });
                     });
@@ -90,4 +98,5 @@ export class Notifications {
             });
         }
     }
+
 }

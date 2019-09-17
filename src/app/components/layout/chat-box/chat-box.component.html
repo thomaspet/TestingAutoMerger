@@ -1,0 +1,54 @@
+<mat-card *ngIf="comments" class="chat-box" [ngClass]="{minimized: minimized}">
+
+	<mat-card-header class="chat-header" (click)="minimized = !minimized">
+		<a [ngClass]="{underline: !minimized}" (click)="!minimized && navigateToBusinessObject($event)">{{businessObject.EntityType | entitytypeTranslation}} ID {{businessObject.EntityID}}</a>
+		<i class="material-icons close-button" role="button" (click)="closeChatBox($event)">close</i>
+	</mat-card-header>
+
+	<mat-card-content *ngIf="!minimized" class="chat-messages">
+		<div
+			*ngFor="let comment of comments"
+			class="row message-row"
+			[ngClass]="comment?.Author?.GlobalIdentity === authService.currentUser?.GlobalIdentity ? 'float-right' : 'float-left'"
+		>
+			<uni-avatar
+				class="avatar"
+				[matTooltip]="comment?.Author?.DisplayName"
+				[name]="comment?.Author?.DisplayName"
+				[ngClass]="comment?.Author?.GlobalIdentity === authService.currentUser?.GlobalIdentity ? 'order-last' : 'order-first'"
+			></uni-avatar>
+			<mat-card class="message">
+				<div class="message-text" [innerHTML]="comment?.Text"></div>
+				<small>{{comment?.CreatedAt | date:'d. MMM HH:mm': '' :'nb'}}</small>
+			</mat-card>
+		</div>
+	</mat-card-content>
+
+	<mat-card-actions *ngIf="!minimized" class="chat-footer">
+		<mat-card>
+			<ul #list class="mention-dropdown-list uni-multivalue-values"
+				role="listbox"
+				tabindex="-1"
+				[attr.aria-expanded]="filteredUsers?.length > 0">
+
+				<li *ngFor="let user of filteredUsers; let idx = index"
+					role="option"
+					(mouseover)="focusIndex = idx"
+					(click)="userSelected()"
+					[attr.aria-selected]="focusIndex === idx">
+
+					{{user?.DisplayName}}
+				</li>
+			</ul>
+			<textarea #inputElement
+				type="text"
+				class="message-input"
+				placeholder="Skriv en melding"
+				rows="1"
+				[formControl]="inputControl"
+				(keydown)="onKeyDown($event)"
+	 		></textarea>
+		</mat-card>
+	</mat-card-actions>
+
+</mat-card>

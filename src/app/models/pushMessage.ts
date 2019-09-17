@@ -1,5 +1,5 @@
 export interface PushMessage {
     companyKey: string;
-    entityName: string;
+    entityType: string;
     entityID: number;
 }

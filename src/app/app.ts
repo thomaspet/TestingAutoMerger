@@ -20,6 +20,7 @@ import {
 import {Observable} from 'rxjs/Rx';
 
 import {LicenseManager} from 'ag-grid-enterprise';
+import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 // tslint:disable-next-line
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 
@@ -42,6 +43,7 @@ export class App {
         public navbarService: NavbarLinkService,
         private browserStorage: BrowserStorageService,
         private router: Router,
+        public chatBoxService: ChatBoxService,
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {

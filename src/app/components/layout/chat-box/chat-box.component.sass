@@ -1,0 +1,110 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+\:host
+    margin-right: 1.5rem
+
+    .chat-box
+        display: flex
+        flex-direction: column
+        width: 25rem
+        background-color: $uni-color-scale9
+        padding: 0
+        overflow: hidden
+        border-bottom-left-radius: 0
+        border-bottom-right-radius: 0
+        height: 30rem
+
+        .chat-header
+            background-color: $uni-color-toolbar
+            align-items: center
+            cursor: pointer
+            color: #fff
+
+            ::ng-deep .mat-card-header-text
+                margin: 0 0 0 16px
+
+            a
+                color: #fff
+                text-transform: capitalize
+                padding: .75rem 0
+                &.underline:hover
+                    text-decoration: underline
+
+            .close-button
+                float: right
+                margin: auto 16px auto auto
+
+        .chat-messages
+            display: flex
+            flex-direction: column-reverse
+            padding: 0 16px
+            overflow: scroll
+            margin: 0
+            height: 100%
+
+            .message-row
+                padding: 1rem
+                flex-wrap: nowrap
+
+                &.float-left
+                    justify-content: flex-start
+                    .avatar
+                        margin: auto 1rem auto 0
+
+                &.float-right
+                    justify-content: flex-end
+                    .avatar
+                        margin: auto 0 auto 1rem
+
+                .message
+                    width: fit-content
+                    padding: 8px 16px
+
+                    .message-text
+                        white-space: pre-line
+
+                        ::ng-deep .mention
+                            background: transparentize($uni-color-toolbar, .9)
+                            padding: 0 pxToRem(2)
+                            border-radius: pxToRem(2)
+
+                    small
+                        display: block
+                        font-size: 12px
+
+        .chat-footer
+            padding: 16px
+            margin: 0
+
+            mat-card
+                word-break: break-all
+                padding: 8px 16px
+
+                ul
+                    bottom: 2rem
+                    left: 1rem
+                    position: absolute
+                    bottom: 1rem
+                    left: 0
+                    width: 15rem
+                    max-height: 17rem
+                    border-radius: pxToRem(3)
+                    box-sizing: border-box
+                    overflow-y: auto
+                    visibility: hidden
+                    &[aria-expanded]:not([aria-expanded=false])
+                        visibility: visible
+
+                .message-input
+                    border: none
+                    outline: none
+                    width: 100%
+                    min-height: unset
+                    resize: none
+                    overflow: auto
+                    max-height: 8rem
+                    word-break: break-word
+
+    .minimized
+        width: 15rem
+        height: unset

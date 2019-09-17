@@ -1,7 +1,9 @@
 import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Comment} from '../../app/unientities';
 import {CommentService} from './commentService';
-import {ErrorService, UserService} from '../../app/services/services';
+import {ErrorService} from '../../app/services/services';
+import { ChatBoxService } from '@app/components/layout/chat-box/chat-box.service';
+import { BusinessObject } from '@app/models';
 
 @Component({
     selector: 'uni-comments',
@@ -22,8 +24,8 @@ export class UniComments {
     public comments: Comment[] = [];
 
     constructor(
+        private chatBoxService: ChatBoxService,
         private commentService: CommentService,
-        private userService: UserService,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef
     ) {
@@ -41,30 +43,6 @@ export class UniComments {
         }
     }
 
-    public toggle(event?: MouseEvent) {
-        if (event) {
-            event.stopPropagation();
-        }
-        this.isOpen = !this.isOpen;
-        this.cdr.markForCheck();
-    }
-
-    public close() {
-        this.isOpen = false;
-        this.cdr.markForCheck();
-    }
-
-    public submitComment(text: string) {
-        this.commentService.post(
-            this.entity,
-            this.entityID,
-            text
-        ).subscribe(
-            res => this.getComments(),
-            err => this.errorService.handle(err)
-        );
-    }
-
     public getComments() {
         this.commentService.getAll(this.entity, this.entityID).subscribe(
             res => {
@@ -73,5 +51,17 @@ export class UniComments {
             },
             err => this.errorService.handle(err)
         );
+    }
+
+    openChatBox() {
+        const businessObject: BusinessObject = { EntityID: this.entityID, EntityType: this.entity };
+        const businessObjectExists = this.chatBoxService.businessObjects
+            .getValue()
+            .find(bo => bo.EntityID === businessObject.EntityID && bo.EntityType.toLowerCase() === businessObject.EntityType.toLowerCase());
+
+        if (!businessObjectExists) {
+            this.chatBoxService.businessObjects.next([businessObject].concat(this.chatBoxService.businessObjects.getValue())
+            );
+        }
     }
 }
