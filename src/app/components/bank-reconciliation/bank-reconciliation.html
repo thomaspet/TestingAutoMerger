@@ -145,11 +145,13 @@
 
 
                 <section *ngIf="session.closedGroups?.length > 0" class="closed-groups-summary">
-                    <span class="bullet" [class.good-bullet]="session.status == 6" >{{session.closedGroups.length}}</span>
-                    <p>koblinger klar for lagring</p>
                     <button (click)="reset()" class="reset-button tertiary">
                         <i class="material-icons">settings_backup_restore</i>
                         Nullstill
+                    </button>
+                    <button (click)="save()" *ngIf="session.status == 6" class="good tertiary">
+                        <i class="material-icons">check</i>
+                        Lagre
                     </button>
                 </section>
             </section>
