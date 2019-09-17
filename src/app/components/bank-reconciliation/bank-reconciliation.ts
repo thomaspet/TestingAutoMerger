@@ -23,7 +23,7 @@ export class BankReconciliation {
     confirmedMatches: BankStatementMatch[] = [];
     bankPeriod: Date;
     journalEntryPeriod: Date;
-    autoSuggest: false;
+    autoSuggest = false;
     cleanUp = false;
     loaded = false;
     closedGroupDetailsVisible = false;
@@ -106,6 +106,7 @@ export class BankReconciliation {
         }).onClose.subscribe(importResult => {
             if (!importResult) { return; }
             this.session.reload().subscribe( () => {
+                this.autoSuggest = true;
                 this.checkSuggest();
             });
         });
