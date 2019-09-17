@@ -151,12 +151,13 @@ export class BankReconciliation {
         );
     }
 
-    onBankPeriodChange() {
+    onBankPeriodChange(offset = 0) {
         if (this.selectedBankAccount) {
             this.cleanUp = this.session.totalTransactions > 100;
-            this.pageStateService.setPageState('accountid', this.selectedBankAccount.AccountID.toString());
+            if (offset) { this.bankPeriod = moment(this.bankPeriod).add(offset, 'months').toDate(); }
             const fromDate = moment(this.bankPeriod).startOf('month').toDate();
             const toDate = moment(this.bankPeriod).endOf('month').toDate();
+            this.pageStateService.setPageState('accountid', this.selectedBankAccount.AccountID.toString());
             this.session.load(fromDate, toDate, this.selectedBankAccount.AccountID)
                 .finally( () => { this.cleanUp = false; this.loaded = true; } )
                 .subscribe(() => this.checkSuggest());

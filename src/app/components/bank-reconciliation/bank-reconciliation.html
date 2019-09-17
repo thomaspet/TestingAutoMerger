@@ -14,11 +14,13 @@
                 </label>
 
                 <label>
+                    <button class="nav-cal" (click)="onBankPeriodChange(-1)"><i class="material-icons">arrow_left</i></button>
                     <span>Periode</span>
                     <month-picker
                         [(value)]="bankPeriod"
                         (valueChange)="onBankPeriodChange()">
                     </month-picker>
+                    <button class="nav-cal" (click)="onBankPeriodChange(1)"><i class="material-icons">arrow_right</i></button>
                 </label>
             </section>
         </section>
@@ -74,7 +76,7 @@
                 </mat-slide-toggle>
                 <span *ngIf="session.status != 3">
                     Avstemming
-                </span>                
+                </span>
             </section>
 
             <section class="content">
