@@ -14,16 +14,13 @@ export class UniBankReconciliationList {
 
     tabs: IUniTab[] = [
         { name: 'Bankkontoer' },
-        { name: 'Avstemingsrapporter' },
-        { name: 'Kontotransaksjoner' },
-        { name: 'Kontoutskrift' }
+        { name: 'Avstemingsrapport' },
+        { name: 'Kontoutskrifter' }
     ];
 
     actions: any[] = [
         { label: 'Avstem konto',            name: 'reconciliate' },
-        { label: 'Se månedsoversikt',       name: 'month' },
-        { label: 'Rediger kontodetaljer',   name: 'edit' },
-        { label: 'Importer',                name: 'import' }
+        { label: 'Se månedsoversikt',       name: 'month' }
     ];
 
 
@@ -87,7 +84,7 @@ export class UniBankReconciliationList {
         this.tabService.addTab({
             name: 'Bankavstemning',
             url: this.pageStateService.getUrl(),
-            moduleID: UniModules.Bank,
+            moduleID: UniModules.BankReconciliation,
             active: true
         });
     }

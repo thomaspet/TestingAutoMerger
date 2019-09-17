@@ -195,4 +195,30 @@ export class BankService extends BizHttp<Bank> {
         .send()
         .map(response => response.body);
     }
+
+    public getBankStatementListData() {
+        return this.http.asGET()
+        .usingStatisticsDomain()
+        .withEndPoint('?model=BankStatement&select=FromDate as FromDate,ToDate as ToDate,ID as ID,count(entry.ID) as count,' +
+        'Amount as Amount,Account.AccountName as AccountName,Account.AccountNumber as AccountNumber,StatusCode as StatusCode' +
+        '&join=BankStatement.ID eq BankStatementEntry.BankStatementID as Entry&Expand=Account,&top=50')
+        .send()
+        .map(response => response.body);
+    }
+
+    public bankStatementActions(id: number, action: string) {
+        return this.http.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`bankstatements/${id}?action=${action}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public deleteBankStatement(id: number) {
+        return this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`bankstatements/${id}`)
+            .send()
+            .map(response => response.body);
+    }
 }

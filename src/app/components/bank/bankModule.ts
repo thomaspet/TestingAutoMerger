@@ -17,6 +17,7 @@ import {UniBank} from './bank';
 import {bankRoutes} from './bankRoutes';
 import {UniBankReconciliationList} from './reconciliation/reconciliation-list/reconciliation-list';
 import {UniReconciliationReportView} from './reconciliation/reconciliation-report/reconciliation-report';
+import {BankStatement} from './reconciliation/bank-statement/bank-statement';
 
 import {
     UniPaymentEditModal,
@@ -59,7 +60,8 @@ import {
         UniBankUserPasswordModal,
         MatchSubAccountManualModal,
         MatchMainAccountModal,
-        UniReconciliationReportView
+        UniReconciliationReportView,
+        BankStatement
     ],
     entryComponents: [
         UniPaymentEditModal,

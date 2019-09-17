@@ -359,6 +359,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     url: '/bank/ticker?code=avtalegiro_list',
                     moduleID: UniModules.Payment
                 },
+                {
+                    name: 'Bankavstemning',
+                    url: '/bank/reconciliation',
+                    moduleID: UniModules.Payment
+                },
             ]
         }]
     },

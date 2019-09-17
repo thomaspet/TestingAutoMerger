@@ -30,7 +30,7 @@
                         <td>
                             <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank-reconciliation?accountid={{account.AccountID}}">
                                 <i class="material-icons"> {{ account.count ? 'cached' : ( account.total ? 'done_all' : 'no_sim') }}  </i>
-                                {{ account.count ?  account.count + ' poster å avstemme' : ( account.total ? 'Avstemning ferdig' : 'Mangler kontoutskrift' ) }}
+                                {{ account.count ?  account.count + ' post' + (account.count > 1 ? 'er ' : ' ') + 'å avstemme' : ( account.total ? 'Avstemning ferdig' : 'Mangler kontoutskrift' ) }}
                             </a>
                         </td>
                         <td>
@@ -58,17 +58,8 @@
         </section>
 
         <!-- TRANSACTIONS VIEW -->
-        <section *ngIf="activeIndex === 2 && dataLoaded" class="comming-soon">
-
-           <i class="material-icons">schedule</i> <span> KOMMER SNART </span>
-
-        </section>
-
-        <!-- STATEMENT VIEW -->
-        <section *ngIf="activeIndex === 3" class="comming-soon">
-
-            <i class="material-icons">schedule</i> <span> KOMMER SNART </span>
-
+        <section *ngIf="activeIndex === 2 && dataLoaded">
+            <uni-bank-statement-list></uni-bank-statement-list>
         </section>
     </section>
 
