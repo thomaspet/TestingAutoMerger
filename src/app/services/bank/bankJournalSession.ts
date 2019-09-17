@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { tap, finalize } from 'rxjs/operators';
 import { BankUtil } from './bankStatmentModels';
 import { safeDec, toIso } from '@app/components/common/utils/utils';
+import {Observable} from 'rxjs';
 
 export class DebitCreditEntry {
     public FinancialDate: Date;
@@ -71,19 +72,23 @@ export class BankJournalSession {
         this.balance = this.calcTotal();
     }
 
-    initialize() {
+    initialize(preloadAccountID?: number) {
         this.clear();
+        this.accounts = [];
         this.busy = true;
-        const accountLoader = this.statisticsService.GetAllUnwrapped('model=account&select=id as ID,accountnumber as AccountNumber'
-        + ',accountname as AccountName,vattypeid as VatTypeID'
-        + '&filter=accountnumber le 9999 and visible eq 1&orderby=accountnumber');
+
+        const accountLoader = preloadAccountID
+            ? this.getAccountByID(preloadAccountID)
+            : this.statisticsService.GetAllUnwrapped('model=account&select=id as ID,accountnumber as AccountNumber'
+                + `,accountname as AccountName,vattypeid as VatTypeID`
+                + '&filter=accountnumber ge 1000 and accountnumber le 9999 and visible eq 1&orderby=accountnumber');
         const vatLoader = this.HttpGet(`vattypes`);
         return forkJoin(
             accountLoader,
             vatLoader
         ).pipe(
             tap(res => {
-                this.accounts = this.createAccountSuperLabel(res[0]);
+                this.accounts = this.createAccountSuperLabel(Array.isArray(res[0]) ? res[0] : [res[0]]);
                 this.vatTypes = this.createVatSuperLabel(res[1]);
             }),
             finalize (() => this.busy = false)
@@ -158,9 +163,26 @@ export class BankJournalSession {
         return list;
     }
 
+    public getAccountByID(id: number): Observable<IAccount> {
+        const acc = this.accounts.find( x => x.ID === id);
+        if (acc) { return Observable.from([acc]); }
+        return this.HttpGet(`accounts/${id}?select=ID,AccountNumber,AccountName,VatTypeID`)
+            .pipe(tap(res => {
+                this.cacheAccount(res);
+            }));
+    }
+
+    public cacheAccount(acc) {
+        const match = this.accounts.find( x => x.ID === acc.id);
+        if (!match) {
+            this.createAccountSuperLabel([acc]);
+            this.accounts.push(acc);
+        }
+    }
+
     public addRow(debetAccountID: number, amount: number, date: Date, text = '') {
         const item = new DebitCreditEntry();
-        const acc = this.accounts.find( x => x.ID === debetAccountID);
+        const acc = this.accounts.find( x => x.ID === debetAccountID );
         if (acc) {
             item.DebetAccountID = debetAccountID;
             item.Debet = acc;
@@ -180,18 +202,19 @@ export class BankJournalSession {
         const match = this.items[rowIndex];
         switch (fieldName) {
             case 'Debet':
+                this.cacheAccount(newValue);
                 this.setAccount(match, newValue, true);
-                this.setAccount(row, newValue, true);
                 break;
             case 'Credit':
+                this.cacheAccount(newValue);
                 this.setAccount(match, newValue, false);
-                this.setAccount(row, newValue, false);
                 break;
             case 'Amount':
                 match.Amount = safeDec(newValue);
                 break;
         }
         this.balance = this.calcTotal();
+        return match;
     }
 
     private setAccount(item: DebitCreditEntry, acc: IAccount, isDebet = true) {

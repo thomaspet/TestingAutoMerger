@@ -6,6 +6,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { IVatType } from '@uni-framework/interfaces/interfaces';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'bank-statement-journal-modal',
@@ -21,6 +22,7 @@ export class BankStatementJournalModal implements IUniModal {
     selectedAccountID: number;
     tableConfig: UniTableConfig;
     data = [];
+    cachedQuery = {};
 
     constructor(
         private errorService: ErrorService,
@@ -44,7 +46,7 @@ export class BankStatementJournalModal implements IUniModal {
         const input: IMatchEntry[] = data.entries || [];
 
         this.busy = true;
-        this.session.initialize().subscribe(
+        this.session.initialize(this.selectedAccountID).subscribe(
             res => {
                 for (let i = 0; i < input.length; i++) {
                     this.session.addRow(this.selectedAccountID, input[i].Amount, input[i].Date, input[i].Description);
@@ -73,7 +75,7 @@ export class BankStatementJournalModal implements IUniModal {
 
     public onEditChange(event) {
         if (event.field && event.rowModel) {
-            this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel);
+            event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
         }
     }
 
@@ -85,10 +87,11 @@ export class BankStatementJournalModal implements IUniModal {
                 .setWidth('5rem'),
 
             this.createLookupColumn('Debet', 'Konto', 'Debet',
-                x => this.lookupAccount(x), '', 'superLabel').setWidth('6rem'),
+                x => this.lookupAccountByQuery(x), 'AccountNumber', 'AccountName', 'Debet.superLabel').setWidth('6rem'),
+                // x => this.lookupAccount(x), '', 'superLabel').setWidth('6rem'),
 
             this.createLookupColumn('Credit', 'Motkonto', 'Credit',
-                x => this.lookupAccount(x), '', 'superLabel').setWidth('6rem'),
+                x => this.lookupAccountByQuery(x), 'AccountNumber', 'AccountName', 'Credit.superLabel').setWidth('6rem'),
 
             this.createLookupColumn('VatType', 'Mva', 'VatType',
                 x => this.lookupVatType(x), 'VatCode', 'superLabel').setWidth('5rem'),
@@ -119,14 +122,15 @@ export class BankStatementJournalModal implements IUniModal {
 
     public createLookupColumn(
         name: string, label: string, expandCol: string, lookupFn?: any,
-        expandKey = 'ID', expandLabel = 'Name'): UniTableColumn {
+        expandKey = 'ID', expandLabel = 'Name', forceDisplay?: string): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Lookup)
-            .setDisplayField(`${expandCol}.${expandLabel}`)
+            .setDisplayField(forceDisplay || `${expandCol}.${expandLabel}`)
             .setOptions({
                 itemTemplate: (item) => {
                     return (expandKey ? (item[expandKey] + ' - ') : '') + getDeepValue(item, expandLabel);
                 },
-                lookupFunction: lookupFn
+                lookupFunction: lookupFn,
+                debounceTime: 220
         });
     }
 
@@ -141,6 +145,31 @@ export class BankStatementJournalModal implements IUniModal {
             return (item.AccountNumber.toString() === txt || item.superLabel.toLowerCase().indexOf(lcaseText) >= 0);
         });
         return Observable.from([sublist]);
+    }
+
+    private filterInputAllowPercent(v: string) {
+        return v.replace(/[`~!@#$^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+    }
+
+    public lookupAccountByQuery(txt: string) {
+        const lcaseText = this.filterInputAllowPercent(txt.toLowerCase());
+        const isNumeric = parseInt(lcaseText, 10);
+
+        const cache = this.cachedQuery[lcaseText];
+        if (cache) {
+            return Observable.from([cache]);
+        }
+
+        let filter = '';
+        if (isNumeric > 0) {
+            filter = `startswith(accountnumber,'${lcaseText}')`;
+        } else {
+            filter = `startswith(accountname,'${lcaseText}')`;
+        }
+        return this.session
+            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID'
+                , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
+                .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
     }
 
     public lookupVatType(txt: string) {
