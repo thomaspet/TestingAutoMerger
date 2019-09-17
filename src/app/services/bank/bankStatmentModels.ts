@@ -33,11 +33,6 @@ export class BankUtil {
         return (value < 0.01 && value > -0.01);
     }
 
-    static fromIso(localDate: string): Date {
-        return new Date(parseInt(localDate.substr(0, 4 ), 10),
-            parseInt(localDate.substr(6, 2 ), 10) - 1, parseInt(localDate.substr(8 , 2) , 10));
-    }
-
     static createGuid(): string {
         function S4() {
             // tslint:disable-next-line: no-bitwise

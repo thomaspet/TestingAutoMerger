@@ -366,18 +366,32 @@ export class BankStatementSession {
         return list.map( x => {
             const calcOpen = x.StatusCode === 31001 ? x.Amount : (x.OpenAmount === 0 ? 0 : (x.OpenAmount || x.Amount));
             const isClosed = x.StatusCode >= 31003;
-            return <IMatchEntry>{ ID: x.ID, Date: BankUtil.fromIso(<any>x.Date),
-                Description: x.Description, Amount: x.Amount, OpenAmount: calcOpen,
-                IsBankEntry: false, Checked: false, Closed: isClosed };
+            return <IMatchEntry>{
+                ID: x.ID,
+                Date: new Date(x.Date),
+                Description: x.Description,
+                Amount: x.Amount,
+                OpenAmount: calcOpen,
+                IsBankEntry: false,
+                Checked: false,
+                Closed: isClosed
+            };
         });
     }
 
     private mapBankEntries(list: BankStatementEntry[]): IMatchEntry[] {
         return list.map( x => {
             const isClosed = (x.StatusCode || 0) >= 48002;
-            return <IMatchEntry>{ ID: x.ID, Date: BankUtil.fromIso(<any>x.BookingDate),
-                Description: x.Description, Amount: x.Amount, OpenAmount: x.OpenAmount,
-                IsBankEntry: true, Checked: false, Closed: isClosed };
+            return <IMatchEntry> {
+                ID: x.ID,
+                Date: new Date(<any> x.BookingDate),
+                Description: x.Description,
+                Amount: x.Amount,
+                OpenAmount: x.OpenAmount,
+                IsBankEntry: true,
+                Checked: false,
+                Closed: isClosed
+            };
         });
     }
 }
