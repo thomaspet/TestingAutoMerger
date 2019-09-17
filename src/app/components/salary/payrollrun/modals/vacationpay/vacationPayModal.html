@@ -33,7 +33,7 @@
             </uni-information>
         </section>
 
-        <section class="uniTable" [attr.aria-busy]="!vacationpayBasis">
+        <section class="uniTable" [attr.aria-busy]="!vacationpayBasis || gridBusy">
             <ag-grid-wrapper
                 [resource]="vacationpayBasis"
                 [config]="tableConfig"

@@ -649,6 +649,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private cleanAndGetTranses() {
+        this._salaryTransactionService.invalidateCache();
         super.updateState(SALARY_TRANS_KEY, [], false);
         return super.getStateSubject(SELECTED_EMP_KEY)
         .pipe(

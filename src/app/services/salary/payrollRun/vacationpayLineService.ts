@@ -2,12 +2,10 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {VacationPayLine, WageDeductionDueToHolidayType, VacationInfo} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
-export interface IVacationPayLine extends VacationPayLine {
-    VacationInfos: IVacationInfo[];
-}
+import {RequestMethod} from '@uni-framework/core/http';
 export interface IVacationInfo extends VacationInfo {
     IsPayed: boolean;
     Base: number;
@@ -33,8 +31,9 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
         { id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn' }
     ];
 
-    public getVacationpayBasis(year: number = this.yearService.getActiveYear(), payrun: number = 0): Observable<IVacationPayLine[]> {
-        return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}`);
+    public getVacationpayBasis(year: number = this.yearService.getActiveYear(), payrun: number = 0, showAllEmps?: boolean)
+        : Observable<VacationPayLine[]> {
+        return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}&showAll=${showAllEmps}`);
     }
 
     public createVacationPay(year: number, payrun: number, payList: VacationPayLine[], hasSixthWeek: boolean) {
@@ -48,18 +47,16 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
             .send();
     }
 
-    public manualVacationPayBase(line: IVacationPayLine) {
-        return this.yearService.getActiveYear() - line.Year > 1
-            ? this.sumUpPrevInfo(line, 'ManualBase') + line.ManualVacationPayBase
-            : line.ManualVacationPayBase;
-    }
-
-    public sumUpPrevInfo(line: IVacationPayLine, field: string) {
-        return this.sumUpInfos(line.VacationInfos.filter(x => x.BaseYear < line.Year), field);
-    }
-
-    public sumUpInfos(infos: VacationInfo[], field: string) {
-        return infos
-            .reduce((acc, curr) => acc + curr[field] || 0, 0);
+    public toSalary(baseYear: number, run: number, payList: VacationPayLine[]): Observable<boolean> {
+        if (!payList.length) {
+            return of(true);
+        }
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=to-salary&payrollID=${run}&baseYear=${baseYear}`)
+            .withBody(payList)
+            .send();
     }
 }
