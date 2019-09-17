@@ -124,7 +124,7 @@
                             <span>Importer variable lønnsposter</span>
                         </label>
                         <label class="upload-input" (click)="openDownloadTemplateModal(payrollType)"
-                            *ngIf="uiPermission.payroll.hasTemplateAccess"><!-- TODO::implemente ui permission -->
+                            *ngIf="uiPermission.payroll.hasTemplateAccess">
                             <i class="material-icons">cloud_download</i>
                             <span>Last ned mal</span>
                         </label>
@@ -133,10 +133,10 @@
             </div>
 
             <!-- saf t -->
-            <div class="col-lg-4 card-container" *ngIf="false">
+            <div class="col-lg-4 card-container" *ngIf="uiPermission.saft.hasComponentAccess">
                 <div class="import-card">
                     <div class="card-header">
-                        <a [routerLink]="['/admin/import-central-log-history']">Logg</a>
+                        <a (click)="navigateToLogs(saftType)">Logg</a>
                     </div>
                     <div class="card-content">
                         <i class="material-icons">insert_drive_file</i>

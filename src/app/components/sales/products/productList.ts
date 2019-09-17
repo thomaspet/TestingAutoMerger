@@ -10,7 +10,7 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
 import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
-import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 
 @Component({
@@ -184,8 +184,8 @@ export class ProductList {
                     type: 'Product',
                     entity: TemplateType.Product,
                     conditionalStatement: '',
-                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)',
-                    downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
+                    formatStatement: ImportStatement.ProductFormatStatement,
+                    downloadStatement: ImportStatement.ProductDownloadStatement,
                     downloadTemplateUrl: this.productTemplateUrl,
                     hasTemplateAccess: this.productPermissions.hasTemplateAccess,
                     isExternal: true

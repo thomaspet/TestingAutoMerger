@@ -31,6 +31,14 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     showCancel: boolean;
     loading$: Subject<any> = new Subject();
     payrollType: TemplateType = TemplateType.Payroll;
+
+    //saft related
+    saftType: TemplateType = TemplateType.Saft;
+    isOpening: boolean = false;
+    isKeepRecords: boolean = false;
+    isUpdate: boolean = false;
+    isAutomatic: boolean = false;
+
     selectedPayroll = {
         name: 'no payrolls found',
         id: 0
@@ -56,7 +64,8 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     constructor(
         private authService: AuthService,
-        private http: HttpClient, private jobService: JobService,
+        private http: HttpClient, 
+        private jobService: JobService,
         private toastService: ToastService,
         private payrollService: PayrollrunService,
         private errorService: ErrorService,
@@ -123,7 +132,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     private isValidFormat(fileName: string): boolean {
         const type = fileName.split(/[.]+/).pop();
         // removed txt file type since it is not in the mockup
-        if (type === 'txt' || type === 'xlsx') {
+        if (type === 'txt' || type === 'xlsx' || type === 'xml') {
             this.isValidFileFormat = true;
             this.fileType = type === 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat;
             return true;
@@ -151,6 +160,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     }
 
     private uploadFile(file: File) {
+        let dataToImport = {};
         this.loading$.next(true);
         // NOTE: comment when testing and hardcode the file in backend.
         this.uploadFileToFileServer(file).subscribe((res) => {
@@ -164,8 +174,21 @@ export class ImportTemplateModal implements OnInit, IUniModal {
             ImportOption: this.importOption,
             OtherParams: { payrollId: this.selectedPayroll.id }
         }
+        dataToImport = importModel;
+        if (this.options.data.entity === this.saftType) {
+            let saftModel = {
+                FileID: res.ExternalId,
+                FileName: res.Name,
+                CompanyKey: this.companyKey,
+                IncludeStartingBalance: this.isOpening,
+                ReuseExistingNumbers: this.isKeepRecords,
+                UpdateExistingData: this.isUpdate,
+                Automark: this.isAutomatic
+            }
+            dataToImport = saftModel;
+        }
         this.loading$.next(true);
-        this.importFileToJobServer(this.options.data.jobName, importModel).subscribe(
+        this.importFileToJobServer(this.options.data.jobName, dataToImport).subscribe(
             res => {
                 this.close();
                 this.showToast(file.name);

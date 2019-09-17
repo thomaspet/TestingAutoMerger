@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { IUniModal, IModalOptions } from "@uni-framework/uni-modal";
 import { JobService } from "@app/services/services";
 import { Router } from "@angular/router";
+import { ImportJobName } from "@app/models/import-central/ImportDialogModel";
 
 @Component({
     selector: 'import-details',
@@ -41,7 +42,20 @@ export class ImportDetailsModal implements OnInit, IUniModal {
     }
 
     private setJobStatus() {
-        this.status = this.log.length ? false : true;
+        if (this.options.data.jobName === ImportJobName.Saft) {
+            if (this.log.length) {
+                if (this.log[0].Msg === "Import completed") {
+                    this.status = true;
+                } else {
+                    this.status = false;
+                }
+            }
+            else {
+                this.status = false;
+            }
+        } else {
+            this.status = this.log.length ? false : true;
+        }
         // if (this.log && this.log.length && this.log[0].Msg)
         //     this.status = (this.log[0].Msg.includes("error") || this.log[0].Msg.includes("errors")) ? false : true;
     }

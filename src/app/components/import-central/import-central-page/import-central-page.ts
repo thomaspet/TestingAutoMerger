@@ -7,7 +7,7 @@ import { DisclaimerModal } from '../modals/disclaimer/disclaimer-modal';
 import { DownloadTemplateModal } from '../modals/download-template/download-template-modal';
 import { ImportTemplateModal } from '../modals/import-template/import-template-modal';
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
-import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 
 @Component({
   selector: 'import-central-page',
@@ -31,7 +31,8 @@ export class ImportCentralPage {
     product: new ImportUIPermission(),
     supplier: new ImportUIPermission(),
     ledger: new ImportUIPermission(),
-    payroll: new ImportUIPermission()
+    payroll: new ImportUIPermission(),
+    saft: new ImportUIPermission()
   }
 
   constructor(
@@ -78,38 +79,39 @@ export class ImportCentralPage {
   }
 
   public openImportModal(templateType: TemplateType) {
-    let header, jobName, type, templateUrl, formatStatement, downloadStatement;
+    let header, jobName, type, templateUrl, conditionalStatement, formatStatement, downloadStatement;
     switch (templateType) {
       case TemplateType.Product:
         header = 'Importer produkt';
         jobName = ImportJobName.Product;
         type = 'Produkt';
-        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)';
-        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system';
+        formatStatement = ImportStatement.ProductFormatStatement;
+        downloadStatement = ImportStatement.ProductDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT
         break;
       case TemplateType.Customer:
         header = 'Importer kunde';
         jobName = ImportJobName.Customer;
         type = 'Kunde';
-        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.';
-        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
+        formatStatement = ImportStatement.CustomerFormatStatement;
+        downloadStatement = ImportStatement.CustomerDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER
         break;
       case TemplateType.Supplier:
         header = 'Importer leverandør';
         jobName = ImportJobName.Supplier;
         type = 'Leverandør';
-        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.';
-        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
+        formatStatement = ImportStatement.SupplierFormatStatement;
+        downloadStatement = ImportStatement.SupplierDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER
         break;
       case TemplateType.MainLedger:
         header = 'Importer kontoplan';
         jobName = ImportJobName.MainLedger;
         type = 'MainLedger';
-        formatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'20\'). For bruk til import fra Uni økonomi V3.';
-        downloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.';
+        conditionalStatement = ImportStatement.MainLedgerConditionalStatement;
+        formatStatement = ImportStatement.MainLedgerFormatStatement;
+        downloadStatement = ImportStatement.MainLedgerDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
         break;
       case TemplateType.Payroll:
@@ -118,12 +120,20 @@ export class ImportCentralPage {
         type = 'Payroll';
         formatStatement = '';
         downloadStatement = '';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL
+        templateUrl = ''
+        break;
+      case TemplateType.Saft:
+        header = 'SAF-T Import';
+        jobName = ImportJobName.Saft;
+        type = 'Saft';
+        formatStatement = '';
+        downloadStatement = '';
+        templateUrl = ''
         break;
       default:
-        header = 'SAF-T Import';
-        jobName = 'SAFTImportJob';
-        type = 'SAFT';
+        header = '';
+        jobName = '';
+        type = '';
         break;
     }
     this.modalService.open(ImportTemplateModal,
@@ -133,6 +143,7 @@ export class ImportCentralPage {
           jobName: jobName,
           type: type,
           entity: templateType,
+          conditionalStatement: conditionalStatement,
           formatStatement: formatStatement,
           downloadStatement: downloadStatement,
           downloadTemplateUrl: templateUrl
@@ -163,10 +174,20 @@ export class ImportCentralPage {
         message = 'Inkluder eksisterende';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger }
         break;
-      default:
-        header = 'SAF-T Eksportmal';
+      case TemplateType.Payroll:
+        header = 'Lønnsposter Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: '' }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll }
+        break;
+      case TemplateType.Saft:
+        header = 'Saft Eksportmal';
+        message = 'Inkluder eksisterende';
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft }
+        break;
+      default:
+        header = '';
+        message = '';
+        data = { StandardUniFormat: '', StandardizedExcelFormat: ''}
         break;
     }
 

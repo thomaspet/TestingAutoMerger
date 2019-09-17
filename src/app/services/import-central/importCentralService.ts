@@ -11,7 +11,8 @@ export class ImportCentralService {
         product: new ImportUIPermission(),
         supplier: new ImportUIPermission(),
         ledger: new ImportUIPermission(),
-        payroll: new ImportUIPermission()
+        payroll: new ImportUIPermission(),
+        saft: new ImportUIPermission()
     }
 
     public getTemplateWithData(entityType) {
@@ -35,7 +36,7 @@ export class ImportCentralService {
     }
 
     public getAccessibleComponents(permissions) {
-        ['customer', 'product', 'supplier', 'ledger', 'payroll'].forEach(ent => this.resetUIPermissions(ent));
+        ['customer', 'product', 'supplier', 'ledger', 'payroll', 'saft'].forEach(ent => this.resetUIPermissions(ent));
         if (permissions.length) {
             permissions.map(per => {
                 let uiKeys = per.split('_');
@@ -45,6 +46,7 @@ export class ImportCentralService {
                     this.setPermissions(uiKeys, 'supplier');
                     this.setPermissions(uiKeys, 'ledger');
                     this.setPermissions(uiKeys, 'payroll');
+                    this.setPermissions(uiKeys, 'saft');
                 }
             });
         } else {
@@ -53,6 +55,7 @@ export class ImportCentralService {
             this.setPermissions(permissions, 'supplier');
             this.setPermissions(permissions, 'ledger');
             this.setPermissions(permissions, 'payroll');
+            this.setPermissions(permissions, 'saft');
         }
         return this.uiPermission;
     }

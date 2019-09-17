@@ -1,4 +1,6 @@
 @import '../../import-central-common.sass'
+.uni-modal
+    border-radius: 10px !important
 .dropdown-section 
     display: flex
     margin-top: 20px
@@ -110,7 +112,24 @@
 
             label
                 color: black
-            
+
+.check-box-section
+    display: flex
+    margin-top: 20px
+    flex-direction: column
+    div
+        .title
+            flex: 1
+            margin-top: 0
+            @media #{$xs-and-less}      
+                flex: 0
+
+        .check-box-container
+            flex: 2
+
+        .check-box
+            margin-right: 10px
+               
 .error-msg 
     margin-top: 5px
     font-size: 12px
