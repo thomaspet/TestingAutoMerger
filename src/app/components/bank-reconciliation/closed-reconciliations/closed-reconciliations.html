@@ -11,7 +11,7 @@
         </span>
 
         <button (click)="reset()">Fjern alle</button>
-        <button (click)="save()"class="c2a">Lagre</button>
+        <button [disabled]="true" (click)="save()"class="c2a">Lagre</button>
     </section>
 
     <section class="closed-groups">

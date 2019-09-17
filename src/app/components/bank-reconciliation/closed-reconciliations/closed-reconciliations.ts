@@ -33,7 +33,8 @@ export class ClosedReconciliations {
     }
 
     save() {
-        this.session.saveChanges();
-        this.close.emit();
+        this.session.saveChanges()
+            .subscribe( () => { this.close.emit(); this.session.reset(); } );
+
     }
 }
