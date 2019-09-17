@@ -88,7 +88,6 @@ export class BankStatementJournalModal implements IUniModal {
 
             this.createLookupColumn('Debet', 'Konto', 'Debet',
                 x => this.lookupAccountByQuery(x), 'AccountNumber', 'AccountName', 'Debet.superLabel').setWidth('6rem'),
-                // x => this.lookupAccount(x), '', 'superLabel').setWidth('6rem'),
 
             this.createLookupColumn('Credit', 'Motkonto', 'Credit',
                 x => this.lookupAccountByQuery(x), 'AccountNumber', 'AccountName', 'Credit.superLabel').setWidth('6rem'),
@@ -134,19 +133,6 @@ export class BankStatementJournalModal implements IUniModal {
         });
     }
 
-    public lookupAccount(txt: string) {
-        const list = this.session.accounts;
-        const lcaseText = txt.toLowerCase();
-        const isNumeric = parseInt(txt, 10);
-        const sublist = list.filter((item: IAccount) => {
-            if (isNumeric > 0) {
-                return item.AccountNumber.toString().indexOf(txt) === 0;
-            }
-            return (item.AccountNumber.toString() === txt || item.superLabel.toLowerCase().indexOf(lcaseText) >= 0);
-        });
-        return Observable.from([sublist]);
-    }
-
     private filterInputAllowPercent(v: string) {
         return v.replace(/[`~!@#$^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
     }
@@ -164,7 +150,7 @@ export class BankStatementJournalModal implements IUniModal {
         if (isNumeric > 0) {
             filter = `startswith(accountnumber,'${lcaseText}')`;
         } else {
-            filter = `startswith(accountname,'${lcaseText}')`;
+            filter = `contains(accountname,'${lcaseText}')`;
         }
         return this.session
             .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID'
