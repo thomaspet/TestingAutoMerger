@@ -1,7 +1,7 @@
-import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf } from 'rxjs';
-import {switchMap, map} from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -697,7 +697,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             reject: 'Ikke oppdater'
                         },
                         message: 'Kunden du har valgt har en annen utsendelsesplan enn den som allerede er valgt for ' +
-                        'denne faktura. Ønsker du å oppdatere utsendelsesplanen for denne faktura til å matche kundens?'
+                            'denne faktura. Ønsker du å oppdatere utsendelsesplanen for denne faktura til å matche kundens?'
                     }
                 ).onClose.subscribe((res) => {
                     if (res === ConfirmActions.ACCEPT) {
@@ -1787,10 +1787,22 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             }
 
                             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                                (res) => this.selectConfig = undefined,
+                                (res) => {
+                                    this.selectConfig = undefined;
+                                    if (isCreditNote && res['CustomValues'].AprilaOrderStatus) {
+                                        this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
+                                    }
+                                },
                                 (err) => {
+                                    const errMsg: string = err.error.Message;
+                                    if (isCreditNote && errMsg.indexOf('AprilaError') > -1) {
+                                        this.openAprilaCreditNoteModal('ERROR');
+                                    } else {
+                                        this.errorService.handle(err);
+                                    }
+ 
                                     done('Feil oppstod!');
-                                    this.errorService.handle(err);
+
                                 },
                                 () => {
 
@@ -1805,23 +1817,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 });
 
 
-                            if (isCreditNote && invoice['CustomValues'].AprilaOrderStatus) {
-                                    this.openAprilaCreditNoteModal(invoice['CustomValues'].AprilaOrderStatus);
-                                }
+
 
                         } else {
                             done('Lagring feilet');
                         }
                     }).catch(error => {
-                        const errMsg: string = error.error.Message;
-                        if (isCreditNote && errMsg.indexOf('AprilaError') > -1) {
-                            this.openAprilaCreditNoteModal('ERROR');
-                            done();
-                        } else {
-                        this.handleSaveError(error, done);
-                        }
+                            this.handleSaveError(error, done);
                     });
-
                 } else {
                     done('Lagring avbrutt');
                 }
