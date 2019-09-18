@@ -9,7 +9,7 @@ import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 
 // REVISIT: toolbar should be a module (maybe even in framework?)
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
-import {StatusTrack} from './toolbar/statustrack';
+import {StatusTrack} from './toolbar/statustrack/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarShare} from './toolbar/share';

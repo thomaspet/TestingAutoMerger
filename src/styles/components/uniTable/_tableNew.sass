@@ -76,20 +76,13 @@ ag-grid-angular
 // Header & cell styling
 .ag-header
     background: #fff
-    color: var(--header-color) // #8B96AC // $uni-color-scale5
+    color: var(--header-color)
     font-weight: 500
     border-bottom: 1px solid var(--border-color)
 
 .ag-row
-    color: #485460
+    color: var(--text-color)
     border-bottom: 1px solid var(--border-color)
-//     &:last-of-type
-//         border-bottom: none
-
-// .ag-body
-//     border: 1px solid var(--border-color)
-//     border-top: none
-
 
 // Hide resize indicator
 .ag-header-cell::after
@@ -175,7 +168,7 @@ ag-grid-angular.editable
         display: block
         width: 100%
         cursor: pointer
-        padding: 5px
+        padding: 5px 0
         text-decoration: none
         color: var(--link-color) !important
         &:hover

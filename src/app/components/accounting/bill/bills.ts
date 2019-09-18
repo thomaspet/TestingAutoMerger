@@ -727,7 +727,7 @@ export class BillsView implements OnInit {
         }
         if (this.totals) { this.totals.grandTotal = 0; }
         const cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
+            new UniTableColumn('ID', 'Nr.')
                 .setWidth('4rem')
                 .setFilterOperator('startswith'),
             new UniTableColumn('Name', 'Filnavn')
@@ -956,13 +956,14 @@ export class BillsView implements OnInit {
     }
 
     private calculatePagesize(): number {
-        let pageSize = window.innerHeight // Window size
-        - 76 // Navbar + margin
-        - 208 // Body margin and padding
-        - 32 // Application class margin
-        - 88; // Unitable pagination and sum
+        let pageSize = window.innerHeight
+        - 80 // navbar
+        - 88 // toolbar
+        - 64 // tabs
+        - 100 // Margin/padding
+        - 100; // Table search & pagination
 
-        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 35); // 34 = heigth of a single row
+        pageSize = pageSize <= 100 ? 10 : Math.floor(pageSize / 45) - 1;
 
         return pageSize;
     }

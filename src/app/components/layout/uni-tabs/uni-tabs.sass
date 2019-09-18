@@ -18,19 +18,22 @@
 
     &.scoped
         background: #f9f9f9
-        border-top-left-radius: 3px
-        border-top-right-radius: 3px
+        border-top-left-radius: 4px
+        border-top-right-radius: 4px
 
-        .tab:first-of-type
-            border-top-left-radius: 3px
-        .tab.active
-            background: #fff
-            &:not(:first-of-type)
-                border-left: 1px solid var(--border-color)
-            &:not(:last-of-type)
-                border-right: 1px solid var(--border-color)
-            &:after
-                display: none
+        .tab
+            font-size: 14px
+
+            &:first-of-type
+                border-top-left-radius: 4px
+            &.active
+                background: #fff
+                &:not(:first-of-type)
+                    border-left: 1px solid var(--border-color)
+                &:not(:last-of-type)
+                    border-right: 1px solid var(--border-color)
+                &:after
+                    display: none
 
 .tab-container
     flex: 1
@@ -53,7 +56,6 @@
     color: var(--tab-color)
     &.active
         color: var(--active-tab-color)
-        font-weight: 500
 
 .tab
     &.active
@@ -72,8 +74,10 @@
         pointer-events: none
 
 strong
-    padding-left: .5rem
     font-weight: 500
+    font-size: 14px
+    padding-left: .5rem
+    padding-top: 1px
 
 .tab-tooltip
     vertical-align: middle

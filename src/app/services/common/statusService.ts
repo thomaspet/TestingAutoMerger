@@ -162,6 +162,7 @@ export class StatusService {
                 const data = responses[1].Data ? responses[1].Data : [];
                 data.forEach(item => {
                     item.FromStatusText = this.getStatusText(item.FromStatus);
+                    item.ToStatusText = this.getStatusText(item.ToStatus);
                     const createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
                     item.CreatedByName = createdByUser ? createdByUser.DisplayName : '';
                 });

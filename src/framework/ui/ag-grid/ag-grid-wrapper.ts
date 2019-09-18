@@ -77,7 +77,7 @@ export class AgGridWrapper {
     agColDefs: ColDef[];
     rowClassResolver: (params) => string;
 
-    rowHeight = 50;
+    rowHeight = 45;
     markedRowCount: number = 0;
     sumMarkedRows: any = 0;
 
@@ -766,7 +766,6 @@ export class AgGridWrapper {
             }
 
             if (!col.width || col.width >= 100) {
-                console.log(col);
                 agCol.minWidth = 100;
             } else {
                 agCol.minWidth = <number> col.width;

@@ -3804,9 +3804,8 @@ export class BillView implements OnInit {
                 : 'Ny leverandørfaktura',
             subheads: [
                 { title: doc && doc.InvoiceNumber ? `Fakturanr. ${doc.InvoiceNumber}` : '' },
-                { title: doc && doc.Supplier ? `Lev.nr. ${doc.Supplier.SupplierNumber}` : '' },
                 {
-                    title: jnr ? `(Bilagsnr. ${jnr})` : `(ikke bokført)`,
+                    title: jnr ? `Bilagsnr. ${jnr}` : '',
                     link: jnr
                         ? jnr.split('-').length > 1
                             ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`

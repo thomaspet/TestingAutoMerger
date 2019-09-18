@@ -1,0 +1,82 @@
+<section class="status-container" *ngIf="activeStatus">
+    <section class="status-indicator">
+        <i class="material-icons">info</i>
+        {{activeStatus.title}}
+    </section>
+
+    <section class="status-details">
+        <section class="sub-statuses" *ngIf="activeStatus.substatusList?.length">
+            <span class="header">Understatuser</span>
+            <ul>
+                <li *ngFor="let substatus of activeStatus.substatusList">
+                    <span>{{substatus.title}}</span>
+                    <span>{{formatTime(substatus.timestamp, substatus.formatDateTime)}}</span>
+                    <span>{{substatus.subtitle}}</span>
+                </li>
+            </ul>
+        </section>
+        
+        <section class="history" *ngIf="entityType && entityID">
+            <span class="header">Historikk</span>
+
+            <a *ngIf="!activeStatus.logEntries" (click)="selectStatus(activeStatus)">
+                Hent statushistorikk
+            </a>
+
+            <ul *ngIf="activeStatus.logEntries">
+                <li *ngFor="let logEntry of activeStatus.logEntries">
+                    <span>
+                        {{logEntry.FromStatusText || 'Ingen status' }}
+                        <i class="material-icons">arrow_right</i>
+                        {{logEntry.ToStatusText}}
+                    </span>
+
+                    <span>Endret av: {{logEntry.CreatedByName}}</span>
+                    <span>{{formatTime(logEntry.CreatedAt)}}</span>
+                </li>
+            </ul>
+        </section>        
+    </section>
+</section>
+
+<!-- <ol>
+    <li *ngFor="let status of config"
+        [ngClass]="getStatusClass(status.state)"
+        [attr.data-badge]="status.badge">
+
+        <span class="statustrack_title"
+            (click)="selectStatus(status)"
+            [attr.data-badge]="status.badge">
+            {{status.title}}
+        </span>
+
+        <ol *ngIf="status.substatusList?.length >= 2 || status.forceSubstatus "
+            class="statustrack_substati">
+
+            <li *ngFor="let substatus of status.substatusList" (click)="selectStatus(substatus, status)">
+                {{substatus.title}}
+                <i *ngIf="isActiveSubStatus(substatus)" class="checkmark material-icons">check_circle</i>
+
+                <time [attr.datetime]="substatus.timestamp?.toDateString()">
+                    {{formatTime(substatus.timestamp, substatus.formatDateTime)}}
+                </time>
+
+                <i *ngIf="substatus.subtitle">{{substatus.subtitle}}</i>
+            </li>
+        </ol>
+
+        <ol *ngIf="status.logEntries"
+            class="statustrack_statuslog">
+            <li *ngFor="let statusChange of status.logEntries">
+                <div>Forrige status: <strong>{{statusChange.FromStatusText}}</strong></div>
+                <div>Endret av: <strong>{{statusChange.CreatedByName}}</strong></div>
+                <time>
+                    {{formatTime(statusChange.CreatedAt)}}
+                </time>
+            </li>
+            <li *ngIf="status.logEntries.length === 0">
+                Ingen statusoppdateringer funnet for denne statusen
+            </li>
+        </ol>
+    </li>
+</ol> -->
