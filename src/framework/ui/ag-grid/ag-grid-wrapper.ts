@@ -766,10 +766,9 @@ export class AgGridWrapper {
             }
 
             if (!col.width || col.width >= 125) {
+                console.log(col);
                 agCol.minWidth = 125;
             }
-
-            agCol.minWidth = 125;
 
             agCol.colId = col.field;
 
@@ -786,6 +785,8 @@ export class AgGridWrapper {
                 suppressResize: true,
                 suppressSorting: true,
                 suppressMovable: true,
+                headerClass: 'checkbox-cell',
+                cellClass: 'checkbox-cell'
             });
 
             this.selectionMode = 'multiple';
@@ -829,6 +830,7 @@ export class AgGridWrapper {
                 suppressAutoSize: true,
                 suppressSizeToFit: true,
                 valueGetter: () => 'Flytt rad',
+                cellClass: 'row-drag-cell'
             });
         }
 

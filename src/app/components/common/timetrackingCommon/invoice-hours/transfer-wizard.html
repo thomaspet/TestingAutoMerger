@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal">
-    <header>>Overføring av timer</header>
+    <header>Overføring av timer</header>
 
     <article [attr.aria-busy]="busy">
         <div class="stepheader">{{steps[step].label}}:</div>
@@ -36,9 +36,26 @@
     </article>
 
     <footer>
-        <p style="float: left">Steg {{step+1}} av {{steps.length}}</p>
-        <button [disabled]="workInProgress" *ngIf="step>0" class="bad" (click)="goBack()">Tilbake</button>
-        <button [disabled]="workInProgress" class="good" id="good_button_ok" (click)="accept()" [innerHtml]="step<steps.length-1 ? 'Videre': 'Fullfør'"></button>
-        <button [disabled]="workInProgress" class="cancel" (click)="cancel()">Avbryt</button>
+        <button class="secondary pull-left"
+            [disabled]="workInProgress" 
+            (click)="cancel()">
+            Avbryt
+        </button>
+
+        <span style="margin-right: 2rem">Steg {{step+1}} av {{steps.length}}</span>
+
+        <button *ngIf="step > 0" class="secondary" 
+            [disabled]="workInProgress" 
+            (click)="goBack()">
+            Tilbake
+        </button>
+        
+        <button 
+            [ngClass]="step < steps.length - 1 ? 'c2a': 'good'"  
+            [disabled]="workInProgress" 
+            id="good_button_ok"
+            (click)="accept()">
+            {{step < steps.length - 1 ? 'Videre': 'Fullfør'}}
+        </button>
     </footer>
 </section>
