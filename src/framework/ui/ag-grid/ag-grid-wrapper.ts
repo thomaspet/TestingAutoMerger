@@ -765,9 +765,11 @@ export class AgGridWrapper {
                 agCol.width = +col.width;
             }
 
-            if (!col.width || col.width >= 125) {
+            if (!col.width || col.width >= 100) {
                 console.log(col);
-                agCol.minWidth = 125;
+                agCol.minWidth = 100;
+            } else {
+                agCol.minWidth = <number> col.width;
             }
 
             agCol.colId = col.field;
