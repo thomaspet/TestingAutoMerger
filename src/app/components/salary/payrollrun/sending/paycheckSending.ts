@@ -19,6 +19,7 @@ export class PaycheckSending implements OnInit {
 
     @Input() runID: number;
     @Output() selectedEmps: EventEmitter<Employee[]> = new EventEmitter();
+    @Output() busy: EventEmitter<boolean> = new EventEmitter();
 
     emailCount: number = 0;
     printCount: number = 0;
@@ -66,6 +67,7 @@ export class PaycheckSending implements OnInit {
     }
 
     private loadEmployeesInPayrollrun() {
+        this.busy.next(true);
         this.payrollrunService.getEmployeesOnPayroll(
             this.runID, ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail']
         ).subscribe((employees: Employee[]) => {
@@ -91,6 +93,7 @@ export class PaycheckSending implements OnInit {
                 { name: 'Med e-post', onClick: () => this.filterEmpsWithEmail(), count: this.empsWithEmail.length },
                 { name: 'Uten e-post', onClick: () => this.filterEmpsWithoutEmail(), count: this.empsWithoutEmail.length }
             ];
+            this.busy.next(false);
         });
     }
 

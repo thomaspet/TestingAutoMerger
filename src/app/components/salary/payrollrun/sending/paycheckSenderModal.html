@@ -3,7 +3,7 @@
         <h1>Send/Skriv ut lønnslipp</h1>
     </header>
 
-    <article class="scrollable">
+    <article class="scrollable" [attr.aria-busy]="busy">
         <uni-paycheck-mail-options
             (mailOptions)="onEmailOptions($event)">
         </uni-paycheck-mail-options>
