@@ -13,8 +13,7 @@
             (tabClick)="onCustomerFilterClick($event)">
         </uni-tabs>
     <section class="splitview">
-        <nav class="small-split-view-list" style="min-width: 24rem !important">
-
+        <nav class="small-split-view-list">
             <mat-form-field>
                 <mat-select [value]="currentListFilter" placeholder="Sorter etter">
                     <mat-option *ngFor="let filter of accountListfilters" [value]="filter" (click)="onActiveFilterChange(filter)">

@@ -27,12 +27,11 @@
                 [class.selected]="employee.ID === selectedEmp?.ID"
                 class="emp-item"
                 (click)="rowSelected(employee)" style="display: flex; flex-direction: row;">
-                <div> {{ employee.EmployeeNumber }} </div>
-                <span> {{ employee.Name }} </span>
+                <span>{{ employee.EmployeeNumber }} - {{ employee.Name }}</span>
                 <i class="material-icons bad" *ngIf="errors[employee.ID]" title="{{ errors[employee.ID] }}"> warning </i>
             </li>
             <li *ngIf="hasInitialized && !(filteredEmployees).length" style="padding: 0; line-height: 34px;">
-                <span (click)="getEmployee()" style="font-weight: 600;"> Ingen ansatte å vise. Legg til ny </span>
+                <span (click)="getEmployee()"> Ingen ansatte å vise. Legg til ny </span>
             </li>
         </cdk-virtual-scroll-viewport>
     </section>
