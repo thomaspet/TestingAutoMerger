@@ -33,25 +33,36 @@ export class PaymentService extends BizHttp<Payment> {
             case 44001:
                 return 'Opprettet';
             case 44002:
-            case 44005:
-            case 44007:
-            case 44008:
                 return 'Overført bank';
-            case 44009:
-                return 'Overført bank avventer godkjenning';
-            case 44011:
-                return 'Manuelt overført bank';
-            case 44006:
-                return 'Betalt';
+            case 44003:
+            case 44012:
+                return 'Feilet';
             case 44004:
                 return 'Fullført';
-            case 44013:
-                    return 'Kommunikasjonsfeil. Vennligst dobbelsjekk i nettbanken';
-            case 44003:
+            case 44005:
+                return 'Fil generert - ikke overført';
+            case 44006:
+                return 'Betalt';
+            case 44007:
+                return 'Fil mottatt av zdata';
+            case 44008:
+                return 'I bankens forfallsregister';
+            case 44009:
+                return 'Overført bank avventer godkjenning';
             case 44010:
-            case 44012:
+                return 'Avvist av zdata';
+            case 44011:
+                return 'Manuelt overført bank';
+            case 44013:
+                return 'Kommunikasjonsfeil. Vennligst dobbelsjekk i nettbanken';
             case 44014:
-                return 'Feilet';
+               return 'Kansellert';
+            case 44015:
+                return 'Avventer godkjenning i nettbanken';
+            case 44016:
+                return 'Godkjent i nettbanken';
+            case 44017:
+                return 'Avvist av godkjenner';
             case 44018:
                 return 'Ingen match';
             case 44019:
