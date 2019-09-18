@@ -146,6 +146,11 @@
                             "Field": "IsCustomerPayment",
                             "Operator": "eq",
                             "Value": "true"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         }
                     ]
                 }]
