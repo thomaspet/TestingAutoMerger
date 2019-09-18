@@ -311,7 +311,7 @@ export class AgGridWrapper {
                 }
             }
 
-            if (hasSumRow) {
+            if (hasSumRow || this.config.showTotalRowCount) {
                 height += this.rowHeight;
             }
 
