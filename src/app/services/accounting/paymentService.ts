@@ -58,9 +58,9 @@ export class PaymentService extends BizHttp<Payment> {
             case 44014:
                return 'Kansellert';
             case 44015:
-                return 'Avventer godkjenning i netbanken';
+                return 'Avventer godkjenning i nettbanken';
             case 44016:
-                return 'Godkjent i netbanken';
+                return 'Godkjent i nettbanken';
             case 44017:
                 return 'Avvist av godkjenner';
             case 44018:
