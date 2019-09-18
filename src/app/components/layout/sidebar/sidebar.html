@@ -10,9 +10,9 @@
             [ngClass]="{'collapsed': state === 'collapsed'}">
 
             <li *ngFor="let section of navbarLinkSections; let idx = index"
-                [attr.aria-expanded]="expandedSectionIndex === idx">
+                [attr.aria-expanded]="expandedSectionIndex === idx && !section.isOnlyLinkSection">
 
-                <section class="sidebar-section-header" (click)="toggleSection(idx)">
+                <section class="sidebar-section-header" (click)="toggleSection(idx, section)">
                     <i class="material-icons-outlined"
                         *ngIf="section.mdIcon"
                         [matTooltip]="section.name"

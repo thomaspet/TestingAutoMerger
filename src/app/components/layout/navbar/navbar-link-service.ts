@@ -4,11 +4,12 @@ import {AuthService} from '@app/authService';
 import {
     NO_UNI_NAVBAR_LINKS,
     NO_SR_NAVBAR_LINKS,
+    SETTINGS_LINKS,
     INavbarLinkSection,
     INavbarLink
 } from './navbar-links';
 import {UniModules} from './tabstrip/tabService';
-import {UserDto} from '@uni-entities';
+import {UserDto, User} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService, UniTranslationService} from '@app/services/services';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Observable} from 'rxjs';
@@ -23,6 +24,7 @@ export class NavbarLinkService {
     private user: UserDto;
     public localeValue: string = '';
     public linkSections$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
+    public settingsSection$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
 
     sidebarState$: BehaviorSubject<SidebarState>;
     megaMenuVisible$ = new BehaviorSubject(false);
@@ -61,40 +63,63 @@ export class NavbarLinkService {
             this.company = authDetails.activeCompany;
             if (authDetails.user) {
                 this.user = authDetails.user;
+                this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
                 this.resetNavbar();
             }
         });
     }
 
     public resetNavbar() {
-
+        this.settingsSection$.next(this.getSettingsFilteredByPermissions(this.user));
         this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
 
-        this.getDimensionRouteSection(this.user).subscribe(
-            dimensionLinks => {
-                if (dimensionLinks) {
-                    const linkSections = this.linkSections$.getValue();
-                    const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
+        // Only get dimensions tab view when in UNI-VIEW
+        if (this.localeValue === 'NO_UNI') {
+            this.getDimensionRouteSection(this.user).subscribe(
+                dimensionLinks => {
+                    if (dimensionLinks) {
+                        const linkSections = this.linkSections$.getValue();
+                        const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
 
-                    // Insert before settings (or marketplace if no settings access)
-                    const insertIndex = linkSections.findIndex(section => {
-                        return section.name === 'Innstillinger' || section.name === 'Markedsplass';
-                    });
+                        // Insert before settings (or marketplace if no settings access)
+                        const insertIndex = linkSections.findIndex(section => {
+                            return section.name === 'Innstillinger' || section.name === 'Markedsplass';
+                        });
 
-                    // If dimensions is already in the list, just update
-                    if (dimensionsIdx !== -1) {
-                        linkSections[dimensionsIdx] = dimensionLinks;
-                    } else if (insertIndex > 0) {
-                        linkSections.splice(insertIndex, 0, dimensionLinks);
-                    } else {
-                        linkSections.push(dimensionLinks);
+                        // If dimensions is already in the list, just update
+                        if (dimensionsIdx !== -1) {
+                            linkSections[dimensionsIdx] = dimensionLinks;
+                        } else if (insertIndex > 0) {
+                            linkSections.splice(insertIndex, 0, dimensionLinks);
+                        } else {
+                            linkSections.push(dimensionLinks);
+                        }
+
+                        this.linkSections$.next(linkSections);
                     }
+                },
+                err => console.error(err)
+            );
+        }
+    }
 
-                    this.linkSections$.next(linkSections);
-                }
-            },
-            err => console.error(err)
-        );
+    private getSettingsFilteredByPermissions(user: UserDto): any[] {
+        const settingsSections: INavbarLinkSection[] = _.cloneDeep(SETTINGS_LINKS);
+        // Filter out links the user doesnt have access to for every section
+        settingsSections.forEach(section => {
+            section.linkGroups = section.linkGroups.map(group => {
+                group.links = group.links.filter(link => {
+                    const canActivate = this.authService.canActivateRoute(user, link.url);
+                    return canActivate;
+                });
+                return group;
+            });
+        });
+
+        // Filter out sections where the user doesnt have access to any links
+        return settingsSections.filter(section => {
+            return section.linkGroups.some(group => group.links.length > 0);
+        });
     }
 
     private getLinksFilteredByPermissions(user): any[] {
@@ -122,7 +147,7 @@ export class NavbarLinkService {
 
         // Filter out sections where the user doesnt have access to any links
         return routeSections.filter(section => {
-            return section.linkGroups.some(group => group.links.length > 0);
+            return section.isOnlyLinkSection || section.linkGroups.some(group => group.links.length > 0);
         });
     }
 
@@ -136,6 +161,7 @@ export class NavbarLinkService {
                     icon: 'dimension',
                     isSuperSearchComponent: true,
                     mdIcon: 'developer_board',
+                    megaMenuGroupIndex: 0,
                     linkGroups: [{
                         name: '',
                         links: this.getDimensionLinks(dimensions)

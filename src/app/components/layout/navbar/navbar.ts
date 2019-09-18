@@ -88,14 +88,13 @@ export class UniNavbar {
             this.sidebarState = state;
         });
 
-        this.navbarService.linkSections$.subscribe(linkSections => {
+        this.navbarService.settingsSection$.subscribe(linkSections => {
             this.settingsLinks = [];
             this.adminLinks = [];
 
             try {
-                const settingsSection = linkSections.find(section => section.url === '/settings');
-                this.settingsLinks = settingsSection.linkGroups[0].links;
-                this.adminLinks = settingsSection.linkGroups[1].links;
+                this.settingsLinks = linkSections[0].linkGroups[0].links;
+                this.adminLinks = linkSections[0].linkGroups[1].links;
             } catch (e) {/* dont care, just means the user doesnt have settings permissions */}
 
             this.cdr.markForCheck();

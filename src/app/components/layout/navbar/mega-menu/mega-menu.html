@@ -11,26 +11,29 @@
     <!-- <img src="../../../../../assets/economy-logo.png" alt="Uni Economy logo" /> -->
     <section id="logo"></section>
     <span class="span-info-space" name="infomessage"> Marker avkrysningsbokser og lagre får å sette opp menystruktur til venstre i applikasjonen. <br /> Trykk på linknavn for å gå direkte til et skjermbilde. </span>
-    <input #searchInput type="search" [formControl]="searchControl" placeholder="Søk etter skjermbilde">
+    <input #searchInput type="search" [formControl]="searchControl" [(ngModel)]="searchString" placeholder="Søk etter skjermbilde">
 </header>
 
 <section class="link-groups">
 
-    <section class="link-group" *ngFor="let section of filteredLinkSections">
-        <span [ngClass]="{'hamburger-link-header': section.url}" (click)="navigate(section.url)">
-            {{ section.name | translate }}
-        </span>
-        <ul class="link-list">
-            <ng-template ngFor let-group [ngForOf]="section.linkGroups">
-                <li *ngFor="let link of group.links" (click)="isExpanded = false">
-                    <i class="material-icons c2a" (click)="linkSelect(link)"> {{ link.activeInSidebar ? 'check_box' : 'check_box_outline_blank' }} </i>
-                    <a (click)="navigate(link.url)">{{ link.name | translate}}</a>
-                </li>
-                <br>
-            </ng-template>
-        </ul>
+    <section class="link-group" *ngFor="let section of filteredLinkSections; let i = index;">
+        <ng-container *ngFor="let sub of section">
+            <span [ngClass]="{'hamburger-link-header': sub.url}" (click)="navigate(sub.url)">
+                {{ sub.name | translate }}
+            </span>
+            <ul class="link-list">
+                <ng-template ngFor let-group [ngForOf]="sub.linkGroups">
+                    <li *ngFor="let link of group.links" (click)="isExpanded = false" [ngClass]="getClass(link)">
+                        <i class="material-icons" style="color: #005AA4" (click)="linkSelect(link)"> {{ link.activeInSidebar ? 'check_box' : 'check_box_outline_blank' }} </i>
+                        <a (click)="navigate(link.url)">{{ link.name | translate}}</a>
+                    </li>
+                </ng-template>
+            </ul>
+        </ng-container>
     </section>
 </section>
-<section style="display: flex; justify-content: center;">
-    <button class="c2a" (click)="saveMenuStructure()"> Lagre menyelementer </button>
+<section class="bottom-save-section" *ngIf="isDirty">
+    <span> Du har ulagrede endringer </span>
+    <button (click)="resetChanges()"> Forkast endringer </button>
+    <button class="c2a" (click)="saveMenuStructure()"> Lagre endringer </button>
 </section>

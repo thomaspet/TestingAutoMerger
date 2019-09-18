@@ -41,7 +41,7 @@ export class UniSidebar {
                     }
                 });
 
-                if (section.linkGroups.length) {
+                if (section.isOnlyLinkSection || section.linkGroups.length) {
                     return section;
                 }
             });
@@ -91,7 +91,14 @@ export class UniSidebar {
         }
     }
 
-    public toggleSection(index) {
+    public toggleSection(index: number, section?: INavbarLinkSection) {
+
+        // Support home button for SR. Just navigate and return
+        if (section && section.isOnlyLinkSection) {
+            this.navigate(section.url);
+            return;
+        }
+
         if (this.expandedSectionIndex === index && (this.state === 'expanded' || this.popover)) {
             this.expandedSectionIndex = undefined;
         } else {
