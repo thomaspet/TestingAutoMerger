@@ -177,12 +177,13 @@ export class VatReportView implements OnInit, OnDestroy {
                     subStatusList.push({
                         title: report.Title,
                         state:  report.ID === this.currentVatReport.ID
-                        ? STATUSTRACK_STATES.Active
-                        : STATUSTRACK_STATES.Obsolete,
+                            ? STATUSTRACK_STATES.Active
+                            : STATUSTRACK_STATES.Obsolete,
                         timestamp: report.ExecutedDate
                             ? new Date(<any> report.ExecutedDate)
                             : null,
-                        data: report
+                        data: report,
+                        selectable: true
                     });
                 });
             }
@@ -194,8 +195,6 @@ export class VatReportView implements OnInit, OnDestroy {
                     state: _state,
                     code: status.Code,
                     substatusList: subStatusList,
-                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
-                            && (this.vatReportsInPeriod && this.vatReportsInPeriod.length > 1) ? this.vatReportsInPeriod.length + '' : null
                 });
             }
         });

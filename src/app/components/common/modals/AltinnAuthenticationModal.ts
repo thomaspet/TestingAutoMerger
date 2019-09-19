@@ -19,22 +19,25 @@ enum LoginState {
     template: `
         <section role="dialog" class="uni-modal" (keydown)="onKeyDown($event)">
             <header>Resultat</header>
+
             <p [innerHTML]="userMessage" class="altinn-user-message"></p>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
-                <article>
+
+            <ng-container *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
+                <article [attr.aria-busy]="busy">
                     <uni-form
                         [config]="emptyConfig$"
                         [fields]="usernameAndPasswordFormFields$"
                         [model]="userLoginData$"
                     ></uni-form>
                 </article>
-                <footer>
+                <footer [attr.aria-busy]="busy">
                     <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
-            </div>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.Pin" [attr.aria-busy]="busy">
-                <article *ngIf="!messageStatusIsError">
+            </ng-container>
+
+            <ng-container *ngIf="formState === LOGIN_STATE_ENUM.Pin">
+                <article *ngIf="!messageStatusIsError" [attr.aria-busy]="busy">
                     <uni-form
                         [config]="emptyConfig$"
                         [fields]="pinFormFields$"
@@ -42,17 +45,19 @@ enum LoginState {
                         (inputEvent)="onInputEvent($event)"
                     ></uni-form>
                 </article>
-                <footer>
+                <footer [attr.aria-busy]="busy">
                     <button *ngIf="!messageStatusIsError" (click)="submitPin()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
-            </div>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn" [attr.aria-busy]="busy">
-                <footer>
+            </ng-container>
+
+            <ng-container *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn">
+                <footer [attr.aria-busy]="busy">
                     <button (click)="close()">OK</button>
                 </footer>
-            </div>
-        </section>`
+            </ng-container>
+        </section>
+    `
 })
 
 export class AltinnAuthenticationModal implements OnInit, IUniModal {

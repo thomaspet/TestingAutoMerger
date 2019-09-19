@@ -3751,10 +3751,7 @@ export class BillView implements OnInit {
                     title: status.Text,
                     state: _state,
                     code: status.Code,
-                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
-                    && this.invoicePayments.length > 0 ? this.invoicePayments.length + '' : null,
                     substatusList: _substatuses,
-                    forceSubstatus: _state === STATUSTRACK_STATES.Active && this.invoicePayments.length > 0
                 });
             }
         });
@@ -4003,10 +4000,10 @@ export class BillView implements OnInit {
     private addEHFAccountingCostLines(items: Array<SupplierInvoiceItem>)
     {
         return new Promise((resolve,reject) => {
-            if (!items.some(line => line.AccountingCost && line.AccountingCost.trim().toLowerCase().includes('konto='))) { 
+            if (!items.some(line => line.AccountingCost && line.AccountingCost.trim().toLowerCase().includes('konto='))) {
                 resolve(false);
             }
-        
+
             // Map AccountingCost string to object
             const model = this.current.value;
             const lines = items.map((line) => {
@@ -4020,19 +4017,19 @@ export class BillView implements OnInit {
                 newpart.AmountCurrency = line.SumTotalExVatCurrency;
                 newpart.Description = line.ItemText;
                 newpart.FinancialDate = model.InvoiceDate;
-    
+
                 return newpart;
             });
-    
+
             // Group lines with equal parameters
             const groupedlines = [];
             lines.forEach(line => {
-                const existing = groupedlines.find(groupedline => 
+                const existing = groupedlines.find(groupedline =>
                     line.konto === groupedline.konto &&
                     line.avd === groupedline.avd &&
                     line.mvakode === groupedline.mvakode &&
                     line.prod === groupedline.prod &&
-                    line.prosj === groupedline.prosj           
+                    line.prosj === groupedline.prosj
                 );
                 if (existing) {
                     existing.Amount += line.Amount;
@@ -4042,7 +4039,7 @@ export class BillView implements OnInit {
                     groupedlines.push(line);
                 }
             });
-           
+
             this.journalEntryManual.journalEntryProfessional.addCostAllocationJournalEntryDataLines(groupedlines).then((value: any) => {
                 if (value.msg) {
                     resolve(true);
@@ -4050,7 +4047,7 @@ export class BillView implements OnInit {
                 } else {
                     resolve(false);
                 }
-            });    
+            });
         });
     }
 }

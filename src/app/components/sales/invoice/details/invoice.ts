@@ -1085,7 +1085,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     title: 'Purrestoppet',
                     state: STATUSTRACK_STATES.Obsolete,
                     code: 0,
-                    forceSubstatus: true,
                     substatusList: substatus ? [substatus] : []
                 });
             }).catch(err => this.errorService.handle(err));
@@ -1104,7 +1103,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         title: statusText,
                         state: STATUSTRACK_STATES.Obsolete,
                         code: 0,
-                        forceSubstatus: true,
                         substatusList: substatus ? substatus : []
                     });
                 }).catch(err => this.errorService.handle(err));

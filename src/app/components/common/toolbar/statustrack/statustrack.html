@@ -2,24 +2,34 @@
     <section class="status-indicator">
         <i class="material-icons">info</i>
         {{activeStatus.title}}
+        <span class="sub-status-counter" *ngIf="activeStatus.substatusList?.length">
+            {{activeStatus.substatusList.length}}
+        </span>
     </section>
 
     <section class="status-details">
         <section class="sub-statuses" *ngIf="activeStatus.substatusList?.length">
             <span class="header">Understatuser</span>
+
             <ul>
-                <li *ngFor="let substatus of activeStatus.substatusList">
-                    <span>{{substatus.title}}</span>
-                    <span>{{formatTime(substatus.timestamp, substatus.formatDateTime)}}</span>
-                    <span>{{substatus.subtitle}}</span>
+                <li *ngFor="let substatus of activeStatus.substatusList"
+                    (click)="onSubStatusClick(substatus, activeStatus)"
+                    [ngClass]="{
+                        'selectable': substatus.selectable,
+                        'active': isActiveSubStatus(substatus) && activeStatus.substatusList.length > 1
+                    }">
+
+                    <span class="title">{{substatus.title}}</span>
+                    <span class="timestamp">{{formatTime(substatus.timestamp, substatus.formatDateTime)}}</span>
+                    <span class="subtitle" *ngIf="substatus.subtitle">{{substatus.subtitle}}</span>
                 </li>
             </ul>
         </section>
-        
+
         <section class="history" *ngIf="entityType && entityID">
             <span class="header">Historikk</span>
 
-            <a *ngIf="!activeStatus.logEntries" (click)="selectStatus(activeStatus)">
+            <a *ngIf="!activeStatus.logEntries" (click)="loadStatusHistory(activeStatus)">
                 Hent statushistorikk
             </a>
 
@@ -31,52 +41,10 @@
                         {{logEntry.ToStatusText}}
                     </span>
 
-                    <span>Endret av: {{logEntry.CreatedByName}}</span>
+                    <span>{{logEntry.CreatedByName}}</span>
                     <span>{{formatTime(logEntry.CreatedAt)}}</span>
                 </li>
             </ul>
-        </section>        
+        </section>
     </section>
 </section>
-
-<!-- <ol>
-    <li *ngFor="let status of config"
-        [ngClass]="getStatusClass(status.state)"
-        [attr.data-badge]="status.badge">
-
-        <span class="statustrack_title"
-            (click)="selectStatus(status)"
-            [attr.data-badge]="status.badge">
-            {{status.title}}
-        </span>
-
-        <ol *ngIf="status.substatusList?.length >= 2 || status.forceSubstatus "
-            class="statustrack_substati">
-
-            <li *ngFor="let substatus of status.substatusList" (click)="selectStatus(substatus, status)">
-                {{substatus.title}}
-                <i *ngIf="isActiveSubStatus(substatus)" class="checkmark material-icons">check_circle</i>
-
-                <time [attr.datetime]="substatus.timestamp?.toDateString()">
-                    {{formatTime(substatus.timestamp, substatus.formatDateTime)}}
-                </time>
-
-                <i *ngIf="substatus.subtitle">{{substatus.subtitle}}</i>
-            </li>
-        </ol>
-
-        <ol *ngIf="status.logEntries"
-            class="statustrack_statuslog">
-            <li *ngFor="let statusChange of status.logEntries">
-                <div>Forrige status: <strong>{{statusChange.FromStatusText}}</strong></div>
-                <div>Endret av: <strong>{{statusChange.CreatedByName}}</strong></div>
-                <time>
-                    {{formatTime(statusChange.CreatedAt)}}
-                </time>
-            </li>
-            <li *ngIf="status.logEntries.length === 0">
-                Ingen statusoppdateringer funnet for denne statusen
-            </li>
-        </ol>
-    </li>
-</ol> -->

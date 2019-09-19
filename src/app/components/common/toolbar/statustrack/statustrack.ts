@@ -14,26 +14,25 @@ export interface IStatus {
     subtitle?: string;
     state: STATUSTRACK_STATES;
     code?: number;
-    badge?: string;
     timestamp?: Date;
     substatusList?: IStatus[];
     data?: any;
     logEntries?: any[];
-    forceSubstatus?: boolean;
     formatDateTime?: string;
+    selectable?: boolean;
 }
 
 @Component({
     selector: 'uni-statustrack',
     templateUrl: './statustrack.html',
-    styleUrls: ['./statustrack.sass']
+    styleUrls: ['./statustrack.sass'],
 })
 export class StatusTrack {
-    @Input() public config: IStatus[];
-    @Input() private entityType: string;
-    @Input() private entityID: number;
+    @Input() config: IStatus[];
+    @Input() entityType: string;
+    @Input() entityID: number;
 
-    @Output() public statusSelectEvent: EventEmitter<any> = new EventEmitter();
+    @Output() statusSelectEvent = new EventEmitter();
 
     activeStatus: IStatus;
 
@@ -42,35 +41,31 @@ export class StatusTrack {
     ngOnChanges() {
         if (this.config && this.config.length) {
             this.activeStatus = this.config.find(status => status.state === STATUSTRACK_STATES.Active);
-        }
-    }
-
-    public getStatusClass(state: STATUSTRACK_STATES) {
-        return (STATUSTRACK_STATES[state] || 'future').toLowerCase();
-    }
-
-    public isActiveSubStatus(status: IStatus) {
-        return status.state === STATUSTRACK_STATES.Active;
-    }
-
-    public selectStatus(status: IStatus, parent?: IStatus) {
-        this.statusSelectEvent.emit([status, parent]);
-        if (this.entityType && this.entityID) {
-            if (status.code) {
-                // if statuslog is already loaded and the user clicks the same status again, close
-                // the statuslog instead of retrieving it again
-                if (!status.logEntries) {
-                    this.statusService.getStatusLogEntries(this.entityType, this.entityID, status.code)
-                        .subscribe(statuschanges => {
-                            status.logEntries = statuschanges;
-                        });
-                } else {
-                    status.logEntries = null;
-                }
+            if (!this.activeStatus) {
+                this.activeStatus = this.config.find(status => status.state === STATUSTRACK_STATES.Obsolete);
             }
         }
     }
-    public formatTime(datetime, formatDateTime?: string) {
+
+    isActiveSubStatus(status: IStatus) {
+        return status.state === STATUSTRACK_STATES.Active;
+    }
+
+    onSubStatusClick(substatus, parent) {
+        this.statusSelectEvent.emit([substatus, parent]);
+    }
+
+    loadStatusHistory(status: IStatus) {
+        if (this.entityType && this.entityID && !status.logEntries) {
+            this.statusService.getStatusLogEntries(
+                this.entityType, this.entityID
+            ).subscribe(statuschanges => {
+                status.logEntries = statuschanges;
+            });
+        }
+    }
+
+    formatTime(datetime, formatDateTime?: string) {
         if (!datetime) { return; }
         return moment(datetime).format(formatDateTime ? formatDateTime : 'lll');
     }

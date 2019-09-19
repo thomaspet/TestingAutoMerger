@@ -1,7 +1,6 @@
 $toolbar-grey: $uni-color-scale6
 
 @import 'breadcrumbs'
-@import 'statustrack'
 @import 'toolbarTools'
 @import 'toolbarSearch'
 @import 'tags'
@@ -102,10 +101,11 @@ uni-toolbar
         > *
             margin-right: 1rem
 
-        .toolbar-subhead
-            font-size: 16px
+        .toolbar-subhead,
+        .toolbar-subhead a
+            font-size: 15px
             @include media(1300px)
-                font-size: 15px
+                font-size: 14px
 
             .subhead-label
                 color: $toolbar-grey
@@ -127,14 +127,12 @@ uni-toolbar
 
 .toolbar-extras, .toolbar-left
     small
-        font-size: 16px
         color: $toolbar-grey
         flex-basis: fit-content
         white-space: nowrap
 
     a:link,
     a:visited,
-        font-size: 16px
         color: $uni-color-link
 
 .toolbar-right

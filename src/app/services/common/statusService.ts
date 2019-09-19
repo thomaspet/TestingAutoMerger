@@ -149,13 +149,14 @@ export class StatusService {
         }
     }
 
-    public getStatusLogEntries(entityType: string, entityID: number, toStatus: number): Observable<any> {
+    public getStatusLogEntries(entityType: string, entityID: number): Observable<any> {
         return Observable.forkJoin(
             this.userService.GetAll(null),
             this.statisticsService.GetAll(
-                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}` +
-                `&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,` +
-                `ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
+                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus gt 0`
+                + `&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,`
+                + `ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`
+            ),
             this.loadStatusCache()
         ).map(responses => {
                 const users: Array<User> = responses[0];

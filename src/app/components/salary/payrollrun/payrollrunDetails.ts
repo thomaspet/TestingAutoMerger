@@ -238,6 +238,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             next: this.nextPayrollrun.bind(this),
                             add: this.newPayrollrun.bind(this)
                         },
+                        statustrack: this.getStatustrackConfig()
                     };
 
                     this.saveActions = this.getSaveActions(payrollRun);
