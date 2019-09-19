@@ -7,8 +7,8 @@ uni-checkbox-input
             width: 0 !important // use unifield's label
         .mat-checkbox-layout
             .mat-checkbox-inner-container
-                width: 18px
-                height: 18px
+                width: var(--checkbox-size, 18px) // 18px
+                height: var(--checkbox-size, 18px) // 18px
 
     .mat-slide-toggle-content
         width: 0 !important
@@ -31,16 +31,6 @@ uni-field
     .mat-slide-toggle-bar
         margin-left: 0 !important
 
-.mat-checkbox-frame
-    border-width: 1px !important
-    border-color: $uni-color-scale7
-
-
-.mat-checkbox-checked .mat-checkbox-background
-    background-color: #1565c0 !important
-
-.mat-checkbox-ripple .mat-ripple-element
-    background-color: transparentize(#1565c0, .75) !important
 
 // Radio
 mat-radio-button
@@ -66,3 +56,23 @@ mat-radio-group.horizontal
     background-color: var(--color-c2a) !important
 .mat-slide-toggle-ripple .mat-ripple-element
     background-color: transparentize($uni-color-c2a, .85) !important
+
+
+
+.mat-checkbox-checkmark .mat-checkbox-checkmark-path
+    stroke: var(--checkbox-checked-color) !important
+    stroke-width: 3px
+
+.mat-checkbox-frame
+    border-width: 1px !important
+    border-color: $uni-color-scale7
+
+.mat-checkbox-checked .mat-checkbox-background
+    background-color: var(--checkbox-checked-background, #fff) !important
+    border: var(--checkbox-checked-border, none)
+
+.mat-checkbox:hover .mat-checkbox-background
+    border: var(--checkbox-checked-border, none)
+
+.mat-checkbox-ripple .mat-ripple-element
+    background-color: rgba(0,0,0,0) !important
