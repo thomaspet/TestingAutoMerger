@@ -18,14 +18,14 @@
 
     <section class="link-group" *ngFor="let section of filteredLinkSections; let i = index;">
         <ng-container *ngFor="let sub of section">
-            <span [ngClass]="{'hamburger-link-header': sub.url}" (click)="navigate(sub.url)">
+            <span>
                 {{ sub.name | translate }}
             </span>
             <ul class="link-list">
                 <ng-template ngFor let-group [ngForOf]="sub.linkGroups">
                     <li *ngFor="let link of group.links" (click)="isExpanded = false" [ngClass]="getClass(link)">
                         <i class="material-icons" style="color: #005AA4" (click)="linkSelect(link)"> {{ link.activeInSidebar ? 'check_box' : 'check_box_outline_blank' }} </i>
-                        <a (click)="navigate(link.url)">{{ link.name | translate}}</a>
+                        <a (click)="linkSelect(link)">{{ link.name | translate}}</a>
                     </li>
                 </ng-template>
             </ul>

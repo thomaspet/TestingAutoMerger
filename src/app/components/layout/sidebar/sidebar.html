@@ -15,7 +15,7 @@
                 <section class="sidebar-section-header" (click)="toggleSection(idx, section)">
                     <i class="material-icons-outlined"
                         *ngIf="section.mdIcon"
-                        [matTooltip]="section.name"
+                        [matTooltip]="section.name | translate"
                         [matTooltipDisabled]="popover || state === 'expanded'"
                         matTooltipPosition="right"
                         matTooltipClass="sidebar-tooltip"

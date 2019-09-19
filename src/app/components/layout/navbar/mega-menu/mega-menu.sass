@@ -30,7 +30,7 @@ header
         margin: 1rem auto
         width: 25rem
         height: 2.5rem
-        font-size: 17px
+        font-size: 15px
 
     .span-info-space
         display: flex
@@ -50,14 +50,10 @@ header
     .link-group
         flex: 0 0 18rem
 
-        .hamburger-link-header
-            cursor: pointer
-            &:hover
-                text-decoration: underline
-
         ul.link-list
             list-style: none
             margin-bottom: 2.5rem
+            user-select: none
 
             li
                 display: flex
@@ -89,9 +85,6 @@ header
         text-decoration: none
         font-size: 14px
         color: var(--text-color)
-        &:hover
-            text-decoration: underline
-            color: $uni-color-link
 
 .bottom-save-section
     display: flex

@@ -71,14 +71,16 @@ export class NavbarLinkService {
 
     public resetNavbar() {
         this.settingsSection$.next(this.getSettingsFilteredByPermissions(this.user));
-        this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
 
         // Only get dimensions tab view when in UNI-VIEW
         if (this.localeValue === 'NO_UNI') {
+
+            const linkSections = this.getLinksFilteredByPermissions(this.user);
+
             this.getDimensionRouteSection(this.user).subscribe(
                 dimensionLinks => {
                     if (dimensionLinks) {
-                        const linkSections = this.linkSections$.getValue();
+                        // linkSections = this.linkSections$.getValue();
                         const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
 
                         // Insert before settings (or marketplace if no settings access)
@@ -96,10 +98,16 @@ export class NavbarLinkService {
                         }
 
                         this.linkSections$.next(linkSections);
+                    } else {
+                        this.linkSections$.next(linkSections);
                     }
                 },
-                err => console.error(err)
+                err => {
+                    this.linkSections$.next(linkSections);
+                }
             );
+        } else {
+            this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
         }
     }
 
@@ -216,12 +224,6 @@ export class NavbarLinkService {
                     prefix: 'dim' + dim.Dimension,
                 }
             );
-        });
-
-        links.push({
-            name: 'Dimensjonsinnstillinger',
-            url: '/settings/dimension',
-            moduleID: UniModules.Dimensions
         });
         return links;
     }
