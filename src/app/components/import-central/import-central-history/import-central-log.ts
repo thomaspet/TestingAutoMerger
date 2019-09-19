@@ -5,7 +5,7 @@ import { JobService, ErrorService, ImportCentralService, UserService } from '@ap
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { ImportDetailsModal } from '../modals/import-details/import-details-modal';
-import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
+import { ImportUIPermission, ImportSaftUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
 
 @Component({
@@ -28,7 +28,7 @@ export class ImportCentralLog implements OnInit {
         supplier: new ImportUIPermission(),
         ledger: new ImportUIPermission(),
         payroll: new ImportUIPermission(),
-        saft: new ImportUIPermission()
+        saft: new ImportSaftUIPermission()
     }
 
     constructor(

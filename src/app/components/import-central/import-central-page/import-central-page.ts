@@ -6,7 +6,7 @@ import { UserService, ErrorService, ImportCentralService } from '@app/services/s
 import { DisclaimerModal } from '../modals/disclaimer/disclaimer-modal';
 import { DownloadTemplateModal } from '../modals/download-template/download-template-modal';
 import { ImportTemplateModal } from '../modals/import-template/import-template-modal';
-import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
+import { ImportUIPermission, ImportSaftUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 
 @Component({
@@ -32,7 +32,7 @@ export class ImportCentralPage {
     supplier: new ImportUIPermission(),
     ledger: new ImportUIPermission(),
     payroll: new ImportUIPermission(),
-    saft: new ImportUIPermission()
+    saft: new ImportSaftUIPermission()
   }
 
   constructor(

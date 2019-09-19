@@ -145,11 +145,11 @@
                         </label>
                     </div>
                     <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(saftType)">
+                        <label class="upload-input" (click)="openImportTemplateModal(saftType)" *ngIf="uiPermission.saft.hasImportAccess">
                             <i class="material-icons">cloud_upload</i>
                             <span>Importer SAFT-T</span>
                         </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(saftType)">
+                        <label class="upload-input" (click)="openDownloadTemplateModal(saftType)" *ngIf="uiPermission.saft.hasExportAccess">
                             <i class="material-icons">cloud_download</i>
                             <span>Last ned mal</span>
                         </label>
