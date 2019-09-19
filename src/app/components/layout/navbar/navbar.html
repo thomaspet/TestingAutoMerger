@@ -2,7 +2,7 @@
 
 <section class="navbar">
     <section class="navbar-left">
-        <!-- <section class="logo-and-hamburger-container"> -->
+        <section class="logo-and-hamburger-container">
             <section routerLink="/" id="logo"></section>
 
             <i *ngIf="hasActiveContract"
@@ -11,7 +11,7 @@
                 (click)="toggleSidebarState()">
                 menu
             </i>
-        <!-- </section> -->
+        </section>
 
         <uni-company-dropdown></uni-company-dropdown>
     </section>
