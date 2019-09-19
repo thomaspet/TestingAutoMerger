@@ -90,11 +90,17 @@
         [groupRowAggNodes]="aggregator">
     </ag-grid-angular>
 
-
+    <!-- Note that row-count appears twice in this file, make changes in both -->
+    <section *ngIf="!usePagination" class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
+        <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
+        <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
+        <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
+    </section>
 </section>
 
-<section class="bottom-bar">
-    <section class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
+<section *ngIf="usePagination" class="bottom-bar">
+    <!-- Note that row-count appears twice in this file, make changes in both -->
+    <section class="row-count">
         <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
         <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
         <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
