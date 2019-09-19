@@ -62,7 +62,6 @@
             <h2 style="margin: 0; font-size: 1.2rem; margin-right: .5rem; font: 500 15px var(--font-family); color: rgba(0,0,0,.75);"> Transaksjoner for datoutvalg: </h2>
             <uni-date-selector class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
             <uni-select
-                class="date-field-selector"
                 [config]="selectDateFieldConfig"
                 [items]="dateFields"
                 [value]="currentDateField.label"
@@ -71,10 +70,9 @@
         </div>
 
         <ag-grid-wrapper
-            class="transquery-grid-font-size"
             [resource]="transactionsLookupFunction"
             [columnSumResolver]="columnSumResolver"
-            [config]="uniTableConfigTransactions$ | async"
+            [config]="tableConfig"
             (cellClick)="onCellClick($event)">
         </ag-grid-wrapper>
     </section>

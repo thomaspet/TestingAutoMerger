@@ -216,7 +216,7 @@ export class AgGridWrapper {
                 this.localData = false;
                 this.rowModelType = 'infinite';
                 this.cacheBlockSize = 50;
-                this.tableHeight = 80 + (this.config.pageSize * this.rowHeight) + 'px';
+                this.tableHeight = 81 + (this.config.pageSize * this.rowHeight) + 'px';
             }
 
             if (this.agGridApi) {
@@ -315,7 +315,7 @@ export class AgGridWrapper {
                 height += this.rowHeight;
             }
 
-            this.tableHeight = height + 'px';
+            this.tableHeight = height + 1 + 'px';
 
             setTimeout(() => {
                 api.doLayout();

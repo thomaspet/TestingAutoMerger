@@ -13,33 +13,66 @@ ag-grid-wrapper
         flex: 0 0 auto
 
     .uni-ag-wrapper
+        position: relative
         overflow: hidden
 
-    .row-count
+    .bottom-bar
         display: flex
-        &.absolute
-            position: absolute
-            bottom: .75rem
-            left: 5px
+        justify-content: space-between
+        align-items: center
 
-        span + span
-            margin-left: 2rem
+        .row-count
+            display: flex
+            margin-top: 1rem
+            font-size: 15px
+            &.absolute
+                position: absolute
+                bottom: 1rem
+                left: 5px
+                margin-top: 0
+            span + span
+                margin-left: 2rem
 
-    &.font-14
-        .uni-ag-wrapper
-            font-size: 14px
     &.font-13
         .uni-ag-wrapper
             font-size: 13px
+
+ag-grid-wrapper.borders
+    ag-grid-angular:not(.editable)
+        .ag-header
+            border: 1px solid var(--border-color)
+            border-top-left-radius: 3px
+            border-top-right-radius: 3px
+        .ag-body
+            border: 1px solid var(--border-color)
+            border-top: none
+            border-bottom-left-radius: 4px
+            border-bottom-right-radius: 4px
+            overflow: hidden // to avoid rows clipping the border radius
+        .ag-row:last-of-type
+            border: none
 
 ag-grid-angular
     width: 100%
     height: 100%
 
+ag-grid-angular.editable
+    .ag-header
+        border-top: 1px solid var(--border-color)
+    .ag-body-container .ag-cell,
+    .ag-header-container .ag-header-cell
+        border-left: 1px solid var(--border-color)
+        &:last-of-type
+            border-right: 1px solid var(--border-color)
+
+    .ag-pinned-right-header,
+    .ag-pinned-right-cols-container
+        border-right: 1px solid var(--border-color)
+
 .uni-ag-wrapper
     display: block
     position: relative
-    font-size: 15px
+    font-size: 14px
 
     span.expand-collapse-groups
         cursor: pointer
@@ -90,19 +123,6 @@ ag-grid-angular
 
 .ag-dnd-ghost
    z-index: 999
-
-ag-grid-angular.editable
-    .ag-header
-        border-top: 1px solid var(--border-color)
-    .ag-body-container .ag-cell,
-    .ag-header-container .ag-header-cell
-        border-left: 1px solid var(--border-color)
-        &:last-of-type
-            border-right: 1px solid var(--border-color)
-
-    .ag-pinned-right-header,
-    .ag-pinned-right-cols-container
-        border-right: 1px solid var(--border-color)
 
 .ag-cell,
 .ag-header-cell,
@@ -356,7 +376,7 @@ ag-grid-wrapper
 .pagination
     display: flex
     justify-content: flex-end
-    margin-top: .5rem
+    margin-top: 1rem
 
     i.material-icons
         vertical-align: middle
