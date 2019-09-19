@@ -21,24 +21,30 @@ ag-grid-wrapper
         justify-content: space-between
         align-items: center
 
-        .row-count
-            display: flex
-            margin-top: 1rem
-            font-size: 15px
-            &.absolute
-                position: absolute
-                bottom: 1rem
-                left: 5px
-                margin-top: 0
-            span + span
-                margin-left: 2rem
+    .row-count
+        display: flex
+        margin-top: 1rem
+        font-size: 15px
+        &.absolute
+            position: absolute
+            bottom: 1rem
+            left: 5px
+            margin-top: 0
+        span + span
+            margin-left: 2rem
 
     &.font-13
         .uni-ag-wrapper
             font-size: 13px
 
-ag-grid-wrapper.borders
-    ag-grid-angular:not(.editable)
+// Borders
+ag-grid-wrapper
+    .ag-header
+        border-bottom: 1px solid var(--border-color)
+    .ag-row
+        border-bottom: 1px solid var(--border-color)
+
+    &.borders ag-grid-angular:not(.editable)
         .ag-header
             border: 1px solid var(--border-color)
             border-top-left-radius: 3px
@@ -52,22 +58,22 @@ ag-grid-wrapper.borders
         .ag-row:last-of-type
             border: none
 
+    ag-grid-angular.editable
+        .ag-header
+            border-top: 1px solid var(--border-color)
+        .ag-body-container .ag-cell,
+        .ag-header-container .ag-header-cell
+            border-left: 1px solid var(--border-color)
+            &:last-of-type
+                border-right: 1px solid var(--border-color)
+
+        .ag-pinned-right-header,
+        .ag-pinned-right-cols-container
+            border-right: 1px solid var(--border-color)
+
 ag-grid-angular
     width: 100%
     height: 100%
-
-ag-grid-angular.editable
-    .ag-header
-        border-top: 1px solid var(--border-color)
-    .ag-body-container .ag-cell,
-    .ag-header-container .ag-header-cell
-        border-left: 1px solid var(--border-color)
-        &:last-of-type
-            border-right: 1px solid var(--border-color)
-
-    .ag-pinned-right-header,
-    .ag-pinned-right-cols-container
-        border-right: 1px solid var(--border-color)
 
 .uni-ag-wrapper
     display: block
@@ -108,14 +114,12 @@ ag-grid-angular.editable
 
 // Header & cell styling
 .ag-header
-    background: #fff
-    color: var(--header-color)
+    background: var(--table-header-background)
+    color: var(--table-header-color)
     font-weight: 500
-    border-bottom: 1px solid var(--border-color)
 
 .ag-row
     color: var(--text-color)
-    border-bottom: 1px solid var(--border-color)
 
 // Hide resize indicator
 .ag-header-cell::after
@@ -132,9 +136,6 @@ ag-grid-angular.editable
     align-items: center
     padding: 0 10px
 
-    // &:first-of-type
-    //     padding-left: 15px
-
     &:focus
         outline: none
 
@@ -147,7 +148,7 @@ ag-grid-angular.editable
         padding: 0
         cursor: pointer
         justify-content: center
-        color: $uni-color-scale5
+        color: #8B96AC // #707d90
 
     &.row-drag-cell
         .ag-cell-wrapper
@@ -161,7 +162,7 @@ ag-grid-angular.editable
                 font-family: 'Material Icons'
                 content: 'unfold_more'
                 font-size: 24px
-                color: $uni-color-scale4
+                color: #8B96AC
 
         .ag-cell-value
             display: none
@@ -173,7 +174,7 @@ ag-grid-angular.editable
     &.row-menu .row-menu-container
         display: block
 
-        i.material-icons
+        i.material-icons, i.material-icons
             box-sizing: border-box
             vertical-align: middle
             &:not(:first-of-type)
@@ -220,13 +221,11 @@ ag-grid-angular.editable
 .ag-row
     cursor: pointer
     &.ag-row-even
-        background: #fff
-
+        background: var(--table-row-even-background, #fff)
     &.ag-row-odd
-        background: #fff
-
+        background: var(--table-row-odd-background, #fff)
     &.ag-row-hover
-        background: #d9efff // rgba(0, 0, 0, .1)
+        background: #d9efff
 
 ag-grid-angular:not(.editable)
     .ag-row-selected,
@@ -256,6 +255,7 @@ ag-grid-angular .disabled-row
 
 .header-checkbox
     @extend %checkboxStyle
+    margin-bottom: 8px
     &.checked
         &:before
             border-color: var(--color-c2a) !important
@@ -267,8 +267,7 @@ ag-grid-angular .disabled-row
 
 %checkboxStyle
     width: 1rem !important
-    height: 34px !important
-    margin-top: 1px
+    height: 25px !important
     box-sizing: border-box
     user-select: none
     box-sizing: border-box
