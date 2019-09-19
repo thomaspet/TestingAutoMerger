@@ -140,6 +140,9 @@ export class CompanySettingsComponent implements OnInit {
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
+    private defaultCompanyAccount: any;
+    private defaultTaxAccount: any;
+
     constructor(
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
@@ -210,6 +213,8 @@ export class CompanySettingsComponent implements OnInit {
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+            this.accountService.searchAccounts('AccountNumber eq 1920', 1),
+            this.accountService.searchAccounts('AccountNumber eq 1950', 1)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -249,6 +254,8 @@ export class CompanySettingsComponent implements OnInit {
                 this.quoteFormList = dataset[12];
                 this.orderFormList = dataset[13];
                 this.invoiceFormList = dataset[14];
+                this.defaultCompanyAccount = dataset[15][0];
+                this.defaultTaxAccount = dataset[16][0];
 
                 this.companySettings$.next(this.setupMultivalueData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
@@ -905,12 +912,24 @@ export class CompanySettingsComponent implements OnInit {
             storeResultInProperty: storeResultInProperty,
             storeIdInProperty: storeResultInProperty + 'ID',
             editor: (bankaccount: BankAccount) => {
-                if (!bankaccount || !bankaccount.ID) {
+                if (!bankaccount || bankaccount.ID <= 0) {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.companySettingsService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
                     bankaccount.ID = 0;
+                    switch (bankAccountType) {
+                        case 'company':
+                            bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
+                            break;
+
+                        case 'tax':
+                            bankaccount.Account = !bankaccount.Account ? this.defaultTaxAccount : bankaccount.Account;
+                            break;
+
+                        default:
+                            break;
+                    }
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {

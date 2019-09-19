@@ -187,7 +187,7 @@ export class WizardSettingsModal implements IUniModal {
                 Property: 'CompanyBankAccount',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Driftskonto',
-                Options: this.getBankAccountOptions('CompanyBankAccount', 'Company'), // 1920
+                Options: this.getBankAccountOptions('CompanyBankAccount', 'company'), // 1920
                 Classes: 'wizard-labels-small'
             },
             {
@@ -288,7 +288,7 @@ export class WizardSettingsModal implements IUniModal {
                     bankaccount.CompanySettingsID = this.companySettings.ID;
                     bankaccount.ID = 0;
                     switch (bankAccountType) {
-                        case 'Company':
+                        case 'company':
                             bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
                             break;
 
