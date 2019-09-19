@@ -24,7 +24,8 @@
             <ul class="link-list">
                 <ng-template ngFor let-group [ngForOf]="sub.linkGroups">
                     <li *ngFor="let link of group.links" (click)="isExpanded = false" [ngClass]="getClass(link)">
-                        <i class="material-icons" style="color: #005AA4" (click)="linkSelect(link)"> {{ link.activeInSidebar ? 'check_box' : 'check_box_outline_blank' }} </i>
+                        <mat-checkbox (click)="linkSelect(link)" [(ngModel)]="link.activeInSidebar" class="check-box" [ngModelOptions]="{standalone: true}">
+                        </mat-checkbox>
                         <a (click)="linkSelect(link)">{{ link.name | translate}}</a>
                     </li>
                 </ng-template>
