@@ -1050,16 +1050,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     // if no lines are found: dont do anything else
                     if (rows.length === 1) {
                         const copyFromJournalEntryLine = rows[0];
-                        this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine);
-                        this.updateJournalEntryLine(row);
+                        this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine).then(() => {
+                            this.updateJournalEntryLine(row);
 
-                        if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                            this.showAgioDialogPostPost(row)
-                                .then((res) => {
-                                    // reset focus after modal closes
-                                    this.table.focusRow(row['_originalIndex']);
-                                });
-                        }
+                            if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                this.showAgioDialogPostPost(row)
+                                    .then((res) => {
+                                        // reset focus after modal closes
+                                        this.table.focusRow(row['_originalIndex']);
+                                    });
+                            }
+                        });
                     } else if (rows.length > 1) {
                         // if multiple lines are found: show modal with lines that can be selected
 
@@ -1069,19 +1070,20 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             if (!selectedLine) {
                                 return;
                             }
-                            this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine);
-                            this.updateJournalEntryLine(row);
+                            this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine).then(() => {
+                                this.updateJournalEntryLine(row);
 
-                            if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                                this.showAgioDialogPostPost(row)
-                                    .then((res) => {
-                                        // reset focus after modal closes
-                                        this.table.focusRow(row['_originalIndex']);
-                                    });
-                            } else {
-                                // reset focus after modal closes
-                                this.table.focusRow(row['_originalIndex']);
-                            }
+                                if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                    this.showAgioDialogPostPost(row)
+                                        .then((res) => {
+                                            // reset focus after modal closes
+                                            this.table.focusRow(row['_originalIndex']);
+                                        });
+                                } else {
+                                    // reset focus after modal closes
+                                    this.table.focusRow(row['_originalIndex']);
+                                }
+                            });
                         });
                     }
                 }, err => {
@@ -1093,35 +1095,48 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private setRowValuesBasedOnExistingJournalEntryLine(
         row: JournalEntryData, copyFromJournalEntryLine: JournalEntryLine
-    ) {
-        // if one line is found: update accounts, amount and text
-        const account = copyFromJournalEntryLine.SubAccount
-            ? copyFromJournalEntryLine.SubAccount
-            : copyFromJournalEntryLine.Account;
+    ): Promise<void> {
+        return new Promise((resolve) => {
+            // if one line is found: update accounts, amount and text
+            const account = copyFromJournalEntryLine.SubAccount
+                ? copyFromJournalEntryLine.SubAccount
+                : copyFromJournalEntryLine.Account;
 
-        const restAmount = copyFromJournalEntryLine.RestAmount;
-        if (restAmount > 0) {
-            row.CreditAccountID = account.ID;
-            row.CreditAccount = account;
-        } else {
-            row.DebitAccountID = account.ID;
-            row.DebitAccount = account;
-        }
+            const restAmount = copyFromJournalEntryLine.RestAmount;
+            if (restAmount > 0) {
+                row.CreditAccountID = account.ID;
+                row.CreditAccount = account;
+            } else {
+                row.DebitAccountID = account.ID;
+                row.DebitAccount = account;
+            }
 
-        row.Amount = Math.abs(
-            copyFromJournalEntryLine.RestAmountCurrency * copyFromJournalEntryLine.CurrencyExchangeRate
-        );
-        row.NetAmount = Math.abs(
-            copyFromJournalEntryLine.RestAmountCurrency * copyFromJournalEntryLine.CurrencyExchangeRate
-        );
-        row.AmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
-        row.NetAmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
+            row.Amount = Math.abs(
+                copyFromJournalEntryLine.RestAmountCurrency * copyFromJournalEntryLine.CurrencyExchangeRate
+            );
+            row.NetAmount = Math.abs(
+                copyFromJournalEntryLine.RestAmountCurrency * copyFromJournalEntryLine.CurrencyExchangeRate
+            );
+            row.AmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
+            row.NetAmountCurrency = Math.abs(copyFromJournalEntryLine.RestAmountCurrency);
 
-        row.PostPostJournalEntryLineID = copyFromJournalEntryLine.ID;
-        row.PostPostJournalEntryLine = copyFromJournalEntryLine;
-        row.CurrencyID = copyFromJournalEntryLine.CurrencyCodeID;
-        row.CurrencyCode = copyFromJournalEntryLine.CurrencyCode;
-        row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
+            row.PostPostJournalEntryLineID = copyFromJournalEntryLine.ID;
+            row.PostPostJournalEntryLine = copyFromJournalEntryLine;
+            row.CurrencyID = copyFromJournalEntryLine.CurrencyCodeID;
+            row.CurrencyCode = copyFromJournalEntryLine.CurrencyCode;
+            row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
+
+            this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
+            .map(res => res[0])
+            .subscribe(sums => {
+                row.Amount += sums.SumReminderFee;
+                row.NetAmount += sums.SumReminderFee;
+                row.AmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFee;
+                row.NetAmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
+
+                resolve();
+            });
+        });
     }
 
     private setupUniTable() {
