@@ -15,7 +15,7 @@ import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissio
 import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
-import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 
 @Component({
@@ -243,7 +243,7 @@ export class AccountSettings {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.MainLedger }])
     }
 
     private openImportModal(done = () => { }) {
@@ -272,9 +272,9 @@ export class AccountSettings {
                     jobName: ImportJobName.MainLedger,
                     type: 'MainLedger',
                     entity: TemplateType.MainLedger,
-                    conditionalStatement: 'Hvis kontonummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret. Kontonumrene blir validert mot kontoserien, som ligger under Innstillinger, og filen avvises ved avvik.',
-                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'20\'). For bruk til import fra Uni økonomi V3.',
-                    downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system',
+                    conditionalStatement: ImportStatement.MainLedgerConditionalStatement,
+                    formatStatement: ImportStatement.MainLedgerFormatStatement,
+                    downloadStatement: ImportStatement.MainLedgerDownloadStatement,
                     downloadTemplateUrl: this.mainLedgerTemplateUrl,
                     hasTemplateAccess: this.ledgerPermissions.hasTemplateAccess,
                     isExternal: true
