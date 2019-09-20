@@ -1106,9 +1106,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             if (restAmount > 0) {
                 row.CreditAccountID = account.ID;
                 row.CreditAccount = account;
+
+                row.DebitAccountID = this.defaultAccountPayments.ID;
+                row.DebitAccount = this.defaultAccountPayments;
             } else {
                 row.DebitAccountID = account.ID;
                 row.DebitAccount = account;
+
+                row.CreditAccountID = this.defaultAccountPayments.ID;
+                row.CreditAccount = this.defaultAccountPayments;
             }
 
             row.Amount = Math.abs(
@@ -1134,6 +1140,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 row.AmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFee;
                 row.NetAmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
 
+                setTimeout(() => this.table.triggerChange());
                 resolve();
             });
         });
