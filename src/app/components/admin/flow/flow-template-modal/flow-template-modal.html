@@ -14,7 +14,6 @@
             <span>{{input.Label.no}}</span>
             <input *ngIf="input.Type !== 'bool'" type="text" [(ngModel)]="input.Value" />
             <mat-checkbox *ngIf="input.Type === 'bool'" [(ngModel)]="input.Value"></mat-checkbox>
-            <!-- <input *ngIf="input.Type === 'bool'" type="checkbox" [(ngModel)]="input.Value" /> -->
         </label>
     </article>
 
