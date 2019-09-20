@@ -54,6 +54,7 @@
                     (dataChanged)="onJournalEntryManualChange($event)"
                     (dataLoaded)="onJournalEntryManualDataLoaded($event)">
                 </journal-entry-manual>
+
                 <table *ngIf="!(current | async)?.JournalEntry?.JournalEntryNumber" class="compact-summary">
                     <tr>
                         <td>Differanse</td>

@@ -34,7 +34,8 @@ import {
     RowDragEndEvent,
     PaginationChangedEvent,
     RowNode,
-    SortChangedEvent
+    SortChangedEvent,
+    GridOptions
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
@@ -75,6 +76,7 @@ export class AgGridWrapper {
 
     agGridApi: GridApi;
     agColDefs: ColDef[];
+    agTranslations: any;
     rowClassResolver: (params) => string;
 
     rowHeight = 45;
@@ -119,6 +121,12 @@ export class AgGridWrapper {
     ) {}
 
     public ngOnInit() {
+        this.agTranslations = {
+            rowGroupColumnsEmptyMessage: 'Dra kolonner her for å gruppere',
+            noRowsToShow: 'Ingen rader å vise',
+            loadingOoo: 'Laster data...'
+        };
+
         this.rowSelectionDebouncer$
             .debounceTime(50)
             .subscribe((event: SelectionChangedEvent) => {
@@ -246,12 +254,6 @@ export class AgGridWrapper {
     public onAgGridReady(event: GridReadyEvent) {
         this.agGridApi = event.api;
         this.agGridApi.sizeColumnsToFit();
-        if (this.config.isGroupingTicker) {
-            const doc = document.getElementsByClassName('ag-column-drop-empty-message');
-            if (doc && doc.length) {
-                doc[0].innerHTML = 'Dra kolonner her for å gruppere';
-            }
-        }
         this.initialize();
     }
 
@@ -313,6 +315,12 @@ export class AgGridWrapper {
 
             if (hasSumRow || this.config.showTotalRowCount) {
                 height += this.rowHeight;
+            }
+
+            if (loadedRowCount) {
+                this.agGridApi.hideOverlay();
+            } else {
+                this.agGridApi.showNoRowsOverlay();
             }
 
             this.tableHeight = height + 1 + 'px';

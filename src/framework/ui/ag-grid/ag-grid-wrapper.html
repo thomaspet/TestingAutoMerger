@@ -49,7 +49,7 @@
         [enableSorting]="!config?.editable && !config?.rowDraggable"
         [enableServerSideSorting]="rowModelType === 'infinite'"
 
-        [suppressNoRowsOverlay]="true"
+        [suppressNoRowsOverlay]="false"
         [suppressDragLeaveHidesColumns]="true"
         [headerHeight]="rowHeight"
         [rowHeight]="rowHeight"
@@ -87,7 +87,8 @@
 
         [context]="context"
         [frameworkComponents]="cellRendererComponents"
-        [groupRowAggNodes]="aggregator">
+        [groupRowAggNodes]="aggregator"
+        [localeText]="agTranslations">
     </ag-grid-angular>
 
     <!-- Note that row-count appears twice in this file, make changes in both -->

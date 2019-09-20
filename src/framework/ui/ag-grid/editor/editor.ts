@@ -561,8 +561,8 @@ export class TableEditor {
             return {
                 top: cellBounds.top - tableBounds.top,
                 left: cellBounds.left - tableBounds.left,
-                height: cell.clientHeight,
-                width: cell.clientWidth
+                height: cellBounds.height,
+                width: cellBounds.width
             };
 
         } catch (e) {

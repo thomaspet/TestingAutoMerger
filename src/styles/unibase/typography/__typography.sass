@@ -24,23 +24,17 @@
 // for situations when the typeface doesn't load. (San Francisco for iOS 9 or OS X El Capitan up,
 // Segoe UI for Win 8+, Droid Sans for Android, Ubuntu for.. well, you can probably guess that one.
 // Because, _this_ will be the year of Linux on the desktop!)
-$uni-stack: 'Source Sans Pro', -apple-system, 'Segoe UI', 'Droid Sans', 'Roboto', 'Ubuntu', 'Fira Sans Light', sans
-
 $rem: 16
 $rem-smaller-screens: 14
 
 html,
 body,
 p
-  font-family: var(--font-family) // $uni-stack
+  font-family: var(--font-family)
   font-weight: 400
   font-size: #{$rem}px
   line-height: #{$rem*1.5}px
-  // -webkit-font-smoothing: antialiased
-  // text-rendering: optimizeLegibility
-  // text-shadow: rgba(0, 0, 0, .01) 0 0 1px
   color: var(--text-color)
-  // letter-spacing: .02rem
 
   @media (max-width: 1300px)
     font-size: #{$rem-smaller-screens}px
@@ -60,5 +54,5 @@ small *
 
 hr
   border: none
-  border-bottom: 1px solid $uni-color-scale9
+  border-bottom: 1px solid var(--border-color)
 

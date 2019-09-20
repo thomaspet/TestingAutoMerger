@@ -16,7 +16,6 @@ interface OperationFilterItem {
     selector: 'flow-modal',
     templateUrl: './flow-modal.html',
     styleUrls: ['./flow-modal.sass'],
-    host: {class: 'uni-redesign'}
 })
 export class FlowModal implements IUniModal {
     options: IModalOptions = {};

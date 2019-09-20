@@ -3797,7 +3797,7 @@ export class BillView implements OnInit {
         ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
-                ? `${trimLength(doc.Supplier.Info.Name, 20)}`
+                ? doc.Supplier.Info.Name
                 : 'Ny leverandørfaktura',
             subheads: [
                 { title: doc && doc.InvoiceNumber ? `Fakturanr. ${doc.InvoiceNumber}` : '' },

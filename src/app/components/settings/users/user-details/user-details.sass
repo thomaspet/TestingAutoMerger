@@ -1,11 +1,3 @@
-@import '~src/styles/unibase/colors/__colors.sass'
-
-$lightblue: #2699fb
-$darkblue: #1565c0
-$red: #f53b57
-$green: #0be881
-$yellow: #ffdd59
-
 .mat-expansion-panel-header-title
     font-size: 14px
 
@@ -18,8 +10,7 @@ $yellow: #ffdd59
         box-sizing: border-box
         padding: 2rem 0 1.5rem 0
         margin: 0 2rem
-        border-bottom: 2px solid $uni-color-scale9
-
+        border-bottom: 2px solid var(--border-color)
         .left-side
             flex: 1
             display: flex
@@ -53,17 +44,15 @@ $yellow: #ffdd59
                 user-select: none
 
                 &.status-icon
-                    color: $green
+                    color: var(--color-good)
                     &.inactive
-                        color: $red
+                        color: var(--color-bad)
                     &.invited
-                        color: $yellow
+                        color: var(--color-warn)
 
         .edit-roles-button
             flex: 0 0 auto
             margin: auto 5px auto auto
-            color: #1565c0
-            font-weight: 600
 
         .user-actions
             margin: auto 0
@@ -84,7 +73,7 @@ $yellow: #ffdd59
 
         mat-expansion-panel
             box-shadow: none
-            border: 1px solid $uni-color-scale9
+            border: 1px solid var(--border-color)
             border-radius: 3px
             margin-bottom: 16px
 
@@ -96,7 +85,3 @@ $yellow: #ffdd59
             th, td
                 text-align: left
                 width: 33%
-
-// @media screen and (max-width: 1650px)
-//     .info-bar
-//         display: none

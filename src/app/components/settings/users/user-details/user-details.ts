@@ -34,7 +34,6 @@ enum UserStatus {
     selector: 'user-details',
     templateUrl: './user-details.html',
     styleUrls: ['./user-details.sass'],
-    host: {'class': 'uni-redesign'}
 })
 export class UserDetails {
     @Input() user: User;

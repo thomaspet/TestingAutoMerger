@@ -19,7 +19,6 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
     selector: 'user-management',
     templateUrl: './users.html',
     styleUrls: ['./users.sass'],
-    host: {'class': 'uni-redesign'}
 })
 export class UserManagement {
     scrollbar: PerfectScrollbar;

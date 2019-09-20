@@ -142,6 +142,10 @@ export class TableDataService {
         this.loadedRowCount = 0;
         return {
             getRows: (params: IGetRowsParams) => {
+                if (this.gridApi) {
+                    this.gridApi.hideOverlay();
+                }
+
                 let urlParams = new HttpParams();
                 urlParams = urlParams.set('skip', params.startRow.toString());
                 urlParams = urlParams.set('top', (params.endRow - params.startRow).toString());
