@@ -89,13 +89,13 @@
                     <div class="card-content">
                         <i class="material-icons">receipt</i>
                         <label>
-                            Main Ledger
+                            Kontoplan
                         </label>
                     </div>
                     <div class="card-footer">
                         <label class="upload-input" (click)="openImportTemplateModal(ledgerType)">
                             <i class="material-icons">cloud_upload</i>
-                            <span>Importer Main Ledger</span>
+                            <span>Importer kontoplan</span>
                         </label>
                         <label class="upload-input" (click)="openDownloadTemplateModal(ledgerType)"
                             *ngIf="uiPermission.ledger.hasTemplateAccess">
@@ -115,16 +115,16 @@
                     <div class="card-content">
                         <i class="material-icons">payment</i>
                         <label>
-                            Payroll
+                            Variable lønnsposter
                         </label>
                     </div>
                     <div class="card-footer">
                         <label class="upload-input" (click)="openImportTemplateModal(payrollType)">
                             <i class="material-icons">cloud_upload</i>
-                            <span>Importer Payroll</span>
+                            <span>Importer lønnsposter</span>
                         </label>
                         <label class="upload-input" (click)="openDownloadTemplateModal(payrollType)"
-                            *ngIf="uiPermission.payroll.hasTemplateAccess"><!-- TODO::implemente ui permission -->
+                            *ngIf="uiPermission.payroll.hasTemplateAccess">
                             <i class="material-icons">cloud_download</i>
                             <span>Last ned mal</span>
                         </label>
