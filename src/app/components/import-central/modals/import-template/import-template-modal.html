@@ -94,7 +94,7 @@
 
     </article>
     <footer class="center">
-        <button class="c2a rounded" [disabled]="options.data.entity === payrollType && !operators.length" (click)="importFile()">Importer {{options.data.type}}s</button>
+        <button class="c2a rounded" [disabled]="options.data.entity === payrollType && !operators.length || !selectedPayroll" (click)="importFile()">Importer {{options.data.type}}s</button>
         <button (click)="close()">Avbryt</button>
     </footer>
 </section>
