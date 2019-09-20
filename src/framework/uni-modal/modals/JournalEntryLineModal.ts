@@ -65,6 +65,7 @@ export class UniJournalEntryLineModal implements IUniModal {
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public journalEntryLine: JournalEntryLine;
     public entityType: string = 'JournalEntryLine';
+    private customDimensions: any;
 ​
     private jeTypes: JournalEntryType[];
 ​
@@ -94,8 +95,9 @@ export class UniJournalEntryLineModal implements IUniModal {
             this.journalEntryLine = data[0];
             this.projects = data[1];
             this.departments = data[2];
-            this.setUpDims(data[3]);
+            this.customDimensions = data[3];
             this.jeTypes = data[4];
+            this.setUpDims(this.customDimensions);
             this.formModel$.next(this.journalEntryLine);
             this.formFields$.next(this.getFormFields());
         });
@@ -131,7 +133,7 @@ export class UniJournalEntryLineModal implements IUniModal {
 ​
 ​
     private getFormFields(): UniFieldLayout[] {
-        return [
+        let fields =  [
             <any> {
                 Property: 'Description',
                 FieldType: FieldType.TEXT,
@@ -159,8 +161,11 @@ export class UniJournalEntryLineModal implements IUniModal {
                     },
                     source: this.jeTypes,
                     search: (query) => {
+                        let strSearchQuery: string = '';
+                        if (query) {strSearchQuery = `and startswith(DisplayName\,'${query}')`;
+                        }
                         const searchString = `model=JournalEntryType&select=DisplayName as DisplayName,ID as ID`
-                            + `&filter=ID gt 5 and startswith(DisplayName\,'${query}')`;
+                            + `&filter=ID gt 5 ${strSearchQuery}`;
                         return this.statisticsService
                         .GetAll(searchString).map(x => x.Data ? x.Data : []);
                     }
@@ -170,6 +175,8 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Property: ''
             }
         ];
+        return fields;
+
     }
 ​
 ​
@@ -207,8 +214,9 @@ export class UniJournalEntryLineModal implements IUniModal {
 ​
         Observable.forkJoin(queries).subscribe((res) => {
             res.forEach((list, index) => {
-                this.dimensionTypes[index + 1].Data = res[index];
+                this.dimensionTypes[index + 2].Data = res[index];
             });
+            this.dimensionTypes = [].concat(this.dimensionTypes);
         });
     }
 ​
