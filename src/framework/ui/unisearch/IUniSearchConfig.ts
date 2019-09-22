@@ -17,6 +17,7 @@ export interface IUniSearchConfig {
     createNewFn?: (currentInputValue?: string) => Observable<any>;
     externalLookupFn?: (searchTerm: string, searchCompanies: boolean, searchPersons: boolean) => Observable<any[]>;
     maxResultsLength?: number;
+    placeholder?: string;
     unfinishedValueFn?: (val: any) => Observable<any>;
     searchType1880?: SearchType1880;
     disableSearchButton?: boolean;

@@ -12,7 +12,7 @@ import {
     trimLength
 } from '../../../common/utils/utils';
 import {
-    Supplier, SupplierInvoice, JournalEntry, JournalEntryLineDraft,
+    Supplier, SupplierInvoice, SupplierInvoiceItem, JournalEntry, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
     User, ApprovalStatus, Approval,
@@ -35,7 +35,7 @@ import {IUniSearchConfig} from '@uni-framework/ui/unisearch/index';
 import {BillAssignmentModal} from '../assignment-modal/assignment-modal';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {CommentService} from '@uni-framework/comments/commentService';
-import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
+import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData, AccountingCostSuggestion} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
     UniModalService,
@@ -862,7 +862,9 @@ export class BillView implements OnInit {
                 }, err => this.errorService.handle(err));
             }
 
-            this.tryAddCostAllocation('EHF');
+            this.addEHFAccountingCostLines(invoice.Items).then((costAllocationRunned) => {
+                this.tryAddCostAllocation('EHF', !costAllocationRunned);
+            });
 
             // CHECK IF CUSTOMER IS BLOCKED!!
             // Should check here for customer status, and suggest to reject when status is BLOCKED!
@@ -3969,7 +3971,7 @@ export class BillView implements OnInit {
         }
     }
 
-    private tryAddCostAllocation(mode: string = '') {
+    private tryAddCostAllocation(mode: string = '', runSmartBooking: boolean = true) {
         const current = this.current.getValue();
         if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency !== 0) {
             this.journalEntryManual.addCostAllocationForSupplier(
@@ -3981,7 +3983,7 @@ export class BillView implements OnInit {
                 current.InvoiceDate,
                 false
             ).then((result: boolean) => {
-                if (!result && mode === 'EHF') {
+                if (!result && mode === 'EHF' && runSmartBooking) {
                     this.runSmartBooking(this.orgNumber);
                 }
             });
@@ -4004,6 +4006,60 @@ export class BillView implements OnInit {
             } else {
                 this.validationMessage.Level = 0;
             }
+        });
+    }
+
+    private addEHFAccountingCostLines(items: Array<SupplierInvoiceItem>)
+    {
+        return new Promise((resolve,reject) => {
+            if (!items.some(line => line.AccountingCost && line.AccountingCost.trim().toLowerCase().includes('konto='))) { 
+                resolve(false);
+            }
+        
+            // Map AccountingCost string to object
+            const model = this.current.value;
+            const lines = items.map((line) => {
+                let newpart = new AccountingCostSuggestion();
+                const parts = line.AccountingCost.split(';');
+                parts.map(p => {
+                    const keyvalue = p.split('=');
+                    newpart[keyvalue[0].toLowerCase()] = keyvalue[1];
+                });
+                newpart.Amount = line.SumTotalExVat;
+                newpart.AmountCurrency = line.SumTotalExVatCurrency;
+                newpart.Description = line.ItemText;
+                newpart.FinancialDate = model.InvoiceDate;
+    
+                return newpart;
+            });
+    
+            // Group lines with equal parameters
+            const groupedlines = [];
+            lines.forEach(line => {
+                const existing = groupedlines.find(groupedline => 
+                    line.konto === groupedline.konto &&
+                    line.avd === groupedline.avd &&
+                    line.mvakode === groupedline.mvakode &&
+                    line.prod === groupedline.prod &&
+                    line.prosj === groupedline.prosj           
+                );
+                if (existing) {
+                    existing.Amount += line.Amount;
+                    existing.AmountCurrency += line.AmountCurrency;
+                    existing.Description += existing.Description ? ', ' + line.Description : line.Description;
+                } else {
+                    groupedlines.push(line);
+                }
+            });
+           
+            this.journalEntryManual.journalEntryProfessional.addCostAllocationJournalEntryDataLines(groupedlines).then((value: any) => {
+                if (value.msg) {
+                    resolve(true);
+                    this.toast.addToast('EHF bokføring', value.type, ToastTime.medium, value.msg);
+                } else {
+                    resolve(false);
+                }
+            });    
         });
     }
 }

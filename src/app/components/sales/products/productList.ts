@@ -3,13 +3,15 @@ import { Router } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '../../../../framework/ui/unitable/index';
 import { IUniSaveAction } from '../../../../framework/save/save';
-import { ProductService, ErrorService, UserService } from '../../../services/services';
+import { ProductService, ErrorService, UserService, ImportCentralService } from '../../../services/services';
 import { Product } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { ImportCentralTemplateModal } from '@app/components/common/modals/import-central-modal/import-central-template-modal';
 import { environment } from 'src/environments/environment';
-import { DisclaimerModal } from '@app/components/admin/import-central/modals/disclaimer/disclaimer-modal';
+import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
+import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
+import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 
 @Component({
     selector: 'product-list',
@@ -19,7 +21,8 @@ export class ProductList {
     public productTable: UniTableConfig;
     public lookupFunction: (urlParams: HttpParams) => any;
     public saveActions: IUniSaveAction[];
-
+    private productPermissions: ImportUIPermission;
+    
     productTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
 
     constructor(
@@ -28,7 +31,8 @@ export class ProductList {
         private tabService: TabService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private userService: UserService
+        private userService: UserService,   
+        private importCentralService: ImportCentralService
     ) {
         this.tabService.addTab({
             name: 'Produkter',
@@ -44,22 +48,33 @@ export class ProductList {
                 done();
                 this.router.navigateByUrl('/sales/products/0');
             }
-        },
-        {
-            label: 'Importer produkter',
-            action: (done) => this.openImportModal(done),
-            main: true,
-            disabled: false
-        },
-        {
-            label: 'Import Logs',
-            action: this.importLogs.bind(this),
-            main: true,
-            disabled: false
-        }
-        ];
+        }];
 
         this.setupProductTable();
+        this.getImportAccess();
+    }
+
+    private getImportAccess() {
+        this.userService.getCurrentUser().subscribe(res => {
+            const permissions = res['Permissions'];
+            this.productPermissions = this.importCentralService.getAccessibleComponents(permissions).product;
+            if (this.productPermissions.hasComponentAccess) {
+                this.saveActions.push(...[{
+                    label: 'Importer produkter',
+                    action: (done) => this.openImportModal(done),
+                    main: true,
+                    disabled: false
+                },
+                {
+                    label: 'Import Logs',
+                    action: this.importLogs.bind(this),
+                    main: true,
+                    disabled: false
+                }]);
+            }
+        }, err => {
+            this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
+        });
     }
 
     public onRowSelected(event) {
@@ -157,23 +172,24 @@ export class ProductList {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.Product }])
     }
 
     private openProductImportModal() {
-        this.modalService.open(ImportCentralTemplateModal,
+        this.modalService.open(ImportTemplateModal,
             {
                 header: 'Importer produkter',
                 data: {
-                    jobName: 'ProductImportJob',
-                    entityType: 'Product',
-                    description: 'Import central - product',
-                    conditionalStatement: 'Hvis produktnummer i filen eksisterer i Uni Economy, så vil importen hoppe over rad med dette nummeret.',
-                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)',
-                    downloadStatement: 'Last ned excel mal for bruk til import fra eksterne system',
-                    downloadTemplateUrl: this.productTemplateUrl
+                    jobName: ImportJobName.Product,
+                    type: 'Product',
+                    entity: TemplateType.Product,
+                    conditionalStatement: '',
+                    formatStatement: ImportStatement.ProductFormatStatement,
+                    downloadStatement: ImportStatement.ProductDownloadStatement,
+                    downloadTemplateUrl: this.productTemplateUrl,
+                    hasTemplateAccess: this.productPermissions.hasTemplateAccess,
+                    isExternal: true
                 }
-            }
-        );
+            });
     };
 }

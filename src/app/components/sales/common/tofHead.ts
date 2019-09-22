@@ -89,7 +89,7 @@ export class TofHead implements OnChanges {
                 }
             }
 
-            if (this.data.PaymentInfoTypeID === null && this.data.ID === 0 && 
+            if (this.data.PaymentInfoTypeID === null && this.data.ID === 0 &&
                 ["CustomerOrder", "CustomerInvoice", "RecurringInvoice"].includes(this.entityName)) {
                 this.data.PaymentInfoTypeID = this.paymentInfoTypes[0].ID;
             }

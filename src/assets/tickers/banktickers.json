@@ -15,18 +15,21 @@
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
                 "LinkNavigationProperty": "InvoiceNumber",
-                "FilterOperator": "startswith"
+                "FilterOperator": "startswith",
+                "IsBankRuleField": true
             },
             {
                 "Header": "Debtor",
                 "Field": "Debtor",
                 "FilterOperator": "contains",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Kunde",
                 "Field": "BusinessRelation.Name",
-                "FilterOperator": "contains"
+                "FilterOperator": "contains",
+                "IsBankRuleField": true
             },
             {
                 "Header": "Konto fra",
@@ -36,7 +39,8 @@
             {
                 "Header": "Konto til",
                 "Field": "ToBankAccount.AccountNumber",
-                "FilterOperator": "contains"
+                "FilterOperator": "contains",
+                "IsBankRuleField": true
             },
             {
                 "Header": "Innbetalings Dato",
@@ -47,7 +51,8 @@
             {
                 "Header": "KID",
                 "Field": "PaymentID",
-                "FilterOperator": "contains"
+                "FilterOperator": "contains",
+                "IsBankRuleField": true
             },
             {
                 "Header": "Innbetaling",
@@ -60,19 +65,22 @@
                 "Field": "AmountCurrency",
                 "FilterOperator": "contains",
                 "SumColumn": true,
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Valuta",
                 "Field": "CurrencyCode.Code",
                 "Type": "text",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
                 "FilterOperator": "contains",
-                "SumColumn": true
+                "SumColumn": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Status",
@@ -92,26 +100,30 @@
                 "Field": "ExternalBankAccountNumber",
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
-                "SelectRequired": true
+                "SelectRequired": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Beskrivelse",
                 "Field": "Description",
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
-                "SelectRequired": true
+                "SelectRequired": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Proprietary",
                 "Field": "Proprietary",
                 "FilterOperator": "contains",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "Domain",
                 "Field": "Domain",
                 "FilterOperator": "contains",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "IsBankRuleField": true
             },
             {
                 "Header": "📎",
@@ -134,6 +146,11 @@
                             "Field": "IsCustomerPayment",
                             "Operator": "eq",
                             "Value": "true"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         }
                     ]
                 }]
@@ -224,6 +241,15 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Lag regel for betaling uten match",
+                "Code": "bank_rule_nomatch",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "SubTickersCodes": ["payment_details", "post_in_file", "payment_status_log"]
@@ -242,6 +268,12 @@
         "Joins": "Payment.JournalEntryID eq JournalEntry.ID and JournalEntry.ID eq FileEntityLink.EntityID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode,CurrencyCode",
         "Columns": [
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "FilterOperator": "contains",
+                "DefaultHiddenOnGivenFilters": ["not_payed", "payment_list", "payed_and_journaled"]
+            },
             {
                 "Header": "Betales til",
                 "Field": "BusinessRelation.Name",
@@ -309,7 +341,8 @@
                 "FilterOperator": "contains",
                 "Alias": "Amount",
                 "DisplayField": "Amount",
-                "SumColumn": true
+                "SumColumn": true,
+                "MarkedRowsSumCol": true
             },
             {
                 "Header": "Betalingsdato",
@@ -330,11 +363,6 @@
                 "Field": "StatusText",
                 "FilterOperator": "contains",
                 "ShowOnlyOnThisFilter": 4
-            },
-            {
-                "Header": "Status",
-                "Field": "StatusCode",
-                "FilterOperator": "contains"
             },
             {
                 "Header": "Bilagnr.",
@@ -469,11 +497,20 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Sett til bokført og betalt",
+                "Code": "set_to_paid",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "Filters": [
             {
-                "Name": "Ubetalt",
+                "Name": "Betalingsliste",
                 "Code": "not_payed",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
@@ -504,7 +541,7 @@
                 }]
             },
             {
-                "Name": "Overført bank",
+                "Name": "Under behandling",
                 "Code": "transferred_bank",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
@@ -549,11 +586,6 @@
                         {
                             "Field": "StatusCode",
                             "Operator": "ne",
-                            "Value": "44013"
-                        },
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "ne",
                             "Value": "44014"
                         },
                         {
@@ -575,10 +607,11 @@
                 }]
             },
             {
-                "Name": "Betalt ingen match",
+                "Name": "Krever behandling",
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
+                "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken med vi har ikke funnet en matchende post i Uni Economy. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -591,36 +624,6 @@
                             "Field": "StatusCode",
                             "Operator": "eq",
                             "Value": "44018"
-                        },
-                        {
-                            "Field": "isPaymentClaim",
-                            "Operator": "eq",
-                            "Value": "false"
-                        },
-                        {
-                            "Field": "isPaymentCancellationRequest",
-                            "Operator": "eq",
-                            "Value": "false"
-                        }
-                    ]
-                }]
-            },
-            {
-                "Name": "Betalt og fullført",
-                "Code": "payed_and_journaled",
-                "UseAllCriterias": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "IsCustomerPayment",
-                            "Operator": "eq",
-                            "Value": "false"
-                        },
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "eq",
-                            "Value": "44004"
                         },
                         {
                             "Field": "isPaymentClaim",
@@ -696,7 +699,42 @@
                         {
                             "Field": "StatusCode",
                             "Operator": "ne",
+                            "Value": "44013"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
                             "Value": "44018"
+                        },
+                        {
+                            "Field": "isPaymentClaim",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "isPaymentCancellationRequest",
+                            "Operator": "eq",
+                            "Value": "false"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalt og fullført",
+                "Code": "payed_and_journaled",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44004"
                         },
                         {
                             "Field": "isPaymentClaim",

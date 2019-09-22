@@ -1,0 +1,94 @@
+<section role="dialog" class="uni-modal uni-redesign" style="width: 80vw">
+    <header>
+        <h1> Bokføringsregler </h1>
+    </header>
+    <article style="overflow: visible;">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+        <section style="display: flex;">
+            <section style="flex: 1 80px;" class="rule-grid-container">
+                <ag-grid-wrapper
+                    #listTable
+                    class="transquery-grid-font-size"
+                    [config]="tableConfig"
+                    [(resource)]="bankRules"
+                    (dataLoaded)="detailsTable.focusRow(activeIndex)"
+                    (resourceChange)="onPriorityChange($event)"
+                    (rowClick)="onRowSelect($event)"
+                    (rowDelete)="onRowDelete($event)">
+                </ag-grid-wrapper>
+                <button (click)="newRule()" class="new-rule-button c2a" [disabled]="dirty">Ny regel</button>
+            </section>
+
+            <section class="filters">
+                <form class="uni-html-form" style="margin-bottom: 2rem;">
+                    <label>
+                        <span style="flex: 0 0 100px;">Beskrivelse</span>
+                        <input name="Name" type="text" [(ngModel)]="currentRule.Name" (change)="setDirtyOrClean(true)">
+                    </label>
+                </form>
+
+                <section #filterRow class="filter" *ngFor="let filter of filters; let idx = index">
+                    <input *ngIf="filter['_readonlyField']" disabled [value]="filter.field" type="text" (change)="setDirtyOrClean(true)">
+
+                    <select *ngIf="!filter['_readonlyField']" [(ngModel)]="filter.field" (change)="setDirtyOrClean(true)">
+                        <option *ngFor="let column of columns" [value]="column.Field">
+                            {{column.Header}}
+                        </option>
+                    </select>
+
+                    <select class="operator-select" [(ngModel)]="filter.operator" (change)="setDirtyOrClean(true)">
+                        <option *ngFor="let op of filter._availableOperators" [value]="op.operator">
+                            {{op.label}}
+                        </option>
+                    </select>
+
+                    <input *ngIf="!filter.selectConfig?.options" type="text" class="filter-value-input" [(ngModel)]="filter.value" (change)="setDirtyOrClean(true)" placeholder="blank"/>
+
+                    <button class="remove-filter icon-button" (click)="removeFilter(idx)">
+                        <i class="material-icons">remove_circle_outline</i>
+                    </button>
+
+                </section>
+
+                <button class="add-button" (click)="addFilter()">
+                    <i class="material-icons">add</i>
+                    Legg til filter
+                </button>
+
+                <mat-slide-toggle
+                    style="display: block; margin: 2rem 0; font-size: 15px; max-width: 8rem;"
+                    [(ngModel)]="currentRule.IsActive"
+                    (change)="checkActiveRule()"
+                    [labelPosition]="'before'">
+                    Aktiv
+                </mat-slide-toggle>
+
+                <div>
+                    <span>
+                        Handling
+                    </span>
+                    <div>
+                      <mat-radio-group aria-label="Velg en handling">
+                        <mat-radio-button *ngFor="let action of actions" [checked]="action.value === currentRule.ActionCode" value="{{ action.value }}" (change)="onActionChange(action)">{{ action.label }}</mat-radio-button>
+                      </mat-radio-group>
+                    </div>
+                </div>
+                <div class="bankrules-account-search-contains">
+                    <uni-search
+                        [config]="uniSearchConfig"
+                        (changeEvent)="onAccountSelected($event)"
+                        [disabled]="accountSearchActive">
+                    </uni-search>
+                </div>
+            </section>
+        </section>
+    </article>
+
+    <footer class="center">
+        <button [disabled]="!dirty" class="c2a rounded" (click)="saveRules()">Lagre</button>
+        <button (click)="regretChanges()" *ngIf="dirty && currentRule?.ID">Angre</button>
+        <button (click)="close()">Lukk</button>
+    </footer>
+</section>

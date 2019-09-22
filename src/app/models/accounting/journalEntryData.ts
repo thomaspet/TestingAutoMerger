@@ -106,3 +106,16 @@ export class FieldAndJournalEntryData {
     Field: string;
     JournalEntryData: JournalEntryData;
 }
+
+export class AccountingCostSuggestion {
+    konto: string;
+    avd: string;
+    prod: string;
+    prosj: string;
+    mvakode: string;
+    
+    Amount: number;
+    AmountCurrency: number;
+    Description: string;
+    FinancialDate: LocalDate
+}

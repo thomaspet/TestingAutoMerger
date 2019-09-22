@@ -15,7 +15,7 @@ import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarShare} from './toolbar/share';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
-
+import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
@@ -54,17 +54,22 @@ import {
     InvoiceHours
 } from './timetrackingCommon';
 
+import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-rules-modal';
+
 import {
     MatProgressBarModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatRadioModule
 } from '@angular/material';
 
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
-import {DeleteCompanyModal} from './modals/company-modals/delete-company-modal/delete-company-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
-import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
+import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
+import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
+import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
 
 @NgModule({
     imports: [
@@ -79,7 +84,9 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         MatProgressBarModule,
         MatMenuModule,
         MatCheckboxModule,
-        MatSelectModule
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatRadioModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -103,7 +110,7 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         LedgerAccountReconciliation,
         UniAutomarkModal,
         UniMarkingDetailsModal,
-
+        UniDimensionTOFView,
         ReminderSettings,
         UniReminderSettingsModal,
         ReminderRules,
@@ -127,6 +134,8 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         ApikeyLineModal,
 
         ImportCentralTemplateModal,
+        DisclaimerModal,
+        ImportTemplateModal,
 
         WorkEditor,
         UniTimeModal,
@@ -136,8 +145,8 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
-        DeleteCompanyModal,
         UniNewCompanyModal,
+        JournalingRulesModal,
         ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
@@ -158,8 +167,10 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         WorkitemTransferWizard,
         GrantAccessModal,
         UniNewCompanyModal,
-        DeleteCompanyModal,
         ImportCentralTemplateModal,
+        DisclaimerModal,
+        ImportTemplateModal,
+        JournalingRulesModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -175,6 +186,7 @@ import {ImportCentralTemplateModal} from './modals/import-central-modal/import-c
         UniAttachments,
         UniTags,
         AddPaymentModal,
+        UniDimensionTOFView,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,

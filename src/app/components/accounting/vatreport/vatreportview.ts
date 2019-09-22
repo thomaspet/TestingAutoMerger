@@ -156,7 +156,12 @@ export class VatReportView implements OnInit, OnDestroy {
             } else if (status.Code < activeStatus) {
                 _state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
-                _state = STATUSTRACK_STATES.Active;
+                if (this.currentVatReport && this.vatReportsInPeriod && this.vatReportsInPeriod.length > 0 &&
+                    this.currentVatReport.ID !== this.vatReportsInPeriod[this.vatReportsInPeriod.length - 1].ID) {
+                    _state = STATUSTRACK_STATES.Obsolete;
+                } else {
+                    _state = STATUSTRACK_STATES.Active;
+                }
             }
 
             let addStatus: boolean = true;
@@ -188,7 +193,9 @@ export class VatReportView implements OnInit, OnDestroy {
                     title: status.Text,
                     state: _state,
                     code: status.Code,
-                    substatusList: _state === STATUSTRACK_STATES.Active ? subStatusList : null
+                    substatusList: subStatusList,
+                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
+                            && (this.vatReportsInPeriod && this.vatReportsInPeriod.length > 1) ? this.vatReportsInPeriod.length + '' : null
                 });
             }
         });
@@ -342,7 +349,8 @@ export class VatReportView implements OnInit, OnDestroy {
         this.currentVatReport = vatReport;
         this.vatReportService.refreshVatReport(this.currentVatReport);
 
-        this.tabs[2].hidden = !this.isSent();
+        this.tabs[2].hidden = !this.currentVatReport.ExternalRefNo || !this.isSent();
+
         this.tabs[3].hidden = !this.currentVatReport.JournalEntryID;
         this.tabs = [...this.tabs];
 

@@ -1,13 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { ImportFileType, ImportDialogModel } from '@app/models/import-central/ImportDialogModel';
+import { ImportFileType, ImportDialogModel, ImportOption } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import { FileService, ErrorService, JobService } from '@app/services/services';
 import { HttpClient } from '@angular/common/http';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { DisclaimerModal } from '@app/components/admin/import-central/modals/disclaimer/disclaimer-modal';
+import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
 
 
 @Component({
@@ -28,7 +28,7 @@ import { DisclaimerModal } from '@app/components/admin/import-central/modals/dis
                     <label>
                         {{options.data.downloadStatement}}
                     </label>
-                    <label class="upload-input">
+                    <label class="upload-input" *ngIf="options.data.hasTemplateAccess">
                         <i class="material-icons">cloud_download</i>
                     <a href="{{options.data.downloadTemplateUrl}}">Last ned mal</a>
                 </label>
@@ -72,6 +72,7 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
 
     errorMessage = 'Velg fil';
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
+    importOption: ImportOption = ImportOption.Skip;
     importModel: ImportDialogModel;
 
     constructor(
@@ -125,30 +126,29 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
             this.errorService.handle(this.errorMessage);
         } else {
             this.loading$.next(true);
-            this.uploadFile(this.file).subscribe(
-                (res) => {
-                    // tslint:disable-next-line
-                    const fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
-                    this.importModel = {
-                        CompanyKey: this.activeCompany.Key,
-                        CompanyName: this.companyName,
-                        Url: fileURL,
-                        ImportFileType: this.fileType
-                    };
-
-                    this.jobService.startJob(this.options.data.jobName, 0, this.importModel).subscribe(
-                        () => {
-                            this.loading$.complete();
-                            this.close();
-                        },
-                        err => this.errorService.handle(err)
-                    );
-                },
-                err => {
-                    this.loading$.next(false);
-                    this.errorService.handle(err);
+            // NOTE: comment when testing and hardcode the file in backend.
+            this.uploadFile(this.file).subscribe((res) => {
+                var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
+               
+                this.importModel = {
+                    CompanyKey: this.activeCompany.Key,
+                    CompanyName: this.companyName,
+                    Url: fileURL,
+                    ImportFileType: this.fileType,
+                    ImportOption : this.importOption
                 }
-            );
+                this.jobService.startJob(this.options.data.jobName, 0, this.importModel).subscribe(
+                    res => {
+                        this.loading$.complete();
+                        this.close();
+                    },
+                    err => this.errorService.handle(err)
+                );
+            // NOTE: comment when testing
+             }, err => {
+                 this.loading$.next(false);
+                 this.errorService.handle(err);
+            });
         }
     }
 

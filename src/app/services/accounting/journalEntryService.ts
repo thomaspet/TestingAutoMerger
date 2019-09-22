@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup} from '../../unientities';
+import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup, JournalEntryType} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/from';
@@ -1942,6 +1942,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             `&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`
         )
             .map(data => data.Data);
+    }
+
+    public getJournalEntryTypes(): Observable<any> {
+        return this.statisticsService.GetAll(`model=JournalEntryType`
+        + `&select=ID as ID,Number as Number,DisplayName as DisplayName,Name as Name,ExpectNegativeAmount as ExpectNegativeAmount`
+        + `&filter=ID gt 5`).map(data => data.Data);
     }
 }
 

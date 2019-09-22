@@ -26,7 +26,8 @@ import {
     StatisticsService,
     EmploymentService,
     PageStateService,
-    IEmployee
+    IEmployee,
+    Dimension
 } from '../../../services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -123,9 +124,9 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         this.route.params.subscribe(param => {
             this.errors = {};
             this.payrollRunID = +param['id'];
-            if (this.payrollRunID) {
-                this.getEmployeeData();
-            } else {
+            this.getEmployeeData(this.payrollRunID)
+
+            if (!this.payrollRunID)  {
                 this.employees = [];
                 this.filteredEmployees = [];
                 this.selectedEmp = null;
@@ -141,7 +142,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         super.updateCacheKey(key);
         super.getStateSubject(REFRESH_EMPS_ACTION)
             .takeUntil(this.destroy$)
-            .subscribe(() => this.getEmployeeData());
+            .subscribe(() => this.getEmployeeData(this.payrollRunID));
         super.getStateSubject(SELECTED_EMP_KEY)
                     .pipe(
                         takeUntil(this.destroy$),
@@ -275,7 +276,9 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
             );
     }
 
-    public getEmployeeData() {
+    public getEmployeeData(payRunID: number) {
+        if (!payRunID) {return;}
+
         this.busy = true;
         let query = `model=SalaryTransaction&expand=Employee.BusinessRelationInfo&join=SalaryTransaction.EmployeeID eq ` +
         `EmployeeCategoryLink.EmployeeID as CatLink&filter=PayrollRunID eq ${this.payrollRunID}`;
@@ -354,13 +357,31 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                 .odataFilters(emps.map(x => x.ID), 'EmployeeID')
                 .map(empFilter => this.statisticsService.GetAllUnwrapped(
                     `model=Employment&` +
-                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName,Standard as Standard&` +
+                    `select=ID as ID,EmployeeID as EmployeeID,JobName as JobName,Standard as Standard,` +
+                    `Dimensions.DepartmentID as DepartmentID,Dimensions.ProjectID as ProjectID,DimensionsID as DimensionsID&` +
+                    `expand=Dimensions&` +
                     `filter=${empFilter}`
             )))
             .pipe(
-                map((pagedEmployments: Employment[][]) => pagedEmployments.reduce((acc, curr) => [...acc, ...curr], [])),
+                map((pagedEmployments: any[][]) => pagedEmployments.map(empls => this.createEmployments(empls))),
+                map(pagedEmployments => pagedEmployments.reduce((acc, curr) => [...acc, ...curr], [])),
                 tap(empl => this.updateState(EMPLOYMENTS_KEY, [...(this.employments || []), ...empl], false))
             );
+    }
+
+    private createEmployments(emps: any[]): Employment[] {
+        return emps.map(emp => this.createEmployment(emp));
+    }
+
+    private createEmployment(emp: any): Employment {
+        const ret: Employment = emp;
+        if (emp['DepartmentID'] || emp['ProjectID']) {
+            ret.Dimensions = <Dimension>{};
+            ret.Dimensions.ID = emp['DimensionsID'];
+            ret.Dimensions.DepartmentID = emp['DepartmentID'];
+            ret.Dimensions.ProjectID = emp['ProjectID'];
+        }
+        return ret;
     }
 
     private updateErrors(employees: IEmployee[]) {
@@ -403,6 +424,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                     return distinctCards;
                 }),
                 tap(taxCards => Object.keys(taxCards).forEach(key => this.taxCards[key] = taxCards[key])),
+                map(() => this.taxCards),
                 map(taxCards => emps.map(emp => {
                     const cards = [];
                     if (taxCards[emp.ID]) {

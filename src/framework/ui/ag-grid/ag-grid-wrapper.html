@@ -77,7 +77,7 @@
         (sortChanged)="onSortChange($event)"
 
         [rowSelection]="selectionMode"
-        [suppressRowClickSelection]="selectionMode === 'multiple'"
+        [suppressRowClickSelection]="selectionMode === 'multiple' || suppressRowClick"
         [isRowSelectable]="isRowSelectable"
         (selectionChanged)="onSelectionChange($event)"
         (rowSelected)="onRowSelected($event)"
@@ -92,7 +92,8 @@
 
     <section class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
         <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
-        <span *ngIf="config?.multiRowSelect">Antall markerte rader: {{ markedRowCount }}</span>
+        <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
+        <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
     </section>
 </section>
 

@@ -326,6 +326,7 @@ export class UniTickerService {
         c.Alias = c.Alias ? c.Alias : aliasColName;
         c.SelectableFieldName = selectableColName;
 
+
         // if not fieldtype is configured for the ticker column, try to find
         // type based on the model that is retrieved from the API
         if (model &&  (!c.Type || c.Type === '')) {
@@ -1168,10 +1169,12 @@ export class Ticker {
     public Type?: string;
     public Group: string;
     public IsTopLevelTicker: boolean;
+    public AvoidAutoExpand?: boolean;
     public HideCounter?: boolean;
     public Model: string;
     public OrderBy?: string;
     public ApiModel?: ApiModel;
+    public Select?: string;
     public Expand?: string;
     public Distinct?: boolean;
     public CountExpand?: string;
@@ -1213,12 +1216,14 @@ export interface IExpressionFilterValue {
 export class TickerColumn {
     public Header?: string;
     public Field: string;
+    public IsBankRuleField?: boolean;
     public SelectableFieldName?: string;
     public Format?: string;
     public Width?: string;
     public Resizeable?: boolean;
     public DefaultHidden?: boolean;
     public ShowOnlyOnThisFilter?: number;
+    public DefaultHiddenOnGivenFilters?: string[];
     public CssClass?: string;
     public Type?: string;
     public SumFunction?: string;
@@ -1231,6 +1236,7 @@ export class TickerColumn {
     public Placeholder?: string;
     public FieldSetColumn?: number;
     public SumColumn?: boolean;
+    public MarkedRowsSumCol?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public DisplayField?: string;
     public Expand?: string;
@@ -1258,6 +1264,7 @@ export class TickerFilter {
     public Filter: string;
     public OrderBy?: string;
     public IsActive: boolean;
+    public tooltip?: string;
     public FilterGroups: Array<TickerFilterGroup>;
     public UseAllCriterias: boolean = true;
     public CurrentCount?: number;

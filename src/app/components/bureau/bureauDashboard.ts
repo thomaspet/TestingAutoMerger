@@ -20,7 +20,7 @@ import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-gr
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
 import {WizardSettingsModal} from '@uni-framework/uni-modal/modals/wizard-settings-modal/wizard-settings-modal';
 
-import {UniNewCompanyModal, DeleteCompanyModal, GrantAccessModal} from '@app/components/common/modals/company-modals';
+import {UniNewCompanyModal, GrantAccessModal} from '@app/components/common/modals/company-modals';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -309,21 +309,6 @@ export class BureauDashboard {
                 {
                     label: 'Rediger klientnr',
                     action: company => this.editClientNumber(company)
-                },
-                {
-                    label: 'Slett selskap',
-                    action: (company) => {
-                        this.modalService.open(DeleteCompanyModal, {
-                            data: company
-                        }).onClose.subscribe(companyDeleted => {
-                            if (companyDeleted) {
-                                this.companies = this.companies.filter(c => c.ID !== company.ID);
-                                this.filterCompanies();
-
-                                // this.loadCompanies();
-                            }
-                        });
-                    }
                 }
             ]);
     }

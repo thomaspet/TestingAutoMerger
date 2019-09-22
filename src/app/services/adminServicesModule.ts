@@ -3,7 +3,6 @@ import {JobService} from './admin/jobs/jobService';
 import {ModelService} from './admin/models/modelService';
 import {RoleService} from './admin/roleService';
 import {PermissionService} from './admin/permissionService';
-import { ImportCentralService } from './admin/import-central/importCentralService';
 
 export * from './admin/jobs/jobService';
 export * from './admin/models/modelService';
@@ -21,8 +20,7 @@ export class AdminServicesModule {
                 JobService,
                 ModelService,
                 RoleService,
-                PermissionService,
-                ImportCentralService
+                PermissionService
             ]
         };
     }

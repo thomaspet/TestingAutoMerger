@@ -5,12 +5,18 @@ import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {AccountService, VatTypeService, ErrorService} from '../../../services/services';
+import {AccountService, VatTypeService, ErrorService, UserService, ImportCentralService} from '../../../services/services';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {
     UniModalService, UniConfirmModalV2, ConfirmActions, IModalOptions,
     UniMandatoryDimensionsModal
 } from '../../../../framework/uni-modal';
+import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
+import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
+import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
+import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 
 @Component({
     selector: 'account-settings',
@@ -20,16 +26,17 @@ export class AccountSettings {
     @ViewChild(AccountList) private accountlist: AccountList;
     @ViewChild(AccountDetails) private accountDetails: AccountDetails;
 
-    saveaction: IUniSaveAction = {
+    saveaction: IUniSaveAction[] = [{
         label: 'Lagre',
         action: (completeEvent) => this.saveSettings(completeEvent),
         main: true,
         disabled: true
-    };
+    }];
 
     public account: Account;
     private hasChanges: boolean = false;
-
+    private ledgerPermissions: ImportUIPermission;
+    mainLedgerTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER;
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',
@@ -57,16 +64,20 @@ export class AccountSettings {
         private vatTypeService: VatTypeService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private userService: UserService,
+        private importCentralService: ImportCentralService,
+        private router: Router
     ) {
         this.tabService.addTab({
             name: 'Kontoplan', url: '/accounting/accountsettings',
             moduleID: UniModules.Accountsettings, active: true
         });
+        this.getImportAccess();
     }
 
     updateSaveEnabledState(enabled: boolean) {
-        this.saveaction.disabled = !enabled;
+        this.saveaction[0].disabled = !enabled;
     }
 
     public changeAccount(account: Account) {
@@ -207,4 +218,67 @@ export class AccountSettings {
             }
         });
     }
+
+    private getImportAccess() {
+        this.userService.getCurrentUser().subscribe(res => {
+            const permissions = res['Permissions'];
+            this.ledgerPermissions = this.importCentralService.getAccessibleComponents(permissions).ledger;
+            if (this.ledgerPermissions.hasComponentAccess) {
+                this.saveaction.push(...[{
+                    label: 'Importer kontoplan',
+                    action: (done) => this.openImportModal(done),
+                    main: true,
+                    disabled: false
+                },
+                {
+                    label: 'Import Logs',
+                    action: this.importLogs.bind(this),
+                    main: true,
+                    disabled: false
+                }]);
+            }
+        }, err => {
+            this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
+        });
+    }
+
+    private importLogs() {
+        this.router.navigate(['/import/log', { id: TemplateType.MainLedger }])
+    }
+
+    private openImportModal(done = () => { }) {
+        this.userService.getCurrentUser().subscribe(res => {
+            if (res) {
+                if (res.HasAgreedToImportDisclaimer) {
+                    this.openmainLedgerImportModal();
+                } else {
+                    this.modalService.open(DisclaimerModal)
+                        .onClose.subscribe((val) => {
+                            if (val) {
+                                this.openmainLedgerImportModal();
+                            }
+                        });
+                }
+            }
+        });
+        done();
+    }
+
+    private openmainLedgerImportModal() {
+        this.modalService.open(ImportTemplateModal,
+            {
+                header: 'Importer Kontoplan',
+                data: {
+                    jobName: ImportJobName.MainLedger,
+                    type: 'MainLedger',
+                    entity: TemplateType.MainLedger,
+                    conditionalStatement: ImportStatement.MainLedgerConditionalStatement,
+                    formatStatement: ImportStatement.MainLedgerFormatStatement,
+                    downloadStatement: ImportStatement.MainLedgerDownloadStatement,
+                    downloadTemplateUrl: this.mainLedgerTemplateUrl,
+                    hasTemplateAccess: this.ledgerPermissions.hasTemplateAccess,
+                    isExternal: true
+                }
+            });
+    };
 }

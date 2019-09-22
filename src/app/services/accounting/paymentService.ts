@@ -45,10 +45,11 @@ export class PaymentService extends BizHttp<Payment> {
                 return 'Betalt';
             case 44004:
                 return 'Fullført';
+            case 44013:
+                    return 'Kommunikasjonsfeil. Vennligst dobbelsjekk i nettbanken';
             case 44003:
             case 44010:
             case 44012:
-            case 44013:
             case 44014:
                 return 'Feilet';
             case 44018:
@@ -56,7 +57,7 @@ export class PaymentService extends BizHttp<Payment> {
             case 44019:
                 return 'Slette forespørsel';
             default:
-                return '';
+                return 'Ukjent status: ' + statusCode;
         }
     }
 
