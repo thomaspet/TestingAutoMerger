@@ -550,3 +550,120 @@ header.dashboard-header
             margin-right: auto
         .links
             display: none
+
+
+// SR
+sr-unpaid-doughnut-widget
+    .chart-legend-sr
+        display: flex
+        flex-direction: row
+        margin-top: 1rem
+
+        .legend-top
+            flex: 1
+
+            .result-legend
+                text-align: center
+                margin-bottom: 0.7rem
+                cursor: pointer
+                font-size: 13px
+                font-weight: 600
+                color: $uni-color-scale4
+
+                &.hidden-class
+                    text-decoration: line-through
+                .indicator
+                    display: inline-block
+                    width: 10px
+                    height: 10px
+                    border-radius: 50%
+                    margin-right: 2px
+                    background: #738293
+
+                .notdue
+                    background: #37B441
+                .due1
+                    background: #FFF000
+                .due2
+                    background: #FF9100
+                .due3
+                    background: #DA3D00
+
+.sr-widget-header
+    font-size: 18px
+    font-weight: 600 !important
+    color: $uni-color-scale4
+
+    &.chart-and-table
+        height: 60px
+
+    .filters .toggle-button
+        padding: 0 .2rem !important
+        border: 2px solid $uni-color-scale6
+        font-weight: 500 !important
+        height: 34px
+        line-height: 31px
+        width: 7rem
+
+.legend-vertical-class
+    margin-top: .75rem
+    .legend-row
+        margin-top: .25rem
+        font-size: 13px
+        font-weight: 600
+        color: $uni-color-scale4
+        .indicator
+            display: inline-block
+            width: 10px
+            height: 10px
+            border-radius: 50%
+            margin-right: 8px
+            background: #738293
+
+    .notdue
+        background: #37B441
+    .due1
+        background: #FFF000
+    .due2
+        background: #FF9100
+    .due3
+        background: #DA3D00
+
+.chart-and-table-customer
+    width: 100%
+    height: 100%
+    list-style: none
+
+    li
+        display: flex
+        align-items: center
+        height: 25%
+        max-height: 70px
+        border-bottom: 1px solid $uni-color-scale8
+
+        &:first-of-type
+            font-weight: bold
+
+        span
+            display: inline-block
+            width: 20%
+            overflow:
+            text-overflow: ellipsis
+            white-space: nowrap
+
+            &:first-of-type
+                width: 24px
+            &:nth-child(2)
+                width: 35%
+
+            &:nth-last-child(-n + 2)
+                text-align: right
+                padding-right: 1rem
+
+    .indicator
+        display: inline-block
+        width: 14px
+        height: 14px
+        border-radius: 50%
+        margin-right: 8px
+        background: #738293

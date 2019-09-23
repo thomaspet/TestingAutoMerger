@@ -53,6 +53,12 @@ export class UniMegaMenu {
         this.filteredLinkSections = [];
 
         this.defaultSetup.forEach((section) => {
+            // section.linkGroups.forEach((lg) => {
+            //     lg.links = lg.links.sort((a, b) => {
+            //         return a.activeInSidebar ? -1 : b.activeInSidebar ? 1 : 0;
+            //     });
+            // });
+
             if (section.megaMenuGroupIndex || section.megaMenuGroupIndex === 0) {
                 if (this.filteredLinkSections.length > section.megaMenuGroupIndex
                     && this.filteredLinkSections[section.megaMenuGroupIndex].length) {
@@ -83,6 +89,8 @@ export class UniMegaMenu {
     linkSelect(link: INavbarLink) {
         link.activeInSidebar = !link.activeInSidebar;
         this.isDirty = JSON.stringify(this.linkSections) !== JSON.stringify(this.defaultSetup);
+
+
     }
 
     saveMenuStructure() {
@@ -91,6 +99,11 @@ export class UniMegaMenu {
             elements.forEach((elem) => {
                 this.defaultSetup.unshift(elem);
             });
+        }
+
+        // Readd the homebutton on
+        if (this.defaultLinkSection.filter(l => l.isOnlyLinkSection).length) {
+            this.defaultSetup.unshift(this.defaultLinkSection.filter(l => l.isOnlyLinkSection)[0]);
         }
 
         this.navbarService.saveSidebarLinks(this.defaultSetup);

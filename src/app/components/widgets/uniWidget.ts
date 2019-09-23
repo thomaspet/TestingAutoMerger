@@ -34,7 +34,9 @@ import {
     UniTimetrackingCharts,
     AssignmentsWidget,
     ExpensesWidget,
-    BalanceWidget
+    BalanceWidget,
+    SRUnpaidDoughnutChart,
+    ChartAndTableWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -57,6 +59,7 @@ export interface IUniWidget {
     };
 }
 
+// CUSTOM SR WIDGET MAP??? :ANDERS??
 export const WIDGET_MAP = {
     shortcuts: UniShortcutWidget,
     chart: UniChartWidget,
@@ -71,6 +74,7 @@ export const WIDGET_MAP = {
     integrationCounter: UniIntegrationCounterWidget,
     invoiced: InvoicedWidget,
     unpaid: UniUnpaidDoughnutChart,
+    unpaidsr: SRUnpaidDoughnutChart,
     timetracking_calendar: TimetrackingCalendar,
     operatingprofit: OperatingProfitWidget,
     kpi: KpiWidget,
@@ -79,7 +83,8 @@ export const WIDGET_MAP = {
     ttchart: UniTimetrackingCharts,
     assignments: AssignmentsWidget,
     expenses: ExpensesWidget,
-    balance: BalanceWidget
+    balance: BalanceWidget,
+    chartAndTable: ChartAndTableWidget
 };
 
 @Directive({

@@ -182,5 +182,44 @@ export const CHARTS = [
         config: {
             type: 'wagetype_pie'
         }
+    },
+    // SR TEMPORARY
+    {
+        id: 'unpaid_customerinvoice_sr',
+        description: 'Leverandørgjeld',
+        permissions: ['ui_accounting'],
+        width: 3,
+        height: 3,
+        widgetType: 'unpaidsr',
+        config: {
+            model: 'SupplierInvoice',
+            function: 'unpaid',
+            labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager']
+        }
+    },
+    {
+        id: 'chart_and_table_accounts',
+        description: 'Likviditet og prognose',
+        permissions: ['ui_accounting'],
+        width: 7,
+        height: 3,
+        widgetType: 'chartAndTable',
+        config: {
+            model: 'Account'
+        }
+    },
+    {
+        id: 'chart_and_table_customers',
+        description: 'Kundefordringer & kunder jeg bør purre på',
+        permissions: ['ui_accounting'],
+        width: 7,
+        height: 3,
+        widgetType: 'chartAndTable',
+        config: {
+            model: 'CustomerInvoice',
+            labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager'],
+            colors: ['#37B441', '#FFF000', '#FF9100', '#DA3D00']
+
+        }
     }
 ];
