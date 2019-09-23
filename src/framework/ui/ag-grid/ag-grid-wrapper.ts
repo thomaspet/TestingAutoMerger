@@ -724,7 +724,7 @@ export class AgGridWrapper {
                         data = params.node && params.node.aggData;
                     }
 
-                    return this.tableUtils.getColumnValue(data, col);
+                    return this.tableUtils.getColumnValue(data, col, true);
                 },
                 cellRenderer: (params) => `<span>${params.value}</span>`
             };

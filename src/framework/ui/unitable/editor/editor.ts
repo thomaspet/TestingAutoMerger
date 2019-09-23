@@ -193,6 +193,7 @@ export class UnitableEditor {
                 if (classList) {
                     dropdownClick = classList.contains('input-dropdown-menu')
                         || classList.contains('mat-calendar')
+                        || classList.contains('mat-calendar-body')
                         || classList.contains('mat-datepicker-popup')
                         || classList.contains('cdk-overlay-pane');
                 }

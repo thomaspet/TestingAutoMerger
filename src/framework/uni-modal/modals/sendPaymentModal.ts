@@ -1,10 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {ToastService, ToastType} from '../../uniToast/toastService';
-import {
-    ErrorService,
-    PaymentBatchService
-} from '../../../../src/app/services/services';
+import {ErrorService, PaymentBatchService} from '@app/services/services';
 
 @Component({
     template: `
@@ -18,12 +15,12 @@ import {
                     <i class="material-icons">phone_android</i>
                     <p> {{ fieldText }} </p>
                 </div>
-                <section class="uni-html-form bank-agreement-password-form">
-                    <label *ngIf="!isFirstStage">
+                <section>
+                    <label class="uni-label label-left" *ngIf="!isFirstStage">
                         <span>Tilsendt kode</span>
                         <input type="password" autocomplete="new-password" [(ngModel)]="model.Code">
                     </label>
-                    <label *ngIf="isFirstStage">
+                    <label class="uni-label label-left" *ngIf="isFirstStage">
                         <span>Passord</span>
                         <input type="password" autocomplete="new-password" [(ngModel)]="model.Password">
                     </label>

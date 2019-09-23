@@ -8,7 +8,6 @@
             <section style="flex: 1 80px;" class="rule-grid-container">
                 <ag-grid-wrapper
                     #listTable
-                    class="transquery-grid-font-size"
                     [config]="tableConfig"
                     [(resource)]="bankRules"
                     (dataLoaded)="detailsTable.focusRow(activeIndex)"
@@ -20,12 +19,10 @@
             </section>
 
             <section class="filters">
-                <form class="uni-html-form" style="margin-bottom: 2rem;">
-                    <label>
-                        <span style="flex: 0 0 100px;">Beskrivelse</span>
-                        <input name="Name" type="text" [(ngModel)]="currentRule.Name" (change)="setDirtyOrClean(true)">
-                    </label>
-                </form>
+                <label class="uni-label" style="margin-bottom: 2rem">
+                    <span>Beskrivelse</span>
+                    <input name="Name" type="text" [(ngModel)]="currentRule.Name" (change)="setDirtyOrClean(true)">
+                </label>
 
                 <section #filterRow class="filter" *ngFor="let filter of filters; let idx = index">
                     <input *ngIf="filter['_readonlyField']" disabled [value]="filter.field" type="text" (change)="setDirtyOrClean(true)">

@@ -272,8 +272,13 @@ export class TableEditor {
             let i = 0;
             let dropdownClick = false;
             while (!dropdownClick && el.parentElement && i < 100) {
-                if (el.parentElement.classList && el.parentElement.classList.contains('input-dropdown-menu')) {
-                    dropdownClick = true;
+                const classList = el.parentElement.classList;
+                if (classList) {
+                    dropdownClick = classList.contains('input-dropdown-menu')
+                        || classList.contains('mat-calendar')
+                        || classList.contains('mat-calendar-body')
+                        || classList.contains('mat-datepicker-popup')
+                        || classList.contains('cdk-overlay-pane');
                 }
 
                 i++;

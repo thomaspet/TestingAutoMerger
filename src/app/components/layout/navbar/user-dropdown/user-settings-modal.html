@@ -5,51 +5,48 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <form class="uni-html-form" *ngIf="userDetailsForm" [formGroup]="userDetailsForm">
-            <label>
+        <form *ngIf="userDetailsForm" [formGroup]="userDetailsForm">
+            <label class="uni-label label-left">
                 <span>Visningsnavn</span>
                 <input formControlName="DisplayName" type="text">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Telefonnummer</span>
                 <input formControlName="PhoneNumber" type="tel">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>E-post</span>
                 <input disabled formControlName="Email" type="email">
             </label>
         </form>
 
         <!-- Change autobank password -->
-        <ng-container *ngIf="user?.BankIntegrationUserName">
-            <form class="uni-html-form" *ngIf="autobankPasswordForm" [formGroup]="autobankPasswordForm" autocomplete="off">
-                <fieldset>
-                    <legend>Endre autobank passord</legend>
+        <section *ngIf="user?.BankIntegrationUserName" class="reset-autobank-password">
+            <strong>Endre autobank passord</strong>
+            <form *ngIf="autobankPasswordForm" [formGroup]="autobankPasswordForm" autocomplete="off">
+                <label class="uni-label label-left">
+                    <span>Nåværende passord</span>
+                    <input formControlName="currentPassword" type="password" autocomplete="new-password">
+                </label>
 
-                    <label>
-                        <span>Nåværende passord</span>
-                        <input formControlName="currentPassword" type="password" autocomplete="new-password">
-                    </label>
+                <label class="uni-label label-left">
+                    <span>Nytt passord</span>
+                    <input formControlName="newPassword" type="password" autocomplete="new-password">
+                </label>
 
-                    <label>
-                        <span>Nytt passord</span>
-                        <input formControlName="newPassword" type="password" autocomplete="new-password">
-                    </label>
-
-                    <label>
-                        <span>Bekreft passord</span>
-                        <input formControlName="confirmNewPassword" type="password" autocomplete="new-password">
-                    </label>
-                </fieldset>
+                <label class="uni-label label-left">
+                    <span>Bekreft passord</span>
+                    <input formControlName="confirmNewPassword" type="password" autocomplete="new-password">
+                </label>
             </form>
             <small>Glemt passord? Autobank administrator kan nullstille fra Innstillinger > Brukere</small>
-        </ng-container>
+        </section>
     </article>
 
-    <footer class="center">
-        <button class="c2a rounded" (click)="save()">Lagre</button>
-        <button (click)="onClose.emit()">Avbryt</button>
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="save()">Lagre</button>
     </footer>
 </section>

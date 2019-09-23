@@ -32,12 +32,13 @@ input[type=datetime],
 input[type=datetime-local],
 input[type=month],
 input[type=time],
-input[type=week]
+input[type=week],
+select,
+textarea
     display: inline-block
     height: $input-height
     padding: 3px 8px
     background-color: #fff
-    background-image: none
     border: 1px solid var(--border-color)
     border-radius: 3px
     transition: box-shadow .3s ease
@@ -50,8 +51,6 @@ input[type=week]
     &[readonly]
         background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
         cursor: normal
-        // border-radius: pxToRem(3)
-        // border-right: pxToRem(1) solid $uni-color-scale8
 
     &[required]
         box-shadow: 0 0 0 pxToRem(1) $uni-color-negative, 0 0 0 pxToRem(2) $uni-color-scale9
@@ -71,14 +70,13 @@ input[type=week]
     &:placeholder
         color: $uni-placeholder-text-color
 
-
     &.success
         @include uniTextInputVariants($uni-color-good)
 
     &.warning
         @include uniTextInputVariants($uni-color-warn)
 
-    &.error
+    &.error, &.invalid, &.ng-touched.ng-invalid
         @include uniTextInputVariants($uni-color-bad)
 
 // Some extra styling for search inputs
@@ -89,12 +87,13 @@ input[type=search]
     background-size: 1rem
     padding-right: 2rem
 
+select
+    padding: 0 4px
+
 textarea
-    @extend input[type=text]
     width: 100%
     min-height: 5rem
     resize: vertical
-
     &[readonly]
         font-weight: 400
         border: none

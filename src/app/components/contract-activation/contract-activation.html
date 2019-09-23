@@ -19,8 +19,8 @@
     <section *ngIf="isDemoLicense && canActivateContract && !wrongCompanyMessage" class="form-container">
         <h1>Aktivering av kundeforhold</h1>
 
-        <form #f="ngForm" [formGroup]="licenseData" class="uni-html-form label-align-right label-sm">
-            <label>
+        <form #f="ngForm" [formGroup]="licenseData">
+            <label class="uni-label label-left">
                 <span>Organisasjonsnummer</span>
                 <input type="search"
                     formControlName="orgNumber"
@@ -32,27 +32,27 @@
                 Organisasjonsnummer finnes ikke i enhetsregisteret
             </small>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Selskapsnavn</span>
                 <input type="text" formControlName="companyName">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Addresse</span>
                 <input type="text" formControlName="address">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Postnummer</span>
                 <input type="text" formControlName="postalCode">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Poststed</span>
                 <input type="text" formControlName="city">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Regnskapsbyrå</span>
                 <select formControlName="isBureau">
                     <option value="false">Nei</option>
@@ -63,17 +63,17 @@
             <fieldset>
                 <legend>Kontaktinformasjon</legend>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Navn</span>
                     <input type="text" formControlName="name">
                 </label>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Telefon</span>
                     <input type="text" formControlName="phone">
                 </label>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Epost</span>
                     <input type="text" formControlName="email">
                 </label>

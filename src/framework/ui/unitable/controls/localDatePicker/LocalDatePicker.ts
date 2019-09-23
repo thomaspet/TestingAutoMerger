@@ -25,6 +25,10 @@ export class  LocalDatePicker {
     @ViewChild('input') inputElement: ElementRef;
     @Input() inputControl: FormControl;
 
+    ngOnInit() {
+        console.log(this.inputControl.value);
+    }
+
     focus() {
         if (this.inputElement) {
             this.inputElement.nativeElement.focus();

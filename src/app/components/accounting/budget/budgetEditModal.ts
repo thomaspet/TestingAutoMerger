@@ -5,7 +5,7 @@ import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService, BudgetService} from '@app/services/services';
 import {File} from '@app/unientities';
 import {AuthService} from '@app/authService';
-import {Subject, Observable} from 'rxjs';
+import {Subject} from 'rxjs';
 
 @Component({
     selector: 'uni-budget-edit-modal',
@@ -13,31 +13,21 @@ import {Subject, Observable} from 'rxjs';
         <section role="dialog" class="uni-modal" style="width: 25vw; min-width: 35rem">
             <header>{{ options.header }}</header>
             <article>
-                <section class="uni-html-form">
-                    <label>
+                <section>
+                    <label class="uni-label">
                         <span>Navn</span>
                         <input type="text" [(ngModel)]="budgetName" name="name">
                     </label>
-                    <label style="margin-top: 1rem">
+                    <label class="uni-label">
                         <span>År</span>
                         <select [ngModel]="currentYear" (ngModelChange)="onYearSelect($event)">
                             <option *ngFor="let year of years" [ngValue]="year">
                                 {{year}}
                             </option>
                         </select>
-
-                        <!--
-                        <mat-form-field style="width: 100%">
-                            <mat-select [value]="currentYear"
-                                (valueChange)="onYearSelect($event)"
-                                placeholder="År">
-                                <mat-option *ngFor="let y of years" [value]="y">
-                                    {{ y }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>-->
                     </label>
-                    <label *ngIf="(isImport || isNew) && !!departments">
+
+                    <label class="uni-label" *ngIf="(isImport || isNew) && !!departments">
                         <span>Avdeling</span>
                         <mat-form-field style="width: 100%">
                             <mat-select [value]="currentDepartment"
@@ -64,7 +54,7 @@ import {Subject, Observable} from 'rxjs';
                 </mat-progress-bar>
             </article>
 
-            <footer class="center">
+            <footer>
                 <button class="secondary" (click)="close()">Avbryt</button>
                 <button class="c2a" (click)="save()">{{ isNew ? 'Nytt budsjett' : 'Lagre' }}</button>
             </footer>

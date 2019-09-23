@@ -88,24 +88,15 @@ uni-bill
 		display: inline-block
 		width: 50%
 
-		&.right label > span
-			width: 8rem
-			margin-left: 1rem
-
 .bill-amount-field
 	display: inline-block
 	width: calc(100% - 10.0rem)
 
 .bill-currency-field
 	width: 10rem
-	float: right
-
-
 	span
-		@extend %visuallyHidden
-
-	label span+*
-		width: 100%
+		width: 0
+		height: 0
 
 article.collapsable h4
 	box-sizing: border-box
@@ -215,8 +206,7 @@ button.document_from_flow_button
 	    position: relative
 	    top: -2px
 
-.smart-booking-settings-form
-	span
-		width: 16rem
-	uni-checkbox-input
-		width: calc(100% - 16rem)
+smart-booking-settings-modal
+	mat-checkbox
+		display: block
+		margin-bottom: 1rem

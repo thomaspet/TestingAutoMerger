@@ -1,6 +1,6 @@
 <button #button
         [attr.aria-describedby]="asideGuid"
-        [ngClass]="field?.Options?.class"
+        [ngClass]="field?.Options?.class || 'secondary'"
         [disabled]="readOnly$ | async"
         (click)="clickHandler($event)"
         (focus)="focusHandler()"

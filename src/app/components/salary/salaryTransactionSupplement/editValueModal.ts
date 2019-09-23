@@ -8,7 +8,7 @@ import {Valuetype} from '@app/unientities';
 @Component({
     selector: 'uni-supplement-edit-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 35vw;">
+        <section role="dialog" class="uni-modal" style="width: 35rem">
             <header>Tilleggsopplysninger</header>
             <article>
                 <span style="font-size: 14px;">
@@ -16,8 +16,8 @@ import {Valuetype} from '@app/unientities';
                     <strong>{{ line['_Employee'].EmployeeNumber }}: {{ line['_Employee'].BusinessRelationInfo.Name }} </strong>
                 </span>
 
-                <form class="uni-html-form" style="margin-top: 1rem;">
-                    <label>
+                <form style="margin-top: 1rem;">
+                    <label class="uni-label label-left">
                         <span style="flex: 0 0 100px;">Verdi</span>
                         <input *ngIf="type === 1" name="Verdi" type="text" [(ngModel)]="line.ValueString">
                         <input *ngIf="type === 2" name="Verdi" type="date" [(ngModel)]="line.ValueDate">
@@ -30,9 +30,9 @@ import {Valuetype} from '@app/unientities';
 
             </article>
 
-            <footer class="center">
-                <button class="c2a rounded" (click)="save()"> Lagre </button>
-                <button (click)="close()">Avbryt</button>
+            <footer>
+                <button class="secondary" (click)="close()">Avbryt</button>
+                <button class="c2a" (click)="save()">Lagre</button>
             </footer>
         </section>
     `

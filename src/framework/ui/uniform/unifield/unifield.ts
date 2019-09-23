@@ -13,7 +13,6 @@ import { BaseControl } from '../controls/baseControl';
 @Component({
     selector: 'uni-field',
     templateUrl: './unifield.html',
-    host: {'[class]' : 'buildClassString()'},
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniField {
@@ -28,8 +27,7 @@ export class UniField {
     @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @HostBinding('class.error') public hasError = 0;
-    @HostBinding('class.warn') public hasWarning = 0;
+    @HostBinding('class') cssClasses = '';
     @ViewChild('selectedComponent') public component: any;
 
     public classes: (string | Function)[] = [];
@@ -37,6 +35,10 @@ export class UniField {
     public touched = false;
     public errorMessages = [];
     public componentResolver: any;
+
+    labelWidth: string;
+    hasError = false;
+    hasWarning = false;
 
     private componentDestroyed$: Subject<any> = new Subject();
 
@@ -71,6 +73,20 @@ export class UniField {
                     .subscribe(event => this.eventHandler(event.type, event));
             }
         });
+    }
+
+    ngOnChanges() {
+        if (this.field && this.field.Classes) {
+            this.cssClasses = this.buildClassString();
+        }
+
+        if (this.formConfig && this.formConfig.LabelWidth) {
+            this.labelWidth = this.formConfig.LabelWidth;
+        }
+
+        if (this.field && this.field.LabelWidth) {
+            this.labelWidth = this.field.LabelWidth;
+        }
     }
 
     public ngOnDestroy() {
@@ -157,8 +173,8 @@ export class UniField {
         }
         const errorsList = {};
         errorsList[this.field.Property] = [];
-        this.hasWarning = 0;
-        this.hasError = 0;
+        this.hasWarning = false;
+        this.hasError = false;
         this.errorMessages = [];
         const numErrors = errorMessages.length;
         let i = 0;
@@ -174,15 +190,17 @@ export class UniField {
                         return;
                     }
                     if (error.isWarning) {
-                        this.hasWarning++;
+                        this.hasWarning = true;
                     } else {
-                        this.hasError++;
+                        this.hasError = true;
                     }
                     this.errorMessages = [error];
                     if (i === numErrors) {
                         errorsList[this.field.Property] = this.errorMessages;
                         this.errorEvent.emit(errorsList);
                     }
+
+                    this.cssClasses = this.buildClassString();
                 });
             });
         }
@@ -200,10 +218,20 @@ export class UniField {
     }
 
     public buildClassString() {
+        let classes = '';
         if (this.field.Classes) {
-            return this.field.Classes;
+            classes += this.field.Classes;
         }
-        return '';
+
+        if (this.hasWarning) {
+            classes += ' warn';
+        }
+
+        if (this.hasError) {
+            classes += ' error';
+        }
+
+        return classes;
     }
 
     public isInput(type) {
