@@ -17,18 +17,23 @@
 
     <footer>
 
-        <span style="margin-right: auto" *ngIf="session?.balance" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
-            <i style="vertical-align: bottom" class="material-icons">error</i>
+        <span class="leftspan" *ngIf="session?.balance" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
+            <i class="material-icons vert-bottom">error</i>
             Differanse:  {{ session?.balance | uninumberformat: 'money'}}
         </span>
+
+        <span class="checkbox">
+            <input [(ngModel)]="settings.journalAsDraft" type="checkbox"/>Lagre som kladd
+        </span>
+
+        <button [disabled]="session?.balance && (!settings.journalAsDraft)" class="good"
+            (click)="import()">
+            {{(settings.journalAsDraft ? 'Opprett kladd' : 'Bokfør')}}
+        </button>
 
         <button class="outline" (click)="onClose.emit()">
             Avbryt
         </button>
-
-        <button [disabled]="session?.balance" class="good"
-            (click)="import()">
-            Fullfør
-        </button>
+        
     </footer>
 </section>

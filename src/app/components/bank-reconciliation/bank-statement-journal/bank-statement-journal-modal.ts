@@ -1,12 +1,13 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {BankJournalSession, ErrorService, IMatchEntry, IAccount, DebitCreditEntry} from '@app/services/services';
+import {BankJournalSession, ErrorService, IMatchEntry, DebitCreditEntry} from '@app/services/services';
 import {BankAccount} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/index';
 import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { IVatType } from '@uni-framework/interfaces/interfaces';
 import { tap } from 'rxjs/operators';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'bank-statement-journal-modal',
@@ -16,6 +17,7 @@ import { tap } from 'rxjs/operators';
 export class BankStatementJournalModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
+    @ViewChild(AgGridWrapper) table: AgGridWrapper;
 
     busy: boolean;
     bankAccounts: BankAccount[];
@@ -23,15 +25,24 @@ export class BankStatementJournalModal implements IUniModal {
     tableConfig: UniTableConfig;
     data = [];
     cachedQuery = {};
+    settings = { journalAsDraft: false };
 
     constructor(
         private errorService: ErrorService,
         public session: BankJournalSession
     ) {}
 
+    public closeEditor() {
+        return this.table.finishEdit();
+    }
+
     import() {
+        this.closeEditor().then( () => this.save() );
+    }
+
+    save() {
         this.busy = true;
-        this.session.save()
+        this.session.save(this.settings.journalAsDraft)
             .finally( () => this.busy = false)
             .subscribe( x => {
             this.onClose.emit(x);
@@ -71,6 +82,10 @@ export class BankStatementJournalModal implements IUniModal {
 
     public onRowDeleted(event: any) {
         this.session.recalc();
+    }
+
+    public OnCheckDraft($event) {
+        console.log("onCheckDraft", $event);
     }
 
     public onEditChange(event) {

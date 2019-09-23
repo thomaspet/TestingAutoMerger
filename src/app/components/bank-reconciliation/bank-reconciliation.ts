@@ -5,7 +5,7 @@ import {catchError} from 'rxjs/operators';
 import {StatisticsService, BankAccountService, PageStateService} from '@app/services/services';
 import {BankAccount, BankStatementMatch} from '@uni-entities';
 import * as moment from 'moment';
-import { BankStatementSession } from '@app/services/bank/bankstatementsession';
+import { BankStatementSession, IMatchEntry } from '@app/services/bank/bankstatementsession';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
@@ -94,14 +94,11 @@ export class BankReconciliation {
     }
 
     openJournalModal() {
-        const candidates = this.session.stage.length > 0
-            ? this.session.stage.filter( x => x.IsBankEntry)
-            : this.session.bankEntries.filter( x => ((!x.StageGroupKey) && (!x.Closed)) );
         this.modalService.open(BankStatementJournalModal, {
             data: {
                 bankAccounts: this.bankAccounts,
                 selectedAccountID: this.selectedBankAccount.AccountID,
-                entries: candidates
+                entries: this.getJournalCandidates()
             }
         }).onClose.subscribe(importResult => {
             if (!importResult) { return; }
@@ -110,6 +107,22 @@ export class BankReconciliation {
                 this.checkSuggest();
             });
         });
+    }
+
+    getJournalCandidates(): IMatchEntry[] {
+        if (this.session.stage.length === 0) {
+            return this.session.bankEntries.filter( x => ((!x.StageGroupKey) && (!x.Closed)) );
+        }
+        const bankEntries = this.session.stage.filter( x => x.IsBankEntry);
+        const journalEntries = this.session.stage.filter( x => !x.IsBankEntry);
+        if (journalEntries.length === 0) { return bankEntries; }
+        if (bankEntries.length > 0 && journalEntries.length > 0) {
+            return [{ ID: -1, Date: bankEntries[0].Date,
+                Amount: this.session.stageTotal, OpenAmount: this.session.stageTotal,
+                Description: 'Restsum', IsBankEntry: true, Checked: true,
+                Closed: false }];
+        }
+        return [];
     }
 
     openImportModal() {

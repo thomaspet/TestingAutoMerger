@@ -63,8 +63,8 @@ export class BankJournalSession {
 
     save(asDraft = false) {
         this.busy = true;
-        const cargo = this.convertToJournal();
-        const route = asDraft ? 'journalentries?action=book-journal-entries-as-draft' : 'journalentries?action=book-journal-entries';
+        const cargo = this.convertToJournal(asDraft);
+        const route = asDraft ? 'journalentries?action=save-journal-entries-as-draft' : 'journalentries?action=book-journal-entries';
         return this.HttpPost(route, cargo).finally( () => this.busy = false );
     }
 
@@ -95,10 +95,11 @@ export class BankJournalSession {
         );
     }
 
-    public convertToJournal() {
+    public convertToJournal(asDraft = false) {
         let balance = 0;
         const list = [];
         let entry = this.newJournal(); // todo: lookup correct series-id
+        if (asDraft) { entry['Description'] = 'Kladd fra bankavstemming'; }
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             if (item.Amount) {
@@ -127,8 +128,8 @@ export class BankJournalSession {
         return list;
     }
 
-    private newJournal(draftLines = [], seriesTaskID = 1): { DraftLines: Array<any>, NumberSeriesTaskID: number } {
-        return { DraftLines: draftLines, NumberSeriesTaskID: seriesTaskID };
+    private newJournal(draftLines = [], seriesTaskID = 1): { DraftLines: Array<any>, NumberSeriesTaskID: number, FileIDs?: Array<number> } {
+        return { DraftLines: draftLines, NumberSeriesTaskID: seriesTaskID, FileIDs: [] };
     }
 
     private convertToJournalEntry(item: DebitCreditEntry) {
