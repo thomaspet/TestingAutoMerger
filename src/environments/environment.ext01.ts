@@ -4,7 +4,7 @@ export const environment = {
     BASE_URL_INIT: '',
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://ext01-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://ext01-unifiles.unieconomy.no',
+    BASE_URL_FILES: 'https://ext01-files.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://ext01-jobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://ext01-admin.unieconomy.no',
 
