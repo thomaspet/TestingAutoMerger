@@ -122,16 +122,15 @@ export class UniBankAccountModal implements IUniModal {
                 && !account.AccountID && !(account.Account && account.Account.ID)) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Bekreft manglende konto',
-                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Vil du fortsette uten å velge konto?'
+                    header: 'Manglende konto',
+                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Hovedbokskonto må velges for å registrere en bankkonto?',
+                    buttonLabels: {
+                        accept: 'Ok'
+                    }
                 });
 
-                confirm.onClose.subscribe((response) => {
-                    if (response !== ConfirmActions.ACCEPT) {
-                        return;
-                    } else {
-                        this.onClose.emit(account);
-                    }
+                confirm.onClose.subscribe(() => {
+                    return;
                 });
             } else {
                 if (account.Account) {
