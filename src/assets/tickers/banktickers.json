@@ -55,6 +55,13 @@
                 "IsBankRuleField": true
             },
             {
+                "Header": "InnbetalingsID",
+                "Field": "InPaymentID",
+                "FilterOperator": "contains",
+                "IsBankRuleField": true,
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Innbetaling",
                 "Field": "IsCustomerPayment",
                 "FilterOperator": "contains",
