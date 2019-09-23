@@ -120,7 +120,7 @@ export class ImportCentralPage {
         type = 'Payroll';
         formatStatement = '';
         downloadStatement = '';
-        templateUrl = ''
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL 
         break;
       case TemplateType.Saft:
         header = 'SAF-T Import';

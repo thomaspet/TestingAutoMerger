@@ -83,6 +83,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                 placeholder: 'File type',
                 searchable: false,
                 displayProperty: 'name',
+                hideDeleteButton: true
             };
             this.operators = [];
             this.payrollService.getAll(`orderby=ID desc`, true).subscribe(

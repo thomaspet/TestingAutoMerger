@@ -172,7 +172,7 @@ export class ProductList {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.Product }])
     }
 
     private openProductImportModal() {

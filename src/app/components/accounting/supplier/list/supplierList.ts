@@ -96,7 +96,7 @@ export class SupplierList {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.Supplier }])
     }
 
     private openSupplierImportModal() {

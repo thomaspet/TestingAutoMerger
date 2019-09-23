@@ -175,7 +175,7 @@ export class CustomerList implements OnInit {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.Customer }])
     }
 
     private openCustomerImportModal() {

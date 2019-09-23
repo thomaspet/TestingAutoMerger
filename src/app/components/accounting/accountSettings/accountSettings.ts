@@ -243,7 +243,7 @@ export class AccountSettings {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.MainLedger }])
     }
 
     private openImportModal(done = () => { }) {
