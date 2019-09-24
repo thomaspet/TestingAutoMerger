@@ -127,11 +127,6 @@ uni-distibution
             font-weight: 400
             display: block
 
-            &.new-plan-link
-                padding: 1rem 2rem
-                font-size: 16px
-                font-weight: 600
-
     .entity-functionality-container
         flex: 1
         display: flex
@@ -197,77 +192,38 @@ uni-distibution
             width: 1rem
 
 .distribution-plan-modal-container
-    a
-        color: $uni-color-c2a
-        font-size: 16px
-        font-weight: 600
+    button.add-priority
         display: block
-    label
-        display: flex
-        align-items: center
-        margin-bottom: 1rem
-
-        uni-tooltip
-            position: static !important
-            margin-left: 5px
-
-        span
-            flex: 0 0 90px
-            margin-right: 20px
-            font-weight: 400
-            font-size: 14px
-            line-height: 2.4rem
-
-            &.standard-span-box
-                display: block
-                background-color: #f0ce61
-                height: 24px
-                line-height: 25px
-                text-align: center
-                position: absolute
-                right: 80px
-                padding: 0 .6rem
-                border-radius: 12px
-                font-size: 14px
-
-        input, select
-            flex: 1
-            height: 2.4rem !important
-            border: 1px solid rgba(0, 0, 0, 0.25)
-            border-radius: 3px
-            font-size: 14px
-            width: 100%
-
-        i
-            margin-left: 1rem
-            cursor: pointer
-            color: $uni-color-bad
-
-        &.small
-            span
-                font-size: 12px
-
-    hr
         margin: 1rem 0
+
+    .name-input-label
+        position: relative
+        input
+            padding-right: 6rem
+        .standard-span-box
+            position: absolute
+            right: .5rem
+            top: 2.25rem
+            width: 5rem
+            display: block
+            background-color: #f0ce61
+            line-height: 25px
+            text-align: center
+            padding: 0 .6rem
+            border-radius: 12px
+            font-size: 14px
+
+    .step
+        margin-left: .5rem
+
+    i
+        margin-left: 1rem
+        cursor: pointer
+        color: var(--color-bad)
 
     .empty-priority-messages
         font-size: 12px
-        color: $uni-color-warn
-
-    .company-standard-checkbox
-        display: flex
-        margin-top: 1rem
-
-        i
-            height: 18px
-            width: 18px
-            margin-right: 1rem
-            vertical-align: middle
-            color: $uni-color-c2a
-            cursor: pointer
-
-        span
-            font-size: 15px
+        color: var(--color-warn)
 
 .distribution-customer-list-modal-container
     width: 30vw
@@ -442,3 +398,6 @@ uni-distibution
             margin: auto
             circle
                 stroke: #1565c0
+
+.add-button
+    margin: .5rem 2rem

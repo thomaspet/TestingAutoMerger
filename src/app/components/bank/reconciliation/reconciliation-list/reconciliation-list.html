@@ -34,16 +34,16 @@
                             </a>
                         </td>
                         <td>
-                            <i class="material-icons" [matMenuTriggerFor]="contextMenu">
-                                more_vert
-                            </i>
-                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                <ul class="menu-list">
-                                    <li *ngFor="let action of actions" (click)="onActionClick(action, account)">
-                                        {{ action.label }}
-                                    </li>
-                                </ul>
-                            </mat-menu>
+                            <i #toggle class="material-icons">more_vert</i>
+                            <dropdown-menu [trigger]="toggle">
+                                <ng-template>
+                                    <section class="dropdown-menu-item"
+                                        *ngFor="let action of actions"
+                                        (click)="onActionClick(action, account)">
+                                        {{action.label}}
+                                    </section>
+                                </ng-template>
+                            </dropdown-menu>
                         </td>
                     </tr>
                 </tbody>
@@ -52,9 +52,7 @@
 
         <!-- REPORT VIEW -->
         <section *ngIf="activeIndex === 1 && dataLoaded">
-
             <uni-reconciliation-report-view [bankAccounts]="bankAccounts" [currentAccount]="currentAccount"></uni-reconciliation-report-view>
-
         </section>
 
         <!-- TRANSACTIONS VIEW -->

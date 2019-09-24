@@ -68,22 +68,40 @@
                         <td> <a (click)="onActionClick({ label: 'Administrer kunder', name: 'customer' }, plan, type)"> {{ plan._count }} kunder </a> </td>
                         <td>
                             <span *ngIf="type.defaultPlan && type.defaultPlan.ID === plan.ID"> Standard </span>
-                            <i class="material-icons" [matMenuTriggerFor]="contextMenu">
-                                more_horiz
-                            </i>
-                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                <ul class="menu-list">
-                                    <li *ngFor="let action of getActions(plan, type)" (click)="onActionClick(action, plan, type)">
-                                        {{ action.label }}
-                                    </li>
-                                </ul>
-                            </mat-menu>
+                            <i #toggle class="material-icons">more_horiz</i>
+                            <dropdown-menu [trigger]="toggle">
+                                <ng-template>
+                                    <section class="dropdown-menu-item" (click)="onActionClick('customer', plan, type)">
+                                        Administrer kunder
+                                    </section>
+
+                                    <section class="dropdown-menu-item" (click)="onActionClick('edit', plan, type)">
+                                        Rediger
+                                    </section>
+
+                                    <section class="dropdown-menu-item" (click)="onActionClick('delete', plan, type)">
+                                        Slett
+                                    </section>
+
+                                    <section class="dropdown-menu-item" (click)="onActionClick('remove', plan, type)"
+                                        *ngIf="type.defaultPlan && plan.ID === type.defaultPlan.ID">
+                                        Fjern standard
+                                    </section>
+
+                                    <section class="dropdown-menu-item" (click)="onActionClick('standard', plan, type)"
+                                        *ngIf="!type.defaultPlan || plan.ID !== type.defaultPlan.ID">
+                                        Sett som standard
+                                    </section>
+                                </ng-template>
+                            </dropdown-menu>
                         </td>
                     </tr>
                 </tbody>
 
             </table>
-            <a class="new-plan-link" (click)="openPlanModal(null, type)"> + Ny utsendelsesplan </a>
+            <button class="add-button tertiary c2a" (click)="openPlanModal(null, type)">
+                + Ny utsendelsesplan
+            </button>
         </div>
     </section>
 </section>

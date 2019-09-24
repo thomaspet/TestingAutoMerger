@@ -122,23 +122,8 @@ export class UniDistributionSettings {
         });
     }
 
-    public getActions(plan, type) {
-        const actions: any[] = [
-            { label: 'Administrer kunder', name: 'customer' },
-            { label: 'Rediger', name: 'edit' },
-            { label: 'Slett', name: 'delete' }
-        ];
-        if (type.defaultPlan && plan.ID === type.defaultPlan.ID) {
-            actions.unshift({ label: 'Fjern standard', name: 'remove' } );
-            return actions;
-        } else {
-            actions.unshift({ label: 'Sett som standard', name: 'standard' } );
-            return actions;
-        }
-    }
-
-    public onActionClick(action: any, plan: DistributionPlan, type: any) {
-        switch (action.name) {
+    public onActionClick(actionName: string, plan: DistributionPlan, type: any) {
+        switch (actionName) {
             case 'standard':
                 this.setNewStandard(plan, type);
                 break;

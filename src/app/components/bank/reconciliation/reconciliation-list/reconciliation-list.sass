@@ -28,8 +28,9 @@
             tr
                 th
                     text-align: left
-                    color: $uni-color-scale6
-                    font-weight: 600
+                    color: var(--table-header-color)
+                    background: var(--table-header-background)
+                    font-weight: 500
 
                     &:last-of-type
                         width: 50px
@@ -43,26 +44,12 @@
                     border-bottom: none
 
                 td
-                    color: #26333D
-                    font-weight: 500
-
                     &:first-of-type
                         padding-left: 1rem
 
                     &:last-of-type
                         i
                             cursor: pointer
-
-                    &.good
-                        color: $uni-color-plus
-                        font-weight: 600
-                    &.bad
-                        color: var(--color-bad)
-                        font-weight: 600
-                    &.done
-                        color: var(--color-good)
-                        font-weight: 600
-
                     i
                         vertical-align: middle
                         font-size: 20px
@@ -70,13 +57,13 @@
 
                     a
                         text-decoration: none
-                        font-weight: 600
+                        font-weight: 500
                         &.recwork
                             color: var(--color-warn)
                         &.recdone
                             color: var(--color-good)
                         &.recstart
-                            color: $uni-color-plus
+                            color: var(--link-color)
     .empty-statement-msg
         font-size: 14px
         strong
