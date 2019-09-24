@@ -86,8 +86,6 @@ export class BankStatementJournalModal implements IUniModal {
 
     public onEditChange(event) {
         if (event.field && event.rowModel) {
-            console.log(`onEditChange(${event.field}='${event.userInput}' vs `
-                + `${(event.newValue && event.newValue.AccountNumber ? event.newValue.AccountNumber : event.newValue)})`);
             event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
         }
     }
