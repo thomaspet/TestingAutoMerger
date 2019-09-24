@@ -1,5 +1,5 @@
 <section class="reconciliation-list-container statement-view">
-    <table>
+    <table [attr.aria-busy]="busy" *ngIf="bankStatements.length">
         <thead>
             <tr>
                 <th> Bankkonto </th>
@@ -39,4 +39,10 @@
             </tr>
         </tbody>
     </table>
+
+    <span *ngIf="!bankStatements.length && dataLoaded" class="empty-statement-msg">
+        Ingen avstemninger å vise. Gå til <strong (click)="goToReconciliationView()" title="Link til bankavstemning"> avstemningsbilde </strong> for å starte.
+    </span>
+
+    <small *ngIf="busy"> Sletter avstemning... </small>
 </section>

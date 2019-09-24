@@ -1,4 +1,5 @@
-import {Component} from '@angular/core';
+import {Component, Output, EventEmitter} from '@angular/core';
+import {Router} from '@angular/router';
 import {BankService} from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -10,12 +11,17 @@ import * as moment from 'moment';
 })
 
 export class BankStatement {
+    @Output()
+    statementChanged: EventEmitter<any> = new EventEmitter<any>();
 
     bankStatements: any[] = [];
+    busy: boolean = false;
+    dataLoaded: boolean = false;
 
     constructor (
         private bankService: BankService,
-        private toast: ToastService
+        private toast: ToastService,
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -30,8 +36,10 @@ export class BankStatement {
                     return sm;
                 });
             }
+            this.dataLoaded = true;
         }, err => {
             this.toast.addToast('Kunne ikke hente kontoutskrifter', ToastType.bad, 5);
+            this.dataLoaded = true;
         });
     }
 
@@ -57,6 +65,10 @@ export class BankStatement {
         return actions;
     }
 
+    goToReconciliationView() {
+        this.router.navigateByUrl('/bank-reconciliation');
+    }
+
     onActionClick(action: any, statement: any, index: number) {
         switch (action.value) {
             case 'open':
@@ -66,11 +78,16 @@ export class BankStatement {
                 this.callBankStatementAction(statement.ID, 'complete');
                 break;
             case 'delete':
+                this.busy = true;
                 this.bankService.deleteBankStatement(statement.ID).subscribe(() => {
                     this.bankStatements.splice(index, 1);
                     this.toast.addToast('Kontoutskrift slettet', ToastType.good, 5);
+                    this.busy = false;
+                    this.statementChanged.emit(true);
                 }, err => {
-                    this.toast.addToast('Kunne ikke slette kontoutskrift', ToastType.bad, 5);
+                    this.toast.addToast('Kunne ikke slette kontoutskrift', ToastType.bad, 5,
+                        err && err.error && err.error.Messages && err.error.Messages[0].Message);
+                    this.busy = false;
                 });
                 break;
         }

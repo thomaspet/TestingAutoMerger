@@ -59,7 +59,7 @@
 
         <!-- TRANSACTIONS VIEW -->
         <section *ngIf="activeIndex === 2 && dataLoaded">
-            <uni-bank-statement-list></uni-bank-statement-list>
+            <uni-bank-statement-list (statementChanged)="getListAndLoadData()"></uni-bank-statement-list>
         </section>
     </section>
 
