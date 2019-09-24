@@ -81,7 +81,7 @@ export const NO_UNI_NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.DISTRIBUTION',
+                        name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,
                         activeInSidebar: true
@@ -380,28 +380,34 @@ export const NO_UNI_NAVBAR_LINKS: INavbarLinkSection[] = [
             links: [
                 {
                     name: 'NAVBAR.PROCEEDS',
-                    url: '/bank?code=bank_list',
+                    url: '/bank/ticker?code=bank_list',
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
                 {
                     name: 'NAVBAR.PAYMENTS',
-                    url: '/bank?code=payment_list',
+                    url: '/bank/ticker?code=payment_list',
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
                 {
                     name: 'NAVBAR.PAYMENT_BATCH',
-                    url: '/bank?code=payment_batch_list',
+                    url: '/bank/ticker?code=payment_batch_list',
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
                 {
                     name: 'NAVBAR.PAYMENT_BATCH_AUTO',
-                    url: '/bank?code=avtalegiro_list',
+                    url: '/bank/ticker?code=avtalegiro_list',
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
+                {
+                    name: 'NAVBAR.BANK_RECONCILIATION',
+                    url: '/bank/reconciliation',
+                    moduleID: UniModules.BankReconciliation,
+                    activeInSidebar: true
+                }
             ]
         }]
     },
@@ -994,7 +1000,7 @@ export const NO_SR_NAVBAR_LINKS: INavbarLinkSection[] = [
                 {
                     name: 'NAVBAR.BANK_RECONCILIATION',
                     url: '/bank/reconciliation',
-                    moduleID: UniModules.Payment,
+                    moduleID: UniModules.BankReconciliation,
                     activeInSidebar: true
                 }
             ]
@@ -1214,7 +1220,7 @@ export const NO_SR_NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.DISTRIBUTION',
+                        name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,
                         activeInSidebar: false

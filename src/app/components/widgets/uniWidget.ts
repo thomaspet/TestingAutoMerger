@@ -36,7 +36,7 @@ import {
     ExpensesWidget,
     BalanceWidget,
     SRUnpaidDoughnutChart,
-    ChartAndTableWidget
+    ChartAndTableWidget,
     PaymentWidget
 } from './widgets/barrel';
 

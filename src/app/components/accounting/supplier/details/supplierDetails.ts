@@ -80,7 +80,7 @@ export class SupplierDetails implements OnInit {
     public supplierID: number;
     public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true, labelWidth: '15rem'});
     public addressChanged: any;
     public phoneChanged: any;
     public emailChanged: any;

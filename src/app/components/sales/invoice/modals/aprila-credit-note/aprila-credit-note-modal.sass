@@ -1,4 +1,4 @@
-@import '~src/styles/uni-redesign/_color.sass'
+@import '~src/styles/unibase/colors/__colors.sass'
 
 $settings-color: #2b394b
 
@@ -57,10 +57,10 @@ section.uni-modal.uni-redesign
             border-radius: 3px
             .modal-switch
                 margin-left: 12px
-                ::ng-deep &.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar
-                    background: $redesign-light-blue !important
-                ::ng-deep &.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb
-                    background: white !important 
+                // ::ng-deep &.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar
+                //     background: $redesign-light-blue !important
+                // ::ng-deep &.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb
+                //     background: white !important
 
     .details
         margin: 10px 65px
@@ -77,9 +77,9 @@ section.uni-modal.uni-redesign
                 &.title
                     font-weight: bold
         .check-box-container
-            margin-top: 15px 
-            .option-text   
-                margin-left: 15px     
+            margin-top: 15px
+            .option-text
+                margin-left: 15px
 
     .error
         display: flex
@@ -125,13 +125,13 @@ section.uni-modal.uni-redesign
                 border-radius: 3px
                 height: 2rem
                 color: white
-                background: $redesign-good
+                background: var(--color-good)
                 white-space: nowrap
             .cancel
                 border-radius: 3px
                 border: 1px solid $uni-color-scale8
                 height: 2rem
-                color: $redesign-light-blue
+                color: var(--color-c2a) // $redesign-light-blue
                 background-color: transparent
                 white-space: nowrap
                 &:hover

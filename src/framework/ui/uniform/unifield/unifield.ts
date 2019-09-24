@@ -80,8 +80,8 @@ export class UniField {
             this.cssClasses = this.buildClassString();
         }
 
-        if (this.formConfig && this.formConfig.LabelWidth) {
-            this.labelWidth = this.formConfig.LabelWidth;
+        if (this.formConfig && this.formConfig.labelWidth) {
+            this.labelWidth = this.formConfig.labelWidth;
         }
 
         if (this.field && this.field.LabelWidth) {

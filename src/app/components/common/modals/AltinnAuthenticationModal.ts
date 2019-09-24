@@ -32,9 +32,9 @@ enum LoginState {
                 </article>
 
                 <footer [attr.aria-busy]="busy">
-                    <a style="float: left; margin-top: 1.5rem; margin-left: 1rem;" href="https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn" target="_blank">Hjelp til innlogging</a>
-                    <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
+                    <a class="pull-left" href="https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn" target="_blank">Hjelp til innlogging</a>
                     <button (click)="close()">Avbryt</button>
+                    <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                 </footer>
             </ng-container>
 

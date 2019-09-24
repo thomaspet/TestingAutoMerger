@@ -209,7 +209,7 @@
     </ng-container>
 </label>
 
-<section *ngIf="errorMessages?.length" class="validation-results">
+<section *ngIf="errorMessages?.length" [style.margin-left]="labelWidth" class="validation-results">
     <small role="alert"
         *ngFor="let error of errorMessages"
         [ngClass]="error.isWarning ? 'warn' : 'bad'">
@@ -219,6 +219,7 @@
 
 <uni-button-input #selectedComponent
     *ngIf="field?.FieldType === 1"
+    [style.margin-left]="labelWidth"
     [field]="field"
     [model]="model"
     [asideGuid]="asideGuid"

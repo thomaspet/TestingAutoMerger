@@ -3,7 +3,7 @@ import {Employee} from '@uni-entities';
 import {PayrollrunService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',

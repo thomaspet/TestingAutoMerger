@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import {BankService, PageStateService} from '@app/services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 

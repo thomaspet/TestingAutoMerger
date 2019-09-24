@@ -448,6 +448,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
+
+                    this.invoice.InvoiceReference = <any> {};
+                    this.openAprilaCreditNoteModal('');
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
@@ -1797,7 +1800,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                     } else {
                                         this.errorService.handle(err);
                                     }
- 
+
                                     done('Feil oppstod!');
 
                                 },
