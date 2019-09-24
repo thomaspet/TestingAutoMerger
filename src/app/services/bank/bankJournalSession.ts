@@ -174,6 +174,7 @@ export class BankJournalSession {
     }
 
     public cacheAccount(acc) {
+        if (!(acc && acc.ID)) { return; }
         const match = this.accounts.find( x => x.ID === acc.id);
         if (!match) {
             this.createAccountSuperLabel([acc]);
@@ -185,13 +186,18 @@ export class BankJournalSession {
         const item = new DebitCreditEntry();
         const acc = this.accounts.find( x => x.ID === debetAccountID );
         if (acc) {
-            item.DebetAccountID = debetAccountID;
-            item.Debet = acc;
+            if (amount > 0) {
+                item.DebetAccountID = debetAccountID;
+                item.Debet = acc;
+            } else {
+                item.CreditAccountID = debetAccountID;
+                item.Credit = acc;
+            }
             if (acc.VatTypeID) {
                 item.VatType = this.vatTypes.find( x => x.ID === acc.VatTypeID);
             }
         }
-        item.Amount = amount;
+        item.Amount = Math.abs(amount);
         item.FinancialDate = date;
         item.Description = text;
         this.items.push(item);
