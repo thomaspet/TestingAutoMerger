@@ -122,7 +122,7 @@ export class UniBudgetView {
 
     private updateToolbar() {
         this.toolbarConfig = {
-            title: 'Budsjett',
+            title: this.currentBudget ? this.currentBudget.Name : 'Budsjett',
             statustrack: this.currentBudget ? this.getStatustrackConfig() : null,
         };
     }

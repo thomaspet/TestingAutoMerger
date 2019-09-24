@@ -45,9 +45,9 @@
     <div class="budget-standard-container">
 
         <div class="header-container" *ngIf="currentBudget">
-            <h4>
+            <!-- <h4>
                 {{ currentBudget.Name }}
-            </h4>
+            </h4> -->
             <a (click)="showHideSideMenu()">
                 <i class="material-icons">list</i>
                 Vis alle budsjett
@@ -55,7 +55,7 @@
 
             <div style="flex: 1"></div>
 
-            <button (click)="showHideChart()">
+            <button class="tertiary c2a" (click)="showHideChart()">
                 {{ hideChart ? 'Vis' :  'Skjul' }} graf
                 <i class="material-icons"> {{ !hideChart ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }} </i>
             </button>
@@ -80,12 +80,14 @@
                 </div>
                 <div style="flex: 1"></div>
                 <div>
-                    <button (click)="openEntryEditModal()">
-                        Ny budsjettspost
-                    </button>
-                    <button (click)="openBudgetReport()">
+                    <button class="tertiary c2a" (click)="openBudgetReport()">
                         Vis budsjettsrapport
                     </button>
+
+                    <button class="c2a" (click)="openEntryEditModal()">
+                        Ny budsjettspost
+                    </button>
+
                 </div>
             </div>
             <div class="div-table">
