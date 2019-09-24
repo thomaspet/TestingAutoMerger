@@ -24,6 +24,7 @@ import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 import { ReportDefinitionService } from '../../services/reports/reportDefinitionService';
 import { ReportDefinitionParameterService } from '../../services/reports/reportDefinitionParameterService';
 import { ReportTypeEnum } from '@app/models/reportTypeEnum';
+import { BatchInvoiceModal } from '@app/components/sales/common/batchInvoiceModal/batchInvoiceModal';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
@@ -68,6 +69,11 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             Code: 'invoice_delete',
             CheckActionIsDisabled: (selectedRow) => selectedRow.CustomerInvoiceStatusCode !== StatusCodeCustomerInvoice.Draft,
             ExecuteActionHandler: (selectedRows) => this.deleteInvoices(selectedRows)
+        },
+        {
+            Code: 'batch_invoicing',
+            //CheckActionIsDisabled: (selectedRow) => this.onCheckCreateCreditNoteDisabled(selectedRow),
+            ExecuteActionHandler: (selectedRows) => this.openBatchInvoiceModal(selectedRows)
         }
     ];
 
@@ -383,4 +389,28 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public createAprilaCreditNote(invoiceId: number) {
         return super.PostAction(invoiceId, 'create-aprila-credit-note');
     }
+
+    public openBatchInvoiceModal(data): Promise<any>  {
+        return new Promise((resolve, reject) => {
+            resolve();
+            /*this.modalService.open(BatchInvoiceModal, { data: data }).onClose.subscribe((res) => {
+                if (res) {
+                    if (res.action === 'ok') {
+                        let message = 'Samlefakturajobb er fullført';
+                        //TODO message += ' ' + antall + ' faktura er fakturert med totalsum ' + beløp;
+                        this.toastService.addToast(message, ToastType.good);
+                    }
+                    else if (res.action === 'cancel') {
+                        this.toastService.addToast('Samlefakturajobb ble avbrutt', ToastType.warn);
+                    }
+                    else {
+                        let message = 'Samlefakturajobb feilet. Gå inn på oversikt over samlefakturajobber og fakturer feilede fakturaer på nytt';
+                        //TODO link til samlefakturajobb
+                        this.toastService.addToast(message, ToastType.warn);
+                    }
+                }
+                resolve();
+            });*/
+        });
+    }    
 }

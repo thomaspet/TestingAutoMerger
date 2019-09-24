@@ -232,6 +232,13 @@
             "ExecuteWithoutSelection": true
         },
         {
+            "Name": "Samlefaktura",
+            "Code": "batch_invoicing",
+            "Type": "action",
+            "ExecuteWithMultipleSelections": true,
+            "ExecuteWithoutSelection": true
+        },
+        {
             "Name": "Fakturer",
             "Code": "invoice_invoice",
             "Type": "transition",

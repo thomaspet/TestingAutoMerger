@@ -115,6 +115,7 @@ export class UniTicker {
 
     public busy: boolean = false;
     public customDimensionsMetadata = [];
+    public lastFilterParams = null;
 
     constructor(
         private router: Router,
@@ -141,6 +142,7 @@ export class UniTicker {
             this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
+                this.lastFilterParams = params;
                 return this.statisticsService
                     .GetAllByHttpParams(params, this.ticker.Distinct || false)
                     .pipe(
