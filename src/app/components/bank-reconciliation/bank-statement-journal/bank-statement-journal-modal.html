@@ -1,5 +1,10 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>Bokføre bankdata <small style="margin-left: 3em">(fyll inn motkonto for bankpostene)</small></header>
+    <header>Bokføre bankdata
+        <span class="nrserie-label">Nummerserie:</span>
+        <select class="nrserie" [(ngModel)]="session.selectedSerie">
+            <option *ngFor="let serie of session.series" [ngValue]="serie">{{serie.DisplayName}}</option>
+        </select>
+    </header>
 
     <article class="scrollable">
         <section *ngIf="busy" class="modal-spinner">
@@ -34,6 +39,6 @@
         <button class="outline" (click)="onClose.emit()">
             Avbryt
         </button>
-        
+
     </footer>
 </section>

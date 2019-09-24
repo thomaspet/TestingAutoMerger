@@ -87,6 +87,7 @@ export class BankStatementJournalModal implements IUniModal {
     public onEditChange(event) {
         if (event.field && event.rowModel) {
             event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
+            return event.rowModel;
         }
     }
 
@@ -140,7 +141,7 @@ export class BankStatementJournalModal implements IUniModal {
                     return (expandKey ? (item[expandKey] + ' - ') : '') + getDeepValue(item, expandLabel);
                 },
                 lookupFunction: lookupFn,
-                debounceTime: 100
+                debounceTime: 180
         });
     }
 
@@ -164,7 +165,7 @@ export class BankStatementJournalModal implements IUniModal {
             filter = `contains(accountname,'${lcaseText}')`;
         }
         return this.session
-            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID'
+            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID'
                 , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
                 .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
     }
