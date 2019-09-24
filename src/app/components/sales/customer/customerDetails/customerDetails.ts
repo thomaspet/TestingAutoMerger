@@ -18,7 +18,8 @@ import {
     NumberSeries,
     Seller,
     SellerLink,
-    BankAccount
+    BankAccount,
+    Distributions
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -50,7 +51,8 @@ import {
     DistributionPlanService,
     PageStateService,
     CustomDimensionService,
-    UniSearchDimensionConfig
+    UniSearchDimensionConfig,
+    CompanySettingsService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -62,7 +64,6 @@ import {
     UniConfirmModalV2,
     IModalOptions,
 } from '../../../../../framework/uni-modal';
-import {UniHttp} from '../../../../../framework/core/http/http';
 import {AuthService} from '@app/authService';
 import {SubCompanyComponent} from './subcompany';
 
@@ -75,6 +76,7 @@ import { ReportTypeService } from '@app/services/reports/reportTypeService';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AvtaleGiroModal } from '../avtalegiro-modal/avtalegiro-modal';
+import {SelectDistributionPlanModal} from '@app/components/common/modals/select-distribution-plan-modal/select-distribution-plan-modal';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -105,6 +107,7 @@ export class CustomerDetails implements OnInit {
     public showContactSection: boolean = false; // used in template
     public showSellerSection: boolean = false; // used in template
 
+    public companySettings: any;
     public currencyCodes: Array<CurrencyCode>;
     public paymentTerms: Terms[];
     public deliveryTerms: Terms[];
@@ -132,6 +135,37 @@ export class CustomerDetails implements OnInit {
 
     public tabs: IUniTab[];
     public activeTabIndex: number = 0;
+
+    entityTypes = [
+        {
+            value: 'Models.Sales.CustomerInvoice',
+            label: 'Faktura',
+            defaultPlan: null,
+            keyValue: 'CustomerInvoiceDistributionPlanID',
+            plans: []
+        },
+        {
+            value: 'Models.Sales.CustomerOrder',
+            label: 'Ordre',
+            defaultPlan: null,
+            keyValue: 'CustomerOrderDistributionPlanID',
+            plans: []
+        },
+        {
+            value: 'Models.Sales.CustomerQuote',
+            label: 'Tilbud',
+            defaultPlan: null,
+            keyValue: 'CustomerQuoteDistributionPlanID',
+            plans: []
+        },
+        {
+            value: 'Models.Sales.CustomerInvoiceReminder',
+            label: 'Purring',
+            defaultPlan: null,
+            keyValue: 'CustomerInvoiceReminderDistributionPlanID',
+            plans: []
+        }
+    ];
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
@@ -255,7 +289,8 @@ export class CustomerDetails implements OnInit {
         private reportTypeService: ReportTypeService,
         private pageStateService: PageStateService,
         private customDimensionService: CustomDimensionService,
-        private uniSearchDimensionConfig: UniSearchDimensionConfig
+        private uniSearchDimensionConfig: UniSearchDimensionConfig,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public ngOnInit() {
@@ -271,6 +306,7 @@ export class CustomerDetails implements OnInit {
 
                 this.tabs = [
                     {name: 'Detaljer'},
+                    {name: 'Utsendelse'},
                     {name: 'Åpne poster'},
                     {name: 'Produkter solgt'},
                     {name: 'Dokumenter'},
@@ -306,7 +342,7 @@ export class CustomerDetails implements OnInit {
                                         });
                                     });
 
-                                    if (this.tabs.length === 5) {
+                                    if (this.tabs.length === 6) {
                                         this.tabs = this.tabs.concat([], ...addLinks);
                                     }
                                     this.activeTabIndex = index < this.tabs.length ? index : 0;
@@ -548,8 +584,9 @@ export class CustomerDetails implements OnInit {
                     ['NumberSeriesType']
                 ),
                 this.sellerService.GetAll(null),
-                this.distributionPlanService.GetAll(null),
-                this.customDimensionService.getMetadata()
+                this.distributionPlanService.GetAll(null, ['Elements', 'Elements.ElementType']),
+                this.customDimensionService.getMetadata(),
+                this.companySettingsService.Get(1, ['Distributions'])
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.emptyPhone = response[3];
@@ -562,6 +599,7 @@ export class CustomerDetails implements OnInit {
                 this.sellers = response[10];
                 this.distributionPlans = response[11];
                 this.customDimensions = response[12];
+                this.companySettings = response[13];
 
                 const layout: ComponentLayout = this.getComponentLayout(); // results
                 this.fields$.next(layout.Fields);
@@ -586,6 +624,7 @@ export class CustomerDetails implements OnInit {
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
+                this.mapDistibutionPlans();
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
@@ -616,11 +655,24 @@ export class CustomerDetails implements OnInit {
                 if (this.customerID > 0) {
                     this.getDataAndUpdateToolbarSubheads();
                 }
+                this.mapDistibutionPlans();
                 this.setTabTitle();
                 this.showHideNameProperties();
                 this.setCustomerStatusOnToolbar();
             }, err => this.errorService.handle(err));
         }
+    }
+
+    private mapDistibutionPlans() {
+        const customer = this.customer$.getValue();
+        this.entityTypes.map((ent) => {
+            ent.plans = this.distributionPlans.filter(plan => plan.EntityType === ent.value);
+            ent.defaultPlan = this.distributionPlans.find(plan => {
+                return plan.EntityType === ent.value && (customer && customer.Distributions
+                    && plan.ID === customer.Distributions[ent.keyValue]);
+            });
+            return ent;
+        });
     }
 
     public getDataAndUpdateToolbarSubheads() {
@@ -874,43 +926,6 @@ export class CustomerDetails implements OnInit {
             }
         };
 
-        const invoiceDistributionPlan: UniFieldLayout = fields.find(x => x.Property === 'Distributions.CustomerInvoiceDistributionPlanID');
-        invoiceDistributionPlan.Options = {
-            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoice'),
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            hideDeleteButton: true,
-            searchable: false,
-        };
-
-        const orderDistributionPlan: UniFieldLayout = fields.find(x => x.Property === 'Distributions.CustomerOrderDistributionPlanID');
-        orderDistributionPlan.Options = {
-            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerOrder'),
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            hideDeleteButton: true,
-            searchable: false,
-        };
-
-        const quoteDistributionPlan: UniFieldLayout = fields.find(x => x.Property === 'Distributions.CustomerQuoteDistributionPlanID');
-        quoteDistributionPlan.Options = {
-            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerQuote'),
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            hideDeleteButton: true,
-            searchable: false,
-        };
-
-        const reminderDistributionPlan: UniFieldLayout =
-            fields.find(x => x.Property === 'Distributions.CustomerInvoiceReminderDistributionPlanID');
-        reminderDistributionPlan.Options = {
-            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoiceReminder'),
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            hideDeleteButton: true,
-            searchable: false,
-        };
-
         this.fields$.next(fields);
     }
 
@@ -943,7 +958,6 @@ export class CustomerDetails implements OnInit {
             });
         }
     }
-
 
     preSave(customer): Customer {
         // Copy paste from old save routine. Don't have time to refactor due to exedra deadline..
@@ -1070,6 +1084,8 @@ export class CustomerDetails implements OnInit {
                     this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
                         this.setMainContact(updatedCustomer);
                         this.customer$.next(updatedCustomer);
+
+                        this.mapDistibutionPlans();
                         this.subCompany.refresh();
                         this.setTabTitle();
                     });
@@ -1199,20 +1215,6 @@ export class CustomerDetails implements OnInit {
                     this.setupSaveActions();
                 }
             });
-        }
-
-        if (changes['Distributions.CustomerInvoiceDistributionPlanID'] ||
-            changes['Distributions.CustomerOrderDistributionPlanID '] ||
-            changes['Distributions.CustomerQuoteDistributionPlanID '] ||
-            changes['Distributions.CustomerInvoiceReminderDistributionPlanID '] ||
-            changes['Distributions.PayCheckDistributionPlanID '] ||
-            changes['Distributions.AnnualStatementDistributionPlanID ']) {
-            // Add createguid if not present on distribuion object
-            const myCustomer: any = this.customer$.getValue();
-            if (!myCustomer.Distributions._createguid) {
-                myCustomer.Distributions._createguid = this.customerService.getNewGuid();
-                this.customer$.next(myCustomer);
-            }
         }
 
         this.setupSaveActions();
@@ -1471,43 +1473,6 @@ export class CustomerDetails implements OnInit {
                     ]
                 },
                 {
-                    EntityType: 'Customer',
-                    Property: 'Distributions.CustomerInvoiceDistributionPlanID',
-                    FieldType: FieldType.DROPDOWN,
-                    Legend: 'Distribusjonsplan',
-                    Label: 'Faktura',
-                    FieldSet: 7,
-                    Section: 0,
-                    Hidden: false
-                },
-                {
-                    EntityType: 'Customer',
-                    Property: 'Distributions.CustomerOrderDistributionPlanID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Ordre',
-                    FieldSet: 7,
-                    Section: 0,
-                    Hidden: false
-                },
-                {
-                    EntityType: 'Customer',
-                    Property: 'Distributions.CustomerQuoteDistributionPlanID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Tilbud',
-                    FieldSet: 7,
-                    Section: 0,
-                    Hidden: false
-                },
-                {
-                    EntityType: 'Customer',
-                    Property: 'Distributions.CustomerInvoiceReminderDistributionPlanID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Purring',
-                    FieldSet: 7,
-                    Section: 0,
-                    Hidden: false
-                },
-                {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Standard blankett faktura',
                     Property: 'DefaultCustomerInvoiceReportID',
@@ -1524,6 +1489,7 @@ export class CustomerDetails implements OnInit {
                 {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Standard blankett ordre',
+                    Legend: 'Blanketter',
                     Property: 'DefaultCustomerOrderReportID',
                     Options: {
                         source: this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
@@ -1568,10 +1534,10 @@ export class CustomerDetails implements OnInit {
                     Legend: 'Avtaler faktura',
                     Section: 0,
                     Tooltip: {
-                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at distribusjonsplanen for faktura (enten på' +
-                        ' Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ distribusjon' +
-                        ' som prioritet 2. Da vil alle repeterende faktura distribueres som AvtaleGiro og alle andre fakturaer' +
-                        ' distribueres med distribusjonsvalg i prioritet 2'
+                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at utsendelsesplanen for faktura (enten på' +
+                        ' Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse' +
+                        ' som prioritet 2. Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer' +
+                        ' sendes med valget i prioritet 2'
                     }
                 },
                 {
@@ -1646,7 +1612,36 @@ export class CustomerDetails implements OnInit {
         layout.Fields.splice.apply(layout.Fields, [15, 0].concat(dims));
 
         return layout;
+    }
 
+    public removeDistributionPlan(type) {
+        const customer = this.customer$.getValue();
+        customer.Distributions[type.keyValue] = null;
+        this.customer$.next(customer);
+        this.onContactsChange();
+        this.mapDistibutionPlans();
+    }
+
+    public changeDistributionPlan(type) {
+        const customer = this.customer$.getValue();
+        const options: IModalOptions = {
+            data: {
+                type: type,
+                distribution: this.customer$.getValue().Distributions
+            }
+        };
+
+        this.modalService.open(SelectDistributionPlanModal, options).onClose.subscribe((distribution: Distributions) => {
+            if (distribution) {
+                // Update customer distribution element
+                customer.Distributions = distribution;
+                this.customer$.next(customer);
+                // Set as dirty
+                this.onContactsChange();
+                // Refresh distribution view
+                this.mapDistibutionPlans();
+            }
+        });
     }
 
     public openAvtaleGiroModal() {

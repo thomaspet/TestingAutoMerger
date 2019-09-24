@@ -116,6 +116,15 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.body);
     }
 
+    public distributeList(ids, entityType) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=distribute-list&ids=${ids}&entityType=${entityType}`)
+            .send()
+            .map(res => res.body);
+    }
+
     public distributeWithType(id, entityType, distributionType) {
         const endpoint = `distributions?action=distribute-with-type`
             + `&id=${id}&distributiontype=${distributionType}&entityType=${entityType}`;
@@ -128,6 +137,15 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.body);
     }
 
+    public getEntitiesWithDistribution(ids, entityType: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=entities-with-distribution`
+            + `&entityIds=${ids}&entityType=${entityType}`)
+            .send()
+            .map(res => res.body);
+    }
 
     public startReportProcess(reportDefinition, target: any, closeEmitter: EventEmitter<boolean>) {
         this.parentModalIsClosed = false;

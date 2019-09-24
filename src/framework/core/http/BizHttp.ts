@@ -275,7 +275,7 @@ export class BizHttp<T> {
             .map(response => response.body);
     }
 
-    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: RequestMethod = RequestMethod.Put, parameters: string = null): Observable<any> {
+    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: RequestMethod | string = RequestMethod.Put, parameters: string = null): Observable<any> {
         this.invalidateCache();
         return this.http
             .usingBusinessDomain()

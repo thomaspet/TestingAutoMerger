@@ -195,14 +195,14 @@
             "FilterSelectConfigKey": "PrintStatus"
         },
         {
-            "Header": "Siste distribusjon",
+            "Header": "Siste utsendelse",
             "Field": "getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)",
             "Alias": "SharingType",
             "width": "40px",
             "FilterSelectConfigKey": "SharingType"
         },
         {
-            "Header": "Status distribusjon",
+            "Header": "Status utsendelse",
             "Field": "getlatestsharingstatus('CustomerInvoice',CustomerInvoice.ID)",
             "Alias": "SharingStatusCode",
             "Format": "SharingStatus",
@@ -1476,6 +1476,12 @@
             "Width": "125px",
             "DefaultHidden": true,
             "FilterSelectConfigKey": "PrintStatus"
+        },
+        {
+            "Header": "Klar til faktura",
+            "Field": "ReadyToInvoice",
+            "Width": "80px",
+            "DefaultHidden": true
         }
     ],
     "ParentFilter": {

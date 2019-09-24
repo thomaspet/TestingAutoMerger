@@ -34,7 +34,8 @@ import {
     MatTooltipModule,
     MatMenuModule,
     MatExpansionModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatCardModule
 } from '@angular/material';
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
@@ -52,6 +53,7 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         MatMenuModule,
         MatExpansionModule,
         MatProgressBarModule,
+        MatCardModule,
 
         UniFrameworkModule,
         AppPipesModule,
@@ -71,7 +73,8 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         YearModal,
         UniCompanySearch,
         UniSmartSearch,
-        UniSmartSearchItem
+        UniSmartSearchItem,
+        ChatBoxComponent
     ],
     providers: [
         UniNumberFormatPipe,
@@ -91,6 +94,7 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         NavbarCreateNew,
         UniCompanyDropdown,
         YearModal,
+        ChatBoxComponent,
     ]
 })
 export class LayoutModule {

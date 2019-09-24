@@ -21,9 +21,9 @@ import { BizHttp, RequestMethod } from '@uni-framework/core/http';
 import { Observable } from 'rxjs';
 import { ErrorService } from '../common/errorService';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
-import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';
-import {ReportDefinitionParameterService} from '../../services/reports/reportDefinitionParameterService';
-import {ReportTypeEnum} from '@app/models/reportTypeEnum';
+import { ReportDefinitionService } from '../../services/reports/reportDefinitionService';
+import { ReportDefinitionParameterService } from '../../services/reports/reportDefinitionParameterService';
+import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
@@ -34,6 +34,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
         // { Code: StatusCodeCustomerInvoice.Reminded, Text: 'Purret'}, // TODO: Add when available from backend
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
+        { Code: StatusCodeCustomerInvoice.Sold, Text: 'Solgt' },
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' }
     ];
 
@@ -185,7 +186,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             taskID != null ? 'numberseriestaskid=' + taskID.toString() : null);
     }
 
-    public payInvoices(data: {id: number, payment: InvoicePaymentData, numberSeriesTaskID: number}[]): Observable<JournalEntry[]> {
+    public payInvoices(data: { id: number, payment: InvoicePaymentData, numberSeriesTaskID: number }[]): Observable<JournalEntry[]> {
         if (!data.length) { return Observable.of([]); }
 
         return Observable.forkJoin(data.map(d => this.payInvoiceWithNumberSeriesTaskID(d.id, d.payment, d.numberSeriesTaskID)));
@@ -211,18 +212,18 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         const rowModel = selectedRows[0];
 
         return new Promise((resolve, reject) => {
-        this.createCreditNoteFromInvoice(rowModel.ID)
-            .subscribe((data) => {
-                resolve();
+            this.createCreditNoteFromInvoice(rowModel.ID)
+                .subscribe((data) => {
+                    resolve();
 
-                setTimeout(() => {
-                    this.router.navigateByUrl('/sales/invoices/' + data.ID);
-                });
-            },
-            err => {
-                this.errorService.handle(err);
-                reject(err);
-            });
+                    setTimeout(() => {
+                        this.router.navigateByUrl('/sales/invoices/' + data.ID);
+                    });
+                },
+                    err => {
+                        this.errorService.handle(err);
+                        reject(err);
+                    });
         });
     }
 
@@ -299,7 +300,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                             const parameters = [{ Name: defaultReportParameterName, value: value }];
 
                             this.modalService.open(UniSendEmailModal, {
-                                data: {model: model, reportType: ReportTypeEnum.INVOICE, entity: invoice, parameters}
+                                data: { model: model, reportType: ReportTypeEnum.INVOICE, entity: invoice, parameters }
                             }).onClose.subscribe(email => {
                                 if (email) {
                                     this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerInvoice',
@@ -316,7 +317,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                         }
                     }, err => this.errorService.handle(err));
                 }, err => this.errorService.handle(err)
-            );
+                );
         });
     }
 
@@ -368,5 +369,18 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         const dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
         const statusType = dict.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
+    }
+
+    public getAprilaOffer(invoiceId: number): Observable<any> {
+        return super.GetAction(invoiceId, 'get-aprila-offer');
+    }
+
+    public acceptDeclineAprilaOffer(invoiceId: number, orderId: string, acceptOffer: boolean, offer: any): Observable<any> {
+        return super.ActionWithBody(invoiceId, offer, 'accept-decline-aprila-offer',
+            RequestMethod.Post, `aprilaOrderId=${orderId}&acceptOffer=${acceptOffer}`);
+    }
+
+    public createAprilaCreditNote(invoiceId: number) {
+        return super.PostAction(invoiceId, 'create-aprila-credit-note');
     }
 }

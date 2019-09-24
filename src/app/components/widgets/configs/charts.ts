@@ -38,6 +38,17 @@ export const CHARTS = [
         }
     },
     {
+        id: 'payment_chart',
+        description: 'Innbetalinger',
+        permissions: ['ui_sales'],
+        width: 9,
+        height: 4,
+        widgetType: 'payment_chart',
+        config: {
+            dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
+        }
+    },
+    {
         id: 'expenses',
         description: 'Kostnader',
         permissions: ['ui_accounting'],

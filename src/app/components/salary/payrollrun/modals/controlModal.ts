@@ -225,7 +225,7 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
         this._payrollRunService
             .sendPaymentList(runID)
             .subscribe((response: boolean) => {
-                this._router.navigateByUrl('/bank?code=payment_list');
+                this._router.navigateByUrl('/bank/ticker?code=payment_list');
                 this.close();
             },
             (err) => {

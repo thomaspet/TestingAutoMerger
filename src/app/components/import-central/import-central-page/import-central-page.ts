@@ -6,8 +6,8 @@ import { UserService, ErrorService, ImportCentralService } from '@app/services/s
 import { DisclaimerModal } from '../modals/disclaimer/disclaimer-modal';
 import { DownloadTemplateModal } from '../modals/download-template/download-template-modal';
 import { ImportTemplateModal } from '../modals/import-template/import-template-modal';
-import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
-import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
+import { ImportUIPermission, ImportSaftUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 
 @Component({
   selector: 'import-central-page',
@@ -31,7 +31,8 @@ export class ImportCentralPage {
     product: new ImportUIPermission(),
     supplier: new ImportUIPermission(),
     ledger: new ImportUIPermission(),
-    payroll: new ImportUIPermission()
+    payroll: new ImportUIPermission(),
+    saft: new ImportSaftUIPermission()
   }
 
   constructor(
@@ -78,42 +79,61 @@ export class ImportCentralPage {
   }
 
   public openImportModal(templateType: TemplateType) {
-    let header, jobName, type, templateUrl;
+    let header, jobName, type, templateUrl, conditionalStatement, formatStatement, downloadStatement;
     switch (templateType) {
       case TemplateType.Product:
-        header = 'Produkt Importer';
+        header = 'Importer produkt';
         jobName = ImportJobName.Product;
         type = 'Produkt';
+        formatStatement = ImportStatement.ProductFormatStatement;
+        downloadStatement = ImportStatement.ProductDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT
         break;
       case TemplateType.Customer:
-        header = 'Kunde Importer';
+        header = 'Importer kunde';
         jobName = ImportJobName.Customer;
         type = 'Kunde';
+        formatStatement = ImportStatement.CustomerFormatStatement;
+        downloadStatement = ImportStatement.CustomerDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER
         break;
       case TemplateType.Supplier:
-        header = 'Leverandør Importer';
+        header = 'Importer leverandør';
         jobName = ImportJobName.Supplier;
         type = 'Leverandør';
+        formatStatement = ImportStatement.SupplierFormatStatement;
+        downloadStatement = ImportStatement.SupplierDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER
         break;
       case TemplateType.MainLedger:
-        header = 'Kontoplan Importer';
+        header = 'Importer kontoplan';
         jobName = ImportJobName.MainLedger;
         type = 'MainLedger';
+        conditionalStatement = ImportStatement.MainLedgerConditionalStatement;
+        formatStatement = ImportStatement.MainLedgerFormatStatement;
+        downloadStatement = ImportStatement.MainLedgerDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
         break;
       case TemplateType.Payroll:
-        header = 'Lønnsposter Importer';
+        header = 'Import av variable lønnsposter';
         jobName = ImportJobName.Payroll;
         type = 'Payroll';
+        formatStatement = '';
+        downloadStatement = '';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL 
         break;
+      case TemplateType.Saft:
+        header = 'SAF-T Import';
+        jobName = ImportJobName.Saft;
+        type = 'Saft';
+        formatStatement = '';
+        downloadStatement = '';
+        templateUrl = ''
+        break;
       default:
-        header = 'SAF-T Importer';
-        jobName = 'SAFTImportJob';
-        type = 'SAFT';
+        header = '';
+        jobName = '';
+        type = '';
         break;
     }
     this.modalService.open(ImportTemplateModal,
@@ -123,7 +143,10 @@ export class ImportCentralPage {
           jobName: jobName,
           type: type,
           entity: templateType,
-          downloadTemplateUrl: templateUrl,
+          conditionalStatement: conditionalStatement,
+          formatStatement: formatStatement,
+          downloadStatement: downloadStatement,
+          downloadTemplateUrl: templateUrl
         }
       });
   }
@@ -156,10 +179,15 @@ export class ImportCentralPage {
         message = 'Inkluder eksisterende';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll }
         break;
-      default:
-        header = 'SAF-T Eksportmal';
+      case TemplateType.Saft:
+        header = 'Saft Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: '' }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft }
+        break;
+      default:
+        header = '';
+        message = '';
+        data = { StandardUniFormat: '', StandardizedExcelFormat: ''}
         break;
     }
 

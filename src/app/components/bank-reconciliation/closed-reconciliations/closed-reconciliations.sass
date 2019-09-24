@@ -1,0 +1,92 @@
+\:host
+    position: fixed
+    top: 4.75rem
+    right: 0
+    width: 100vw
+    height: calc(100vh - 4.75rem)
+    background: rgba(0, 0, 0, .1)
+
+    .slide-panel
+        display: flex
+        flex-direction: column
+        background: #fff
+        width: 45rem
+        height: 100%
+        margin-left: auto
+        padding: 0 2rem
+
+        .header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            padding: 1.5rem 0
+            span
+                font: 400 20px 'Roboto'
+            i.material-icons
+                cursor: pointer
+
+        .actions
+            display: flex
+            align-items: center
+            margin-bottom: 2rem
+
+            i.material-icons
+                vertical-align: middle
+                color: #83ae5f
+
+            button:first-of-type
+                margin-left: auto
+            button.c2a
+                width: 8rem
+
+.closed-groups
+    margin-bottom: 1rem
+    padding-right: 5px
+    overflow: auto
+
+.closed-group-panel
+    border: 1px solid rgba(0, 0, 0, .15)
+
+    & + .closed-group-panel
+        margin-top: .75rem
+
+    .panel-header
+        background: #f2f2f2
+        display: flex
+        align-items: center
+        height: 2.5rem
+        padding-left: .75rem
+        cursor: pointer
+
+        i.material-icons
+            flex: 0 0 2rem
+            &.delete
+                font-size: 20px
+                margin-bottom: 2px
+                &:hover
+                    color: #d24d57
+
+        span
+            flex: 1
+            padding: 0 1rem
+            font-size: 15px
+
+    .panel-content
+        background: #fff
+        padding: 1rem 2rem
+
+    .entry
+        display: flex
+        margin: 5px 0
+
+        span
+            font-size: 15px
+            & + span
+                margin-left: 1rem
+
+            &.description
+                flex: 1
+
+            &.amount
+                text-align: right
+                font-weight: 500

@@ -59,8 +59,16 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     public sendTaxRequestAction(
         option: string,
         empId: number = 0,
-        empsAndChanged: boolean = false): Observable<AltinnReceipt> {
-        return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId + '&requestAllChanges=' + empsAndChanged);
+        empsAndChanged: boolean = false,
+        categoryID: number = 0): Observable<AltinnReceipt> {
+        return this.PostAction(
+            1,
+            'sendtaxrequest',
+            'option=' + option
+                + '&empId=' + empId
+                + '&requestAllChanges=' + empsAndChanged
+                + '&categoryID=' + categoryID
+        );
     }
 
     public sendReconciliationRequest(option: A06Options): Observable<AltinnReceipt> {

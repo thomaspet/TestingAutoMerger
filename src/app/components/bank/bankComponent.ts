@@ -310,7 +310,7 @@ export class BankComponent {
     }
 
     private updateTab() {
-        let url = '/bank';
+        let url = '/bank/ticker';
         const queryParams = window.location.href.split('?')[1];
         if (queryParams) {
             url += '?' + queryParams;
@@ -355,7 +355,7 @@ export class BankComponent {
     }
 
     public navigateToTicker(ticker: Ticker) {
-        this.router.navigate(['/bank'], {
+        this.router.navigate(['/bank/ticker'], {
             queryParams: { code: ticker.Code },
             skipLocationChange: false
         });
@@ -560,9 +560,10 @@ export class BankComponent {
             StatusCode: 30001,
             IsActive: true
         };
-        rule.Rule = `FromBankAccount.AccountNumber eq ${row[0].FromBankAccountAccountNumber || row[0].PaymentExternalBankAccountNumber} ` +
-        `and BusinessRelation.Name eq ${row[0].BusinessRelationName || ' '} and Description eq ${row[0].PaymentDescription || ' '} and ` +
-        `PaymentID eq ${row[0].PaymentPaymentID}`;
+        rule.Rule = `ExternalBankAccountNumber eq ${row[0].FromBankAccountAccountNumber
+            || row[0].PaymentExternalBankAccountNumber} and BusinessRelation.Name eq ${row[0].BusinessRelationName
+            || ' '} and Description eq ${row[0].PaymentDescription || ' '} and ` +
+            `PaymentID eq ${row[0].PaymentPaymentID || ''} and InPaymentID eq ${row[0].PaymentInPaymentID || ''}`;
 
         return new Promise(() => {
             const opt = {
@@ -968,7 +969,7 @@ export class BankComponent {
                                     this.paymentBatchService.waitUntilJobCompleted(res.ID).subscribe(jobResponse => {
                                         if (jobResponse && !jobResponse.HasError) {
                                             this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
-                                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                                            `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
                                         } else {
                                             this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
                                         }

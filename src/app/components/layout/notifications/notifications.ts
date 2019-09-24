@@ -6,6 +6,9 @@ import {take} from 'rxjs/operators';
 import {NotificationService} from './notification-service';
 import {NotificationsDropdown} from './notifications-dropdown/notifications-dropdown';
 
+import { ToastService, ToastType, ToastTime, IToastAction } from '@uni-framework/uniToast/toastService';
+import { SignalRService } from '@app/services/common/signal-r.service';
+
 @Component({
     selector: 'notifications',
     templateUrl: './notifications.html',
@@ -17,22 +20,22 @@ export class Notifications {
     overlayRef: OverlayRef;
     dropdownPortal: ComponentPortal<NotificationsDropdown>;
 
-    unreadCount: number;
-
     constructor(
         private overlay: Overlay,
         private cdr: ChangeDetectorRef,
-        private notificationService: NotificationService
+        public notificationService: NotificationService,
+        public signalRService: SignalRService,
+        private toastService: ToastService,
     ) {
         this.notificationService.getNotifications().subscribe(
             notifications => {
-                this.unreadCount = notifications.reduce((count, notification) => {
+                this.notificationService.unreadCount$.next(notifications.reduce((count, notification) => {
                     if (notification['_unread']) {
                         count++;
                     }
 
                     return count;
-                }, 0);
+                }, 0));
 
                 this.cdr.markForCheck();
             },
@@ -42,6 +45,29 @@ export class Notifications {
 
     ngAfterViewInit() {
         this.dropdownPortal = new ComponentPortal(NotificationsDropdown);
+
+        this.signalRService.pushMessage$.subscribe(message => {
+            if (message && message.entityType === 'notification') {
+                this.notificationService.getNotifications('', true).subscribe(
+                    notifications => {
+                        notifications.forEach(notification => {
+                            if (notification['_unread']) {
+                                this.notificationService.unreadCount$.next(this.notificationService.unreadCount$.value + 1);
+                                this.toastService.addToast(
+                                    notification.SenderDisplayName,
+                                    ToastType.good,
+                                    ToastTime.medium,
+                                    notification.Message,
+                                    <IToastAction>{
+                                        label: 'Åpne',
+                                        click: () => this.notificationService.onNotificationClick(notification)
+                                    }
+                                );
+                            }
+                        });
+                    });
+             }
+        });
 
         const position = this.overlay.position().connectedTo(
             this.toggleRef,
@@ -64,7 +90,6 @@ export class Notifications {
             this.overlayRef.detach();
             this.notificationService.markNotificationsRead();
         } else {
-            this.unreadCount = 0;
             const componentRef = this.overlayRef.attach(this.dropdownPortal);
             componentRef.instance.close.pipe(
                 take(1)
@@ -73,4 +98,5 @@ export class Notifications {
             });
         }
     }
+
 }

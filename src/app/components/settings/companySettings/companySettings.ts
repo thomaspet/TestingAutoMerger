@@ -45,8 +45,7 @@ import {
     ElsaPurchaseService,
     CampaignTemplateService,
     SubEntityService,
-    ReportTypeService,
-    DistributionPlanService
+    ReportTypeService
 } from '@app/services/services';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
@@ -138,9 +137,11 @@ export class CompanySettingsComponent implements OnInit {
 
     private hideXtraPaymentOrgXmlTagValue: boolean;
     private hideBankValues: boolean;
-    private distributionPlans: any[];
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
+
+    private defaultCompanyAccount: any;
+    private defaultTaxAccount: any;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -172,8 +173,7 @@ export class CompanySettingsComponent implements OnInit {
         private subEntityService: SubEntityService,
         private settingsService: SettingsService,
         private businessRelationService: BusinessRelationService,
-        private reportTypeService: ReportTypeService,
-        private distributionPlanService: DistributionPlanService,
+        private reportTypeService: ReportTypeService
     ) {
         this.settingsService.setSaveActions([{
             label: 'Lagre firmainnstillinger',
@@ -213,7 +213,8 @@ export class CompanySettingsComponent implements OnInit {
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
-            this.distributionPlanService.GetAll(null),
+            this.accountService.searchAccounts('AccountNumber eq 1920', 1),
+            this.accountService.searchAccounts('AccountNumber eq 1950', 1)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -253,7 +254,8 @@ export class CompanySettingsComponent implements OnInit {
                 this.quoteFormList = dataset[12];
                 this.orderFormList = dataset[13];
                 this.invoiceFormList = dataset[14];
-                this.distributionPlans = dataset[15];
+                this.defaultCompanyAccount = dataset[15][0];
+                this.defaultTaxAccount = dataset[16][0];
 
                 this.companySettings$.next(this.setupMultivalueData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
@@ -475,20 +477,6 @@ export class CompanySettingsComponent implements OnInit {
                 }));
             }
 
-        }
-
-        if (changes['Distributions.CustomerInvoiceDistributionPlanID'] ||
-            changes['Distributions.CustomerOrderDistributionPlanID '] ||
-            changes['Distributions.CustomerQuoteDistributionPlanID '] ||
-            changes['Distributions.CustomerInvoiceReminderDistributionPlanID '] ||
-            changes['Distributions.PayCheckDistributionPlanID '] ||
-            changes['Distributions.AnnualStatementDistributionPlanID ']) {
-            // Add createguid if not present on distribuion object
-            const cs: any = this.companySettings$.getValue();
-            if (!cs.Distributions._createguid) {
-                cs.Distributions._createguid = this.companySettingsService.getNewGuid();
-                this.companySettings$.next(cs);
-            }
         }
 
         if (changes['DefaultEmail'] || changes['DefaultAddress'] || changes['DefaultPhone']) {
@@ -924,12 +912,24 @@ export class CompanySettingsComponent implements OnInit {
             storeResultInProperty: storeResultInProperty,
             storeIdInProperty: storeResultInProperty + 'ID',
             editor: (bankaccount: BankAccount) => {
-                if (!bankaccount || !bankaccount.ID) {
+                if (!bankaccount || bankaccount.ID <= 0) {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.companySettingsService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
                     bankaccount.ID = 0;
+                    switch (bankAccountType) {
+                        case 'company':
+                            bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
+                            break;
+
+                        case 'tax':
+                            bankaccount.Account = !bankaccount.Account ? this.defaultTaxAccount : bankaccount.Account;
+                            break;
+
+                        default:
+                            break;
+                    }
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {
@@ -1633,78 +1633,6 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
-                Property: 'Distributions.CustomerInvoiceDistributionPlanID',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Faktura',
-                Options: {
-                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoice'),
-                    valueProperty: 'ID',
-                    displayProperty: 'Name',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                FieldSet: 8,
-                Section: 1,
-                Legend: 'Distribusjonsplaner',
-                Hidden: false
-            },
-            {
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Distribuer faktura automatisk',
-                Property: 'AutoDistributeInvoice',
-                Section: 1,
-                FieldSet: 8
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'Distributions.CustomerOrderDistributionPlanID',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Ordre',
-                Options: {
-                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerOrder'),
-                    valueProperty: 'ID',
-                    displayProperty: 'Name',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                FieldSet: 8,
-                Section: 1,
-                Hidden: false
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'Distributions.CustomerQuoteDistributionPlanID',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Tilbud',
-                Options: {
-                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerQuote'),
-                    valueProperty: 'ID',
-                    displayProperty: 'Name',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                FieldSet: 8,
-                Section: 1,
-                Hidden: false
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'Distributions.CustomerInvoiceReminderDistributionPlanID',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Purring',
-                Options: {
-                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoiceReminder'),
-                    valueProperty: 'ID',
-                    displayProperty: 'Name',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                FieldSet: 8,
-                Section: 1,
-                Hidden: false
-            },
-            {
-                EntityType: 'CompanySettings',
                 Property: 'Factoring',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Type',
@@ -1713,7 +1641,7 @@ export class CompanySettingsComponent implements OnInit {
                     displayProperty: 'Label',
                     valueProperty: 'ID'
                 },
-                FieldSet: 9,
+                FieldSet: 8,
                 Section: 1,
                 Legend: 'Factoring',
                 Hidden: false
@@ -1723,7 +1651,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'FactoringNumber',
                 FieldType: FieldType.TEXT,
                 Label: 'Factoring nr.',
-                FieldSet: 9,
+                FieldSet: 8,
                 Section: 1,
                 Hidden: false
             },
@@ -1732,7 +1660,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'FactoringEmail',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'E-post',
-                FieldSet: 9,
+                FieldSet: 8,
                 Section: 1
             },
         ]);

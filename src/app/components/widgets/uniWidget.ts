@@ -37,6 +37,7 @@ import {
     BalanceWidget,
     SRUnpaidDoughnutChart,
     ChartAndTableWidget
+    PaymentWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -84,7 +85,8 @@ export const WIDGET_MAP = {
     assignments: AssignmentsWidget,
     expenses: ExpensesWidget,
     balance: BalanceWidget,
-    chartAndTable: ChartAndTableWidget
+    chartAndTable: ChartAndTableWidget,
+    payment_chart: PaymentWidget
 };
 
 @Directive({

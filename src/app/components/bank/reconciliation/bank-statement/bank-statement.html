@@ -1,0 +1,48 @@
+<section class="reconciliation-list-container statement-view">
+    <table [attr.aria-busy]="busy" *ngIf="bankStatements.length">
+        <thead>
+            <tr>
+                <th> Bankkonto </th>
+                <th> Kontonr </th>
+                <th> Periode </th>
+                <th> Status </th>
+                <th class="center"> Antall poster </th>
+                <th class="right"> Sum </th>
+                <th>  </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let statement of bankStatements">
+                <td> {{ statement.AccountName }} </td>
+                <td>
+                    {{ statement.AccountNumber }}
+                </td>
+                <td>
+                    {{ statement._periodeText }}
+                </td>
+                <td [ngClass]="statement.StatusCode === 48002 ? 'done' : 'good'"> {{ getStatusText(statement) }} </td>
+                <td class="center"> {{ statement.count }} </td>
+                <td class="right" [ngClass]="statement.Amount  >= 0 ? 'good' : 'bad'"> {{ (statement.Amount | uninumberformat: 'money') || '0,00' }} </td>
+                <td>
+                    <i class="material-icons" [matMenuTriggerFor]="contextMenu">
+                        more_vert
+                    </i>
+                    <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                        <ul class="menu-list">
+                            <li *ngFor="let action of getActions(statement)" (click)="onActionClick(action, statement)">
+                                {{ action.label }}
+                            </li>
+                        </ul>
+                    </mat-menu>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <span *ngIf="!bankStatements.length && dataLoaded" class="empty-statement-msg">
+        Ingen avstemninger å vise. Gå til <strong (click)="goToReconciliationView()" title="Link til bankavstemning"> avstemningsbilde </strong> for å starte.
+    </span>
+
+    <small *ngIf="busy"> Sletter avstemning... </small>
+</section>

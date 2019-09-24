@@ -1,5 +1,5 @@
 <span *ngIf="toggleMode">
-    <button class="comments_toggle" type="button" (click)="toggle($event)">
+    <button class="comments_toggle" type="button" (click)="openChatBox()">
         Kommentarer
 
         <span class="comments_count" *ngIf="comments?.length > 0">
@@ -7,18 +7,3 @@
         </span>
     </button>
 </span>
-
-<section *ngIf="toggleMode"
-         class="comments-view"
-         (keydown.esc)="close()"
-         (clickOutside)="close()"
-         [attr.aria-expanded]="isOpen">
-
-    <uni-comment-list [comments]="comments"></uni-comment-list>
-    <uni-comment-input (submit)="submitComment($event)"></uni-comment-input>
-</section>
-
-<section *ngIf="!toggleMode" class="comments-standard-mode">
-    <uni-comment-list [comments]="comments"></uni-comment-list>
-    <uni-comment-input (submit)="submitComment($event)"></uni-comment-input>
-</section>

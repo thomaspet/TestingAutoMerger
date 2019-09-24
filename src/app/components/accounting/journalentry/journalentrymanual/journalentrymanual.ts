@@ -21,7 +21,7 @@ import {JournalEntryAccountCalculationSummary} from '../../../../models/accounti
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin} from 'rxjs';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 import {
     ToastService,
@@ -51,6 +51,7 @@ import {
     AccountMandatoryDimensionService,
     SupplierService,
     DimensionService,
+    StatisticsService
 } from '../../../../services/services';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {
@@ -60,6 +61,7 @@ import {
 } from '../../../../../framework/uni-modal';
 import * as _ from 'lodash';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
+import { fork } from 'child_process';
 
 @Component({
     selector: 'journal-entry-manual',
@@ -156,7 +158,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private accountService: AccountService,
         private supplierService: SupplierService,
         private dimensionService: DimensionService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private statisticsService: StatisticsService
     ) {}
 
     public ngOnInit() {
@@ -991,8 +994,21 @@ export class JournalEntryManual implements OnChanges, OnInit {
                                 line['_rowSelected'] = true;
                             }
 
-                            this.openPostsForSelectedRow = lines;
-                            this.openPostRetrievingDataInProgress = false;
+                            // Calculate reminderfee                            
+                            forkJoin(lines.map(line => this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${line.CustomerInvoiceID} and statuscode eq 42101`)))
+                                .subscribe(res => {
+                                    res.map(res => res[0]).map((sums, i: number) => {
+                                        lines[i]['_SumReminderFee'] = sums.SumReminderFee;
+                                        lines[i]['_SumReminderFeeCurrency'] = sums.SumReminderFeeCurrency;
+                                        lines[i]['_SumInterestFee'] = sums.SumInterestFee;
+                                        lines[i]['_SumInterestFeeCurrency'] = sums.SumInterestFeeCurrency;
+                                        lines[i]['RestAmount'] += sums.SumReminderFee + sums.SumInterestFee;
+                                        lines[i]['RestAmountCurrency'] += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
+                                    });
+
+                                    this.openPostsForSelectedRow = lines;
+                                    this.openPostRetrievingDataInProgress = false;
+                            });
                         }
                     }, err => {
                         this.openPostRetrievingDataInProgress = false;
@@ -1267,6 +1283,17 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 .setWidth('6rem'),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setWidth('8rem'),
+            new UniTableColumn('_SumReminderFee', 'Purregebyr', UniTableColumnType.Money)
+                .setWidth('8rem'),
+            new UniTableColumn('_SumReminderFeeCurrency', 'V-Purregebyr', UniTableColumnType.Money)
+                .setWidth('8rem')
+                .setVisible(false),
+            new UniTableColumn('_SumInterestFee', 'Renter', UniTableColumnType.Money)
+                .setWidth('8rem')
+                .setVisible(false),
+            new UniTableColumn('_SumInterestFeeCurrency', 'V-Renter', UniTableColumnType.Money)
+                .setWidth('8rem')
+                .setVisible(false),
             new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
                 .setWidth('8rem')
                 .setVisible(false),

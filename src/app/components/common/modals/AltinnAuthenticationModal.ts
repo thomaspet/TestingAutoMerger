@@ -30,7 +30,9 @@ enum LoginState {
                         [model]="userLoginData$"
                     ></uni-form>
                 </article>
+
                 <footer [attr.aria-busy]="busy">
+                    <a style="float: left; margin-top: 1.5rem; margin-left: 1rem;" href="https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn" target="_blank">Hjelp til innlogging</a>
                     <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
@@ -145,7 +147,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         username.Property = 'userID';
         username.ReadOnly = false;
         username.Placeholder = null;
-        username.Label = 'BrukerID Altinn';
+        username.Label = 'Fødselsnummer/brukernavn Altinn';
         username.LineBreak = true;
 
         const password: UniFieldLayout = new UniFieldLayout();
@@ -157,7 +159,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         password.Property = 'password';
         password.ReadOnly = false;
         password.Placeholder = null;
-        password.Label = 'Passord BrukerID Altinn';
+        password.Label = 'Passord';
         password.LineBreak = true;
 
         const pinChoice: UniFieldLayout = new UniFieldLayout();

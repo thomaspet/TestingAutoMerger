@@ -12,11 +12,12 @@
                 </span>
             </label>
 
-            <div *ngIf="options.data.isExternal" class="external-details">
-                <label class="title" *ngIf="options.data.hasTemplateAccess">
+            <div class="external-details">
+                <label class="title" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
                     Last ned mal
                     <span class="value">
-                        <a href="{{options.data.downloadTemplateUrl}}">{{options.data.downloadTemplateUrl.split("/").pop()}}</a>
+                        <a
+                            href="{{options.data.downloadTemplateUrl}}">{{options.data.downloadTemplateUrl.split("/").pop()}}</a>
                     </span>
                 </label>
                 <label class="statement">
@@ -28,18 +29,24 @@
                 <label class="statement">
                     {{options.data.downloadStatement}}
                 </label>
-                <label class="statement">
-                    Before you upload files into Uni Economy, please read our <a (click)="openDisclaimerNote()">disclaimer note.</a>
+                <label class="statement" *ngIf="options.data.isExternal">
+                    Før du laster opp filen til Uni Economy, så vær vennlig og les gjennom våre vilkår. <a
+                        (click)="openDisclaimerNote()">disclaimer note.</a>
                 </label>
             </div>
 
             <div class="dropdown-section" *ngIf="options.data.entity === payrollType && operators.length">
-                <label class="title">File Type</label>
+                <label class="title">Velg lønnsavregning</label>
                 <label class="drop-down-container">
                     <uni-select class="drop-down" [config]="config" [value]="selectedPayroll" [items]="operators"
                         (valueChange)="onSelectChange($event)">
                     </uni-select>
                 </label>
+            </div>
+            <div class="if-no-payroll" *ngIf="options.data.entity === payrollType && !operators.length">
+                Det må opprettes en lønnsavregning før du kan importere variable lønnsposter.
+                Trykk på link for å gå til <a [routerLink]="['/salary/payrollrun/0']"
+                    (click)="close()">Lønnsavregning</a>.
             </div>
             <label class="title">
                 Filopplasting
@@ -62,13 +69,14 @@
                     <span>
                         Dra og slipp eller <span class="browse-link">bla i</span> dine filer
                     </span>
-                    <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt">
+                    <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt, .xml">
                 </div>
             </div>
             <label class="error-msg" *ngIf='!isValidFileFormat'>
-                Vennligst legg til en fil (.xlsx/.txt) for å kunne importere {{options.data.type}}.
+                Vennligst legg til en fil (.xlsx, .txt eller .xml) for å kunne importere {{options.data.type}}.
             </label>
-            <div class="radio-button-group" *ngIf="options.data.entity !== payrollType">
+            <div class="radio-button-group"
+                *ngIf="(options.data.entity !== payrollType) && (options.data.entity !== saftType)">
                 <mat-radio-group [(ngModel)]="importOption" [ngModelOptions]="{standalone: true}">
                     <mat-radio-button [value]="skip" [checked]="true"> <label class="option-text">Hopp over dupliserte
                             {{options.data.type}}</label></mat-radio-button>
@@ -79,6 +87,52 @@
                             {{options.data.type}}</label></mat-radio-button>
                 </mat-radio-group>
             </div>
+            <div class="check-box-section" *ngIf="options.data.entity === saftType">
+                <div>
+                    <label class="title">Valg for import</label>
+                    <label class="check-box-container">
+                        <mat-checkbox class="check-box" [(ngModel)]="isOpening" [ngModelOptions]="{standalone: true}"
+                            (click)="$event.stopPropagation()">
+                        </mat-checkbox>
+                        <label class="option-text">
+                            Opprett åpningsbalanse
+                        </label>
+                    </label>
+                </div>
+                <div>
+                    <label class="title"></label>
+                    <label class="check-box-container">
+                        <mat-checkbox class="check-box" [(ngModel)]="isKeepRecords"
+                            [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()">
+                        </mat-checkbox>
+                        <label class="option-text">
+                            Behold kunde- og leverandørnummer
+                        </label>
+                    </label>
+                </div>
+                <div>
+                    <label class="title"></label>
+                    <label class="check-box-container">
+                        <mat-checkbox class="check-box" [(ngModel)]="isUpdate" [ngModelOptions]="{standalone: true}"
+                            (click)="$event.stopPropagation()">
+                        </mat-checkbox>
+                        <label class="option-text">
+                            Oppdater eksisterende kunder/leverandører
+                        </label>
+                    </label>
+                </div>
+                <div>
+                    <label class="title"></label>
+                    <label class="check-box-container">
+                        <mat-checkbox class="check-box" [(ngModel)]="isAutomatic" name='automatic'
+                            [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()">
+                        </mat-checkbox>
+                        <label class="option-text" for="automatic">
+                            Automatisk merking av reskontroposter
+                        </label>
+                    </label>
+                </div>
+            </div>
         </form>
 
         <section *ngIf="loading$ | async" class="modal-spinner">
@@ -87,7 +141,8 @@
 
     </article>
     <footer class="center">
-        <button class="c2a rounded" (click)="importFile()">Importer {{options.data.type}}s</button>
+        <button class="c2a rounded" [disabled]="options.data.entity === payrollType && !operators.length || !selectedPayroll"
+            (click)="importFile()">Importer {{options.data.type}}s</button>
         <button (click)="close()">Avbryt</button>
     </footer>
 </section>

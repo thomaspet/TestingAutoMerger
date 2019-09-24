@@ -9,10 +9,15 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
+import {WidgetModule} from '../widgets/widgetModule';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {BankComponent} from './bankComponent';
+import {UniBank} from './bank';
 import {bankRoutes} from './bankRoutes';
+import {UniBankReconciliationList} from './reconciliation/reconciliation-list/reconciliation-list';
+import {UniReconciliationReportView} from './reconciliation/reconciliation-report/reconciliation-report';
+import {BankStatement} from './reconciliation/bank-statement/bank-statement';
 
 import {
     UniPaymentEditModal,
@@ -42,16 +47,21 @@ import {
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-        UniTickerModule
+        UniTickerModule,
+        WidgetModule
     ],
     declarations: [
+        UniBank,
         BankComponent,
+        UniBankReconciliationList,
         UniPaymentEditModal,
         UniBankListModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchSubAccountManualModal,
-        MatchMainAccountModal
+        MatchMainAccountModal,
+        UniReconciliationReportView,
+        BankStatement
     ],
     entryComponents: [
         UniPaymentEditModal,

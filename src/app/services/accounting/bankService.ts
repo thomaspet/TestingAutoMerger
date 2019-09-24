@@ -164,4 +164,61 @@ export class BankService extends BizHttp<Bank> {
             .send()
             .map(response => response.body);
     }
+
+    public getBankAccountsForReconciliation() {
+        return this.http.asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(
+                '?model=bankaccount&select=ID as ID,AccountID as AccountID,BankAccountType as BankAccountType,' +
+                'Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,AccountNumber as BankAccountNumber,' +
+                'Bank.Name,casewhen(companysettings.id gt 0\,1\,0) as IsDefault,companysettings.id,' +
+                'sum(casewhen(be.statuscode eq 48002,1,0)) as closed,sum(casewhen(be.id gt 0,1,0)) as total' +
+                '&filter=companysettingsid gt 0&join=bankaccount.id eq companysettings.companybankaccountid and ' +
+                'bankaccount.accountid eq bankstatement.accountid and bankstatement.id eq bankstatemententry.bankstatementid as be' +
+                '&expand=bank,account&wrap=false&orderby=companysettings.id desc')
+            .send()
+            .map(response => response.body);
+    }
+
+    public getMonthlyReconciliationData(accountID: number) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`bankstatements?accountid=${accountID}&action=account-status-monthly`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public getIncommingAccountBalance(accountID) {
+        return this.http.asGET()
+        .usingBusinessDomain()
+        .withEndPoint(`bankstatements?action=account-balance&accountid=${accountID}`)
+        .send()
+        .map(response => response.body);
+    }
+
+    public getBankStatementListData() {
+        return this.http.asGET()
+        .usingStatisticsDomain()
+        .withEndPoint('?model=BankStatement&select=FromDate as FromDate,ToDate as ToDate,ID as ID,count(entry.ID) as count,' +
+        'Amount as Amount,Account.AccountName as AccountName,Account.AccountNumber as AccountNumber,StatusCode as StatusCode' +
+        '&join=BankStatement.ID eq BankStatementEntry.BankStatementID as Entry&Expand=Account,&top=50')
+        .send()
+        .map(response => response.body);
+    }
+
+    public bankStatementActions(id: number, action: string) {
+        return this.http.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`bankstatements/${id}?action=${action}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public deleteBankStatement(id: number) {
+        return this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`bankstatements/${id}`)
+            .send()
+            .map(response => response.body);
+    }
 }

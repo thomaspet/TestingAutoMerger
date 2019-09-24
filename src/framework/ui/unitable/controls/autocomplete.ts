@@ -120,7 +120,7 @@ export class UnitableAutocomplete implements OnInit {
             }
             return Observable.of(value);
         })
-        .debounceTime(100)
+        .debounceTime(this.options.debounceTime || 100)
         .distinctUntilChanged()
         .subscribe((query) => {
             this.performLookup(query).subscribe((results) => {

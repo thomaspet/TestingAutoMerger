@@ -117,21 +117,24 @@ export class UniBankAccountModal implements IUniModal {
             account = this.formModel$.getValue();
             if (this.options.modalConfig
                 && this.options.modalConfig.ledgerAccountVisible
-                && !account.AccountID) {
+                && !account.AccountID && !(account.Account && account.Account.ID)) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Bekreft manglende konto',
-                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Vil du fortsette uten å velge konto?'
-                });
-
-                confirm.onClose.subscribe((response) => {
-                    if (response !== ConfirmActions.ACCEPT) {
-                        return;
-                    } else {
-                        this.onClose.emit(account);
+                    header: 'Manglende konto',
+                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Hovedbokskonto må velges for å registrere en bankkonto?',
+                    buttonLabels: {
+                        accept: 'Ok'
                     }
                 });
+
+                confirm.onClose.subscribe(() => {
+                    return;
+                });
             } else {
+                if (account.Account) {
+                    account.AccountID = account.Account.ID;
+                    account.Account = null;
+                }
                 if (this.saveBankAccountInModal) {
                     this.SaveBankAccount(account);
                 } else {
@@ -204,6 +207,11 @@ export class UniBankAccountModal implements IUniModal {
                     this.checkIsAccountNumberAlreadyRegistered(account, changes['_ibanAccountSearch'].currentValue);
                 }
             }
+        }
+        if (changes['AccountID'] && changes['AccountID'].currentValue === null) {
+            const account = this.formModel$.getValue();
+            account.Account = null;
+            this.formModel$.next(account);
         }
     }
 

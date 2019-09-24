@@ -32,7 +32,7 @@ import * as _ from 'lodash';
             <section class="addressCard" [attr.aria-readonly]="readonly">
                 <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
                 <section class="sharing-badges">
-                    <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I DISTRIBUSJONSKØ</span>
+                    <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I SENDINGSKØ</span>
                     <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">FAKTURAPRINT</span>
                     <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
                     <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
@@ -293,7 +293,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
                         case SharingType.Unknown:
                             this.distributionPendingClass = cls;
                             this.distributionPendingTitle = firstOfType.SharingExternalMessage ? firstOfType.SharingExternalMessage :
-                                'I kø, type distribusjon velges basert på distribusjonsoppsettet når jobben startes';
+                                'I kø, sendingsmetode velges basert på utsendelsesoppsettet når jobben startes';
                             break;
                         case SharingType.AP:
                             this.ehfClass = cls;

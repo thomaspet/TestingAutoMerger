@@ -1,10 +1,10 @@
 <section class="notification-icon" [ngClass]="notificationType">
-    <i class="material-icons" *ngIf="icon">{{icon}}</i>
+     <i class="material-icons" *ngIf="icon">{{icon}}</i>
 </section>
 
 <section class="notification-body">
     <!-- <small>{{notification.CompanyName}}</small> -->
-    <span>{{notificationText}}</span>
+    <span *ngIf="!hasHtml; else elseBlock">{{notificationText}}</span>
     <!-- <small *ngIf="!hideTimestamp">{{timestamp}}</small> -->
 
     <small>
@@ -16,3 +16,7 @@
 <!-- <button class="menu-toggle icon-button">
     <i class="material-icons">more_vert</i>
 </button> -->
+
+<ng-template #elseBlock>
+    <span [innerHTML]="notificationText"></span>
+</ng-template>

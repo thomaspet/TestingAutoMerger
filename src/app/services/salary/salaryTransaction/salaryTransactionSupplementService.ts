@@ -61,19 +61,27 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
             .some(supp => {
                 const wtSupplement = wtSupps
                     .find(wtSupp => wtSupp.ID === supp.WageTypeSupplementID) || supp.WageTypeSupplement;
+                
                 return this.isUnfinished(supp, wtSupplement);
             });
     }
 
     public isUnfinished(supp: SalaryTransactionSupplement, wtSupp: WageTypeSupplement) {
-        if (wtSupp && wtSupp.ValueType === Valuetype.IsBool) {
-            return false;
+        switch(wtSupp.ValueType) {
+            case Valuetype.IsBool:
+                return false;
+            case Valuetype.IsString:
+                return !supp.ValueString;
+            case Valuetype.IsMoney:
+                return !supp.ValueMoney;
+            case Valuetype.IsDate:
+                return this.isDateUnfinished(supp.ValueDate);
+            case Valuetype.Period:
+                return (this.isDateUnfinished(supp.ValueDate) && this.isDateUnfinished(supp.ValueDate2));
+                
+            default:
+                return true;
         }
-
-        return this.isDateUnfinished(supp.ValueDate)
-            && !supp.ValueDate2
-            && (!supp.ValueMoney || supp.ValueMoney === 0)
-            && !supp.ValueString;
     }
 
     private isDateUnfinished(date: Date) {

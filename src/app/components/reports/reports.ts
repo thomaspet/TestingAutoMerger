@@ -2,7 +2,7 @@ import {Component, ViewChild, OnInit, Type} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {ReportDefinition, UniQueryDefinition} from '../../unientities';
+import {ReportDefinition, UniQueryDefinition, ReportParameter} from '../../unientities';
 import {ReportDefinitionService, UniQueryDefinitionService, ErrorService, PageStateService} from '../../services/services';
 import {Report} from '../../models/reports/report';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
@@ -16,6 +16,7 @@ import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {UniPreviewModal} from './modals/preview/previewModal';
+import { map } from 'rxjs/operators';
 
 interface IMainGroup {
     name: string;
@@ -127,6 +128,19 @@ export class UniReports implements OnInit {
             return;
         }
 
+        if (report.Name.toLowerCase() === 'avstemming') {
+            this.openReportModal(UniReportParamsModal, report, updatedReport => {
+                updatedReport['parameters'].forEach(param => {
+                    if (param.Name === 'includeNotPayed' || param.Name === 'onlyBooked') {
+                        param['value'] = param['value'] === true || param['value'] === 1;
+                    }
+                });
+                return updatedReport;
+            });
+
+            return;
+        }
+
         switch (report.ID) {
             case 7:
             case 8:
@@ -161,7 +175,10 @@ export class UniReports implements OnInit {
             });
     }
 
-    private openReportModal(type: Type<IUniModal>, report: ReportDefinition) {
+    private openReportModal(
+        type: Type<IUniModal>,
+        report: ReportDefinition,
+        handleReport?: (updatedReport: ReportDefinition) => ReportDefinition) {
         this.uniModalService
         .open(type,
         {
@@ -171,8 +188,11 @@ export class UniReports implements OnInit {
         })
         .onClose
         .filter(modalResult => modalResult === ConfirmActions.ACCEPT)
-        .subscribe(() => this.uniModalService.open(UniPreviewModal, {
-            data: report
+        .pipe(
+            map(() => handleReport ? handleReport(report) : report)
+        )
+        .subscribe((rep) => this.uniModalService.open(UniPreviewModal, {
+            data: rep
         }));
     }
 

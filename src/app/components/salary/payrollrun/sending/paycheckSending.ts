@@ -3,6 +3,7 @@ import {Employee} from '@uni-entities';
 import {PayrollrunService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -18,11 +19,16 @@ export class PaycheckSending implements OnInit {
 
     @Input() runID: number;
     @Output() selectedEmps: EventEmitter<Employee[]> = new EventEmitter();
+    @Output() busy: EventEmitter<boolean> = new EventEmitter();
 
     emailCount: number = 0;
     printCount: number = 0;
     employees: Employee[];
     tableConfig: UniTableConfig;
+    allEmployees: Employee[];
+    empsWithoutEmail: Employee[];
+    empsWithEmail: Employee[];
+    tabs: IUniTab[];
 
     constructor(private payrollrunService: PayrollrunService) {}
 
@@ -48,7 +54,20 @@ export class PaycheckSending implements OnInit {
         });
     }
 
+    allEmps() {
+        this.employees = this.allEmployees;
+    }
+
+    filterEmpsWithEmail() {
+        this.employees = this.empsWithEmail;
+    }
+
+    filterEmpsWithoutEmail() {
+        this.employees = this.empsWithoutEmail;
+    }
+
     private loadEmployeesInPayrollrun() {
+        this.busy.next(true);
         this.payrollrunService.getEmployeesOnPayroll(
             this.runID, ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail']
         ).subscribe((employees: Employee[]) => {
@@ -64,7 +83,17 @@ export class PaycheckSending implements OnInit {
                 }
             });
 
+            this.empsWithEmail = employees.filter(x => x['_paycheckFormat'] === PaycheckFormat.E_MAIL);
+            this.empsWithoutEmail = employees.filter(x => x['_paycheckFormat'] === PaycheckFormat.PRINT);
             this.employees = employees;
+            this.allEmployees = employees;
+
+            this.tabs = [
+                { name: 'Alle ansatte', onClick: () => this.allEmps(), count: this.allEmployees.length },
+                { name: 'Med e-post', onClick: () => this.filterEmpsWithEmail(), count: this.empsWithEmail.length },
+                { name: 'Uten e-post', onClick: () => this.filterEmpsWithoutEmail(), count: this.empsWithoutEmail.length }
+            ];
+            this.busy.next(false);
         });
     }
 
@@ -75,7 +104,7 @@ export class PaycheckSending implements OnInit {
         const typeCol = new UniTableColumn('_paycheckFormat', 'Type');
 
         this.tableConfig = new UniTableConfig('salary.payrollrun.sending.paychecks', false, true, 25)
-            .setSearchable(false)
+            .setSearchable(true)
             .setColumnMenuVisible(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)

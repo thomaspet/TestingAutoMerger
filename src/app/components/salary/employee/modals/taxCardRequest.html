@@ -3,16 +3,27 @@
 
     <p *ngIf="!error"> Her kan du sende forespørsel om skattekort til altinn. Du velger ut hvilke ansatte du ønsker å få tilbake skattekort for. Din forespørsel vil bli behandlet i altinn, dette kan ta inntil ett døgn </p>
 
+    <h3>Utvalg skattekortforespørsel:</h3>
+
+    <mat-radio-group (change)="multipleChoiceChange($event)">
+        <mat-radio-button value="1" checked>Gjeldende ansatt ({{employee.EmployeeNumber}} - {{employee.BusinessRelationInfo.Name}})</mat-radio-button>
+        <mat-radio-button value="2">For flere ansatte</mat-radio-button>
+    </mat-radio-group>
+
     <uni-form [config]="formConfig$"
               [fields]="fields$"
               [model]="model$"
-              (changeEvent)="change($event)"></uni-form>
+              (changeEvent)="change($event)">
+    </uni-form>
+
+    <mat-checkbox [checked]="model$.value.empsAndChanged" (change)="checkboxChange($event)">Ta med endrede skattekort</mat-checkbox>
 
     <p *ngIf="error"
         role="alert"
         class="error">{{error}}</p>
 
     <footer>
+        <span *ngIf="empCount" style="float: left; margin-top: 1.5rem;">{{empCount}} ansatte i utvalget</span>
         <button class="c2a" *ngIf="sendAltinnVisible" (click)="submit()">Send forespørsel til Altinn</button>
     </footer>
 </section>

@@ -5,7 +5,7 @@ import { JobService, ErrorService, ImportCentralService, UserService } from '@ap
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { ImportDetailsModal } from '../modals/import-details/import-details-modal';
-import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
+import { ImportUIPermission, ImportSaftUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
 
 @Component({
@@ -27,7 +27,8 @@ export class ImportCentralLog implements OnInit {
         product: new ImportUIPermission(),
         supplier: new ImportUIPermission(),
         ledger: new ImportUIPermission(),
-        payroll: new ImportUIPermission()
+        payroll: new ImportUIPermission(),
+        saft: new ImportSaftUIPermission()
     }
 
     constructor(
@@ -84,6 +85,9 @@ export class ImportCentralLog implements OnInit {
         if (this.uiPermission.payroll.hasComponentAccess) {
             templateType.push({ id: TemplateType.Payroll, name: 'Lønnsposter' });
         }
+        if (this.uiPermission.saft.hasComponentAccess) {
+            templateType.push({ id: TemplateType.Saft, name: 'Saft' });
+        }
         this.operators = [...templateType];
     }
 
@@ -106,6 +110,9 @@ export class ImportCentralLog implements OnInit {
             case TemplateType.Payroll:
                 this.selectedType = { id: TemplateType.Payroll, name: 'Lønnsposter' }
                 break;
+            case TemplateType.Saft:
+                this.selectedType = { id: TemplateType.Saft, name: 'Saft' }
+                break;
             default:
                 this.selectedType = { id: TemplateType.All, name: 'All' }
                 break;
@@ -120,9 +127,9 @@ export class ImportCentralLog implements OnInit {
                 data: {
                     jobName: job.JobName,
                     hangfireJobId: job.HangfireJobId,
-                    entityName: this.getDataToImport(job.JobName,'entityName'),
-                    listName: this.getDataToImport(job.JobName,'listName'),
-                    url: this.getDataToImport(job.JobName,'url'),
+                    entityName: this.getDataToImport(job.JobName, 'entityName'),
+                    listName: this.getDataToImport(job.JobName, 'listName'),
+                    url: this.getDataToImport(job.JobName, 'url'),
                 }
             });
     }
@@ -205,6 +212,21 @@ export class ImportCentralLog implements OnInit {
                         break;
                 }
                 break;
+            case ImportJobName.Saft:
+                switch (type) {
+                    case 'entityName':
+                        str = 'Saft';
+                        break;
+                    case 'listName':
+                        str = 'Saft-listen';
+                        break;
+                    case 'url':
+                        str = '';
+                        break;
+                    default:
+                        break;
+                }
+                break;
             default:
                 break;
         }
@@ -238,6 +260,9 @@ export class ImportCentralLog implements OnInit {
                     case TemplateType.Payroll:
                         this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Payroll));
                         break;
+                    case TemplateType.Saft:
+                        this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Saft));
+                        break;
                     case TemplateType.All:
                         this.jobLogs.push(
                             ...results.filter(
@@ -245,7 +270,8 @@ export class ImportCentralLog implements OnInit {
                                     r.JobName === ImportJobName.Customer ||
                                     r.JobName === ImportJobName.Supplier ||
                                     r.JobName === ImportJobName.MainLedger ||
-                                    r.JobName === ImportJobName.Payroll
+                                    r.JobName === ImportJobName.Payroll || 
+                                    r.JobName === ImportJobName.Saft
                             ));
                         break;
                     default:
@@ -263,7 +289,7 @@ export class ImportCentralLog implements OnInit {
         //** to get the all jobs with job progress */
         // this.jobService.getJobRuns('').subscribe(
         //     results => {
-                
+
         //     },
         //     err => this.errorService.handle('En feil oppstod, vennligst prøv igjen senere')
         // );

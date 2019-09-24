@@ -1,7 +1,7 @@
 <section role="dialog" class="paycheckSenderModal uni-modal medium">
     <header>Send/Skriv ut lønnslipp</header>
 
-    <article class="scrollable">
+    <article class="scrollable" [attr.aria-busy]="busy">
         <uni-paycheck-mail-options
             (mailOptions)="onEmailOptions($event)">
         </uni-paycheck-mail-options>

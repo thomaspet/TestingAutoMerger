@@ -1,0 +1,67 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+.select-distribution-plan
+    width: 25vw
+    min-width: 450px
+
+    .msg
+        font-size: 12px
+
+    .distribution-dropdown
+        position: relative
+
+        div
+            height: 40px
+            display: flex
+            border: 1px solid $uni-color-scale8
+            color: $uni-color-scale5
+            align-items: center
+            padding: 0 1rem
+
+            span
+                flex: 1
+                font-size: 13px
+            i
+                cursor: pointer
+
+        ul
+            list-style: none
+            margin: 0
+            padding: 0
+            position: absolute
+            width: 100%
+            background-color: white
+            box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1)
+            margin-top: .1rem
+            border: 1px solid #C3CAD9
+            z-index: 999
+            height: 350px
+            overflow: auto
+
+            li
+                display: flex
+                align-items: center
+                height: 45px
+                font-size: 13px
+                padding: 0 1rem
+                color: 1px solid $uni-color-scale7
+
+                &:hover
+                    background-color: #daeefe
+                    cursor: pointer
+
+                span
+                    width: 120px
+                    overflow: hidden
+                    text-overflow: ellipsis
+                    white-space: nowrap
+                    font-weight: 300
+
+                    &:first-of-type
+                        font-weight: 500
+
+                    &:last-of-type
+                        flex: 1
+                        padding-left: .5rem
+                        font-size: 12px
+

@@ -34,8 +34,7 @@
             {
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
-                "FilterOperator": "contains",
-                "IsBankRuleField": true
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Konto til",
@@ -54,6 +53,13 @@
                 "Field": "PaymentID",
                 "FilterOperator": "contains",
                 "IsBankRuleField": true
+            },
+            {
+                "Header": "InnbetalingsID",
+                "Field": "InPaymentID",
+                "FilterOperator": "contains",
+                "IsBankRuleField": true,
+                "DefaultHidden": true
             },
             {
                 "Header": "Innbetaling",
@@ -147,6 +153,11 @@
                             "Field": "IsCustomerPayment",
                             "Operator": "eq",
                             "Value": "true"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         }
                     ]
                 }]

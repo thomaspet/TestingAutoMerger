@@ -34,6 +34,7 @@ const PUBLIC_ROOT_ROUTES = [
     'gdpr',
     'contract-activation',
     'license-info',
+    'bank-reconciliation' // TODO: ADD PERMISSION AND REMOVE
 ];
 
 const PUBLIC_ROUTES = [];
@@ -270,10 +271,10 @@ export class AuthService {
     }
 
     loadCurrentSession(): Observable<IAuthDetails> {
-        const url = environment.BASE_URL
+        const url = (environment.BASE_URL
             + environment.API_DOMAINS.BUSINESS
-            + 'users?action=current-session';
-
+            + 'users?action=current-session')
+            .replace(/([^:]\/)\/+/g, '$1');
         return this.http.get<any>(url, {
             headers: {
                 'Content-Type': 'application/json',

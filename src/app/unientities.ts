@@ -890,10 +890,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -3895,23 +3895,23 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultEmail: Email;
-    public DefaultPhone: Phone;
     public DefaultAddress: Address;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -7353,9 +7353,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7458,6 +7458,34 @@ export class InvoiceSummary extends UniEntity {
     public SumCreditedAmount: number;
     public SumRestAmount: number;
     public SumTotalAmount: number;
+}
+
+
+export class OrderOffer extends UniEntity {
+    public CostPercentage: number;
+    public Message: string;
+    public OrderId: string;
+    public Status: string;
+    public Reasons: Array<Reason>;
+    public PurchaseAmount: AmountDetail;
+    public InvoiceAmount: AmountDetail;
+    public FinancialCost: AmountDetail;
+    public Fee: AmountDetail;
+    public TotalCost: AmountDetail;
+    public DisbursementAmount: AmountDetail;
+}
+
+
+export class Reason extends UniEntity {
+    public ReasonCode: string;
+    public ReasonDescription: string;
+    public ReasonHelpLink: string;
+}
+
+
+export class AmountDetail extends UniEntity {
+    public Amount: number;
+    public Currency: string;
 }
 
 
@@ -9357,6 +9385,7 @@ export enum StatusCodeCustomerInvoice{
     Invoiced = 42002,
     PartlyPaid = 42003,
     Paid = 42004,
+    Sold = 42005,
 }
 
 

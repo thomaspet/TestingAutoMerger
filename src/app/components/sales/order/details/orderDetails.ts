@@ -634,18 +634,18 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 order.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
                 this.modalService.open(UniConfirmModalV2,
                     {
-                        header: 'Oppdatere distribusjonsplan?',
+                        header: 'Oppdatere utsendelsesplan?',
                         buttonLabels: {
                             accept: 'Oppdater',
                             reject: 'Ikke oppdater'
                         },
-                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                        'denne ordren. Ønsker du å oppdatere distribusjonsplanen for denne ordren til å matche kundens?'
+                        message: 'Kunden du har valgt har en annen utsendelsesplan enn den som allerede er valgt for ' +
+                        'denne ordren. Ønsker du å oppdatere utsendelsesplanen for denne ordren til å matche kundens?'
                     }
                 ).onClose.subscribe((res) => {
                     if (res === ConfirmActions.ACCEPT) {
                         order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
-                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Utsendelsesplan oppdatert');
                         this.order = order;
                     }
                 });
@@ -1138,7 +1138,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         return Observable.create((obs) => {
             this.reportService.distribute(this.order.ID, this.distributeEntityType).subscribe(() => {
                 this.toastService.addToast(
-                    'Ordre er lagt i kø for distribusjon',
+                    'Ordre er lagt i kø for utsendelse',
                     ToastType.good,
                     ToastTime.short);
                 obs.complete();
@@ -1152,13 +1152,13 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private updateShareActions() {
         this.shareActions = [
             {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
+                label: 'Send via utsendelsesplan',
+                action: () => this.distribute(),
                 disabled: () => !this.order.ID
             },
             {
-                label: 'Distribuer',
-                action: () => this.distribute(),
+                label: 'Skriv ut / send e-post',
+                action: () => this.chooseForm(),
                 disabled: () => !this.order.ID
             }
         ];

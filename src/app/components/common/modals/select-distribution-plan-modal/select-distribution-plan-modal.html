@@ -1,0 +1,35 @@
+<section role="dialog" class="uni-modal uni-redesign select-distribution-plan">
+        <header>
+            <h1> Endre utsendelsesplan </h1>
+        </header>
+        <article style="overflow: visible; padding-bottom: 0;">
+            <span class="msg"> Utsendelsesplan for <strong> {{ type?.label.toLowerCase() }}  </strong> </span>
+
+            <section class="distribution-dropdown">
+                <div>
+                    <span> {{ type && type.defaultPlan ? type.defaultPlan.Name : 'Ingen plan valgt' }} </span>
+                    <i class="material-icons" (click)="showDropdown = !showDropdown"> {{ showDropdown ? 'keyboard_arrow_left' : 'keyboard_arrow_down' }} </i>
+                </div>
+                <ul *ngIf="showDropdown">
+                    <li *ngFor="let plan of type.plans" (click)="planSelect(plan)">
+                        <span title="{{ plan.Name }}"> {{ plan.Name }}  </span>
+                        <span title="Sending prioriteres i følgende rekkefølge: {{ plan.text }}"> ( {{ plan.text }} ) </span>
+                    </li>
+                </ul>
+            </section>
+            <div style="overflow: auto">
+                <ul class="distribution-elements-stepper" *ngIf="type.defaultPlan">
+                    <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
+                        <li class="list-item customer-view"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                        <li class="divider customer-view" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
+                    </ng-container>
+                    <li class="list-item customer-view" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
+                </ul>
+            </div>
+        </article>
+
+        <footer class="center">
+            <button (click)="close()">Lukk</button>
+            <button class="c2a" (click)="save()">Velg</button>
+        </footer>
+    </section>

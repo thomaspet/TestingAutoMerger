@@ -1,0 +1,39 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Bokføre bankdata <small style="margin-left: 3em">(fyll inn motkonto for bankpostene)</small></header>
+
+    <article class="scrollable">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <ag-grid-wrapper class="compactcells"
+            [resource]="session?.items"
+            [config]="tableConfig"
+            (rowSelect)="onRowSelected($event)"
+            (rowDelete)="onRowDeleted($event)">
+        </ag-grid-wrapper>
+
+    </article>
+
+    <footer>
+
+        <span class="leftspan" *ngIf="session?.balance" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
+            <i class="material-icons vert-bottom">error</i>
+            Differanse:  {{ session?.balance | uninumberformat: 'money'}}
+        </span>
+
+        <span class="checkbox">
+            <input [(ngModel)]="settings.journalAsDraft" type="checkbox"/>Lagre som kladd
+        </span>
+
+        <button [disabled]="session?.balance && (!settings.journalAsDraft)" class="good"
+            (click)="import()">
+            {{(settings.journalAsDraft ? 'Opprett kladd' : 'Bokfør')}}
+        </button>
+
+        <button class="outline" (click)="onClose.emit()">
+            Avbryt
+        </button>
+        
+    </footer>
+</section>

@@ -4,12 +4,35 @@ import {Notification} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
 import * as moment from 'moment';
+import { BehaviorSubject } from 'rxjs';
+import {
+    accountingRouteMap,
+    salaryRouteMap,
+    salesRouteMap,
+    timetrackingRouteMap,
+    commonRouteMap
+} from './entity-route-map';
+import { ChatBoxService } from '../chat-box/chat-box.service';
+import { AuthService } from '@app/authService';
+import { Router } from '@angular/router';
+import { CompanyService } from '@app/services/services';
+import { BusinessObject } from '@app/models';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class NotificationService extends BizHttp<Notification> {
     readTimestamp: Date;
 
-    constructor(uniHttp: UniHttp) {
+    unreadCount$: BehaviorSubject<number> = new BehaviorSubject(null);
+
+    constructor(
+        uniHttp: UniHttp,
+        private chatBoxService: ChatBoxService,
+        private authService: AuthService,
+        private router: Router,
+        private companyService: CompanyService,
+        private toastService: ToastService,
+    ) {
         super(uniHttp);
         this.relativeURL = 'notifications';
         this.DefaultOrderBy = 'CreatedAt desc';
@@ -32,8 +55,8 @@ export class NotificationService extends BizHttp<Notification> {
         );
     }
 
-    getNotifications(filter?: string) {
-        let query = 'top=99';
+    getNotifications(filter?: string, reducePayload = false) {
+        let query = reducePayload ? 'top=1' : 'top=99';
         if (filter) {
             query += '&filter=' + filter;
         }
@@ -44,6 +67,79 @@ export class NotificationService extends BizHttp<Notification> {
                 return this.groupInboxNotifications(notifications);
             })
         );
+    }
+
+    onNotificationClick(notification: Notification): void {
+        const notificationRoute = this.getNotificationRoute(notification);
+
+        const businessObject: BusinessObject = { EntityID: notification.EntityID, EntityType: notification.EntityType };
+        const businessObjectExists = this.chatBoxService.businessObjects
+            .getValue()
+            .find(bo => bo.EntityID === businessObject.EntityID && bo.EntityType.toLowerCase() === businessObject.EntityType.toLowerCase());
+
+        if (notification.CompanyKey === this.authService.getCompanyKey()) {
+            if (notification.SourceEntityType === 'Comment') {
+                if (!businessObjectExists) {
+                    this.chatBoxService.businessObjects
+                    .next([businessObject]
+                        .concat(this.chatBoxService.businessObjects.getValue())
+                    );
+                }
+                return;
+            }
+            this.router.navigateByUrl(notificationRoute);
+            return;
+        }
+
+        this.companyService.GetAll().subscribe(
+            companies => {
+                const company = companies.find(c => c.Key === notification.CompanyKey);
+                if (company) {
+                    this.authService.setActiveCompany(company, notificationRoute);
+                    if (notification.SourceEntityType === 'Comment' && !businessObjectExists) {
+                        this.chatBoxService.businessObjects
+                            .next([{ EntityType: notification.EntityType, EntityID: notification.EntityID }]
+                                .concat(this.chatBoxService.businessObjects.getValue())
+                            );
+                    }
+                } else {
+                    this.toastService.addToast(
+                        'Mistet tilgang',
+                        ToastType.warn, 10,
+                        `Det ser ut som du nå mangler tilgang til ${notification.CompanyName},
+                        vennligst kontakt selskapets administrator.`,
+                    );
+                }
+            },
+            err => console.error(err)
+        );
+    }
+
+    private getNotificationRoute(notification: Notification) {
+        const entityType = notification.EntityType.toLowerCase();
+        let route = '';
+
+        if (accountingRouteMap[entityType]) {
+            route = '/accounting/' + accountingRouteMap[entityType];
+        } else if (salesRouteMap[entityType]) {
+            route = '/sales/' + salesRouteMap[entityType];
+        } else if (salaryRouteMap[entityType]) {
+            route = '/salary/' + salaryRouteMap[entityType];
+        } else if (timetrackingRouteMap[entityType]) {
+            route = '/timetracking/' + timetrackingRouteMap[entityType];
+        } else if (commonRouteMap[entityType]) {
+            route = commonRouteMap[entityType];
+        } else if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
+            route = notification['_count'] === 1
+                ? '/accounting/bills/0?fileid=:id'
+                : '/accounting/bills?filter=Inbox';
+        }
+
+        if (!route) {
+            route = '';
+        }
+
+        return route.replace(/:id/i, notification.EntityID.toString());
     }
 
     private setNotificationMetadata(notification: Notification): Notification {

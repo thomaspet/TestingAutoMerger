@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { UniHttp } from "@uni-framework/core/http/http";
-import { ImportUIPermission } from "@app/models/import-central/ImportUIPermissionModel";
+import { ImportUIPermission, ImportSaftUIPermission, SaftPermissions } from "@app/models/import-central/ImportUIPermissionModel";
 
 @Injectable()
 export class ImportCentralService {
@@ -11,7 +11,8 @@ export class ImportCentralService {
         product: new ImportUIPermission(),
         supplier: new ImportUIPermission(),
         ledger: new ImportUIPermission(),
-        payroll: new ImportUIPermission()
+        payroll: new ImportUIPermission(),
+        saft: new ImportSaftUIPermission()
     }
 
     public getTemplateWithData(entityType) {
@@ -20,7 +21,7 @@ export class ImportCentralService {
             .withDefaultHeaders()
             .asGET()
             .withEndPoint(`import-central/download-with-data?entity=${entityType}`)
-            .send({responseType: 'blob'})
+            .send({ responseType: 'blob' })
             .map(res => new Blob([res.body], { type: 'text/csv' }));
     }
 
@@ -31,10 +32,11 @@ export class ImportCentralService {
             .asGET()
             .withEndPoint(`auditlogs?filter=EntityType eq 'User' and EntityID eq ${userid} and Field eq 'HasAgreedToImportDisclaimer'`)
             .send()
-            .map(res =>  res.body);
+            .map(res => res.body);
     }
 
     public getAccessibleComponents(permissions) {
+        this.resetSaftUIPermissions();
         ['customer', 'product', 'supplier', 'ledger', 'payroll'].forEach(ent => this.resetUIPermissions(ent));
         if (permissions.length) {
             permissions.map(per => {
@@ -45,6 +47,11 @@ export class ImportCentralService {
                     this.setPermissions(uiKeys, 'supplier');
                     this.setPermissions(uiKeys, 'ledger');
                     this.setPermissions(uiKeys, 'payroll');
+                    if (uiKeys.includes('saf-t-import')) {
+                        this.setPermissionSaft(uiKeys, SaftPermissions.import);
+                    } else if (uiKeys.includes('saf-t-export')) {
+                        this.setPermissionSaft(uiKeys, SaftPermissions.export);
+                    }
                 }
             });
         } else {
@@ -53,6 +60,7 @@ export class ImportCentralService {
             this.setPermissions(permissions, 'supplier');
             this.setPermissions(permissions, 'ledger');
             this.setPermissions(permissions, 'payroll');
+            this.setPermissionSaft(permissions, 'saft');
         }
         return this.uiPermission;
     }
@@ -75,10 +83,32 @@ export class ImportCentralService {
         }
     }
 
+    private setPermissionSaft(uiKeys, type) {
+        if (uiKeys.length) {
+            if (type === SaftPermissions.import) {
+                this.uiPermission.saft.hasComponentAccess = true;
+                this.uiPermission.saft.hasImportAccess = true;
+            }
+            if (type === SaftPermissions.export) {
+                this.uiPermission.saft.hasComponentAccess = true;
+                this.uiPermission.saft.hasExportAccess = true;
+            }
+        } else {
+            this.uiPermission.saft.hasComponentAccess = true;
+            this.uiPermission.saft.hasImportAccess = true;
+            this.uiPermission.saft.hasExportAccess = true;
+        }
+    }
+
     private resetUIPermissions(entity) {
         this.uiPermission[entity].hasComponentAccess = false;
         this.uiPermission[entity].hasTemplateAccess = false;
         this.uiPermission[entity].hasTemplateDataAccess = false;
+    }
+    private resetSaftUIPermissions() {
+        this.uiPermission.saft.hasComponentAccess = false;
+        this.uiPermission.saft.hasImportAccess = false;
+        this.uiPermission.saft.hasExportAccess = false;
     }
 
 }

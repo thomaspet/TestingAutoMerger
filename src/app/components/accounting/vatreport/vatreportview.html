@@ -124,7 +124,7 @@
     </ng-template>
 
     <vatreport-receipt-view
-        *ngIf="activeTabIndex === 2"
+        *ngIf="activeTabIndex === 2 && this.currentVatReport.ExternalRefNo"
         [vatReport]="currentVatReport"
         [reportSummaryPerPost]="reportSummaryPerPost"
         (vatReportDidChange)="vatReportDidChange($event)">

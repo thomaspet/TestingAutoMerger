@@ -4,14 +4,8 @@ import {NotificationService} from '../notification-service';
 import {Notification} from '@uni-entities';
 import {AuthService} from '@app/authService';
 import {CompanyService} from '@app/services/services';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {
-    accountingRouteMap,
-    salaryRouteMap,
-    salesRouteMap,
-    timetrackingRouteMap,
-    commonRouteMap
-} from '../entity-route-map';
+import {ToastService} from '@uni-framework/uniToast/toastService';
+import { ChatBoxService } from '../../chat-box/chat-box.service';
 
 interface NotificationTypeFilter {
     label: string;
@@ -60,11 +54,8 @@ export class NotificationsDropdown {
     items: any[];
 
     constructor(
-        private router: Router,
-        private toastService: ToastService,
-        private companyService: CompanyService,
         public authService: AuthService,
-        public notificationService: NotificationService
+        public notificationService: NotificationService,
     ) {
         try {
             this.currentCompanyOnly = JSON.parse(sessionStorage.getItem('notifications_current_company_only'));
@@ -76,10 +67,13 @@ export class NotificationsDropdown {
             this.selectedFilter = this.typeFilters[0];
         }
 
+        this.notificationService.unreadCount$.next(0);
+
         this.getNotifications();
     }
 
     getNotifications() {
+
         const filters = [];
 
         if (this.currentCompanyOnly) {
@@ -139,57 +133,9 @@ export class NotificationsDropdown {
         }
     }
 
-    public onNotificationClick(notification: Notification): void {
-        const notificationRoute = this.getNotificationRoute(notification);
+    onNotificationClick(notification: Notification) {
         this.close.emit();
-
-        if (notification.CompanyKey === this.authService.getCompanyKey()) {
-            this.router.navigateByUrl(notificationRoute);
-            return;
-        }
-
-        this.companyService.GetAll().subscribe(
-            companies => {
-                const company = companies.find(c => c.Key === notification.CompanyKey);
-                if (company) {
-                    this.authService.setActiveCompany(company, notificationRoute);
-                } else {
-                    this.toastService.addToast(
-                        'Mistet tilgang',
-                        ToastType.warn, 10,
-                        `Det ser ut som du nå mangler tilgang til ${notification.CompanyName},
-                        vennligst kontakt selskapets administrator.`,
-                    );
-                }
-            },
-            err => console.error(err)
-        );
+        this.notificationService.onNotificationClick(notification);
     }
 
-    private getNotificationRoute(notification: Notification) {
-        const entityType = notification.EntityType.toLowerCase();
-        let route = '';
-
-        if (accountingRouteMap[entityType]) {
-            route = '/accounting/' + accountingRouteMap[entityType];
-        } else if (salesRouteMap[entityType]) {
-            route = '/sales/' + salesRouteMap[entityType];
-        } else if (salaryRouteMap[entityType]) {
-            route = '/salary/' + salaryRouteMap[entityType];
-        } else if (timetrackingRouteMap[entityType]) {
-            route = '/timetracking/' + timetrackingRouteMap[entityType];
-        } else if (commonRouteMap[entityType]) {
-            route = commonRouteMap[entityType];
-        } else if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
-            route = notification['_count'] == 1
-                ? '/accounting/bills/0?fileid=:id'
-                : '/accounting/bills?filter=Inbox';
-        }
-
-        if (!route) {
-            route = '';
-        }
-
-        return route.replace(/:id/i, notification.EntityID.toString());
-    }
 }

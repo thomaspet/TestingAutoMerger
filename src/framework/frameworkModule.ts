@@ -16,8 +16,6 @@ import {AppPipesModule} from '../app/pipes/appPipesModule';
 import {UniMultiLevelSelect} from './controls/multiLevelSelect';
 
 import {UniAvatar} from './avatar/uniAvatar';
-import {UniCommentInput} from './comments/commentInput';
-import {UniCommentList} from './comments/commentList';
 import {UniInfo} from './uniInfo/uniInfo';
 
 import {ClickOutsideModule} from './click-outside/click-outside.module';
@@ -48,7 +46,8 @@ import {
     MatProgressBarModule,
     MatStepperModule,
     MatListModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    MatSlideToggleModule
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -70,6 +69,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
         MatListModule,
         ScrollingModule,
         MatDatepickerModule,
+        MatSlideToggleModule,
 
         ClickOutsideModule,
         AppPipesModule,
@@ -95,8 +95,6 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniToastList,
         UniComments,
         UniMultiLevelSelect,
-        UniCommentInput,
-        UniCommentList,
         UniAvatar,
         UniInfo,
         UniShowReinvoiceStatus,
@@ -140,8 +138,6 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniToastList,
         UniComments,
         UniMultiLevelSelect,
-        UniCommentInput,
-        UniCommentList,
         UniAvatar,
         UniInfo,
         UniShowReinvoiceStatus,
@@ -157,7 +153,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
         MatStepperModule,
         MatListModule,
         ScrollingModule,
-        MatDatepickerModule
+        MatDatepickerModule,
+        MatSlideToggleModule
     ]
 })
 export class UniFrameworkModule {}

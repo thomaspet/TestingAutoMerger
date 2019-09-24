@@ -650,6 +650,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private cleanAndGetTranses() {
+        this._salaryTransactionService.invalidateCache();
         super.updateState(SALARY_TRANS_KEY, [], false);
         return super.getStateSubject(SELECTED_EMP_KEY)
         .pipe(
@@ -790,6 +791,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private getProjectsObservable() {
         return this.projects
             ? Observable.of(this.projects)
+                .do(x => super.updateState('projects', x, false))
             : this._projectService
                 .GetAll('')
                 .do(x => super.updateState('projects', x, false));
@@ -798,6 +800,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private getDepartmentsObservable() {
         return this.departments
             ? Observable.of(this.departments)
+                .do(x => super.updateState('departments', x, false))
             : this._departmentService
                 .GetAll('')
                 .do(x => super.updateState('departments', x, false));
@@ -1086,7 +1089,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public sendPaymentList(done) {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
             .subscribe((response: boolean) => {
-                this.router.navigateByUrl('/bank');
+                this.router.navigateByUrl('/bank/ticker');
             },
             (err) => {
                 done('');

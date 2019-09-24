@@ -29,6 +29,7 @@ import {
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
 import {IUniTab} from '@app/components/layout/uni-tabs';
+import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -56,7 +57,8 @@ export class MarketplaceModules implements AfterViewInit {
         private route: ActivatedRoute,
         private modalService: UniModalService,
         private ehfService: EHFService,
-        private paymentBatchService: PaymentBatchService
+        private paymentBatchService: PaymentBatchService,
+        private toastService: ToastService
     ) {
         tabService.addTab({
             name: 'Markedsplass', url: '/marketplace/modules', moduleID: UniModules.Marketplace, active: true

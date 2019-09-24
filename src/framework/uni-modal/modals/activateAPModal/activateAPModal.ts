@@ -1,53 +1,28 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {ToastService, ToastType} from '../../uniToast/toastService';
-import {CompanySettings, User, BankAccount} from '../../../../src/app/unientities';
-import {ActivateAP} from '../../../../src/app/models/activateAP';
-import {ActivationEnum} from '../../../../src/app/models/activationEnum';
-import {UniModalService} from '../modalService';
+import {UniFieldLayout, FieldType} from '../../../ui/uniform/index';
+import {ToastService, ToastType, ToastTime} from '../../../uniToast/toastService';
+import {CompanySettings, User, BankAccount} from '../../../../app/unientities';
+import {ActivateAP} from '../../../../app/models/activateAP';
+import {ActivationEnum} from '../../../../app/models/activationEnum';
 import {
     EHFService,
     UserService,
     CompanySettingsService,
     AgreementService,
     ErrorService,
-    BankAccountService
-} from '../../../../src/app/services/services';
+    BankAccountService,
+    ElsaPurchaseService
+} from '../../../../app/services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountModal';
+import {ConfirmActions, IModalOptions, IUniModal} from '../../interfaces';
+import {UniModalService} from '../../modalService';
+import {UniBankAccountModal} from '../bankAccountModal';
 
 @Component({
     selector: 'uni-activate-ap-modal',
-    template: `
-        <section role="dialog" class="uni-modal uni-redesign">
-            <header>{{options.header || 'Aktiver EHF'}}</header>
-            <article>
-                <uni-form
-                    [config]="formConfig$"
-                    [fields]="formFields$"
-                    [model]="formModel$">
-                </uni-form>
-                <span>Aktivering av inngående eller utgående faktura for Uni Economy vil erstatte samme funksjon i
-                    V3/Uni24 om du har aktivert fra V3/Uni24 tidligere.</span>
-            </article>
-
-            <footer>
-                <button class="warning" (click)="confirmTerms()">
-                    Betingelser
-                </button>
-
-                <button class="good" (click)="activate()" [disabled]="!termsAgreed">
-                    Aktiver
-                </button>
-
-                <button class="bad" (click)="close()">
-                    Avbryt
-                </button>
-            </footer>
-        </section>
-    `
+    templateUrl: './activateAPModal.html',
+    styleUrls: ['./activateAPModal.sass']
 })
 export class UniActivateAPModal implements IUniModal {
     @Input()
@@ -72,7 +47,8 @@ export class UniActivateAPModal implements IUniModal {
         private userService: UserService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private bankaccountService: BankAccountService
+        private bankaccountService: BankAccountService,
+        private elsaPurchaseService: ElsaPurchaseService
     ) {}
 
     public ngOnInit() {
@@ -179,6 +155,30 @@ export class UniActivateAPModal implements IUniModal {
             );
         },
         err => this.errorService.handle(err));
+    }
+
+    public cancelPurchase() {
+        this.modalService.confirm({
+            header: 'Bekreft avbestilling',
+            message: 'Er du sikker på at du vil oppheve kjøpet av EHF?'
+        }).onClose.subscribe(modalResponse => {
+            if (modalResponse === ConfirmActions.ACCEPT) {
+                this.elsaPurchaseService.getPurchaseByProductName('EHF').subscribe(purchase => {
+                    if (purchase) {
+                        this.elsaPurchaseService.cancelPurchase(purchase.ProductID).subscribe(ok => {
+                            if (ok) {
+                                this.toastService.addToast('Kjøp opphevet', ToastType.good, ToastTime.medium);
+                                this.close();
+                            } else {
+                                this.toastService.addToast('Oppheving av kjøp feilet', ToastType.bad, ToastTime.medium);
+                            }
+                        }, err => this.errorService.handle(err));
+                    } else {
+                        this.toastService.addToast('Ingen eksisterende kjøp å finne for EHF', ToastType.warn, ToastTime.medium);
+                    }
+                });
+            }
+        });
     }
 
     public close(activationCode = ActivationEnum.NOT_ACTIVATED) {

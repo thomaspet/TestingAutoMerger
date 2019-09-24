@@ -1,6 +1,6 @@
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
 import {NgModule, ErrorHandler} from '@angular/core';
-import {HashLocationStrategy, LocationStrategy} from '@angular/common';
+import {HashLocationStrategy, LocationStrategy, registerLocaleData} from '@angular/common';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -45,18 +45,22 @@ import {TimeTrackingServicesModule} from './services/timetrackingServicesModule'
 import {SalesServicesModule} from './services/salesServicesModule';
 import {AdminServicesModule} from './services/adminServicesModule';
 import {AssignmentServicesModule} from './services/assignmentServicesModule';
+import {ElsaServicesModule} from '@app/services/elsaServicesModule';
+import {BankServicesModule} from '@app/services/bankServicesModule';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {AboutModule} from './components/about/aboutModule';
 import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 import {SharingsModule} from './components/sharings/sharingsModule';
-import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 
 import {ReloadHelper} from './reload';
 import { ImportCentralServicesModule } from './services/importCentralServiceModule';
 import {DateAdapter} from '@angular/material';
 import {UniDateAdapter} from './date-adapter';
+
+import localeNb from '@angular/common/locales/nb';
+registerLocaleData(localeNb);
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -83,9 +87,9 @@ moment.locale('nb');
         AssignmentServicesModule.forRoot(),
         ElsaServicesModule.forRoot(),
         ImportCentralServicesModule.forRoot(),
+        BankServicesModule.forRoot(),
 
         APP_ROUTES,
-
 
         // COMMON MODULES
         LayoutModule.forRoot(),

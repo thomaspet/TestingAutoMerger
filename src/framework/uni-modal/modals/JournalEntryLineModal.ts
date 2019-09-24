@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {JournalEntryLine, Project, Department} from '../../../app/unientities';
+import {JournalEntryLine, Dimensions, Project, Department, JournalEntryType} from '../../../app/unientities';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
@@ -13,8 +13,9 @@ import {
     DimensionSettingsService,
     CustomDimensionService,
     DepartmentService,
-    ProjectService} from '@app/services/services';
-
+    ProjectService
+} from '@app/services/services';
+​
 @Component({
     selector: 'journalentry-line-modal',
     template: `
@@ -35,7 +36,7 @@ import {
                     [entityType]="entityType"
                     [isModal]="true">
                 </uni-dimension-view>
-
+​
             </article>
             <footer>
                 <button class="good" (click)="close(true)">Lagre</button>
@@ -47,10 +48,10 @@ import {
 export class UniJournalEntryLineModal implements IUniModal {
     @Input()
     public options: IModalOptions = {};
-
+​
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter<string>();
-
+​
     @Input()
     public modalService: UniModalService;
     public dimensionTypes: any[];
@@ -61,7 +62,10 @@ export class UniJournalEntryLineModal implements IUniModal {
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public journalEntryLine: JournalEntryLine;
     public entityType: string = 'JournalEntryLine';
-
+    private customDimensions: any;
+​
+    private jeTypes: JournalEntryType[];
+​
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
@@ -72,42 +76,43 @@ export class UniJournalEntryLineModal implements IUniModal {
         private departmentService: DepartmentService,
         private projectService: ProjectService
     ) {}
-
+​
     public ngOnInit() {
-
-
+​
+​
         Observable.forkJoin(
             this.journalEntryLineService.Get(this.options.data.journalEntryLine.ID, ['Dimensions', 'JournalEntryType']),
             this.projectService.GetAll(),
             this.departmentService.GetAll(),
-            this.dimensionSettingsService.GetAll(null)
+            this.dimensionSettingsService.GetAll(null),
+            this.statisticsService
+                .GetAll('model=JournalEntryType&select=DisplayName as DisplayName,ID as ID&filter=ID gt 5')
+                .map(x => x.Data ? x.Data : [])
         ).subscribe(data => {
             this.journalEntryLine = data[0];
             this.projects = data[1];
             this.departments = data[2];
-            this.setUpDims(data[3]);
+            this.customDimensions = data[3];
+            this.jeTypes = data[4];
+            this.setUpDims(this.customDimensions);
             this.formModel$.next(this.journalEntryLine);
             this.formFields$.next(this.getFormFields());
         });
     }
-
+​
     public close(emitValue?: boolean) {
        if (emitValue) {
             const jel: JournalEntryLine = this.journalEntryLine;
-            const jelType = jel.JournalEntryType;
-            if (jelType && jelType.ID !== jel.JournalEntryTypeID) {
-                jel.JournalEntryTypeID = jelType.ID;
-            }
             const jelToSave: any = new JournalEntryLine();
             jelToSave.ID = jel.ID;
             jelToSave.Description = jel.Description;
             jelToSave.PaymentID = jel.PaymentID;
-            jelToSave.JournalEntryTypeID = jel.JournalEntryTypeID || jel.JournalEntryType;
+            jelToSave.JournalEntryTypeID = jel.JournalEntryTypeID || (jel.JournalEntryType && jel.JournalEntryType.ID);
             if (jel.Dimensions) {
                 jelToSave.Dimensions = jel.Dimensions;
                 jelToSave.Dimensions['_createguid'] = this.journalEntryLineService.getNewGuid();
             }
-
+​
             this.journalEntryLineService.Put(jelToSave.ID, jelToSave).subscribe((res) => {
                 this.onClose.emit(jel);
             });
@@ -115,17 +120,17 @@ export class UniJournalEntryLineModal implements IUniModal {
             this.onClose.emit(null);
         }
     }
-
+​
     onDataChange(line?: JournalEntryLine) {
-
+​
         const updatedEntity = line || this.journalEntryLine;
         this.journalEntryLine = updatedEntity;
     }
-
-
-
+​
+​
+​
     private getFormFields(): UniFieldLayout[] {
-        return [
+        let fields =  [
             <any> {
                 Property: 'Description',
                 FieldType: FieldType.TEXT,
@@ -137,15 +142,27 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Label: 'KID',
             },
             <any> {
-                Property: 'JournalEntryType',
-                FieldType: FieldType.DROPDOWN,
+                Property: 'JournalEntryTypeID',
+                FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Bilagstype',
                 Options: {
                     valueProperty: 'ID',
-                    displayProperty: 'DisplayName',
+                    template: (je: JournalEntryType | JournalEntryLine) => {
+                        if (je) {
+                            if (je['JournalEntryTypeID']) {
+                                return je['JournalEntryType']['DisplayName'];
+                            } else if (je['DisplayName']) {
+                                return je['DisplayName'];
+                            }
+                        }
+                    },
+                    source: this.jeTypes,
                     search: (query) => {
-
-                        let searchString = `model=JournalEntryType&select=DisplayName as DisplayName,ID as ID&filter=ID gt 5 and startswith(DisplayName\,'${query}')`;
+                        let strSearchQuery: string = '';
+                        if (query) {strSearchQuery = `and startswith(DisplayName\,'${query}')`;
+                        }
+                        const searchString = `model=JournalEntryType&select=DisplayName as DisplayName,ID as ID`
+                            + `&filter=ID gt 5 ${strSearchQuery}`;
                         return this.statisticsService
                         .GetAll(searchString).map(x => x.Data ? x.Data : []);
                     }
@@ -155,10 +172,12 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Property: ''
             }
         ];
+        return fields;
+
     }
-
-
-
+​
+​
+​
     private setUpDims(dims) {
         this.dimensionTypes = [
             {
@@ -176,9 +195,9 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Data: this.departments
             }
         ];
-
+​
         const queries = [];
-
+​
         dims.forEach((dim) => {
             this.dimensionTypes.push({
                 Label: dim.Label,
@@ -189,14 +208,15 @@ export class UniJournalEntryLineModal implements IUniModal {
             });
             queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
         });
-
+​
         Observable.forkJoin(queries).subscribe((res) => {
             res.forEach((list, index) => {
-                this.dimensionTypes[index + 1].Data = res[index];
+                this.dimensionTypes[index + 2].Data = res[index];
             });
+            this.dimensionTypes = [].concat(this.dimensionTypes);
         });
     }
-
-
+​
+​
 }
 

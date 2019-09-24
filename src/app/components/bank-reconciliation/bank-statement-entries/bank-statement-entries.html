@@ -1,0 +1,41 @@
+<section class="reconciliation-list-view">
+    <input [(ngModel)]="searchText" type="search" placeholder="Søk">
+
+    <section class="header">
+        <span class="date">Dato</span>
+        <span class="description">Tekst</span>
+        <span class="amount">Sum</span>
+    </section>
+
+    <ul id="bank-statement-entry-list">
+
+        <li *ngIf="stageInfo?.count" class="saveable" (click)="showClosedGroups.emit()">
+            <span class="description">{{stageInfo?.count}} lukkede poster klar for lagring</span>
+            <span class="amount" [ngClass]="stageInfo?.balance >= 0 ? 'positive' : 'negative'">
+                {{stageInfo?.balance | uninumberformat: 'money'}}
+            </span>
+        </li>
+
+        <ng-container *ngFor="let entry of items | reconciliationItemFilter: searchText">
+            <li *ngIf="(!entry.StageGroupKey) && (showClosed || !entry.Closed)"
+                [@itemAnim]="items.length"
+                (click)="itemSelected.next(entry)"
+                [ngClass]="{'selected': entry.Checked, 'closed': entry.Closed}">
+
+                <span class="date">{{entry.Date | date: 'dd.MM.yy'}}</span>
+                <span class="description">{{entry.Description}}</span>
+                <span class="amount" [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
+                    {{(entry.OpenAmount || entry.Amount) | uninumberformat: 'money'}}
+                </span>
+            </li>
+        </ng-container>
+
+        <li *ngIf="(!showClosed) && closedEntries" class="closed">
+            <span class="description">{{closedEntries}} lukkede poster</span>
+            <span class="amount" [ngClass]="closedSum >= 0 ? 'positive' : 'negative'">
+                {{closedSum | uninumberformat: 'money'}}
+            </span>
+        </li>
+
+    </ul>
+</section>

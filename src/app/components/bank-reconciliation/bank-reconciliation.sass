@@ -1,0 +1,241 @@
+\:host
+    display: block
+    margin-top: -5rem
+
+    .view-wrapper
+        display: flex
+        flex-direction: column
+        height: calc(100vh - 7rem)
+
+    .reconciliation-toolbar
+        flex: 0 0 auto
+        display: flex
+        min-height: 3rem
+        margin-bottom: .5rem
+        flex-wrap: no-wrap
+
+        .left-side
+            display: flex
+            flex-wrap: wrap
+
+        h1
+            font: 400 22px 'Roboto'
+            margin: 5px 2rem 1rem 0
+
+        label
+            display: inline-flex
+            align-items: center
+            margin: 0 1rem 1rem 0
+            span
+                visibility: hidden
+                width: 0px
+
+        select
+            border: 1px solid rgba(112, 112, 112, 0.33)
+            border-radius: 3px
+            color: #1D1F25
+            height: 2.5rem
+            padding: 0 5px
+            font-size: 14px
+            width: 14rem
+
+        .period-picker
+            display: inline-flex
+            align-items: center
+            month-picker
+                height: 2.5rem
+                width: 10rem
+            button.icon-button
+                margin: 0 1px
+
+        .pull-right
+            margin-left: auto
+            flex: 0 0 auto
+            flex-wrap: nowrap
+            align-items: flex-start
+
+            button.good
+                min-width: 8rem
+
+            button i.material-icons
+                margin-bottom: 1px
+                margin-right: 4px
+            button.tight
+                margin-left: 0.2rem
+                margin-right: 0.2rem
+                padding-left: 0.4rem
+                padding-right: 0.4rem
+
+
+.reconciliation-view
+    flex: 1
+    overflow: auto
+    display: flex
+    padding: 1.5rem
+    background: #fff
+    border-radius: 3px
+
+    .list-section
+        flex: 1
+        min-width: 20rem
+        .list-header
+            display: flex
+            align-items: center
+            margin-bottom: 1rem
+
+            .overflow-ellipsis
+                margin-right: 1rem
+
+            span
+                font: 400 18px 'Roboto'
+            small
+                font: 400 15px 'Roboto'
+                margin-left: auto
+                margin-right: 1rem
+
+        @media (max-width: 1400px)
+            span
+                font-size: 16px !important
+
+        @media (max-width: 1300px)
+            min-width: 22rem
+
+.center-section
+    position: sticky
+    top: 0
+    flex: 0 0 18rem
+    margin: 0 2rem
+    position: relative
+
+    .warning-label
+        position: absolute
+        display: block
+        top: 0
+        width: 100%
+        text-align: center
+
+        i.material-icons
+            font-size: 21px
+            vertical-align: middle
+            margin-bottom: 2px
+
+.reconciliation-summary
+    display: flex
+    flex-direction: column
+    margin: 2.5rem 0 auto
+    font-size: 14px
+    border-radius: 3px
+    min-height: 12rem
+
+    background: #fff
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15)
+
+    section.header
+        padding: 10px 1.5rem
+        font-size: 15px
+        background: #F5F6F9
+        color: #485460
+
+    section.content
+        padding: .5rem 1.5rem
+        color: #48484A
+
+        .no-match-drafts
+            margin-top: 1rem
+            text-align: center
+
+        .info-box
+            margin-top: 0.5rem
+            margin-bottom: 0.5rem
+            text-align: center
+
+        .reset-button
+            i.material-icons
+                margin-bottom: 2px
+                font-size: 21px
+
+        ul.match-drafts
+            list-style: none
+            font-weight: 500
+            li
+                display: flex
+                justify-content: space-between
+
+                span:first-of-type
+                    width: 7.5rem
+
+                &.diff
+                    margin-top: .5rem
+                    padding-top: .5rem
+                    border-top: 1px solid rgba(112, 112, 112, 0.2)
+                    .has-diff
+                        color: #EF8538
+
+    .footer
+        display: flex
+        flex-direction: column
+        margin-top: 0.5rem
+        text-align: center
+        padding: 10px 1.5rem
+        font-size: 15px
+        background: #F5F6F9
+
+        .save-actions
+            display: flex
+            margin: .75rem 0 .25rem
+            justify-content: center
+            button
+                padding-left: 5px
+                &.good
+                    flex: 1
+                    border-radius: 25px
+
+            i.material-icons
+                margin-bottom: 2px
+
+    button.c2a
+        width: 100%
+        margin: 1rem 0
+        border-radius: 25px
+        background-color: #2699FB
+        &[disabled]
+            background-color: #D2DAE2 !important
+            color: #485460
+            opacity: .5
+
+        i.material-icons
+            margin-bottom: 2px
+            margin-right: 2px
+
+.bullet
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    margin: 0 auto
+    padding-left: 1px
+    color: #fff
+    background-color: orange
+    font-size: 13px
+    border-radius: 50%
+    height: 2rem
+    width: 2rem
+
+.good-bullet
+    background-color: green
+
+.nowrap
+    white-space: nowrap
+
+.positive
+    color: rgba(22, 93, 190, 0.96)
+.negative
+    color: #D12323
+.c2a
+    color: #0f4880
+.good
+    color: #01a901
+
+.ontop
+    z-index: 999
+
+

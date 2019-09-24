@@ -8,6 +8,7 @@ export const environment = {
     UNI_PUSH_ADAPTER_URL: 'https://test-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://test-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://test-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',

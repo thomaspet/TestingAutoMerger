@@ -16,7 +16,7 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
 import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
-import { ImportJobName, TemplateType } from '@app/models/import-central/ImportDialogModel';
+import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 
 @Component({
@@ -175,7 +175,7 @@ export class CustomerList implements OnInit {
     }
 
     private importLogs() {
-        this.router.navigateByUrl('/admin/jobs');
+        this.router.navigate(['/import/log', { id: TemplateType.Customer }])
     }
 
     private openCustomerImportModal() {
@@ -187,9 +187,9 @@ export class CustomerList implements OnInit {
                     type: 'Customer',
                     entity: TemplateType.Customer,
                     downloadTemplateUrl: this.customerTemplateUrl,
-                    conditionalStatement: 'Dersom kundenummer i filen eksisterer i Uni Economy vil importen hoppe over rad med dette nummeret. Kundenumrene blir validert mot kundenummerseriene, som ligger under Innstillinger, og filen avvises ved avvik.',
-                    formatStatement: 'Importen støtter Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
-                    downloadStatement: 'Last ned Excel mal for bruk til import fra eksterne system',
+                    conditionalStatement: '',
+                    formatStatement: ImportStatement.CustomerFormatStatement,
+                    downloadStatement: ImportStatement.CustomerDownloadStatement,
                     hasTemplateAccess: this.customerPermissions.hasTemplateAccess,
                     isExternal: true
                 }

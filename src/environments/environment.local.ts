@@ -1,13 +1,14 @@
 export const environment = {
     useProdMode: false,
 
-    BASE_URL_INIT: 'http://localhost:29077',
-    BASE_URL: 'http://localhost:29077/',
+    BASE_URL_INIT: 'http://localhost:29435',
+    BASE_URL: 'http://localhost:29435',
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -41,7 +42,7 @@ export const environment = {
         + 'yXbhqZkmPRK07NnOKmeuxknE+/RywyCQZS9svfkZT1Jn0m0xdX4+rwma2fTSCluY4fUEF38fhNFj/keKeLIwIMwSOh'
         + 'Ypv0Eu/SeTn6DSEWgBGcW2jbWadOO+CmGAOg1XfM82jGlN68wfGjsNNswAez71QNSnBvMrFVsRFGDq+K/zAYRavq23'
         + 'xzCJ9QnukzFeuN1Juxtg3y2tRiJYPJyyrwHGhTY550oa1AP/trUev/gvk4gpFyGpAoFR8jca5GAGEDyTf2pi44J/S78=',
-    
+
     IMPORT_CENTRAL_TEMPLATE_URLS : {
         CUSTOMER: 'https://public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
         SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',

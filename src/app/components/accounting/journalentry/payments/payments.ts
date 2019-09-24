@@ -61,7 +61,7 @@ export class Payments {
         'CurrencyCode.Code as CurrencyCode';
 
     public customerInvoiceExpands: string[] = [
-        'JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount'
+        'JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount', 'CurrencyCode'
     ];
         // 'Customer,,,,' +
         // 'JournalEntry.Lines.SubAccount,CurrencyCode,CustomerInvoiceReminders';

@@ -1,0 +1,66 @@
+<uni-toolbar [config]="{ title: 'Bankavstemning' }" [saveactions]="[]"></uni-toolbar>
+
+<section class="uni-container" style="padding: 2rem; margin: 1rem;">
+    <uni-tabs
+        [tabs]="tabs"
+        [(activeIndex)]="activeIndex"
+        (tabClick)="onTabClick($event)">
+    </uni-tabs>
+
+    <section style="padding: 3rem 0;">
+
+        <!-- ACCOUNT LIST VIEW -->
+        <section *ngIf="activeIndex === 0" class="reconciliation-list-container">
+            <table [attr.aria-busy]="busy">
+                <thead>
+                    <tr>
+                        <th> Kontonr </th>
+                        <th> Kontonavn </th>
+                        <th> Status </th>
+                        <th>  </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let account of bankAccounts">
+                        <td> {{ account.BankAccountNumber }} </td>
+                        <td>
+                            {{ account.AccountName }}
+                        </td>
+                        <td>
+                            <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank-reconciliation?accountid={{account.AccountID}}">
+                                <i class="material-icons"> {{ account.count ? 'cached' : ( account.total ? 'done_all' : 'no_sim') }}  </i>
+                                {{ account.count ?  account.count + ' post' + (account.count > 1 ? 'er ' : ' ') + 'å avstemme' : ( account.total ? 'Avstemning ferdig' : 'Mangler kontoutskrift' ) }}
+                            </a>
+                        </td>
+                        <td>
+                            <i class="material-icons" [matMenuTriggerFor]="contextMenu">
+                                more_vert
+                            </i>
+                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                <ul class="menu-list">
+                                    <li *ngFor="let action of actions" (click)="onActionClick(action, account)">
+                                        {{ action.label }}
+                                    </li>
+                                </ul>
+                            </mat-menu>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- REPORT VIEW -->
+        <section *ngIf="activeIndex === 1 && dataLoaded">
+
+            <uni-reconciliation-report-view [bankAccounts]="bankAccounts" [currentAccount]="currentAccount"></uni-reconciliation-report-view>
+
+        </section>
+
+        <!-- TRANSACTIONS VIEW -->
+        <section *ngIf="activeIndex === 2 && dataLoaded">
+            <uni-bank-statement-list (statementChanged)="getListAndLoadData()"></uni-bank-statement-list>
+        </section>
+    </section>
+
+</section>

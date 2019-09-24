@@ -1,21 +1,89 @@
-<section class="distribution-splitview">
+<section class="distribution-container container-for-spinner">
 
-    <section class ="uni-container distribution-list" style="margin-right: 1rem;">
-        <ag-grid-wrapper
-            [config]="unitableConfig"
-            [resource]="plans"
-            (rowClick)="onRowSelected($event)">
-        </ag-grid-wrapper>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
     </section>
 
-    <section class= "uni-container distribution-detail">
-        <header>Plandetaljer</header>
-        <uni-form
-            [config]="config$"
-            [fields]="fields$"
-            [model]="plan"
-            (changeEvent)="onFormChange($event)">
-        </uni-form>
-        <button (click)="addPriority()">Ny prioritet</button>
+    <section class="distribution-header-section">
+        <span> Utsendelse </span>
+        <i class="material-icons"
+            matTooltip="Oppsett for utsendelse. Her kan du definere prioriteringsrekkefølge for sending av entitene under. Sett en plan som standard for at den skal automatisk brukes på alle.
+            Slå på Automatisk utsendelse for å sende ut faktura automatisk.">
+            info
+        </i>
+    </section>
+
+    <section class="distribution-type-container" *ngFor="let type of entityTypes">
+        <div class="content-container">
+            <section class="entity-name-container">
+                <span (click)="type.showPlansView = !type.showPlansView" title="Se alle planer for {{ type.label }}"> {{ type.label }} </span>
+            </section>
+
+            <section class="entity-priority-container">
+                <span *ngIf="!type.showPlansView">
+                        {{ type.defaultPlan ? 'Standardplan: ' + type.defaultPlan.Name : 'Ingen plan satt' }}
+                </span>
+                <ul class="distribution-elements-stepper" *ngIf="!type.showPlansView && type.defaultPlan">
+                    <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
+                        <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                        <li class="divider" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
+                    </ng-container>
+                    <li class="list-item" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
+                </ul>
+            </section>
+
+            <section class="entity-functionality-container settings-view">
+                <span *ngIf="type.value === 'Models.Sales.CustomerInvoice'"> Automatisk utsendelse </span>
+
+                <mat-slide-toggle [(ngModel)]="active" (change)="turnOnOffAutomaticDistribution()" [labelPosition]="'before'" *ngIf="type.value === 'Models.Sales.CustomerInvoice'" > </mat-slide-toggle>
+
+                <i class="material-icons" title="Se alle planer" (click)="type.showPlansView = !type.showPlansView">
+                    {{ type.showPlansView ? 'close' : 'list' }}
+                </i>
+
+            </section>
+        </div>
+        <div class="plans-info-container" *ngIf="type.showPlansView">
+            <table>
+                <thead>
+                    <tr>
+                        <th> Navn </th>
+                        <th> Prioriteringsrekkefølge </th>
+                        <th> Tildelt til </th>
+                        <th>  </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let plan of type.plans">
+                        <td> {{ plan.Name }} </td>
+                        <td>
+                            <ul class="distribution-elements-stepper" style="margin: 0;">
+                                <ng-container *ngFor="let elem of plan.Elements; let i = index;">
+                                    <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                                    <li class="divider" *ngIf="i < plan.Elements.length - 1"></li>
+                                </ng-container>
+                            </ul>
+                        </td>
+                        <td> <a (click)="onActionClick({ label: 'Administrer kunder', name: 'customer' }, plan, type)"> {{ plan._count }} kunder </a> </td>
+                        <td>
+                            <span *ngIf="type.defaultPlan && type.defaultPlan.ID === plan.ID"> Standard </span>
+                            <i class="material-icons" [matMenuTriggerFor]="contextMenu">
+                                more_horiz
+                            </i>
+                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                <ul class="menu-list">
+                                    <li *ngFor="let action of getActions(plan, type)" (click)="onActionClick(action, plan, type)">
+                                        {{ action.label }}
+                                    </li>
+                                </ul>
+                            </mat-menu>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+            <a class="new-plan-link" (click)="openPlanModal(null, type)"> + Ny utsendelsesplan </a>
+        </div>
     </section>
 </section>

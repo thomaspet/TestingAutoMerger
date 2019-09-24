@@ -5,13 +5,13 @@ import * as moment from 'moment';
 @Pipe({name: 'unidateformat'})
 export class UniDateFormatPipe implements PipeTransform {
     constructor(private errorService: ErrorService) {}
-    public transform(value: Date | string): string {
+    public transform(value: Date | string, format = 'DD.MM.YYYY'): string {
         try {
             if (!value) {
                 return '';
             }
-            const date = moment(value);
-            return date.format('DD.MM.YYYY');
+
+            return moment(value).format(format);
         } catch (err) {
             this.errorService.handle(err);
         }
