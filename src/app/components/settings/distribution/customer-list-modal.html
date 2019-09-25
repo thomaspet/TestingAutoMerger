@@ -1,18 +1,25 @@
 <section role="dialog" class="uni-modal uni-redesign distribution-customer-list-modal-container">
-    <header>
-        <h1> {{ 'Kunder' }} </h1>
-    </header>
-    <article style="overflow: visible; padding-bottom: 0;">
+    <header>{{ 'Kunder' }}</header>
+
+    <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
+
         <section class="count-and-standard-section">
             <small> {{ customers?.length }} kunder koblet til {{ currentPlan?.Name }} </small>
             <span class="standard-span-box" *ngIf="type.defaultPlan && currentPlan && type.defaultPlan.ID === currentPlan.ID"> Standard </span>
         </section>
+
         <section class="search-section" >
             <input type="text" placeholder="Søk etter kunde i listen under" [formControl]="searchControl">
-            <a #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="newCustomerPart" (click)="openNewCustomerSearch()"> + Legg til kunde </a>
+
+            <button class="tertiary c2a"
+                #menuTrigger="matMenuTrigger"
+                [matMenuTriggerFor]="newCustomerPart"
+                (click)="openNewCustomerSearch()">
+                + Legg til kunde
+            </button>
 
             <mat-menu #newCustomerPart="matMenu" [overlapTrigger]="false" yPosition="below">
                 <div class="add-new_search-conatiner container-for-spinner" (click)="$event.stopPropagation()">
@@ -65,7 +72,7 @@
         </section>
     </article>
 
-    <footer class="center">
-        <button (click)="close()">Lukk</button>
+    <footer>
+        <button class="secondary" (click)="close()">Lukk</button>
     </footer>
 </section>

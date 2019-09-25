@@ -7,6 +7,7 @@ export const environment = {
     BASE_URL_FILES: 'https://ext01-files.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://ext01-jobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://ext01-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -40,7 +41,7 @@ export const environment = {
         + 'yXbhqZkmPRK07NnOKmeuxknE+/RywyCQZS9svfkZT1Jn0m0xdX4+rwma2fTSCluY4fUEF38fhNFj/keKeLIwIMwSOh'
         + 'Ypv0Eu/SeTn6DSEWgBGcW2jbWadOO+CmGAOg1XfM82jGlN68wfGjsNNswAez71QNSnBvMrFVsRFGDq+K/zAYRavq23'
         + 'xzCJ9QnukzFeuN1Juxtg3y2tRiJYPJyyrwHGhTY550oa1AP/trUev/gvk4gpFyGpAoFR8jca5GAGEDyTf2pi44J/S78=',
-    
+
     IMPORT_CENTRAL_TEMPLATE_URLS : {
         CUSTOMER: 'https://ext01-public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
         SUPPLIER: 'https://ext01-public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',

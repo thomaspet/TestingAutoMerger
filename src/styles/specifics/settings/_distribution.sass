@@ -252,15 +252,8 @@ uni-distibution
         align-items: center
         input
             flex: 1
-            border: none
-            border: 1px solid $uni-color-scale8
-            border-radius: 2px
-            height: 40px
-        a
-            color: $uni-color-c2a
-            font-size: 16px
-            font-weight: 600
-            margin: 0 0 0 2rem
+        button.tertiary
+            margin-left: 1rem
 
     .customer-list-section
         table
@@ -271,12 +264,14 @@ uni-distibution
             flex-flow: column
             border-collapse: collapse
             font-size: 15px
+            border: 1px solid var(--border-color)
 
             thead
                 flex: 0 0 auto
                 display: table
                 table-layout: fixed
                 text-align: left
+                border-bottom: 1px solid var(--border-color)
                 tr
                     height: 45px
                     background-color: #f5f6f9
@@ -291,7 +286,6 @@ uni-distibution
                 display: block
                 overflow-y: scroll
                 height: 250px
-                border: 1px solid $uni-color-scale7
                 position: relative
 
                 #scrolling-viewport
@@ -323,7 +317,7 @@ uni-distibution
                                 color: $uni-color-scale6
                                 cursor: pointer
                                 &:hover
-                                    color: $uni-color-bad
+                                    color: var(--color-bad)
 
     .new-customers-no-customers-msg
         font-size: 13px

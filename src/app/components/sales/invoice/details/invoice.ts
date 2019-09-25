@@ -450,7 +450,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     }
 
                     this.invoice.InvoiceReference = <any> {};
-                    this.openAprilaCreditNoteModal('');
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
