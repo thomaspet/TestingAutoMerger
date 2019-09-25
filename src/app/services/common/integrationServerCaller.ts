@@ -65,7 +65,11 @@ export class IntegrationServerCaller {
         limit: number = 30,
         searchCompanies: boolean = true,
         searchPersons: boolean = true,
-    ): Observable<[BusinessRelationSearch]> {
+    ): Observable<BusinessRelationSearch[]> {
+        if (!query) {
+            return Observable.of([]);
+        }
+
         return this.http
             .withBaseUrl(environment.BASE_URL_INTEGRATION)
             .withDomain('api/businessrelationsearch')

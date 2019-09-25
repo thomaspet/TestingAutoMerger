@@ -15,9 +15,9 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
 @Component({
     selector: 'uni-bankaccount-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign">
+        <section role="dialog" class="uni-modal">
             <header>{{options.header || 'Bankkonto'}}</header>
-            <article [attr.aria-busy]="busy" style="overflow: visible;">
+            <article [attr.aria-busy]="busy">
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -27,12 +27,12 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
                 </uni-form>
             </article>
             <footer>
-                <button class="good"
-                        (click)="close(true)"
-                        [disabled]="isDirty && !validAccount || !hasChanges">
+                <button class="secondary" (click)="close(false)">Avbryt</button>
+                <button class="c2a"
+                    (click)="close(true)"
+                    [disabled]="isDirty && !validAccount || !hasChanges">
                     Ok
                 </button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
         </section>
     `

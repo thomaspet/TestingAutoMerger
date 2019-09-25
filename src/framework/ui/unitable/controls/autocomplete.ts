@@ -20,16 +20,16 @@ export interface IAutoCompleteOptions {
     itemTemplate: (selectedItem: any) => string;
     groupConfig?: IGroupConfig;
     debounceTime?: number;
-    addNewButtonVisible?: boolean;
-    addNewButtonText?: string;
-    addNewButtonCallback?: (searchText: string) => Promise<any>;
     showResultAsTable: boolean;
     resultTableConfig: IResultTableConfig;
+    addNewButton?: {
+        label: string;
+        action: (searchText: string) => Promise<any>;
+    };
 }
 
 export interface IResultTableConfig {
     fields: IResultTableField[];
-    createNewButton: IResultTableButton;
 }
 
 export interface IResultTableField {
@@ -82,7 +82,7 @@ export class UnitableAutocomplete implements OnInit {
     public lookupResults: any[] = [];
     public selectedIndex: any;
     private addValuePromise: Promise<any>;
-    private emptySearchString: string = '';
+    emptySearchString: string = '';
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -181,30 +181,14 @@ export class UnitableAutocomplete implements OnInit {
     }
 
     private addNewItem() {
-        if (this.options.addNewButtonCallback) {
-            this.addValuePromise = this.options.addNewButtonCallback(this.inputControl.value);
+        if (this.options.addNewButton) {
+            this.addValuePromise = this.options.addNewButton.action(this.inputControl.value);
 
             this.expanded = false;
             this.cdr.markForCheck();
 
             this.inputElement.nativeElement.focus();
         }
-    }
-
-    public onActionClick(button: any) {
-        this.expanded = false;
-        this.addValuePromise = new Promise((resolve) => {
-            button.action().subscribe(item => {
-                if (item) {
-                    button.getAction(item).subscribe(
-                        res => resolve(res),
-                        err => button.errorAction(err)
-                    );
-                } else {
-                    resolve(null);
-                }
-            });
-        });
     }
 
     private formatGrouping() {
@@ -328,7 +312,7 @@ export class UnitableAutocomplete implements OnInit {
             && this.inputControl.value.length > 0
             && this.lookupResults.length === 0
             && !this.busy && this.expanded
-            && this.options.addNewButtonVisible
+            && this.options.addNewButton
         ) {
             this.addNewItem();
         // Enter

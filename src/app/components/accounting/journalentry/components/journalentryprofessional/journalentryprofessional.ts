@@ -1235,11 +1235,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Opprett ny reskontro',
-                addNewButtonCallback: (text) => {
-                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
-                }
+                addNewButton: {
+                    label: 'Opprett ny reskontro',
+                    action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
+                },
             });
 
         const manDimReportCol = new UniTableColumn('', 'Påkrevde dimensjoner', UniTableColumnType.Text)
@@ -1358,11 +1357,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Opprett ny reskontro',
-                addNewButtonCallback: (text) => {
-                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
-                }
+                addNewButton: {
+                    label: 'Opprett ny reskontro',
+                    action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
+                },
             });
 
         const creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)

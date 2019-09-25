@@ -22,8 +22,8 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Ok</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button class="secondary" (click)="close(false)">Avbryt</button>
+                <button class="c2a" (click)="close(true)">Ok</button>
             </footer>
         </section>
     `

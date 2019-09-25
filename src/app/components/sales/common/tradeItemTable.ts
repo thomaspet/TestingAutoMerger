@@ -437,19 +437,27 @@ export class TradeItemTable {
                             isMoneyField: true
                         }
                     ],
-                    createNewButton: {
-                        buttonText: 'Nytt produkt',
-                        action: () => {
-                            return this.modalService.open(UniProductDetailsModal, {  }).onClose;
-                        },
-                        getAction: (item) => {
-                            return this.productService.Get(item.ID, this.productExpands);
-                        },
-                        errorAction: (msg: string) => {
-                            this.errorService.handle(msg);
-                        }
-                    }
                 },
+                addNewButton: {
+                    label: 'Nytt produkt',
+                    action: () => {
+                        return new Promise(resolve => {
+                            this.modalService.open(UniProductDetailsModal, {}).onClose.subscribe(item => {
+                                if (item) {
+                                    this.productService.Get(item.ID, this.productExpands).subscribe(
+                                        product => resolve(product),
+                                        err => {
+                                            this.errorService.handle(err);
+                                            resolve(null);
+                                        }
+                                    );
+                                } else {
+                                    resolve(null);
+                                }
+                            })
+                        });
+                    }
+                }
             });
 
         const itemTextCol = new UniTableColumn('ItemText', 'Tekst')

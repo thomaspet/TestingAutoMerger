@@ -15,7 +15,7 @@
     </button>
 </section>
 
-<input-dropdown-menu [input]="input" [visible]="expanded && lookupResults?.length">
+<input-dropdown-menu [input]="input" [visible]="expanded && (lookupResults?.length || options.addNewButton)">
     <ng-template>
         <div #dropdown>
             <ng-container *ngIf="!options.showResultAsTable">
@@ -28,17 +28,18 @@
                     {{ item.isHeader ? item.header : options.itemTemplate(item) }}
                 </section>
 
-                <section *ngIf="!busy && options.addNewButtonVisible"
-                    class="dropdown-menu-item"
+                <section *ngIf="!busy && options.addNewButton"
+                    class="dropdown-menu-item add-new-button"
+                    [attr.aria-selected]="!lookupResults?.length"
                     (click)="addNewItem()">
-                    {{ options.addNewButtonText ? options.addNewButtonText : 'Legg til' }}
+                    {{ options.addNewButton.label }}
                 </section>
             </ng-container>
 
             <div class="search-result-table-container table-autocomplete-results" *ngIf="options.showResultAsTable && options.resultTableConfig" >
-                <div *ngIf="options.resultTableConfig.createNewButton">
-                    <a class="action-button" (click)="onActionClick(options.resultTableConfig.createNewButton)">
-                        {{ options.resultTableConfig.createNewButton.buttonText }}
+                <div *ngIf="options.addNewButton">
+                    <a class="action-button" (click)="addNewItem()">
+                        {{ options.addNewButton.label }}
                     </a>
                 </div>
 
@@ -71,7 +72,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p *ngIf="lookupResults.length === 0">{{ emptySearchString }}</p>
+                <p *ngIf="lookupResults.length === 0" style="margin-left: .5rem">{{ emptySearchString }}</p>
             </div>
         </div>
 
