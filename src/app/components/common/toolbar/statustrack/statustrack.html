@@ -29,11 +29,15 @@
         <section class="history" *ngIf="entityType && entityID">
             <span class="header">Historikk</span>
 
-            <a *ngIf="!activeStatus.logEntries" (click)="loadStatusHistory(activeStatus)">
+            <a *ngIf="!statusHistoryLoaded" (click)="loadStatusHistory()">
                 Hent statushistorikk
             </a>
 
-            <ul *ngIf="activeStatus.logEntries">
+            <span *ngIf="statusHistoryLoaded && !statusHistory?.length">
+                Fant ingen statushistorikk
+            </span>
+
+            <ul *ngIf="statusHistory?.length">
                 <li *ngFor="let logEntry of activeStatus.logEntries">
                     <span>
                         {{logEntry.FromStatusText || 'Ingen status' }}

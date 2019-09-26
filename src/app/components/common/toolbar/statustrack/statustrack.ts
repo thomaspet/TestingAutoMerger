@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {StatusService} from '@app/services/services';
+import {StatusService, ErrorService} from '@app/services/services';
 import * as moment from 'moment';
 
 export enum STATUSTRACK_STATES {
@@ -17,7 +17,6 @@ export interface IStatus {
     timestamp?: Date;
     substatusList?: IStatus[];
     data?: any;
-    logEntries?: any[];
     formatDateTime?: string;
     selectable?: boolean;
 }
@@ -36,7 +35,13 @@ export class StatusTrack {
 
     activeStatus: IStatus;
 
-    constructor(private statusService: StatusService) {}
+    statusHistoryLoaded: boolean;
+    statusHistory: any[];
+
+    constructor(
+        private statusService: StatusService,
+        private errorService: ErrorService
+    ) {}
 
     ngOnChanges() {
         if (this.config && this.config.length) {
@@ -55,13 +60,17 @@ export class StatusTrack {
         this.statusSelectEvent.emit([substatus, parent]);
     }
 
-    loadStatusHistory(status: IStatus) {
-        if (this.entityType && this.entityID && !status.logEntries) {
+    loadStatusHistory() {
+        if (this.entityType && this.entityID && !this.statusHistoryLoaded) {
             this.statusService.getStatusLogEntries(
                 this.entityType, this.entityID
-            ).subscribe(statuschanges => {
-                status.logEntries = statuschanges;
-            });
+            ).subscribe(
+                statuschanges => {
+                    this.statusHistoryLoaded = true;
+                    this.statusHistory = statuschanges;
+                },
+                err => this.errorService.handle(err)
+            );
         }
     }
 
