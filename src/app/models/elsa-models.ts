@@ -1,3 +1,16 @@
+export interface ElsaAgreement {
+    ID: number;
+    AgreementText: string;
+    StatusCode: ElsaAgreementStatus;
+    ProductID: number;
+}
+
+export enum ElsaAgreementStatus {
+    Draft = 0,
+    Active = 5,
+    Replaced = 10
+}
+
 export interface ElsaCustomer {
     ID: number;
     Name: string;
@@ -77,6 +90,7 @@ export interface ElsaProduct {
     Name: string;
     ParentProducts?: string[];
     Price: number;
+    ProductAgreement: ElsaAgreement;
     ProductKey: string;
     ProductStatus: ElsaProductStatusCode;
     ProductStatusName: string;

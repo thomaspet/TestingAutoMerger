@@ -1,7 +1,7 @@
 <section class="uni-modal uni-redesign subscribe-modal" role="dialog">
     <header class="subscribe-modal-header">
 
-        <section class="product-header">
+        <section *ngIf="!isConsentStep" class="product-header">
             <section class="product-icon">
                 <img src="{{product.IconReference}}" />
             </section>
@@ -24,7 +24,7 @@
         </section>
     </header>
 
-    <article class="scrollable">
+    <article *ngIf="!isConsentStep" class="scrollable">
         <section class="product-description">{{product.Description}}</section>
 
         <!-- New markdown CMS -->
@@ -49,15 +49,22 @@
         </a>
     </article>
 
+    <section *ngIf="isConsentStep" style="display: grid">
+        <i class="material-icons">info</i>
+        <h1>Viktig informasjon</h1>
+
+        <article style="text-align: center" [innerHTML]="htmlContent"></article>
+    </section>
+
     <footer class="center" *ngIf="action">
         <div [matTooltip]="missingPermissionText">
             <button class="c2a rounded"
-                (click)="action.click()"
+                (click)="onPurchaseClick()"
                 [disabled]="!canPurchaseProducts">
-                {{action.label}}
+                {{isConsentStep ? 'Godta' : action.label}}
             </button>
         </div>
 
-        <button (click)="onClose.emit()" style="margin-left: 10px;">Lukk</button>
+        <button (click)="onClose.emit()" style="margin-left: 10px;">{{isConsentStep ? 'Avbryt' : 'Lukk'}}</button>
     </footer>
 </section>

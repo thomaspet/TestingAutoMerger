@@ -5,9 +5,9 @@ import {
     UniModalService,
     ProductPurchasesModal,
 } from '@uni-framework/uni-modal';
-import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
+import {ElsaProduct, ElsaProductType, ElsaProductStatusCode, ElsaAgreementStatus} from '@app/models';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
-import {ElsaPurchaseService, ErrorService} from '@app/services/services';
+import {ElsaPurchaseService, ErrorService, ElsaAgreementService} from '@app/services/services';
 import {ElsaPurchase} from '@app/models';
 import * as marked from 'marked';
 
@@ -24,6 +24,7 @@ export class SubscribeModal implements IUniModal, OnInit {
     canPurchaseProducts: boolean;
     missingPermissionText: string;
     busy: boolean;
+    isConsentStep = false;
 
     htmlContent: string;
     videoMarkup: string;
@@ -39,7 +40,8 @@ export class SubscribeModal implements IUniModal, OnInit {
         private errorService: ErrorService,
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchaseService: ElsaPurchaseService
+        private elsaPurchaseService: ElsaPurchaseService,
+        private elsaAgreementService: ElsaAgreementService,
     ) {
         const renderer = new marked.Renderer();
         renderer.link = function(href, title, text) {
@@ -116,6 +118,30 @@ export class SubscribeModal implements IUniModal, OnInit {
         }
     }
 
+    onPurchaseClick() {
+        if (!this.isConsentStep
+            && this.product.ProductAgreement
+            && this.product.ProductAgreement.StatusCode === ElsaAgreementStatus.Active
+        ) {
+            this.elsaAgreementService.GetByProductID(this.product.ID).subscribe(
+                agreement => {
+                    if (agreement && agreement.AgreementText) {
+                        try {
+                            const decoded = decodeURI(agreement.AgreementText);
+                            this.htmlContent = marked.parse(decoded) || '';
+                            this.isConsentStep = true;
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+                },
+                err => this.errorService.handle(err)
+            );
+        } else {
+            this.action.click();
+        }
+    }
+
     purchaseProduct() {
         if (!this.busy && this.canPurchaseProducts) {
             this.busy = true;
@@ -132,6 +158,7 @@ export class SubscribeModal implements IUniModal, OnInit {
                     if (this.action) {
                         this.action.click();
                     }
+                    this.onClose.emit();
                 },
                 err => {
                     this.errorService.handle(err);
