@@ -18,6 +18,7 @@ import { ConfirmActions } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
 
 declare var _;
+const UPDATE_RECURRING = '_updateRecurringTranses';
 
 @Component({
     selector: 'employment-details',
@@ -278,6 +279,11 @@ export class EmploymentDetails implements OnChanges {
         if (changes['StartDate'] && !this.employee.EmploymentDateOtp) {
             this.employee.EmploymentDateOtp = changes['StartDate'].currentValue;
             this.employeeChange.emit(this.employee);
+        }
+
+        if (changes['Dimensions.ProjectID'] || changes['Dimensions.DepartmentID']) {
+            employment[UPDATE_RECURRING] = !!employment.ID;
+            this.employmentChange.emit(employment);
         }
 
         if (changes['StartDate'] && this.employee.EndDateOtp) {
