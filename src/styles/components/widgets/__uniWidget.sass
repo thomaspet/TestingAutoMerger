@@ -551,6 +551,9 @@ header.dashboard-header
         .links
             display: none
 
+.hidden-class
+    text-decoration: line-through
+
 
 // SR
 sr-unpaid-doughnut-widget
@@ -612,6 +615,7 @@ sr-unpaid-doughnut-widget
         font-size: 13px
         font-weight: 600
         color: $uni-color-scale4
+        cursor: pointer
         .indicator
             display: inline-block
             width: 10px
@@ -640,6 +644,7 @@ sr-unpaid-doughnut-widget
         height: 25%
         max-height: 70px
         border-bottom: 1px solid $uni-color-scale8
+        font-size: 14px
 
         &:first-of-type
             font-weight: bold
@@ -647,7 +652,7 @@ sr-unpaid-doughnut-widget
         span
             display: inline-block
             width: 20%
-            overflow:
+            overflow: hidden
             text-overflow: ellipsis
             white-space: nowrap
 
@@ -655,10 +660,17 @@ sr-unpaid-doughnut-widget
                 width: 24px
             &:nth-child(2)
                 width: 35%
+                padding-right: 1.2rem
 
             &:nth-last-child(-n + 2)
                 text-align: right
                 padding-right: 1rem
+
+            a
+                font-weight: bold
+                color: var(--color-c2a)
+                font-weight: 500
+                cursor: pointer
 
     .indicator
         display: inline-block
@@ -667,3 +679,72 @@ sr-unpaid-doughnut-widget
         border-radius: 50%
         margin-right: 8px
         background: #738293
+
+.reminder-list-widget
+    padding: 0 1rem 1rem 1rem !important
+    margin: 0
+    text-align: left
+    flex: 1
+
+    ul
+        height: 100%
+        position: relative
+        margin: 5px 0 0
+        padding: 0 .25rem
+
+        &.empty-list
+            display: none
+
+        li
+            display: flex
+            align-items: center
+            height: 4rem
+            cursor: pointer
+            padding: 0 12px
+
+            font-size: 12px
+            font-family: var(--font-family)
+            color: var(--text-color)
+            white-space: nowrap
+            text-overflow: ellipsis
+            overflow: hidden
+            box-shadow: -1px 1px 2px -1px rgba(204,204,204,1)
+            border: 1px solid rgba(204,204,204,.4)
+
+            & + li
+                margin-top: 10px
+
+            i
+                vertical-align: middle
+                color: var(--color-c2a)
+
+            div
+                flex: 1
+                display: flex
+                flex-direction: column
+                justify-content: center
+                margin: 0 .5rem 0 1rem
+                overflow: hidden
+                white-space: nowrap
+                text-overflow: ellipsis
+
+                span
+                    line-height: 22px
+                    &:first-of-type
+                        font-weight: bold
+
+    .no-items-message
+        display: block
+        width: 100%
+        height: 100%
+        display: flex
+        align-items: center
+        justify-content: center
+        flex-direction: column
+        color: var(--color-good)
+
+        i
+            font-size: 55px
+            margin-bottom: 1.4rem
+
+

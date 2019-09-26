@@ -3,6 +3,7 @@ import {UniWidgetCanvas, DefaultWidgetLayout} from '../widgets/widgetCanvas';
 import {UniTranslationService} from '@app/services/services';
 import * as Chart from 'chart.js';
 import {AuthService} from '@app/authService';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'uni-dashboard',
@@ -14,13 +15,15 @@ export class Dashboard {
     layout: DefaultWidgetLayout; // = this.getLayout();
     companyName: string;
     localeValue: string = 'NO_UNI';
+    localeSub: Subscription;
 
     constructor(
         private authService: AuthService,
         private translationService: UniTranslationService
     ) {
-        this.translationService.locale.subscribe((locale) => {
+        this.localeSub = this.translationService.locale.subscribe((locale) => {
             this.localeValue = locale;
+            console.log('1');
             this.layout = this.getLayout();
         });
         let companyName = this.authService.activeCompany && this.authService.activeCompany.Name;
@@ -34,7 +37,14 @@ export class Dashboard {
         (<any> Chart).defaults.global.maintainAspectRatio = false;
     }
 
+    ngOnDestroy() {
+        if (this.localeSub) {
+            this.localeSub.unsubscribe();
+        }
+    }
+
     public getLayout() {
+        console.log('2');
         if (this.localeValue === 'NO_UNI') {
             return {
                 large: [
@@ -89,6 +99,8 @@ export class Dashboard {
                 large: [
                     {x: 0, y: 0, widgetID: 'chart_and_table_customers'},
                     {x: 7, y: 0, widgetID: 'unpaid_customerinvoice_sr'},
+                    {x: 0, y: 3, widgetID: 'reminder_list'},
+                    {x: 3, y: 3, widgetID: 'operatingprofit_line' },
                     // {x: 0, y: 3, widgetID: 'chart_and_table_accounts'}
                 ],
             };

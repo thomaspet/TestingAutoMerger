@@ -211,7 +211,7 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutoutPercentage: 80,
+                cutoutPercentage: 70,
                 animation: {
                     scale: true,
                     rotate: true,

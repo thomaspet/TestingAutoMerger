@@ -35,14 +35,16 @@ export class ChartAndTableWidget implements AfterViewInit {
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
 
+    isCustomer: boolean = true;
     chartRef: any;
     chartConfig: any;
     totalAmount: number = 0;
     missingData: boolean;
     dataHolder: number[] = [];
     tableData: any[] = [];
-    headers: string[] = ['Kunde', 'Kundenr', 'Utestående', 'Forfalt dato'];
+    headers: string[] = ['Kunde', 'Fakturanr', 'Utestående', 'Forfalt dato'];
     accountTableLeaders: string[] = ['Startsaldo', 'Penger inn', 'Penger ut', 'Sluttsaldo'];
+    show = [true, true, true, true];
 
     accounts: IPeriode[] = [
         {
@@ -79,6 +81,7 @@ export class ChartAndTableWidget implements AfterViewInit {
 
     ngAfterViewInit() {
         if (this.widget) {
+            this.isCustomer = this.widget.config.model === 'CustomerInvoice';
             this.getDataAndLoadChart();
         }
     }
@@ -93,7 +96,7 @@ export class ChartAndTableWidget implements AfterViewInit {
     private getDataAndLoadChart() {
         const queries: any[] = [];
 
-        if (this.widget.config.model === 'CustomerInvoice') {
+        if (this.isCustomer) {
             queries.push(this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&select=${this.getCustomerSumQuery()}`));
             queries.push(this.statisticsService.GetAllUnwrapped(this.getCustomersThatNeedAttention()));
         } else {
@@ -109,10 +112,10 @@ export class ChartAndTableWidget implements AfterViewInit {
         Observable.forkJoin(queries).subscribe((response) => {
             this.formatChartData(response[0]);
             // this.cdr.markForCheck();
-            if (this.widget.config.model === 'CustomerInvoice') {
+            if (this.isCustomer) {
                 this.tableData = response[1].map((customer) => {
                     customer.value1 = customer.CustomerName;
-                    customer.value2 = customer.CustomerNumber;
+                    customer.value2 = customer.InvoiceNumber;
                     customer.value3 = this.numberFormatService.asMoney(customer.RestAmount);
                     customer.value4 = moment(customer.PaymentDueDate).format('DD.MM.YY');
                     customer.color = this.getCustomerDueColor(customer.PaymentDueDate);
@@ -120,6 +123,41 @@ export class ChartAndTableWidget implements AfterViewInit {
                 });
             }
         });
+    }
+
+    addhiddenClass(id: string, index) {
+        this.show[index] = !this.show[index];
+
+        const element = document.getElementById(id);
+
+        if (this.show[index]) {
+            element.classList.remove('hidden-class');
+        } else {
+            element.classList.add('hidden-class');
+        }
+        this.reDrawAfterLegendClick();
+    }
+
+    reDrawAfterLegendClick() {
+        this.chartRef.config.data.labels = this.widget.config.labels.map((l, i) =>  {
+            if (this.show[i]) {
+                return l;
+            }
+        });
+        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
+
+        this.chartRef.config.data.datasets[0].backgroundColor = this.widget.config.colors.map((l, i) => {
+            if (this.show[i]) {
+                return l;
+            }
+        });
+        this.chartRef.config.data.datasets[0].data = this.dataHolder.map((l, i) =>  {
+            if (this.show[i]) {
+                return l;
+            }
+        });
+
+        this.chartRef.update();
     }
 
     getCustomerDueColor(date) {
@@ -183,22 +221,21 @@ export class ChartAndTableWidget implements AfterViewInit {
     }
 
     public getCustomersThatNeedAttention() {
-        return `model=CustomerInvoice&select=ID as ID,PaymentDueDate as PaymentDueDate,CustomerName as CustomerName,` +
+        return `model=CustomerInvoice&select=ID as ID,PaymentDueDate as PaymentDueDate,` +
+        `CustomerName as CustomerName,InvoiceNumber as InvoiceNumber,` +
         `Customer.ID as CustomerID,Customer.CustomerNumber as CustomerNumber,RestAmount as RestAmount,StatusCode as StatusCode` +
         `&filter=PaymentDueDate le ${moment().format('YYYYMMDD')} and RestAmount gt 0 and StatusCode ne 30101` +
-        `&top=5&expand=Customer&orderby=PaymentDueDate`;
+        `&top=3&expand=Customer&orderby=PaymentDueDate`;
     }
 
     toggleButtonClick() {
-        if (this.widget.config.model === 'CustomerInvoice') {
+        if (this.isCustomer) {
             this.router.navigateByUrl('/sales/invoices?filter=overdue_invoices');
         }
     }
 
-    onClickNavigate() {
-        if (this.widget && !this.widget._editMode) {
-            this.router.navigateByUrl('/sales/customer');
-        }
+    onClickNavigate(route: string, ID: number) {
+        this.router.navigateByUrl(route + ID);
     }
 
     private drawChart() {
@@ -211,13 +248,13 @@ export class ChartAndTableWidget implements AfterViewInit {
     }
 
     getHeaders() {
-        if (this.widget.config.model === 'CustomerInvoice') {
+        if (this.isCustomer) {
             return ['Kunde', 'Kundenr', 'Utestående', 'Forfalt dato'];
         }
     }
 
     getKeys() {
-        if (this.widget.config.model === 'CustomerInvoice') {
+        if (this.isCustomer) {
             return ['CustomerName', 'CustomerNumber', 'RestAmount', 'PaymentDueDate'];
         }
     }

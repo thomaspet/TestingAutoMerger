@@ -4,9 +4,9 @@
         <section class="filters">
             <button #toggle class="tertiary toggle-button"
                 (click)="toggleButtonClick()"
-                title="{{ widget?.config?.model === 'CustomerInvoice' ? 'Gå til liste over forfalte faktura' : 'Se tilgjengelige kontoer' }}">
-                {{widget?.config?.model === 'CustomerInvoice' ? 'Se forfalte' : 'Kontoer'}}
-                <i class="material-icons"> {{widget?.config?.model === 'CustomerInvoice' ? 'arrow_right' : 'expand_more'}} </i>
+                title="{{ isCustomer ? 'Gå til liste over forfalte faktura' : 'Se tilgjengelige kontoer' }}">
+                {{ isCustomer ? 'Se forfalte' : 'Kontoer' }}
+                <i class="material-icons"> {{isCustomer ? 'arrow_right' : 'expand_more'}} </i>
             </button>
             <dropdown-menu [trigger]="toggle" *ngIf="widget?.config?.model !== 'CustomerInvoice'">
                 <ng-template>
@@ -32,15 +32,15 @@
                 <canvas style="max-height: 220px" #chartCanvas></canvas>
             </div>
             <div class="legend-vertical-class">
-                <section class="legend-row" *ngFor="let label of widget?.config?.labels; let  i = index;">
+                <section class="legend-row" *ngFor="let label of widget?.config?.labels; let  i = index;" id="{{ 'legend' + i }}" (click)="addhiddenClass('legend' + i, i)">
                     <span class="indicator cost" [ngStyle]="{ 'background-color': this.widget.config.colors[i] }"></span>
                     {{ label }}
                 </section>
             </div>
         </section>
 
-        <section class="table-section" style="flex: 1;">
-            <ul [ngClass]="widget?.config?.model === 'CustomerInvoice' ? 'chart-and-table-customer' : ''">
+        <section class="table-section" style="flex: 1; margin-left: 2rem">
+            <ul [ngClass]="isCustomer ? 'chart-and-table-customer' : ''">
                 <li class="table-widget-header">
                     <span> </span>
                     <span> {{ headers[0] }} </span>
@@ -51,10 +51,10 @@
 
                 <li  *ngFor="let row of tableData; let i = index;">
                     <span>
-                        <div *ngIf="widget?.config?.model === 'CustomerInvoice'" class="indicator" [ngStyle]="{ 'background-color': row.color }"> </div>
+                        <div *ngIf="isCustomer" class="indicator" [ngStyle]="{ 'background-color': row.color }"> </div>
                     </span>
-                    <span> {{ row.value1 }} </span>
-                    <span> {{ row.value2 }} </span>
+                    <span> <a *ngIf="isCustomer" title="Gå til kunde" (click)="onClickNavigate('/sales/customer/', row.CustomerID)"> {{ row.value1 }} </a> </span>
+                    <span> <a *ngIf="isCustomer" title="Gå til faktura" (click)="onClickNavigate('/sales/invoices/', row.ID)"> {{ row.value2 }} </a> </span>
                     <span> {{ row.value3 }} </span>
                     <span> {{ row.value4 }} </span>
                 </li>

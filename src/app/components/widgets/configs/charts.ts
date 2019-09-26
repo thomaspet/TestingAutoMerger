@@ -232,5 +232,28 @@ export const CHARTS = [
             colors: ['#37B441', '#FFF000', '#FF9100', '#DA3D00']
 
         }
-    }
+    },
+    {
+        id: 'reminder_list',
+        description: 'Huskeliste',
+        permissions: ['ui_accounting'],
+        width: 3,
+        height: 3,
+        widgetType: 'reminderList',
+        config: {
+
+        }
+    },
+    {
+        id: 'operatingprofit_line',
+        description: 'Driftsresultat',
+        permissions: ['ui_accounting'],
+        width: 7,
+        height: 3,
+        widgetType: 'operatingprofit',
+        config: {
+            type: 'line',
+            costMultiplier: -1
+        }
+    },
 ];

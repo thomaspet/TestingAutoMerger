@@ -37,6 +37,7 @@ import {
     BalanceWidget,
     SRUnpaidDoughnutChart,
     ChartAndTableWidget,
+    ReminderListWidget,
     PaymentWidget
 } from './widgets/barrel';
 
@@ -86,6 +87,7 @@ export const WIDGET_MAP = {
     expenses: ExpensesWidget,
     balance: BalanceWidget,
     chartAndTable: ChartAndTableWidget,
+    reminderList: ReminderListWidget
     payment_chart: PaymentWidget
 };
 

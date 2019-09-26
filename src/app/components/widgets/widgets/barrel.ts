@@ -23,6 +23,7 @@ import {AssignmentsWidget} from './assignments/assignments-widget';
 import {ExpensesWidget} from './expenses/expenses-widget';
 import {BalanceWidget} from './balance/balance-widget';
 import {ChartAndTableWidget} from './chartAndTableWidget/chartAndTable';
+import {ReminderListWidget} from './reminder-list';
 import {PaymentWidget} from './payment/payment-chart';
 
 export const UNI_WIDGETS = [
@@ -50,6 +51,7 @@ export const UNI_WIDGETS = [
     ExpensesWidget,
     BalanceWidget,
     ChartAndTableWidget,
+    ReminderListWidget,
     PaymentWidget
 ];
 
@@ -77,4 +79,5 @@ export * from './assignments/assignments-widget';
 export * from './expenses/expenses-widget';
 export * from './balance/balance-widget';
 export * from './chartAndTableWidget/chartAndTable';
+export * from './reminder-list';
 export * from './payment/payment-chart';
