@@ -3,14 +3,13 @@
     <nav class="splitview_list">
         <ag-grid-wrapper [resource]="receipts$ | async" [config]="config$ | async" (rowSelectionChange)="updateSelected($event)"></ag-grid-wrapper>
     </nav>
-    <main class="splitview_detail">
-        <fieldset>
-            <legend>Detaljer</legend>
-
+    <main class="splitview_detail uni-container">
+        <header>Detaljer</header>
+        <section style="width: 100%">
             <button (click)="updateReceipt()" [attr.aria-busy]="busy" [disabled]="!selectedReceipt$.value?.ReceiptID">Oppdater</button>
             <uni-altinn-overview-details
                 [receipt]="selectedReceipt$ | async">
             </uni-altinn-overview-details>
-        </fieldset>
+        </section>
     </main>
 </section>

@@ -7,21 +7,17 @@
         </mat-select>
     </mat-form-field>
 
-    <fieldset style="width: 100% !important; max-width: 100%;">
-        <legend>{{currentSerie?.Name}}</legend>
+    <mat-slide-toggle
+        style="margin-bottom: 1rem;"
+        [(ngModel)]="allYears"
+        (change)="toggleAllYears($event)"
+        [labelPosition]="'before'">
+        Vis alle regnskapsår
+    </mat-slide-toggle>
 
-        <mat-slide-toggle
-            style="margin-bottom: 1rem;"
-            [(ngModel)]="allYears"
-            (change)="toggleAllYears($event)"
-            [labelPosition]="'before'">
-            Vis alle regnskapsår
-        </mat-slide-toggle>
-
-        <uni-table
-            [config]="listTableConfig"
-            [resource]="current"
-            (rowSelectionChanged)="onRowSelectionChange($event)">
-        </uni-table>
-    </fieldset>
+    <uni-table
+        [config]="listTableConfig"
+        [resource]="current"
+        (rowSelectionChanged)="onRowSelectionChange($event)">
+    </uni-table>
 </section>

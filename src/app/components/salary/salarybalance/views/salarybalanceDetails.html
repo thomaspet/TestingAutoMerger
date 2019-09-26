@@ -1,4 +1,4 @@
-<fieldset class="small">
+<fieldset class="uni-fieldset small">
     <legend>Detaljer</legend>
     <aside>
         <uni-form
@@ -9,7 +9,7 @@
     </aside>
 </fieldset>
 
-<fieldset class="small">
+<fieldset class="uni-fieldset small">
     <legend>Dokumenter</legend>
     <div *ngIf="!(salarybalance$ | async)?.ID">
         <uni-image
@@ -27,7 +27,7 @@
     </uni-image>
 </fieldset>
 
-<fieldset>
+<fieldset class="uni-fieldset">
     <legend>Poster</legend>
     <salary-balance-summary
         [salaryBalance]="salarybalance$ | async"
