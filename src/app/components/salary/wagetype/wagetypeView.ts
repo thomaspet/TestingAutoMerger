@@ -5,7 +5,7 @@ import {
     TaxType, StdWageType, GetRateFrom
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService} from '../../../services/services';
+import {WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService, StatisticsService} from '../../../services/services';
 import {WageTypeViewService} from './services/wageTypeViewService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -49,7 +49,8 @@ export class WageTypeView extends UniView implements OnDestroy {
         private financialYearService: FinancialYearService,
         private modalService: UniModalService,
         private wageTypeViewService: WageTypeViewService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private statisticsService: StatisticsService,
     ) {
 
         super(router.url, cacheService);
@@ -156,6 +157,7 @@ export class WageTypeView extends UniView implements OnDestroy {
     private askAndSaveWageType(done: (message: string) => void, updateView: boolean = true) {
         this.promptUserAboutSaving(done)
             .filter(result => result === ConfirmActions.ACCEPT)
+            .do(() => this.notifyUserNewWagetypeNotChanged())
             .switchMap(() => this.saveWageTypeObs(updateView))
             .subscribe((wageType: WageType) => {
                 if (updateView) {
@@ -199,6 +201,28 @@ export class WageTypeView extends UniView implements OnDestroy {
             }
             done('Lagring avbrutt');
         });
+    }
+
+    private notifyUserNewWagetypeNotChanged() {
+        if (this.wageType && this.wageType.ID && this.wageType.WageTypeNumber) {
+            const nextYear = this.wageType.ValidYear + 1;
+            const wageTypeNumber = this.wageType.WageTypeNumber;
+
+            const filter = `model=wagetype&filter=Validyear eq ${nextYear} and wagetypenumber eq ${wageTypeNumber}&select=wagetypenumber,validyear`;
+
+            this.statisticsService.GetAll(filter).subscribe((res) => {
+                if (res.Data && res.Data[0]) {
+                    this.modalService.confirm({
+                        header: 'Nyere lønnsart ikke endret',
+                        message: `Lønnsarten finnes i år ${nextYear}, denne endringen påvirker ikke lønnsarten i ${nextYear}. Endring av lønnsart for ${nextYear} må skje når du er logget inn i år ${nextYear}.`,
+                        buttonLabels: {
+                            cancel: 'OK'
+                        }
+                    })
+                    .onClose;
+                }
+            });
+        }
     }
 
     private saveWageTypeObs(updateView: boolean): Observable<WageType> {
