@@ -369,7 +369,7 @@
                 "Header": "Statustekst",
                 "Field": "StatusText",
                 "FilterOperator": "contains",
-                "ShowOnlyOnThisFilter": 4
+                "ShowOnlyOnThisFilter": 3
             },
             {
                 "Header": "Bilagnr.",
