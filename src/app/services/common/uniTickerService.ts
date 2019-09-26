@@ -1245,6 +1245,7 @@ export class TickerColumn {
     public Alignment?: 'left' | 'right' | 'center';
     public EnableRowGroup?: boolean;
     public Seperator?: string;
+    public Stuff?: boolean;
 }
 
 export interface ITickerColumnOverride {

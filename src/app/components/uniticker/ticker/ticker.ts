@@ -1006,7 +1006,11 @@ export class UniTicker {
                     selects.push('MandatoryDimensions.MandatoryType');
                     selects.push('MandatoryDimensions.DimensionNo');
                 } else {
-                    selects.push(column.SelectableFieldName + ' as ' + column.Alias);
+                    if (column.Stuff) {
+                        selects.push('stuff(' + column.SelectableFieldName + ') as ' + column.Alias);
+                    } else {
+                        selects.push(column.SelectableFieldName + ' as ' + column.Alias);
+                    }
                 }
 
                 if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
@@ -1016,7 +1020,11 @@ export class UniTicker {
                     column.SubFields.forEach(subColumn => {
                         if (this.shouldAddColumnToQuery(subColumn, tableColumn)) {
                             this.setExpand(subColumn);
-                            selects.push(subColumn.SelectableFieldName + ' as ' + subColumn.Alias);
+                            if (subColumn.Stuff) {
+                                selects.push('stuff(' + subColumn.SelectableFieldName + ') as ' + subColumn.Alias);
+                            } else {
+                                selects.push(subColumn.SelectableFieldName + ' as ' + subColumn.Alias);
+                            }
                         }
                     });
                 }
@@ -1625,7 +1633,11 @@ export class UniTicker {
                         stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
                         headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
                     } else {
-                        stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                        if (col.Stuff) {
+                            stringSelect.push('stuff(' + col.SelectableFieldName + ') as ' + col.Alias);
+                        } else {
+                            stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                        }
                         headers.push(col.Header);
                     }
                 }
@@ -1639,7 +1651,11 @@ export class UniTicker {
                     stringSelect.push('MandatoryDimensions.DimensionNo,MandatoryDimensions.MandatoryType');
                     headers.push('MandatoryDimensionsDimensionNo', 'MandatoryDimensionsMandatoryType');
                 } else {
-                    stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    if (col.Stuff) {
+                        stringSelect.push('stuff(' + col.SelectableFieldName + ') as ' + col.Alias);
+                    } else {
+                        stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    }
                     headers.push(col.Header);
                 }
             }
