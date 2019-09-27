@@ -1012,6 +1012,15 @@
                     {
                         "FieldFilters": [
                             {
+                                "Field": "isnull(Product.PartName,'')",
+                                "Operator": "ne",
+                                "Value": ""
+                            }
+                        ]
+                    },
+                    {
+                        "FieldFilters": [
+                            {
                                 "Field": "CustomerInvoice.StatusCode",
                                 "Operator": "eq",
                                 "Value": "42002"

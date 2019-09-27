@@ -783,7 +783,7 @@ export class UniTickerService {
                     const filter: TickerFieldFilter = orderedByGroupFilters[index];
                     const filterValue: string = this.getFilterValueFromFilter(filter, expressionFilterValues);
 
-                    if (filterValue) {
+                    if (filterValue || filterValue === '') {
                         // open new filter group with parenthesis
                         if (!isInGroup) {
                             groupFilterString += '(';
