@@ -82,25 +82,25 @@ export class ImportCentralPage {
     let header, jobName, type, templateUrl, conditionalStatement, formatStatement, downloadStatement;
     switch (templateType) {
       case TemplateType.Product:
-        header = 'Importer produkt';
+        header = 'Importer produkter';
         jobName = ImportJobName.Product;
-        type = 'Produkt';
+        type = 'Produkter';
         formatStatement = ImportStatement.ProductFormatStatement;
         downloadStatement = ImportStatement.ProductDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT
         break;
       case TemplateType.Customer:
-        header = 'Importer kunde';
+        header = 'Importer kunder';
         jobName = ImportJobName.Customer;
-        type = 'Kunde';
+        type = 'Kunder';
         formatStatement = ImportStatement.CustomerFormatStatement;
         downloadStatement = ImportStatement.CustomerDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER
         break;
       case TemplateType.Supplier:
-        header = 'Importer leverandør';
+        header = 'Importer leverandører';
         jobName = ImportJobName.Supplier;
-        type = 'Leverandør';
+        type = 'Leverandører';
         formatStatement = ImportStatement.SupplierFormatStatement;
         downloadStatement = ImportStatement.SupplierDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER
@@ -108,16 +108,16 @@ export class ImportCentralPage {
       case TemplateType.MainLedger:
         header = 'Importer kontoplan';
         jobName = ImportJobName.MainLedger;
-        type = 'MainLedger';
+        type = 'Kontoplan';
         conditionalStatement = ImportStatement.MainLedgerConditionalStatement;
         formatStatement = ImportStatement.MainLedgerFormatStatement;
         downloadStatement = ImportStatement.MainLedgerDownloadStatement;
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
         break;
       case TemplateType.Payroll:
-        header = 'Import av variable lønnsposter';
+        header = 'Import lønnsposter';
         jobName = ImportJobName.Payroll;
-        type = 'Payroll';
+        type = 'lønnsposter';
         formatStatement = '';
         downloadStatement = '';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL 

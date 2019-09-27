@@ -246,8 +246,8 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     // show success message
     private showToast(fileName: string) {
-        this.toastService.addToast('', ToastType.good, ToastTime.forever,
-            `Uploading ${this.options.data.type}s list ${fileName}`);
+        this.toastService.addToast('', ToastType.good, ToastTime.medium,
+            `Uploading ${this.options.data.type} list ${fileName}`);
     }
 
     public onSelectChange(selectedItem) {
