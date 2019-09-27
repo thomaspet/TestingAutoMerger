@@ -341,8 +341,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     if (childRoute.startsWith('employments')) {
                         if (!this.employments) {
                             this.getEmployments();
-                            this.getProjects();
-                            this.getDepartments();
+                            this.cacheProjects();
+                            this.cacheDepartments();
                         }
                     }
 
@@ -657,8 +657,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         const postFilter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
         Observable.forkJoin(
             this.salaryTransService.GetAll('filter=' + postFilter, ['Supplements.WageTypeSupplement', 'Dimensions']),
-            this.getProjectsObservable(),
-            this.getDepartmentsObservable(),
+            this.getAndCacheProjectsObservable(),
+            this.getAndCacheDepartmentsObservable(),
             this.getWageTypesObservable(),
             this.getEmploymentsObservable(false))
             .subscribe((response: [SalaryTransaction[], Project[], Department[], WageType[], Employment[]]) => {
@@ -691,26 +691,40 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             : this.wageTypeService.getOrderByWageTypeNumber('', ['SupplementaryInformations']);
     }
 
-    private getProjects() {
-        this.getProjectsObservable().subscribe(projects => {
-            this.employmentService.setProjects(projects);
-            super.updateState('projects', projects, false);
-        });
+    private cacheProjects() {
+        this.getAndCacheProjectsObservable()
+            .subscribe();
     }
 
-    private getProjectsObservable() {
-        return this.projects ? Observable.of(this.projects) : this.projectService.GetAll('');
+    private getAndCacheProjectsObservable() {
+        return this.projects
+            ? of(this.projects)
+            : this.projectService
+                .GetAll('')
+                .pipe(
+                    tap(projects => {
+                        this.employmentService.setProjects(projects);
+                        super.updateState('projects', projects, false);
+                    }),
+                );
     }
 
-    private getDepartments() {
-        this.getDepartmentsObservable().subscribe(departments => {
-            this.employmentService.setDepartments(departments);
-            super.updateState('departments', departments, false);
-        });
+    private cacheDepartments() {
+        this.getAndCacheDepartmentsObservable()
+            .subscribe();
     }
 
-    private getDepartmentsObservable() {
-        return this.departments ? Observable.of(this.departments) : this.departmentService.GetAll('');
+    private getAndCacheDepartmentsObservable() {
+        return this.departments
+            ? of(this.departments)
+            : this.departmentService
+                .GetAll('')
+                .pipe(
+                    tap(departments => {
+                        this.employmentService.setDepartments(departments);
+                        super.updateState('departments', departments, false);
+                    })
+                );
     }
 
     private getEmployeeLeave(employments: Employment[]) {
@@ -1376,8 +1390,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             .switchMap(trans => {
                                 return Observable.forkJoin(
                                     Observable.of(trans),
-                                    this.getProjectsObservable(),
-                                    this.getDepartmentsObservable(),
+                                    this.getAndCacheProjectsObservable(),
+                                    this.getAndCacheDepartmentsObservable(),
                                     this.getDimension(trans),
                                     this.getWageTypesObservable());
                             })
