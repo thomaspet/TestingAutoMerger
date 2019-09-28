@@ -133,12 +133,27 @@ export class Billing {
                 ].join(';'));
 
                 item.Details.forEach(details => {
-                    details.Tags.forEach(tag => {
+                    if (details.Tags) {
+                        details.Tags.forEach(tag => {
+                            csv.push([
+                                item.ProductID,
+                                item.ProductName,
+                                details.Name,
+                                tag,
+                                formatNumber(details.Counter),
+                                '',
+                                '',
+                                item.Unit,
+                                formatNumber(item.DiscountPrc),
+                                ''
+                            ].join(';'));
+                        });
+                    } else {
                         csv.push([
                             item.ProductID,
                             item.ProductName,
                             details.Name,
-                            tag,
+                            '',
                             formatNumber(details.Counter),
                             '',
                             '',
@@ -146,7 +161,7 @@ export class Billing {
                             formatNumber(item.DiscountPrc),
                             ''
                         ].join(';'));
-                    });
+                    }
                 });
             } else if (item.Unit === 'stk') {
                 csv.push([

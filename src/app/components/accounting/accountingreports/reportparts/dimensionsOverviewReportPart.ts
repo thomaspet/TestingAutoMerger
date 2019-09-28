@@ -1,6 +1,7 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {PeriodFilter} from '../periodFilter/periodFilter';
+import {toIso} from '../../../common/utils/utils';
 import {
     UniTableColumn, UniTableConfig, UniTableColumnType, INumberFormat
 } from '@uni-framework/ui/unitable';
@@ -8,9 +9,12 @@ import {
     StatisticsService,
     ErrorService,
     DimensionService,
-    DimensionTypes
+    DimensionTypes,
+    FinancialYearService
 } from '@app/services/services';
 import { IDimType } from '../dimensionreport/dimensiontypereport';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {saveAs} from 'file-saver';
 
 export class DimensionSummaryData {
     public dimensionId: number;
@@ -36,16 +40,21 @@ export class DimensionSummaryData {
     templateUrl: './dimensionsOverviewReportPart.html',
 })
 export class DimensionsOverviewReportPart {
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
     @Input() periodFilter1: PeriodFilter;
     @Input() periodFilter2: PeriodFilter;
     @Input() dimensionType: DimensionTypes;
     @Input() filter: any;
     @Input() dimensionTypes: IDimType[];
+    @Input() toDate: { Date: Date };
+    @Input() fromDate: { Date: Date };
+    @Input() showPercent = false;
+
+    busy = false;
 
     private dimensionEntityName: string = '';
     dimensionDisplayName: string = '';
     private dimensionsNumberField: string = '';
-    private showPercent: boolean = true;
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: ',',
@@ -59,12 +68,42 @@ export class DimensionsOverviewReportPart {
         private router: Router,
         private statisticsService: StatisticsService,
         private errorService: ErrorService
-    ) {}
+    ) {
+    }
+
+    public exportToExcel() {
+        return new Promise( (resolve, reject) => {
+            var parts = this.getExcelQueryParts();
+            this.statisticsService
+            .GetExportedExcelFile(parts.model, parts.selects, parts.filters,
+                parts.expands, parts.headings, parts.joins, true)
+                .subscribe((result) => {
+                    let filename = '';
+                    // Get filename with filetype from headers
+                    if (result.headers) {
+                        const fromHeader = result.headers.get('content-disposition');
+                        if (fromHeader) {
+                            filename = fromHeader.split('=')[1];
+                        }
+                    }
+
+                    if (!filename || filename === '') {
+                        filename = 'export.xlsx';
+                    }
+
+                    const blob = new Blob([result.body], { type: 'text/csv' });
+                    // download file so the user can open it
+                    saveAs(blob, filename);
+                    resolve(filename);
+                },
+                err => { this.errorService.handle(err); resolve(''); });        
+            
+        });
+    }
 
     public ngOnChanges() {
         if (this.filter) {
             this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
-            this.showPercent = this.filter.ShowPercent;
         }
 
         if (this.periodFilter1 && this.periodFilter2 && this.dimensionType) {
@@ -106,25 +145,71 @@ export class DimensionsOverviewReportPart {
         this.router.navigateByUrl(url);
     }
 
-    private setupDimensionTable() {
-
-        const dimensionDataList: Array<DimensionSummaryData> = [];
-
-         this.statisticsService.GetAll(
-            `model=JournalEntryLine&expand=Period,Dimensions.${this.dimensionEntityName},`
-            + `Account.TopLevelAccountGroup`
-            + `&filter=Period.AccountYear eq ${this.periodFilter1.year} `
-            + `and Period.No ge ${this.periodFilter1.fromPeriodNo} `
-            + `and Period.No le ${this.periodFilter1.toPeriodNo}`
+    private getExcelQueryParts(): { model: string, selects: string, filters: string, orderby?: string, expands: string, headings: string, joins: string, distinct: boolean }
+    {
+        return {
+            model: 'JournalEntryLine'
+            ,selects: `${this.dimensionEntityName}.${this.dimensionsNumberField} as DimensionNumber`
+            + `,${this.dimensionEntityName}.Name as DimensionName`
+            + `,sum(casewhen(t.groupnumber eq 3,multiply(-1,amount),0)) as Sales`
+            + `,sum(casewhen(t.groupnumber eq 4,amount,0)) as Purchase`
+            + `,sum(casewhen(t.groupnumber eq 5,amount,0)) as Payroll`
+            + `,sum(casewhen(t.groupnumber ge 6 and t.groupnumber le 7,amount,0)) as Cost`
+            + `,sum(casewhen(t.groupnumber ge 8,amount,0)) as Finance`
+            + `,sum(multiply(-1,amount)) as Result`
+            ,filters: `FinancialDate ge '${toIso(this.fromDate.Date)}'`
+            + ` and FinancialDate le '${toIso(this.toDate.Date)}'`
             + ` and ${this.dimensionEntityName}.ID gt 0`
-            + `&orderby=${this.dimensionEntityName}.${this.dimensionsNumberField}`
-            + `,TopLevelAccountGroup.GroupNumber`
-            + `&select=${this.dimensionEntityName}.ID as DimID,${this.dimensionEntityName}`
+            + ' and t.groupnumber ge 3',
+            expands: `Period,Dimensions.${this.dimensionEntityName},Account`,
+            orderby: `${this.dimensionEntityName}.${this.dimensionsNumberField}`,
+            joins: 'account.toplevelaccountgroupid eq accountgroup.id as t',
+            headings: 'Nr,Navn,Salgsinntekter,Varekostnad,Lonnskostnader,Andre driftskostnader,Finans,Resultat',
+            distinct: true
+        }
+    }
+
+    private getReportQueryParts(): { model: string, selects: string, filters: string, orderby?: string, expands: string, headings: string, joins: string, distinct: boolean }
+    {
+        return {
+            model: 'JournalEntryLine'
+            , selects: `${this.dimensionEntityName}.ID as DimID,${this.dimensionEntityName}`
             + `.${this.dimensionsNumberField} as DimensionNumber,${this.dimensionEntityName}`
             + `.Name as DimensionName,TopLevelAccountGroup.GroupNumber `
             + `as TopLevelAccountGroupGroupNumber,TopLevelAccountGroup.Name `
-            + `as TopLevelAccountGroupName,sum(JournalEntryLine.Amount) as SumAmount`
-        ).subscribe(data => {
+            + `as TopLevelAccountGroupName,sum(JournalEntryLine.Amount) as SumAmount`,
+            filters: `FinancialDate ge '${toIso(this.fromDate.Date)}'`
+            + ` and FinancialDate le '${toIso(this.toDate.Date)}'`
+            + ` and ${this.dimensionEntityName}.ID gt 0`,
+            expands: `Period,Dimensions.${this.dimensionEntityName},Account.TopLevelAccountGroup`,
+            orderby: `${this.dimensionEntityName}.${this.dimensionsNumberField}`
+            + `,TopLevelAccountGroup.GroupNumber`,
+            joins: '',
+            headings: 'Prosjekt,Salgsinntekter,Varekostnad,Lonn,Driftskostnader-1,Driftskostnader-2,Finans,Resultat',
+            distinct: true
+        }
+    }
+
+    private getReportQuery(): string {
+        var parts = this.getReportQueryParts();
+        return `model=${parts.model}`
+        + `&filter=${parts.filters}`
+        + `&orderby=${this.dimensionEntityName}.${this.dimensionsNumberField}`
+        + `,TopLevelAccountGroup.GroupNumber`
+        + `&expand=${parts.expands}`
+        + `&select=${parts.selects}`
+        + `&orderby=${parts.orderby}`;
+    }
+
+    private setupDimensionTable() {
+
+        this.busy = true;
+
+        const dimensionDataList: Array<DimensionSummaryData> = [];
+
+         this.statisticsService.GetAll(this.getReportQuery())        
+        .finally(() => this.busy = false)
+        .subscribe(data => {
             const dimensionDataUnordered = data.Data;
 
             dimensionDataUnordered.forEach((item) => {
@@ -188,44 +273,44 @@ export class DimensionsOverviewReportPart {
                 .setTemplate(x => x.dimensionId > 0 ? `${x.dimensionNumber}: ${x.dimensionName}` : 'Ikke definert');
 
             const amountGroup3 = new UniTableColumn('amountGroup3', 'Salgsinntekter', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
             const amountGroup4 = new UniTableColumn('amountGroup4', 'Varekostnad', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup4 = new UniTableColumn('percentGroup4', '%', UniTableColumnType.Percent);
+            const percentGroup4 = new UniTableColumn('percentGroup4', '%', UniTableColumnType.Percent).setWidth('4rem');
 
             const amountGroup5 = new UniTableColumn('amountGroup5', 'Lønnskostnader', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup5 = new UniTableColumn('percentGroup5', '%', UniTableColumnType.Percent);
+            const percentGroup5 = new UniTableColumn('percentGroup5', '%', UniTableColumnType.Percent).setWidth('4rem');
 
             const amountGroup6 = new UniTableColumn('amountGroup6', 'Andre driftskost', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup6 = new UniTableColumn('percentGroup6', '%', UniTableColumnType.Percent);
+            const percentGroup6 = new UniTableColumn('percentGroup6', '%', UniTableColumnType.Percent).setWidth('4rem');
 
             const amountGroup7 = new UniTableColumn('amountGroup7', 'Andre driftskost', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup7 = new UniTableColumn('percentGroup7', '%', UniTableColumnType.Percent);
+            const percentGroup7 = new UniTableColumn('percentGroup7', '%', UniTableColumnType.Percent).setWidth('4rem');
 
             const amountGroup8 = new UniTableColumn('amountGroup8', 'Finanskost/innt', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroup8 = new UniTableColumn('percentGroup8', '%', UniTableColumnType.Percent);
+            const percentGroup8 = new UniTableColumn('percentGroup8', '%', UniTableColumnType.Percent).setWidth('4rem');
 
             const amountGroupResult = new UniTableColumn('amountGroupResult', 'Resultat', UniTableColumnType.Money)
-                .setCls('amount')
+                .setCls('amount').setWidth('8rem')
                 .setNumberFormat(this.numberFormat);
 
-            const percentGroupResult = new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Percent);
+            const percentGroupResult = new UniTableColumn('percentGroupResult', '%', UniTableColumnType.Number).setWidth('4rem');
 
             const tableName = 'accounting.dimensionOverviewReportPart';
             this.uniTableConfigDimension = new UniTableConfig(tableName, false, true, 25);

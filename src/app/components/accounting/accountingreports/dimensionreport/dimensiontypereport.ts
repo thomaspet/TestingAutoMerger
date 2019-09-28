@@ -1,16 +1,16 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {ResultSummaryData} from '../resultreport/resultreport';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {
     StatisticsService,
-    DimensionTypes, DimensionSettingsService,
+    DimensionSettingsService,
     FinancialYearService,
     PageStateService,
     DimensionService
 } from '../../../../services/services';
+import { DimensionsOverviewReportPart } from '../reportparts/dimensionsOverviewReportPart';
 
 export interface IDimType {
     Dimension: number;
@@ -23,9 +23,10 @@ export interface IDimType {
 @Component({
     selector: 'dimension-type-report',
     templateUrl: './dimensiontypereport.html',
+    styleUrls: ['./dimensiontypereport.sass']
 })
 export class DimensionTypeReport {
-
+    @ViewChild(DimensionsOverviewReportPart) public report: DimensionsOverviewReportPart;
     public toolbarconfig: IToolbarConfig;
     public periodFilter1: PeriodFilter;
     public periodFilter2: PeriodFilter;
@@ -34,18 +35,22 @@ export class DimensionTypeReport {
     public dimensionTypes: Array<IDimType>;
     public currentDimension: IDimType;
     private presetDimType: boolean;
+    toDate: { Date: Date };
+    fromDate: { Date: Date };
+    showPercent = false;
+    busy = false;
 
     constructor(
-        private router: Router,
         private route: ActivatedRoute,
-        private statisticsService: StatisticsService,
         private tabService: TabService,
-        private dimensionService: DimensionService,
         private periodFilterHelper: PeriodFilterHelper,
         private financialYearService: FinancialYearService,
         private dimensionSettingsService: DimensionSettingsService,
         private pageStateService: PageStateService
     ) {
+        this.fromDate = { Date: new Date(financialYearService.getActiveFinancialYear().Year, 0, 1) };
+        this.toDate = { Date: new Date(financialYearService.getActiveFinancialYear().Year, 11, 31) };
+
         this.route.params.subscribe(params => {
 
             this.setDimTypeFromUrl();
@@ -61,6 +66,11 @@ export class DimensionTypeReport {
         });
 
     }
+
+    periodChange($event) {
+        this.fromDate = { Date: $event.fromDate.Date.toDate() };
+        this.toDate = { Date: $event.toDate.Date.toDate() };
+    }    
 
     public ngOnInit() {
         this.getDimensions();
@@ -119,6 +129,11 @@ export class DimensionTypeReport {
         } else {
             this.presetDimType = !!this.pageStateService.getPageState().dimtype;
         }
+    }
+
+    exportToExcel() {
+        this.busy = true;
+        this.report.exportToExcel().then( () => this.busy = false );
     }
 
 }
