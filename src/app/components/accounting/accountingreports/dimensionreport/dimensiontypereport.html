@@ -1,4 +1,5 @@
-<section class="header-right">
+<section class="toolbar">
+
     <mat-form-field>
         <mat-select [value]="currentDimension" (valueChange)="onFilterClick($event)" placeholder="Type">
             <mat-option *ngFor="let item of dimensionTypes" [value]="item">
@@ -6,6 +7,15 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
+
+    <uni-date-selector style="margin-left: 3rem" class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
+
+    <label class="checkbox">
+        <input [(ngModel)]="showPercent" type="checkbox"/>Vis prosent kolonner
+    </label>
+
+    <button [attr.aria-busy]="busy" (click)="exportToExcel()" class="good" style="margin-left: auto">Eksport til Excel</button>
+
 </section>
 
 <dimensions-overview-report-part
@@ -13,5 +23,6 @@
     [periodFilter2]="periodFilter2"
     [dimensionType]="currentDimension?.Dimension"
     [dimensionTypes]="dimensionTypes"
-    [filter]="filter">
+    [filter]="filter"
+    [fromDate]="fromDate" [toDate]="toDate" [showPercent]="showPercent">
 </dimensions-overview-report-part>

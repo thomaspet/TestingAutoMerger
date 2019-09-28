@@ -1,11 +1,4 @@
-<section class="dimension-result" *ngIf="dimensionType">
-    <section class="uni-redesign">
-        <h2>Resultat per {{dimensionDisplayName.toLowerCase()}} {{periodFilter1.name}}</h2>
-        <button (click)="switchMainPeriod()">
-            Vis tall for {{periodFilter2.name}}
-        </button>
-    </section>
-
+<section [attr.aria-busy]="busy" class="dimension-result" *ngIf="dimensionType">
     <ag-grid-wrapper
         class="font-14"
         [resource]="dimensionDataList"
