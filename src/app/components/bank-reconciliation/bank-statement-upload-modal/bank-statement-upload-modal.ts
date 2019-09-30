@@ -1,9 +1,11 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {FileService, UniFilesService, StatisticsService, BankStatementService, ErrorService} from '@app/services/services';
 import {File, BankAccount, BankStatementEntry} from '@uni-entities';
 import {switchMap} from 'rxjs/operators';
 import {forkJoin} from 'rxjs';
+import { BankFileEditor } from './bank-file-editor';
+import { ImportTemplate } from './bankformatModels';
 
 @Component({
     selector: 'bank-statement-upload-modal',
@@ -13,6 +15,7 @@ import {forkJoin} from 'rxjs';
 export class BankStatementUploadModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
+    @ViewChild(BankFileEditor) bankFileEditor: BankFileEditor;
 
     busy: boolean;
     files;
@@ -21,10 +24,11 @@ export class BankStatementUploadModal implements IUniModal {
     bankAccounts: BankAccount[];
     selectedAccountID: number;
 
-    previewStep: boolean;
+    currentStep: 'upload' | 'custom' | 'preview' = 'upload';
 
     importTemplates: any[];
     selectedImportTemplate: any;
+    customTemplate: any;
     previewLines: BankStatementEntry[];
 
     constructor(
@@ -97,17 +101,48 @@ export class BankStatementUploadModal implements IUniModal {
         );
     }
 
-    goToPreviewStep() {
-        this.previewStep = true;
-        this.loadPreviewLines();
+    goToCustomFormatStep() {
+        this.currentStep = 'custom';
     }
 
-    loadPreviewLines() {
+    goToPreviewStep(template?: ImportTemplate) {
+        this.currentStep = 'preview';
+        this.loadPreviewLines(template);
+    }
+
+    gotoPreviousStep() {
+        switch (this.currentStep) {
+            case 'preview':
+                this.currentStep = 'upload';
+                break;
+            case 'custom':
+                this.goToPreviewStep();
+                break;
+        }
+    }
+
+    goToNextStep() {
+        switch (this.currentStep) {
+            case 'upload':
+                this.goToPreviewStep();
+                break;
+            case 'preview':
+                this.import();
+                break;
+            case 'custom':
+                const template = this.bankFileEditor.getTemplate();
+                this.goToPreviewStep(template);
+                break;
+        }
+    }
+
+    loadPreviewLines(template?: ImportTemplate) {
         this.busy = true;
         this.previewLines = [];
+        this.customTemplate = template || this.selectedImportTemplate
 
         this.bankStatementService.previewImport(
-            this.selectedImportTemplate,
+            this.customTemplate,
             this.selectedAccountID,
             this.selectedFileID
         ).subscribe(
@@ -125,7 +160,7 @@ export class BankStatementUploadModal implements IUniModal {
     import() {
         this.busy = true;
         this.bankStatementService.import(
-            this.selectedImportTemplate,
+            this.customTemplate,
             this.selectedAccountID,
             this.selectedFileID
         ).subscribe(

@@ -7,7 +7,7 @@
         </section>
 
         <!-- Account/file selection step -->
-        <section *ngIf="!previewStep">
+        <section *ngIf="currentStep=='upload'">
             <label>
                 <span>Velg konto</span>
                 <select [(ngModel)]="selectedAccountID">
@@ -37,8 +37,13 @@
             </section>
         </section>
 
+        <!-- Custom-file-editor -->
+        <section *ngIf="currentStep=='custom'">
+            <bank-file-editor [fileID]="selectedFileID"></bank-file-editor>
+        </section>
+
         <!-- Preview/confirm step -->
-        <section *ngIf="previewStep">
+        <section *ngIf="currentStep=='preview'">
             <label>
                 <span>Velg filformat</span>
                 <select [(ngModel)]="selectedImportTemplate" (ngModelChange)="loadPreviewLines()">
@@ -50,6 +55,7 @@
 
             <span *ngIf="!previewLines?.length && !busy" class="warn" style="font-size: 15px;">
                 Klarte ikke tolke filen. Vennligst påse at filformat er riktig.
+                <div><button (click)="currentStep='custom'"><i class="material-icons">edit</i> Tilpass filformat</button></div>
             </span>
 
             <section *ngIf="previewLines?.length">
@@ -76,20 +82,20 @@
         </button>
 
         <button class="outline"
-            [disabled]="!previewStep"
-            (click)="previewStep = false">
+            [disabled]="currentStep=='upload'"
+            (click)="gotoPreviousStep()">
             Tilbake
         </button>
 
         <button class="c2a"
-            *ngIf="!previewStep"
+            *ngIf="currentStep!='preview'"
             [disabled]="!selectedAccountID || !selectedFileID"
-            (click)="goToPreviewStep()">
+            (click)="goToNextStep()">
             Neste
         </button>
 
         <button class="good"
-            *ngIf="previewStep"
+            *ngIf="currentStep=='preview'"
             [disabled]="!previewLines?.length"
             (click)="import()">
             Fullfør
