@@ -448,8 +448,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
-
-                    this.invoice.InvoiceReference = <any> {};
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
