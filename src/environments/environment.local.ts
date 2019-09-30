@@ -1,8 +1,8 @@
 export const environment = {
     useProdMode: false,
 
-    BASE_URL_INIT: 'http://localhost:29435',
-    BASE_URL: 'http://localhost:29435',
+    BASE_URL_INIT: 'http://localhost:29077',
+    BASE_URL: 'http://localhost:29077',
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',

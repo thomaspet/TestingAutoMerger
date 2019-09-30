@@ -3,7 +3,7 @@ import {
     Input,
     SimpleChanges,
     ChangeDetectionStrategy,
-    ChangeDetectorRef
+    ChangeDetectorRef, ViewChild
 } from '@angular/core';
 import {
     Ticker,
@@ -11,6 +11,7 @@ import {
     ITickerColumnOverride,
 } from '../../../services/common/uniTickerService';
 import {UniTickerService} from '../../../services/services';
+import { UniTickerContainer } from '@app/components/uniticker/tickerContainer/tickerContainer';
 declare const _; // lodash
 
 @Component({
@@ -26,7 +27,7 @@ export class UniTickerWrapper {
 
     private tickers: Array<Ticker>;
     public selectedTicker: Ticker;
-
+    @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
     constructor(
         private uniTickerService: UniTickerService,
         private cdr: ChangeDetectorRef

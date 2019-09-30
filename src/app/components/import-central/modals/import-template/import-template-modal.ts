@@ -192,7 +192,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         this.importFileToJobServer(this.options.data.jobName, dataToImport).subscribe(
             res => {
                 this.close();
-                this.showToast(file.name);
+                this.showToast(file.name, this.options.data.entity);
                 this.loading$.next(false);
             },
             err => { this.errorService.handle(err); this.loading$.next(false); }
@@ -245,9 +245,14 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     }
 
     // show success message
-    private showToast(fileName: string) {
-        this.toastService.addToast('', ToastType.good, ToastTime.forever,
-            `Uploading ${this.options.data.type}s list ${fileName}`);
+    private showToast(fileName: string, type: TemplateType) {
+        if(type != this.saftType) {
+        this.toastService.addToast('', ToastType.good, ToastTime.medium,
+            `Uploading ${this.options.data.type} list ${fileName}`);
+        }else {
+            this.toastService.addToast('', ToastType.good, ToastTime.medium,
+            'Du kan lese inn filen flere ganger dersom det skulle oppstå problemer');
+        }
     }
 
     public onSelectChange(selectedItem) {

@@ -66,6 +66,7 @@ import { MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, M
 import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
 import { AprilaOfferModal } from './invoice/modals/aprila-offer/aprila-offer-modal';
 import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
+import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal';
 
 @NgModule({
     imports: [
@@ -131,6 +132,7 @@ import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/april
         UniReminderSendingModal,
         UniReminderSendingMethodModal,
         UniChooseOrderHoursModal,
+        BatchInvoiceModal,
         DebtCollection,
         SentToDebtCollection,
         InvoiceReminders,
@@ -167,7 +169,8 @@ import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/april
         UniRecurringInvoiceLogModal,
         AvtaleGiroModal,
         AprilaOfferModal,
-        AprilaCreditNoteModal
+        AprilaCreditNoteModal,
+        BatchInvoiceModal
     ],
     providers: [
         TradeItemHelper,

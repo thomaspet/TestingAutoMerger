@@ -1761,6 +1761,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.invoice['CustomValues'] = {
                             CustomAprilaReferenceID: 'tempValueToSkipAutoDistribution'
                         };
+                    } else if (this.aprilaOption.hasPermission) {
+                        this.invoice['CustomValues'] = {
+                            CustomAprilaReferenceID: null
+                        };
                     }
 
                     // send dummy function to saveInvoice to avoid setting done before the
@@ -1821,9 +1825,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         } else {
                             done('Lagring feilet');
                         }
-                    }).catch(error => {
-                            this.handleSaveError(error, done);
-                    });
+                    }).catch(error => this.handleSaveError(error, done));
                 } else {
                     done('Lagring avbrutt');
                 }

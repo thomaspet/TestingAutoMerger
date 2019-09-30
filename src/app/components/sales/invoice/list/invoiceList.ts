@@ -8,7 +8,13 @@ import {
     ErrorService,
     CompanySettingsService,
 } from '../../../../services/services';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { BatchInvoiceModal } from '../../common/batchInvoiceModal/batchInvoiceModal';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { map } from 'rxjs/operators';
+import { StatisticsService } from '@app/services/common/statisticsService';
 
 @Component({
     selector: 'invoice-list',
@@ -16,7 +22,9 @@ import { Router } from '@angular/router';
 })
 export class InvoiceList implements OnInit {
 
-    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    @ViewChild(UniTickerWrapper) public tickerWrapper: UniTickerWrapper;
+
+    public toolbarconfig: IToolbarConfig;
 
     public tickercode: string = 'invoice_list';
     public actionOverrides: Array<ITickerActionOverride> = this.customerInvoiceService.actionOverrides;
@@ -67,8 +75,12 @@ export class InvoiceList implements OnInit {
         private tabService: TabService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private router: Router
-    ) { }
+        private router: Router,
+        private route: ActivatedRoute,
+        private modalService: UniModalService,
+        private toastService: ToastService,
+        private statisticsService: StatisticsService
+    ) {}
 
     public ngOnInit() {
         this.companySettingsService.Get(1)
@@ -86,9 +98,60 @@ export class InvoiceList implements OnInit {
             active: true,
             moduleID: UniModules.Invoices
         });
+        this.route.queryParamMap.subscribe(params => {
+            this.updateToolbar(params.get('filter'));
+        });
     }
 
     private newInvoice() {
         this.router.navigateByUrl('/sales/invoices/' + 0);
+    }
+
+    // Egen her, eller gjenbruke den i orderList. Forskjellen p.t. er bare tekst ordre/faktura 2 steder
+    private openBatchInvoiceModal() {
+        const mainTicker = this.tickerWrapper.tickerContainer.mainTicker;
+        if (!mainTicker) {
+            return;
+        }
+        const params = mainTicker.lastFilterParams;
+        if (!params) {
+            return;
+        }
+        let newParams = params.delete('top').delete('skip').delete('limit');
+        let selectQuery = newParams.get('select');
+        if (selectQuery.indexOf('CustomerInvoiceTaxInclusiveAmountCurrency') === -1 ) {
+            selectQuery += ',CustomerInvoice.TaxInclusiveAmountCurrency as CustomerInvoiceTaxInclusiveAmountCurrency';
+        }
+        newParams = newParams.set('select', selectQuery);
+        this.statisticsService
+            .GetAllByHttpParams(newParams, mainTicker.ticker.Distinct || false)
+            .pipe(
+                map(response => response.body.Data)
+            )
+            .subscribe(data => {
+                this.modalService.open(BatchInvoiceModal, { data: {
+                    entityType: 'invoice',
+                    items: data
+                }}).onClose.subscribe(close => {
+                    if (close === 'ok') {
+                        this.toastService.addToast('Jobbkjøring vellykket');
+                    }
+                });
+            });
+    }
+
+    private updateToolbar(filter: string) {
+        this.toolbarconfig = {
+            title: 'Faktura',
+            contextmenu: [
+                {
+                    label: 'Samlefaktura',
+                    action: () => {
+                        this.openBatchInvoiceModal();
+                    },
+                    disabled: () => filter !== 'my_draft_invoices'
+                },
+            ]
+        }
     }
 }

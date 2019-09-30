@@ -5,6 +5,7 @@ import { tap, finalize } from 'rxjs/operators';
 import { BankUtil } from './bankStatmentModels';
 import { safeDec, toIso } from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
+import { FinancialYearService } from '../accounting/financialYearService';
 
 export class DebitCreditEntry {
     public FinancialDate: Date;
@@ -45,6 +46,19 @@ export interface IVatType {
     superLabel?: string;
 }
 
+export interface INumberSerie {
+    ID: number;
+    DisplayName: string;
+    Name: string;
+}
+
+export interface IJournal {
+    DraftLines: Array<any>;
+    NumberSeriesID?: number;
+    NumberSeriesTaskID?: number;
+    FileIDs?: Array<number>;
+}
+
 @Injectable()
 export class BankJournalSession {
 
@@ -53,8 +67,13 @@ export class BankJournalSession {
     public vatTypes: Array<IVatType> = [];
     public busy = false;
     public balance = 0;
+    public currentYear = 0;
+    public series: Array<INumberSerie> = [];
+    public selectedSerie: INumberSerie;
 
-    constructor(private statisticsService: StatisticsService) { }
+    constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
+        this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
+    }
 
     clear() {
         this.items = [];
@@ -83,16 +102,30 @@ export class BankJournalSession {
                 + `,accountname as AccountName,vattypeid as VatTypeID`
                 + '&filter=accountnumber ge 1000 and accountnumber le 9999 and visible eq 1&orderby=accountnumber');
         const vatLoader = this.HttpGet(`vattypes`);
+        const seriesLoader = this.HttpGet('number-series?action=get-active-numberseries&entityType=JournalEntry&year='
+            + this.currentYear);
         return forkJoin(
             accountLoader,
-            vatLoader
+            vatLoader,
+            seriesLoader
         ).pipe(
             tap(res => {
                 this.accounts = this.createAccountSuperLabel(Array.isArray(res[0]) ? res[0] : [res[0]]);
                 this.vatTypes = this.createVatSuperLabel(res[1]);
+                this.setupSeries(res[2]);
             }),
             finalize (() => this.busy = false)
         );
+    }
+
+    private setupSeries(list, keyWord = 'bank') {
+        if (Array.isArray(list) && list.length > 0) {
+            this.series = list;
+            if (this.series.length > 1) {
+                this.selectedSerie = this.series.find( x => x.Name.toLowerCase().indexOf(keyWord) >= 0);
+            }
+            this.selectedSerie = this.selectedSerie || this.series[0];
+        }
     }
 
     public convertToJournal(asDraft = false) {
@@ -128,8 +161,14 @@ export class BankJournalSession {
         return list;
     }
 
-    private newJournal(draftLines = [], seriesTaskID = 1): { DraftLines: Array<any>, NumberSeriesTaskID: number, FileIDs?: Array<number> } {
-        return { DraftLines: draftLines, NumberSeriesTaskID: seriesTaskID, FileIDs: [] };
+    private newJournal(draftLines = [], seriesTaskID?: number): IJournal {
+        const jj = <IJournal>{ DraftLines: draftLines, FileIDs: [] };
+        if (this.selectedSerie) {
+            jj.NumberSeriesID = this.selectedSerie.ID;
+        } else if (seriesTaskID) {
+            jj.NumberSeriesTaskID = seriesTaskID;
+        }
+        return jj;
     }
 
     private convertToJournalEntry(item: DebitCreditEntry) {
@@ -174,6 +213,7 @@ export class BankJournalSession {
     }
 
     public cacheAccount(acc) {
+        if (!(acc && acc.ID)) { return; }
         const match = this.accounts.find( x => x.ID === acc.id);
         if (!match) {
             this.createAccountSuperLabel([acc]);
@@ -185,13 +225,18 @@ export class BankJournalSession {
         const item = new DebitCreditEntry();
         const acc = this.accounts.find( x => x.ID === debetAccountID );
         if (acc) {
-            item.DebetAccountID = debetAccountID;
-            item.Debet = acc;
+            if (amount > 0) {
+                item.DebetAccountID = debetAccountID;
+                item.Debet = acc;
+            } else {
+                item.CreditAccountID = debetAccountID;
+                item.Credit = acc;
+            }
             if (acc.VatTypeID) {
                 item.VatType = this.vatTypes.find( x => x.ID === acc.VatTypeID);
             }
         }
-        item.Amount = amount;
+        item.Amount = Math.abs(amount);
         item.FinancialDate = date;
         item.Description = text;
         this.items.push(item);
@@ -213,6 +258,8 @@ export class BankJournalSession {
             case 'Amount':
                 match.Amount = safeDec(newValue);
                 break;
+            default:
+                return row;
         }
         this.balance = this.calcTotal();
         return match;

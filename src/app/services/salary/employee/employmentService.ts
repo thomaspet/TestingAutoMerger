@@ -4,7 +4,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project, CompanySalary,
-    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity,
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction,
 } from '../../../unientities';
 import {Observable, ReplaySubject} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';

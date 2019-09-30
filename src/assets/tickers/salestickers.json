@@ -855,6 +855,11 @@
         "Joins": "CustomerInvoiceItem.CustomerInvoiceID eq CustomerInvoice.ID and CustomerInvoice.CustomerID eq Customer.ID and CustomerInvoice.DefaultSellerID eq Seller.ID and CustomerInvoiceItem.DimensionsID eq DimensionsInfo.DimensionsID",
         "Columns": [
             {
+                "Header": "ID",
+                "Field": "ID",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Produktnr.",
                 "Field": "Product.PartName",
                 "FilterOperator": "startswith",
@@ -869,7 +874,8 @@
             {
                 "Header": "Produktgruppe",
                 "Field": "ProductCategory.Name",
-                "FilterOperator": "startswith"
+                "FilterOperator": "startswith",
+                "Stuff": true
             },
             {
                 "Header": "Fakturanr",
@@ -1006,9 +1012,28 @@
                     {
                         "FieldFilters": [
                             {
+                                "Field": "isnull(Product.PartName,'')",
+                                "Operator": "ne",
+                                "Value": ""
+                            }
+                        ]
+                    },
+                    {
+                        "FieldFilters": [
+                            {
                                 "Field": "CustomerInvoice.StatusCode",
                                 "Operator": "eq",
                                 "Value": "42002"
+                            },
+                            {
+                                "Field": "CustomerInvoice.StatusCode",
+                                "Operator": "eq",
+                                "Value": "42003"
+                            },
+                            {
+                                "Field": "CustomerInvoice.StatusCode",
+                                "Operator": "eq",
+                                "Value": "42004"
                             },
                             {
                                 "Field": "CustomerInvoice.Credited",

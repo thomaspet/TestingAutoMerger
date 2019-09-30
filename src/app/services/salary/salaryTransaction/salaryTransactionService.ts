@@ -33,4 +33,8 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
     public removeTransaction(id: number) {
         return super.Remove(id);
     }
+
+    public updateFromEmployments(employmentIDs: number[]): Observable<SalaryTransaction[]> {
+        return super.ActionWithBody(null, employmentIDs, 'update-from-employments');
+    }
 }

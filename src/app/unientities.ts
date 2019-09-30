@@ -1431,6 +1431,42 @@ export class CustomerQuoteItem extends UniEntity {
 }
 
 
+export class BatchInvoice extends UniEntity {
+    public static RelativeUrl = 'batchinvoices';
+    public static EntityType = 'BatchInvoice';
+
+    public _createguid: string;
+    public ID: number;
+    public InvoiceDate: LocalDate;
+    public DueDate: LocalDate;
+    public MinAmount: number;
+    public Operation: BatchInvoiceOperation;
+    public SellerID: number;
+    public OurRef: string;//Hentes fra ordre
+    public Items: Array<BatchInvoiceItem>;
+    public StatusCode: number;
+    public YourRef: string;
+/* Andre felt i backend:
+        public string Comment { get; set; }
+        [ReadOnly]
+        public int Processed { get; set; }
+        [ReadOnly]
+        public int TotalToProcess { get; set; }
+*/
+}
+
+export class BatchInvoiceItem extends UniEntity {
+    //Route ikke implementert (kommentert ut) - public static RelativeUrl = 'batchinvoices';
+    public static EntityType = 'BatchInvoiceItem';
+
+    public _createguid: string;
+    public ID: number;
+    public BatchInvoiceID: number;
+    public CustomerOrderID: number;
+    public CustomerInvoiceID: number;
+    public StatusCode: number;//import { StatusCode } from "./components/sales/salesHelper/salesEnums";
+}
+
 export class Supplier extends UniEntity {
     public static RelativeUrl = 'suppliers';
     public static EntityType = 'Supplier';
@@ -9556,4 +9592,10 @@ export enum VippsProcessStatus{
 export enum CustomFieldStatus{
     Draft = 110100,
     Active = 110101,
+}
+
+export enum BatchInvoiceOperation {
+    OneInvoiceEachCustomer = 0,
+    OneInvoiceEachOrder = 1,
+    OneInvoiceEachProject = 2
 }

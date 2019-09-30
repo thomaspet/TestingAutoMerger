@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ChatBoxService } from './chat-box.service';
 import { Comment, User } from '@uni-entities';
 import { AuthService } from '@app/authService';
@@ -15,15 +15,18 @@ import { PushMessage, BusinessObject } from '@app/models';
     templateUrl: './chat-box.component.html',
     styleUrls: ['./chat-box.component.sass']
 })
-export class ChatBoxComponent implements OnInit {
+export class ChatBoxComponent implements OnInit, AfterViewChecked {
     @Input() businessObject: BusinessObject;
 
     @ViewChild('inputElement') private inputElement: ElementRef;
+    @ViewChild('chatContainer') private chatContainer: ElementRef;
 
     comments: Comment[];
     filteredUsers: User[] = [];
     inputControl: FormControl = new FormControl('');
     minimized = false;
+    disableScrollDown = false;
+    newComment = false;
 
     public focusIndex: number;
     private mentionIndex: number;
@@ -80,6 +83,44 @@ export class ChatBoxComponent implements OnInit {
         });
     }
 
+    ngAfterViewChecked() {
+        if (!this.disableScrollDown) {
+            this.scrollToBottom();
+        }
+        if (this.newComment) {
+            this.newCommentScrollToBottom();
+        }
+    }
+
+    onScroll() {
+        const element = this.chatContainer.nativeElement;
+        const atBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
+        if (this.disableScrollDown && atBottom) {
+            this.disableScrollDown = false;
+        } else {
+            this.disableScrollDown = true;
+        }
+    }
+
+    scrollToBottom() {
+        if (this.chatContainer) {
+            try {
+                this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+
+    newCommentScrollToBottom() {
+        this.newComment = false;
+        try {
+            this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     closeChatBox(event: any) {
         event.stopPropagation();
         let businessObjects = this.chatBoxService.businessObjects.getValue();
@@ -106,6 +147,7 @@ export class ChatBoxComponent implements OnInit {
                 comment.Text = words.join(' ');
                 return comment;
             });
+            this.newComment = true;
         });
     }
 
@@ -166,6 +208,7 @@ export class ChatBoxComponent implements OnInit {
             Text: this.inputControl.value
         };
 
+        this.newComment = true;
         this.comments.unshift(commentDraft);
 
         this.commentService.post(this.businessObject.EntityType, this.businessObject.EntityID, this.inputControl.value).subscribe(

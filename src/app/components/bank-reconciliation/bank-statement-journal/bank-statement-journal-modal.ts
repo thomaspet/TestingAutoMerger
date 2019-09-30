@@ -84,13 +84,10 @@ export class BankStatementJournalModal implements IUniModal {
         this.session.recalc();
     }
 
-    public OnCheckDraft($event) {
-        console.log("onCheckDraft", $event);
-    }
-
     public onEditChange(event) {
         if (event.field && event.rowModel) {
             event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
+            return event.rowModel;
         }
     }
 
@@ -101,10 +98,10 @@ export class BankStatementJournalModal implements IUniModal {
             new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.DateTime)
                 .setWidth('5rem'),
 
-            this.createLookupColumn('Debet', 'Konto', 'Debet',
+            this.createLookupColumn('Debet', 'Debet', 'Debet',
                 x => this.lookupAccountByQuery(x), 'AccountNumber', 'AccountName', 'Debet.superLabel').setWidth('6rem'),
 
-            this.createLookupColumn('Credit', 'Motkonto', 'Credit',
+            this.createLookupColumn('Credit', 'Kredit', 'Credit',
                 x => this.lookupAccountByQuery(x), 'AccountNumber', 'AccountName', 'Credit.superLabel').setWidth('6rem'),
 
             this.createLookupColumn('VatType', 'Mva', 'VatType',
@@ -144,7 +141,7 @@ export class BankStatementJournalModal implements IUniModal {
                     return (expandKey ? (item[expandKey] + ' - ') : '') + getDeepValue(item, expandLabel);
                 },
                 lookupFunction: lookupFn,
-                debounceTime: 220
+                debounceTime: 180
         });
     }
 
@@ -168,7 +165,7 @@ export class BankStatementJournalModal implements IUniModal {
             filter = `contains(accountname,'${lcaseText}')`;
         }
         return this.session
-            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID'
+            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID'
                 , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
                 .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
     }
