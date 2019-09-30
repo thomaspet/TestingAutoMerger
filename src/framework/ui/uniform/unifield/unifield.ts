@@ -9,6 +9,7 @@ import {UniFormError} from '@uni-framework/ui/uniform/interfaces/uni-form-error.
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces/uni-field-layout.interface';
 import {FieldType} from '../field-type.enum';
 import { BaseControl } from '../controls/baseControl';
+import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-field',
@@ -171,6 +172,7 @@ export class UniField {
         if (validationResult.length !== 0) {
             errorMessages = errorMessages.concat(validationResult);
         }
+
         const errorsList = {};
         errorsList[this.field.Property] = [];
         this.hasWarning = false;
@@ -180,13 +182,15 @@ export class UniField {
         let i = 0;
         if (this.formConfig.hideErrors !== true) {
             errorMessages.forEach((errorMessage: Observable<UniFormError>) => {
-                errorMessage.subscribe(error => {
+                errorMessage.pipe(take(1)).subscribe(error => {
                     i++;
                     if (!error) {
                         if (i === numErrors) {
                             errorsList[this.field.Property] = this.errorMessages;
                             this.errorEvent.emit(errorsList);
                         }
+
+                        this.cssClasses = this.buildClassString();
                         return;
                     }
                     if (error.isWarning) {

@@ -1156,16 +1156,21 @@ export class CustomerDetails implements OnInit {
 
         this.isDirty = true;
         if (changes['OrgNumber'] && customer.OrgNumber) {
-            this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
-                if (res.Data.length > 0) {
-                    let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
-                    res.Data.forEach(function (ba) {
-                        orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
-                    });
-                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
-                }
+            customer.OrgNumber = customer.OrgNumber.replace(/ /g, '');
+            this.customerService.getCustomers(customer.OrgNumber).subscribe(
+                res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
 
-            }, err => this.errorService.handle(err));
+                },
+                // Don't toast this error to the user, they dont care
+                err => console.error(err)
+            );
         }
 
         if (changes['Info.InvoiceAddress']
@@ -1231,6 +1236,7 @@ export class CustomerDetails implements OnInit {
                 && customer.Info.Addresses[0].CountryCode !== 'NO';
         } catch (e) {}
 
+        console.log('Validating: ', orgNr, field, isInternationalCustomer);
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternationalCustomer);
     }
 
