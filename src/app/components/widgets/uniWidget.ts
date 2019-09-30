@@ -87,7 +87,7 @@ export const WIDGET_MAP = {
     expenses: ExpensesWidget,
     balance: BalanceWidget,
     chartAndTable: ChartAndTableWidget,
-    reminderList: ReminderListWidget
+    reminderList: ReminderListWidget,
     payment_chart: PaymentWidget
 };
 
