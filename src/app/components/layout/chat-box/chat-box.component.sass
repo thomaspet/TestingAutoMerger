@@ -35,42 +35,45 @@
                 margin: auto 16px auto auto
 
         .chat-messages
-            display: flex
-            flex-direction: column-reverse
             padding: 0 16px
-            overflow: scroll
+            overflow: auto
             margin: 0
             height: 100%
 
-            .message-row
-                padding: 1rem
-                flex-wrap: nowrap
+            .scroll-container
+                min-height: 0
+                display: flex
+                flex-direction: column-reverse
 
-                &.float-left
-                    justify-content: flex-start
-                    .avatar
-                        margin: auto 1rem auto 0
+                .message-row
+                    padding: 1rem
+                    flex-wrap: nowrap
 
-                &.float-right
-                    justify-content: flex-end
-                    .avatar
-                        margin: auto 0 auto 1rem
+                    &.float-left
+                        justify-content: flex-start
+                        .avatar
+                            margin: auto 1rem auto 0
 
-                .message
-                    width: fit-content
-                    padding: 8px 16px
+                    &.float-right
+                        justify-content: flex-end
+                        .avatar
+                            margin: auto 0 auto 1rem
 
-                    .message-text
-                        white-space: pre-line
+                    .message
+                        width: fit-content
+                        padding: 8px 16px
 
-                        ::ng-deep .mention
-                            background: transparentize($uni-color-toolbar, .9)
-                            padding: 0 pxToRem(2)
-                            border-radius: pxToRem(2)
+                        .message-text
+                            white-space: pre-line
 
-                    small
-                        display: block
-                        font-size: 12px
+                            ::ng-deep .mention
+                                background: transparentize($uni-color-toolbar, .9)
+                                padding: 0 pxToRem(2)
+                                border-radius: pxToRem(2)
+
+                        small
+                            display: block
+                            font-size: 12px
 
         .chat-footer
             padding: 16px

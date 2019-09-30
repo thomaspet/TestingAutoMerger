@@ -5,22 +5,24 @@
 		<i class="material-icons close-button" role="button" (click)="closeChatBox($event)">close</i>
 	</mat-card-header>
 
-	<mat-card-content *ngIf="!minimized" class="chat-messages">
-		<div
-			*ngFor="let comment of comments"
-			class="row message-row"
-			[ngClass]="comment?.Author?.GlobalIdentity === authService.currentUser?.GlobalIdentity ? 'float-right' : 'float-left'"
-		>
-			<uni-avatar
-				class="avatar"
-				[matTooltip]="comment?.Author?.DisplayName"
-				[name]="comment?.Author?.DisplayName"
-				[ngClass]="comment?.Author?.GlobalIdentity === authService.currentUser?.GlobalIdentity ? 'order-last' : 'order-first'"
-			></uni-avatar>
-			<mat-card class="message">
-				<div class="message-text" [innerHTML]="comment?.Text"></div>
-				<small>{{comment?.CreatedAt | date:'d. MMM HH:mm': '' :'nb'}}</small>
-			</mat-card>
+	<mat-card-content *ngIf="!minimized" #chatContainer class="chat-messages" (scroll)="onScroll()">
+		<div class="scroll-container">	
+			<div
+				*ngFor="let comment of comments"
+				class="row message-row"
+				[ngClass]="comment?.Author?.GlobalIdentity === authService.currentUser?.GlobalIdentity ? 'float-right' : 'float-left'"
+			>
+				<uni-avatar
+					class="avatar"
+					[matTooltip]="comment?.Author?.DisplayName"
+					[name]="comment?.Author?.DisplayName"
+					[ngClass]="comment?.Author?.GlobalIdentity === authService.currentUser?.GlobalIdentity ? 'order-last' : 'order-first'"
+				></uni-avatar>
+				<mat-card class="message">
+					<div class="message-text" [innerHTML]="comment?.Text"></div>
+					<small>{{comment?.CreatedAt | date:'d. MMM HH:mm': '' :'nb'}}</small>
+				</mat-card>
+			</div>
 		</div>
 	</mat-card-content>
 
