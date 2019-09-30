@@ -115,7 +115,7 @@ export class ImportCentralPage {
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
         break;
       case TemplateType.Payroll:
-        header = 'Import lønnsposter';
+        header = 'Importer lønnsposter';
         jobName = ImportJobName.Payroll;
         type = 'lønnsposter';
         formatStatement = '';
@@ -123,9 +123,9 @@ export class ImportCentralPage {
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL 
         break;
       case TemplateType.Saft:
-        header = 'SAF-T Import';
+        header = 'Importer SAF-T';
         jobName = ImportJobName.Saft;
-        type = 'Saft';
+        type = 'SAF-T';
         formatStatement = '';
         downloadStatement = '';
         templateUrl = ''
@@ -152,37 +152,38 @@ export class ImportCentralPage {
   }
 
   public openDownloadTemplateModal(templateType: TemplateType) {
-    let header, message, data;
+    let header, message, data, downloadButton;
+    downloadButton ='Eksportmal';
     switch (templateType) {
       case TemplateType.Product:
         header = 'Produkt Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PRODUCT, EntityType: templateType, FileName: 'ProductTemplateWithData', Permisions: this.uiPermission.product };
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PRODUCT, EntityType: templateType, FileName: 'ProductTemplateWithData', Permisions: this.uiPermission.product, downloadButton:downloadButton };
         break;
       case TemplateType.Customer:
         header = 'Kunde Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.CUSTOMER, EntityType: templateType, FileName: 'CustomerTemplateWithData', Permisions: this.uiPermission.customer }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.CUSTOMER, EntityType: templateType, FileName: 'CustomerTemplateWithData', Permisions: this.uiPermission.customer, downloadButton:downloadButton }
         break;
       case TemplateType.Supplier:
         header = 'Leverandør Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.SUPPLIER, EntityType: templateType, FileName: 'SupplierTemplateWithData', Permisions: this.uiPermission.supplier }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.SUPPLIER, EntityType: templateType, FileName: 'SupplierTemplateWithData', Permisions: this.uiPermission.supplier, downloadButton:downloadButton }
         break;
       case TemplateType.MainLedger:
         header = 'Kontoplan Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger, downloadButton:downloadButton }
         break;
       case TemplateType.Payroll:
         header = 'Lønnsposter Eksportmal';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll, downloadButton:downloadButton }
         break;
       case TemplateType.Saft:
-        header = 'Saft Eksportmal';
+        header = 'SAF-T eksport';
         message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton:'Eksporter SAF-T' }
         break;
       default:
         header = '';
@@ -195,7 +196,7 @@ export class ImportCentralPage {
       {
         header: header,
         message: message,
-        data: data,
+        data: data
       });
   }
 
