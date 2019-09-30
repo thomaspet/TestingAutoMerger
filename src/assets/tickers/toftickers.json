@@ -519,11 +519,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "Name": "Avansert filter",
-            "Code": "due_invoices",
-            "Filter": "PaymentDueDate lt getdate()"
         }
     ]
 },
