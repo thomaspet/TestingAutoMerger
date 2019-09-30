@@ -4,6 +4,7 @@ import {IUniWidget} from '../uniWidget';
 import {AuthService} from '../../../authService';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {WidgetDataService} from '../widgetDataService';
+import { Task } from '@uni-entities';
 
 @Component({
     selector: 'uni-reminder-list',
@@ -14,11 +15,11 @@ import {WidgetDataService} from '../widgetDataService';
             </section>
             <div class="content reminder-list-widget">
                 <ul id="reminder-list" [ngClass]="!items.length && dataLoaded ? 'empty-list' : ''">
-                    <li *ngFor="let item of items">
+                    <li *ngFor="let item of items" (click)="goToTaskView(item)" title="Gå til liste">
                         <i class="material-icons"> {{ item.icon }} </i>
                         <div>
-                            <span (click)="navigateOnClick(item.link)" title="Gå til liste">{{ item.Title }} </span>
-                            <span> {{ item.ml }}  </span>
+                            <span>{{ item.Title }} </span>
+                            <span> {{ item.Name }}  </span>
                         </div>
                     </li>
                 </ul>
@@ -46,7 +47,7 @@ export class ReminderListWidget {
     ) {}
 
     public ngAfterViewInit() {
-        this.widgetDataService.getData('/api/statistics?model=Task&select=ID as ID,Title as Title,ModelID as ModelID,Model.Label as ml,' +
+        this.widgetDataService.getData('/api/statistics?model=Task&select=ID as ID,Title as Title,ModelID as ModelID,Model.Name as Name,' +
         `StatusCode as StatusCode,Type as Type,UserID as UserID&filter=UserID eq ${this.authService.currentUser.ID} and ` +
         `StatusCode ne 50030&top=50&expand=model&orderby=ID desc`)
         .subscribe((data) => {
@@ -69,7 +70,7 @@ export class ReminderListWidget {
     }
 
     getIcon(item) {
-        if (!item.ml) {
+        if (!item.Name) {
             return 'schedule';
         } else {
             return 'local_atm';
@@ -82,7 +83,7 @@ export class ReminderListWidget {
         }
     }
 
-    public navigateOnClick(url: string) {
-        this.router.navigateByUrl(url);
+    public goToTaskView(item: Task) {
+        this.router.navigateByUrl(`/assignments/tasks`);
     }
 }
