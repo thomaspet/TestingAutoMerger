@@ -324,8 +324,6 @@ export class UniSelect implements OnChanges, AfterViewInit {
             return;
         }
 
-        console.log(event);
-
         if (this.expanded) {
             this.close();
             this.focus();

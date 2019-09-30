@@ -15,17 +15,22 @@ export interface ISelectOptions {
 @Component({
     selector: 'unitable-select',
     template: `
-        <input #inputElement
-            type="text"
-            class="select-input"
-            role="combobox"
-            aria-autocomplete="none"
-            tabindex="0"
-            (click)="expanded = !expanded"
-            (keydown)="onKeyDown($event)"
-            [formControl]="inputControl"
-            readonly
-        />
+        <section class="input-with-button" (click)="expanded = !expanded">
+            <input #inputElement
+                type="text"
+                class="select-input"
+                role="combobox"
+                aria-autocomplete="none"
+                tabindex="0"
+                (keydown)="onKeyDown($event)"
+                [formControl]="inputControl"
+                readonly
+            />
+
+            <button type="button" tabIndex="-1">
+                <i class="material-icons">expand_more</i>
+            </button>
+        </section>
 
         <input-dropdown-menu [input]="inputElement" [visible]="expanded">
             <ng-template>

@@ -1,16 +1,24 @@
 <article class="uniSelect" *ngIf="config" (clickOutside)="close()">
-    <input type="text" #valueInput
-        class="select-input"
-        (click)="toggle()"
-        tabindex="-1"
-        [formControl]="valueInputControl"
-        [placeholder]="config?.placeholder || ''"
-        [attr.aria-readonly]="readonly"
-        (keydown)="onKeyDown($event)"
-        (keydown.delete)="clear($event)"
-        (keypress)="onKeyPress($event)"
-        readonly
-    />
+    <section class="input-with-button" (click)="toggle()">
+        <input type="text" #valueInput
+            class="select-input"
+            tabindex="-1"
+            [formControl]="valueInputControl"
+            [placeholder]="config?.placeholder || ''"
+            [attr.aria-readonly]="readonly"
+            (keydown)="onKeyDown($event)"
+            (keydown.delete)="clear($event)"
+            (keypress)="onKeyPress($event)"
+            readonly
+        />
+
+        <button
+            type="button"
+            tabIndex="-1"
+            [disabled]="readOnly$ | async">
+            <i class="material-icons">expand_more</i>
+        </button>
+    </section>
 
     <input-dropdown-menu [input]="valueInput" [visible]="expanded">
         <ng-template>
