@@ -1,16 +1,9 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
-import {Address, Country} from '../../../app/unientities';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {
-    CountryService,
-    PostalCodeService,
-    ErrorService
-} from '../../../app/services/services';
-
 import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
-import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
+import {Address, Country} from '@uni-entities';
+import {UniFieldLayout, FieldType} from '../../ui/uniform';
+import {CountryService, PostalCodeService, ErrorService} from '@app/services/services';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-address-modal',
@@ -35,11 +28,8 @@ import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
     `
 })
 export class UniAddressModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
@@ -67,6 +57,12 @@ export class UniAddressModal implements IUniModal {
         this.formFields$.next(fields);
     }
 
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formModel$.complete();
+        this.formFields$.complete();
+    }
+
     public formChange(changes) {
         if (changes['PostalCode'] && changes['PostalCode'].currentValue) {
             const address = this.formModel$.getValue();
@@ -86,12 +82,6 @@ export class UniAddressModal implements IUniModal {
         if (inputs.length) {
             const first = inputs[0];
             first.focus();
-            first.value = first.value; // set cursor at end of text
-
-            const last = inputs[inputs.length - 1];
-            Observable.fromEvent(last, 'keydown')
-                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
-                .subscribe(() => this.close(true));
         }
     }
 

@@ -47,10 +47,10 @@ textarea
     box-sizing: border-box
     font-size: 15px
 
-    &[disabled],
-    &[readonly]
-        background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
-        cursor: normal
+    &[disabled], &[readonly]
+        background-color: #f5f5f5
+        // background-color: mix($uni-color-scale9, $uni-color-negative, 50%)
+        // cursor: normal
 
     &[required]
         box-shadow: 0 0 0 pxToRem(1) $uni-color-negative, 0 0 0 pxToRem(2) $uni-color-scale9

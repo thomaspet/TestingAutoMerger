@@ -2,14 +2,15 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { CustomerInvoiceService, ErrorService } from '@app/services/services';
 
-
 @Component({
     selector: 'aprila-offer-modal',
     templateUrl: './aprila-offer-modal.html',
     styleUrls: ['./aprila-offer-modal.sass']
 })
 export class AprilaOfferModal implements OnInit, IUniModal {
-    @Input() public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
+
     public showOfferSettings: boolean = false;
     public isShowOffer: boolean;
     public hasPermission: boolean = false;
@@ -21,15 +22,15 @@ export class AprilaOfferModal implements OnInit, IUniModal {
     public validationError = [];
     public gettingOfferProgress = false;
     public offerFeedbackProgress = false;
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
 
-    constructor(private customerInvoiceService: CustomerInvoiceService, private errorService: ErrorService) { }
+    constructor(
+        private customerInvoiceService: CustomerInvoiceService,
+        private errorService: ErrorService
+    ) {}
 
     public ngOnInit() {
-
         if (this.options.data.invoiceId) {
-            this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalings tilbud`;
+            this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalingstilbud`;
             this.getOffer();
         }
     }
@@ -42,36 +43,37 @@ export class AprilaOfferModal implements OnInit, IUniModal {
         this.showOfferSettings = !this.showOfferSettings;
     }
 
-
     public getOffer() {
         this.gettingOfferProgress = true;
-        this.customerInvoiceService.getAprilaOffer(this.options.data.invoiceId).subscribe(res => {
-
-            if (res.IsSuccess) {
-                this.offer = res.Data;
-                if (this.offer.Status === 'Offered') {
-                    this.isOffered = true;
-                } else if (this.offer.Status === 'Rejected') {
-                    this.isOffered = false;
-                    this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalings tilbud avvist`;
-                } else if (this.offer.Status === 'UnableToHandle') {
-                    this.isOffered = false;
-                }
-            } else {
-                if (res.Errors && res.Errors.length > 0 || res.ErrorResponse) {
-
-                    if (res.ErrorType === 'AprilaError' && res.ErrorResponse) {
-                        this.validationError = Object.values(res.ErrorResponse);
-                    } else {
-                        this.validationError = res.Errors;
+        this.customerInvoiceService.getAprilaOffer(this.options.data.invoiceId).subscribe(
+            res => {
+                this.gettingOfferProgress = false;
+                if (res.IsSuccess) {
+                    this.offer = res.Data;
+                    if (this.offer.Status === 'Offered') {
+                        this.isOffered = true;
+                    } else if (this.offer.Status === 'Rejected') {
+                        this.isOffered = false;
+                        this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalingstilbud avvist`;
+                    } else if (this.offer.Status === 'UnableToHandle') {
+                        this.isOffered = false;
+                    }
+                } else {
+                    if (res.Errors && res.Errors.length > 0 || res.ErrorResponse) {
+                        if (res.ErrorType === 'AprilaError' && res.ErrorResponse) {
+                            this.validationError = Object.values(res.ErrorResponse);
+                        } else {
+                            this.validationError = res.Errors;
+                        }
                     }
                 }
+            },
+            err => {
+                this.gettingOfferProgress = false;
+                this.errorService.handle(err);
+                this.close(true);
             }
-        }, err => {
-            this.handleError(err);
-            this.close(true);
-        }
-            , () => this.gettingOfferProgress = false);
+        );
     }
 
     public acceptOffer() {
@@ -81,7 +83,7 @@ export class AprilaOfferModal implements OnInit, IUniModal {
                 this.close(true);
                 this.offerFeedbackProgress = false;
             }, err => {
-                this.handleError(err);
+                this.errorService.handle(err);
                 this.offerFeedbackProgress = false;
                 this.close(true);
             });
@@ -96,7 +98,7 @@ export class AprilaOfferModal implements OnInit, IUniModal {
                     this.offerFeedbackProgress = false;
                     this.close(false);
                 }, err => {
-                    this.handleError(err);
+                    this.errorService.handle(err)
                     this.offerFeedbackProgress = false;
                     this.close(true);
                 });
@@ -104,9 +106,4 @@ export class AprilaOfferModal implements OnInit, IUniModal {
             this.close(true);
         }
     }
-
-    public handleError(error) {
-        this.errorService.handle(error);
-    }
-
 }
