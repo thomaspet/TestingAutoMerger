@@ -465,7 +465,7 @@ export class TradeItemHelper  {
             });
         }
 
-        if (sums.DecimalRoundingCurrency && 
+        if (sums.DecimalRoundingCurrency &&
             ((this.round(sums.DecimalRoundingCurrency, 2) > 0.00) || (this.round(sums.DecimalRoundingCurrency, 2) < 0.00))) {
             summaryLines.push({
                 label: 'Øreavrunding',
@@ -520,7 +520,7 @@ export class TradeItemHelper  {
             });
 
             let roundedAmount = this.round(sum.SumTotalIncVat, decimals);
-            sum.DecimalRounding = sum.SumTotalIncVat - roundedAmount;
+            sum.DecimalRounding = roundedAmount - sum.SumTotalIncVat;
 
             roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
