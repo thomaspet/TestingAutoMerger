@@ -92,10 +92,10 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
         )
         .pipe(
             map(([runCats, empCats]) => this.getPayrollRunsWithTransesForDeletion(runCats, empCats)),
-            switchMap(runs => this.askIfTheUserWantsToForceDelete(runs)),
+            switchMap(runs =>  runs[0] ? this.askIfTheUserWantsToForceDelete(runs) : Observable.of({action: ConfirmActions.ACCEPT, runs: null})),
             filter(result => result.action === ConfirmActions.ACCEPT),
             map(result => result.runs),
-            switchMap((runs) => this.deleteTransesOnRuns(runs)),
+            switchMap((runs) => runs ? this.deleteTransesOnRuns(runs) : Observable.of([])),
             switchMap(() => this.deleteAll(categoryID, empIDs))
         );
     }
@@ -104,7 +104,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
         const emps = runs
             .map(run => run.transactions)
             .reduce((curr, acc) => [...acc, ...curr])
-            .map(trans => trans.EmployeeID)
+            .map(trans => trans.EmployeeNumber)
             .filter((emp, index, arr) => {
                 const elIndex = arr.findIndex(val => val === emp);
                 return elIndex === index;
@@ -153,7 +153,12 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
         : Observable<{ run: PayrollRun, categories: EmployeeCategory[] }[]> {
         this.relativeURL = PayrollRun.RelativeUrl;
         return super
-            .GetAll(`filter=(StatusCode eq null or StatusCode eq 0) and transactions.IsRecurringPost eq false`, ['transactions'])
+            .GetAll(
+                `filter=(StatusCode eq null or StatusCode eq 0) and transactions.IsRecurringPost eq false ` 
+                    + `and transactions.SystemType ne ${StdSystemType.HolidayPayDeduction}`
+                    + `and (transactions.salaryBalanceID eq null or transactions.salaryBalanceID eq 0)`,
+                ['transactions']
+            )
             .pipe(
                 switchMap((runs: PayrollRun[]) =>
                     forkJoin(
@@ -163,7 +168,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
                         )
                     )
                     .pipe(
-                        map(runCats => runCats.filter(runCat => runCat.categories.length)),
+                        map(runCats => runCats.filter(runCat => !(runCat.categories.length || runCat.run.transactions.length))),
                         map(runCats => runCats.map(runCat => ({
                             run: this.cleanTransesOnRun(runCat.run),
                             categories: runCat.categories.filter(cat => cat.ID !== categoryID)
