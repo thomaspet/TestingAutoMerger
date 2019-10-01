@@ -13,12 +13,9 @@ import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toas
     templateUrl: './download-template-modal.html',
     styleUrls: ['./download-template-modal.sass']
 })
-
 export class DownloadTemplateModal implements OnInit, IUniModal {
-
     @Input() options: IModalOptions = {};
-
-    @Output() onClose: EventEmitter<any> = new EventEmitter();
+    @Output() onClose = new EventEmitter();
 
     config: ISelectConfig;
     operators: any[] = [];

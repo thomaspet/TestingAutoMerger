@@ -15,13 +15,9 @@ import { DisclaimerModal } from '../disclaimer/disclaimer-modal';
     styleUrls: ['./import-template-modal.sass']
 })
 export class ImportTemplateModal implements OnInit, IUniModal {
-
-
-    @Input() options: IModalOptions = {};
-
-    @Output() onClose: EventEmitter<any> = new EventEmitter();
-
     @ViewChild('file') fileElement: ElementRef<HTMLElement>;
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     // view related variables
     isValidFileFormat: boolean = true;
@@ -32,7 +28,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     payrollType: TemplateType = TemplateType.Payroll;
 
-    //saft related
+    // saft related
     saftType: TemplateType = TemplateType.Saft;
     isOpening: boolean = false;
     isKeepRecords: boolean = false;
@@ -53,7 +49,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     token: string;
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
 
-    //options in radio buttons (import options)
+    // options in radio buttons (import options)
     importOption: ImportOption = ImportOption.Skip;
     skip: ImportOption = ImportOption.Skip;
     override: ImportOption = ImportOption.Override;
@@ -64,7 +60,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     constructor(
         private authService: AuthService,
-        private http: HttpClient, 
+        private http: HttpClient,
         private jobService: JobService,
         private toastService: ToastService,
         private payrollService: PayrollrunService,
@@ -101,7 +97,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         }
     }
 
-    // Trigger click event of input file 
+    // Trigger click event of input file
     public selectFile() {
         if (!this.isFileDetached) {
             if (this.fileElement) {

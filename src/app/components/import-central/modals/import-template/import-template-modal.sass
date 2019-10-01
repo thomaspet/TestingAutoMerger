@@ -1,24 +1,5 @@
-@import '../../import-central-common.sass'
-.uni-modal
-    border-radius: 10px !important
-.dropdown-section
-    display: flex
-    margin-top: 20px
-    .title
-        margin-top: 0
-    .drop-down-container
-        margin: 0
-        .drop-down
-            margin: 0 10px
-            width: 100%
-
-.external-details
-    .statement
-        margin-bottom: 5px
-        display: block
-        text-align: justify
-
 .file-upload
+    margin-top: .5rem
     min-height: 120px
     align-items: center
     background-color: #f2f2f2
@@ -97,7 +78,7 @@
                 text-overflow: ellipsis
                 display: inline-block
                 overflow: hidden
-                @media #{$xs-and-less}
+                @media only screen and (max-width: 767px)
                     max-width: 135px
 
             .progress-bar
@@ -107,33 +88,21 @@
                 top: 35px
                 height: 5px
                 border-radius: 5px
-                @media #{$xs-and-less}
+                @media only screen and (max-width: 767px)
                     width: 60%
 
             label
                 color: black
 
 .check-box-section
-    display: flex
     margin-top: 20px
-    flex-direction: column
-    div
-        .title
-            flex: 1
-            margin-top: 0
-            @media #{$xs-and-less}
-                flex: 0
-
-        .check-box-container
-            flex: 2
-
-        .check-box
-            margin-right: 10px
+    strong
+        display: block
+        margin-bottom: .5rem
 
 .error-msg
-    margin-top: 5px
     font-size: 12px
-    color: red
+    color: var(--color-bad)
     margin-left: 5px
 
 .error
@@ -142,21 +111,12 @@
 .radio-button-group
     margin-top: 20px
 
-.option-text
-    margin-bottom: 0 !important
-
 section.uni-modal.uni-redesign
     max-width: 35rem
 
-@media #{$xs-and-less}
-    section.uni-modal.uni-redesign
-        min-width: auto !important
-
-    label.option-text
-        white-space: normal
-
-
-
+.missing-payroll
+    color: var(--color-bad)
+    margin: 1rem 0
 
 
 
