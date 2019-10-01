@@ -54,7 +54,7 @@
             </label>
 
             <span *ngIf="!previewLines?.length && !busy" class="warn" style="font-size: 15px;">
-                Klarte ikke tolke filen. Vennligst påse at filformat er riktig.
+                Klarte ikke tolke filen. Sjekk at du har valgt rett filformat.
                 <div><button (click)="currentStep='custom'"><i class="material-icons">edit</i> Tilpass filformat</button></div>
             </span>
 
@@ -77,11 +77,10 @@
     </article>
 
     <footer>
-        <button class="outline" style="margin-right: auto" (click)="onClose.emit()">
-            Avbryt
-        </button>
+
 
         <button class="outline"
+            style="margin-left: auto"
             [disabled]="currentStep=='upload'"
             (click)="gotoPreviousStep()">
             Tilbake
@@ -99,6 +98,10 @@
             [disabled]="!previewLines?.length"
             (click)="import()">
             Fullfør
+        </button>
+
+        <button class="outline" (click)="onClose.emit()">
+            Avbryt
         </button>
     </footer>
 </section>

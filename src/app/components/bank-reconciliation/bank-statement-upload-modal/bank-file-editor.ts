@@ -17,6 +17,8 @@ export class BankFileEditor implements OnChanges {
     colNames: string[];
     colTypes: string[];
     lastValidation: { success: boolean; message?: string } = { success: false, message: '' };
+    templateWasLoaded = false;
+    hasDateError: ImportColumn;
 
     private currentImportedFileID: number;
     private fileContent = '';
@@ -28,11 +30,26 @@ export class BankFileEditor implements OnChanges {
         this.colTypes = ImportTemplate.getFieldTypeNames();
     }
 
-    private createDefaultTemplate() {
+    clear() {
+        localStorage.setItem('customBankStatementTemplate', '');
+        this.template = this.createDefaultTemplate(false);
+        this.templateWasLoaded = false;
+        this.applyTemplate(this.template);
+    }
+
+    private createDefaultTemplate(autoLoad = true) {
         const t = new ImportTemplate();
+        const stored = autoLoad ? localStorage.getItem('customBankStatementTemplate') : null;
+        if (stored) {
+            if (t.loadFromText(stored)) { this.templateWasLoaded = true; return t; }
+        }
         t.SkipRows = 1;
         t.addColumn(FieldMapEnum.Skip, undefined, 0);
         return t;
+    }
+
+    setTemplate(template: ImportTemplate) {
+        this.template = ImportTemplate.Check(template);
     }
 
     getTemplate() {
@@ -46,6 +63,7 @@ export class BankFileEditor implements OnChanges {
     }
 
     validate(): { success: boolean; message?: string } {
+        this.hasDateError = undefined;
         const validation = { success: false, message: '' };
         const dateCol = this.template.Columns.find( x => x.FieldMapping === FieldMapEnum.Date);
         let amountCol = this.template.Columns.find( x => x.FieldMapping === FieldMapEnum.Amount);
@@ -55,6 +73,7 @@ export class BankFileEditor implements OnChanges {
         if (dateCol && amountCol) {
             if (!this.checkDateFormat(dateCol)) {
                 validation.message = `Sjekk at datoformatet gir en gyldig dato`;
+                this.hasDateError = dateCol;
             } else {
                 validation.success = true;
                 this.raiseOnValidateEvent(validation);
@@ -70,6 +89,9 @@ export class BankFileEditor implements OnChanges {
 
     raiseOnValidateEvent(evt: { success: boolean; message?: string }) {
         this.lastValidation = evt;
+        if (evt.success) {
+            localStorage.setItem('customBankStatementTemplate', JSON.stringify(this.getTemplate()));
+        }
         this.onValidate.emit(evt);
     }
 
@@ -135,9 +157,22 @@ export class BankFileEditor implements OnChanges {
         this.rows = [];
         for (let i = 0; i < nTop; i++) {
             const row = this.sliceTextRow(lines[i], template);
-            this.rows.push(row);
+            if (!this.rowLooksEmpty(row)) {
+                this.rows.push(row);
+            }
         }
         this.validate();
+    }
+
+    private rowLooksEmpty(row: string[]): boolean {
+        if (row === undefined || row === null) { return true; }
+        if (row.length === 0) { return true; }
+        let nEmpty = 0; let nActive = 0;
+        row.forEach( x => {
+            if (x === null || x === undefined || x.trim() === '') { nEmpty++; } else { nActive++; }
+        });
+        if (nEmpty > 0 && nActive <= 1) { return true; }
+        return false;
     }
 
     private checkDateFormat(dataCol: ImportColumn): boolean {

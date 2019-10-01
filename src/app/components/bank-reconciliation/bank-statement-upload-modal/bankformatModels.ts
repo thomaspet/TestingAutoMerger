@@ -31,7 +31,7 @@ export class ImportTemplate {
 
     public static getFieldNameFromEnum(map: FieldMapEnum) {
         switch (map) {
-            case FieldMapEnum.Skip: return 'Velg kolonne';
+            case FieldMapEnum.Skip: return 'ikke valgt';
             case FieldMapEnum.Date: return 'Dato';
             case FieldMapEnum.Text: return 'Tekst';
             case FieldMapEnum.Text2: return 'Sekundærtekst';
@@ -57,12 +57,56 @@ export class ImportTemplate {
         return ['Tekst', 'Desimal', 'Desimal/100', 'dd.mm.yyyy', 'yyyy-mm-dd', 'yyyymmdd'];
     }
 
+    public static Check(template: ImportTemplate) {
+        const types = ImportTemplate.getFieldTypeNames();
+        template.Columns.forEach( col => {
+            col.FieldTypeName = col.DataType > 0 ? types[col.DataType - 1] : '';
+            col.FieldName = ImportTemplate.getFieldNameFromEnum(col.FieldMapping);
+        });
+        return template;
+    }
+
+    loadFromText(value: string) {
+        const tt = JSON.parse(value);
+        if (tt.Columns) {
+            this.Columns = tt.Columns;
+            this.Name = tt.Name;
+            this.Separator = tt.Separator;
+            this.IsFixed = tt.IsFixed;
+            if (!tt.IsFixed) {
+                this.addEmptyCols(this);
+            }
+            ImportTemplate.Check(this);
+            return true;
+        }
+    }
+
+    private addEmptyCols(template: ImportTemplate) {
+        let max = 0;
+        const cols = [];
+        const src = template.Columns;
+        src.forEach( x => { if (x.StartPos > max) { max = x.StartPos; } });
+        for (let i = 0; i < max; i++) {
+            let match = src.find( y => y.StartPos === i + 1);
+            if (!match) {
+                match = this.newColumn(0, i + 1, 0);
+            }
+            cols.push(match);
+        }
+        template.Columns = cols;
+    }
+
     addColumn(map: FieldMapEnum, startPos?: number, dataType = FieldTypeEnum.Text, length = 0) {
+        const col = this.newColumn(map, startPos, dataType, length);
+        this.Columns.push(col);
+    }
+
+    newColumn(map: FieldMapEnum, startPos?: number, dataType = FieldTypeEnum.Text, length = 0) {
         const col = <ImportColumn>{ FieldMapping: map, StartPos: startPos || this.Columns.length + 1, Length: length, DataType: dataType,
             FieldName: ImportTemplate.getFieldNameFromEnum(map) };
         const types = ImportTemplate.getFieldTypeNames();
         col.FieldTypeName = col.DataType > 0 ? types[col.DataType - 1] : '';
-        this.Columns.push(col);
+        return col;
     }
 }
 
