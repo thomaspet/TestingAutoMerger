@@ -30,6 +30,7 @@ export class BankStatementUploadModal implements IUniModal {
     selectedImportTemplate: any;
     customTemplate: any;
     previewLines: BankStatementEntry[];
+    customValidation: { success: boolean; message?: string };
 
     constructor(
         private errorService: ErrorService,
@@ -121,6 +122,10 @@ export class BankStatementUploadModal implements IUniModal {
         }
     }
 
+    onCustomValidation(event) {
+        this.customValidation = event || { success: false };
+    }
+
     goToNextStep() {
         switch (this.currentStep) {
             case 'upload':
@@ -139,7 +144,7 @@ export class BankStatementUploadModal implements IUniModal {
     loadPreviewLines(template?: ImportTemplate) {
         this.busy = true;
         this.previewLines = [];
-        this.customTemplate = template || this.selectedImportTemplate
+        this.customTemplate = template || this.selectedImportTemplate;
 
         this.bankStatementService.previewImport(
             this.customTemplate,

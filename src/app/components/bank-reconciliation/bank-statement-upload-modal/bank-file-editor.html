@@ -3,10 +3,16 @@
         <mat-spinner class="c2a"></mat-spinner>
     </section>
 
-    <span class="dropdown-label">Skilletegn:</span>
-    <select (change)="ngOnChanges()" class="dropdown" [(ngModel)]="template.Separator">
-        <option>;</option><option>,</option><option>|</option><option>/</option><option>SPACE</option><option>TAB</option>
-    </select>
+    <section class="heading">
+
+        <span class="dropdown-label">Skilletegn:</span>
+        <select (change)="ngOnChanges()" class="dropdown" [(ngModel)]="template.Separator">
+            <option>;</option><option>,</option><option>|</option><option>/</option><option>SPACE</option><option>TAB</option>
+        </select>
+
+        <span class="warnings">{{lastValidation?.message}}</span>
+
+    </section>
 
     <table class="uni-table">
         <thead>
@@ -28,5 +34,4 @@
         </tbody>
 
     </table>
-
 </section>

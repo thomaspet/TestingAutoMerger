@@ -61,7 +61,7 @@ export class ImportTemplate {
         const col = <ImportColumn>{ FieldMapping: map, StartPos: startPos || this.Columns.length + 1, Length: length, DataType: dataType,
             FieldName: ImportTemplate.getFieldNameFromEnum(map) };
         const types = ImportTemplate.getFieldTypeNames();
-        col.FieldTypeName = types[col.DataType-1];
+        col.FieldTypeName = col.DataType > 0 ? types[col.DataType - 1] : '';
         this.Columns.push(col);
     }
 }

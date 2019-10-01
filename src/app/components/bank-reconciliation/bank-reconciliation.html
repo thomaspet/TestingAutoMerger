@@ -99,7 +99,7 @@
                     <section *ngIf="session.status == 2" class="info-box">
                         <article>Du har ingen bankposter.</article>
                         <article>Velg "Importer" for å lese inn en bankfil manuelt.</article>
-                        <i style="font-size: 20pt" class="material-icons">cloud_upload</i>
+                        <button (click)="openImportModal()" class="outline-c2a"><i style="font-size: 20pt" class="material-icons">cloud_upload</i></button>
                     </section>
 
                     <section *ngIf="session.status == 3 && !session.stage?.length" class="no-match-drafts c2a">

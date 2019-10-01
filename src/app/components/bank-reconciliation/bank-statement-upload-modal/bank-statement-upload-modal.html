@@ -39,7 +39,7 @@
 
         <!-- Custom-file-editor -->
         <section *ngIf="currentStep=='custom'">
-            <bank-file-editor [fileID]="selectedFileID"></bank-file-editor>
+            <bank-file-editor (onValidate)="onCustomValidation($event)" [fileID]="selectedFileID"></bank-file-editor>
         </section>
 
         <!-- Preview/confirm step -->
@@ -89,7 +89,7 @@
 
         <button class="c2a"
             *ngIf="currentStep!='preview'"
-            [disabled]="!selectedAccountID || !selectedFileID"
+            [disabled]="!selectedAccountID || !selectedFileID || (currentStep=='custom' && !(customValidation?.success))"
             (click)="goToNextStep()">
             Neste
         </button>
