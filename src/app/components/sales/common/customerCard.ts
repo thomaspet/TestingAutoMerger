@@ -1,67 +1,72 @@
 import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Customer, SellerLink, SharingType, StatusCodeSharing, Address} from '../../../unientities';
-import {UniAddressModal} from '../../../../framework/uni-modal/modals/addressModal';
+import {Customer, SharingType, StatusCodeSharing, Address} from '@uni-entities';
+import {UniAddressModal} from '@uni-framework/uni-modal/modals/addressModal';
 import {
     AddressService,
     EHFService,
     UniSearchCustomerConfig,
     CustomerService,
     ErrorService,
-    SellerLinkService,
     StatisticsService,
     StatusService
-} from '../../../services/services';
+} from '@app/services/services';
 import {TofHelper} from '../salesHelper/tofHelper';
-import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
+import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '@uni-framework/uni-modal';
 import * as moment from 'moment';
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'tof-customer-card',
     template: `
-        <label class="customer-input">
-            <!--<span>Kunde</span>-->
-            <uni-search
-                [config]="uniSearchConfig"
-                (changeEvent)="customerSelected($event)"
-                [disabled]="readonly">
-            </uni-search>
+        <uni-search
+            [config]="uniSearchConfig"
+            (changeEvent)="customerSelected($event)"
+            [disabled]="readonly">
+        </uni-search>
 
-            <section class="addressCard" [attr.aria-readonly]="readonly">
-                <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
-                <section class="sharing-badges">
-                    <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I SENDINGSKØ</span>
-                    <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">FAKTURAPRINT</span>
-                    <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
-                    <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
-                    <span [attr.title]="emailTitle" [ngClass]="emailClass">E-POST</span>
-                    <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
-                    <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">EFAKTURA</span>
-                </section>
-                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.CustomerName}}</strong></a>
-                <br><span *ngIf="entity?.InvoiceAddressLine1">
-                    {{entity?.InvoiceAddressLine1}}
-                </span>
-                <br><span *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
-                    {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
-                </span>
-                <br><span *ngIf="entity?.InvoiceCountry">
-                    {{entity?.InvoiceCountry}}
-                </span>
-                <span class="emailInfo" *ngIf="entity?.Customer?.Info?.Emails">
-                    {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
-                </span>
-                <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                    <a href="#/sales/customer/{{entity?.Customer?.ID}}">
-                        Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
-                        forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
-                        faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
-                    </a>
-                </div>
+        <section *ngIf="entity" class="addressCard" [attr.aria-readonly]="readonly">
+            <i *ngIf="!readonly && !!entity?.Customer" class="edit-btn material-icons" (click)="openAddressModal()">edit</i>
+
+            <a href="#/sales/customer/{{entity?.Customer?.ID}}">
+                <strong>{{entity?.CustomerName}}</strong>
+            </a>
+
+            <div *ngIf="entity?.InvoiceAddressLine1">
+                {{entity?.InvoiceAddressLine1}}
+            </div>
+
+            <div *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
+                {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
+            </div>
+
+            <div *ngIf="entity?.InvoiceCountry">
+                {{entity?.InvoiceCountry}}
+            </div>
+
+            <div *ngIf="entity?.Customer?.Info?.Emails">
+                {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
+            </div>
+
+            <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
+                <a href="#/sales/customer/{{entity?.Customer?.ID}}">
+                    Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
+                    forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
+                    faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
+                </a>
+            </div>
+
+            <section class="sharing-badges">
+                <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I sendingskø</span>
+                <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">Fakturaprint</span>
+                <span [attr.title]="printTitle" [ngClass]="printClass">Utskrift</span>
+                <span [attr.title]="vippsTitle" [ngClass]="vippsClass">Vipps</span>
+                <span [attr.title]="emailTitle" [ngClass]="emailClass">E-post</span>
+                <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
+                <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">eFaktura</span>
             </section>
-        </label>
+        </section>
     `
 })
 export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
@@ -126,7 +131,6 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
-        private sellerLinkService: SellerLinkService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
         private statusService: StatusService,
@@ -226,7 +230,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         }
 
         // Can customer receive email?
-        if (customer && customer.Info && customer.Info.DefaultEmail) {
+        if (customer && customer.Info && customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress) {
             this.emailClass = 'badge-available';
             this.emailTitle = 'Kan sende på e-post til ' + customer.Info.DefaultEmail.EmailAddress;
         }
@@ -396,7 +400,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         this.entity = this.tofHelper.mapCustomerToEntity(customer, this.entity);
 
         this.showDefaultBadgeForCustomer(customer);
-        this.entity = _.cloneDeep(this.entity);
+        this.entity = cloneDeep(this.entity);
         this.entityChange.emit(this.entity);
     }
 }

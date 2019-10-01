@@ -1,17 +1,11 @@
 a
   cursor: pointer
+  text-decoration: none
   &,
   &:link,
   &:visited
     color: var(--link-color)
     font-weight: 400
 
-  &:hover,
-  &:focus
-    color: saturate($uni-color-c2a, 100%)
-
-  aside.more &
-    font-size: .8rem
-    line-height: 1.5rem
-    text-transform: uppercase
-    text-decoration: none
+  &:hover, &:focus
+    text-decoration: underline
