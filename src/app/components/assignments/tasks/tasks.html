@@ -23,7 +23,7 @@
             <section class="assignment-info">
                 <p>{{task.Title}}</p>
                 <small class="assigned-to">
-                    Tiltelt til {{task._assignedTo}}
+                    Tildelt til {{task._assignedTo}}
                 </small>
                 <small class="created-by">
                     Opprettet {{task._createdDate}} av {{task._assignedBy}}
@@ -43,23 +43,8 @@
     </ul>
 
     <section class="addTask">
-        <label class="task-text">
+        <button class="good" (click)="addTask()">
             Legg til oppgave
-            <input type="text" [(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
-        </label>
-
-        <label>
-            Tildel til
-            <uni-select class="drop-up"
-                [config]="userSelectConfig"
-                [items]="users"
-                [value]="currentUser"
-                (valueChange)="onUserSelected($event)">
-            </uni-select>
-        </label>
-
-        <button class="good" (click)="addTask()" [disabled]="!isValidInput()">
-            Bekreft
         </button>
     </section>
 </section>

@@ -881,7 +881,7 @@ export const NO_SR_NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.BUDGET',
                         url: '/accounting/budget',
                         moduleID: UniModules.Budget,
-                        activeInSidebar: true
+                        activeInSidebar: false
                     },
                     {
                         name: 'NAVBAR.OPEN_POST',
@@ -1193,7 +1193,7 @@ export const NO_SR_NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.APPROVALS',
                         url: '/assignments',
                         moduleID: UniModules.Assignments,
-                        activeInSidebar: false
+                        activeInSidebar: true
                     },
                     {
                         name: 'NAVBAR.EXTRACT',
@@ -1206,18 +1206,6 @@ export const NO_SR_NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/dimensions/overview/1',
                         moduleID: UniModules.UniQuery,
                         activeInSidebar: false
-                    },
-                    {
-                        name: 'Moduler',
-                        url: '/marketplace/modules',
-                        moduleID: UniModules.Marketplace,
-                        activeInSidebar: true
-                    },
-                    {
-                        name: 'Integrasjoner',
-                        url: '/marketplace/integrations',
-                        moduleID: UniModules.Marketplace,
-                        activeInSidebar: true
                     },
                     {
                         name: 'NAVBAR.DISTRIBUTION_LIST',
@@ -1239,6 +1227,32 @@ export const NO_SR_NAVBAR_LINKS: INavbarLinkSection[] = [
                             {key: 'Name', isNumeric: false},
                             {key: 'Description', isNumeric: false}
                         ]
+                    },
+                ]
+            },
+        ]
+    },
+    {
+        name: 'Markedsplass',
+        url: '/marketplace',
+        icon: 'marketplace',
+        mdIcon: 'shopping_basket',
+        megaMenuGroupIndex: 4,
+        linkGroups: [
+            {
+                name: '',
+                links: [
+                    {
+                        name: 'Moduler',
+                        url: '/marketplace/modules',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
+                    },
+                    {
+                        name: 'Integrasjoner',
+                        url: '/marketplace/integrations',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
                     },
                 ]
             },

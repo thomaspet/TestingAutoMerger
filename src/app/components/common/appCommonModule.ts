@@ -65,6 +65,7 @@ import {
     MatRadioModule
 } from '@angular/material';
 
+import {NewTaskModal} from '../common/new-task-list/new-task-list';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
@@ -146,6 +147,7 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
+        NewTaskModal,
         UniNewCompanyModal,
         JournalingRulesModal,
         SelectDistributionPlanModal,
@@ -174,7 +176,8 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
         SelectDistributionPlanModal,
         DisclaimerModal,
         ImportTemplateModal,
-        JournalingRulesModal
+        JournalingRulesModal,
+        NewTaskModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -199,6 +202,7 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
         ReminderSettings,
         UniReminderSettingsModal,
         VacationPaySettingsModal,
+        NewTaskModal,
 
         ContactDetails,
         Contacts,

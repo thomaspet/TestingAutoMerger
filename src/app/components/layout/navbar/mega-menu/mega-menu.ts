@@ -108,12 +108,17 @@ export class UniMegaMenu {
 
         this.navbarService.saveSidebarLinks(this.defaultSetup);
         this.isDirty = false;
+        this.close();
     }
 
     resetChanges() {
         this.defaultSetup = JSON.parse(JSON.stringify(this.linkSections));
         this.sortAfterMegaMenuIndex();
         this.isDirty = false;
+    }
+
+    resetMenu() {
+        this.navbarService.resetToDefaultMenuStructure();
     }
 
     close() {

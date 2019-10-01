@@ -22,7 +22,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
             </section>
 
             <section *ngIf="missingData" class="no-content">
-                Mangler data
+                Mangler tilgang
             </section>
 
             <div *ngIf="!missingData" class="content">
@@ -77,7 +77,7 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
     chartRef: Chart; //  = new Chart(null, null);
     chartConfig: any;
     totalAmount: number = 0;
-    missingData: boolean;
+    missingData: boolean = false;
     dataHolder: any[] = [];
 
     constructor(
@@ -120,10 +120,11 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
                 this.chartConfig.data.datasets[0].data = data;
                 this.chartConfig.data.datasets[0].backgroundColor = this.colors;
                 this.drawChart();
-            } else {
-                this.missingData = true;
             }
 
+        }, err => {
+            this.missingData = true;
+            this.cdr.markForCheck();
         });
     }
 

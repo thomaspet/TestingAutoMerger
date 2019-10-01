@@ -1,0 +1,24 @@
+<section role="dialog" class="uni-modal uni-redesign task-modal">
+    <header>Opprett ny oppgave</header>
+    <article class="new-task-form">
+        <label>
+            <span>Ny oppgave</span>
+            <input type="text" [(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
+        </label>
+
+        <label>
+            <span>Tildel til</span>
+            <uni-select class="drop-up"
+                [config]="userSelectConfig"
+                [items]="users"
+                [value]="currentUser"
+                (valueChange)="onUserSelected($event)">
+            </uni-select>
+        </label>
+    </article>
+
+    <footer class="center">
+        <button (click)="save()" class="c2a rounded">Lagre oppgave</button>
+        <button (click)="close(false)">Avbryt</button>
+    </footer>
+</section>

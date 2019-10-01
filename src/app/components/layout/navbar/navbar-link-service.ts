@@ -181,6 +181,11 @@ export class NavbarLinkService {
         }
     }
 
+    public resetToDefaultMenuStructure() {
+        localStorage.removeItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`);
+        this.resetNavbar();
+    }
+
     public getQuery(url: string) {
         return this.http
             .asGET()
