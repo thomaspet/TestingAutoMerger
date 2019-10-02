@@ -12,7 +12,7 @@ export const environment = {
     UNI_PUSH_ADAPTER_URL: 'https://rc-pushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://rc-jobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://rc-admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
+    SIGNALR_PUSHHUB_URL: 'https://rc-signal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',

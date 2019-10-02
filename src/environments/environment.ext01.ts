@@ -3,12 +3,11 @@ export const environment = {
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://pilot-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://pilot-unifiles.unieconomy.no',
-    UNI_PUSH_ADAPTER_URL: 'https://pilotapi-unipushadapter.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://pilot-unijobserver.unieconomy.no/api/',
-    ELSA_SERVER_URL: 'https://admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://prod-signal.unieconomy.no/pushHub',
+    BASE_URL_INTEGRATION: 'https://ext01-integration.unieconomy.no/',
+    BASE_URL_FILES: 'https://ext01-files.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://ext01-jobserver.unieconomy.no/api/',
+    ELSA_SERVER_URL: 'https://ext01-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://ext01-signal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -42,12 +41,12 @@ export const environment = {
         + 'yXbhqZkmPRK07NnOKmeuxknE+/RywyCQZS9svfkZT1Jn0m0xdX4+rwma2fTSCluY4fUEF38fhNFj/keKeLIwIMwSOh'
         + 'Ypv0Eu/SeTn6DSEWgBGcW2jbWadOO+CmGAOg1XfM82jGlN68wfGjsNNswAez71QNSnBvMrFVsRFGDq+K/zAYRavq23'
         + 'xzCJ9QnukzFeuN1Juxtg3y2tRiJYPJyyrwHGhTY550oa1AP/trUev/gvk4gpFyGpAoFR8jca5GAGEDyTf2pi44J/S78=',
-    
+
     IMPORT_CENTRAL_TEMPLATE_URLS : {
-        CUSTOMER: 'https://public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
-        SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
-        PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
-        MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
-        PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx'
+        CUSTOMER: 'https://ext01-public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
+        SUPPLIER: 'https://ext01-public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
+        PRODUCT: 'https://ext01-public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
+        MAIN_LEDGER: 'https://ext01-public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
+        PAYROLL: 'https://ext01-public-files.unieconomy.no/files/import/PayrollTemplate.xlsx'
     }
 };

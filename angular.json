@@ -90,7 +90,7 @@
                 }
               ]
             },
-            "exedra": {
+            "ext01": {
               "aot": true,
               "optimization": true,
               "buildOptimizer": true,
@@ -103,7 +103,7 @@
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.exedra.ts"
+                  "with": "src/environments/environment.ext01.ts"
                 }
               ]
             },
@@ -172,6 +172,22 @@
                 }
               ]
             },
+            "ext01-serve": {
+              "aot": false,
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "sourceMap": true,
+              "extractCss": false,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext01.ts"
+                }
+              ]
+            },
             "local": {
               "outputHashing": "all",
               "fileReplacements": [
@@ -210,6 +226,9 @@
             },
             "prod-serve": {
               "browserTarget": "economy-frontend:build:prod-serve"
+            },
+            "ext01-serve": {
+              "browserTarget": "economy-frontend:build:ext01-serve"
             },
             "local": {
               "browserTarget": "economy-frontend:build:local"
