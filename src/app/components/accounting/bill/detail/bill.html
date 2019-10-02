@@ -95,7 +95,6 @@
         </span>
 
         <uni-image
-            [useEhfReader]="true"
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"

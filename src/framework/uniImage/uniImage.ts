@@ -66,7 +66,6 @@ export class UniImage {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileID: number;
     @Input() fileIDs: number[] = [];
-    @Input() useEhfReader: boolean;
 
     @Output() fileListReady: EventEmitter<FileExtended[]> = new EventEmitter();
     @Output() imageDeleted: EventEmitter<FileExtended> = new EventEmitter();
@@ -250,7 +249,7 @@ export class UniImage {
                         const filename = (file.Name || '').toLowerCase();
                         const type = (file.ContentType || '').toLowerCase();
 
-                        if (this.useEhfReader && (type.includes('bis/billing') || filename.includes('.ehf'))) {
+                        if (type.includes('bis/billing') || filename.includes('.ehf')) {
                             const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference).pipe(
                                 catchError(err => {
                                     console.error('Error loading EHF data', err);

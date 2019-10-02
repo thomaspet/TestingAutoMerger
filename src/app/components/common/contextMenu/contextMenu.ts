@@ -11,9 +11,9 @@ import {take} from 'rxjs/operators';
         <button #toggle
             [attr.aria-busy]="loading$ | async"
             type="button"
-            class="contextmenu_button">
+            class="icon-button toggle-button">
 
-            Flere valg for valgt entitet
+            <i class="material-icons">more_horiz</i>
         </button>
 
         <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'12rem'">

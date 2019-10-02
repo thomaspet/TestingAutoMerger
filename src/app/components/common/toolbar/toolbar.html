@@ -75,43 +75,43 @@
 
 <!-- TOOLBAR RIGHT -->
 <section #toolbarRight class="toolbar-right">
-    <nav id="toolbar-tools" class="toolbar_tools">
-        <uni-comments *ngIf="commentsConfig?.entityID > 0"
-            [entity]="commentsConfig.entityType"
-            [entityID]="commentsConfig.entityID"
-            [toggleMode]="true">
-        </uni-comments>
 
-        <button *ngIf="config?.navigation?.prev"
-            title="Forrige"
-            class="previous"
-            type="button"
-            (click)="navigate('prev')">
-            Forrige
-        </button>
 
-        <button *ngIf="config?.navigation?.next"
-            title="Neste"
-            class="next"
-            type="button"
-            (click)="navigate('next')">
-            Neste
-        </button>
+    <button *ngIf="config?.navigation?.prev"
+        title="Forrige"
+        class="icon-button"
+        type="button"
+        (click)="navigate('prev')">
+        <i class="material-icons">navigate_before</i>
+    </button>
 
-        <button *ngIf="config?.navigation?.add"
-            [title]="config.navigation.add.label || 'Opprett ny'"
-            class="new"
-            type="button"
-            (click)="onCreateNewClick()">
+    <button *ngIf="config?.navigation?.next"
+        title="Neste"
+        class="icon-button"
+        type="button"
+        (click)="navigate('next')">
+        <i class="material-icons">navigate_next</i>
+    </button>
 
-            <i class="material-icons">add</i>
-            {{config.navigation.add.label || 'Opprett ny'}}
-        </button>
+    <uni-comments *ngIf="commentsConfig?.entityID > 0"
+        [entity]="commentsConfig.entityType"
+        [entityID]="commentsConfig.entityID"
+        [toggleMode]="true">
+    </uni-comments>
 
-        <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
-            [actions]="contextmenu || config.contextmenu">
-        </uni-context-menu>
-    </nav>
+    <button *ngIf="config?.navigation?.add"
+        [title]="config.navigation.add.label || 'Opprett ny'"
+        class="new-button"
+        type="button"
+        (click)="onCreateNewClick()">
+
+        <i class="material-icons">add</i>
+        {{config.navigation.add.label || 'Opprett ny'}}
+    </button>
+
+    <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
+        [actions]="contextmenu || config.contextmenu">
+    </uni-context-menu>
 
     <uni-save id="toolbar-save"
         *ngIf="saveactions || config?.saveactions"

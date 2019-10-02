@@ -1,6 +1,6 @@
 <span *ngIf="toggleMode">
-    <button class="comments_toggle" type="button" (click)="openChatBox()">
-        Kommentarer
+    <button class="icon-button toggle-button" type="button" (click)="openChatBox()">
+        <i class="material-icons">chat</i>
 
         <span class="comments_count" *ngIf="comments?.length > 0">
             {{comments.length}}

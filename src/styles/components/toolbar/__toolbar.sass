@@ -1,7 +1,6 @@
 $toolbar-grey: $uni-color-scale6
 
 @import 'breadcrumbs'
-@import 'toolbarTools'
 @import 'toolbarSearch'
 @import 'tags'
 
@@ -135,14 +134,26 @@ uni-toolbar
         color: var(--link-color)
 
 .toolbar-right
-    flex: 0 1 auto
+    flex: 0 0 auto
     display: flex
-    flex-flow: row wrap
+    flex-flow: row nowrap
     justify-content: flex-end
+    align-items: center
     text-align: right
     margin-left: auto
 
-    .toolbar_tools, uni-save
-        flex: 0 0 auto
-        margin: auto 0 auto .5rem
-        height: 2rem
+    button.icon-button, .new-button
+        background-color: #fff
+        border: 1px solid var(--border-color)
+        margin-right: .5rem
+        i.material-icons
+            color: var(--toolbar-icon-color)
+
+    .new-button
+        color: var(--color-c2a)
+        i.material-icons
+            color: var(--color-c2a)
+            font-size: 20px
+
+    > button + button
+        margin-left: 0
