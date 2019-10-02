@@ -99,6 +99,11 @@
                 "Header": "Varsel AvtaleGiro",
                 "Field": "Customer.AvtaleGiroNotification",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "Bankkonto",
+                "Field" : "Customer.Info.DefaultBankAccount.AccountNumber",
+                "DefaultHidden": true
             }
         ],
         "Actions": [
