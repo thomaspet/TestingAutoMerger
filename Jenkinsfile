@@ -28,7 +28,11 @@ pipeline {
                   break; 
               case "develop":
                   PUBLISH_NAME = "dev-unieconomy"
-                  YARN_BUILD = "build"
+                  YARN_BUILD = "build.dev"
+                  if(env.JOB_BASE_NAME.toLowerCase().reverse().substring(0,7) == "ylthgin") {
+                    PUBLISH_NAME = "test-unieconomy"
+                    YARN_BUILD = "build.test"
+                  }
                   break; 
               case "test":
                   PUBLISH_NAME = "test-unieconomy"
