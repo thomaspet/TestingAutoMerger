@@ -15,7 +15,7 @@ export  class UniTranslationService {
     };
 
     constructor() {
-        this.locale.next(localStorage.getItem('TRANSLATE_LOCALE') || 'NO_UNI');
+        this.locale.next(localStorage.getItem('TRANSLATE_LOCALE') || 'NO_SR');
     }
 
     public translate(stringToTranslate: string, params?: any, options?: any): string {

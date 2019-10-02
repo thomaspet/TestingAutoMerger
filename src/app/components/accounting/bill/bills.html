@@ -50,9 +50,13 @@
 
         <!-- Detail -->
         <section class="uni-container bill-preview" *ngIf="previewVisible">
-            <section *ngIf="fileID" class="accounting-preview-links">
-                <a (click)="documentSelected(true)">Bruk på leverandørfaktura</a>
-                <a (click)="documentSelected(false)">Bruk i bilagsføring</a>
+            <section *ngIf="fileID" class="accounting-preview-actions">
+                <button class="secondary" (click)="documentSelected(true)">
+                    Opprett leverandørfaktura
+                </button>
+                <button class="tertiary c2a" (click)="documentSelected(false)">
+                    Bruk i bilagsføring
+                </button>
             </section>
 
             <uni-image

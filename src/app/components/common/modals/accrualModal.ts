@@ -256,8 +256,11 @@ export class AccrualModal implements IUniModal {
         const journalEntryLineDraft = this.options.data.journalEntryLineDraft;
 
         if ((!journalEntryLineDraft && !accrual) && (!accrualStartDate || !accrualAmount)) {
-            this.toastService.addToast('Periodisering', ToastType.bad, 10, 'Mangler informasjon om beløp og dato!');
-            this.onClose.emit(false);
+            setTimeout(() => {
+                this.toastService.addToast('Periodisering', ToastType.bad, 10, 'Mangler informasjon om beløp og dato!');
+                this.onClose.emit(false);
+            });
+            return;
         }
 
         if (!accrual) {

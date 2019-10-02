@@ -12,7 +12,6 @@ import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {StatusTrack} from './toolbar/statustrack/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
-import {UniToolbarShare} from './toolbar/share';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
@@ -98,7 +97,6 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
         UniBreadcrumbs,
         StatusTrack,
         UniToolbar,
-        UniToolbarShare,
         UniToolbarSearch,
         UniToolbarValidation,
         UniQueryReadOnly,

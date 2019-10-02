@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, take } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -68,14 +68,13 @@ import {
     UniSendVippsInvoiceModal,
 } from '@uni-framework/uni-modal';
 import { IUniSaveAction } from '@uni-framework/save/save';
-import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
 import { TradeHeaderCalculationSummary } from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import { IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead } from '../../../common/toolbar/toolbar';
+import { IToolbarConfig, ICommentsConfig, IToolbarSubhead } from '../../../common/toolbar/toolbar';
 import { StatusTrack, IStatus, STATUSTRACK_STATES } from '../../../common/toolbar/statustrack';
 
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
@@ -140,10 +139,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     currencyInfo: string;
     summaryLines: ISummaryLine[];
 
-    private contextMenuItems: IContextMenuItem[] = [];
     companySettings: CompanySettings;
     saveActions: IUniSaveAction[] = [];
-    shareActions: IShareAction[];
     toolbarconfig: IToolbarConfig;
     commentsConfig: ICommentsConfig;
 
@@ -1208,36 +1205,34 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         }
 
-        this.contextMenuItems = [<IContextMenuItem>{
-            label: 'Periodisering',
-            action: (item) => {
-                const data = {
-                    accrualAmount: this.itemsSummaryData.SumTotalExVat,
-                    accrualStartDate: new LocalDate(this.invoice.InvoiceDate.toString()),
-                    journalEntryLineDraft: null,
-                    accrual: null,
-                    title: 'Periodisering av fakturaen'
-                };
-                if (!this.invoice.ID) {
-                    this.saveAsDraft(() => {
-                        this.openAccrualModal(data);
-                    });
-                } else {
-                    if (this.invoice.Accrual) {
-                        data.accrual = this.invoice.Accrual;
-                        this.openAccrualModal(data);
-                    } else {
-                        const accrual$ = this.invoice.AccrualID ? this.accrualService.Get(this.invoice.AccrualID, ['Periods'])
-                            : Observable.of(null);
-                        accrual$.subscribe(accrual => {
-                            data.accrual = accrual;
-                            this.openAccrualModal(data);
-                        });
-                    }
-                }
+        const contextMenuItems = [
+            {
+                label: 'Periodisering',
+                action: () => this.accrueInvoice(),
+                disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
             },
-            disabled: () => this.invoice.InvoiceNumber > '42002'
-        }];
+            {
+                label: 'Send via utsendelsesplan',
+                action: () => this.distribute(),
+                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
+            },
+            {
+                label: 'Skriv ut / send e-post',
+                action: () => this.chooseForm(),
+                disabled: () => !this.invoice.ID
+            },
+            {
+                label: 'Send purring',
+                action: () => this.sendReminderAction(),
+                disabled: () => {
+                    return !this.invoice.ID
+                        || this.invoice.DontSendReminders
+                        || this.invoice.StatusCode === StatusCode.Completed
+                        || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid;
+                }
+            }
+        ];
+
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
@@ -1247,13 +1242,40 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 next: this.nextInvoice.bind(this),
                 add: () => this.invoice.ID ? this.router.navigateByUrl('/sales/invoices/0') : this.ngOnInit()
             },
-            contextmenu: this.contextMenuItems,
+            contextmenu: contextMenuItems,
             entityID: this.invoiceID,
             entityType: 'CustomerInvoice'
         };
 
-        this.updateShareActions();
         this.toolbarconfig = toolbarconfig;
+    }
+
+    private accrueInvoice() {
+        const data = {
+            accrualAmount: (this.itemsSummaryData && this.itemsSummaryData.SumTotalExVat) || 0,
+            accrualStartDate: new LocalDate(this.invoice.InvoiceDate.toString()),
+            journalEntryLineDraft: null,
+            accrual: null,
+            title: 'Periodisering av fakturaen'
+        };
+
+        if (this.invoice.ID) {
+            if (this.invoice.Accrual) {
+                data.accrual = this.invoice.Accrual;
+                this.openAccrualModal(data);
+            } else {
+                const accrual$ = this.invoice.AccrualID
+                    ? this.accrualService.Get(this.invoice.AccrualID, ['Periods'])
+                    : Observable.of(null);
+
+                accrual$.pipe(take(1)).subscribe(accrual => {
+                    data.accrual = accrual;
+                    this.openAccrualModal(data);
+                });
+            }
+        } else {
+            this.saveAsDraft(() => this.openAccrualModal(data));
+        }
     }
 
     openAccrualModal(data) {
@@ -1331,30 +1353,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         return subheads;
-    }
-
-    // Save actions
-    private updateShareActions() {
-        this.shareActions = [
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.invoice.ID
-            },
-            {
-                label: 'Send purring',
-                action: () => this.sendReminderAction(),
-                disabled: () =>
-                    this.invoice.DontSendReminders ||
-                    this.invoice.StatusCode === StatusCode.Completed ||
-                    this.invoice.StatusCode === 42004
-            }
-        ];
     }
 
     private updateSaveActions() {

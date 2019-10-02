@@ -1,11 +1,18 @@
-import {Component, Input} from '@angular/core';
-import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
+import {IContextMenuItem} from '../toolbar/toolbar';
+import {ErrorService} from '@app/services/services';
+import {BehaviorSubject} from 'rxjs';
+import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-context-menu',
     template: `
     <section *ngIf="actions && actions.length">
-        <button #toggle type="button" class="contextmenu_button">
+        <button #toggle
+            [attr.aria-busy]="loading$ | async"
+            type="button"
+            class="contextmenu_button">
+
             Flere valg for valgt entitet
         </button>
 
@@ -21,18 +28,40 @@ import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
             </ng-template>
         </dropdown-menu>
     </section>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContextMenu {
     @Input() actions: IContextMenuItem[];
+    loading$ = new BehaviorSubject(false);
+
+    constructor(private errorService: ErrorService) {}
+
+    ngOnDestroy() {
+        this.loading$.complete();
+    }
 
     private isActionDisabled(action: IContextMenuItem) {
         return action.disabled && action.disabled();
     }
 
     public runAction(action: IContextMenuItem) {
-        if (!this.isActionDisabled(action)) {
-            action.action();
+        if (this.isActionDisabled(action)) {
+            return;
+        }
+
+        const res = action.action();
+        if (res && res.subscribe) {
+            this.loading$.next(true);
+            res.pipe(take(1)).subscribe(
+                () => this.loading$.next(false),
+                (err) => {
+                    console.log('err handler');
+                    this.errorService.handle(err);
+                    this.loading$.next(false);
+                },
+                () => this.loading$.next(false)
+            );
         }
     }
 }

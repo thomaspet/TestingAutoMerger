@@ -230,12 +230,19 @@ ag-grid-angular
     &.ag-row-odd
         background: var(--table-row-odd-background, #fff)
     &.ag-row-hover
-        background: #d9efff
+        background: var(--table-row-select-background)
 
 ag-grid-angular:not(.editable)
-    .ag-row-selected,
-    .ag-row-dragging
-        background: #d9efff
+    .ag-row-selected, .ag-row-dragging
+        background: var(--table-row-select-background)
+
+ag-grid-wrapper.selection-disabled ag-grid-angular:not(.editable)
+    .ag-row
+        cursor: default
+        user-select: text
+    .ag-row-hover, .ag-row-selected, .ag-row-dragging
+        background: unset
+
 
 ag-grid-angular.editable .readonly-row,
 ag-grid-angular .disabled-row

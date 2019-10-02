@@ -52,17 +52,3 @@
     .contextmenu_button[type=button]
         background-size: auto .25rem
         background-image: unicon-more($uni-color-scale5) !important
-
-    uni-toolbar-share
-        position: relative
-        .toolbar-share
-            background-image: unicon-share($uni-color-scale5)
-
-            &[aria-busy]:not([aria-busy=false])
-                background-image: none
-
-                &:before
-                    border: 1px solid $uni-color-scale5
-                    border-top: 1px solid $uni-color-scale7
-                    position: absolute
-                    top: 25%

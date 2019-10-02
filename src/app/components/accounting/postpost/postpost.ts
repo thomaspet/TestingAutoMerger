@@ -4,7 +4,7 @@ import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {IToolbarConfig, IAutoCompleteConfig, IShareAction} from './../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation, LedgerTableEmitValues} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
@@ -27,7 +27,6 @@ export class PostPost {
     @ViewChild(LedgerAccountReconciliation)
     public postpost: LedgerAccountReconciliation;
 
-    shareActions: IShareAction[];
     saveActions: IUniSaveAction[];
     registers: any[] = [
         {Register: 'customer', _DisplayName: 'Kunde'},
@@ -132,7 +131,6 @@ export class PostPost {
                 // Wait for the tab update before settings mainTabIndex. Check that the number is not corrupt (to big)
                 this.mainActiveIndex = (params['maintabindex'] < this.mainTabs.length) ? params['maintabindex'] || 0 : 0;
 
-                this.setupShareActions();
                 this.setupToolbarConfig();
                 this.setupRegisterConfig();
                 this.reloadRegister();
@@ -144,6 +142,13 @@ export class PostPost {
                 }, 500);
             });
         });
+    }
+
+    ngOnDestroy() {
+        this.customer$.complete();
+        this.supplier$.complete();
+        this.account$.complete();
+        this.current$.complete();
     }
 
     public addTab() {
@@ -234,25 +239,6 @@ export class PostPost {
         this.currentListFilter = filter;
         this.filteredAccounts = this.filteredAccounts.sort(this.compare(filter.value, filter.multiplier * filter.initialMulitplier));
         filter.initialMulitplier *= -1;
-    }
-
-    // Share actions
-    private setupShareActions() {
-        this.shareActions = [
-            {
-                action: () => this.exportAccounts(),
-                disabled: () => false,
-                label: 'Eksport kontoliste'
-            }, {
-                action: () => this.exportOpenPosts(),
-                disabled: () => false,
-                label: 'Eksport åpne poster'
-            }, {
-                action: () => this.exportAllOpenPosts(),
-                disabled: () => false,
-                label: 'Eksport alle åpne poster'
-            }
-        ];
     }
 
     // Save actions
@@ -463,9 +449,14 @@ export class PostPost {
         if (reg) {
             title += ` - ${reg._DisplayName}`;
         }
+
         this.toolbarconfig = {
             title: title,
-            contextmenu: [],
+            contextmenu: [
+                { label: 'Eksport kontoliste' , action: () => this.exportAccounts() },
+                { label: 'Eksport åpne poster', action: () => this.exportOpenPosts() },
+                { label: 'Eksport alle åpne poster', action: () => this.exportAllOpenPosts() }
+            ],
         };
     }
 

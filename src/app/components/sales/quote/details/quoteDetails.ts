@@ -51,14 +51,13 @@ import {
     UniConfirmModalV2,
     UniChooseReportModal,
 } from '@uni-framework/uni-modal';
-import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -99,7 +98,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     quoteItems: CustomerQuoteItem[];
     readonly: boolean;
     recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
-    shareActions: IShareAction[];
     saveActions: IUniSaveAction[] = [];
 
     currencyCodeID: number;
@@ -117,7 +115,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     vatTypes: VatType[];
     commentsConfig: ICommentsConfig;
     toolbarconfig: IToolbarConfig;
-    private contextMenuItems: IContextMenuItem[] = [];
 
     currencyInfo: string;
     summaryLines: ISummaryLine[];
@@ -998,10 +995,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             quoteText = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
         }
 
-        const customerText = (this.quote.Customer)
-            ? this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name
-            : '';
-
         const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
         const selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
 
@@ -1030,12 +1023,21 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 next: this.nextQuote.bind(this),
                 add: () => this.quote.ID ? this.router.navigateByUrl('sales/quotes/0') : this.ngOnInit()
             },
-            contextmenu: this.contextMenuItems,
+            contextmenu: [
+                {
+                    label: 'Send via utsendelsesplan',
+                    action: () => this.distribute(),
+                    disabled: () => !this.quote.ID
+                },
+                {
+                    label: 'Skriv ut / send e-post',
+                    action: () => this.chooseForm(),
+                    disabled: () => !this.quote.ID
+                }
+            ],
             entityID: this.quoteID,
             entityType: 'CustomerQuote'
         };
-
-        this.updateShareActions();
     }
 
     recalcItemSums(quoteItems: CustomerQuoteItem[]) {
@@ -1096,21 +1098,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         return savedQuote.switchMap(order => {
             return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
         });
-    }
-
-    private updateShareActions() {
-        this.shareActions = [
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.quote.ID
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.quote.ID
-            }
-        ];
     }
 
     private distribute() {

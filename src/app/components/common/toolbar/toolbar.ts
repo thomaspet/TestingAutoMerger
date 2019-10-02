@@ -1,14 +1,13 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnChanges, AfterViewInit} from '@angular/core';
-import {IUniSaveAction, UniSave} from './../../../../framework/save/save';
+import {Component, Input, Output, EventEmitter, ViewChild, OnInit, OnChanges} from '@angular/core';
+import {IUniSaveAction, UniSave} from '@uni-framework/save/save';
 import {IStatus} from '../../common/toolbar/statustrack';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {IUniTagsConfig, ITag} from './tags';
-import {ISelectConfig} from '../../../../framework/ui/uniform/index';
+import {ISelectConfig} from '@uni-framework/ui/uniform';
 import {IToolbarSearchConfig} from './toolbarSearch';
 import {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 import {Observable} from 'rxjs';
-declare const _; // lodash
+import {cloneDeep} from 'lodash';
 
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
@@ -61,10 +60,10 @@ export interface IAutoCompleteConfig {
     valueProperty: string;
 }
 
-export interface IShareAction {
+export interface IContextMenuItem {
     label: string;
-    action: () => Observable<any>;
-    disabled?: () => boolean;
+    action: (item?: any) => void | Observable<any>;
+    disabled?: (item?: any) => boolean;
 }
 
 @Component({
@@ -79,7 +78,6 @@ export class UniToolbar implements OnInit, OnChanges {
     @Input() public tags: ITag[];
     @Input() public tagConfig: IUniTagsConfig;
     @Input() public config: IToolbarConfig;
-    @Input() public shareActions: IShareAction[];
     @Input() public saveactions: IUniSaveAction[];
     @Input() public contextmenu: IContextMenuItem[];
     @Input() public statustrack: IStatus[];
@@ -164,7 +162,7 @@ export class UniToolbar implements OnInit, OnChanges {
         }
 
         if (change['selectConfig']) {
-            this.selectConfig = _.cloneDeep(this.selectConfig);
+            this.selectConfig = cloneDeep(this.selectConfig);
         }
     }
 
