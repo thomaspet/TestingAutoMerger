@@ -38,7 +38,8 @@ import {
     SRUnpaidDoughnutChart,
     ChartAndTableWidget,
     ReminderListWidget,
-    PaymentWidget
+    PaymentWidget,
+    PublicDueDatesWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -88,7 +89,8 @@ export const WIDGET_MAP = {
     balance: BalanceWidget,
     chartAndTable: ChartAndTableWidget,
     reminderList: ReminderListWidget,
-    payment_chart: PaymentWidget
+    payment_chart: PaymentWidget,
+    public_duedates: PublicDueDatesWidget
 };
 
 @Directive({

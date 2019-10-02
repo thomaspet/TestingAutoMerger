@@ -256,4 +256,12 @@ export const CHARTS = [
             costMultiplier: -1
         }
     },
+    {
+        id: 'public_duedates',
+        description: 'Offentlige frister neste 30 dager',
+        width: 4,
+        height: 3,
+        widgetType: 'public_duedates',
+        config: { }
+    },
 ];
