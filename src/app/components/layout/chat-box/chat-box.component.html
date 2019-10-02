@@ -1,11 +1,12 @@
 <mat-card *ngIf="comments" class="chat-box" [ngClass]="{minimized: minimized}">
 
-	<mat-card-header class="chat-header" (click)="minimized = !minimized">
+	<mat-card-header class="chat-header" (click)="minimized = !minimized; unreadCount = 0; scrollToBottom()">
 		<a [ngClass]="{underline: !minimized}" (click)="!minimized && navigateToBusinessObject($event)">{{businessObject.EntityType | entitytypeTranslation}} ID {{businessObject.EntityID}}</a>
 		<i class="material-icons close-button" role="button" (click)="closeChatBox($event)">close</i>
 	</mat-card-header>
+	<span class="unread-indicator" *ngIf="minimized && unreadCount > 0">{{unreadCount}}</span>
 
-	<mat-card-content *ngIf="!minimized" #chatContainer class="chat-messages" (scroll)="onScroll()">
+	<mat-card-content *ngIf="!minimized" #chatContainer class="chat-messages">
 		<div class="scroll-container">	
 			<div
 				*ngFor="let comment of comments"
