@@ -6,6 +6,7 @@ import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {ProductService} from '../../common/productService';
+import {StatusCodeProduct} from '../../../unientities';
 
 const MAX_RESULTS = 50;
 
@@ -57,7 +58,7 @@ export class UniSearchProductConfig {
 
       const model = 'Product';
       const isEmptySearch = !searchTerm;
-      const filter = `startswith(Product.PartName,'${searchTerm}') or startswith(Product.Name,'${searchTerm}')`
+      const filter = `statuscode eq '${StatusCodeProduct.Active}' and ( startswith(Product.PartName,'${searchTerm}') or startswith(Product.Name,'${searchTerm}') )`
       const select = [
           'Product.ID as ID',
           'Product.PartName as PartName',

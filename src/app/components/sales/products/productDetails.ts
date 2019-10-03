@@ -1,13 +1,13 @@
 import {Component, Input, Output, ViewChild, SimpleChanges, ElementRef, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl} from '@angular/forms';
-import {Product, Account, VatType} from '../../../unientities';
+import {Product, Account, VatType, StatusCodeProduct} from '../../../unientities';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniField, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IToolbarValidation} from '../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {
@@ -31,7 +31,7 @@ import {
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
-import { ConfirmActions, IModalOptions, UniModalService } from '@uni-framework/uni-modal';
+import { ConfirmActions, IModalOptions, UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 declare const _; // lodash
 
 @Component({
@@ -93,6 +93,7 @@ export class ProductDetails {
             disabled: false
         }
     ];
+    public toolbarStatusValidation: IToolbarValidation[];
 
     public categoryFilter: ITag[] = [];
     public tagConfig: IUniTagsConfig = {
@@ -178,8 +179,61 @@ export class ProductDetails {
                 prev: () => this.previousProduct(),
                 next: () => this.nextProduct(),
                 add: () => this.addProduct()
-            }
+            },
+            contextmenu: []
         };
+    }
+
+    private setContextmenu() {
+        this.productService.GetAction(this.productId, 'transitions').subscribe((transitions) => {
+
+            this.toolbarconfig.contextmenu = [
+            {
+                label: 'Slett produkt',
+                action: () => this.deleteProduct(),
+                disabled: () => !transitions || !transitions['Delete']
+            },
+            {
+                label: 'Aktiver produkt',
+                action: () => this.reactivateProduct(),
+                disabled: () => !transitions || !transitions['Reactivate']
+            },
+            {
+                label: 'Deaktiver produkt',
+                action: () => this.discardProduct(),
+                disabled: () => !transitions || !transitions['Discard']
+            }                
+            ];
+        });
+    }
+
+    private setProductStatusOnToolbar(statusCode?: number) {
+        const activeStatusCode = statusCode || this.product$.value.StatusCode;
+
+        let type: 'good' | 'bad' | 'warn';
+        let label: string;
+
+        switch (activeStatusCode) {
+            case StatusCodeProduct.Active:
+                type = 'good';
+                label = 'Aktiv';
+            break;
+            case StatusCodeProduct.Discarded:
+                type = 'bad';
+                label = 'Inaktiv';
+            break;
+            case StatusCodeProduct.Deleted:
+                type = 'bad';
+                label = 'Slettet';
+            break;
+        }
+
+        if (type && label) {
+            this.toolbarStatusValidation = [{
+                label: label,
+                type: type
+            }];
+        }
     }
 
     public loadProduct() {
@@ -214,6 +268,8 @@ export class ProductDetails {
                 isDisabled: (!this.productId || parseInt(this.productId, 10) === 0),
                 disableMessage: 'Produkt må lagres før bilde kan lastes opp'
             };
+            this.setProductStatusOnToolbar(this.product$.getValue().StatusCode);
+            this.setContextmenu();
         } , err => this.errorService.handle(err));
     }
 
@@ -309,6 +365,59 @@ export class ProductDetails {
                 }
             );
         }
+    }
+
+    public transition(name: string) {
+        const product = this.product$.getValue();
+        return this.productService.Transition(this.productId, product, name);
+    }
+
+    private deleteProduct() {
+        return this.productService.isProductUsed(this.productId).subscribe(res => {
+            if (res) {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Sletting av produkt',
+                    message: 'Produktet er benyttet, og kan ikke slettes.<br /><br />Alternativt kan du deaktivere produktet, dvs at produktet ikke lenger vil være tilgjengelig.',
+                    buttonLabels: {
+                        accept: 'Deaktiver',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(action => {
+                    if (action === ConfirmActions.ACCEPT) {
+                        return this.discardProduct();
+                    }
+                    return;
+                });
+            } else {
+                if (confirm('Vil du slette dette produktet?')) {
+                    this.transition('Delete').subscribe(response => {
+                        this.router.navigateByUrl('/sales/products');
+                    }, err => this.errorService.handle(err));
+                }
+            }
+        });
+    }
+
+    public discardProduct() {
+        this.transition('Discard').subscribe((res) => {
+            this.setProductStatusOnToolbar(StatusCodeProduct.Discarded);
+            this.setContextmenu();
+        },
+        (err) => {
+            this.errorService.handle(err);
+        }
+        );
+    }
+
+    public reactivateProduct() {
+        this.transition('Reactivate').subscribe((res) => {
+            this.setProductStatusOnToolbar(StatusCodeProduct.Active);
+            this.setContextmenu();
+        },
+        (err) => {
+            this.errorService.handle(err);
+        }
+        );
     }
 
     private calculateAndUpdatePrice() {

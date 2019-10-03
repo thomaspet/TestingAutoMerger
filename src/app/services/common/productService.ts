@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import { Product, VatType } from '../../unientities';
+import { Product, VatType, StatusCodeProduct } from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 
@@ -38,4 +38,22 @@ export class ProductService extends BizHttp<Product> {
     public getNewPartname(): Observable<string> {
         return super.GetAction(null, 'getnewpartname');
     }
+
+    public isProductUsed(id: number): Observable<boolean> {
+        return super.GetAction(id, 'is-used');
+    }
+
+    public getStatusText(statusCode: number): string {
+        switch (statusCode) {
+            case StatusCodeProduct.Active:
+                return 'Aktiv';
+            case StatusCodeProduct.Discarded:
+                return 'Inaktiv';
+            case StatusCodeProduct.Deleted:
+                return 'Slettet';
+            default:
+                return 'Ukjent status: ' + statusCode;
+        }
+    }
+
 }
