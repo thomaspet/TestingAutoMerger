@@ -1440,7 +1440,7 @@ export class BillView implements OnInit {
     public onFormChange(change: SimpleChanges) {
         try {
             this.onFormChanged(change);
-            if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
+            if (this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
                 this.getValidationMessage(
                     this.current.value.SupplierID,
                     this.current.value.DefaultDimensionsID,
