@@ -5,7 +5,12 @@
 
     <div class="content">
         <div style="height: 100%; position: relative;">
-            <canvas #canvas></canvas>
+            <section *ngIf="!dataHolder.length && dataLoaded" class="no-duedates-next-thirty">
+                <i class="material-icons">done_all</i>
+                Ingen offentlige frister for ditt firma de neste 30 dager
+            </section>
+
+            <canvas #canvas (click)="onClick($event)"></canvas>
         </div>
     </div>
 </section>

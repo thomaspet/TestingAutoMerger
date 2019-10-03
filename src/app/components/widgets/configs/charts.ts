@@ -235,7 +235,7 @@ export const CHARTS = [
     },
     {
         id: 'reminder_list',
-        description: 'Huskeliste',
+        description: 'Arbeidsliste',
         permissions: ['ui_accounting'],
         width: 3,
         height: 3,
@@ -248,7 +248,7 @@ export const CHARTS = [
         id: 'operatingprofit_line',
         description: 'Driftsresultat',
         permissions: ['ui_accounting'],
-        width: 7,
+        width: 6,
         height: 3,
         widgetType: 'operatingprofit',
         config: {

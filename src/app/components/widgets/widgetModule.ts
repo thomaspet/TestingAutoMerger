@@ -14,6 +14,7 @@ import {SelectReportsModal} from './widgets/report-list/select-reports-modal';
 import {MatExpansionModule, MatMenuModule} from '@angular/material';
 import {ReportsModule} from '../reports/reportsModule';
 import {NewsfeedWidget} from './newsfeed/newsfeed';
+import {PublicDuedatesModal} from './widgets/public-duedates-widget/public-duedate-modal';
 
 @NgModule({
     imports: [
@@ -32,12 +33,14 @@ import {NewsfeedWidget} from './newsfeed/newsfeed';
         WidgetContainer,
         SelectReportsModal,
         NewsfeedWidget,
+        PublicDuedatesModal,
         ...UNI_WIDGETS
     ],
     entryComponents: [
         ...UNI_WIDGETS,
         UniWidgetCanvas,
-        SelectReportsModal
+        SelectReportsModal,
+        PublicDuedatesModal
     ],
     providers: [
         WidgetDataService,

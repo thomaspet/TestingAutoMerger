@@ -2,11 +2,13 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/co
 import {Router} from '@angular/router';
 import {IUniWidget} from '../uniWidget';
 import {AuthService} from '../../../authService';
+import {ApprovalService} from '@app/services/services';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {WidgetDataService} from '../widgetDataService';
 import {NewTaskModal} from '../../common/new-task-list/new-task-list';
 import {UniModalService} from '@uni-framework/uni-modal';
-import { Task } from '@uni-entities';
+import { Task, ApprovalStatus } from '@uni-entities';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'uni-reminder-list',
@@ -19,16 +21,16 @@ import { Task } from '@uni-entities';
             <div class="content reminder-list-widget">
                 <ul id="reminder-list" [ngClass]="!items.length && dataLoaded ? 'empty-list' : ''">
                     <li *ngFor="let item of items" (click)="goToTaskView(item)" title="Gå til liste">
-                        <i class="material-icons"> {{ item.icon }} </i>
+                        <i class="material-icons"> {{ item._icon }} </i>
                         <div>
-                            <span>{{ item.Title }} </span>
-                            <span> {{ item.Name }}  </span>
+                            <span>{{ item._label }} </span>
+                            <span> {{ item._typeText }}  </span>
                         </div>
                     </li>
                 </ul>
                 <span class="no-items-message">
                     <i class="material-icons"> mood </i>
-                    Huskelisten er tom, godt jobbet
+                    Arbeidslisten er tom, godt jobbet
                 </span>
             </div>
         </section>
@@ -41,13 +43,15 @@ export class ReminderListWidget {
     items: Array<any> = [];
     scrollbar: PerfectScrollbar;
     dataLoaded: boolean = false;
+    approvals: any[] = [];
 
     constructor(
         private authService: AuthService,
         private router: Router,
         private cdr: ChangeDetectorRef,
         private widgetDataService: WidgetDataService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private approvalService: ApprovalService
     ) {}
 
     public ngAfterViewInit() {
@@ -56,34 +60,67 @@ export class ReminderListWidget {
 
     getDataAndLoadList() {
         this.widgetDataService.clearCache();
-        this.widgetDataService.getData('/api/statistics?model=Task&select=ID as ID,Title as Title,ModelID as ModelID,Model.Name as Name,' +
-            `StatusCode as StatusCode,Type as Type,UserID as UserID&filter=UserID eq ${this.authService.currentUser.ID} and ` +
-            `StatusCode ne 50030 and Type ne 1&top=50&expand=model&orderby=ID desc`)
-        .subscribe((data) => {
-            if (data && data.Data) {
-                this.items = data.Data.map(item => {
-                    item.icon = this.getIcon(item);
-                    return item;
-                });
+        const filter = `filter=UserID eq ${this.authService.currentUser.ID} and StatusCode eq ${ApprovalStatus.Active}`;
 
-                if (this.widget && this.items && this.items.length) {
-                    this.scrollbar = new PerfectScrollbar('#reminder-list', {wheelPropagation: true});
+        Observable.forkJoin(
+            this.widgetDataService.getData(this.getTaskQuery()),
+            this.widgetDataService.getData('/api/kpi/companies'),
+            this.approvalService.GetAll(filter, ['Task.Model'])
+        )
+        .subscribe(([data, comp, approvals]) => {
+
+            // Taskss
+            const tasks = (data && data.Data || []).map(item => {
+                item._icon = this.getIcon(item.Name || 'pin');
+                item._label = item.Title;
+                item._typeText = item.Name ? this.getTranslatedTypeText(item.Name) : 'Huskelapp';
+                item._url = item.Name ? this.getEntityURL(item) : '/assignments/tasks';
+                return item;
+            });
+
+            const hasInvoiceAccess = this.authService.canActivateRoute(this.authService.currentUser, 'accounting/bills');
+
+            // Company KPI
+            const kpi = (comp && comp.Kpi || [])
+            .filter(item => item.Counter && item.Name !== 'Approved')
+            .map(item => {
+                item._icon = this.getIcon(item);
+                item._label = item.Title;
+                item._typeText = this.getTranslatedTypeText(item.Name);
+                item._url = item.Name === 'Inbox' ? '/accounting/bills?filter=Inbox' : item.Name === 'ToBePayed'
+                    ? '/accounting/bills?filter=ForApproval' : '/sales/reminders/ready';
+            });
+
+            // APPROVALS
+            const apps = (approvals || []).map((approval) => {
+                const task = approval.Task;
+                const isInvoice = approval.Task.Model.Name === 'SupplierInvoice';
+                if (task) {
+                    approval._icon = this.getIcon(task.Model.Name);
+                    approval._typeText = this.getTranslatedTypeText(task.Model.Name);
+                    approval._label = task.Title;
+                } else {
+                    approval._label = '';
                 }
+                approval._url = isInvoice && hasInvoiceAccess
+                ? `/accounting/bills/${approval.Task.EntityID}`
+                : `/assignments/approvals?showCompleted=false&id=${approval.ID}`;
+
+                return approval;
+            });
+
+            this.items = tasks.concat(kpi, apps);
+
+            if (this.widget && this.items && this.items.length) {
+                this.scrollbar = new PerfectScrollbar('#reminder-list', {wheelPropagation: true});
             }
+
             this.dataLoaded = true;
             this.cdr.markForCheck();
         }, err => {
             this.dataLoaded = true;
             this.cdr.markForCheck();
         });
-    }
-
-    getIcon(item) {
-        if (!item.Name) {
-            return 'schedule';
-        } else {
-            return 'local_atm';
-        }
     }
 
     ngOnDestroy() {
@@ -100,7 +137,76 @@ export class ReminderListWidget {
         });
     }
 
-    public goToTaskView(item: Task) {
-        this.router.navigateByUrl(`/assignments/tasks`);
+    getTaskQuery() {
+        return '/api/statistics?model=Task&select=ID as ID,Title as Title,ModelID as ModelID,Model.Name as Name,EntityID as EntityID,' +
+        `StatusCode as StatusCode,Type as Type,UserID as UserID&filter=UserID eq ${this.authService.currentUser.ID} and ` +
+        `StatusCode ne 50030 and Type ne 1&top=50&expand=model&orderby=ID desc`;
+    }
+
+    goToTaskView(item: any) {
+        this.router.navigateByUrl(item._url);
+    }
+
+    getIcon(value: string) {
+        switch (value) {
+            case 'SupplierInvoice':
+            case 'WorkItemGroup':
+                return 'arrow_back';
+            case 'pin':
+                return 'person_pin';
+            case 'Customer':
+                return 'person_outline';
+            case 'Inbox':
+                return 'mail_outline';
+            case 'ToBePayed':
+                return 'arrow_forward';
+            case 'ToBeReminded':
+                return 'arrow_back';
+            case 'CustomerInvoice':
+                return 'input';
+            default:
+                return 'bookmark_border';
+        }
+    }
+
+    getEntityURL(item: any) {
+        switch (item.Name) {
+            case 'Customer':
+                return `/sales/customer/${item.EntityID}`;
+            case 'CustomerInvoice':
+                return `/sales/invoices/${item.EntityID}`;
+            case 'CustomerOrder':
+                return `/sales/orders/${item.EntityID}`;
+            case 'CustomerQuote':
+                return `/sales/quotes/${item.EntityID}`;
+            case 'Supplier':
+                return `/accounting/suppliers/${item.EntityID}`;
+        }
+    }
+
+    getTranslatedTypeText(text: string) {
+        switch (text) {
+            case 'SupplierInvoice':
+            case 'ToBePayed':
+            case 'WorkItemGroup':
+                return 'Leverandørfaktura';
+            case 'CustomerInvoiceReminder':
+            case 'ToBeReminded':
+                return 'Purring';
+            case 'Customer':
+                return 'Kunde';
+            case 'CustomerInvoice':
+                return 'Faktura';
+            case 'CustomerOrder':
+                return 'Ordre';
+            case 'CustomerQuote':
+                return 'Tilbud';
+            case 'Supplier':
+                return 'Leverandør';
+            case 'Inbox':
+                return 'Innboks';
+            default:
+                return '';
+        }
     }
 }
