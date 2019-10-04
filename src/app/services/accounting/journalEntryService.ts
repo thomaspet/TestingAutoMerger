@@ -1077,7 +1077,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return Observable.forkJoin(
             this.journalEntryLineDraftService.GetAll(
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
-            ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project',
+            ['Account.TopLevelAccountGroup', 'VatType', 'JournalEntryType', 'Dimensions.Department', 'Dimensions.Project',
             'Dimensions.Dimension5', 'Dimensions.Dimension6', 'Dimensions.Dimension7', 'Dimensions.Dimension8',
             'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods']),
 
@@ -1184,6 +1184,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.CurrencyExchangeRate = line.CurrencyExchangeRate;
             jed.JournalEntryID = line.JournalEntryID;
             jed.JournalEntryNo = line.JournalEntryNumber;
+            jed.JournalEntryTypeID = line.JournalEntryTypeID;
+            jed.JournalEntryType = line.JournalEntryType;
             jed.Description = line.Description;
             jed.StatusCode = line.StatusCode;
             jed.JournalEntryDraftIDs = [];
