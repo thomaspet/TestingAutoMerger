@@ -1,7 +1,7 @@
 <section class="application view-wrapper uni-redesign">
     <section class="reconciliation-toolbar">
         <section class="left-side">
-            <h1>Bankavstemming</h1>
+            <h1 class="toolbar-title">Bankavstemming</h1>
             <section class="select-wrapper">
                 <label>
                     <span>Konto</span>
@@ -31,24 +31,25 @@
         </section>
 
         <section class="pull-right">
-            <button [disabled]="!loaded" class="outline-c2a tight" (click)="startAutoMatch()">
+            <button class="tight" (click)="startAutoMatch()">
                 <i class="material-icons">compare_arrows</i>
                 Automatisk kobling
             </button>
 
-            <button [disabled]="!loaded" class="outline-c2a tight" (click)="openJournalModal()">
+            <button class="tight" (click)="openJournalModal()">
                 <i class="material-icons">edit</i>
                 Bilagsføring
             </button>
 
-            <button [disabled]="!loaded" class="outline-c2a tight" (click)="openImportModal()">
+            <button class="tight" (click)="openImportModal()">
                 <i class="material-icons">cloud_upload</i>
-                Importer
+                Import
             </button>
 
-            <!-- <button class="good" (click)="save()" [disabled]="!session.closedGroups?.length">
-                Lagre
-            </button> -->
+            <button class="icon-button" (click)="openSettings()">
+                <i class="material-icons">settings</i>
+            </button>
+
         </section>
     </section>
 

@@ -14,6 +14,7 @@ import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-state
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
 import {ClosedReconciliations} from './closed-reconciliations/closed-reconciliations';
 import {BankFileEditor} from './bank-statement-upload-modal/bank-file-editor';
+import {BankStatementSettings} from './bank-statement-settings/bank-statement-settings';
 
 @NgModule({
     imports: [
@@ -40,12 +41,14 @@ import {BankFileEditor} from './bank-statement-upload-modal/bank-file-editor';
         BankStatementUploadModal,
         BankStatementJournalModal,
         BankFileEditor,
-        ClosedReconciliations
+        ClosedReconciliations,
+        BankStatementSettings
     ],
     entryComponents: [
         BankStatementUploadModal,
         BankStatementJournalModal,
-        BankFileEditor
+        BankFileEditor,
+        BankStatementSettings
     ]
 })
 export class BankReconciliationModule {}
