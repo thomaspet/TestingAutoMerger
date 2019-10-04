@@ -1131,6 +1131,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             row.CurrencyID = copyFromJournalEntryLine.CurrencyCodeID;
             row.CurrencyCode = copyFromJournalEntryLine.CurrencyCode;
             row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
+            row.JournalEntryTypeID = copyFromJournalEntryLine.JournalEntryTypeID;
+            row.JournalEntryType = copyFromJournalEntryLine.JournalEntryType;
 
             this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
             .map(res => res[0])
@@ -2728,6 +2730,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
                                         line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
                                         line.NumberSeriesID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.ID : null;
+
                                     });
 
                                     // Update next available number
@@ -3066,7 +3069,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     const project = line.prosj.length && res[0][0] ? res[0][0] : null;
                     const department = line.avd.length && res[1][0] ? res[1][0] : null;
                     const vattype = line.mvakode.length && res[2][0] ? res[2][0] : null;
-                    
+
                     let match = accounts.find(acc => acc.AccountNumber === line.konto);
                     match = match ? match : accounts[0];
 
@@ -3129,7 +3132,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.addJournalEntryLines(journalentrylines);
                 returnValue.msg = 'Konteringsforslag lagt til basert på EHF linjene sin konteringsstreng.';
                 resolve(returnValue);
-            });    
+            });
         });
     }
 
