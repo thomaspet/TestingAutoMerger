@@ -1048,7 +1048,14 @@ export class BankComponent {
     }
 
     public openAutobankAgreementModal() {
-        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements }, closeOnClickOutside: false });
+        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements },
+            closeOnClickOutside: false }).onClose.subscribe(() => {
+            this.paymentBatchService.checkAutoBankAgreement().subscribe(result => {
+                this.agreements = result;
+                this.toolbarconfig.contextmenu = this.getContextMenu();
+            });
+        });
+
     }
 
     private payAll(doneHandler: (status: string) => any, isManualPayment: boolean) {
