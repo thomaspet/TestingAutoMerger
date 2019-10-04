@@ -94,6 +94,16 @@ export class BankService extends BizHttp<Bank> {
             .map(res => res.body);
     }
 
+    public validateAutobankPassword(password: string) {
+        return this.http
+            .asPOST()
+            .withBody(password)
+            .usingBusinessDomain()
+            .withEndPoint('bank-agreements?action=validate-password')
+            .send()
+            .map(res => res.body);
+    }
+
     public getBankPayments(id: number): Observable<any> {
         return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
         + `&select=payment.Id as ID,payment.businessrelationid as BusinessRelationID,`

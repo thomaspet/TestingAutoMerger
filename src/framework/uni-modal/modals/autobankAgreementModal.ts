@@ -141,7 +141,7 @@ export interface IAutoBankAgreementDetails {
                     </span>
                 </article>
 
-                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4"
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && !hasAgreements" id="step4"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <h3>Sikkerhetsinnstillinger</h3>
                     <p>
@@ -194,6 +194,21 @@ export interface IAutoBankAgreementDetails {
                     </section>
                 </article>
 
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && hasAgreements" id="step4"
+                    style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+
+                    <span style="color: #9198aa; margin: 0 0 .8rem 9.5rem;">
+                        Bekreft eksisterende passord
+                    </span>
+
+                    <section class="uni-html-form bank-agreement-password-form">
+                        <label>
+                            <span>Passord</span>
+                            <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails.Password">
+                        </label>
+                    </section>
+                </article>
+
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5"
                     style="width: 65%; display: flex; justify-content: center; text-align: center; flex-direction: column; margin: 0 auto;">
                     <i class="material-icons" style="color: #7bcb45; font-size: 5rem; text-align: center;">check_circle</i>
@@ -233,6 +248,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     private agreements: any[] = [];
     public usedBanks: string[] = [];
     public buttonLock: boolean = false;
+    public hasAgreements: boolean = false;
 
     public steps: number = 0;
     public useTwoFactor: boolean = false;
@@ -274,6 +290,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public ngOnInit() {
         if (this.options && this.options.data && this.options.data.agreements) {
             this.agreements = this.options.data.agreements;
+            this.hasAgreements = !!this.agreements && this.agreements.length > 0;
         }
 
         Observable.forkJoin(
@@ -386,7 +403,20 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         }
 
         // Password step
-        if (this.steps === 4) {
+        if (this.steps === 4 && this.hasAgreements) {
+            this.bankService.validateAutobankPassword(this.agreementDetails.Password).subscribe(isCorrectPassword => {
+                if (!isCorrectPassword) {
+                    this.errorText = 'Feil passord!';
+                    return;
+                } else {
+                    this.errorText = '';
+                }
+                this.sendStartDataToZData();
+                return;
+            });
+        }
+
+        if (this.steps === 4 && !this.hasAgreements) {
             if (!this.isValidPassword(this.agreementDetails)) {
                 return;
             }
@@ -401,8 +431,9 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.sendStartDataToZData();
             return;
         }
-
-        this.steps++;
+        if (this.steps < 4) {
+            this.steps++;
+        }
     }
 
     public sendStartDataToZData() {
