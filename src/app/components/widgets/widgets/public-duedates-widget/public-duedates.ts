@@ -87,7 +87,8 @@ export class PublicDueDatesWidget {
 
     getDataAndLoadList() {
         this.dataHolder.map((item) => {
-            item.duedays = moment().diff(moment(item.Date), 'days') * -1;
+            const now = moment().format('YYYYMMDD');
+            item.duedays = moment(now).diff(moment(item.Date), 'days') * -1;
             return item;
         });
         this.drawBaseLine();
@@ -201,10 +202,10 @@ export class PublicDueDatesWidget {
 
     getDummyData() {
         return [
-            { Label: 'A-Melding', InfoText: 'A-melding for september', Date: moment('20191005') },
-            { Label: 'Mva', InfoText: 'Mva-melding for alminnelig næring', Date: moment('20191010') },
-            { Label: 'Aksjonæravtale', InfoText: 'Merverdiavgift, kompensasjonsmelding – frist for levering', Date: moment('20191018') },
-            { Label: 'Skattemelding', InfoText: 'Skatteoppgjør - siste pulje er klar', Date: moment('20191027') }
+            { Label: 'A-Melding', InfoText: 'A-melding for september', Date: '20191005' },
+            { Label: 'Mva', InfoText: 'Mva-melding for alminnelig næring', Date: '20191010' },
+            { Label: 'Aksjonæravtale', InfoText: 'Merverdiavgift, kompensasjonsmelding – frist for levering', Date: '20191018' },
+            { Label: 'Skattemelding', InfoText: 'Skatteoppgjør - siste pulje er klar', Date: '20191027' }
         ];
     }
 }

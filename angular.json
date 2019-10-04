@@ -119,7 +119,7 @@
                 },
                 {
                   "replace": "src/assets/favicon.ico",
-                  "with": "src/assets_external/favicon.ico"
+                  "with": "src/assets_external/favicon_sr.ico"
                 }
               ]
             },
