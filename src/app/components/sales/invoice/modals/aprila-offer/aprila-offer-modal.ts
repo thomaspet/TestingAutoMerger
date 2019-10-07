@@ -21,6 +21,7 @@ export class AprilaOfferModal implements OnInit, IUniModal {
     public validationError = [];
     public gettingOfferProgress = false;
     public offerFeedbackProgress = false;
+    public isError = false;
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
@@ -41,7 +42,6 @@ export class AprilaOfferModal implements OnInit, IUniModal {
     public toggleShowSetting() {
         this.showOfferSettings = !this.showOfferSettings;
     }
-
 
     public getOffer() {
         this.gettingOfferProgress = true;
@@ -68,10 +68,20 @@ export class AprilaOfferModal implements OnInit, IUniModal {
                 }
             }
         }, err => {
-            this.handleError(err);
-            this.close(true);
+            this.isError = true;
+            this.gettingOfferProgress = false;
         }
             , () => this.gettingOfferProgress = false);
+    }
+
+    tryAgain() {
+        this.isError = false;
+
+        if (!this.isOffered) {
+            this.getOffer();
+        } else {
+            this.acceptOffer();
+        }
     }
 
     public acceptOffer() {
@@ -81,28 +91,24 @@ export class AprilaOfferModal implements OnInit, IUniModal {
                 this.close(true);
                 this.offerFeedbackProgress = false;
             }, err => {
-                this.handleError(err);
+                this.isError = true;
                 this.offerFeedbackProgress = false;
-                this.close(true);
+
             });
     }
 
     public declineOffer() {
-
-        if (this.isOffered) {
-            this.offerFeedbackProgress = true;
-            this.customerInvoiceService.acceptDeclineAprilaOffer(this.options.data.invoiceId, this.offer.OrderId, false, null).
-                subscribe(res => {
-                    this.offerFeedbackProgress = false;
-                    this.close(false);
-                }, err => {
-                    this.handleError(err);
-                    this.offerFeedbackProgress = false;
-                    this.close(true);
-                });
-        } else {
-            this.close(true);
-        }
+        this.offerFeedbackProgress = true;
+        const orderid = this.isOffered ? this.offer.OrderId : '';
+        this.customerInvoiceService.acceptDeclineAprilaOffer(this.options.data.invoiceId, orderid, false, null).
+            subscribe(res => {
+                this.offerFeedbackProgress = false;
+                this.close(false);
+            }, err => {
+                this.handleError(err);
+                this.offerFeedbackProgress = false;
+                this.close(false);
+            });
     }
 
     public handleError(error) {
