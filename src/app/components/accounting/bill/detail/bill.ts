@@ -3982,10 +3982,13 @@ export class BillView implements OnInit {
     }
 
     public getValidationMessage(supplierID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
-        if (!this.accountsWithMandatoryDimensionsIsUsed) {
+        if (!this.accountsWithMandatoryDimensionsIsUsed || !dimensionsID) {
             return;
         }
-        this.accountMandatoryDimensionService.getSupplierMandatoryDimensionsReport(supplierID, dimensionsID, dimensions).subscribe((report) => {
+
+        this.accountMandatoryDimensionService.getSupplierMandatoryDimensionsReport(
+            supplierID, dimensionsID, dimensions
+        ).subscribe((report) => {
             this.validationMessage = new ValidationMessage();
             if (report && report.MissingRequiredDimensionsMessage) {
                 this.validationMessage.Level = ValidationLevel.Error;

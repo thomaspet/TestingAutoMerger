@@ -32,14 +32,13 @@ import * as _ from 'lodash';
             <article class='modal-content'>
                 <p>Trykk på en av linjene under for å vise detaljer om MVA meldingen</p>
                 <ag-grid-wrapper
-                    class="transquery-grid-font-size"
                     [resource]="lookupFunction"
                     [config]="uniTableConfig"
                     (rowSelect)="selectedItemChanged($event)">
                 </ag-grid-wrapper>
             </article>
             <footer>
-                <button (click)="close(null)" class="bad">Avbryt</button>
+                <button (click)="close(null)" class="secondary">Avbryt</button>
             </footer>
         </section>
     `

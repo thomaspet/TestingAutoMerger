@@ -1,28 +1,17 @@
 .uni-multivalue-ng
-    input[aria-readonly]:not([aria-readonly=false])
-        background: #edf0f7 !important
+    input[readonly]:not([aria-readonly=true])
+      cursor: pointer
+      background-color: #fff
 
     position: relative
 
     *
         box-sizing: border-box
 
-    // THE INPUT
-    input[type=text]
-        background: #fff
-        cursor: pointer
-
 .multivalue-section-container
-  // position: absolute
-  // top: 2.5rem
   width: 100%
-  // background-color: white
-  // border: 1px solid #d9d9d9
   border-top: 0
-  // border-radius: 3px
   padding-top: 1rem
-  // z-index: 999
-  // box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)
 
   input
     width: 92%
