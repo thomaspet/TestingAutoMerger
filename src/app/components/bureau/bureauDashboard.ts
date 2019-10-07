@@ -20,8 +20,6 @@ import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-gr
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
 import {WizardSettingsModal} from '@uni-framework/uni-modal/modals/wizard-settings-modal/wizard-settings-modal';
 
-import {UniNewCompanyModal, GrantAccessModal} from '@app/components/common/modals/company-modals';
-
 enum KPI_STATUS {
     StatusUnknown = 0,
     StatusInProgress = 1,
@@ -105,12 +103,8 @@ export class BureauDashboard {
 
         this.saveActions = [
             {
-                label : 'Opprett nytt selskap',
-                action: (doneCallback) => this.startCompanyCreation(doneCallback)
-            },
-            {
-                label : 'Gi tilgang til selskaper',
-                action: (doneCallback) => this.openInviteUsersModal(doneCallback)
+                label : 'Administrer selskaper',
+                action: () => this.router.navigateByUrl('/license-info/companies')
             }
         ];
     }
@@ -364,15 +358,6 @@ export class BureauDashboard {
         return !isNaN(Number(value.toString()));
     }
 
-    public openInviteUsersModal(doneCallback) {
-        return this.modalService.open(GrantAccessModal, {
-            hideCloseButton: true
-        }).onClose.subscribe(
-            res => doneCallback(''),
-            err => console.error(err)
-        );
-    }
-
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
         return companies.map(company => {
             company['_inboxCount'] = this.getKpiCount(company, 'Inbox');
@@ -398,28 +383,6 @@ export class BureauDashboard {
             }
         }
         return '';
-    }
-
-    public startCompanyCreation(doneCallback: (string) => void) {
-        this.uniModalService.open(UniNewCompanyModal).onClose
-            .subscribe(company => {
-                if (!company) {
-                    doneCallback('');
-                } else {
-                    this.companies.unshift(company);
-                    this.companies = [...this.companies];
-                    this.filterCompanies();
-                    this.authService.setActiveCompany(company, '/');
-
-                    this.modalService.open(WizardSettingsModal, {
-                        closeOnClickOutside: false,
-                        hideCloseButton: true
-                    }).onClose.subscribe(res => {
-                        this.uniModalService.open(CompanyActionsModal, <IModalOptions>{ header: `${company.Name} opprettet!` });
-                    }, err => console.error(err));
-                    doneCallback('');
-                }
-            });
     }
 
     public onCompanyNameClick(company: KpiCompany) {

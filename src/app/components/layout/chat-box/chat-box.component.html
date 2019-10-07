@@ -1,6 +1,6 @@
 <mat-card *ngIf="comments" class="chat-box" [ngClass]="{minimized: minimized}">
 
-	<mat-card-header class="chat-header" (click)="minimized = !minimized; unreadCount = 0; scrollToBottom()">
+	<mat-card-header class="chat-header" (click)="toggleMinimized()">
 		<a [ngClass]="{underline: !minimized}" (click)="!minimized && navigateToBusinessObject($event)">{{businessObject.EntityType | entitytypeTranslation}} ID {{businessObject.EntityID}}</a>
 		<i class="material-icons close-button" role="button" (click)="closeChatBox($event)">close</i>
 	</mat-card-header>

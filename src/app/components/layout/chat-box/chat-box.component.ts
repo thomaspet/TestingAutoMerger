@@ -137,6 +137,15 @@ export class ChatBoxComponent implements OnInit {
         });
     }
 
+    toggleMinimized() {
+        this.minimized = !this.minimized;
+        if (!this.minimized) {
+            this.unreadCount = 0;
+            this.readTimestamp = new Date();
+            this.scrollToBottom();
+        }
+    }
+
     navigateToBusinessObject(event: any) {
         event.stopPropagation();
         this.router.navigateByUrl(this.chatBoxService.getBusinessObjectRoute(this.businessObject));
