@@ -195,30 +195,34 @@ export class BankStatementSession {
         this.canCloseStage = false;
     }
 
+    clearSuggestions() {
+        this.suggestions = undefined;
+    }
+
     saveChanges() {
         this.busy = true;
         return this.bankStatementService.matchItems(this.prepareGroups())
             .pipe(finalize(() => this.busy = false));
     }
 
-    requestSuggestions() {
+    requestSuggestions(options?: { MaxDayOffset: number, MaxDelta: number }) {
         this.preparing = true;
         this.suggestions = undefined;
         const req = {
             JournalEntries: this.journalEntries.filter( x => !x.Closed),
             BankEntries: this.bankEntries.filter( x => !x.Closed),
-            Settings: {
+            Settings: options || {
                 MaxDayOffset: 5, MaxDelta: 0.0
             }
         };
         return this.bankStatementService.suggestMatch(req).finally(() => this.preparing = false);
     }
 
-    tryNextSuggestion(list?: BankStatementMatch[] ): boolean {
+    tryNextSuggestion(list?: BankStatementMatch[], options?: {MaxDayOffset: number, MaxDelta: number} ): boolean {
         this.clearStage();
         this.suggestions = list || this.suggestions;
         if (this.suggestions === undefined) {
-            this.requestSuggestions().subscribe( x => { if (x) { this.tryNextSuggestion(x); } } );
+            this.requestSuggestions(options).subscribe( x => { if (x) { this.tryNextSuggestion(x); } } );
             return false;
         }
         if (this.suggestions.length > 0) {

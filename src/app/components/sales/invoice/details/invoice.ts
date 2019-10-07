@@ -1459,16 +1459,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (this.invoiceID === 0 || (this.invoice && (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft))) {
                 this.saveActions.push({
                     label: 'Selg til Aprila',
-                    action: (done) => {
-                        this.aprilaOption.autoSellInvoice = true;
-                        this.transition(done);
-                    },
+                    action: (done) => this.sellInvoiceToAprila(done),
                     disabled: !this.currentCustomer
                 });
             }
         }
     }
-
 
     private openAprilaOfferModal(invoice: CustomerInvoice, done = null) {
         this.modalService.open(AprilaOfferModal,
@@ -1476,19 +1472,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 data: {
                     invoiceId: invoice.ID,
                     invoiceNumber: invoice.InvoiceNumber
-                }
+                },
+                closeOnClickOutside: false,
+                closeOnEscape: false,
+                hideCloseButton: true
             }
         ).onClose.subscribe((res: boolean) => {
             this.aprilaOption.autoSellInvoice = false;
-            if (res) {
-                this.getInvoice(this.invoice.ID).subscribe(inv => {
-                    this.refreshInvoice(inv);
-                });
+            this.getInvoice(this.invoice.ID).subscribe(inv => {
+                this.refreshInvoice(inv);
+            });
 
-            } else {
-                if (done) {
-                    done();
-                }
+            if (done) {
+                done();
             }
         });
     }
@@ -2401,6 +2397,33 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private checkProductPurchase(productCode: string) {
         return this.elsaPurchaseService.getPurchaseByProductName(productCode);
+    }
+
+    sellInvoiceToAprila(done) {
+
+        if (!this.invoice.Customer.OrgNumber) {
+            this.toastService.addToast('Error', ToastType.bad, 0,
+                'Kunde må ha org.nr for å kunne selge faktura til Aprila bank');
+            done();
+            return;
+        }
+
+        const currencyCode = this.getCurrencyCode(this.invoice.CurrencyCodeID);
+        if (currencyCode !== 'NOK') {
+            this.toastService.addToast('Error', ToastType.bad, 0,
+                'Valuta må være NOK for å kunne selge faktura til Aprila bank');
+            done();
+            return;
+        }
+
+        if (this.itemsSummaryData.SumTotalIncVatCurrency <= 200) {
+            this.toastService.addToast('Error', ToastType.bad, 0,
+                'Fakturabeløp må overstige kr 200,- for å selge faktura til Aprila bank');
+            done();
+            return;
+        }
+        this.aprilaOption.autoSellInvoice = true;
+        this.transition(done);
     }
 
 }

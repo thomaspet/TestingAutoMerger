@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ChatBoxService } from './chat-box.service';
 import { Comment, User } from '@uni-entities';
 import { AuthService } from '@app/authService';
@@ -15,7 +15,7 @@ import { PushMessage, BusinessObject } from '@app/models';
     templateUrl: './chat-box.component.html',
     styleUrls: ['./chat-box.component.sass']
 })
-export class ChatBoxComponent implements OnInit, AfterViewChecked {
+export class ChatBoxComponent implements OnInit {
     @Input() businessObject: BusinessObject;
 
     @ViewChild('inputElement') private inputElement: ElementRef;
@@ -23,12 +23,12 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
 
     comments: Comment[];
     filteredUsers: User[] = [];
+    focusIndex: number;
     inputControl: FormControl = new FormControl('');
     minimized = false;
-    disableScrollDown = false;
-    newComment = false;
+    readTimestamp = new Date();
+    unreadCount = 0;
 
-    public focusIndex: number;
     private mentionIndex: number;
     private users: User[];
 
@@ -67,14 +67,13 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
             }
         });
 
-        this.signalRService.hubConnection.invoke(
-            'RegisterListener',
-            <PushMessage> {
+        this.signalRService.hubConnection
+            .invoke('RegisterListener', <PushMessage>{
                 entityType: this.businessObject.EntityType,
                 entityID: this.businessObject.EntityID,
                 companyKey: this.signalRService.currentCompanyKey
-            }
-        ).catch(err => console.error(err));
+            })
+            .catch(err => console.error(err));
 
         this.signalRService.pushMessage$.subscribe(message => {
             if (message && message.entityType.toLowerCase() === this.businessObject.EntityType.toLowerCase()) {
@@ -83,46 +82,27 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
         });
     }
 
-    ngAfterViewChecked() {
-        if (!this.disableScrollDown) {
-            this.scrollToBottom();
-        }
-        if (this.newComment) {
-            this.newCommentScrollToBottom();
-        }
-    }
-
-    onScroll() {
-        const element = this.chatContainer.nativeElement;
-        const atBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
-        if (this.disableScrollDown && atBottom) {
-            this.disableScrollDown = false;
-        } else {
-            this.disableScrollDown = true;
-        }
-    }
-
     scrollToBottom() {
-        if (this.chatContainer) {
-            try {
-                this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-            } catch (err) {
-                console.error(err);
+        setTimeout(() => {
+            if (this.chatContainer) {
+                try {
+                    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+                } catch (err) {
+                    console.error(err);
+                }
             }
-        }
-    }
-
-    newCommentScrollToBottom() {
-        this.newComment = false;
-        try {
-            this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-        } catch (err) {
-            console.error(err);
-        }
+        });
     }
 
     closeChatBox(event: any) {
         event.stopPropagation();
+        this.signalRService.hubConnection
+            .invoke('UnRegisterListener', <PushMessage>{
+                entityType: this.businessObject.EntityType,
+                entityID: this.businessObject.EntityID,
+                companyKey: this.signalRService.currentCompanyKey,
+            })
+            .catch(err => console.error(err));
         let businessObjects = this.chatBoxService.businessObjects.getValue();
         businessObjects = businessObjects.filter(businessObject => {
             return !(
@@ -135,19 +115,25 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
 
     getComments() {
         this.commentService.getAll(this.businessObject.EntityType, this.businessObject.EntityID).subscribe((comments: Comment[]) => {
+            this.unreadCount = 0;
             this.comments = comments.reverse();
-            this.comments.map((comment) => {
+
+            this.comments.map((comment: Comment) => {
                 let words = comment.Text ? comment.Text.split(' ') : [];
                 words = words.map((word) => {
                     return word.startsWith('@')
                         ? `<span class="mention">${word}</span>`
                         : word;
                 });
-
                 comment.Text = words.join(' ');
+
+                if (this.minimized && new Date(comment.CreatedAt) > this.readTimestamp) {
+                    this.unreadCount++;
+                }
+
                 return comment;
             });
-            this.newComment = true;
+            this.scrollToBottom();
         });
     }
 
@@ -208,9 +194,8 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
             Text: this.inputControl.value
         };
 
-        this.newComment = true;
         this.comments.unshift(commentDraft);
-
+        this.scrollToBottom();
         this.commentService.post(this.businessObject.EntityType, this.businessObject.EntityID, this.inputControl.value).subscribe(
             () => {},
             err => console.error(err)

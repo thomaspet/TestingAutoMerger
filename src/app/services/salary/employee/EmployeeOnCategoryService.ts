@@ -155,7 +155,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
         return super
             .GetAll(
                 `filter=(StatusCode eq null or StatusCode eq 0) and transactions.IsRecurringPost eq false ` 
-                    + `and transactions.SystemType ne ${StdSystemType.HolidayPayDeduction}`
+                    + `and transactions.SystemType ne ${StdSystemType.HolidayPayDeduction} `
                     + `and (transactions.salaryBalanceID eq null or transactions.salaryBalanceID eq 0)`,
                 ['transactions']
             )

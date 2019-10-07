@@ -29,6 +29,9 @@ export class UniReportListWidget implements AfterViewInit {
     reportGroups: { name: string; reports: ReportDefinition[] }[];
     selectedReports: ReportDefinition[];
     unauthorized: boolean;
+    QUERY: string = `/api/statistics?model=ReportDefinition` +
+    `&select=ID as ID,Name as Name,Description as Description,Category as Category` +
+    `&filter=visible ne 'false' and isstandard ne 'false'&orderby=Category`;
 
     constructor(
         private authService: AuthService,
@@ -60,11 +63,11 @@ export class UniReportListWidget implements AfterViewInit {
 
     init() {
         this.scrollbar = new PerfectScrollbar('#report-list', {wheelPropagation: true});
-        this.widgetDataService.getData('/api/biz/report-definitions?orderby=Category').subscribe(
+        this.widgetDataService.getData(this.QUERY).subscribe(
             reports => {
                 // Filter out salary reports that still run old modal for parameters
                 // It got deprecated 2 years ago, f@$£ing refactor it..
-                reports = (reports || []).filter(r => {
+                reports = (reports && reports.Data || []).filter(r => {
                     return r.ID !== 7 && r.ID !== 8 && r.ID !== 9 && r.ID !== 10 && r.ID !== 11;
                 });
 

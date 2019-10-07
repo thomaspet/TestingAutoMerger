@@ -110,9 +110,10 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
     public setUpData(useAllEntries: boolean) {
         if (useAllEntries) {
             this.setBackToZero();
-            this.options.data.entries.forEach((entry) => {
-                this.posts[0]['Amount' + entry.PeriodNumber] += entry.Amount;
-            });
+            for (let i = 1; i <= 12; i++) {
+                const currentEntry = this.options.data.entries.find(entry => entry.PeriodNumber === i);
+                this.posts[0]['Amount' + i] += currentEntry && currentEntry.Amount || 0;
+            }
 
             this.posts[0].Sum = this.options.data.entries.reduce((a, b) => a + b['Amount'], 0 );
             this.posts[0].Account = this.options.data.entries[0].Account;
@@ -124,11 +125,20 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
             this.lockSave = true;
 
         } else {
-            this.entriesArray = this.options.data.entries.filter((ent) => {
+            const temp = this.options.data.entries.filter((ent) => {
                 if (this.currentDepartment && this.currentDepartment.ID) {
                     return ent.Dimensions && ent.Dimensions.DepartmentID === this.currentDepartment.ID;
                 } else {
                     return !ent.Dimensions;
+                }
+            });
+
+            this.entriesArray = this.entriesArray.map((entry) => {
+                const index = temp.findIndex(t => t.PeriodNumber === entry.PeriodNumber);
+                if (index >= 0) {
+                    return temp[index];
+                } else {
+                    return entry;
                 }
             });
 

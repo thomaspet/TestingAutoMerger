@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {createFormField, ControlTypes, filterInput, debounce} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/detail';
-import {WorkType, WageType} from '../../../unientities';
+import {WorkType, WageType, StatusCodeProduct} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -125,9 +125,11 @@ export class WorktypeDetailview {
         const txt = filterInput( isString(value) ? value : '');
         search = search.append('select', 'id,partname,name,priceexvat');
         search = search.append('hateoas', 'false');
+        let filter = `statuscode eq '${StatusCodeProduct.Active}'`;
         if (txt && (!ignoreFilter)) {
-            search = search.append('filter', `partname eq '${txt}' or startswith(name,'${txt}')`);
+            filter = filter + ` and (partname eq '${txt}' or startswith(name,'${txt}'))`;
         }
+        search = search.append('filter', filter);
         return this.productService.GetAllByHttpParams(search)
             .map((res) => res.body);
     }

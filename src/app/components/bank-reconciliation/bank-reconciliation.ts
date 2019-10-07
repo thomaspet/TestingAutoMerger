@@ -9,6 +9,7 @@ import { BankStatementSession, IMatchEntry } from '@app/services/bank/bankstatem
 import {UniModalService} from '@uni-framework/uni-modal';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
+import { BankStatementSettings } from './bank-statement-settings/bank-statement-settings';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -27,6 +28,7 @@ export class BankReconciliation {
     cleanUp = false;
     loaded = false;
     closedGroupDetailsVisible = false;
+    settings = { MaxDayOffset: 5, MaxDelta: 0.0 };
 
     constructor(
         tabService: TabService,
@@ -94,6 +96,7 @@ export class BankReconciliation {
     }
 
     openJournalModal() {
+        if (!this.loaded) { return; }
         this.modalService.open(BankStatementJournalModal, {
             data: {
                 bankAccounts: this.bankAccounts,
@@ -126,6 +129,7 @@ export class BankReconciliation {
     }
 
     openImportModal() {
+        if (!this.loaded) { return; }
         this.modalService.open(BankStatementUploadModal, {
             data: {
                 bankAccounts: this.bankAccounts,
@@ -179,6 +183,22 @@ export class BankReconciliation {
         }
     }
 
+    openSettings() {
+        this.modalService.open(BankStatementSettings, {
+            data: {
+                settings: this.settings
+            }
+        }).onClose.subscribe(settings => {
+            if (settings) {
+                this.settings = settings;
+                this.session.clearSuggestions();
+                if (this.autoSuggest) {
+                    this.checkSuggest();
+                }
+            }
+        });
+    }
+
     closeStage() {
         this.session.closeStage();
         this.checkSuggest();
@@ -191,14 +211,15 @@ export class BankReconciliation {
 
     checkSuggest(setFromUI = false) {
         if (this.autoSuggest) {
-            this.session.tryNextSuggestion();
+            this.session.tryNextSuggestion(undefined, this.settings);
         } else if (setFromUI) {
             this.session.clearStage();
         }
     }
 
     startAutoMatch() {
-        this.session.requestSuggestions().subscribe(x => {
+        if (!this.loaded) { return; }
+        this.session.requestSuggestions(this.settings).subscribe(x => {
             while (true) {
                 this.session.clearStage();
                 if (this.session.tryNextSuggestion(x)) {
@@ -209,4 +230,5 @@ export class BankReconciliation {
             }
         });
     }
+
 }

@@ -9577,6 +9577,11 @@ export enum StatusCodeSupplierInvoice{
     Rejected = 30108,
 }
 
+export enum StatusCodeProduct {
+    Active = 35001,
+    Discarded = 35002,
+    Deleted = 35003
+}
 
 export enum VippsProcessStatus{
     Created = 41000,

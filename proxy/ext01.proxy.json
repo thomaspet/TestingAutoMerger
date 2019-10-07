@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "https://ext01-api.unieconomy.no",
+        "secure": false,
+        "changeOrigin": true
+    }
+}

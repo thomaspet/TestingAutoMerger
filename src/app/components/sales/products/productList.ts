@@ -137,6 +137,14 @@ export class ProductList {
             .setWidth('15%')
             .setVisible(false);
 
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+            .setWidth('15%')
+            .setVisible(false)
+            .setTemplate((data: Product) => {
+                return this.productService.getStatusText(data.StatusCode);
+            })
+            ;
+
         this.productTable = new UniTableConfig('common.productList', false, true, 25)
             .setSearchable(true)
             .setEntityType('Product')
@@ -149,7 +157,8 @@ export class ProductList {
                 priceIncVatCol,
                 departmentCol,
                 projectCol,
-                descriptionCol
+                descriptionCol,
+                statusCol
             ]);
     }
 

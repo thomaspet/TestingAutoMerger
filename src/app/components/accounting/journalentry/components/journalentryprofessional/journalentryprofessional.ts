@@ -2730,6 +2730,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
                                         line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
                                         line.NumberSeriesID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.ID : null;
+
                                     });
 
                                     // Update next available number

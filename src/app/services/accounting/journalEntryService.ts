@@ -1095,7 +1095,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             const paymentIDs: Array<any> = responses[2].Data ? responses[2].Data : [];
 
             const journalEntryDataObjects: Array<JournalEntryData> = [];
-
             if (singleRowMode) {
                 // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
                 // components, because this is the way the user wants to see the data
