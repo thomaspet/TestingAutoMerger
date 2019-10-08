@@ -1402,7 +1402,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.saveActions.push({
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
-            action: done => this.transition(done),
+            action: done => {
+                if (this.aprilaOption.hasPermission) {
+                    this.aprilaOption.autoSellInvoice = false;
+                }
+               return this.transition(done);
+            },
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer,
             main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
         });
@@ -1795,7 +1800,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 },
                                 (err) => {
                                     const errMsg: string = err.error.Message;
-                                    if (isCreditNote && errMsg.indexOf('AprilaError') > -1) {
+                                    if (isCreditNote && errMsg && errMsg.indexOf('AprilaError') > -1) {
                                         this.openAprilaCreditNoteModal('ERROR');
                                     } else {
                                         this.errorService.handle(err);
