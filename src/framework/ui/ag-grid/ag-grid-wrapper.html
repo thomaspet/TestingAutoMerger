@@ -34,7 +34,8 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.isGroupingTicker
+            'ag-theme-balham': config?.isGroupingTicker,
+            'has-sum-row': !!(dataService?.sumRow$ | async)
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -42,7 +43,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [domLayout]="(localData && !config?.isGroupingTicker) ? 'autoHeight' : 'normal'"
+        [domLayout]="domLayout"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"

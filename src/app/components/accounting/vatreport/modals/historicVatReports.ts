@@ -1,27 +1,13 @@
-import {
-    Component,
-    Input,
-    Output,
-    ViewChild,
-    EventEmitter,
-} from '@angular/core';
-import {
-    UniTable,
-    UniTableColumn,
-    UniTableConfig,
-    UniTableColumnType
-} from '../../../../../framework/ui/unitable/index';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import { Period, VatReport } from '../../../../../app/unientities';
-import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {UniTableColumn, UniTableConfig, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
+import {Period, VatReport} from '@uni-entities';
+import {PeriodDateFormatPipe} from '@app/pipes/periodDateFormatPipe';
 import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {
-    VatReportService,
-    ErrorService
-} from '../../../../services/services';
-import { StatisticsService } from '@app/services/common/statisticsService';
-import * as _ from 'lodash';
+import {VatReportService, ErrorService} from '@app/services/services';
+import {StatisticsService} from '@app/services/common/statisticsService';
+import {set} from 'lodash';
 
 @Component({
     selector: 'historic-vatreport-modal',
@@ -44,18 +30,11 @@ import * as _ from 'lodash';
     `
 })
 export class HistoricVatReportModal implements IUniModal {
+    @Input() options: IModalOptions;
+    @Output() onClose = new EventEmitter<any>();
 
-    @Input()
-    public options: IModalOptions;
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter<any>();
-
-    @ViewChild(UniTable)
-    public unitable: UniTable;
-
-    public uniTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: HttpParams) => any;
+    uniTableConfig: UniTableConfig;
+    lookupFunction: (urlParams: HttpParams) => any;
     private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(
@@ -91,20 +70,14 @@ export class HistoricVatReportModal implements IUniModal {
             .setPageSize(10)
             .setSearchable(false)
             .setColumns([
-                new UniTableColumn('TerminPeriodID', 'PeriodeID', UniTableColumnType.Text)
-                    .setWidth('8rem'),
+                new UniTableColumn('TerminPeriodID', 'PeriodeID', UniTableColumnType.Text),
                 new UniTableColumn('VatReportType.Name', 'Type', UniTableColumnType.Text)
-                    .setWidth('25%')
                     .setAlias('VatReportType_Name'),
-
                 new UniTableColumn('TerminPeriod.AccountYear', 'År', UniTableColumnType.Text)
-                    .setAlias('TerminPeriod_AccountYear')
-                    .setWidth('15%'),
+                    .setAlias('TerminPeriod_AccountYear'),
                 new UniTableColumn('TerminPeriod.No', 'Termin', UniTableColumnType.Text)
-                    .setWidth('5%')
                     .setAlias('TerminPeriod_No'),
                 new UniTableColumn('TerminPeriod.Name', 'Periode', UniTableColumnType.Text)
-                    .setWidth('30%')
                     .setAlias('TerminPeriod_Name')
                     .setTemplate((vatReport: any) => {
                         return this.periodDateFormat.transform(<Period>{
@@ -123,7 +96,6 @@ export class HistoricVatReportModal implements IUniModal {
                             : vatReport.UpdatedAt.toString();
                     }),
                 new UniTableColumn('auditlog.Action', 'Status Altinn', UniTableColumnType.Text)
-                    .setWidth('15%')
                     .setAlias('auditlogAction')
                     .setTemplate((vatReport: any) => {
                         return (vatReport.auditlogAction === 'approveManually')
@@ -152,7 +124,7 @@ export class HistoricVatReportModal implements IUniModal {
         for (const prop in object) {
             if (object.hasOwnProperty(prop)) {
                 const mappedProperty = prop ? prop.split('_').join('.') : prop;
-                _.set(vatReport, mappedProperty, object[prop]);
+                set(vatReport, mappedProperty, object[prop]);
             }
         }
         return vatReport;

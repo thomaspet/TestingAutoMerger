@@ -78,6 +78,7 @@ export class AgGridWrapper {
     agColDefs: ColDef[];
     agTranslations: any;
     rowClassResolver: (params) => string;
+    domLayout = 'normal';
 
     rowHeight = 45;
     markedRowCount: number = 0;
@@ -227,6 +228,9 @@ export class AgGridWrapper {
                 this.tableHeight = 81 + (this.config.pageSize * this.rowHeight) + 'px';
             }
 
+            this.domLayout = this.localData && !this.config.isGroupingTicker
+                ? 'autoHeight' : 'normal';
+
             if (this.agGridApi) {
                 if (this.agGridApi.getSelectedRows().length) {
                     this.agGridApi.deselectAll();
@@ -301,20 +305,26 @@ export class AgGridWrapper {
             const loadedRowCount = this.dataService.loadedRowCount;
             const pageSize = this.config.pageSize || 20;
 
-            let height = 0;
-            const hasSumRow = this.columns.some(col => col.isSumColumn);
-
             if (loadedRowCount < pageSize) {
-                height = ((loadedRowCount || 1) + 1) * this.rowHeight;
+                this.domLayout = 'autoHeight';
+                this.tableHeight = undefined;
+                api.setDomLayout(this.domLayout);
             } else {
-                height = (pageSize + 1) * this.rowHeight;
+                this.domLayout = 'normal';
+                api.setDomLayout(this.domLayout);
+
+                const hasSumRow = this.columns.some(col => col.isSumColumn);
+                let height = (pageSize + 1) * this.rowHeight;
                 if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
                     height -= 40;
                 }
-            }
 
-            if (hasSumRow || this.config.showTotalRowCount) {
-                height += this.rowHeight;
+                if (hasSumRow || this.config.showTotalRowCount) {
+                    height += this.rowHeight;
+                }
+
+                // +20 to make room for horizontal scrollbar
+                this.tableHeight = height + 20 + 'px';
             }
 
             if (loadedRowCount) {
@@ -322,8 +332,6 @@ export class AgGridWrapper {
             } else {
                 this.agGridApi.showNoRowsOverlay();
             }
-
-            this.tableHeight = height + 1 + 'px';
 
             setTimeout(() => {
                 api.doLayout();
