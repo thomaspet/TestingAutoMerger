@@ -34,7 +34,7 @@ import { Observable } from 'rxjs';
             </article>
 
             <footer>
-                <button class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady">
+                <button class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady || disableCreditButton">
                     {{options.buttonLabels.accept}}
                 </button>
 
@@ -64,6 +64,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
 
     public showVatLockedDateInfo: boolean = false;
     public showAccountingLockedInfo: boolean = false;
+    public disableCreditButton: boolean = false;
 
     public formReady: boolean = false;
 
@@ -153,39 +154,19 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             this.showVatLockedDateInfo = false;
 
             // check if any daters
-            if (minVatDate && minFinancialDate && companySettings.VatLockedDate && companySettings.AccountingLockedDate
-                && moment(minVatDate) <= moment(companySettings.VatLockedDate)
+            if (minFinancialDate && companySettings.AccountingLockedDate
                 && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
-                message = 'Bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ';
-                    // 'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
-
                 this.showAccountingLockedInfo = true;
-                this.showVatLockedDateInfo = true;
-            } else if (minFinancialDate && companySettings.AccountingLockedDate
-                && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
-                message = 'Bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ';
-                    // 'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
-
-                this.showAccountingLockedInfo = true;
-            } else if (minVatDate && companySettings.VatLockedDate
+            } if (minVatDate && companySettings.VatLockedDate
                 && moment(minVatDate) <= moment(companySettings.VatLockedDate)) {
-                message = 'Bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ';
-
-                this.showVatLockedDateInfo = true;
-            } else if (!minVatDate && !minFinancialDate && companySettings.AccountingLockedDate && companySettings.VatLockedDate) {
-                message = 'Eventuelle bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ';
-
-                this.showAccountingLockedInfo = true;
-                this.showVatLockedDateInfo = true;
-            } else if (!minFinancialDate && companySettings.AccountingLockedDate) {
-                message = 'Eventuelle bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ';
-
-                this.showAccountingLockedInfo = true;
-            } else if (!minVatDate && companySettings.VatLockedDate) {
-                message = 'Eventuelle bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ';
-
                 this.showVatLockedDateInfo = true;
             }
+
+            if (this.showAccountingLockedInfo || this.showVatLockedDateInfo) {
+                message = 'Bilaget kan ikke krediteres! Regnskaps- eller mvadato er innenfor låsingsdato.';
+                this.disableCreditButton = true;
+            }
+
 
             if (!message) {
                 // set todays date if no date is set already
