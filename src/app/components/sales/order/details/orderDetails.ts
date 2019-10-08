@@ -95,6 +95,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
     private printStatusPrinted: string = '200';
+    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
     private projectID: number;
@@ -1106,7 +1107,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
             : Observable.of(this.order);
 
         return savedOrder.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
+            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
+            .finally(() => {
+                this.customerOrderService.setPrintStatus(this.order.ID, this.printStatusEmail).take(1).subscribe();
+            });
         });
     }
 
