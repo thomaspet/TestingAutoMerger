@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {BankService} from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
+import { state } from '@angular/animations';
 
 @Component({
     selector: 'uni-bank-statement-list',
@@ -33,6 +34,8 @@ export class BankStatement {
             if (bankStatements && bankStatements.Data) {
                 this.bankStatements = bankStatements.Data.map((sm) => {
                     sm._periodeText = moment(sm.FromDate).format('DD. MMM YYYY') + ' - ' + moment(sm.ToDate).format('DD. MMM YYYY');
+                    sm._open = false;
+                    sm.entries = [];
                     return sm;
                 });
             }
@@ -103,6 +106,21 @@ export class BankStatement {
         }, err => {
             this.toast.addToast('Kunne ikke oppdatere kontoutskrift', ToastType.bad, 5);
         });
+    }
+
+    statementClick(statement: any) {
+
+        if (!statement._open) {
+            this.bankService.getBankStatementEntriesOnStatement(statement.ID).subscribe((response: any[]) => {
+                statement.entries = response.map(res => {
+                    res._periodeText = moment(res.BookingDate).format('DD.MMM YYYY');
+                    return res;
+                });
+                statement._open = !statement._open;
+            });
+        } else {
+            statement._open = !statement._open;
+        }
     }
 
 }
