@@ -8,7 +8,7 @@ export const environment = {
     UNI_PUSH_ADAPTER_URL: 'https://pilotapi-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://pilot-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
+    SIGNALR_PUSHHUB_URL: 'https://prod-signal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
