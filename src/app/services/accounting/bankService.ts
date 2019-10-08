@@ -231,4 +231,15 @@ export class BankService extends BizHttp<Bank> {
             .send()
             .map(response => response.body);
     }
+
+    public getBankStatementEntriesOnStatement(bankstatementID: number) {
+        return this.http.asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(`?model=BankStatementEntry&select=AmountCurrency as AmountCurrency,BookingDate as BookingDate,` +
+            `CurrencyCode as CurrencyCode,Description as Description,ID as ID,OpenAmountCurrency as OpenAmountCurrency,` +
+            `StatusCode as StatusCode&filter=BankStatementID eq ${bankstatementID}`)
+            .send()
+            .map(response => response.body)
+            .map(response => response.Data);
+    }
 }
