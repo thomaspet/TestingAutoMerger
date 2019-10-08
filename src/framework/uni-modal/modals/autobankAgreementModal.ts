@@ -140,7 +140,7 @@ export interface IAutoBankAgreementDetails {
                     </span>
                 </article>
 
-                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4"
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && !hasAgreements" id="step4"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <h3>Sikkerhetsinnstillinger</h3>
                     <p>
@@ -190,6 +190,21 @@ export interface IAutoBankAgreementDetails {
                     </section>
                 </article>
 
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && hasAgreements" id="step4"
+                    style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+
+                    <span style="color: #9198aa; margin: 0 0 .8rem 9.5rem;">
+                        Bekreft eksisterende passord
+                    </span>
+
+                    <section class="uni-html-form bank-agreement-password-form">
+                        <label>
+                            <span>Passord</span>
+                            <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails.Password">
+                        </label>
+                    </section>
+                </article>
+
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5"
                     style="width: 65%; display: flex; justify-content: center; text-align: center; flex-direction: column; margin: 0 auto;">
                     <i class="material-icons" style="color: #7bcb45; font-size: 5rem; text-align: center;">check_circle</i>
@@ -229,6 +244,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     private agreements: any[] = [];
     public usedBanks: string[] = [];
     public buttonLock: boolean = false;
+    public hasAgreements: boolean = false;
 
     public steps: number = 0;
     public useTwoFactor: boolean = false;
@@ -238,7 +254,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public header = 'Veiviser for ny autobankavtale';
     public twoFactorMsg: string = '2-faktor bekreftelse (autentisering) er et ekstra sikkerhetsnivå for betaling. ' +
     'Med 2-faktor bekreftelse logger du inn med noe du vet (ditt passord) i tillegg til noe du får en kode på SMS.';
-    public passwordCriteriaMsg = 'Passordet må ha minst 3 av disse 4 kriteriene: Stor bokstav, liten bokstav, tall og tegn';
+    public passwordCriteriaMsg = `Passordet må inneholde minst 10 tegn og ha 3 eller flere av disse kriteriene:
+     Stor bokstav, liten bokstav, tall og unikt tegn`;
 
     public agreementDetails: IAutoBankAgreementDetails = {
         Phone: '',
@@ -270,6 +287,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public ngOnInit() {
         if (this.options && this.options.data && this.options.data.agreements) {
             this.agreements = this.options.data.agreements;
+            this.hasAgreements = !!this.agreements && this.agreements.length > 0;
         }
 
         Observable.forkJoin(
@@ -382,7 +400,20 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         }
 
         // Password step
-        if (this.steps === 4) {
+        if (this.steps === 4 && this.hasAgreements) {
+            this.bankService.validateAutobankPassword(this.agreementDetails.Password).subscribe(isCorrectPassword => {
+                if (!isCorrectPassword) {
+                    this.errorText = 'Feil passord!';
+                    return;
+                } else {
+                    this.errorText = '';
+                }
+                this.sendStartDataToZData();
+                return;
+            });
+        }
+
+        if (this.steps === 4 && !this.hasAgreements) {
             if (!this.isValidPassword(this.agreementDetails)) {
                 return;
             }
@@ -397,8 +428,9 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.sendStartDataToZData();
             return;
         }
-
-        this.steps++;
+        if (this.steps < 4) {
+            this.steps++;
+        }
     }
 
     public sendStartDataToZData() {
@@ -478,18 +510,13 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         const password = agreementDetails.Password;
         const confirmPassword = agreementDetails._confirmPassword;
 
-        if (password.length < 10) {
-            this.errorText = 'Ugyldig passord! Passordet må inneholde minst 10 tegn';
-            return false;
-        }
-
         let numberOfMetCriterias = 0;
         numberOfMetCriterias += /[a-zæøå]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[A-ZÆØÅ]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[\d]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(password) ? 1 : 0;
 
-        const passwordValid = numberOfMetCriterias >= 3;
+        const passwordValid = numberOfMetCriterias >= 3 && password.length >= 10;
         let passwordConfirmed: boolean;
 
         if (passwordValid) {
@@ -504,7 +531,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 passwordConfirmed = false;
             }
         } else {
-            this.errorText = 'Ugyldig passord! Passordet må ha minst 3 av disse 4 kriteriene: Stor bokstav, liten bokstav, tall og tegn';
+            this.errorText = 'Ugyldig passord! ' + this.passwordCriteriaMsg;
         }
 
         return passwordValid && passwordConfirmed;

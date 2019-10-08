@@ -1131,6 +1131,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             row.CurrencyID = copyFromJournalEntryLine.CurrencyCodeID;
             row.CurrencyCode = copyFromJournalEntryLine.CurrencyCode;
             row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
+            row.JournalEntryTypeID = copyFromJournalEntryLine.JournalEntryTypeID;
+            row.JournalEntryType = copyFromJournalEntryLine.JournalEntryType;
 
             this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
             .map(res => res[0])
@@ -2718,6 +2720,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
                                         line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
                                         line.NumberSeriesID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.ID : null;
+
                                     });
 
                                     // Update next available number

@@ -60,17 +60,14 @@ export class StimulsoftReportWrapper {
             .then(() => this.loadStimulsoftCss())
             .then(() => this.loadStimulsoftViewer())
             .then(() => {
-                Stimulsoft.Base.StiLicense.key =
-                '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlXbCQbV15bhSTfOPS9A3vDEz1pnE84I0ULmUVLNU+bqiO0Zd' +
-                'sg3gTozn8iAaTn3bTfTlSeaDbhuDVqo+OhQlxYRwwEbbcaVdKYbnexBg/cOkVUkcn8CygEv36PJQ7XG7EbwvfqE4yM' +
-                'Y4kXwfZn5tvxMOWr7SJPb6lWu4o2YK+qpR+R06pfjofjmL6CdZHp8+ourIy4TYa++lEQcl3HbVp6ocfW6lqTKZwJCe' +
-                '/iySg9W0D2/UE9P/ilS2QXo5i96qG44Mx4Iqha6vqMKICP0RJsWkyQVZt5L2E3I++KdwP9pUYeVhUFmYnfX7kt1eaR' +
-                'HfBIUpBQUb8XL/xUnIfqS0tiXUYiw1EgVAejm9L0bAFt7gKMkWPXoWm5i09wIN3IhfUAHl7r2G4EFPRIa0wuBJBzVt' +
-                'PQWZURKLxzgC4TQH465uX9f63pfpsDgVTgoaN5mg87Oah+RevBnWYtqgfKOrKB1tlIBaA4ym0ToVv7uZwg/e2HJYUa' +
-                'KxQRslbGLgfUBN1Vsak3lrzjEZLhz7Rj9yUYxAviSpr2thbxYtvsteiiBKTt3HTz4vWtj5dGIk7+V/RyShkPokC6+C' +
-                'a7QfZdbPjRYb5ziMuSqC2TGkftrc+vnN+l566ggVDAbz8Z1zQfus4X+uoUuTLFoIG3LTxYnW21kLhMm+gYXx+E6ZvR' +
-                'yLbcrIS9CAIDOHRVCcxAE0ibEjiH+66SgS6BL0lMfzDWVApBL6sH1LaB3+05DUKIuyZKQk1KI32Aj/PI0k0NfebUjn' +
-                'I=';
+                Stimulsoft.Base.StiLicense.Key =
+                '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlG+yktak0Q90R4OusltI2zY/8dyatuk4wl913wKfuiD+lFXo' +
+                'PdJjSivE7t86JeAQD4/S5sZ2cqnsqI705QLTdVWALC23HA7v0sVT2chTan+Zt3SFrT+XuCtOiYDARb6FEwm1Mq8Zq2' +
+                'fuDilUqE5TSIHTs/fY5Go93Dl/kycSPTgepN8KnidjbCMO13U1DcSK/25HGHQhaYUZ2Yyj8xNhzeYMdhzCNIWdWg4O' +
+                'ShyCiqDrPMAulIBNn+KDNJckQ7nw8Llm4i3KpflnjjW+QcITOgWzF8EPsOVU6j7AOS0pJd2MCwMwCQHogrxzuI6IDN' +
+                '5B+hB9/JdHSla6UlFR2BhvRQ1Wfo7Q5IswDxaXlyDdpa+7gcbGVNCq79fb+htRIN6iaOuzwn2p5muHxAq9ha04X21H' +
+                'mKG/BYuqI+OY22eU6OCXTkta7jjNTO3z2r6blIv3NqN6RA1XtrC7YtFdrlyitIxamxd6hQ6Jj6X/zpC7ayJcUZWgzE' +
+                'y3pV5vCj93V5FE0loqCUQKiZTgKSSS0Wz9qW';
             }).then(() => Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('assets/stimulsoft/nb-NO.xml'));
     }
 
@@ -104,8 +101,9 @@ export class StimulsoftReportWrapper {
         if (localization && localization !== 'no') {
             try { report.localizeReport(localization); } catch(e) {}
         }
-        report.render();
-        resolver(report);
+        report.renderAsync(() => {
+            resolver(report);
+        });
     }
 
     public renderHtml(report, resolver) {

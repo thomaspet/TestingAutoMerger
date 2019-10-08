@@ -1,0 +1,25 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Innstillinger for automatisk kobling</header>
+
+    <article class="scrollable">
+
+        <table>
+            <tr><td>Maks antall dager</td></tr>
+            <tr><td><input type="number" [(ngModel)]="settings.MaxDayOffset" min="0" max="100"></td></tr>
+            <tr><td>Maks avvik</td></tr>
+            <tr><td><input type="text" [(ngModel)]="settings.MaxDelta"></td></tr>
+        </table>
+
+    </article>
+
+    <footer>
+
+        <button style="margin-left: auto" class="good" (click)="complete()">
+            OK
+        </button>
+
+        <button class="outline" (click)="onClose.emit()">
+            Avbryt
+        </button>
+    </footer>
+</section>

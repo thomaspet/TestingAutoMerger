@@ -1,7 +1,7 @@
 <section class="application view-wrapper uni-redesign">
     <section class="reconciliation-toolbar">
         <section class="left-side">
-            <h1>Bankavstemming</h1>
+            <h1 class="toolbar-title">Bankavstemming</h1>
             <section class="select-wrapper">
                 <label>
                     <span>Konto</span>
@@ -31,24 +31,25 @@
         </section>
 
         <section class="pull-right">
-            <button [disabled]="!loaded" class="tertiary c2a" (click)="startAutoMatch()">
+            <button class="tertiary" (click)="startAutoMatch()">
                 <i class="material-icons">compare_arrows</i>
                 Automatisk kobling
             </button>
 
-            <button [disabled]="!loaded" class="tertiary c2a" (click)="openJournalModal()">
+            <button class="tertiary" (click)="openJournalModal()">
                 <i class="material-icons">edit</i>
                 Bilagsføring
             </button>
 
-            <button [disabled]="!loaded" class="tertiary c2a" (click)="openImportModal()">
+            <button class="tertiary" (click)="openImportModal()">
                 <i class="material-icons">cloud_upload</i>
-                Importer
+                Import
             </button>
 
-            <!-- <button class="good" (click)="save()" [disabled]="!session.closedGroups?.length">
-                Lagre
-            </button> -->
+            <button class="icon-button" (click)="openSettings()">
+                <i class="material-icons">settings</i>
+            </button>
+
         </section>
     </section>
 
@@ -99,7 +100,9 @@
                     <section *ngIf="session.status == 2" class="info-box">
                         <article>Du har ingen bankposter.</article>
                         <article>Velg "Importer" for å lese inn en bankfil manuelt.</article>
-                        <i style="font-size: 20pt" class="material-icons">cloud_upload</i>
+                        <button (click)="openImportModal()" class="tertiary c2a">
+                            <i style="font-size: 20pt" class="material-icons">cloud_upload</i>
+                        </button>
                     </section>
 
                     <section *ngIf="session.status == 3 && !session.stage?.length" class="no-match-drafts c2a">

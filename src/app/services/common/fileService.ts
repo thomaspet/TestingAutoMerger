@@ -42,7 +42,7 @@ export class FileService extends BizHttp<File> {
             .map(response => response.body);
     }
 
-    public downloadXml(fileID: number) {
+    public downloadXml(fileID: number, type = 'application/xml') {
         return this.http
             .asGET()
             .withDefaultHeaders()
@@ -53,7 +53,7 @@ export class FileService extends BizHttp<File> {
                 const url = urlResponse.body.replace(/\"/g, '');
                 return this.http.http.get(url, {responseType: 'text'});
             })
-            .map(res => new Blob([res], { type: 'application/xml' }));
+            .map(res => new Blob([res], { type: type }));
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {

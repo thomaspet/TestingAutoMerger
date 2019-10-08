@@ -13,7 +13,8 @@
         </thead>
 
         <tbody>
-            <tr *ngFor="let statement of bankStatements">
+            <ng-container *ngFor="let statement of bankStatements">
+            <tr [ngClass]="statement._open ? 'opened': ''">
                 <td> {{ statement.AccountName }} </td>
                 <td>
                     {{ statement.AccountNumber }}
@@ -22,7 +23,7 @@
                     {{ statement._periodeText }}
                 </td>
                 <td [ngClass]="statement.StatusCode === 48002 ? 'done' : 'good'"> {{ getStatusText(statement) }} </td>
-                <td class="center"> {{ statement.count }} </td>
+                <td class="center"> <a class="good" (click)="statementClick(statement)" title="Vis alle poster"> {{ statement.count }} </a> </td>
                 <td class="right" [ngClass]="statement.Amount  >= 0 ? 'good' : 'bad'"> {{ (statement.Amount | uninumberformat: 'money') || '0,00' }} </td>
                 <td>
                     <i class="material-icons" [matMenuTriggerFor]="contextMenu">
@@ -37,6 +38,27 @@
                     </mat-menu>
                 </td>
             </tr>
+            <tr *ngIf="statement._open">
+                <td colspan="7" style="padding-left: 2rem !important; height: 400px">
+                    <div class="list-header">
+                        <span> Beskrivelse </span>
+                        <span> Dato </span>
+                        <span> Sum åpne </span>
+                        <span> Sum total </span>
+                    </div>
+                    <ul class="entry-list-ul">
+                        <cdk-virtual-scroll-viewport itemSize="50" id="scrolling-viewport">
+                            <li *cdkVirtualFor="let entry of statement.entries" class="list-body-li">
+                                <span title="{{ entry.Description }}"> {{ entry.Description }} </span>
+                                <span title="{{ entry._periodeText }}"> {{ entry._periodeText }} </span>
+                                <span title="{{ entry.OpenAmountCurrency }}" [ngClass]="statement.OpenAmountCurrency  >= 0 ? 'good' : 'bad'"> {{ ( entry.OpenAmountCurrency | uninumberformat: 'money' ) || '0,00' }} </span>
+                                <span title="{{ entry.AmountCurrency }}" [ngClass]="statement.AmountCurrency  >= 0 ? 'good' : 'bad'"> {{  (entry.AmountCurrency | uninumberformat: 'money' ) || '0,00' }} </span>
+                            </li>
+                        </cdk-virtual-scroll-viewport>
+                    </ul>
+                </td>
+            </tr>
+           </ng-container>
         </tbody>
     </table>
 

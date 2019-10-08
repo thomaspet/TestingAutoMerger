@@ -1,9 +1,44 @@
 <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw">
-    <header>Bokføringsregler</header>
-    <article style="overflow: visible;">
+    <header>
+        Bokføringsregler
+        <i class="material-icons booking-rules-info-icon" 
+            title="Klikk her for å se informasjon om bokføringsregler" 
+            [matMenuTriggerFor]="contextMenu">
+            info
+        </i>
+        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+            <section class="info-section-container">
+                <span>
+                    Her kan du sette opp regler for bokføring av innbetalinger. Reglene vil endre programmets virkemåte ved bokføring av innbetalinger,
+                    slik at det er viktig at du forstår konsekvensen av regel du setter opp, før du aktiverer.
+                <br/>
+                    Du kan eksempelvis lage regel for hvordan innbetalinger fra en bestemt konto, en bestemt kunde, valuta, KID-type m.fl. skal bokføres.
+                    Du kan også bestemme at innbetalinger med spesielle kjennetegn, ikke skal bokføres i det hele. En regel kan ha en eller flere kriterier.
+
+                <br/> <br/>
+                    <strong>Eksempelregel for å ikke bokføre betalinger uten konto:</strong><br/>
+                    Beskrivelse: "Ikke bokfør innbetalinger med manglende konto"<br/>
+                    - "Ekstern konto fra" &nbsp;&nbsp;&nbsp;&nbsp; er &nbsp;&nbsp;&nbsp;&nbsp; "blank" (tomt felt)<br/>
+                    - Huk av "Ikke bokfør"<br/>
+                    - Lagre
+                <br/> <br/>
+                    <strong> Huskeliste for bankregler: </strong>
+                <br/>
+
+                    <strong>1.</strong> ALLE kriteriene MÅ matche for at regel skal slå inn. <br/>
+                    <strong>2.</strong> Alle reglene vil bli sjekket, i den prioritet de ligger i listen. Regelen som står øverst, vil tre i kraft først. Passer ikke denne blir neste regel sjekket osv. <br/>
+                    <strong>3.</strong> Blank i verdifeltet betyr at dette feltet skal være tomt i innbetalingsfilen for at regel skal tre i kraft. <br/>
+                    <strong>4.</strong>. Tips: Lag forklarende beskrivelse/navn på regler, f.eks.: "Ikke bokfør innbetalinger fra konto 3500 05 99999"
+                </span>
+            </section>
+        </mat-menu>
+    </header>
+
+    <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
+        
         <section style="display: flex;">
             <section style="flex: 1 80px;" class="rule-grid-container">
                 <ag-grid-wrapper
@@ -81,9 +116,9 @@
         </section>
     </article>
 
-    <footer class="center">
-        <button [disabled]="!dirty" class="c2a rounded" (click)="saveRules()">Lagre</button>
+    <footer>
         <button (click)="regretChanges()" *ngIf="dirty && currentRule?.ID">Angre</button>
-        <button (click)="close()">Lukk</button>
+        <button (click)="close()" class="secondary">Lukk</button>
+        <button [disabled]="!dirty" class="c2a" (click)="saveRules()">Lagre</button>
     </footer>
 </section>

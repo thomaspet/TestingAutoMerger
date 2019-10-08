@@ -1,0 +1,41 @@
+<section>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+
+    <section class="heading">
+
+        <span class="dropdown-label">Skilletegn:</span>
+        <select (change)="ngOnChanges()" class="dropdown" [(ngModel)]="template.Separator">
+            <option>;</option><option>,</option><option>|</option><option>/</option><option>SPACE</option><option>TAB</option>
+        </select>
+
+        <span class="warn">{{lastValidation?.message}}</span>
+
+        <button (click)="clear()" *ngIf="templateWasLoaded" class="outline"><i class="material-icons">clear</i> Nullstill</button>
+
+    </section>
+
+    <table class="uni-table">
+        <thead>
+            <tr><th *ngFor="let col of template.Columns; let i = index">
+                <select [class.warn]="col.FieldMapping == 0" [(ngModel)]="col.FieldName" (change)="onColChange(col, i)" >
+                    <option *ngFor="let name of colNames">{{name}}</option>
+                </select>
+            </th></tr>
+            <tr><th *ngFor="let col of template.Columns; let i = index">
+                <select [disabled]="col.FieldMapping == 0" [(ngModel)]="col.FieldTypeName" (change)="onColTypeChange(col, i)" >
+                    <option *ngFor="let name of colTypes">{{name}}</option>
+                </select>
+            </th></tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of rows; let i=index">
+                <td [class.warn]="hasDateError?.StartPos == template?.Columns[i]?.StartPos"
+                    [class.ignore]="template?.Columns[i]?.FieldMapping == 0"
+                    *ngFor="let col of row; let i=index">{{col}}</td>
+            </tr>
+        </tbody>
+
+    </table>
+</section>

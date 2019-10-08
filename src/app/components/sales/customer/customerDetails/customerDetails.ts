@@ -1047,7 +1047,7 @@ export class CustomerDetails implements OnInit {
 
         if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
             !customer.CustomerInvoiceReminderSettingsID) &&
-            (this.reminderSettings && !this.reminderSettings.isDirty)) {
+            ((this.reminderSettings && !this.reminderSettings.isDirty)) || !this.reminderSettings) {
                 customer.CustomerInvoiceReminderSettings = null;
         }
 

@@ -94,6 +94,16 @@ export class BankService extends BizHttp<Bank> {
             .map(res => res.body);
     }
 
+    public validateAutobankPassword(password: string) {
+        return this.http
+            .asPOST()
+            .withBody(password)
+            .usingBusinessDomain()
+            .withEndPoint('bank-agreements?action=validate-password')
+            .send()
+            .map(res => res.body);
+    }
+
     public getBankPayments(id: number): Observable<any> {
         return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
         + `&select=payment.Id as ID,payment.businessrelationid as BusinessRelationID,`
@@ -220,5 +230,16 @@ export class BankService extends BizHttp<Bank> {
             .withEndPoint(`bankstatements/${id}`)
             .send()
             .map(response => response.body);
+    }
+
+    public getBankStatementEntriesOnStatement(bankstatementID: number) {
+        return this.http.asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(`?model=BankStatementEntry&select=AmountCurrency as AmountCurrency,BookingDate as BookingDate,` +
+            `CurrencyCode as CurrencyCode,Description as Description,ID as ID,OpenAmountCurrency as OpenAmountCurrency,` +
+            `StatusCode as StatusCode&filter=BankStatementID eq ${bankstatementID}`)
+            .send()
+            .map(response => response.body)
+            .map(response => response.Data);
     }
 }

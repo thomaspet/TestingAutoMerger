@@ -17,7 +17,8 @@ import {
     Project,
     Department,
     Dimensions,
-    LocalDate
+    LocalDate,
+    StatusCodeProduct
 } from '../../../unientities';
 import {
     ProductService,
@@ -381,7 +382,7 @@ export class TradeItemTable {
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (input: string) => {
-                    let filter = `contains(Name,'${input}') or startswith(PartName,'${input}')`;
+                    let filter = `statuscode eq '${StatusCodeProduct.Active}' and (contains(Name,'${input}') or startswith(PartName,'${input}'))`;
 
                     // Search for specific PartName with prefix =
                     if (input && input.charAt(0) === '=') {

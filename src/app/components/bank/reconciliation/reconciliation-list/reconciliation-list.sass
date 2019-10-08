@@ -40,6 +40,9 @@
         tbody
             font-size: .9rem
             tr
+                &.opened
+                    td
+                        font-weight: bold !important
                 &:last-of-type
                     border-bottom: none
 
@@ -71,3 +74,49 @@
             cursor: pointer
             color: var(--color-c2a)
 
+.entry-list-ul
+    height: 400px
+    overflow: auto
+    margin-bottom: 1rem
+    margin-top: 0
+    display: flex
+    flex-direction: column
+
+    li:nth-child(odd)
+        background-color: $uni-color-negative
+
+    #scrolling-viewport
+        height: 100%
+        width: 100%
+
+.list-header, .list-body-li
+    display: flex
+    height: 35px
+    line-height: 35px
+    font-size: 13px
+
+    span
+        flex: 1
+        padding-left: 1rem
+        &:first-of-type
+            flex: 1
+
+        &:nth-last-child(-n + 2)
+            text-align: right
+            padding-right: 2rem
+            padding-left: 0
+
+        .good
+            color: $uni-color-plus
+            font-weight: 600
+        .bad
+            color: $uni-color-bad
+            font-weight: 600
+        .done
+            color: $uni-color-good
+            font-weight: 600
+
+.list-header
+    font-weight: 600
+    border-bottom: 1px solid $uni-color-scale9
+    width: calc(100% - 1rem)
