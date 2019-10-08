@@ -32,8 +32,6 @@ export class UniTabs {
     @Output() activeIndexChange: EventEmitter<number> = new EventEmitter(false);
     @Output() tabClick: EventEmitter<IUniTab> = new EventEmitter(false);
 
-    // filteredTabs: IUniTab[];
-
     onDestroy$ = new Subject();
     overflowIndex: number;
 
@@ -45,8 +43,6 @@ export class UniTabs {
 
     ngOnChanges(changes) {
         if (changes['tabs'] && this.tabs) {
-            // this.filteredTabs = this.tabs.filter(tab => !tab.hidden);
-
             if (this.tabs.some(tab => !!tab.path)) {
                 const url = window.location.href;
                 const activeIndex = this.tabs.findIndex(route => {
@@ -76,7 +72,7 @@ export class UniTabs {
 
     private checkOverflow() {
         setTimeout(() => {
-            const moreDropdownVisible = this.overflowIndex >= 0;
+            const hadDropdownBeforeCheck = this.overflowIndex >= 0;
             const tabContainer = this.tabContainer.nativeElement;
             const offsetTop = tabContainer.getBoundingClientRect().top;
 
@@ -95,7 +91,7 @@ export class UniTabs {
             // If the dropdown wasn't visible before this check we need to
             // run it again after setting overflowIndex, in case the dropdown
             // toggle caused another item to overflow
-            if (!moreDropdownVisible) {
+            if (overflowIndex >= 0 && !hadDropdownBeforeCheck) {
                 this.checkOverflow();
             }
         });
