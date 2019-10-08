@@ -89,6 +89,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
     private printStatusPrinted: string = '200';
+    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
 
     private numberSeries: NumberSeries[];
@@ -1094,7 +1095,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             : Observable.of(this.quote);
 
         return savedQuote.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
+            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
+            .finally(() => {
+                this.customerQuoteService.setPrintStatus(this.quote.ID, this.printStatusEmail).take(1).subscribe();
+            });
         });
     }
 
