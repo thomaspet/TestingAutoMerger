@@ -87,15 +87,8 @@ export class LoginModal implements IUniModal, OnInit {
         }
 
         this.working = true;
-        this.authService.authenticate(this.authDetails).subscribe(
-            (response) => {
-                this.onClose.emit(true);
-            },
-            (error) => {
-                this.working = false;
-                this.errorMessage = 'Autentisering feilet. Vennligst sjekk brukernavn og passord, og prøv igjen.';
-            }
-        );
+        this.authService.authenticate();
+        // Might not need this any more after connecting to the identyserver!
     }
 
     public goToLogin() {

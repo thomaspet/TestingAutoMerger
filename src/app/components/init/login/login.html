@@ -1,44 +1,12 @@
 <article class="authentication-component">
-    <section #loginForm>
-        <form (submit)="login($event)">
-            <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
-
-            <section class="input-with-icon">
-                <label for="username">Brukernavn</label>
-                <i class="material-icons">person</i>
-                <input id="username"
-                    type="text"
-                    placeholder="Brukernavn"
-                    autofocus
-                    [disabled]="working"
-                    [formControl]="usernameControl"
-                />
-            </section>
-
-            <section class="input-with-icon">
-                <label for="password">Passord</label>
-                <i class="material-icons">lock</i>
-                <input id="password"
-                    type="password"
-                    placeholder="Passord"
-                    [disabled]="working"
-                    [formControl]="passwordControl"
-                />
-            </section>
-
-            <button class="auth-button c2a" [attr.aria-busy]="working" [disabled]="working">
-                Logg inn
-            </button>
-        </form>
-
-        <section class="links">
-            <a [routerLink]="['../reset-password']">Glemt passord?</a>
-        </section>
+    <section class="login-section" #loginForm>
+        <button class="c2a" (click)="login()">Logg inn</button>
     </section>
 
     <section #companySelector style="display: none">
         <ng-template [ngIf]="missingCompanies">
-            <p class='validation info'>Fant ingen selskaper på brukeren. Dersom problemet vedvarer vennligst kontakt din systemadministrator eller vårt kundesenter.</p>
+            <p class='validation info'>Fant ingen selskaper på brukeren. Dersom problemet vedvarer vennligst kontakt din
+                systemadministrator eller vårt kundesenter.</p>
             <a (click)="resetLogin()" style="display:block;text-align:center;">Tilbake til innlogging</a>
         </ng-template>
 

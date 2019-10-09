@@ -8,10 +8,7 @@
             <p>Et skybasert økonomisystem i verdensklasse, bygd for den moderne medarbeider.</p>
             <p>Nysgjerrig? Finn ut mer!</p>
 
-            <button class="signup-link"
-                type="button"
-                [attr.aria-busy]="working"
-                [disabled]="working">
+            <button class="signup-link" type="button" [attr.aria-busy]="working" [disabled]="working">
 
                 <a href="https://www.unimicro.no/utforsk">Utforsk</a>
             </button>
@@ -19,16 +16,17 @@
     </section>
 
     <section id="init-content">
-        <button class="marketing-toggle-btn"
-            [ngClass]="{'expand-content': marketingContentHidden}"
+        <button class="marketing-toggle-btn" [ngClass]="{'expand-content': marketingContentHidden}"
             (click)="toggleMarketingContent()">
 
             Vis/skjul markedsinnhold
         </button>
 
         <section class="view-container">
-            <img src="../../../assets/economy-logo.png" alt="Uni Economy logo">
-            <router-outlet></router-outlet>
+            <div class="router-wrapper">
+                <img src="../../../assets/economy-logo.png" alt="Uni Economy logo">
+                <router-outlet></router-outlet>
+            </div>
         </section>
 
         <footer>

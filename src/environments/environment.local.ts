@@ -1,6 +1,18 @@
 export const environment = {
     useProdMode: false,
 
+    authority: 'http://localhost:59454',
+    client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
+    redirect_uri: '/assets/auth.html',
+    post_logout_redirect_uri: '/#/login', // URL that the pop up afeter user log out
+    silent_redirect_uri: '/assets/silent-renew.html',
+    automaticSilentRenew: true,
+    response_type: 'id_token token',
+    scope: 'openid profile AppFramework',
+    // tslint:disable-next-line:max-line-length
+    filterProtocolClaims: true, // prevents protocol level claims such as nbf, iss, at_hash, and nonce from being extracted from the identity token as profile data
+    loadUserInfo: true,
+
     BASE_URL_INIT: 'http://localhost:29077',
     BASE_URL: 'http://localhost:29077',
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
