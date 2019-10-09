@@ -1,0 +1,9 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.7.0/oidc-client.js"></script>
+<script>
+
+new Oidc.UserManager().signinSilentCallback()
+        .catch((err) => {
+            console.log(err);
+        });
+
+</script>

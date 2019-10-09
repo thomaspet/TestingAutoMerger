@@ -7,7 +7,7 @@ import {environment} from 'src/environments/environment';
 import {Company, UserDto, ContractLicenseType} from './unientities';
 import {ReplaySubject} from 'rxjs';
 import 'rxjs/add/operator/map';
-
+import { UserManager, Log, MetadataService, User } from 'oidc-client';
 import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
@@ -41,15 +41,23 @@ const PUBLIC_ROUTES = [];
 
 @Injectable()
 export class AuthService {
+    userManager: UserManager;
+    userLoadededEvent: EventEmitter<User> = new EventEmitter<User>();
+    loggedIn = false;
+
     public requestAuthentication$: EventEmitter<any> = new EventEmitter();
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
-    public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
+    public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<
+        IAuthDetails
+    >(1);
     public filesToken$: ReplaySubject<string> = new ReplaySubject(1);
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
     public currentUser: UserDto;
+    public user: User;
+    public IdsUser: User; // user coming from identity server
     public filesToken: string;
 
     private headers = new HttpHeaders({
@@ -61,7 +69,9 @@ export class AuthService {
     private storage = {
         saveOnUser: (key, value) => {
             if (value === undefined) {
-                throw new Error('Tried to marshal undefined into a JSON string, failing to prevent corrupt localStorage');
+                throw new Error(
+                    'Tried to marshal undefined into a JSON string, failing to prevent corrupt localStorage'
+                );
             }
             localStorage.setItem(key, JSON.stringify(value));
         },
@@ -73,10 +83,37 @@ export class AuthService {
                 return null;
             }
         },
-        removeOnUser: key => localStorage.removeItem(key),
+        removeOnUser: key => localStorage.removeItem(key)
     };
 
     constructor(private router: Router, private http: HttpClient) {
+        this.userManager = this.getUserManager();
+        this.userManager
+            .getUser()
+            .then(user => {
+                if (user && !user.expired) {
+                    this.loggedIn = true;
+                    this.IdsUser = user;
+                    this.userLoadededEvent.emit(user);
+                } else {
+                    this.loggedIn = false;
+                }
+            })
+            .catch(err => {
+                this.loggedIn = false;
+            });
+        this.userManager.events.addSilentRenewError(function(res) {
+            console.log(res);
+        });
+
+        this.userManager.events.addUserLoaded(() => {
+            this.userManager.getUser().then(user => {
+                this.user = user;
+                this.jwt = user.access_token;
+                this.jwtDecoded = this.decodeToken(this.jwt);
+                this.storage.saveOnUser('jwt', this.jwt);
+            });
+        });
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
         this.jwt = this.storage.getOnUser('jwt');
@@ -105,7 +142,7 @@ export class AuthService {
                         activeCompany: undefined,
                         token: undefined,
                         user: undefined,
-                        hasActiveContract: false,
+                        hasActiveContract: false
                     });
 
                     this.clearAuthAndGotoLogin();
@@ -125,7 +162,7 @@ export class AuthService {
         // Also check if we have a files token, and re-authenticate with uni-files if not.
         setInterval(() => {
             if (this.jwt && this.isTokenExpired(10)) {
-                this.requestAuthentication$.emit(true);
+                // this.requestAuthentication$.emit(true);
             }
 
             if (this.jwt && !this.filesToken) {
@@ -142,36 +179,31 @@ export class AuthService {
         }
     }
 
+    private getUserManager(): UserManager {
+        const baseUrl = window.location.origin;
+        const settings: any = {
+            authority: environment.authority,
+            client_id: environment.client_id,
+            redirect_uri: baseUrl + environment.redirect_uri,
+            post_logout_redirect_uri: baseUrl + environment.post_logout_redirect_uri,
+            response_type: environment.response_type,
+            scope: environment.scope,
+            filterProtocolClaims: environment.filterProtocolClaims,
+            loadUserInfo: environment.loadUserInfo,
+            automaticSilentRenew: true,
+            silent_redirect_uri: baseUrl + environment.silent_redirect_uri
+        };
+
+        return new UserManager(settings);
+    }
+
     /**
      * Authenticates the user and returns an observable of the response
      * @param {Object} credentials
      * @returns Observable
      */
-    public authenticate(credentials: {username: string, password: string}): Observable<boolean> {
-        const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'sign-in';
-
-        return this.http.post<any>(url, JSON.stringify(credentials), {
-            headers: this.headers,
-            observe: 'response'
-        }).pipe(
-            switchMap(apiAuth => {
-                if (apiAuth.status !== 200) {
-                    return Observable.of(apiAuth.body);
-                }
-
-                this.jwt = apiAuth.body.access_token;
-                this.jwtDecoded = this.decodeToken(this.jwt);
-
-                if (!this.jwtDecoded) {
-                    return Observable.throw('Something went wrong when decoding token. Please re-authenticate.');
-                }
-
-                this.authenticateUniFiles();
-
-                this.storage.saveOnUser('jwt', this.jwt);
-                return Observable.of(true);
-            })
-        );
+    public authenticate(): void {
+        this.userManager.signinRedirect();
     }
 
     public authenticateUniFiles(): Promise<string> {
@@ -180,25 +212,31 @@ export class AuthService {
                 reject('No jwt set');
             }
 
-            const uniFilesUrl = environment.BASE_URL_FILES + '/api/init/sign-in';
-            this.http.post<string>(uniFilesUrl, JSON.stringify(this.jwt), {
-                headers: this.headers,
-                observe: 'response'
-            }).subscribe(
-                res => {
-                    if (res && res.status === 200) {
-                        this.filesToken = res.body;
-                        this.storage.saveOnUser('filesToken', this.filesToken);
+            const uniFilesUrl =
+                environment.BASE_URL_FILES + '/api/init/sign-in';
+            this.http
+                .post(uniFilesUrl, JSON.stringify(this.jwt), {
+                    headers: this.headers,
+                    observe: 'response'
+                })
+                .subscribe(
+                    res => {
+                        if (res && res.status === 200) {
+                            this.filesToken = res.body.toString();
+                            this.storage.saveOnUser(
+                                'filesToken',
+                                this.filesToken
+                            );
 
-                        this.filesToken$.next(this.filesToken);
-                        resolve(this.filesToken);
+                            this.filesToken$.next(this.filesToken);
+                            resolve(this.filesToken);
+                        }
+                    },
+                    err => {
+                        reject('Error authenticating');
+                        console.log('Error authenticating:', err);
                     }
-                },
-                err => {
-                    reject('Error authenticating');
-                    console.log('Error authenticating:', err);
-                }
-            );
+                );
         });
     }
 
@@ -206,7 +244,10 @@ export class AuthService {
      * Sets the current active company
      * @param {Object} activeCompany
      */
-    public setActiveCompany(activeCompany: Company, redirectUrl?: string): void {
+    public setActiveCompany(
+        activeCompany: Company,
+        redirectUrl?: string
+    ): void {
         let redirect = redirectUrl;
         if (!redirect) {
             redirect = this.getSafeRoute(this.router.url);
@@ -223,6 +264,7 @@ export class AuthService {
 
                 this.loadCurrentSession().take(1).subscribe(
                     authDetails => {
+                        this.authentication$.next(authDetails);
                         const forcedRedirect = this.getForcedRedirect(authDetails);
                         if (forcedRedirect) {
                             redirect = forcedRedirect;
@@ -261,7 +303,9 @@ export class AuthService {
 
         const split = safeUrl.split('/').filter(part => !!part);
         if (split.length) {
-            const paramIndex = split.findIndex(part => !isNaN(parseInt(part, 0)));
+            const paramIndex = split.findIndex(
+                part => !isNaN(parseInt(part, 0))
+            );
             if (paramIndex > 0) {
                 safeUrl = split.slice(0, paramIndex).join('/');
             }
@@ -326,12 +370,29 @@ export class AuthService {
      * Returns a boolean indicating whether the user is authenticated or not
      * @returns {Boolean}
      */
-    public isAuthenticated(): boolean {
-        const hasToken: boolean = !!this.jwt;
-        const isTokenDecoded: boolean = !!this.jwtDecoded;
-        const isExpired: boolean = this.isTokenExpired(this.jwtDecoded);
+    public isAuthenticated(): Promise<Boolean> {
+        return new Promise((resolve, reject) => {
+            this.userManager
+                .getUser()
+                .then(user => {
+                    if (user && !user.expired) {
+                        this.jwt = user.access_token;
+                        this.jwtDecoded = this.decodeToken(this.jwt);
+                        this.authenticateUniFiles();
 
-        return hasToken && isTokenDecoded && !isExpired;
+                        this.storage.saveOnUser('jwt', this.jwt);
+                        const hasToken: boolean = !!this.jwt;
+                        const isTokenDecoded: boolean = !!this.jwtDecoded;
+                        const isExpired: boolean = this.isTokenExpired(
+                            this.jwtDecoded
+                        );
+                        resolve(hasToken && isTokenDecoded && !isExpired);
+                    }
+                })
+                .catch(() => {
+                    resolve(false);
+                });
+        });
     }
 
     /**
@@ -376,7 +437,8 @@ export class AuthService {
         this.activeCompany = undefined;
 
         this.setLoadIndicatorVisibility(false);
-        this.router.navigateByUrl('init/login');
+        // this.router.navigateByUrl('init/login');
+        this.userManager.signoutRedirect();
     }
 
     /**
@@ -408,7 +470,7 @@ export class AuthService {
 
         const expires = new Date(0);
         expires.setUTCSeconds(this.jwtDecoded.exp);
-        return (expires.valueOf() < new Date().valueOf() + (offsetMinutes * 60000));
+        return expires.valueOf() < new Date().valueOf() + offsetMinutes * 60000;
     }
 
     public canActivateRoute(user: UserDto, url: string): boolean {
@@ -418,7 +480,10 @@ export class AuthService {
         }
 
         const rootRoute = this.getRootRoute(url);
-        if (!rootRoute || PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)) {
+        if (
+            !rootRoute ||
+            PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)
+        ) {
             return true;
         }
 
@@ -480,7 +545,6 @@ export class AuthService {
         let noQueryParams = url.split('?')[0];
         noQueryParams = noQueryParams.split(';')[0];
 
-
         let urlParts = noQueryParams.split('/');
         urlParts = urlParts.filter(part => {
             // Remove empty url parts and numeric url parts (ID params)
@@ -492,7 +556,10 @@ export class AuthService {
 
     private isTrialExpired(contract: ContractLicenseType): boolean {
         if (contract.TypeName === 'Demo' && contract.TrialExpiration) {
-            const daysRemaining = moment(contract.TrialExpiration).diff(moment(), 'days');
+            const daysRemaining = moment(contract.TrialExpiration).diff(
+                moment(),
+                'days'
+            );
             if (daysRemaining > 0) {
                 return false;
             } else {

@@ -1,0 +1,16 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.7.0/oidc-client.js"></script>
+<script>
+
+  var mgr = new Oidc.UserManager();
+  mgr.signinRedirectCallback().then((res) => {
+      console.log(res)
+      window.location = "/#/init/login";
+
+    }, error => {
+        console.error(error);
+    });
+
+</script>
+
+
+

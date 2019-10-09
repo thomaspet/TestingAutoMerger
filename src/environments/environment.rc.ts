@@ -5,6 +5,20 @@
 
 export const environment = {
     useProdMode: false,
+
+    // Identity Server Settings
+    authority: 'https://test-login.unieconomy.no',
+    client_id: 'f522f1f4-7734-4930-6ecc-d308ca7135ec',
+    redirect_uri: '/assets/auth.html',
+    post_logout_redirect_uri: '/#/login', // URL that the pop up afeter user log out
+    silent_redirect_uri: '/assets/silent-renew.html',
+    automaticSilentRenew: true,
+    response_type: 'id_token token',
+    scope: 'profile openid AppFramework AppFramework.All',
+    // tslint:disable-next-line:max-line-length
+    filterProtocolClaims: true, // prevents protocol level claims such as nbf, iss, at_hash, and nonce from being extracted from the identity token as profile data
+    loadUserInfo: true,
+
     BASE_URL_INIT: '',
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://rc-integration.unieconomy.no/',

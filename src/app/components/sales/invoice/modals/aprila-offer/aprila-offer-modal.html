@@ -5,7 +5,7 @@
         <div class="settings-wrapper" *ngIf="hasPermission">
             <i class="material-icons" (click)="toggleShowSetting()">settings</i>
 
-            <div class="offer-settings" *ngIf="showOfferSettings" >
+            <div class="offer-settings" *ngIf="showOfferSettings">
                 <span class="tip-arrow"></span>
                 <label>
                     Alltid vis tilbud fra Aprila Fakturasalg
@@ -50,7 +50,11 @@
             <div class="error" *ngFor="let error of offer.Reasons">
                 <label class="error-title">{{error.ReasonCode}}</label>
                 <label class="error-message">{{error.ReasonDescription}}</label>
-                <!-- <label class="error-reason"> <i class="material-icons">error</i> {{error.ReasonDescription}}</label> -->
+            </div>
+
+            <div *ngIf="offerLimitMessage" class="offer-limit-info">
+                <i class="material-icons">error</i>
+                {{offerLimitMessage}}
             </div>
         </div>
 

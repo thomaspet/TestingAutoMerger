@@ -4,7 +4,22 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
+
     useProdMode: false,
+    // Identity Server Settings
+    authority: 'https://dev-ueidentity.azurewebsites.net',
+    client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
+    redirect_uri: '/assets/auth.html',
+    post_logout_redirect_uri: '/#/login', // URL that the pop up afeter user log out
+    silent_redirect_uri: '/assets/silent-renew.html',
+    automaticSilentRenew: true,
+    response_type: 'id_token token',
+    scope: 'openid profile AppFramework',
+    // tslint:disable-next-line:max-line-length
+    filterProtocolClaims: true, // prevents protocol level claims such as nbf, iss, at_hash, and nonce from being extracted from the identity token as profile data
+    loadUserInfo: true,
+
+
     BASE_URL_INIT: '',
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',
@@ -46,7 +61,7 @@ export const environment = {
         + 'yXbhqZkmPRK07NnOKmeuxknE+/RywyCQZS9svfkZT1Jn0m0xdX4+rwma2fTSCluY4fUEF38fhNFj/keKeLIwIMwSOh'
         + 'Ypv0Eu/SeTn6DSEWgBGcW2jbWadOO+CmGAOg1XfM82jGlN68wfGjsNNswAez71QNSnBvMrFVsRFGDq+K/zAYRavq23'
         + 'xzCJ9QnukzFeuN1Juxtg3y2tRiJYPJyyrwHGhTY550oa1AP/trUev/gvk4gpFyGpAoFR8jca5GAGEDyTf2pi44J/S78=',
-    
+
     IMPORT_CENTRAL_TEMPLATE_URLS : {
         CUSTOMER: 'https://public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
         SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
