@@ -94,7 +94,6 @@ export class CompanyService extends BizHttp<Company> {
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint(`companies?action=delete-company&key=${companyKey}`)
-            .withHeader('CompanyKey', companyKey)
             .send({}, null, false)
             .do(() => super.invalidateCache());
     }
