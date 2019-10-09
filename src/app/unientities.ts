@@ -894,6 +894,7 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
+    public DefaultReminderFeeAccountID: number;
     public CustomFields: any;
 }
 
