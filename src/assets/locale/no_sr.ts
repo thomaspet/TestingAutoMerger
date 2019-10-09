@@ -1,4 +1,4 @@
-export const NO_SR = {
+export const NO = {
     'NAVBAR': {
         'KPI': 'Oversikt',
         'DASHBOARD': 'Dashboard',

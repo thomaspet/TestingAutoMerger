@@ -70,11 +70,11 @@ export class SmartSearchDataService {
         private authService: AuthService
     ) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
+            const settings = this.navbarLinkService.settingsSection$.getValue();
             this.componentLookupSource = [];
             this.confirmedSuperSearchRoutes = [];
             this.shortcuts = [];
             linkSections.forEach(section => {
-
                 section.linkGroups.forEach(group => {
                     group.links.forEach( (link) => {
                         if (link.isSuperSearchComponent) {
@@ -86,6 +86,12 @@ export class SmartSearchDataService {
 
                         link['_section'] = section.name;
                     });
+                    this.componentLookupSource.push(...group.links);
+                });
+            });
+
+            settings.forEach((setting) => {
+                setting.linkGroups.forEach(group => {
                     this.componentLookupSource.push(...group.links);
                 });
             });

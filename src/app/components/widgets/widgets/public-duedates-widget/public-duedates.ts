@@ -41,7 +41,7 @@ export class PublicDueDatesWidget {
         this.dataHolder = this.getDummyData();
         this.dataLoaded = true;
 
-        // Needs redraw on window size change  -- TODO --
+        // Needs redraw on canvas size change  -- TODO --
 
         if (this.dataHolder.length) {
             const canvas = this.canvas.nativeElement;

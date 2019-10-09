@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import * as _ from 'lodash';
 import {BehaviorSubject} from 'rxjs';
-import {NO_UNI} from '../../../assets/locale/no_uni';
-import {NO_SR} from '../../../assets/locale/no_sr';
+import {NO as NO_UNI} from '../../../assets/locale/no_uni';
+import {NO as NO_SR} from '../../../assets/locale/no_sr';
 import {EN} from '../../../assets/locale/en';
 
 @Injectable()

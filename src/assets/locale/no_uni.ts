@@ -1,5 +1,82 @@
-export const NO_UNI = {
-    'NAVBAR': {
+// UNIECONOMY ORIGINAL NORWEGIAN LANGUAGE FILE
+// NOTE TO DEVS (IMPORTANT!):
+//      IF YOU ADD A LABEL, ADD THE LABEL TO ALL THE OTHER LANGUAGE FILES
+
+export const NO = {
+    ENTITIES: {
+        'SupplierInvoice': 'Leverandørfaktura',
+        'JournalEntryLine': 'Bilagslinje',
+        'Budget': 'Budsjett',
+        'Supplier': 'Leverandør',
+        'Currency': 'Valuta',
+        'CustomerInvoice': 'Faktura',
+        'CustomerOrder': 'Ordre',
+        'CustomerQuote': 'Tilbud',
+        'CustomerInvoiceReminder': 'Purring',
+        'RecurringInvoice': 'Repeterende faktura',
+        'Customer': 'Kunder',
+        'Product': 'Produkter',
+        'ProductCatagory': 'Produktgruppe',
+        'Sellers': 'Selgere',
+        'PayrollRun': 'Lønnsavregning',
+        'Employee': 'Ansatte',
+        'WageType': 'Lønnsart',
+        'Worker': 'Personer',
+        'WorkType': 'Timeart',
+        'WorkProfile': 'Stillingsmal',
+        'Project': 'Prosjekt'
+    },
+
+    SALES: {
+        INVOICE: {
+            'INVOICE': 'Faktura',
+            'NEW': 'Ny faktura',
+            'INVOICED': 'Fakturert',
+            'INVOICE_DATE': 'Fakturadato',
+            'CREDIT_DAYS': 'Kredittdager',
+            'INVOICE_REF': 'Fakturaref.',
+        },
+        COMMON: {
+            'DELVIERY_DATE': 'Leveringsdato',
+            'OUR_REF': 'Vår referanse',
+            'YOUR_REF': 'Deres referanse',
+            'COMMENT': 'Kommentar',
+            'REQUISITION': 'Rekvisisjon',
+            'MAIN_SELLER': 'Hovedselger',
+            'PRINT': 'Utskrift',
+            'SENDING_LAST': 'Siste utsendelse',
+            'SENDING_STATUS': 'Status utsendelse'
+        }
+    },
+
+    ACCOUNTING: {
+        JOURNALENTRY: {
+            'JOURNAL_ENTRY': 'Bilagsføring',
+            'JOURNAL_ENTRY_NUMBER': 'Bilagsnr',
+            'DEBET': 'Debit',
+            'SUM_DEBET': 'Sum debit',
+            'CREDIT': 'Kredit',
+            'SUM_CREDIT': 'Sum kredit',
+            'JOURNALING_TYPE': 'Bilagstype'
+        }
+    },
+
+    STATUSES: {
+        INVOICE: {
+            'PAST_DUE': 'Forfalt',
+            'REMINDED': 'Purret',
+            'SENT_TO_COLLECTOR': 'Sendt til inkasso',
+            'PAID': 'Betalt',
+            'CREDITED': 'Kreditert'
+        },
+        COMMON: {
+            'ALL': 'Alle',
+            'MINE': 'Mine',
+            'DRAFT': 'Kladd'
+        }
+    },
+
+    NAVBAR: {
         'KPI': 'Nøkkeltall',
         'DASHBOARD': 'Dashboard',
         'COMPANIES': 'Selskaper',
