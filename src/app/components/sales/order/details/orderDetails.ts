@@ -142,6 +142,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
     hasTimetrackingAccess: boolean = false;
     accountsWithMandatoryDimensionsIsUsed = true;
 
+    isDistributable = false;
+
     private customerExpands: string[] = [
         'DeliveryTerms',
         'Dimensions',
@@ -185,6 +187,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Customer.Dimensions.Dimension8',
         'Customer.Dimensions.Dimension9',
         'Customer.Dimensions.Dimension10',
+        'Customer.Distributions',
         'DefaultDimensions',
         'DeliveryTerms',
         'PaymentTerms',
@@ -842,6 +845,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 if (this.tradeItemTable) {
                     this.tradeItemTable.getMandatoryDimensionsReports();
                 }
+
+                this.isDistributable = this.tofHelper.isDistributable('CustomerOrder', this.order, this.companySettings, this.distributionPlans);
+                
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
@@ -1158,7 +1164,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             {
                 label: 'Send via utsendelsesplan',
                 action: () => this.distribute(),
-                disabled: () => !this.order.ID
+                disabled: () => !this.order.ID || !this.isDistributable
             },
             {
                 label: 'Skriv ut / send e-post',

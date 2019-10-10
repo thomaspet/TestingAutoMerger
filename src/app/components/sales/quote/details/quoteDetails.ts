@@ -130,6 +130,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     distributionPlans: any[];
     reports: any[];
 
+    isDistributable = false;
+
     private customerExpands: string[] = [
         'Info',
         'Info.Addresses',
@@ -153,7 +155,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller.Seller',
+        'Distributions'
     ];
 
     private quoteExpands: string[] = [
@@ -474,6 +477,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
                 this.recalcItemSums(quote.Items);
                 this.updateCurrency(quote, true);
+
+                this.isDistributable = this.tofHelper.isDistributable('CustomerQuote', this.quote, this.companySettings, this.distributionPlans);
 
                 this.updateTab();
                 this.updateToolbar();
@@ -1107,7 +1112,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             {
                 label: 'Send via utsendelsesplan',
                 action: () => this.distribute(),
-                disabled: () => !this.quote.ID
+                disabled: () => !this.quote.ID || !this.isDistributable
             },
             {
                 label: 'Skriv ut / send e-post',

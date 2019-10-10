@@ -8,7 +8,7 @@ import {ErrorService} from '../common/errorService';
 import {EmailService} from '../common/emailService';
 import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
+import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource, LocalDate} from '../../unientities';
 import {environment} from 'src/environments/environment';
 import {BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '@app/services/common/statisticsService';
@@ -128,6 +128,17 @@ export class ReportService extends BizHttp<string> {
     public distributeWithType(id, entityType, distributionType) {
         const endpoint = `distributions?action=distribute-with-type`
             + `&id=${id}&distributiontype=${distributionType}&entityType=${entityType}`;
+
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(endpoint)
+            .send()
+            .map(res => res.body);
+    }
+
+    public distributeWithDate(id: number, entityType: string, distributeDate: LocalDate) {
+        const endpoint = `distributions?action=distribute-with-date&id=${id}&entityType=${entityType}&distributeDate=${distributeDate}`;
 
         return this.http
             .asPUT()
