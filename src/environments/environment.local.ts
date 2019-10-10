@@ -1,7 +1,7 @@
 export const environment = {
     useProdMode: false,
 
-    authority: 'http://localhost:59454',
+    authority: 'https://dev-login.unieconomy.no',
     client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
     redirect_uri: '/assets/auth.html',
     post_logout_redirect_uri: '/#/login', // URL that the pop up afeter user log out
