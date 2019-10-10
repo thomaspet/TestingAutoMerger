@@ -8,7 +8,7 @@
 
         <!-- Account/file selection step -->
         <section *ngIf="currentStep=='upload'">
-            <label>
+            <label class="uni-label label-left">
                 <span>Velg konto</span>
                 <select [(ngModel)]="selectedAccountID">
                     <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount.AccountID">
@@ -44,7 +44,7 @@
 
         <!-- Preview/confirm step -->
         <section *ngIf="currentStep=='preview'">
-            <label>
+            <label class="uni-label label-left">
                 <span>Velg filformat</span>
                 <select [(ngModel)]="selectedImportTemplate" (ngModelChange)="loadPreviewLines()">
                     <option *ngFor="let template of importTemplates" [ngValue]="template">
@@ -53,10 +53,13 @@
                 </select>
             </label>
 
-            <span *ngIf="!previewLines?.length && !busy" class="warn" style="font-size: 15px;">
-                Klarte ikke tolke filen. Sjekk at du har valgt rett filformat.
-                <div><button (click)="currentStep='custom'"><i class="material-icons">edit</i> Tilpass filformat</button></div>
-            </span>
+            <section *ngIf="!previewLines?.length && !busy" class="invalid-format warn" style="font-size: 15px;">
+                Klarte ikke tolke filen. Sjekk at du har valgt rett filformat.<br>
+                <button class="tertiary c2a" (click)="currentStep='custom'">
+                    <i class="material-icons">edit</i>
+                    Tilpass filformat
+                </button>
+            </section>
 
             <section *ngIf="previewLines?.length">
                 <ul>
@@ -77,10 +80,11 @@
     </article>
 
     <footer>
+        <button class="secondary pull-left" (click)="onClose.emit()">
+            Avbryt
+        </button>
 
-
-        <button class="outline"
-            style="margin-left: auto"
+        <button class="secondary"
             [disabled]="currentStep=='upload'"
             (click)="gotoPreviousStep()">
             Tilbake
@@ -98,10 +102,6 @@
             [disabled]="!previewLines?.length"
             (click)="import()">
             Fullfør
-        </button>
-
-        <button class="outline" (click)="onClose.emit()">
-            Avbryt
         </button>
     </footer>
 </section>

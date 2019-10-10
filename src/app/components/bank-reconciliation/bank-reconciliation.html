@@ -146,7 +146,11 @@
                         </li>
                     </ul>
 
-                    <button (click)="closeStage()" *ngIf="session.canCloseStage || session.status == 3" class="c2a" [disabled]="!session.canCloseStage">
+                    <button class="c2a link-posts-button"
+                        *ngIf="session.canCloseStage || session.status == 3"
+                        (click)="closeStage()"
+                        [disabled]="!session.canCloseStage">
+
                         <i class="material-icons">link</i>
                         Koble sammen
                     </button>

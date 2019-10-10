@@ -33,6 +33,8 @@ const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 export class App {
     public isAuthenticated: boolean = false;
     private loginModalOpen: boolean;
+    private licenseAgreementModalOpen: boolean;
+    private userlicenseModalOpen: boolean;
 
     constructor(
         private authService: AuthService,
@@ -81,15 +83,18 @@ export class App {
             if (this.isAuthenticated) {
                 this.toastService.clear();
                 const contractType = authDetails.user.License.ContractType.TypeName;
-                if (!this.hasAcceptedCustomerLicense(authDetails.user) && contractType !== 'Demo') {
+                if (!this.hasAcceptedCustomerLicense(authDetails.user) && contractType !== 'Demo' && !this.licenseAgreementModalOpen) {
+                    this.licenseAgreementModalOpen = true;
                     this.modalService.open(LicenseAgreementModal, {
                         hideCloseButton: true,
                         closeOnClickOutside: false,
                         closeOnEscape: false
-                    });
+                    }).onClose.subscribe(
+                        () => this.licenseAgreementModalOpen = false
+                    );
                 }
 
-                if (!this.hasAcceptedUserLicense(authDetails.user)) {
+                if (!this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
                 }
             }
@@ -115,11 +120,13 @@ export class App {
     }
 
     private showUserLicenseModal() {
+        this.userlicenseModalOpen = true;
         this.modalService.open(UserLicenseAgreementModal, {
             hideCloseButton: true,
             closeOnClickOutside: false,
             closeOnEscape: false
         }).onClose.subscribe(response => {
+            this.userlicenseModalOpen = true;
             if (response === ConfirmActions.ACCEPT) {
                 this.browserStorage.setItem(HAS_ACCEPTED_USER_AGREEMENT_KEY, true);
                 this.uniHttp.asPOST()
@@ -128,7 +135,7 @@ export class App {
                     .send()
                     .map(res => res.body)
                     .subscribe(
-                        success => this.toastService.addToast(
+                        () => this.toastService.addToast(
                             'Suksess',
                             ToastType.good,
                             ToastTime.short,

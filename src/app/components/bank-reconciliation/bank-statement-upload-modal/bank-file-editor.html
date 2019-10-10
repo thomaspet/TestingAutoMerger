@@ -12,14 +12,16 @@
 
         <span class="warn">{{lastValidation?.message}}</span>
 
-        <button (click)="clear()" *ngIf="templateWasLoaded" class="outline"><i class="material-icons">clear</i> Nullstill</button>
-
+        <button (click)="clear()" *ngIf="templateWasLoaded" class="tertiary">
+            <i class="material-icons">clear</i>
+            Nullstill
+        </button>
     </section>
 
     <table class="uni-table">
         <thead>
             <tr><th *ngFor="let col of template.Columns; let i = index">
-                <select [class.warn]="col.FieldMapping == 0" [(ngModel)]="col.FieldName" (change)="onColChange(col, i)" >
+                <select  [(ngModel)]="col.FieldName" (change)="onColChange(col, i)" >
                     <option *ngFor="let name of colNames">{{name}}</option>
                 </select>
             </th></tr>
