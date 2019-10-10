@@ -1,4 +1,3 @@
-<browser-warning></browser-warning>
 <uni-toast-list></uni-toast-list>
 <section *ngIf="isAuthenticated" class="chatboxes">
     <uni-chat-box *ngFor="let chatbox of (chatBoxService.businessObjects | async)" [businessObject]="chatbox"></uni-chat-box>

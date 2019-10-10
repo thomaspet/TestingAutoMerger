@@ -6,7 +6,6 @@ import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {LoginModal} from './index';
 import {UniInit} from './init';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
@@ -36,18 +35,13 @@ import { MatTooltipModule } from '@angular/material';
     ],
     declarations: [
         UniPasswordGuide,
-        LoginModal,
         UniInit,
         ResetPassword,
         Login,
         ConfirmInvite,
         Signup
     ],
-    entryComponents: [
-        LoginModal
-    ],
     exports: [
-        LoginModal,
         UniInit,
         ResetPassword,
         Login,

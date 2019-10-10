@@ -2,12 +2,12 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {switchMap, map} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto, ContractLicenseType} from './unientities';
 import {ReplaySubject} from 'rxjs';
 import 'rxjs/add/operator/map';
-import { UserManager, Log, MetadataService, User } from 'oidc-client';
+import { UserManager, User } from 'oidc-client';
 import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
@@ -45,13 +45,10 @@ export class AuthService {
     userLoadededEvent: EventEmitter<User> = new EventEmitter<User>();
     loggedIn = false;
 
-    public requestAuthentication$: EventEmitter<any> = new EventEmitter();
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
-    public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<
-        IAuthDetails
-    >(1);
-    public filesToken$: ReplaySubject<string> = new ReplaySubject(1);
+    public authentication$ = new ReplaySubject<IAuthDetails>(1);
+    public filesToken$ = new ReplaySubject<string>(1);
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
@@ -161,10 +158,6 @@ export class AuthService {
         // This allows the user to re-authenticate before http calls start 401'ing.
         // Also check if we have a files token, and re-authenticate with uni-files if not.
         setInterval(() => {
-            if (this.jwt && this.isTokenExpired(10)) {
-                // this.requestAuthentication$.emit(true);
-            }
-
             if (this.jwt && !this.filesToken) {
                 this.authenticateUniFiles();
             }

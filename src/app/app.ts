@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {LoginModal} from './components/init';
 import {ErrorService, UniTranslationService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
 import {UserDto} from '@app/unientities';
@@ -32,7 +31,6 @@ const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 })
 export class App {
     public isAuthenticated: boolean = false;
-    private loginModalOpen: boolean;
     private licenseAgreementModalOpen: boolean;
     private userlicenseModalOpen: boolean;
 
@@ -62,20 +60,6 @@ export class App {
         document.addEventListener('drop', function( event ) {
             event.preventDefault();
         }, false);
-
-        // Open login modal if authService requests re-authentication during runtime
-        authService.requestAuthentication$.subscribe((event) => {
-            if (!this.loginModalOpen && (location.href.indexOf('init') === -1)) {
-                this.loginModalOpen = true;
-                this.modalService.open(LoginModal, {
-                    closeOnEscape: false,
-                    closeOnClickOutside: false,
-                    hideCloseButton: true
-                }).onClose.subscribe(() => {
-                    this.loginModalOpen = false;
-                });
-            }
-        });
 
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = !!authDetails.user;
