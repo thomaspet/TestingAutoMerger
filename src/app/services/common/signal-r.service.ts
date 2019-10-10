@@ -18,6 +18,7 @@ export class SignalRService {
     notifications: string[] = [];
     pushMessage$: BehaviorSubject<PushMessage> = new BehaviorSubject(null);
 
+    connected = false;
     retryConnectionCounter = 0;
 
     public hubConnection: signalR.HubConnection;
@@ -29,10 +30,9 @@ export class SignalRService {
                 this.userToken = auth.token;
                 this.userGlobalIdentity = auth.user.GlobalIdentity;
                 this.currentCompanyKey = auth.activeCompany.Key;
-                if (this.hubConnection) {
-                    this.hubConnection.stop();
+                if (!this.connected) {
+                    this.startConnection();
                 }
-                this.startConnection();
 
             } else if (this.hubConnection) {
                 this.hubConnection.stop();
@@ -60,14 +60,20 @@ export class SignalRService {
             { accessTokenFactory: () => this.userToken }
             )
             .build();
-            this.start();
-        }
+        this.start();
+
+        this.hubConnection.onclose(() => {
+            this.connected = false;
+            setTimeout(() => this.start(), 1000);
+        });
+    }
 
     async start() {
-        if (this.hubConnection) {
+        if (!this.connected && this.hubConnection) {
             await this.hubConnection.start()
                 .then(() => {
                     console.log('SignalR connection started');
+                    this.connected = true;
                     this.addGlobalListener();
                 })
                 .catch(err => {
