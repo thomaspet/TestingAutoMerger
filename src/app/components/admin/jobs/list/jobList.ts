@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as moment from 'moment';
 
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable/index';
@@ -16,6 +16,7 @@ export class JobList implements OnInit {
         {name: 'Siste utførte'},
         {name: 'Alle jobber'},
         {name: 'SAF-T'},
+        {name: 'Samlefakturering'},
     ];
 
     activeTabIndex: number = 0;
@@ -26,6 +27,7 @@ export class JobList implements OnInit {
     constructor(
         private tabService: TabService,
         private router: Router,
+        private route: ActivatedRoute,
         private jobService: JobService,
         private errorService: ErrorService,
     ) {}
@@ -39,6 +41,15 @@ export class JobList implements OnInit {
         });
 
         this.setupJobTable();
+        this.route.queryParams.subscribe((params: any) => {
+            const activeTab = params.tab || '';
+            switch (activeTab) {
+                case 'lastjobs': this.activeTabIndex = 0; break;
+                case 'alljobs': this.activeTabIndex = 1; break;
+                case 'saft-t': this.activeTabIndex = 2; break;
+                case 'batchinvoices': this.activeTabIndex = 3; break;
+            }
+        });
     }
 
     public refresh() {

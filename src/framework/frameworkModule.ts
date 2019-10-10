@@ -47,7 +47,8 @@ import {
     MatStepperModule,
     MatListModule,
     MatDatepickerModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatChipsModule
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -70,6 +71,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
         ScrollingModule,
         MatDatepickerModule,
         MatSlideToggleModule,
+        MatChipsModule,
 
         ClickOutsideModule,
         AppPipesModule,
@@ -154,7 +156,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
         MatListModule,
         ScrollingModule,
         MatDatepickerModule,
-        MatSlideToggleModule
+        MatSlideToggleModule,
+        MatChipsModule
     ]
 })
 export class UniFrameworkModule {}

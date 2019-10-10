@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {Comment} from '../../app/unientities';
 import {ReplaySubject} from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class CommentService {
@@ -17,7 +18,7 @@ export class CommentService {
             .usingBusinessDomain()
             .withEndPoint(`${route}&expand=Author`)
             .send()
-            .map(res => res.body || []);
+            .pipe(map(res => res.body || []));
     }
 
     loadComments(entity: string, entityID: number) {
