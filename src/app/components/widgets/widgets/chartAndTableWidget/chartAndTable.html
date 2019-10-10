@@ -1,7 +1,7 @@
 <section class="widget-wrapper">
     <section class="header sr-widget-header chart-and-table">
         <span style="flex: 1;">{{ widget.description }}</span>
-        <section class="filters">
+        <section class="filters" *ngIf="!missingData">
             <button #toggle class="tertiary toggle-button"
                 (click)="toggleButtonClick()"
                 title="{{ isCustomer ? 'Gå til liste over forfalte faktura' : 'Se tilgjengelige kontoer' }}">
@@ -23,7 +23,7 @@
     </section>
 
     <section *ngIf="missingData" class="no-content">
-        Mangler data
+        Mangler tilgang
     </section>
 
     <div *ngIf="!missingData" class="content" style="display: flex;">

@@ -111,7 +111,6 @@ export class ChartAndTableWidget implements AfterViewInit {
 
         Observable.forkJoin(queries).subscribe((response) => {
             this.formatChartData(response[0]);
-            // this.cdr.markForCheck();
             if (this.isCustomer) {
                 this.tableData = response[1].map((customer) => {
                     customer.value1 = customer.CustomerName;
@@ -121,6 +120,11 @@ export class ChartAndTableWidget implements AfterViewInit {
                     customer.color = this.getCustomerDueColor(customer.PaymentDueDate);
                     return customer;
                 });
+            }
+        }, err => {
+            if (err && err.status === 403) {
+                this.missingData = true;
+                this.cdr.markForCheck();
             }
         });
     }

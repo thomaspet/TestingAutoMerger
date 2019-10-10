@@ -65,9 +65,11 @@ export class ReminderListWidget {
         Observable.forkJoin(
             this.widgetDataService.getData(this.getTaskQuery()),
             this.widgetDataService.getData('/api/kpi/companies'),
-            this.approvalService.GetAll(filter, ['Task.Model'])
+            this.approvalService.GetAll(filter, ['Task.Model']),
+            this.widgetDataService.getData(`/api/statistics?model=Payment&select=sum(casewhen((Payment.IsCustomerPayment eq 'true' ` +
+            `and Payment.StatusCode eq '44018' )\,1\,0)) as payments`)
         )
-        .subscribe(([data, comp, approvals]) => {
+        .subscribe(([data, comp, approvals, payments]) => {
 
             // Taskss
             const tasks = (data && data.Data || []).map(item => {
@@ -79,17 +81,23 @@ export class ReminderListWidget {
             });
 
             const hasInvoiceAccess = this.authService.canActivateRoute(this.authService.currentUser, 'accounting/bills');
+            const myCompany =  comp.find(c => c.ID === this.authService.activeCompany.ID);
 
             // Company KPI
-            const kpi = (comp && comp.Kpi || [])
-            .filter(item => item.Counter && item.Name !== 'Approved')
-            .map(item => {
-                item._icon = this.getIcon(item);
-                item._label = item.Title;
-                item._typeText = this.getTranslatedTypeText(item.Name);
-                item._url = item.Name === 'Inbox' ? '/accounting/bills?filter=Inbox' : item.Name === 'ToBePayed'
-                    ? '/accounting/bills?filter=ForApproval' : '/sales/reminders/ready';
-            });
+            const kpi = (myCompany && myCompany.Kpi || [])
+                .filter(item => item.Counter && item.Name !== 'Approved')
+                .map(item => {
+                    item._icon = this.getIcon(item.Name);
+                    item._label = item.Name === 'Inbox'
+                        ? `Elementer i innboksen (${item.Counter})`
+                        : item.Name === 'ToBePayed'
+                        ? `Ikke ferdigstilte kjøpsfaktura (${item.Counter})`
+                        : `Faktura klar for purring (${item.Counter})`
+                    item._typeText = this.getTranslatedTypeText(item.Name);
+                    item._url = item.Name === 'Inbox' ? '/accounting/bills?filter=Inbox' : item.Name === 'ToBePayed'
+                        ? '/accounting/bills?filter=ForApproval' : '/sales/reminders/ready';
+                    return item;
+                });
 
             // APPROVALS
             const apps = (approvals || []).map((approval) => {
@@ -109,7 +117,16 @@ export class ReminderListWidget {
                 return approval;
             });
 
-            this.items = tasks.concat(kpi, apps);
+            this.items = kpi.concat(tasks, apps);
+
+            if (payments && payments.Data && payments.Data[0] && !!payments.Data[0].payments) {
+               this.items.unshift({
+                    _icon: 'account_balance',
+                    _label: `Betalinger uten match (${payments.Data[0].payments})`,
+                    _typeText: 'Bank',
+                    _url: '/bank/ticker?code=bank_list&filter=incomming_without_match'
+                });
+            }
 
             if (this.widget && this.items && this.items.length) {
                 this.scrollbar = new PerfectScrollbar('#reminder-list', {wheelPropagation: true});
@@ -153,13 +170,13 @@ export class ReminderListWidget {
             case 'WorkItemGroup':
                 return 'arrow_back';
             case 'pin':
-                return 'person_pin';
+                return 'note';
             case 'Customer':
                 return 'person_outline';
             case 'Inbox':
                 return 'mail_outline';
             case 'ToBePayed':
-                return 'arrow_forward';
+                return 'assignment_returned';
             case 'ToBeReminded':
                 return 'arrow_back';
             case 'CustomerInvoice':
@@ -189,7 +206,7 @@ export class ReminderListWidget {
             case 'SupplierInvoice':
             case 'ToBePayed':
             case 'WorkItemGroup':
-                return 'Leverandørfaktura';
+                return 'Kjøpsfaktura';
             case 'CustomerInvoiceReminder':
             case 'ToBeReminded':
                 return 'Purring';
