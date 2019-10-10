@@ -10,6 +10,7 @@ import { GuidService } from '@app/services/common/guidService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { forkJoin } from 'rxjs';
 import { DistributionPlanService } from '@app/services/common/distributionService';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'batch-invoice-modal',
@@ -34,6 +35,7 @@ export class BatchInvoiceModal implements IUniModal {
     public hasDistributionPlans = false;
 
     constructor(
+        private router: Router,
         private batchInvoiceService: BatchInvoiceService,
         private sellerService: SellerService,
         private guidService: GuidService,
@@ -63,8 +65,11 @@ export class BatchInvoiceModal implements IUniModal {
         this.batchInvoice.SellerID = 0;
         this.batchInvoice.YourRef = '';
         this.numberOfItems = this.items.length;
-        const amountKey = this.entityType ===  'order' ? 'CustomerOrderTaxInclusiveAmountCurrency' : 'CustomerInvoiceTaxInclusiveAmountCurrency';
+        const amountKey = this.entityType ===  'order'
+            ? 'CustomerOrderTaxInclusiveAmountCurrency'
+            : 'CustomerInvoiceTaxInclusiveAmountCurrency';
         this.totalAmount = this.items.reduce((sum, it) => sum + (it[amountKey] || 0), 0);
+
         forkJoin([
             step2FormConfig(this.entityType, this.sellerService),
             this.companySettings.getCompanySettings(),
@@ -91,12 +96,15 @@ export class BatchInvoiceModal implements IUniModal {
     }
 
     public execute() {
+        // Because dropdown doesn't allow an item with ID eq null
+        if (this.batchInvoice.SellerID === 0) {
+            this.batchInvoice.SellerID = null;
+        }
         this.batchInvoiceService.Post(this.batchInvoice).subscribe((batchInvoice) => {
             if (batchInvoice) {
                 this.batchInvoice.ID = batchInvoice.ID;
-                console.log(batchInvoice);
                 this.batchInvoiceService.invoiceAction(this.batchInvoice.ID).subscribe(() => {
-                    this.close('ok');
+                    this.goNext();
                 });
             }
         });
@@ -113,5 +121,10 @@ export class BatchInvoiceModal implements IUniModal {
             this.currentStep++;
             this.stepper.next();
         }
+    }
+
+    public goToBatchInvoicesList() {
+        this.close('ok');
+        this.router.navigateByUrl('admin/jobs?tab=batchinvoices');
     }
 }
