@@ -33,12 +33,11 @@
             </mat-step>
             <mat-step label="Kjør" [completed]="currentStep > 3">
                 <p class="good">
-                     <i class="good material-icons icon-image-preview">check_circle</i>
-                     <span>
+                    <span class="success-message">
+                        <i class="good material-icons icon-image-preview">check_circle</i>
                         {{numberOfItems}} ordre/fakturakladd er inkludert i denne samlefaktura-jobben
-                        <br/>
                         med total sum {{totalAmount | uninumberformat: 'money'}}
-                     </span>
+                    </span>
                 </p>
                 <p>
                     Trykk Kjør for å fullføre samlefakturajobben. Når jobben er ferdig fakturert vil du få et varsel
@@ -48,14 +47,15 @@
                     Dersom du ønsker oppdatering på jobben underveis gå til:
                 </p>
                 <p>
-                    Instillinger &rarr; Jobber &rarr; <a href="#/admin/jobs">Samlefaktura</a>
+                    Instillinger &rarr; Jobber &rarr; <a (click)="goToBatchInvoicesList()">Samlefaktura</a>
                 </p>
             </mat-step>
         </mat-horizontal-stepper>
     </article>
     <footer>
         <button class="back" (click)="goBack()" [disabled]="currentStep === 1">Tilbake</button> <!--Ikke vis på siste side-->
-        <button class="c2a" (click)="goNext()" *ngIf="currentStep < 4">Neste</button> <!--Ikke vis på siste side-->
-        <button (click)="execute()" class="good" *ngIf="currentStep === 4">Kjør</button> <!--Vis kun på siste side-->
+        <button class="c2a" (click)="goNext()" *ngIf="currentStep < 3">Neste</button> <!--Ikke vis på siste side-->
+        <button (click)="execute()" class="good" *ngIf="currentStep === 3">Kjør</button> <!--Vis kun på siste side-->
+        <button (click)="close('ok')" class="good" *ngIf="currentStep === 4">Lukk</button> <!--Vis kun på siste side-->
     </footer>
 </section>`
