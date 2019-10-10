@@ -32,7 +32,7 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
 import { ConfirmActions, IModalOptions, UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
-declare const _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'product-details',
@@ -185,6 +185,9 @@ export class ProductDetails {
     }
 
     private setContextmenu() {
+        if (this.modalMode) {
+            return;
+        }
         this.productService.GetAction(this.productId, 'transitions').subscribe((transitions) => {
 
             this.toolbarconfig.contextmenu = [
@@ -202,7 +205,7 @@ export class ProductDetails {
                 label: 'Deaktiver produkt',
                 action: () => this.discardProduct(),
                 disabled: () => !transitions || !transitions['Discard']
-            }                
+            }
             ];
         });
     }
