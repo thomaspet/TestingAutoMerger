@@ -20,18 +20,20 @@ export class BankAccountService extends BizHttp<BankAccount> {
     }
 
     public deleteRemovedBankAccounts(bc: SimpleChange) {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             if (bc && Array.isArray(bc.previousValue)) {
                 bc.previousValue.filter(ba => bc.currentValue.indexOf(ba) === -1).map(ba => {
                     if (ba.ID > 0) {
-                        this.Remove(ba.ID, 'BankAccount')
-                            .subscribe(() => {
+                        this.Remove(ba.ID, 'BankAccount').subscribe(
+                            () => {
                                 this.toastr.addToast('Account Removed', ToastType.good, ToastTime.short);
                                 resolve(true);
-                            }, (error) => {
-                                this.toastr.addToast('Error removing account', ToastType.bad, ToastTime.short, error.body.Message);
+                            },
+                            (err) => {
+                                this.toastr.addToast('Error removing account', ToastType.bad, ToastTime.short, err.error.Message);
                                 reject(ba);
-                            });
+                            }
+                        );
                     } else {
                         resolve(false);
                     }

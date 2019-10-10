@@ -370,7 +370,7 @@ export class AuthService {
      * Returns a boolean indicating whether the user is authenticated or not
      * @returns {Boolean}
      */
-    public isAuthenticated(): Promise<Boolean> {
+    public isAuthenticated(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this.userManager
                 .getUser()

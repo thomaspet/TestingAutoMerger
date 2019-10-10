@@ -1,107 +1,101 @@
-<article class="authentication-component">
-    <p class="registration-step-info" *ngIf="!confirmationCode && !successMessage && !errorMessage">
-        Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.
-    </p>
+<section class="authentication-component">
+    <h1>Ny demo</h1>
 
-    <small class="validation info" *ngIf="confirmationCode && !successMessage && !errorMessage">
-        Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
-    </small>
+    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
 
-    <small class="validation error" *ngIf="errorMessage">
-        {{errorMessage}}
-    </small>
-
-    <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
-
-    <form #step1="ngForm" *ngIf="!confirmationCode" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
-        <label for="companyNameInput">Selskapsnavn</label>
-        <input id="companyNameInput"
-            type="text"
-            placeholder="Selskapsnavn"
-            autofocus
-            formControlName="CompanyName"
-        />
-
-        <label for="displayNameInput">Ditt navn</label>
-        <input id="displayNameInput"
-            type="text"
-            placeholder="Ditt navn"
-            formControlName="DisplayName"
-        />
-
-        <label for="emailInput">E-post</label>
-        <input id="emailInput"
-            type="email"
-            placeholder="E-post"
-            formControlName="Email"
-        />
-
-        <label for="phoneInput">Telefonnummer</label>
-        <input id="phoneInput"
-            type="tel"
-            placeholder="Telefonnummer"
-            formControlName="PhoneNumber"
-        />
-
-        <small class="privacy-info" *ngIf="!confirmationCode">
-            Når du registrerer deg her bekrefter du at du godtar lagring og bruk
-            av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
+    <!-- Signup step 1 -->
+    <section class="step1" *ngIf="!confirmationCode">
+        <small class="validation good" *ngIf="step1Success">
+            Vi vil nå verifisere eposten din. Vennligst sjekk innboks for videre informasjon.
         </small>
 
-        <re-captcha formControlName="RecaptchaResponse"></re-captcha>
+        <form #step1="ngForm" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
+            <label class="uni-label">
+                <span>Selskapsnavn</span>
+                <input type="text" autofocus formControlName="CompanyName" />
+            </label>
 
-        <button
-            type="submit"
-            class="auth-button bad"
-            *ngIf="!confirmationCode"
-            [attr.aria-busy]="busy"
-            [disabled]="busy || !step1.form.valid">
-            START REGISTRERING
-        </button>
-    </form>
+            <label class="uni-label" for="displayNameInput">
+                <span>Ditt navn</span>
+                <input type="text" formControlName="DisplayName" />
+            </label>
 
-    <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
-        <i class="material-icons username-tooltip" matTooltip="Brukernavn kan inneholde bokstaver, tall, bindestrek, understrek og punktom">help_outline</i>
-        <label for="usernameInput">Brukernavn</label>
-        <input id="usernameInput"
-            type="text"
-            autofocus
-            placeholder="Brukernavn *"
-            formControlName="UserName"
-        />
-        <small class="bad">{{step2Form?.get('UserName').errors?.usernameValidator}}</small>
 
-        <label for="passwordInput">Passord</label>
-        <input id="passwordInput"
-            type="password"
-            placeholder="Passord *"
-            formControlName="Password"
-        />
+            <label class="uni-label">
+                <span>E-post</span>
+                <input type="email" formControlName="Email" />
+            </label>
 
-        <small class="bad">{{step2Form?.get('Password').errors?.passwordValidator}}</small>
 
-        <label for="confirmPasswordInput">Bekreft passord</label>
-        <input id="confirmPasswordInput"
-            type="password"
-            placeholder="Bekreft passord *"
-            formControlName="ConfirmPassword"
-        />
-        <small class="bad">{{step2Form?.get('ConfirmPassword').errors?.passwordMatchValidator}}</small>
+            <label class="uni-label">
+                <span>Telefonnummer</span>
+                <input type="tel" formControlName="PhoneNumber" />
+            </label>
 
-        <uni-password-guide *ngIf="step2Form?.controls"
-            [passwordControl]="step2Form.controls.Password">
-        </uni-password-guide>
+            <re-captcha *ngIf="!step1Success" class="recaptcha" formControlName="RecaptchaResponse"></re-captcha>
 
-        <button
-            type="submit"
-            class="auth-button bad"
-            [attr.aria-busy]="busy"
-            [disabled]="busy">
-            FULLFØR REGISTRERING
-        </button>
-    </form>
+            <small class="privacy-info">
+                Ved registrerering godtar du lagring og bruk av dine personlige data.
+            </small>
+
+            <button
+                type="submit"
+                class="c2a init-submit-button"
+                [attr.aria-busy]="busy"
+                [disabled]="busy || !step1.form.valid">
+                Start registrering
+            </button>
+        </form>
+    </section>
+
+    <!-- Signup step 2 -->
+    <section class="step2" *ngIf="confirmationCode">
+        <small class="validation info" *ngIf="!errorMessage">
+            Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
+        </small>
+
+        <form #step2="ngForm" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
+            <label class="uni-label">
+                <span>Brukernavn</span>
+                <input type="text" autofocus
+                    formControlName="UserName"
+                    autocomplete="new-username"
+                />
+
+                <small class="bad">
+                    {{step2Form?.get('UserName').errors?.usernameValidator}}
+                </small>
+            </label>
+
+            <label class="uni-label">
+                <span>Passord</span>
+                <input type="password"
+                    formControlName="Password"
+                    autocomplete="new-password"
+                />
+            </label>
+
+            <label class="uni-label">
+                <span>Bekreft passord</span>
+                <input type="password" formControlName="ConfirmPassword" />
+                <small class="bad">{{step2Form?.get('ConfirmPassword').errors?.passwordMatchValidator}}</small>
+            </label>
+
+            <uni-password-guide *ngIf="step2Form?.controls"
+                [passwordControl]="step2Form.controls.Password">
+            </uni-password-guide>
+
+            <button
+                type="submit"
+                class="c2a init-submit-button"
+                [attr.aria-busy]="busy"
+                [disabled]="busy || !step2.form.valid">
+                Fullfør registrering
+            </button>
+        </form>
+    </section>
 
     <section class="links">
         <a [routerLink]="['/init/login']">Tilbake til innlogging</a>
     </section>
-</article>
+</section>

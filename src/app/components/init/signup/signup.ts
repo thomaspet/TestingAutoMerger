@@ -1,30 +1,27 @@
 import {Component} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../authService';
+import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
-import {Company} from '../../../unientities';
 
 @Component({
     selector: 'uni-signup',
-    templateUrl: './signup.html'
+    templateUrl: './signup.html',
+    styleUrls: ['./signup.sass']
 })
 export class Signup {
-    public confirmationCode: string;
-    private recaptchaResponse: string;
-    public busy: boolean;
+    confirmationCode: string;
+    busy: boolean;
 
-    public successMessage: string;
-    public errorMessage: string;
+    errorMessage: string;
+    step1Success: boolean;
 
-    public step1Form: FormGroup;
-    public step2Form: FormGroup;
+    step1Form: FormGroup;
+    step2Form: FormGroup;
 
     constructor(
         private http: UniHttp,
         private route: ActivatedRoute,
-        private authService: AuthService,
         private router: Router,
         formBuilder: FormBuilder
     ) {
@@ -45,12 +42,12 @@ export class Signup {
         });
 
         this.route.queryParams.subscribe(params => {
-            this.successMessage = undefined;
+            this.step1Success = false;
             this.errorMessage = undefined;
 
             if (params['code']) {
                 this.confirmationCode = params['code'];
-                this.validateConfirmationCode(this.confirmationCode);
+                // this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
             } else {
                 this.step1Form.enable();
@@ -65,33 +62,28 @@ export class Signup {
         this.busy = true;
         this.errorMessage = '';
 
+        this.busy = false;
+        this.step1Success = true;
+
         this.http.asPOST()
             .usingInitDomain()
             .withEndPoint('confirmation')
             .withBody(this.step1Form.value)
             .send()
             .subscribe(
-                res => {
+                () => {
                     this.busy = false;
-                    this.successMessage = 'Vi vil nå verifisere e-posten din. '
-                        + 'Vennligst sjekk innboks for videre informasjon.';
+                    this.step1Success = true;
                 },
                 err => {
                     this.step1Form.enable();
                     this.busy = false;
                     grecaptcha.reset();
                     this.step1Form.value.RecaptchaResponse = null;
-                    try {
-                        const errorBody = err.body;
-                        if (errorBody.Message) {
-                            this.errorMessage = errorBody.Message;
-                        } else {
-                            this.errorMessage = 'Noe gikk galt under verifisering.'
-                            + 'Vennligst sjekk detaljer og prøv igjen.';
-                        }
-                    } catch (error) {
-                        this.errorMessage = 'Noe gikk galt under verifisering.'
-                        + 'Vennligst sjekk detaljer og prøv igjen.';
+
+                    this.errorMessage = err && err.error && err.error.Message;
+                    if (!this.errorMessage) {
+                        this.errorMessage = 'Noe gikk galt under verifisering. Vennligst sjekk detaljer og prøv igjen.';
                     }
                 }
             );
@@ -123,14 +115,15 @@ export class Signup {
             .withBody(requestBody)
             .send()
             .subscribe(
-                res => {
-                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.body);
-                },
+                () => this.router.navigateByUrl('/init/login'),
                 err => {
                     this.busy = false;
                     let errorMessage;
+
+                    console.log(err);
+
                     try {
-                        const errorBody = err.body;
+                        const errorBody = err.error;
                         errorMessage = errorBody.Message || errorBody.Messages[0].Message;
                     } catch (error) {}
 
@@ -145,13 +138,14 @@ export class Signup {
             .withEndPoint(`validate-confirmation?code=${code}`)
             .send()
             .subscribe(
-                () => {},
+                () => this.step2Form.enable(),
                 err => {
+                    this.step2Form.disable();
                     let usernameExists;
 
                     // Try catch to avoid having to null check everything
                     try {
-                        const errorBody = err.body;
+                        const errorBody = err.error;
                         usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
                     } catch (e) { }
 
@@ -165,18 +159,4 @@ export class Signup {
                 }
             );
     }
-
-    public attemptLogin(
-        username: string,
-        password: string,
-        company: Company
-    ) {
-        if (!company) {
-            this.router.navigateByUrl('/init/login');
-            return;
-        }
-
-        this.authService.authenticate();
-    }
-
 }

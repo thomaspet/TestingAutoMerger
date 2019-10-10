@@ -1,5 +1,8 @@
-<article class="uniSelect" *ngIf="config" (clickOutside)="close()">
-    <section class="input-with-button" (click)="toggle()">
+<ng-container *ngIf="config">
+    <section class="input-with-button"
+        (click)="toggle()"
+        (clickOutside)="close()">
+
         <input type="text" #valueInput
             class="select-input"
             tabindex="-1"
@@ -43,4 +46,4 @@
             </section>
         </ng-template>
     </input-dropdown-menu>
-</article>
+</ng-container>

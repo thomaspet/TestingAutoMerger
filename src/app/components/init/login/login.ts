@@ -1,119 +1,67 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../authService';
-import { UniHttp } from '../../../../framework/core/http/http';
-import {
-    UniSelect,
-    ISelectConfig
-} from '../../../../framework/ui/uniform/index';
-import { Logger } from '../../../../framework/core/logger';
-import * as $ from 'jquery';
-import { BrowserStorageService } from '@uni-framework/core/browserStorageService';
-import { UserManager } from 'oidc-client';
+import {Component, ViewChild} from '@angular/core';
+import {AuthService} from '@app/authService';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Component({
     selector: 'uni-login',
     templateUrl: './login.html',
-    styleUrls:['./login.sass']
+    styleUrls: ['./login.sass']
 })
 export class Login {
-    @ViewChild('loginForm')
-    private loginForm: ElementRef;
-    @ViewChild(UniSelect)
-    private select: UniSelect;
-    @ViewChild('companySelector')
-    private companySelector: ElementRef;
+    @ViewChild(UniSelect) select: UniSelect;
 
-    public working: boolean;
-    public errorMessage: string = '';
-    public missingCompanies: boolean;
+    isAuthenticated: boolean;
+    missingCompanies: boolean;
+    availableCompanies: any[];
 
-    public availableCompanies: any[];
-    public selectConfig: ISelectConfig;
+    selectConfig: ISelectConfig = {
+        displayProperty: 'Name',
+        placeholder: 'Velg selskap'
+    };
 
     constructor(
-        private _authService: AuthService,
-        private _router: Router,
+        public authService: AuthService,
         private http: UniHttp,
-        private logger: Logger,
         private browserStorage: BrowserStorageService
     ) {
-        this.selectConfig = {
-            displayProperty: 'Name',
-            placeholder: 'Velg selskap'
-        };
-        // If user Authenticated
-        this._authService.isAuthenticated().then(isAuthenticated => {
+        this.authService.isAuthenticated().then(isAuthenticated => {
+            this.isAuthenticated = isAuthenticated;
+
             if (isAuthenticated) {
-                this.selectCompany();
+                this.loadCompanies();
             }
         });
-
     }
 
-    public login() {
-        this._authService.authenticate();
-    }
-
-    private selectCompany() {
-        this.http
-            .asGET()
+    private loadCompanies() {
+        this.http.asGET()
             .usingInitDomain()
             .withEndPoint('companies')
             .send()
-            .subscribe(response => {
-                this.working = false;
-
-                $(this.loginForm.nativeElement).fadeOut(300, () => {
-                    $(this.companySelector.nativeElement).fadeIn(300);
-                });
-
-                if (response.status !== 200) {
-                    this.missingCompanies = true;
-                    return;
-                }
-
-                this.availableCompanies = response.body;
-
-                try {
-                    const lastActiveCompanyKey = this.browserStorage.getItem(
-                        'lastActiveCompanyKey'
-                    );
-                    const lastActiveCompany = this.availableCompanies.find(
-                        company => {
-                            return company.Key === lastActiveCompanyKey;
-                        }
-                    );
-
-                    if (lastActiveCompany) {
-                        this.onCompanySelected(lastActiveCompany);
-                    } else if (this.availableCompanies.length === 1) {
-                        this.onCompanySelected(this.availableCompanies[0]);
-                    } else if (this.availableCompanies.length > 1) {
-                        setTimeout(() => {
-                            this.select.focus();
-                        });
-                    } else {
+            .subscribe(
+                res => {
+                    this.availableCompanies = res.body;
+                    if (!this.availableCompanies || !this.availableCompanies.length) {
                         this.missingCompanies = true;
                     }
-                } catch (exception) {
-                    this.missingCompanies = true;
-                }
-            });
+
+                    setTimeout(() => {
+                        if (this.select) {
+                            this.select.focus();
+                        }
+                    }, 100);
+                },
+                () => this.missingCompanies = true
+            );
     }
 
-    public resetLogin() {
-        this.missingCompanies = false;
-        this._authService.clearAuthAndGotoLogin();
-    }
-
-    public onCompanySelected(company) {
+    onCompanySelected(company) {
         if (company) {
-            const url =
-                this.browserStorage.getItem('lastNavigationAttempt') || '/';
+            const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');
-            this._authService.setActiveCompany(company, url);
+            this.authService.setActiveCompany(company, url);
         }
     }
 }

@@ -221,7 +221,7 @@ export class PostPostService extends BizHttp<PostPost> {
                                                         })
                                                         .catch((err) => {
                                                             errors++;
-                                                            const error = err.body;
+                                                            const error = err.error;
                                                             let errorMessage = '';
                                                             if (error && error.Messages && error.Messages.length) {
                                                                 errorMessage = error.Messages[0].Message;

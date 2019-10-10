@@ -18,33 +18,29 @@ uni-field.warn > label > small.warn
     border: none
     background: none
 
-.validation,
-p[role=alert]
+.validation, p[role=alert]
     display: block
     padding: .5rem
     margin: 2rem 1rem
-    font-weight: 600
+    font-weight: 500
     box-sizing: border-box
     border-width: pxToRem(1)
     border-style: solid
     border-radius: pxToRem(3)
-    background-color: transparentize($uni-color-scale9, .5)
+    background-color: rgba(0, 0, 0, 0.03)
 
     &.error
         border-color: var(--color-bad) !important
         color: var(--color-bad) !important
-        background-color: transparentize($uni-color-bad, .9) !important
 
     &.info
+        border-color: var(--color-c2a)
         color: var(--color-c2a)
-        background-color: transparentize($uni-color-c2a, .9)
 
-    &.good,
-    &.success
+    &.good, &.success
+        border-color: var(--color-good)
         color: var(--color-good)
-        background-color: transparentize($uni-color-good, .9)
 
     &.warn
         border-color: var(--color-warn)
         color: var(--color-warn)
-        background-color: transparentize($uni-color-warn, .9)
