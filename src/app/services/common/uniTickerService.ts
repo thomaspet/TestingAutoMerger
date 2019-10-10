@@ -648,6 +648,9 @@ export class UniTickerService {
 
                     if (externalModel && externalModel.DetailsUrl) {
                         url = externalModel.DetailsUrl;
+                        if (modelName === 'CustomerInvoiceReminder') {
+                            url = url + '/reminded';
+                        }
 
                         if (column.LinkNavigationProperty) {
                             const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
