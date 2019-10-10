@@ -53,6 +53,7 @@ export class SignalRService {
     }
 
     startConnection() {
+        this.retryConnectionCounter = 0;
         this.hubConnection = new signalR.HubConnectionBuilder()
         .withUrl(
             environment.SIGNALR_PUSHHUB_URL,
@@ -70,7 +71,7 @@ export class SignalRService {
                     this.addGlobalListener();
                 })
                 .catch(err => {
-                    console.log('Error while starting SignalR connection: ' + this.userToken);
+                    console.log('Error while starting SignalR connection');
                     if (this.retryConnectionCounter < 5) {
                         console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
                         setTimeout(() => this.start(), 5000);
