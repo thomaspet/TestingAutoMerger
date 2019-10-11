@@ -109,6 +109,8 @@
         {{config.navigation.add.label || 'Opprett ny'}}
     </button>
 
+    <uni-toolbar-share *ngIf="shareActions" [shareActions]="shareActions"></uni-toolbar-share>
+
     <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
         [actions]="contextmenu || config.contextmenu">
     </uni-context-menu>

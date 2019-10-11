@@ -116,4 +116,17 @@ export class TofHelper {
 
                return entity;
     }
+
+    isDistributable(entityName, entity, settings, plans) {
+        var distributionPlanID = entity.DistributionPlanID
+            || (entity.Customer && entity.Customer.Distributions && entity.Customer.Distributions[entityName + 'DistributionPlanID'])
+            || (settings && settings.Distributions && settings.Distributions[entityName + 'DistributionPlanID']);
+
+        if (!distributionPlanID) {
+            return false;
+        }
+
+        var plan = plans.find(plan => plan.ID === distributionPlanID);
+        return plan && plan.Name !== 'Ingen utsendelse';
+    }
 }

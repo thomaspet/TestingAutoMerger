@@ -79,6 +79,7 @@ export class UniToolbar implements OnInit, OnChanges {
     @Input() public tagConfig: IUniTagsConfig;
     @Input() public config: IToolbarConfig;
     @Input() public saveactions: IUniSaveAction[];
+    @Input() public shareActions: IContextMenuItem[];
     @Input() public contextmenu: IContextMenuItem[];
     @Input() public statustrack: IStatus[];
     @Input() public commentsConfig: ICommentsConfig;

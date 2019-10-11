@@ -57,7 +57,7 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IContextMenuItem} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -100,6 +100,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     readonly: boolean;
     recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
     saveActions: IUniSaveAction[] = [];
+    shareActions: IContextMenuItem[];
 
     currencyCodeID: number;
     currencyCodes: Array<CurrencyCode>;
@@ -127,6 +128,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     distributionPlans: any[];
     reports: any[];
 
+    isDistributable = false;
+
     private customerExpands: string[] = [
         'Info',
         'Info.Addresses',
@@ -150,7 +153,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller.Seller',
+        'Distributions'
     ];
 
     private quoteExpands: string[] = [
@@ -471,6 +475,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
                 this.recalcItemSums(quote.Items);
                 this.updateCurrency(quote, true);
+
+                this.isDistributable = this.tofHelper.isDistributable('CustomerQuote', this.quote, this.companySettings, this.distributionPlans);
 
                 this.updateTab();
                 this.updateToolbar();
@@ -1016,6 +1022,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             }
         }
 
+        this.updateShareActions();
         this.toolbarconfig = {
             title: quoteText,
             statustrack: this.getStatustrackConfig(),
@@ -1024,18 +1031,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 next: this.nextQuote.bind(this),
                 add: () => this.quote.ID ? this.router.navigateByUrl('sales/quotes/0') : this.ngOnInit()
             },
-            contextmenu: [
-                {
-                    label: 'Send via utsendelsesplan',
-                    action: () => this.distribute(),
-                    disabled: () => !this.quote.ID
-                },
-                {
-                    label: 'Skriv ut / send e-post',
-                    action: () => this.chooseForm(),
-                    disabled: () => !this.quote.ID
-                }
-            ],
             entityID: this.quoteID,
             entityType: 'CustomerQuote'
         };
@@ -1102,6 +1097,21 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 this.customerQuoteService.setPrintStatus(this.quote.ID, this.printStatusEmail).take(1).subscribe();
             });
         });
+    }
+
+    private updateShareActions() {
+        this.shareActions = [
+            {
+                label: 'Send via utsendelsesplan',
+                action: () => this.distribute(),
+                disabled: () => !this.quote.ID || !this.isDistributable
+            },
+            {
+                label: 'Skriv ut / send e-post',
+                action: () => this.chooseForm(),
+                disabled: () => !this.quote.ID
+            }
+        ];
     }
 
     private distribute() {

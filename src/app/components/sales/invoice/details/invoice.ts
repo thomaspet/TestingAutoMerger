@@ -74,7 +74,7 @@ import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
 import { TradeHeaderCalculationSummary } from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import { IToolbarConfig, ICommentsConfig, IToolbarSubhead } from '../../../common/toolbar/toolbar';
+import { IToolbarConfig, ICommentsConfig, IToolbarSubhead, IContextMenuItem } from '../../../common/toolbar/toolbar';
 import { StatusTrack, IStatus, STATUSTRACK_STATES } from '../../../common/toolbar/statustrack';
 
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
@@ -141,6 +141,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     companySettings: CompanySettings;
     saveActions: IUniSaveAction[] = [];
+    shareActions: IContextMenuItem[];
     toolbarconfig: IToolbarConfig;
     commentsConfig: ICommentsConfig;
 
@@ -159,6 +160,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     distributionPlans: any[];
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
+
+    isDistributable = false;
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -1149,6 +1152,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (this.tradeItemTable) {
             this.tradeItemTable.getMandatoryDimensionsReports();
         }
+
+        this.isDistributable = this.tofHelper.isDistributable('CustomerInvoice', this.invoice, this.companySettings, this.distributionPlans);
+
         this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
@@ -1205,34 +1211,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         }
 
-        const contextMenuItems = [
-            {
-                label: 'Periodisering',
-                action: () => this.accrueInvoice(),
-                disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
-            },
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.invoice.ID
-            },
-            {
-                label: 'Send purring',
-                action: () => this.sendReminderAction(),
-                disabled: () => {
-                    return !this.invoice.ID
-                        || this.invoice.DontSendReminders
-                        || this.invoice.StatusCode === StatusCode.Completed
-                        || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid;
-                }
-            }
-        ];
-
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
@@ -1242,11 +1220,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 next: this.nextInvoice.bind(this),
                 add: () => this.invoice.ID ? this.router.navigateByUrl('/sales/invoices/0') : this.ngOnInit()
             },
-            contextmenu: contextMenuItems,
+            contextmenu: [{
+                label: 'Periodisering',
+                action: () => this.accrueInvoice(),
+                disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
+            }],
             entityID: this.invoiceID,
             entityType: 'CustomerInvoice'
         };
 
+        this.updateShareActions();
         this.toolbarconfig = toolbarconfig;
     }
 
@@ -1353,6 +1336,33 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         return subheads;
+    }
+
+    // Save actions
+    private updateShareActions() {
+        this.shareActions = [
+            {
+                label: 'Send via utsendelsesplan',
+                action: () => this.distribute(),
+                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber || !this.isDistributable
+            },
+            {
+                label: 'Skriv ut / send e-post',
+                action: () => this.chooseForm(),
+                disabled: () => !this.invoice.ID
+            },
+            {
+                label: 'Send purring',
+                action: () => this.sendReminderAction(),
+                disabled: () => {
+                    return !this.invoice.ID || (
+                        this.invoice.DontSendReminders
+                            || this.invoice.StatusCode === StatusCode.Completed
+                            || this.invoice.StatusCode === 42004
+                    );
+                }
+            }
+        ];
     }
 
     private updateSaveActions() {
@@ -2178,6 +2188,45 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private distribute() {
         return Observable.create((obs) => {
+            var invoicedate = moment(this.invoice.InvoiceDate);
+            if (invoicedate.isAfter(moment(), 'days')) {
+                this.modalService.confirm({
+                    header: 'Sende nå eller frem i tid?',
+                    message: `Fakturadato er frem i tid ønsker du likevel å sende nå eller bestille automatisk utsendelse til ${invoicedate.format('YYYY.MM.DD')}?`,
+                    buttonLabels: {
+                        accept: 'Send',
+                        reject: 'Bestill til fakturadato',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    switch (response) {
+                        case ConfirmActions.ACCEPT:
+                            this.askExistingSharing().subscribe(readyToSend => {
+                                readyToSend
+                                    ? this.doDistribute(obs)
+                                    : obs.complete();
+                            });
+                            break;
+                        case ConfirmActions.REJECT:
+                            this.doDistribute(obs, true);
+                            break;
+                        default:
+                            obs.complete();
+                            break;
+                    }
+                });
+            } else {
+                this.askExistingSharing().subscribe(readyToSend => {
+                    readyToSend
+                        ? this.doDistribute(obs)
+                        : obs.complete();
+                });
+            }
+        });
+    }
+
+    private askExistingSharing(): Observable<boolean> {
+        return Observable.create((obs) => {
             this.statisticsService.GetAllUnwrapped(
                 `model=Sharing&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoiceID}`
                 + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`)
@@ -2195,25 +2244,27 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 cancel: 'Nei'
                             }
                         }).onClose.subscribe(response => {
-                            if (response === ConfirmActions.ACCEPT) {
-                                this.doDistribute(obs);
-                            } else {
-                                obs.complete();
-                            }
+                            obs.next(response === ConfirmActions.ACCEPT);
+                            obs.complete();
                         });
                     } else {
-                        this.doDistribute(obs);
+                        obs.next(true);
+                        obs.complete();
                     }
                 },
                     err => {
+                        obs.next(false);
                         obs.complete();
                         this.errorService.handle(err);
-                    });
+                });
         });
     }
 
-    private doDistribute(obs) {
-        this.reportService.distribute(this.invoice.ID, this.distributeEntityType).subscribe(() => {
+    private doDistribute(obs, distributeWithDate = false) {
+        const distribute = distributeWithDate
+            ? this.reportService.distributeWithDate(this.invoice.ID, this.distributeEntityType, this.invoice.InvoiceDate)
+            : this.reportService.distribute(this.invoice.ID, this.distributeEntityType);
+        distribute.subscribe(() => {
             this.toastService.addToast(
                 'Faktura er lagt i kø for utsendelse',
                 ToastType.good,

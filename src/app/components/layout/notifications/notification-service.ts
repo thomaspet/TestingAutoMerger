@@ -72,7 +72,11 @@ export class NotificationService extends BizHttp<Notification> {
     onNotificationClick(notification: Notification): void {
         const notificationRoute = this.getNotificationRoute(notification);
 
-        const businessObject: BusinessObject = { EntityID: notification.EntityID, EntityType: notification.EntityType };
+        const businessObject: BusinessObject = {
+            EntityID: notification.EntityID,
+            EntityType: notification.EntityType,
+            CompanyKey: notification.CompanyKey,
+        };
         const businessObjectExists = this.chatBoxService.businessObjects
             .getValue()
             .find(bo => bo.EntityID === businessObject.EntityID && bo.EntityType.toLowerCase() === businessObject.EntityType.toLowerCase());
@@ -95,13 +99,20 @@ export class NotificationService extends BizHttp<Notification> {
             companies => {
                 const company = companies.find(c => c.Key === notification.CompanyKey);
                 if (company) {
-                    this.authService.setActiveCompany(company, notificationRoute);
                     if (notification.SourceEntityType === 'Comment' && !businessObjectExists) {
-                        this.chatBoxService.businessObjects
-                            .next([{ EntityType: notification.EntityType, EntityID: notification.EntityID }]
-                                .concat(this.chatBoxService.businessObjects.getValue())
-                            );
+                        this.chatBoxService.businessObjects.next(
+                            [
+                                {
+                                    EntityType: notification.EntityType,
+                                    EntityID: notification.EntityID,
+                                    CompanyKey: notification.CompanyKey,
+                                },
+                            ].concat(
+                                this.chatBoxService.businessObjects.getValue()
+                            )
+                        );
                     }
+                    this.authService.setActiveCompany(company, notificationRoute);
                 } else {
                     this.toastService.addToast(
                         'Mistet tilgang',

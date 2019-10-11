@@ -39,7 +39,7 @@
             </section>
         </section>
 
-        <uni-ticker-container
+        <uni-ticker-container *ngIf="!navigatingToTicker"
             [ticker]="selectedTicker"
             [actionOverrides]="actionOverrides"
             (urlParamsChange)="onTickerParamsChange($event)">
