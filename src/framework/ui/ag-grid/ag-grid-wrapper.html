@@ -43,7 +43,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [domLayout]="domLayout"
+        [domLayout]="(localData && !config?.isGroupingTicker) ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"

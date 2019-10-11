@@ -78,7 +78,6 @@ export class AgGridWrapper {
     agColDefs: ColDef[];
     agTranslations: any;
     rowClassResolver: (params) => string;
-    domLayout = 'normal';
 
     rowHeight = 45;
     markedRowCount: number = 0;
@@ -228,9 +227,6 @@ export class AgGridWrapper {
                 this.tableHeight = 81 + (this.config.pageSize * this.rowHeight) + 'px';
             }
 
-            this.domLayout = this.localData && !this.config.isGroupingTicker
-                ? 'autoHeight' : 'normal';
-
             if (this.agGridApi) {
                 if (this.agGridApi.getSelectedRows().length) {
                     this.agGridApi.deselectAll();
@@ -306,13 +302,9 @@ export class AgGridWrapper {
             const pageSize = this.config.pageSize || 20;
 
             if (loadedRowCount < pageSize) {
-                this.domLayout = 'autoHeight';
-                this.tableHeight = undefined;
-                api.setDomLayout(this.domLayout);
+                const heightMultiplier = 1 + (loadedRowCount || 2);
+                this.tableHeight = (heightMultiplier * this.rowHeight) + 'px';
             } else {
-                this.domLayout = 'normal';
-                api.setDomLayout(this.domLayout);
-
                 const hasSumRow = this.columns.some(col => col.isSumColumn);
                 let height = (pageSize + 1) * this.rowHeight;
                 if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
