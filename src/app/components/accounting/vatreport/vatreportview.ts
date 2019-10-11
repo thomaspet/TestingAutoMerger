@@ -56,6 +56,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public contextMenuItems: IContextMenuItem[] = [];
     public toolbarconfig: IToolbarConfig;
     private periodDateFormat: PeriodDateFormatPipe;
+    private paymentStatus: string = 'Ubetalt';
 
     public activeTabIndex: number = 1;
     public tabs: IUniTab[] = [
@@ -282,6 +283,13 @@ export class VatReportView implements OnInit, OnDestroy {
         });
 
         this.actions.push({
+            label: 'Betale MVA',
+            action: (done) => this.payVatReport(done),
+            disabled: this.IsPayActionDisabled(),
+            main: !this.IsPayActionDisabled()
+        });
+
+        this.actions.push({
             label: 'Opprett endringsmelding ',
             action: (done) => this.createCorrectiveVatReport(done),
             disabled: this.IsCreateCorrectionMessageAcionDisabled(),
@@ -320,6 +328,13 @@ export class VatReportView implements OnInit, OnDestroy {
     }
     private IsSignActionDisabled() {
         if (this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted) {
+            return false;
+        }
+        return true;
+    }
+    private IsPayActionDisabled() {
+        if (this.paymentStatus === 'Ubetalt' && this.currentVatReport.StatusCode === StatusCodeVatReport.Approved && 
+            (this.currentVatReport.VatReportArchivedSummary || (this.currentVatReport.VatReportArchivedSummaryID && this.currentVatReport.VatReportArchivedSummaryID > 0))) {
             return false;
         }
         return true;
@@ -394,7 +409,11 @@ export class VatReportView implements OnInit, OnDestroy {
             );
         this.updateStatusText();
         this.getVatReportsInPeriod();
-        this.updateSaveActions();
+        this.vatReportService.getPaymentStatus(vatReport.ID)
+            .subscribe((res) => {
+                this.paymentStatus = res;
+                this.updateSaveActions();
+            });
     }
 
     private getVatReportsInPeriod() {
@@ -587,6 +606,17 @@ export class VatReportView implements OnInit, OnDestroy {
                 this.errorService.handle(err);
                 done('Det skjedde en feil, forsøk igjen senere');
             });
+    }
+
+
+    public payVatReport(done) {
+        this.vatReportService.payVat(this.currentVatReport.ID).subscribe(res => {
+            done('Betaling utført');
+        },
+        err => {
+            this.errorService.handle(err);
+            done('Det skjedde en feil ved betaling av MVA')
+        });
     }
 
 
