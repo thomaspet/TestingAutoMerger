@@ -79,7 +79,7 @@
 
     <button *ngIf="config?.navigation?.prev"
         title="Forrige"
-        class="icon-button"
+        class="icon-button prev"
         type="button"
         (click)="navigate('prev')">
         <i class="material-icons">navigate_before</i>
@@ -87,7 +87,7 @@
 
     <button *ngIf="config?.navigation?.next"
         title="Neste"
-        class="icon-button"
+        class="icon-button next"
         type="button"
         (click)="navigate('next')">
         <i class="material-icons">navigate_next</i>
@@ -106,7 +106,7 @@
         (click)="onCreateNewClick()">
 
         <i class="material-icons">add</i>
-        {{config.navigation.add.label || 'Opprett ny'}}
+        <span>{{config.navigation.add.label || 'Opprett ny'}}</span>
     </button>
 
     <uni-toolbar-share *ngIf="shareActions" [shareActions]="shareActions"></uni-toolbar-share>

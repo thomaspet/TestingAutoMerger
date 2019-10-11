@@ -130,7 +130,7 @@ uni-toolbar
         flex-basis: fit-content
         white-space: nowrap
 
-    a, a:link, a:visited,
+    a
         color: var(--link-color)
 
 .toolbar-right
@@ -160,3 +160,16 @@ uni-toolbar
 
     .share-button i.material-icons
         font-size: 21px
+
+
+@media screen and (max-width: 1400px)
+    .prev, .next
+        display: none
+@media screen and (max-width: 1300px)
+    .toolbar-title
+        font-size: 20px !important
+    .new-button
+        width: 2.5rem
+        padding: 0
+        span
+            display: none
