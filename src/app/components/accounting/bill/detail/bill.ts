@@ -90,6 +90,7 @@ import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import { AccountMandatoryDimensionService } from '@app/services/accounting/accountMandatoryDimensionService';
 import { ValidationMessage } from '@app/models/validationResult';
+import { BillInitModal } from '../bill-init-modal/bill-init-modal';
 
 interface ITab {
     name: string;
@@ -130,6 +131,8 @@ export class BillView implements OnInit {
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
+
+    uploadStepActive: boolean;
 
     public busy: boolean = true;
     public toolbarConfig: any;
@@ -3889,6 +3892,12 @@ export class BillView implements OnInit {
         const pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
             this.loadFromFileID(pageParams.fileid);
+        } else {
+            this.modalService.open(BillInitModal).onClose.subscribe(fileID => {
+                if (fileID) {
+                    this.loadFromFileID(fileID);
+                }
+            });
         }
     }
 

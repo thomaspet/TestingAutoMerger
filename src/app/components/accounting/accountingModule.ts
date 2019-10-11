@@ -59,6 +59,7 @@ import {BillPreviousView} from './bill/detail/previous/previous';
 import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {ReInvoiceInfoModal} from './bill/reinvoice-info-modal/reinvoice-info-modal';
 import {BillAssignmentModal} from './bill/assignment-modal/assignment-modal';
+import {BillInitModal} from './bill/bill-init-modal/bill-init-modal';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -145,6 +146,7 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         BillTransitionModal,
         ReInvoiceInfoModal,
         BillAssignmentModal,
+        BillInitModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
@@ -211,6 +213,7 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         UniCostAllocationDetails,
         FileFromInboxModal,
         BillTransitionModal,
+        BillInitModal,
         ReInvoiceInfoModal,
         UniJournalEntryLineModal
     ],
