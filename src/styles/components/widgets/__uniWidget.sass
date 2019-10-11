@@ -11,7 +11,7 @@ uni-widget-canvas
     margin-right: 10px
     margin-bottom: 10px
     border: 1px dashed $uni-color-positive
-    border-radius: 3px
+    border-radius: var(--section-radius)
 
 .grid-anchor
     z-index: #{map-get($zindex, base) + 1}
@@ -33,7 +33,7 @@ uni-widget-canvas
         position: absolute
         background: #fff
         border: 1px solid rgba(0, 0, 0, .1)
-        border-radius: 3px
+        border-radius: var(--section-radius)
 
     &.edit-mode
         uni-widget:active
@@ -170,7 +170,7 @@ uni-widget-canvas
     width: 100%
     height: 100%
     background-color: $uni-color-negative
-    border-radius: pxToRem(3)
+    border-radius: var(--section-radius)
     uni-image,
     uni-image > article,
     img
@@ -185,7 +185,7 @@ uni-widget-canvas
     justify-content: center
     width: 100%
     height: 100%
-    border-radius: 3px
+    border-radius: var(--section-radius)
     box-sizing: border-box
     text-align: center
     cursor: pointer
@@ -321,7 +321,7 @@ uni-shortcuts
     display: flex
     width: 100%
     height: 100%
-    border-radius: 3px
+    border-radius: var(--section-radius)
 
     .uni-widget-button
         flex: 1
@@ -478,7 +478,7 @@ uni-shortcuts
     color: #e6e6e6
     padding: 6px 12px
     box-sizing: border-box
-    border-radius: 3px
+    border-radius: var(--section-radius)
     transition: opacity .5s
     min-width: 150px
     font-family: var(--font-family)
@@ -531,7 +531,7 @@ header.dashboard-header
         color: #707D90
         text-decoration: none
         padding: 8px 20px
-        border-radius: 3px
+        border-radius: var(--section-radius)
         &:hover
             background: rgba(0, 0, 0, .07)
 
