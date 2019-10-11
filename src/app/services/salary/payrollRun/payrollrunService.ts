@@ -390,10 +390,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         if (includePayments) {
             return this.GetAll(queryList.join('&'))
             .switchMap(runs => 
-                forkJoin(
+                runs.length ? forkJoin(
                     of(runs),
                     this.getPaymentsOnRun(runs, year)
-                )
+                ) : Observable.of([])
             )
             .map((list) => {
                 const [runs, payments] = list;
