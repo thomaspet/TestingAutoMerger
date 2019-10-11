@@ -9,7 +9,7 @@ import {IUniModal, ConfirmActions} from '../interfaces';
             <header>Databehandleravtale</header>
 
             <article class="scrollable">
-                <h3>
+                <h3 style="margin: .25rem 0 1.25rem">
                     Bakgrunn
                     <a style="float: right;" href="https://support.unimicro.no/kundestotte/personvern-gdpr/databehandleravtale" target="_blank">
                         Les mer på våre nettsider
@@ -25,26 +25,16 @@ import {IUniModal, ConfirmActions} from '../interfaces';
                 <p>Når byrået bistår kunde som har egne lisenser på UniEconomy, så er denne avtalen å se på som en databehandleravtale mellom Uni Micro og byråets klient. Byrået og klienten kan da velge å benytte denne samme avtalen som sin egen databehandleravtale mellom byrået og klienter.</p>
             </article>
 
-            <footer>
-                <mat-checkbox [(ngModel)]="licenseAgreement">
+            <footer style="margin-top: 2rem">
+                <mat-checkbox [(ngModel)]="licenseAgreement" style="margin-right: 2rem">
                     Godta databehandleravtale
                 </mat-checkbox>
 
-                <button class="good" (click)="confirm()" [disabled]="!licenseAgreement">Bekreft</button>
-                <button class="bad" (click)="reject()">Avbryt</button>
+                <button class="secondary" (click)="reject()">Avbryt</button>
+                <button class="c2a" (click)="confirm()" [disabled]="!licenseAgreement">Bekreft</button>
             </footer>
         </section>
-    `,
-    styles: [`
-        mat-checkbox {
-            float: left;
-            margin-top: 1.25rem;
-        }
-
-        h3:first-of-type {
-            margin: .25rem 0 1.25rem;
-        }
-    `]
+    `
 })
 export class UserLicenseAgreementModal implements IUniModal {
     @Output() public onClose: EventEmitter<ConfirmActions> = new EventEmitter<ConfirmActions>();
@@ -60,7 +50,7 @@ export class UserLicenseAgreementModal implements IUniModal {
     }
 
     public reject() {
-        const confirmed = confirm('Hvis du ikke godtar lisensen blir du logget ut av applikasjonen.');
+        const confirmed = confirm('Dersom du ikke godtar lisensen blir du logget ut av applikasjonen.');
         if (confirmed) {
             this.onClose.emit(ConfirmActions.REJECT);
         }

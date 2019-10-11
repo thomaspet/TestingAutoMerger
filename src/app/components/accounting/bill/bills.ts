@@ -799,10 +799,10 @@ export class BillsView implements OnInit {
     private createTableConfig(filter: IFilter): UniTableConfig {
         const cols = [
             new UniTableColumn('InvoiceNumber', 'Fakturanr.'),
-            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('5em'),
+            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('5rem'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text)
                 .setFilterOperator('startswith')
-                .setWidth('15em'),
+                .setWidth('15rem'),
             new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
                 .setFilterOperator('eq'),
             new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate)
@@ -815,7 +815,7 @@ export class BillsView implements OnInit {
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro'),
             new UniTableColumn('PaymentID', 'KID/Melding')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
-            new UniTableColumn('FreeTxt', 'Fritekst').setWidth('15%').setVisible(true),
+            new UniTableColumn('FreeTxt', 'Fritekst').setVisible(true),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
@@ -832,7 +832,7 @@ export class BillsView implements OnInit {
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setFilterOperator('eq')
                 .setVisible(false),
-            new UniTableColumn('TaxInclusiveAmountCurrency', 'Beløp', UniTableColumnType.Money).setWidth('7em')
+            new UniTableColumn('TaxInclusiveAmountCurrency', 'Beløp', UniTableColumnType.Money).setWidth('7rem')
                 .setFilterOperator('contains')
                 .setConditionalCls(item =>
                     item.TaxInclusiveAmountCurrency >= 0

@@ -105,7 +105,7 @@ export class TableUtils {
                     col.width = undefined; // cant calculate px value from percent
                 } else if (col.width.includes('px')) {
                     col.width = washed;
-                } else if (col.width.includes('rem')) {
+                } else if (col.width.includes('em')) {
                     col.width = washed * 16; // 16 = root em (as of 08.01.2018, typography.sass)
                 } else if (!/[^0-9\.]/g.test(col.width)) {
                     col.width = +col.width;
