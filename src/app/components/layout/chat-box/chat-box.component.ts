@@ -116,7 +116,13 @@ export class ChatBoxComponent implements OnInit {
     }
 
     getComments() {
-        this.commentService.getAll(this.businessObject.EntityType, this.businessObject.EntityID).subscribe((comments: Comment[]) => {
+        this.commentService
+            .getAll(
+                this.businessObject.EntityType,
+                this.businessObject.EntityID,
+                this.businessObject.CompanyKey
+            )
+            .subscribe((comments: Comment[]) => {
             this.unreadCount = 0;
             this.comments = comments.reverse();
 
@@ -207,10 +213,14 @@ export class ChatBoxComponent implements OnInit {
 
         this.comments.unshift(commentDraft);
         this.scrollToBottom();
-        this.commentService.post(this.businessObject.EntityType, this.businessObject.EntityID, this.inputControl.value).subscribe(
-            () => {},
-            err => console.error(err)
-        );
+        this.commentService
+            .post(
+                this.businessObject.EntityType,
+                this.businessObject.EntityID,
+                this.inputControl.value,
+                this.businessObject.CompanyKey
+            )
+            .subscribe(() => {}, err => console.error(err));
 
         this.inputControl.setValue('');
     }
