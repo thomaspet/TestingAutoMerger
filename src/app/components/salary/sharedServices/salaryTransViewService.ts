@@ -29,7 +29,7 @@ export class SalaryTransViewService {
             .setTemplate((rowModel: any) => {
                 const vatType = rowModel.VatType;
                 if (vatType) {
-                    return `${vatType.VatCode}: ${this.getPercent(vatType, rowModel, fromDateField)}%`;
+                    return `${vatType.VatCode}: ${this.getVatPercent(vatType, rowModel, fromDateField)}%`;
                 }
                 return '';
             })
@@ -79,15 +79,14 @@ export class SalaryTransViewService {
             });
     }
 
-    private getPercent(vatType: VatType, rowModel: any, fromDateField: string): number {
-
+    private getVatPercent(vatType: VatType, rowModel: any, fromDateField: string): number {
         if (!vatType.VatTypePercentages) {
             return 0;
         }
-
+        const fromDate = new LocalDate('' + rowModel[fromDateField]);
         const percentage = vatType.VatTypePercentages.find(x =>
-            x.ValidFrom <= new LocalDate(rowModel[fromDateField]) &&
-            (x.ValidTo >= new LocalDate(rowModel[fromDateField]) || !x.ValidTo));
+            (x.ValidFrom <= fromDate) &&
+            ((x.ValidTo >= fromDate) || !x.ValidTo));
         return vatType.VatPercent || percentage && percentage.VatPercent || 0;
     }
 
