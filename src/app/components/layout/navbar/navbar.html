@@ -3,7 +3,9 @@
 <section class="navbar">
     <section class="navbar-left">
         <section class="logo-and-hamburger-container">
-            <section routerLink="/" id="logo"></section>
+            <section class="logo-wrapper">
+                <img [src]="logoUrl" routerLink="/" alt="logo">
+            </section>
 
             <i *ngIf="hasActiveContract"
                 class="material-icons hamburger-toggle"

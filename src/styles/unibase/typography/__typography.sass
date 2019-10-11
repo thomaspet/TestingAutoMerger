@@ -1,11 +1,11 @@
-// Import Source Sans Pro from Google Fonts. We may want to self-host this later.
-// @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700)
-
-
 // MuseoSans_500
 @font-face
   font-family: MuseoSans
   src: url(assets/fonts/MuseoSans-500.woff2) format("woff2")
+@font-face
+  font-family: MuseoSans
+  src: url(assets/fonts/MuseoSans-300.woff2) format("woff2")
+  font-weight: 300
 @font-face
   font-family: MuseoSans
   src: url(assets/fonts/MuseoSansRounded-700.woff2) format("woff2")
@@ -19,11 +19,6 @@
   src: url(assets/fonts/MuseoSansRounded-700.woff2) format("woff2")
   font-weight: bold
 
-
-// For our font stack we prefer Source Sans Pro, and try to fall back to the system defaults
-// for situations when the typeface doesn't load. (San Francisco for iOS 9 or OS X El Capitan up,
-// Segoe UI for Win 8+, Droid Sans for Android, Ubuntu for.. well, you can probably guess that one.
-// Because, _this_ will be the year of Linux on the desktop!)
 $rem: 16
 $rem-smaller-screens: 14
 

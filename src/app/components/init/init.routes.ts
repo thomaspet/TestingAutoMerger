@@ -1,5 +1,3 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule} from '@angular/router';
 import {Login} from './login/login';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';

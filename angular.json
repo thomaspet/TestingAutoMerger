@@ -18,6 +18,7 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
+              "src/themes",
               "src/favicon.png",
               "src/robots.txt",
               "src/security.txt",
@@ -119,7 +120,11 @@
                 },
                 {
                   "replace": "src/assets/favicon.ico",
-                  "with": "src/assets_external/favicon_sr.ico"
+                  "with": "src/themes/ext01/favicon.ico"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext01.ts"
                 }
               ]
             },
@@ -204,7 +209,11 @@
                 },
                 {
                   "replace": "src/assets/favicon.ico",
-                  "with": "src/assets_external/favicon.ico"
+                  "with": "src/themes/ext01/favicon.ico"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext01.ts"
                 }
               ]
             },
