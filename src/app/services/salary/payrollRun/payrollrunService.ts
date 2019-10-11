@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary, PostingSummaryDraft
+    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummaryDraft
 } from '../../../unientities';
 import {Observable, forkJoin, of} from 'rxjs';
 import {ErrorService} from '../../common/errorService';
@@ -373,11 +373,6 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             );
     }
 
-    public setPaymentStatusOnPayroll(payrollRun: PayrollRun): Observable<PayrollRun> {
-        return this.getPaymentsOnPayrollRun(payrollRun.ID)
-            .map(payments => this.markPaymentStatus(payrollRun, payments));
-    }
-
     public getAll(queryString: string, includePayments: boolean = false): Observable<PayrollRun[]> {
         const year = this.financialYearService.getActiveYear();
 
@@ -393,17 +388,39 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
         queryList.push(filter);
         if (includePayments) {
-            queryList.push('includePayments=true');
+            return this.GetAll(queryList.join('&'))
+            .switchMap(runs => 
+                forkJoin(
+                    of(runs),
+                    this.getPaymentsOnRun(runs, year)
+                )
+            )
+            .map((list) => {
+                const [runs, payments] = list;
+                return this.setPaymentStatusOnPayrollList(runs, payments);
+            });
         }
 
         return this.GetAll(queryList.join('&'))
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
 
-    public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[]): PayrollRun[] {
+    getPaymentsOnRun(runs: PayrollRun[], year: number) {
+        return this.statisticsService.GetAll(
+            `model=Tracelink`
+            + `&select=PayrollRun.ID as ID,Payment.StatusCode as StatusCode,Payment.PaymentDate as PaymentDate,`
+            + `count(casewhen(Payment.StatusCode ne ${StatusCodePayment.Completed}\,1\,0)) as notPaid,`
+            + `count(casewhen(Payment.StatusCode eq ${StatusCodePayment.Completed}\,1\,0)) as paid`
+            + `&filter=SourceEntityName eq 'PayrollRun' and DestinationEntityName eq 'Payment' and Payment.PaymentDate le '${year}-12-31T23:59:59Z' `
+            + `and Payment.PaymentDate ge '${year}-01-01T00:00:01Z' and (${runs.map(x => 'PayrollRun.ID eq ' + x.ID).join(' or ')})`
+            + `&join=Tracelink.DestinationInstanceId eq Payment.ID as Payment and Tracelink.SourceInstanceId eq PayrollRun.ID as PayrollRun`
+        ).map(x => x.Data);
+    }
+
+    public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[], payments?: any[]): PayrollRun[] {
         return payrollRuns
             ? payrollRuns
-                .map(run => this.markPaymentStatus(run))
+                .map(run => this.markPaymentStatus(run, payments.filter(p => p.ID === run.ID)))
             : [];
     }
 
@@ -421,15 +438,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         }
     }
 
-    private markPaymentStatus(payrollRun: PayrollRun, payments?: Payment[]): PayrollRun {
+    private markPaymentStatus(payrollRun: PayrollRun, payments?: any[]): PayrollRun {
         payments = payments || payrollRun['Payments'] || [];
         if (payments.length <= 0) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
-        } else if (!payments.some(pay => pay.StatusCode === StatusCodePayment.Completed)) {
+        } else if (payments.some(pay => !pay.paid && !!pay.notPaid)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SentToPayment;
-        } else if (payments.some(pay => pay.StatusCode !== StatusCodePayment.Completed)) {
+        } else if (payments.some(pay => !!pay.paid && !!pay.notPaid)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.PartlyPaid;
-        } else {
+        } else if(payments.some(pay => !!pay.paid && !pay.notPaid)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.Paid;
         }
         return payrollRun;
