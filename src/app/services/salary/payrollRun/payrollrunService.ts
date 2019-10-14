@@ -420,7 +420,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[], payments?: any[]): PayrollRun[] {
         return payrollRuns
             ? payrollRuns
-                .map(run => this.markPaymentStatus(run, payments.filter(p => p.ID === run.ID)))
+                .map(run => this.markPaymentStatus(run, payments ? payments.filter(p => p.ID === run.ID) : []))
             : [];
     }
 
