@@ -611,6 +611,11 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public payVatReport(done) {
         this.vatReportService.payVat(this.currentVatReport.ID).subscribe(res => {
+            this.spinner(this.vatReportService.getPaymentStatus(this.currentVatReport.ID))
+            .subscribe((res) => {
+                this.paymentStatus = res;
+                this.updateSaveActions();
+            });
             done('Betaling utført');
         },
         err => {
