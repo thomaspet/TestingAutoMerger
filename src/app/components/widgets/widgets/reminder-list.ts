@@ -178,7 +178,7 @@ export class ReminderListWidget {
             case 'ToBePayed':
                 return 'assignment_returned';
             case 'ToBeReminded':
-                return 'arrow_back';
+                return 'description';
             case 'CustomerInvoice':
                 return 'input';
             default:

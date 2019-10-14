@@ -125,6 +125,18 @@
                 {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
+                },
+                {
+                  "replace": "src/assets/locale/override.ts",
+                  "with": "src/assets/locale/override.ext01.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                },
+                {
+                  "replace": "src/assets/dashboard-configs/main-dashboard.ts",
+                  "with": "src/assets/dashboard-configs/main-dashboard.ext01.ts"
                 }
               ]
             },
@@ -214,6 +226,18 @@
                 {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
+                },
+                {
+                  "replace": "src/assets/locale/override.ts",
+                  "with": "src/assets/locale/override.ext01.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                },
+                {
+                  "replace": "src/assets/dashboard-configs/main-dashboard.ts",
+                  "with": "src/assets/dashboard-configs/main-dashboard.ext01.ts"
                 }
               ]
             },

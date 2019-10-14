@@ -14,7 +14,7 @@ export class PayrollrunList implements OnInit {
     payrollRuns: PayrollRun[];
 
     toolbarActions = [{
-        label: 'Ny lønnsavregning',
+        label: 'SALARY.PAYROLL.NEW',
         action: this.newPayrollrun.bind(this),
         main: true,
         disabled: false
@@ -35,7 +35,7 @@ export class PayrollrunList implements OnInit {
         );
 
         this.tabService.addTab({
-            name: 'Lønnsavregninger',
+            name: 'NAVBAR.PAYROLL',
             url: 'salary/payrollrun',
             moduleID: UniModules.Payrollrun,
             active: true

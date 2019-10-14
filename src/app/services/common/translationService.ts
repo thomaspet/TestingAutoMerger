@@ -1,21 +1,21 @@
 import {Injectable} from '@angular/core';
 import * as _ from 'lodash';
 import {BehaviorSubject} from 'rxjs';
-import {NO as NO_UNI} from '../../../assets/locale/no_uni';
-import {NO as NO_SR} from '../../../assets/locale/no_sr';
+import {NO} from '../../../assets/locale/no_uni';
+import {OVERRIDE} from '../../../assets/locale/override';
 import {EN} from '../../../assets/locale/en';
 
 @Injectable()
 export  class UniTranslationService {
-    locale: BehaviorSubject<string> = new BehaviorSubject('NO_UNI');
+    locale: BehaviorSubject<string> = new BehaviorSubject('NO');
     DICTIONARY: any = {
-        NO_UNI: NO_UNI,
-        NO_SR: NO_SR,
-        EN: EN
+        NO: NO,
+        EN: EN,
+        OVERRIDE: OVERRIDE
     };
 
     constructor() {
-        this.locale.next(localStorage.getItem('TRANSLATE_LOCALE') || 'NO_SR');
+        this.locale.next(localStorage.getItem('TRANSLATE_LOCALE') || 'NO');
     }
 
     public translate(stringToTranslate: string, params?: any, options?: any): string {
@@ -23,16 +23,28 @@ export  class UniTranslationService {
             return stringToTranslate || '';
         }
 
-        let translation = _.get(this.DICTIONARY[this.locale.getValue()], stringToTranslate);
+        // Find params from the translation string. The param values are declared a ~
+        let paramsInString = stringToTranslate.split('~');
+        if (paramsInString.length > 1) {
+            stringToTranslate = paramsInString[0];
+            paramsInString.shift();
+        } else {
+            paramsInString = [];
+        }
 
-        if (translation && translation.indexOf(':param') > -1) {
-            translation = translation.replace(':param', params || '');
+        let translation = _.get(this.DICTIONARY.OVERRIDE, stringToTranslate)
+            || _.get(this.DICTIONARY[this.locale.getValue()], stringToTranslate);
+
+        if (translation && translation.includes('{') && translation.includes('}')) {
+            paramsInString.forEach(paramValue => {
+                translation = translation.replace(/\{.*?\}/, paramValue || '');
+            });
         }
 
         return translation || stringToTranslate;
     }
 
-    public setLocale(locale) {
+    public setLocale(locale: string) {
         this.locale.next(locale);
         localStorage.setItem('TRANSLATE_LOCALE', locale);
     }

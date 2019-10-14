@@ -136,7 +136,7 @@ export class App {
 
     applyUeTheme() {
         document.body.classList.remove('sr-theme');
-        this.translationService.setLocale('NO_UNI');
+        this.translationService.setLocale('NO');
         const route = this.router.url;
         this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(() => {
             this.router.navigateByUrl(route);
@@ -145,7 +145,7 @@ export class App {
 
     applySrTheme() {
         document.body.classList.add('sr-theme');
-        this.translationService.setLocale('NO_SR');
+        this.translationService.setLocale('NO');
         const route = this.router.url;
         this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(() => {
             this.router.navigateByUrl(route);

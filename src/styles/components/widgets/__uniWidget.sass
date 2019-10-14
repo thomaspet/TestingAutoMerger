@@ -551,6 +551,13 @@ header.dashboard-header
         .links
             display: none
 
+    &.no-link-dashboard
+        span
+            flex: 1 !important
+            max-width: none
+        .links
+            display: none !important
+
 .hidden-class
     text-decoration: line-through
 
@@ -698,7 +705,7 @@ sr-unpaid-doughnut-widget
         li
             display: flex
             align-items: center
-            height: 4rem
+            height: 3rem
             cursor: pointer
             padding: 0 12px
 
@@ -729,9 +736,10 @@ sr-unpaid-doughnut-widget
                 text-overflow: ellipsis
 
                 span
-                    line-height: 22px
+                    line-height: 18px
                     &:first-of-type
                         font-weight: bold
+                        font-size: 14px
 
     .no-items-message
         display: block

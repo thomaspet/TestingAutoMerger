@@ -1,7 +1,8 @@
 import {Component} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {BreakpointObserver, BreakpointState} from '@angular/cdk/layout';
-import {NavbarLinkService, INavbarLinkSection, SidebarState} from '../navbar/navbar-link-service';
+import {NavbarLinkService, SidebarState} from '../navbar/navbar-link-service';
+import {INavbarLinkSection} from '../navbar/navbar-links-common';
 import {Observable} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
 import * as _ from 'lodash';

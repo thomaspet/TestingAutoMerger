@@ -36,6 +36,12 @@ export const NO = {
             'CREDIT_DAYS': 'Kredittdager',
             'INVOICE_REF': 'Fakturaref.',
         },
+        RECURRING_INVOICE: {
+            'RECURRING_INVOICE_NEW': 'Ny repeterende faktura',
+            'RECURRING_INVOICE_NUMBER': 'Repeterende fakturanr. {nr}',
+            'LOG_HEADER': 'Fakturalogg for repeterende fakturanr. {nr}',
+            'GOTO': 'Gå til repeterende fakturanr. {nr}'
+        },
         COMMON: {
             'DELVIERY_DATE': 'Leveringsdato',
             'OUR_REF': 'Vår referanse',
@@ -59,6 +65,16 @@ export const NO = {
             'SUM_CREDIT': 'Sum kredit',
             'JOURNALING_TYPE': 'Bilagstype'
         }
+    },
+
+    SALARY: {
+        PAYROLL: {
+            'NEW': 'Ny lønnsavregning'
+        }
+    },
+
+    TIMETRACKING: {
+        'PERSON_NEW': 'Ny person'
     },
 
     STATUSES: {
@@ -145,7 +161,7 @@ export const NO = {
         'SETTINGS': 'Innstillinger',
         'COMPANY': 'Firmaoppsett',
         'PAYROLL_SETTINGS': 'Lønnsinnstillinger',
-        'INTEGRATION': 'Integrasjon',
+        'INTEGRATION': 'Integrasjoner',
         'USERS': 'Brukere',
         'TEAMS': 'Teams',
         'NUMBERSERIES': 'Nummerserier',
@@ -165,6 +181,10 @@ export const NO = {
         'PAYMENT_AND_DELIVERY': 'Betalings- og leveringsbetingelser',
         'SHOW_ALL_NAVBAR': 'Vis alle menyvalg',
         'MODULES': 'Moduler',
-        'WEBINAR': 'Webinar'
+        'WEBINAR': 'Webinar',
+        'HOME': 'Hjem',
+        'REGISTER': 'Register',
+        'OTHER': 'Annet',
+        'NUMBER_AND_REPORTS': 'Tall og rapporter'
     }
 };

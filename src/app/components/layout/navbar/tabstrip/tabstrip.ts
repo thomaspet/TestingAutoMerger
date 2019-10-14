@@ -33,14 +33,14 @@ interface ITabContextMenuData {
                     [ngClass]="{'router-tab-active': lastActiveTab?.active}"
                     (click)="collapsedTab">
 
-                    {{lastActiveTab?.name}}
+                    {{lastActiveTab?.name | translate}}
 
                     <ul class="collapsed-tab-list">
                         <li *ngFor="let tab of tabs; let idx = index"
                             (click)="activateTab(idx)"
                             [ngClass]="{'active': tab.active}">
 
-                            {{tab?.name}}
+                            {{tab?.name | translate}}
                             <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
                                 close
                             </i>
@@ -57,7 +57,7 @@ interface ITabContextMenuData {
                     (contextmenu)="openContextMenu($event, idx)"
                     [ngClass]="{'router-tab-active': tab.active}">
 
-                    {{tab.name}}
+                    {{tab.name | translate }}
                     <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
                         close
                     </i>

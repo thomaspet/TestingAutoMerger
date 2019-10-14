@@ -19,7 +19,7 @@ export class RecurringInvoiceList implements OnInit {
     @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
 
     public createNewAction: IUniSaveAction = {
-        label: 'Ny repeterende faktura',
+        label: 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NEW',
         action: () => this.router.navigateByUrl('/sales/recurringinvoice/0')
     };
 
@@ -41,7 +41,7 @@ export class RecurringInvoiceList implements OnInit {
     public ngOnInit() {
         this.tabService.addTab({
             url: '/sales/recurringinvoice',
-            name: 'Repeterende faktura',
+            name: 'NAVBAR.RECURRING_INVOICE',
             active: true,
             moduleID: UniModules.RecurringInvoice
         });
@@ -51,7 +51,7 @@ export class RecurringInvoiceList implements OnInit {
         return new Promise((resolve, reject) => {
             this.modalService.open(UniRecurringInvoiceLogModal,
                 {
-                    header: 'Fakturalogg for repeterende fakturanr. ' + row[0].ID,
+                    header: 'SALES.RECURRING_INVOICE.LOG_HEADER~' + row[0].ID,
                     data: {
                         reccuringInvoiceID: row[0].ID
                     }

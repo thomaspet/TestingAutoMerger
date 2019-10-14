@@ -4,7 +4,7 @@
         (click)="onSave(main)"
         [attr.aria-busy]="busy"
         [disabled]="main.disabled">
-        {{main.label}}
+        {{main.label | translate}}
     </button>
 
     <ng-container *ngIf="actions?.length > 1">
@@ -19,7 +19,7 @@
                     (click)="onSave(action)"
                     [attr.aria-disabled]="action.disabled || busy">
 
-                    <span> {{ action.label }} </span>
+                    <span> {{ action.label | translate }} </span>
                 </a>
             </ng-template>
         </dropdown-menu>

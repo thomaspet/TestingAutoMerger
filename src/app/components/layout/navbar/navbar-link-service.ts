@@ -1,23 +1,18 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {AuthService} from '@app/authService';
-import {
-    NO_UNI_NAVBAR_LINKS,
-    NO_SR_NAVBAR_LINKS,
-    SETTINGS_LINKS,
-    INavbarLinkSection,
-    INavbarLink
-} from './navbar-links';
+import {NAVBAR_LINKS} from './navbar-links';
+import {INavbarLinkSection, SETTINGS_LINKS} from './navbar-links-common';
 import {UniModules} from './tabstrip/tabService';
 import {UserDto, User} from '@uni-entities';
-import {BrowserStorageService, DimensionSettingsService, UniTranslationService} from '@app/services/services';
+import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Observable} from 'rxjs';
 import {UniHttp} from '@uni-framework/core/http/http';
+import {theme} from 'src/themes/theme';
 import * as _ from 'lodash';
-
-export {INavbarLinkSection, INavbarLink} from './navbar-links';
 export type SidebarState = 'collapsed' | 'expanded';
+
 
 @Injectable()
 export class NavbarLinkService {
@@ -31,33 +26,17 @@ export class NavbarLinkService {
 
     public dimensions: any[];
     public company: any = {};
-    public links = {
-        NO_UNI_NAVBAR_LINKS: NO_UNI_NAVBAR_LINKS,
-        NO_SR_NAVBAR_LINKS: NO_SR_NAVBAR_LINKS
-    };
-    public NAVBAR_LINKS;
 
     constructor(
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
         private http: UniHttp,
         private toastService: ToastService,
-        private translationService: UniTranslationService,
         browserStorage: BrowserStorageService,
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';
         this.sidebarState$ = new BehaviorSubject(initState);
         this.sidebarState$.subscribe(state => browserStorage.setItem('sidebar_state', state));
-
-        this.translationService.locale.subscribe((locale) => {
-            this.localeValue = locale;
-            if (locale !== 'EN') {
-                this.NAVBAR_LINKS = this.links[`${locale}_NAVBAR_LINKS`];
-            } else {
-                this.NAVBAR_LINKS = this.links.NO_UNI_NAVBAR_LINKS;
-            }
-            this.resetNavbar();
-        });
 
         authService.authentication$.subscribe(authDetails => {
             this.company = authDetails.activeCompany;
@@ -71,10 +50,7 @@ export class NavbarLinkService {
 
     public resetNavbar() {
         this.settingsSection$.next(this.getSettingsFilteredByPermissions(this.user));
-
-        // Only get dimensions tab view when in UNI-VIEW
-        if (this.localeValue === 'NO_UNI') {
-
+        if (!theme.hideLinks) {
             const linkSections = this.getLinksFilteredByPermissions(this.user);
 
             this.getDimensionRouteSection(this.user).subscribe(
@@ -133,12 +109,24 @@ export class NavbarLinkService {
     private getLinksFilteredByPermissions(user): any[] {
 
         const fromLocalStorage = this.company.Key ? localStorage.getItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`) : null;
-        let routeSections: INavbarLinkSection[];
+        const routeSections: INavbarLinkSection[] = _.cloneDeep(NAVBAR_LINKS);
 
         if (fromLocalStorage) {
-            routeSections = JSON.parse(fromLocalStorage);
-        } else {
-            routeSections = _.cloneDeep(this.NAVBAR_LINKS);
+            const valuesFromLS: any[] = JSON.parse(fromLocalStorage);
+            routeSections.forEach(section => {
+                section.linkGroups = section.linkGroups.map(group => {
+                    group.links = group.links.filter(link => {
+                        const canActivate = this.authService.canActivateRoute(user, link.url);
+
+                        // Use saved config from localStorage
+                        const savedState = valuesFromLS.find(value => value.name === link.name);
+                        link.activeInSidebar = !!savedState ? savedState.activeInSidebar : link.activeInSidebar;
+
+                        return canActivate;
+                    });
+                    return group;
+                });
+            });
         }
 
         // Filter out links the user doesnt have access to for every section
@@ -233,9 +221,22 @@ export class NavbarLinkService {
         return links;
     }
 
-    public saveSidebarLinks(linkSection: any[]) {
-        localStorage.setItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`, JSON.stringify(linkSection));
-        this.toastService.addToast('Ny menystruktur lagret', ToastType.good, ToastTime.short);
+    public saveSidebarLinks(linkSection: INavbarLinkSection[]) {
+
+        const nameAndActiveValue = [];
+
+        linkSection.forEach(section => {
+            section.linkGroups.forEach(group => {
+                group.links.map(link => {
+                    nameAndActiveValue.push({
+                        activeInSidebar: link.activeInSidebar,
+                        name: link.name
+                    });
+                });
+            });
+        });
+
+        localStorage.setItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`, JSON.stringify(nameAndActiveValue));
         this.resetNavbar();
     }
 }

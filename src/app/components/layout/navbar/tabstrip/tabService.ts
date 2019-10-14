@@ -4,6 +4,7 @@ import {IUniTab} from './tabstrip';
 import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {UniTranslationService} from '@app/services/services';
 
 // The enum is numbered based on its parent app:
 //      1×× - Key figures
@@ -114,6 +115,7 @@ export class TabService {
         private router: Router,
         private browserStorage: BrowserStorageService,
         private titleService: Title,
+        private translateService: UniTranslationService
     ) {
         this.tabs = this.getMemStore() || [];
 
@@ -214,7 +216,7 @@ export class TabService {
 
         // Set document title so browser history makes sense
         const documentTitle = this.currentActiveTab
-            ? 'UE - ' + this.currentActiveTab.name
+            ? 'UE - ' + this.translateService.translate(this.currentActiveTab.name)
             : 'Uni Economy';
 
         this.titleService.setTitle(documentTitle);

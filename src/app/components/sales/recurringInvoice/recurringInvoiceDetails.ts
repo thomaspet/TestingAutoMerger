@@ -183,15 +183,7 @@ export class UniRecurringInvoice implements OnInit {
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService
-    ) {
-        // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-        this.tabService.addTab({
-            url: '/sales/recurringsinvoice/',
-            name: 'Repeterende faktura',
-            active: true,
-            moduleID: UniModules.RecurringInvoice
-        });
-    }
+    ) { }
 
     ngOnInit() {
         this.recalcItemSums(null);
@@ -850,7 +842,8 @@ export class UniRecurringInvoice implements OnInit {
         }
         this.tabService.addTab({
             url: '/sales/recurringinvoice/' + invoice.ID,
-            name: invoice.ID ? 'Repeterende fakturanr. ' + invoice.ID : 'Ny repeterende faktura',
+            name: invoice.ID ? 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NUMBER~' + invoice.ID
+                : 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NEW',
             active: true,
             moduleID: UniModules.RecurringInvoice
         });
@@ -858,7 +851,8 @@ export class UniRecurringInvoice implements OnInit {
 
     private updateToolbar() {
         const toolbarconfig: IToolbarConfig = {
-            title: this.invoice && this.invoice.ID ? 'Repeterende fakturanr. ' + this.invoice.ID : 'Ny repeterende faktura',
+            title: this.invoice.ID ? 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NUMBER~' + this.invoice.ID
+                : 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NEW',
             subheads: [],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -922,7 +916,7 @@ export class UniRecurringInvoice implements OnInit {
 
     public showRecurringInvoiceLog() {
         const options: IModalOptions = {
-            header: 'Fakturalogg for repeterende fakturanr. ' + this.invoiceID,
+            header: 'SALES.RECURRING_INVOICE.LOG_HEADER~' + this.invoiceID,
             buttonLabels: {
                 accept: 'Ferdig'
             },

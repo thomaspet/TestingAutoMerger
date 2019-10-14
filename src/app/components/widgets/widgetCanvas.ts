@@ -19,6 +19,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
+import {theme} from 'src/themes/theme';
 
 import {Chart} from 'chart.js';
 import 'chartjs-plugin-datalabels';
@@ -102,6 +103,8 @@ export class UniWidgetCanvas {
     private sidebarState: string;
 
     canvasHeight: number;
+
+    hideLinks: boolean = theme.hideLinks;
 
     constructor(
         private cdr: ChangeDetectorRef,
