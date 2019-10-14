@@ -24,6 +24,7 @@ export class UniDateSelector implements OnChanges {
 
     _MONTHS = ['', 'Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
     _DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
+    _DATE_FORMAT_STRING = 'YYYY.MM.DD';
     months: any[] = [];
     fromMonths: any[] = [];
 
@@ -63,13 +64,13 @@ export class UniDateSelector implements OnChanges {
 
     public setFromAndToDate(from: any, to: any, isChange: boolean = false) {
         this.toDate = {
-            Date: moment(to),
-            DateFormatted: moment(to).format('YYYY.MM.DD')
+            Date: moment(to, this._DATE_FORMAT_STRING),
+            DateFormatted: moment(to, this._DATE_FORMAT_STRING).format('YYYY.MM.DD')
         };
 
         this.fromDate = {
-            Date: moment(from),
-            DateFormatted: moment(from).format('YYYY.MM.DD')
+            Date: moment(from, this._DATE_FORMAT_STRING),
+            DateFormatted: moment(from, this._DATE_FORMAT_STRING).format('YYYY.MM.DD')
         };
 
         this.setMonthAndYear();
