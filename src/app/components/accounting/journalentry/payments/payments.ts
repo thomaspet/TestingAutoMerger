@@ -50,6 +50,8 @@ export class Payments {
         'PaymentDueDate as PaymentDueDate,' +
         'TaxInclusiveAmount as TaxInclusiveAmount,' +
         'TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,' +
+        'Reminder.ReminderFee,' +
+        'Reminder.InterestFee,' +
         'Reminder.ReminderFeeCurrency,' +
         'Reminder.InterestFeeCurrency,' +
         'add(add(isnull(RestAmountCurrency, 0), isnull(Reminder.InterestFeeCurrency,0)),' +
@@ -222,7 +224,7 @@ export class Payments {
         this.router.navigate(['./predefined-descriptions']);
     }
 
-    public rowSelected(row: CustomerInvoice) {
+    public rowSelected(row) {
         if (this.journalEntryManual) {
             this.busy = true;
             this.customerInvoiceService.Get(row.ID, this.customerInvoiceExpands).subscribe((invoice: CustomerInvoice) => {
@@ -264,10 +266,13 @@ export class Payments {
 
                     // Calculate reminder fee and interest
                     if (invoice.StatusCode === 42002) {
-                        newJournalEntry.Amount += (invoice['_ReminderFee'] || 0) + (invoice['_InterestFee'] || 0);
-                        newJournalEntry.AmountCurrency += (invoice['_ReminderFeeCurrency'] || 0) + (invoice['_InterestFeeCurrency'] || 0);
+                        newJournalEntry.Amount += (row['ReminderReminderFee'] || 0) + (row['ReminderInterestFee'] || 0);
+                        newJournalEntry.AmountCurrency += (row['ReminderReminderFeeCurrency'] || 0) + (row['ReminderInterestFeeCurrency'] || 0);
                     }
                 }
+
+                newJournalEntry.NetAmount = newJournalEntry.Amount;
+                newJournalEntry.NetAmountCurrency = newJournalEntry.AmountCurrency;
 
                 // Add new journalentry data for the payment
                 this.journalEntryManual.addJournalEntryData(newJournalEntry);
