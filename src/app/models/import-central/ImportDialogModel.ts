@@ -17,6 +17,11 @@ export enum ImportOption {
     Duplicate
 }
 
+export enum VoucherOptions {
+    Draft,
+    Post
+}
+
 export enum TemplateType {
     Customer,
     Product,
@@ -24,6 +29,7 @@ export enum TemplateType {
     MainLedger,
     Payroll,
     Saft,
+    Voucher,
     All
 }
 
@@ -33,7 +39,8 @@ export enum ImportJobName {
     Supplier = 'SupplierImportJob',
     MainLedger = 'MainLedgerImportJob',
     Payroll = 'PayrollmportJob',
-    Saft = 'ImportSaft'
+    Saft = 'ImportSaft',
+    Voucher = 'VoucherImportJob'
 }
 
 export enum ImportStatement {

@@ -34,6 +34,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     //saft related
     saftType: TemplateType = TemplateType.Saft;
+    voucherType: TemplateType = TemplateType.Voucher;
     isOpening: boolean = false;
     isKeepRecords: boolean = false;
     isUpdate: boolean = false;

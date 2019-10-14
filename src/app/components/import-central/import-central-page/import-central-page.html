@@ -1,165 +1,43 @@
 <section class="application" [attr.aria-busy]="busy">
     <div class="container uni-redesign">
         <div class="row all-cards">
-
-            <!-- product -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.product.hasComponentAccess">
-                <div class="import-card">
-                    <div class="card-header">
-                        <a (click)="navigateToLogs(productType)">Logg</a>
-                    </div>
-                    <div class="card-content">
-                        <i class="material-icons">business_center</i>
-                        <label>
-                            Produkt
-                        </label>
-                    </div>
-                    <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(productType)">
-                            <i class="material-icons">cloud_upload</i>
-                            <span>Importer produkter</span>
-                        </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(productType)"
-                            *ngIf="uiPermission.product.hasTemplateAccess">
-                            <i class="material-icons">cloud_download</i>
-                            <span>Last ned mal</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- customer -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.customer.hasComponentAccess">
-                <div class="import-card">
-                    <div class="card-header">
-                        <a (click)="navigateToLogs(customerType)">Logg</a>
-                    </div>
-                    <div class="card-content">
-                        <i class="material-icons">group</i>
-                        <label>
-                            Kunde
-                        </label>
-                    </div>
-                    <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(customerType)">
-                            <i class="material-icons">cloud_upload</i>
-                            <span>Importer kunder</span>
-                        </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(customerType)"
-                            *ngIf="uiPermission.customer.hasTemplateAccess">
-                            <i class="material-icons">cloud_download</i>
-                            <span>Last ned mal</span>
-                        </label>
+            <div class="col-lg-4 card-container" *ngFor="let card of importCardsList">
+                <div *ngIf="card.uiPermission.hasComponentAccess">
+                    <div class="import-card">
+                        <div class="card-header">
+                            <a (click)="navigateToLogs(card.type)">Logg</a>
+                        </div>
+                        <div class="card-content">
+                            <i class="material-icons">{{card.iconName}}</i>
+                            <label>
+                                {{card.title}}
+                            </label>
+                        </div>
+                        <div class="card-footer">
+                            <label class="upload-input" (click)="openImportTemplateModal(card.type)"
+                                *ngIf="card.uiPermission.hasImportAccess">
+                                <i class="material-icons">cloud_upload</i>
+                                <span>{{card.importText}}</span>
+                            </label>
+                            <label class="upload-input" (click)="openDownloadTemplateModal(card.type)"
+                                *ngIf="card.uiPermission.hasTemplateAccess">
+                                <i class="material-icons">cloud_download</i>
+                                <span>{{card.downloadText}}</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- supplier -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.supplier.hasComponentAccess">
-                <div class="import-card">
-                    <div class="card-header">
-                        <a (click)="navigateToLogs(supplierType)">Logg</a>
-                    </div>
-                    <div class="card-content">
-                        <i class="material-icons">contacts</i>
-                        <label>
-                            Leverandør
-                        </label>
-                    </div>
-                    <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(supplierType)">
-                            <i class="material-icons">cloud_upload</i>
-                            <span>Importer leverandører</span>
-                        </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(supplierType)"
-                            *ngIf="uiPermission.supplier.hasTemplateAccess">
-                            <i class="material-icons">cloud_download</i>
-                            <span>Last ned mal</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- main ledger -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.ledger.hasComponentAccess">
-                <div class="import-card">
-                    <div class="card-header">
-                        <a (click)="navigateToLogs(ledgerType)">Logg</a>
-                    </div>
-                    <div class="card-content">
-                        <i class="material-icons">receipt</i>
-                        <label>
-                            Kontoplan
-                        </label>
-                    </div>
-                    <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(ledgerType)">
-                            <i class="material-icons">cloud_upload</i>
-                            <span>Importer kontoplan</span>
-                        </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(ledgerType)"
-                            *ngIf="uiPermission.ledger.hasTemplateAccess">
-                            <i class="material-icons">cloud_download</i>
-                            <span>Last ned mal</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- payroll -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.payroll.hasComponentAccess">
-                <div class="import-card">
-                    <div class="card-header">
-                        <a (click)="navigateToLogs(payrollType)">Logg</a>
-                    </div>
-                    <div class="card-content">
-                        <i class="material-icons">payment</i>
-                        <label>
-                            Variable lønnsposter
-                        </label>
-                    </div>
-                    <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(payrollType)">
-                            <i class="material-icons">cloud_upload</i>
-                            <span>Importer lønnsposter</span>
-                        </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(payrollType)"
-                            *ngIf="uiPermission.payroll.hasTemplateAccess">
-                            <i class="material-icons">cloud_download</i>
-                            <span>Last ned mal</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- saf t -->
-            <div class="col-lg-4 card-container" *ngIf="uiPermission.saft.hasComponentAccess">
-                <div class="import-card">
-                    <div class="card-header">
-                        <a (click)="navigateToLogs(saftType)">Logg</a>
-                    </div>
-                    <div class="card-content">
-                        <i class="material-icons">insert_drive_file</i>
-                        <label>
-                            SAF-T
-                        </label>
-                    </div>
-                    <div class="card-footer">
-                        <label class="upload-input" (click)="openImportTemplateModal(saftType)" *ngIf="uiPermission.saft.hasImportAccess">
-                            <i class="material-icons">cloud_upload</i>
-                            <span>Importer SAF-T</span>
-                        </label>
-                        <label class="upload-input" (click)="openDownloadTemplateModal(saftType)" *ngIf="uiPermission.saft.hasExportAccess">
-                            <i class="material-icons">cloud_download</i>
-                            <span>Eksport SAF-T</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
 
             <!-- no access -->
             <div class="col-lg-4 card-container"
-                *ngIf="!uiPermission.product.hasComponentAccess && !uiPermission.customer.hasComponentAccess && !uiPermission.supplier.hasComponentAccess">
+                *ngIf="!uiPermission.product.hasComponentAccess && 
+                !uiPermission.customer.hasComponentAccess && 
+                !uiPermission.supplier.hasComponentAccess && 
+                !uiPermission.ledger.hasComponentAccess  && 
+                !uiPermission.payroll.hasComponentAccess && 
+                !uiPermission.saft.hasComponentAccess">
                 <div class="import-card no-access">
                     <div class="card-content">
                         <i class="material-icons">extension</i>

@@ -26,6 +26,7 @@ export class DownloadTemplateModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
 
     payrollType: TemplateType = TemplateType.Payroll;
+    voucher: TemplateType = TemplateType.Voucher;
     saft: TemplateType = TemplateType.Saft;
     isAnonymous: boolean = false;
     sendEmail: boolean = true;
@@ -49,6 +50,7 @@ export class DownloadTemplateModal implements OnInit, IUniModal {
             placeholder: 'File type',
             searchable: false,
             displayProperty: 'name',
+            hideDeleteButton: true
         };
 
         this.operators = [

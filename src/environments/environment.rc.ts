@@ -66,7 +66,8 @@ export const environment = {
         SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
         PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
         MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
-        PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx'
+        PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
+        VOUCHER: '<<voucher-template-url>>'
     }
 };
 
