@@ -1,13 +1,13 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {switchMap, map} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {Company, UserDto, ContractLicenseType} from './unientities';
-import {ReplaySubject} from 'rxjs';
+import { Injectable, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { Company, UserDto, ContractLicenseType } from './unientities';
+import { ReplaySubject } from 'rxjs';
 import 'rxjs/add/operator/map';
-import { UserManager, Log, MetadataService, User } from 'oidc-client';
+import { UserManager, Log, MetadataService, User, WebStorageStateStore } from 'oidc-client';
 import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
@@ -18,6 +18,7 @@ export interface IAuthDetails {
     user: UserDto;
     hasActiveContract: boolean;
     isDemo?: boolean;
+    isUserExpired:boolean;
 }
 
 const PUBLIC_ROOT_ROUTES = [
@@ -44,6 +45,7 @@ export class AuthService {
     userManager: UserManager;
     userLoadededEvent: EventEmitter<User> = new EventEmitter<User>();
     loggedIn = false;
+    userExpired=false;
 
     public requestAuthentication$: EventEmitter<any> = new EventEmitter();
     public companyChange: EventEmitter<Company> = new EventEmitter();
@@ -62,7 +64,7 @@ export class AuthService {
 
     private headers = new HttpHeaders({
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        Accept: 'application/json'
     });
 
     // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
@@ -94,9 +96,11 @@ export class AuthService {
                 if (user && !user.expired) {
                     this.loggedIn = true;
                     this.IdsUser = user;
+                    this.userExpired =user.expired;
                     this.userLoadededEvent.emit(user);
                 } else {
                     this.loggedIn = false;
+                    this.userExpired =user.expired;
                 }
             })
             .catch(err => {
@@ -108,7 +112,9 @@ export class AuthService {
 
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
+
                 this.user = user;
+                this.userExpired =user.expired;
                 this.jwt = user.access_token;
                 this.jwtDecoded = this.decodeToken(this.jwt);
                 this.storage.saveOnUser('jwt', this.jwt);
@@ -142,7 +148,8 @@ export class AuthService {
                         activeCompany: undefined,
                         token: undefined,
                         user: undefined,
-                        hasActiveContract: false
+                        hasActiveContract: false,
+                        isUserExpired: this.userExpired
                     });
 
                     this.clearAuthAndGotoLogin();
@@ -153,7 +160,8 @@ export class AuthService {
                 activeCompany: undefined,
                 token: undefined,
                 user: undefined,
-                hasActiveContract: false
+                hasActiveContract: false,
+                isUserExpired: this.userExpired
             });
         }
 
@@ -185,13 +193,15 @@ export class AuthService {
             authority: environment.authority,
             client_id: environment.client_id,
             redirect_uri: baseUrl + environment.redirect_uri,
-            post_logout_redirect_uri: baseUrl + environment.post_logout_redirect_uri,
+            post_logout_redirect_uri:
+                baseUrl + environment.post_logout_redirect_uri,
             response_type: environment.response_type,
             scope: environment.scope,
             filterProtocolClaims: environment.filterProtocolClaims,
             loadUserInfo: environment.loadUserInfo,
             automaticSilentRenew: true,
-            silent_redirect_uri: baseUrl + environment.silent_redirect_uri
+            silent_redirect_uri: baseUrl + environment.silent_redirect_uri,
+            userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 
         return new UserManager(settings);
@@ -253,36 +263,49 @@ export class AuthService {
             redirect = this.getSafeRoute(this.router.url);
         }
 
-        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(navigationSuccess => {
-            if (navigationSuccess) {
-                this.setLoadIndicatorVisibility(true);
-                this.storage.saveOnUser('activeCompany', activeCompany);
-                this.storage.saveOnUser('lastActiveCompanyKey', activeCompany.Key);
+        this.router
+            .navigateByUrl('/reload', { skipLocationChange: true })
+            .then(navigationSuccess => {
+                if (navigationSuccess) {
+                    this.setLoadIndicatorVisibility(true);
+                    this.storage.saveOnUser('activeCompany', activeCompany);
+                    this.storage.saveOnUser(
+                        'lastActiveCompanyKey',
+                        activeCompany.Key
+                    );
 
-                this.activeCompany = activeCompany;
-                this.companyChange.emit(activeCompany);
+                    this.activeCompany = activeCompany;
+                    this.companyChange.emit(activeCompany);
 
-                this.loadCurrentSession().take(1).subscribe(
-                    authDetails => {
-                        this.authentication$.next(authDetails);
-                        const forcedRedirect = this.getForcedRedirect(authDetails);
-                        if (forcedRedirect) {
-                            redirect = forcedRedirect;
-                        }
+                    this.loadCurrentSession()
+                        .take(1)
+                        .subscribe(
+                            authDetails => {
 
-                        setTimeout(() => {
-                            this.router.navigateByUrl(redirect || '');
-                            this.setLoadIndicatorVisibility(false);
-                        });
-                    },
-                    () => {
-                        this.storage.removeOnUser('lastActiveCompanyKey');
-                        this.clearAuthAndGotoLogin();
-                        this.setLoadIndicatorVisibility(false);
-                    }
-                );
-            }
-        });
+                                console.log( this.userExpired)
+                                this.authentication$.next(authDetails);
+                                const forcedRedirect = this.getForcedRedirect(
+                                    authDetails
+                                );
+                                if (forcedRedirect) {
+                                    redirect = forcedRedirect;
+                                }
+
+                                setTimeout(() => {
+                                    this.router.navigateByUrl(redirect || '');
+                                    this.setLoadIndicatorVisibility(false);
+                                });
+                            },
+                            () => {
+                                this.storage.removeOnUser(
+                                    'lastActiveCompanyKey'
+                                );
+                                this.clearAuthAndGotoLogin();
+                                this.setLoadIndicatorVisibility(false);
+                            }
+                        );
+                }
+            });
     }
 
     private getForcedRedirect(authDetails: IAuthDetails) {
@@ -292,7 +315,10 @@ export class AuthService {
             return 'contract-activation';
         }
 
-        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
+        if (
+            permissions.length === 1 &&
+            permissions[0] === 'ui_approval_accounting'
+        ) {
             return '/assignments/approvals';
         }
     }
@@ -315,36 +341,44 @@ export class AuthService {
     }
 
     loadCurrentSession(): Observable<IAuthDetails> {
-        const url = (environment.BASE_URL
-            + environment.API_DOMAINS.BUSINESS
-            + 'users?action=current-session')
-            .replace(/([^:]\/)\/+/g, '$1');
-        return this.http.get<any>(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${this.jwt}`,
-                'CompanyKey': this.activeCompany.Key
-            }
-        }).pipe(
-            map(user => {
-                this.currentUser = user;
-
-                const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
-                const hasActiveContract = user && !this.isTrialExpired(contract);
-
-                const authDetails = {
-                    token: this.jwt,
-                    activeCompany: this.activeCompany,
-                    user: user,
-                    hasActiveContract: hasActiveContract,
-                    isDemo: contract.TypeName === 'Demo'
-                };
-
-                this.authentication$.next(authDetails);
-                return authDetails;
+        const url = (
+            environment.BASE_URL +
+            environment.API_DOMAINS.BUSINESS +
+            'users?action=current-session'
+        ).replace(/([^:]\/)\/+/g, '$1');
+        return this.http
+            .get<any>(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${this.jwt}`,
+                    CompanyKey: this.activeCompany.Key
+                }
             })
-        );
+            .pipe(
+                map(user => {
+
+                    console.log( this.userExpired)
+                    this.currentUser = user;
+
+                    const contract: ContractLicenseType =
+                        (user.License && user.License.ContractType) || {};
+                    const hasActiveContract =
+                        user && !this.isTrialExpired(contract);
+
+                    const authDetails = {
+                        token: this.jwt,
+                        activeCompany: this.activeCompany,
+                        user: user,
+                        hasActiveContract: hasActiveContract,
+                        isDemo: contract.TypeName === 'Demo',
+                        isUserExpired:this.userExpired
+                    };
+
+                    this.authentication$.next(authDetails);
+                    return authDetails;
+                })
+            );
     }
 
     public getToken(): string {
@@ -387,6 +421,8 @@ export class AuthService {
                             this.jwtDecoded
                         );
                         resolve(hasToken && isTokenDecoded && !isExpired);
+                    } else {
+                        resolve(false);
                     }
                 })
                 .catch(() => {
@@ -406,26 +442,32 @@ export class AuthService {
     /**
      * Removes web token from localStorage and memory, then redirects to /login
      */
-    public clearAuthAndGotoLogin(): void  {
-        if (this.isAuthenticated()) {
-            this.authentication$.next({
-                token: undefined,
-                activeCompany: undefined,
-                user: undefined,
-                hasActiveContract: false
-            });
+    public clearAuthAndGotoLogin(): void {
+        this.isAuthenticated().then(authenticated => {
+            if (authenticated) {
+                this.authentication$.next({
+                    token: undefined,
+                    activeCompany: undefined,
+                    user: undefined,
+                    hasActiveContract: false,
+                    isUserExpired:this.userExpired
+                });
 
-            this.filesToken$.next(undefined);
+                this.filesToken$.next(undefined);
 
-            const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
-            this.http.post(url, '', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.jwt,
-                    'CompanyKey': this.activeCompany
-                }
-            }).subscribe(() => {}, () => {}); // ignore the response
-        }
+                this.userManager.signoutRedirect();
+            } else {
+
+                this.authentication$.next({
+                    token: undefined,
+                    activeCompany: undefined,
+                    user: undefined,
+                    hasActiveContract: false,
+                    isUserExpired:true
+                });
+                this.router.navigate(['/init/login']);
+            }
+        });
 
         this.storage.removeOnUser('jwt');
         this.storage.removeOnUser('activeCompany');
@@ -438,7 +480,6 @@ export class AuthService {
 
         this.setLoadIndicatorVisibility(false);
         // this.router.navigateByUrl('init/login');
-        this.userManager.signoutRedirect();
     }
 
     /**
