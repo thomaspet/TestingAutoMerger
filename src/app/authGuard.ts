@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         return this.authService.authentication$.pipe(
             take(1),
             map(auth => {
-                if (auth.isUserExpired) {
+                if (!auth.user || auth.isUserExpired) {
                    if (!state.url.includes('init')) {
                     // Store navigation attempt so we can reroute after login
                     this.browserStorage.setItem('lastNavigationAttempt', state.url);
