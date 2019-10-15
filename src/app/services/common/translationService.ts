@@ -15,7 +15,7 @@ export  class UniTranslationService {
     };
 
     constructor() {
-        this.locale.next(localStorage.getItem('TRANSLATE_LOCALE') || 'NO');
+        this.locale.next(localStorage.getItem('TRANSLATE_LOCALE_NEW') || 'NO');
     }
 
     public translate(stringToTranslate: string, params?: any, options?: any): string {
@@ -46,6 +46,6 @@ export  class UniTranslationService {
 
     public setLocale(locale: string) {
         this.locale.next(locale);
-        localStorage.setItem('TRANSLATE_LOCALE', locale);
+        localStorage.setItem('TRANSLATE_LOCALE_NEW', locale);
     }
 }
