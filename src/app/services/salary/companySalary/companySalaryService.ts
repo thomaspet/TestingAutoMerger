@@ -10,6 +10,7 @@ export enum CompanySalaryBaseOptions {
     PayAsYouEarnTaxOnPensions = 3,
     JanMayenAndBiCountries = 4,
     NettoPaymentForMaritim = 6,
+    TaxFreeOrganization = 7,
 }
 @Injectable()
 export class CompanySalaryService extends BizHttp<CompanySalary> {

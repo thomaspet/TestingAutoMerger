@@ -8958,6 +8958,7 @@ export enum SpecialTaxAndContributionsRule{
     PayAsYouEarnTaxOnPensions = 4,
     JanMayenAndBiCountries = 5,
     NettoPaymentForMaritim = 6,
+    TaxFreeOrganization = 7,
 }
 
 
