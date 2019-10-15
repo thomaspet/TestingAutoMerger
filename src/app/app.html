@@ -1,13 +1,13 @@
 <browser-warning></browser-warning>
 <uni-toast-list></uni-toast-list>
-<section *ngIf="isAuthenticated" class="chatboxes">
+<section *ngIf="isAuthenticated && !isOnInitRoute" class="chatboxes">
     <uni-chat-box *ngFor="let chatbox of (chatBoxService.businessObjects | async)" [businessObject]="chatbox"></uni-chat-box>
 </section>
 
-<uni-navbar class="no-print" *ngIf="isAuthenticated"></uni-navbar>
+<uni-navbar class="no-print" *ngIf="isAuthenticated && !isOnInitRoute"></uni-navbar>
 
 <section id="page-container" [ngClass]="'sidebar-' + (navbarService.sidebarState$ | async)">
-    <uni-sidebar *ngIf="isAuthenticated"></uni-sidebar>
+    <uni-sidebar *ngIf="isAuthenticated && !isOnInitRoute"></uni-sidebar>
 
     <main id="page-content-container">
         <router-outlet></router-outlet>
