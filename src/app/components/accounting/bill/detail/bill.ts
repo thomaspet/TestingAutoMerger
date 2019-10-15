@@ -4051,15 +4051,15 @@ export class BillView implements OnInit {
                     groupedlines.push(line);
                 }
             });
-           
+
             this.journalEntryManual.journalEntryProfessional.addCostAllocationJournalEntryDataLines(groupedlines).then((value: any) => {
-                if (value.msg) {
+                if (value && value.msg) {
                     resolve(true);
                     this.toast.addToast('EHF bokføring', value.type, ToastTime.medium, value.msg);
                 } else {
                     resolve(false);
                 }
-            });    
+            });
         });
     }
 }
