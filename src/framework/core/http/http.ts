@@ -193,6 +193,10 @@ export class UniHttp {
             headers: this.headers
         };
 
+        if (this.authService.getToken()) {
+            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.getToken());
+        }
+
         if (this.body) {
             options.body = this.body instanceof FormData ? this.body : JSON.stringify(this.body);
         }
@@ -216,7 +220,14 @@ export class UniHttp {
         this.method = undefined;
         this.body = undefined;
 
-        return httpRequest;
+        return httpRequest.catch((err) => {
+            if (err.status === 401) {
+                this.authService.clearAuthAndGotoLogin();
+                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
+            }
+
+            return Observable.throw(err);
+        });
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
