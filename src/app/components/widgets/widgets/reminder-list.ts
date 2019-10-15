@@ -167,7 +167,6 @@ export class ReminderListWidget {
     getIcon(value: string) {
         switch (value) {
             case 'SupplierInvoice':
-            case 'WorkItemGroup':
                 return 'arrow_back';
             case 'pin':
                 return 'note';
@@ -181,6 +180,8 @@ export class ReminderListWidget {
                 return 'description';
             case 'CustomerInvoice':
                 return 'input';
+            case 'WorkItemGroup':
+                return 'schedule';
             default:
                 return 'bookmark_border';
         }
@@ -205,7 +206,6 @@ export class ReminderListWidget {
         switch (text) {
             case 'SupplierInvoice':
             case 'ToBePayed':
-            case 'WorkItemGroup':
                 return 'Kjøpsfaktura';
             case 'CustomerInvoiceReminder':
             case 'ToBeReminded':
@@ -222,6 +222,8 @@ export class ReminderListWidget {
                 return 'Leverandør';
             case 'Inbox':
                 return 'Innboks';
+            case 'WorkItemGroup':
+                return 'Timegodkjenning';
             default:
                 return '';
         }

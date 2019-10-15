@@ -71,7 +71,7 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
-    colors: string[] = ['#37B441', '#FFF000', '#FF9100', '#DA3D00'];
+    colors: string[] = ['#008A00', '#FFF000', '#FF9100', '#DA3D00'];
     show = [true, true, true, true];
 
     chartRef: Chart; //  = new Chart(null, null);

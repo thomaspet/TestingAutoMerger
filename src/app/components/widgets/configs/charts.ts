@@ -229,7 +229,7 @@ export const CHARTS = [
         config: {
             model: 'CustomerInvoice',
             labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager'],
-            colors: ['#37B441', '#FFF000', '#FF9100', '#DA3D00']
+            colors: ['#008A00', '#FFF000', '#FF9100', '#DA3D00']
 
         }
     },

@@ -4,7 +4,7 @@ import {IToast} from './toastService';
 @Component({
     selector: 'uni-toast',
     template: `
-        <i class="material-icons"
+        <i class="material-icons toast-close-icon"
             (click)="close()"
             role="button"
             aria-label="Close">
@@ -12,6 +12,9 @@ import {IToast} from './toastService';
         </i>
 
         <header>
+            <i class="material-icons toast-type-icon">
+                {{ (toast.type === 1) ? 'error_outline' : (toast.type === 2) ? 'check_circle_outline' : 'warning' }}
+            </i>
             <span>
                 {{toast.title}}
                 <small class="toast-count" *ngIf="toast.count > 1">({{toast.count}})</small>

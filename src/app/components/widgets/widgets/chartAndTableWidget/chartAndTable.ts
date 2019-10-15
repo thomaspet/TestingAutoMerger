@@ -7,7 +7,7 @@ import {
     ElementRef,
     EventEmitter
 } from '@angular/core';
-import {StatisticsService, NumberFormat} from '@app/services/services';
+import {StatisticsService, NumberFormat, CustomerInvoiceReminderService} from '@app/services/services';
 import {IUniWidget} from '../../uniWidget';
 import {Router} from '@angular/router';
 import * as Chart from 'chart.js';
@@ -75,6 +75,7 @@ export class ChartAndTableWidget implements AfterViewInit {
     constructor(
         private statisticsService: StatisticsService,
         private numberFormatService: NumberFormat,
+        private reminderService: CustomerInvoiceReminderService,
         private router: Router,
         private cdr: ChangeDetectorRef
     ) { }
@@ -200,11 +201,12 @@ export class ChartAndTableWidget implements AfterViewInit {
         }
     }
 
-    public updateData(index: number) {
-        // if (index !== this.currentPeriod.index) {
-        //     this.currentPeriod = this.periodes[index];
-        //     this.getDataAndLoadChart();
-        // }
+    public sendReminder(invoice: any) {
+        this.reminderService.createInvoiceRemindersForInvoicelist([invoice.ID]).subscribe((run) => {
+            this.onClickNavigate('/sales/reminders/reminded?runNumber=', run && run[0] && run[0].ID);
+        }, err => {
+            console.error('Kunne ikke opprette purring');
+        });
     }
 
     public getCustomerSumQuery() {
@@ -228,8 +230,9 @@ export class ChartAndTableWidget implements AfterViewInit {
         return `model=CustomerInvoice&select=ID as ID,PaymentDueDate as PaymentDueDate,` +
         `CustomerName as CustomerName,InvoiceNumber as InvoiceNumber,` +
         `Customer.ID as CustomerID,Customer.CustomerNumber as CustomerNumber,RestAmount as RestAmount,StatusCode as StatusCode` +
-        `&filter=PaymentDueDate le ${moment().format('YYYYMMDD')} and RestAmount gt 0 and StatusCode ne 30101` +
-        `&top=3&expand=Customer&orderby=PaymentDueDate`;
+        `&filter=PaymentDueDate le ${moment().format('YYYYMMDD')} and RestAmount gt 0 and ` +
+        `StatusCode ne 30101 and (Reminder.DueDate lt ${moment().format('YYYYMMDD')} or isnull(Reminder.ID, 0) eq 0 )` +
+        `&top=3&join=CustomerInvoice.ID eq CustomerInvoiceReminder.CustomerInvoiceID as Reminder&expand=Customer&orderby=PaymentDueDate`;
     }
 
     toggleButtonClick() {

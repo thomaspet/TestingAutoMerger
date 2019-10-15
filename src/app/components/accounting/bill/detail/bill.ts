@@ -3925,7 +3925,7 @@ export class BillView implements OnInit {
         return txt;
     }
 
-    private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
+    private userMsg(msg: string, title?: string, delay = 6, isGood = false) {
         this.toast.addToast(
             title || (isGood ? 'Til informasjon' : 'Advarsel'),
             isGood ? ToastType.good : ToastType.bad, delay,

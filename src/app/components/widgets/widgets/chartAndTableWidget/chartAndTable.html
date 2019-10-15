@@ -55,7 +55,7 @@
                     </span>
                     <span> <a *ngIf="isCustomer" title="Gå til kunde" (click)="onClickNavigate('/sales/customer/', row.CustomerID)"> {{ row.value1 }} </a> </span>
                     <span> <a *ngIf="isCustomer" title="Gå til faktura" (click)="onClickNavigate('/sales/invoices/', row.ID)"> {{ row.value2 }} </a> </span>
-                    <span> {{ row.value3 }} </span>
+                    <span> <a *ngIf="isCustomer" title="Purr på denne faktura" (click)="sendReminder(row)"> {{ row.value3 }} </a> </span>
                     <span> {{ row.value4 }} </span>
                 </li>
             </ul>

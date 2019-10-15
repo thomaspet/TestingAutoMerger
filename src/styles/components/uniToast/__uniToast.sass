@@ -1,8 +1,8 @@
 uni-toast-list
     ul.toast-list
         position: fixed
-        top: 4.4rem
-        right: 0
+        bottom: 2rem
+        right: 2rem
         z-index: #{map-get($zindex, modal) + 1}
 
         list-style: none
@@ -20,38 +20,42 @@ uni-toast
     cursor: pointer
     height: auto
     vertical-align: center
-    width: 25rem
+    width: 35rem
     margin: .5rem
-    padding: 15px 2rem 15px 1rem
+    padding: 18px 2rem 18px 1rem
     text-align: left
     border-radius: 4px
-    color: #fff !important
-    box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12)
+    color: var(--text-color) !important
 
     &.good
-        background-color: rgba(1, 184, 1, 0.98)
+        background-color: var(--toast-good)
 
     &.bad
-        background-color: rgba(210, 77, 87, 0.98)
+        background-color: var(--toast-bad)
 
     &.warn
-        background-color: rgba(238, 131, 0, 0.98)
+        background-color: var(--toast-warn)
 
-    i.material-icons
+    i.toast-close-icon
         position: absolute
         top: 15px
         right: 10px
-        font-size: 19px
+        font-size: 22px
+    i.toast-type-icon
+        color: var(--text-color)
+        font-size: 1.4rem
+        margin-right: .5rem
 
     header
         display: flex
+        align-items: center
         font: 500 15px var(--font-family)
 
         span
             flex: 1
 
             small.toast-count
-                color: #fff
+                color: var(--text-color)
                 font-weight: 300
                 font-size: 13px
 
@@ -63,6 +67,7 @@ uni-toast
         display: block
         padding-top: 10px
         font: 400 13px var(--font-family)
+        margin-left: 1.9rem
 
     .toast-action
         display: inline-block

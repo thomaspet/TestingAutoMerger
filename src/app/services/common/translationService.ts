@@ -16,6 +16,10 @@ export  class UniTranslationService {
 
     constructor() {
         this.locale.next(localStorage.getItem('TRANSLATE_LOCALE_NEW') || 'NO');
+
+        if (!this.DICTIONARY[this.locale.getValue()]) {
+            this.setLocale('NO');
+        }
     }
 
     public translate(stringToTranslate: string, params?: any, options?: any): string {
@@ -23,7 +27,7 @@ export  class UniTranslationService {
             return stringToTranslate || '';
         }
 
-        // Find params from the translation string. The param values are declared a ~
+        // Find params from the translation string. The param values are declared after a ~
         let paramsInString = stringToTranslate.split('~');
         if (paramsInString.length > 1) {
             stringToTranslate = paramsInString[0];

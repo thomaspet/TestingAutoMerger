@@ -125,7 +125,7 @@ uni-widget-canvas
     height: 100%
     flex-direction: column
     font-family: var(--font-family)
-    font-size: 15px
+    font-size: var(--widget-header)
     padding: 0 // 1.5rem
     color: #596879
     text-align: left
@@ -135,7 +135,7 @@ uni-widget-canvas
         flex: 0 0 50px
         display: flex
         align-items: center
-        font-weight: 500
+        font-weight: var(--widget-weight)
         padding: 0 1.5rem
         .filters
             margin-left: auto
@@ -591,7 +591,7 @@ sr-unpaid-doughnut-widget
                     background: #738293
 
                 .notdue
-                    background: #37B441
+                    background: var(--color-good)
                 .due1
                     background: #FFF000
                 .due2
@@ -600,10 +600,6 @@ sr-unpaid-doughnut-widget
                     background: #DA3D00
 
 .sr-widget-header
-    font-size: 18px
-    font-weight: 600 !important
-    color: $uni-color-scale4
-
     &.chart-and-table
         height: 60px
 
@@ -632,7 +628,7 @@ sr-unpaid-doughnut-widget
             background: #738293
 
     .notdue
-        background: #37B441
+        background: var(--color-good)
     .due1
         background: #FFF000
     .due2
