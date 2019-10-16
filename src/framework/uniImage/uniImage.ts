@@ -111,8 +111,10 @@ export class UniImage {
         this.authService.authentication$.pipe(
             takeUntil(this.onDestroy$)
         ).subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.refreshFiles();
+            if (authDetails && authDetails.activeCompany) {
+                this.activeCompany = authDetails.activeCompany;
+                this.refreshFiles();
+            }
         });
 
         this.authService.filesToken$.pipe(
