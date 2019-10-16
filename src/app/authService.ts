@@ -164,11 +164,16 @@ export class AuthService {
         }, 60000);
     }
 
-    setLoadIndicatorVisibility(visible: boolean) {
-        if (visible) {
+    setLoadIndicatorVisibility(spinnerVisible: boolean) {
+        if (spinnerVisible) {
             $('#data-loading-spinner').fadeIn(250);
         } else {
             $('#data-loading-spinner').fadeOut(250);
+        }
+
+        const boostChat = document.getElementById('chat-container');
+        if (boostChat) {
+            boostChat.style.visibility = spinnerVisible ? 'hidden' : 'visible';
         }
     }
 

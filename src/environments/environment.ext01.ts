@@ -21,6 +21,8 @@ export const environment = {
     UNI_JOB_SERVER_URL: 'https://ext01-jobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://ext01-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://ext01-signal.unieconomy.no/pushHub',
+    BOOST_AI_SCRIPT_URL: 'https://435984srpoc.boost.ai/chatPanel/chatPanel.js',
+    BOOST_AI_API_URL: 'https://435984srpoc.boost.ai/api',
 
     API_DOMAINS: {
         INIT: '/api/init/',

@@ -28,6 +28,8 @@ export const environment = {
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
+    BOOST_AI_SCRIPT_URL: '',
+    BOOST_AI_API_URL: '',
 
     API_DOMAINS: {
         INIT: '/api/init/',
