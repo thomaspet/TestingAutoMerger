@@ -28,7 +28,6 @@ import {ErrorService} from './common/errorService';
 import {PageStateService} from './common/pageStateService';
 import {FileService} from './common/fileService';
 import {EHFService} from './common/EHFService';
-import {VIPPSService} from './common/VippsService';
 import {AgaZoneService} from './common/agaZoneService';
 import {AgaSumService} from './common/agaSumService';
 import {MunicipalService} from './common/municipalsService';
@@ -97,7 +96,6 @@ export * from './common/errorService';
 export * from './common/pageStateService';
 export * from './common/fileService';
 export * from './common/EHFService';
-export * from './common/VippsService';
 export * from './common/agaZoneService';
 export * from './common/agaSumService';
 export * from './common/municipalsService';
@@ -171,7 +169,6 @@ export class CommonServicesModule {
                 PageStateService,
                 FileService,
                 EHFService,
-                VIPPSService,
                 AgaZoneService,
                 AgaSumService,
                 MunicipalService,
