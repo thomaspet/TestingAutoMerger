@@ -177,14 +177,14 @@ export class BillsView implements OnInit {
     ];
 
     public saveActions: IUniSaveAction[] = [{
-        label: 'Nytt leverandørfaktura',
+        label: 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
         action: () => setTimeout(() => this.onAddNew()),
         main: true,
         disabled: false
     }];
 
     public toolbarConfig: IToolbarConfig = {
-        title: 'Leverandørfaktura',
+        title: 'NAVBAR.SUPPLIER_INVOICE',
         omitFinalCrumb: true
     };
 
@@ -204,7 +204,7 @@ export class BillsView implements OnInit {
         private reInvoicingService: ReInvoicingService
     ) {
         this.tabService.addTab({
-            name: 'Leverandørfaktura',
+            name: 'NAVBAR.SUPPLIER_INVOICE',
             url: '/accounting/bills',
             moduleID: UniModules.Bills,
             active: true
@@ -271,8 +271,7 @@ export class BillsView implements OnInit {
                     let modalMessage = 'Vennligst bekreft sletting av fil';
 
                     if (links.length) {
-                        modalMessage = 'Filen er allerede brukt i bilagsføring eller på en leverandørfaktura og kan derfor ikke slettes. '
-                            + 'Ønsker du å markere som brukt slik at den forsvinner fra innboks?';
+                        modalMessage = 'ACCOUNTING.SUPPLIER_INVOICE.FILE_IN_USE_MSG';
                     }
 
                     this.modalService.confirm({
@@ -314,7 +313,7 @@ export class BillsView implements OnInit {
         const selectedRowCount = this.selectedItems && this.selectedItems.length || 0;
 
         this.saveActions.push ({
-            label: 'Ny leverandørfaktura',
+            label: 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
             action: (completeEvent) => setTimeout(() => this.onAddNew()),
             main: false,
             disabled: false

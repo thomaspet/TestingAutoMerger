@@ -6,11 +6,11 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
     selector: 'uni-confirm-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>{{options.header}}</header>
+            <header>{{options.header | translate}}</header>
 
             <article>
                 <p class="warn" *ngIf="options.warning" [innerHtml]="options.warning"></p>
-                <section [innerHtml]="options.message"></section>
+                <section [innerHtml]="options.message | translate"></section>
             </article>
 
             <footer [ngClass]="options?.footerCls">

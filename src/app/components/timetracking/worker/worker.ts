@@ -95,7 +95,7 @@ export class WorkerDetailview {
             labels: {
                 single: 'Person',
                 plural: 'Personer',
-                createNew: 'Ny person',
+                createNew: 'TIMETRACKING.PERSON_NEW',
                 ask_delete: 'Er du sikker på at du vil slette denne personen? (Obs: Kan ikke angres)'
             },
             titleProperty: 'Info.Name',

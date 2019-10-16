@@ -25,7 +25,7 @@ export class SmartSearchDataService {
     public newTOFWithCustomerURL;
     public prefixModule: any;
     private predefinedPrefixes = [
-        'f', 'o', 't', 'a', 'l', 'p', 'k',
+        'f', 'o', 't', 'a', 'l', 'p', 'k', 'r',
         'faktura',
         'ordre',
         'tilbud',
@@ -34,7 +34,8 @@ export class SmartSearchDataService {
         'leverandør',
         'prosjekt',
         'produkt',
-        'rapport'
+        'rapport',
+        'regning'
     ];
 
     private helpAndUserItems = [

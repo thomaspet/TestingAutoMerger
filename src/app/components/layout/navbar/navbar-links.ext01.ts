@@ -147,6 +147,54 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         ]
     },
 
+    {
+        name: 'NAVBAR.BUY',
+        url: '/accounting',
+        icon: 'money',
+        mdIcon: 'shopping_basket',
+        megaMenuGroupIndex: 1,
+        linkGroups: [
+            {
+                name: '',
+                links: [
+                    {
+                        name: 'NAVBAR.SUPPLIER_INVOICE',
+                        url: '/accounting/bills',
+                        moduleID: UniModules.Bills,
+                        activeInSidebar: true,
+                        isSuperSearchComponent: true,
+                        moduleName: 'SupplierInvoice',
+                        shortcutName: 'Ny regning',
+                        prefix: ['r', 'regning'],
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'InvoiceNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
+                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id'],
+                        expands: ['Supplier']
+                    },
+                    {
+                        name: 'NAVBAR.SUPPLIER',
+                        url: '/accounting/suppliers',
+                        moduleID: UniModules.Suppliers,
+                        activeInSidebar: false,
+                        isSuperSearchComponent: true,
+                        moduleName: 'Supplier',
+                        shortcutName: 'Ny leverandør',
+                        prefix: ['l', 'leverandør'],
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'SupplierNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
+                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id']
+                    }
+                ]
+            },
+        ]
+    },
+
     // REGNSKAP
     {
         name: 'NAVBAR.ACCOUNTING',
@@ -163,23 +211,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/accounting/journalentry',
                         moduleID: UniModules.Accounting,
                         activeInSidebar: true
-                    },
-                    {
-                        name: 'NAVBAR.SUPPLIER_INVOICE',
-                        url: '/accounting/bills',
-                        moduleID: UniModules.Bills,
-                        activeInSidebar: true,
-                        isSuperSearchComponent: true,
-                        moduleName: 'SupplierInvoice',
-                        shortcutName: 'Ny leverandørfaktura',
-                        prefix: ['lf', 'leverandørfaktura'],
-                        selects: [
-                            {key: 'ID', isNumeric: true},
-                            {key: 'InvoiceNumber', isNumeric: true},
-                            {key: 'BusinessRelation.Name', isNumeric: false}
-                        ],
-                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id'],
-                        expands: ['Supplier']
                     },
                     {
                         name: 'NAVBAR.BUDGET',
@@ -222,22 +253,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             {
                 name: 'NAVBAR.REGISTER',
                 links: [
-                    {
-                        name: 'NAVBAR.SUPPLIER',
-                        url: '/accounting/suppliers',
-                        moduleID: UniModules.Suppliers,
-                        activeInSidebar: false,
-                        isSuperSearchComponent: true,
-                        moduleName: 'Supplier',
-                        shortcutName: 'Ny leverandør',
-                        prefix: ['l', 'leverandør'],
-                        selects: [
-                            {key: 'ID', isNumeric: true},
-                            {key: 'SupplierNumber', isNumeric: true},
-                            {key: 'BusinessRelation.Name', isNumeric: false}
-                        ],
-                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id']
-                    },
                     {
                         name: 'NAVBAR.ACCOUNT_PLAN',
                         url: '/accounting/accountsettings',
@@ -540,7 +555,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         name: 'NAVBAR.MARKEDPLACE',
         url: '/marketplace',
         icon: 'marketplace',
-        mdIcon: 'shopping_basket',
+        mdIcon: 'store',
         megaMenuGroupIndex: 4,
         linkGroups: [
             {

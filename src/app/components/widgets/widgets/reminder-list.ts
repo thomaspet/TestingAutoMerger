@@ -91,8 +91,8 @@ export class ReminderListWidget {
                     item._label = item.Name === 'Inbox'
                         ? `Elementer i innboksen (${item.Counter})`
                         : item.Name === 'ToBePayed'
-                        ? `Ikke ferdigstilte kjøpsfaktura (${item.Counter})`
-                        : `Faktura klar for purring (${item.Counter})`
+                        ? `Regninger til betaling (${item.Counter})`
+                        : `Faktura klar for purring (${item.Counter})`;
                     item._typeText = this.getTranslatedTypeText(item.Name);
                     item._url = item.Name === 'Inbox' ? '/accounting/bills?filter=Inbox' : item.Name === 'ToBePayed'
                         ? '/accounting/bills?filter=ForApproval' : '/sales/reminders/ready';

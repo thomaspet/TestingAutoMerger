@@ -11,7 +11,7 @@ import {AuthService} from '@app/authService';
                 <ng-template>
                     <span class="dropdown-menu-header">Opprett ny</span>
                     <a class="dropdown-menu-item" *ngFor="let link of links" [routerLink]="link.url">
-                        {{link.name}}
+                        {{link.name | translate}}
                     </a>
                 </ng-template>
             </dropdown-menu>
@@ -53,7 +53,7 @@ export class NavbarCreateNew {
             { name: 'Ansatt', url: '/salary/employees/0/personal-details' },
             { name: 'Timeføring', url: '/timetracking/timeentry' },
             { name: 'Leverandør', url: '/accounting/suppliers/0' },
-            { name: 'Leverandørfaktura', url: '/accounting/bills/0' },
+            { name: 'ACCOUNTING.SUPPLIER_INVOICE.SINGLE', url: '/accounting/bills/0' },
         ];
     }
 }

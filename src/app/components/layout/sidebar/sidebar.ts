@@ -79,10 +79,33 @@ export class UniSidebar {
 
     public getActiveSection() {
         try {
-            const rootRoute = this.router.url.split('/')[1];
-            const activeIndex = this.navbarLinkSections.findIndex(section => {
-                return section.url.replace('/', '') === rootRoute;
+            const route = this.router.url;
+
+            if (this.router.url === '/') {
+                this.expandedSectionIndex = 0;
+                return;
+            }
+
+            const sectionsWithSameBase = this.navbarLinkSections.filter(nbls => {
+                return this.router.url.split('/')[1] === nbls.url.replace('/', '');
             });
+
+            let activeIndex = -1;
+
+            if (sectionsWithSameBase.length === 1) {
+                activeIndex = this.navbarLinkSections.findIndex(sec => sec.name === sectionsWithSameBase[0].name);
+            } else {
+                const item = sectionsWithSameBase.find(section => {
+                    return section.linkGroups.filter(linkGroup => {
+                        return linkGroup.links.filter(link => {
+                             return link.url !== '/' && route.includes(link.url);
+                        }).length > 0;
+                    }).length > 0 ;
+                });
+                if (item) {
+                    activeIndex = this.navbarLinkSections.findIndex(sec => sec.name === item.name);
+                }
+            }
 
             if (activeIndex >= 0) {
                 this.expandedSectionIndex = activeIndex;

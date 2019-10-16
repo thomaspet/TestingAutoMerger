@@ -21,11 +21,11 @@ enum PayrollRunPaymentStatus {
     template: `
     <section class="widget-wrapper">
         <section class="header">
-            <span>{{ current?.header }}</span>
+            <span>{{ current?.header | translate }}</span>
 
             <section class="filters">
                 <button #toggle class="tertiary toggle-button">
-                    {{ current?.label }}
+                    {{ current?.label | translate }}
                     <i class="material-icons">expand_more</i>
                 </button>
                 <dropdown-menu [trigger]="toggle" minWidth="8rem">
@@ -33,7 +33,7 @@ enum PayrollRunPaymentStatus {
                         <a class="dropdown-menu-item"
                             *ngFor="let item of items; let itemIndex = index;"
                             (click)="changeModel(itemIndex)">
-                            {{ item.label }}
+                            {{ item.label | translate }}
                         </a>
                     </ng-template>
                 </dropdown-menu>
@@ -527,8 +527,8 @@ export class UniTransactionsWidget implements AfterViewInit {
     private getSalaryTransactionItems(year: number) {
         return [
             {
-                label: 'Lønnsavregning',
-                header: 'Siste lønnsavregninger',
+                label: 'NAVBAR.PAYROLL',
+                header: 'SALARY.PAYROLL.LATEST',
                 dataEndPoint: `/api/biz/payrollrun?orderby=ID desc&filter=${year ? 'year(PayDate) eq ' + year : ''}`,
                 columns: [
                     {
@@ -650,8 +650,8 @@ export class UniTransactionsWidget implements AfterViewInit {
     private getAccountingTransactionItems() {
         return [
             {
-                label: 'Leverandørfaktura',
-                header: 'Siste leverandørfaktura',
+                label: 'NAVBAR.SUPPLIER_INVOICE',
+                header: 'ACCOUNTING.SUPPLIER_INVOICE.LATEST',
                 dataEndPoint: '/api/statistics/?model=SupplierInvoice&select=id as ID,statuscode as StatusCode,'
                 + 'Supplier.SupplierNumber,Supplier.ID,Info.Name,paymentduedate as PaymentDueDate,invoicedate as InvoiceDate,'
                 + 'invoicenumber as InvoiceNumber,stuff(user.displayname) as Assignees,BankAccount.AccountNumber,'

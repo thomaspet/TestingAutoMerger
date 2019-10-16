@@ -52,12 +52,6 @@ export class UniToolbarSearch {
 
     constructor(private cdr: ChangeDetectorRef) {}
 
-    public ngOnChanges() {
-        if (this.config) {
-            this.searchControl.setValue(this.config.initValue, {emitEvent: false});
-        }
-    }
-
     public ngAfterViewInit() {
         this.searchControl.valueChanges
             .do(() => this.lookupInProgress = true)

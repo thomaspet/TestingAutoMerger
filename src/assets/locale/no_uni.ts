@@ -1,7 +1,4 @@
-// UNIECONOMY ORIGINAL NORWEGIAN LANGUAGE FILE
-// NOTE TO DEVS (IMPORTANT!):
-//      IF YOU ADD A LABEL, ADD THE LABEL TO ALL THE OTHER LANGUAGE FILES
-
+/* tslint:disable */
 export const NO = {
     ENTITIES: {
         'SupplierInvoice': 'Leverandørfaktura',
@@ -64,12 +61,28 @@ export const NO = {
             'CREDIT': 'Kredit',
             'SUM_CREDIT': 'Sum kredit',
             'JOURNALING_TYPE': 'Bilagstype'
+        },
+        SUPPLIER_INVOICE: {
+            'NEW': 'Ny leverandørfaktura',
+            'SINGLE': 'Leverandørfaktura',
+            'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten fakturabeløp eller leverandør med orgnr.',
+            'CREATE': 'Opprett leverandørfaktura',
+            'LATEST': 'Siste leverandørfaktura',
+            'BOOK_WITH_AMOUNT': 'Bokføre leverandørfaktura med beløp {sum}?',
+            'BOOK_WITH_SUPPLIER_NAME': 'Bokfør leverandørfaktura fra {name}',
+            'BOOK_AND_APPROVE_WITH_SUPPLIER_NAME': 'Godkjenne og bokfør leverandørfaktura fra {name}',
+            'BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME': 'Godkjenne, bokføre og til betaling av leverandørfaktura fra {name}',
+            'FILE_IN_USE_MSG': 'Filen er allerede brukt i bilagsføring eller på en leverandørfaktura og kan derfor ikke slettes. Ønsker du å markere som brukt slik at den forsvinner fra innboks?',
+            'MULTIPLE_USE_MSG1': 'Flere leverandørfaktura knyttet til filen, viser siste',
+            'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en leverandørfaktura. Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen og gå tilbake til innboksen og starte på nytt med riktig fil.'
         }
     },
 
     SALARY: {
         PAYROLL: {
-            'NEW': 'Ny lønnsavregning'
+            'NEW': 'Ny lønnsavregning',
+            'NUMBER': 'Lønnsavregning {nr}',
+            'LATEST': 'Siste lønnsavregninger'
         }
     },
 

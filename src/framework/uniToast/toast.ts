@@ -1,5 +1,6 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, HostListener} from '@angular/core';
 import {IToast} from './toastService';
+import {UniTranslationService} from '@app/services/services';
 
 @Component({
     selector: 'uni-toast',
@@ -16,7 +17,7 @@ import {IToast} from './toastService';
                 {{ (toast.type === 1) ? 'error_outline' : (toast.type === 2) ? 'check_circle_outline' : 'warning' }}
             </i>
             <span>
-                {{toast.title}}
+                {{toast.title | translate}}
                 <small class="toast-count" *ngIf="toast.count > 1">({{toast.count}})</small>
             </span>
             <span class="toast-action"
@@ -28,7 +29,7 @@ import {IToast} from './toastService';
 
         <section class="toast-message"
             *ngIf="toast.message?.length"
-            [innerHTML]="toast.message">
+            [innerHTML]="toast.message | translate">
         </section>
 
         <span class="toast-action" role="button"

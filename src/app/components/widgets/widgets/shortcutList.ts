@@ -15,7 +15,7 @@ import {take} from 'rxjs/operators';
             <div class="content shortcut-list">
                 <ul id="shortcut-list">
                     <li *ngFor="let item of items">
-                        <a (click)="navigateOnClick(item.link)" title="Gå til liste">{{ item.label }} </a>
+                        <a (click)="navigateOnClick(item.link)" title="Gå til liste">{{ item.label | translate }} </a>
                         <a *ngIf="item.urlToNew"
                             (click)="navigateOnClick(item.urlToNew)"
                             title="Opprett ny">

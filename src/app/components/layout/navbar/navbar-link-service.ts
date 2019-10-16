@@ -153,7 +153,7 @@ export class NavbarLinkService {
             return this.dimensionSettingsService.GetAll(null).map((dimensions) => {
                 return {
                     name: 'NAVBAR.DIMENSION',
-                    url: '',
+                    url: '/dimensions',
                     icon: 'dimension',
                     isSuperSearchComponent: true,
                     mdIcon: 'developer_board',

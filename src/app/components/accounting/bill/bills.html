@@ -52,7 +52,7 @@
         <section class="uni-container bill-preview" *ngIf="previewVisible">
             <section *ngIf="fileID" class="accounting-preview-actions">
                 <button class="secondary" (click)="documentSelected(true)">
-                    Opprett leverandørfaktura
+                    {{ 'ACCOUNTING.SUPPLIER_INVOICE.CREATE' | translate }}
                 </button>
                 <button class="tertiary c2a" (click)="documentSelected(false)">
                     Bruk i bilagsføring

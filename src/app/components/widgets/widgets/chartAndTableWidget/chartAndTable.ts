@@ -212,18 +212,18 @@ export class ChartAndTableWidget implements AfterViewInit {
     public getCustomerSumQuery() {
         // Ikke forfalt
         return `sum(casewhen(PaymentDueDate gt '${moment().format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum,`
         // 0 - 30 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(30, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().format('YYYYMMDD')}' and RestAmount gt 0 and `
-        + `StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum1,`
+        + `StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum1,`
         // 30 - 60 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(60, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().subtract(31, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum2,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum2,`
         // Over 60 dager
         + `sum(casewhen(PaymentDueDate lt '${moment().subtract(61, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum3`;
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum3`;
     }
 
     public getCustomersThatNeedAttention() {
@@ -231,7 +231,7 @@ export class ChartAndTableWidget implements AfterViewInit {
         `CustomerName as CustomerName,InvoiceNumber as InvoiceNumber,` +
         `Customer.ID as CustomerID,Customer.CustomerNumber as CustomerNumber,RestAmount as RestAmount,StatusCode as StatusCode` +
         `&filter=PaymentDueDate le ${moment().format('YYYYMMDD')} and RestAmount gt 0 and ` +
-        `StatusCode ne 30101 and (Reminder.DueDate lt ${moment().format('YYYYMMDD')} or isnull(Reminder.ID, 0) eq 0 )` +
+        `StatusCode ne 42001 and (Reminder.DueDate lt ${moment().format('YYYYMMDD')} or isnull(Reminder.ID, 0) eq 0 )` +
         `&top=3&join=CustomerInvoice.ID eq CustomerInvoiceReminder.CustomerInvoiceID as Reminder&expand=Customer&orderby=PaymentDueDate`;
     }
 

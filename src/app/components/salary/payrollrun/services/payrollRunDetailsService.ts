@@ -50,7 +50,7 @@ export class PayrollRunDetailsService {
             itemTemplate: (item: PayrollRun) => `${item.ID} - `
                 + `${item.Description}`,
             initValue: (!payrollRun || !payrollRun.ID)
-                ? 'Ny lønnsavregning'
+                ? 'SALARY.PAYROLL.NEW'
                 : `${payrollRun.ID} - ${payrollRun.Description || 'Lønnsavregning'}`,
             onSelect: selected => this.router.navigate(['salary/payrollrun/' + selected.ID])
         };

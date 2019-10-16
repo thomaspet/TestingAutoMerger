@@ -5,7 +5,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     // NØKKELTALL
     {
         name: 'NAVBAR.KPI',
-        url: '/',
+        url: '',
         icon: 'key-figures',
         mdIcon: 'bar_chart',
         megaMenuGroupIndex: 0,
@@ -545,7 +545,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     // PROSJEKT
     {
         name: 'NAVBAR.PROJECT_BETA',
-        url: '/dimensions/projects',
+        url: '/dimensions',
         icon: 'projects',
         mdIcon: 'work_outline',
         megaMenuGroupIndex: 1,

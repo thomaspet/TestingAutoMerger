@@ -12,7 +12,7 @@ export class JournalEntry {
         this.childRoutes = [
             {name: 'Bilagsføring', path: 'manual'},
             {name: 'Innbetalinger', path: 'payments'},
-            {name: 'Leverandørfaktura', path: 'bills'}
+            // {name: 'Leverandørfaktura', path: 'bills'}
         ];
     }
 }

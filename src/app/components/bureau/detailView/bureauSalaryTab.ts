@@ -27,11 +27,11 @@ const BASE = environment.BASE_URL;
     <section class="tab-part">
         <section class="image-container">
             <img class="payrollrun-icon">
-            <span>Lønns-<br />avregning</span>
+            <span> {{ 'NAVBAR.PAYROLL' | translate }} </span>
         </section>
         <section class="text-container">
             <p>
-                Siste lønnsavregning:
+                {{ 'SALARY.PAYROLL.LATEST' | translate }}:
                 <a (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[0]}}</a>
             </p>
 

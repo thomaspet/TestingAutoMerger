@@ -1,3 +1,4 @@
+/* tslint:disable */
 export const OVERRIDE = {
     ENTITIES: {
         'SupplierInvoice': 'Regning',
@@ -14,7 +15,9 @@ export const OVERRIDE = {
 
     SALARY: {
         PAYROLL: {
-            'NEW': 'Ny utbetaling'
+            'NEW': 'Ny lønnskjøring',
+            'NUMBER': 'Lønnskjøring {nr}',
+            'LATEST': 'Siste lønnskjøringer'
         }
     },
 
@@ -22,21 +25,39 @@ export const OVERRIDE = {
         'PERSON_NEW': 'Ny timebruker'
     },
 
+    ACCOUNTING: {
+        SUPPLIER_INVOICE: {
+            'NEW': 'Ny regning',
+            'SINGLE': 'Regning',
+            'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Regningen mangler enten fakturabeløp eller leverandør med orgnr.',
+            'CREATE': 'Opprett regning',
+            'LATEST': 'Siste regninger',
+            'BOOK_WITH_AMOUNT': 'Bokføre regning med beløp {sum}?',
+            'BOOK_WITH_SUPPLIER_NAME': 'Bokfør regning fra {name}',
+            'BOOK_AND_APPROVE_WITH_SUPPLIER_NAME': 'Godkjenne og bokfør regning fra {name}',
+            'BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME': 'Godkjenne, bokføre og til betaling av regning fra {name}',
+            'FILE_IN_USE_MSG': 'Filen er allerede brukt til å føre bilag eller på en regning og kan derfor ikke slettes. Ønsker du å markere som brukt slik at den forsvinner fra innboks?',
+            'MULTIPLE_USE_MSG1': 'Flere regninger knyttet til filen, viser siste',
+            'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en regning, vi henter den nå. Om dette ikke stemmer kan du slette filen fra regningen og gå tilbake til innboksen og starte på nytt med riktig fil.'
+        }
+    },
+
     NAVBAR: {
         'KPI': 'Oversikt',
         'COMPANIES': 'Mine selskaper',
-        'APPROVALS': 'Mine oppgaver og godkjenninger',
+        'APPROVALS': 'Oppgaver og godkjenninger',
         'OVERVIEW': 'Database',
         'RECURRING_INVOICE': 'Gjentakende faktura',
         'JOURNALENTRY': 'Føre bilag',
         'SUPPLIER_INVOICE': 'Regninger',
-        'OPEN_POST': 'Gjennomgå utestående',
-        'VAT_MESSAGE': 'Levere MVA-melding',
-        'PAYROLL': 'Utbetale lønn',
-        'AMELDING': 'Sende A-melding',
+        'OPEN_POST': 'Utestående',
+        'VAT_MESSAGE': 'MVA-melding',
+        'PAYROLL': 'Lønnskjøring',
+        'AMELDING': 'A-melding',
         'BALANCE': 'Faste trekk',
         'HOUR_REG': 'Registrere timer',
         'BILLING_HOURS': 'Fakturere timer',
-        'PERSONS': 'Timebrukere'
+        'PERSONS': 'Timebrukere',
+        'BUY': 'Kjøp'
     }
 };

@@ -356,11 +356,9 @@ export class BillView implements OnInit {
 
                 if (links.length > 0) {
                     if (links.length > 1) {
-                        this.toast.addToast('Flere leverandørfaktura knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                        this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG1', ToastType.warn, ToastTime.medium);
                     } else  {
-                        this.toast.addToast('Filen du vil bruke er knyttet til en leverandørfaktura. ' +
-                            'Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen ' +
-                            'og gå tilbake til innboksen og starte på nytt med riktig fil.', ToastType.warn, ToastTime.medium);
+                        this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG2', ToastType.warn, ToastTime.medium);
                     }
                     this.currentID = links[0].entityID;
                     this.router.navigateByUrl('/accounting/bills/' + this.currentID);
@@ -470,7 +468,7 @@ export class BillView implements OnInit {
 
     private addTab(id: number = 0) {
         this.tabService.addTab({
-            name: 'Leverandørfaktura',
+            name: 'NAVBAR.SUPPLIER_INVOICE',
             url : '/accounting/bills/' + id,
             moduleID: UniModules.Bills,
             active: true
@@ -1928,8 +1926,7 @@ export class BillView implements OnInit {
     private runSmartBooking(orgNumber, showToastIfNotRan: boolean = false) {
         if (!this.current.getValue().TaxInclusiveAmountCurrency || (!this.smartBookingSettings.turnOnSmartBooking && !showToastIfNotRan)) {
             if (this.smartBookingSettings.showNotification && showToastIfNotRan) {
-                this.toast.addToast('Smart bokføring', ToastType.warn, 15,
-                    'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten total eller leverandør med orgnr.');
+                this.toast.addToast('Smart bokføring', ToastType.warn, 15, 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_ERROR_MSG');
             }
             return;
         }
@@ -2637,8 +2634,8 @@ export class BillView implements OnInit {
 
         const obs = ask
             ? this.modalService.open(UniConfirmModalV2, {
-                header: 'Bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
-                message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+                header: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_SUPPLIER_NAME~' + current.Supplier.Info.Name,
+                message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
                 buttonLabels: {
                     accept: 'Bokfør',
                     cancel: 'Avbryt'
@@ -2670,8 +2667,8 @@ export class BillView implements OnInit {
     private askApproveAndJournal(): Observable<any> {
         const current = this.current.getValue();
         return this.modalService.open(UniConfirmModalV2, {
-            header: 'Godkjenne og bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
-            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            header: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_AND_APPROVE_WITH_SUPPLIER_NAME~' + current.Supplier.Info.Name,
+            message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
             warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: 'Godkjenn og bokfør',
@@ -2683,8 +2680,8 @@ export class BillView implements OnInit {
     private askApproveAndJournalAndToPayment(): Observable<any> {
         const current = this.current.getValue();
         return this.modalService.open(UniConfirmModalV2, {
-            header: 'Godkjenne, bokføre og til betaling av leverandørfaktura fra ' + current.Supplier.Info.Name,
-            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            header: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME~' + current.Supplier.Info.Name,
+            message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
             warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: 'Godkjenn, bokfør og til betaling',
@@ -2694,14 +2691,14 @@ export class BillView implements OnInit {
     }
 
     private askJournalAndToPayment(): Observable<any> {
-        return this.askWithLabel('Bokføre og til betaling av leverandørfaktura fra ', 'Bokfør og til betaling');
+        return this.askWithLabel('ACCOUNTING.SUPPLIER_INVOICE.BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME~', 'Bokfør og til betaling');
     }
 
     private askWithLabel(header: string, accept: string): Observable<any> {
         const current = this.current.value;
         return this.modalService.open(UniConfirmModalV2, {
             header: header + current.Supplier.Info.Name,
-            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
             warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: accept,
@@ -3800,7 +3797,7 @@ export class BillView implements OnInit {
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
                 ? doc.Supplier.Info.Name
-                : 'Ny leverandørfaktura',
+                : 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
             subheads: [
                 { title: doc && doc.InvoiceNumber ? `Fakturanr. ${doc.InvoiceNumber}` : '' },
                 {
