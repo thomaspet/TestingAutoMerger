@@ -19,7 +19,7 @@ export class BureauCustomHttpService {
             observe: 'response',
             headers: {
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${this.authService.getToken()}`,
+                'Authorization': `Bearer ${this.authService.jwt}`,
                 'CompanyKey': companyKey,
                 'Year': this.getCompanyYear()
             }

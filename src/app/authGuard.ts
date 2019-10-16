@@ -21,20 +21,14 @@ export class AuthGuard implements CanActivate, CanActivateChild {
         return this.authService.authentication$.pipe(
             take(1),
             map(auth => {
-                if (!auth.user || auth.isUserExpired) {
-                   if (!state.url.includes('init')) {
-                    // Store navigation attempt so we can reroute after login
-                    this.browserStorage.setItem('lastNavigationAttempt', state.url);
-                    this.router.navigate(['/init/login']);
-                   }
-                   this.authService.authentication$.next({
-                    activeCompany: undefined,
-                    token: undefined,
-                    user: undefined,
-                    hasActiveContract: false,
-                    isUserExpired: true
-                });
-                    return false;
+                if (!auth || !auth.user) {
+                    if (state.url.includes('init')) {
+                        return true;
+                    } else {
+                        // Store navigation attempt so we can reroute after login
+                        this.browserStorage.setItem('lastNavigationAttempt', state.url);
+                        this.router.navigate(['/init/login']);
+                    }
                 } else {
                     // If routing to the main dashboard, check if the user only has access to
                     // one module. If they do, route to that module's dashboard.

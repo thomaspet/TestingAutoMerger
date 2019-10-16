@@ -155,11 +155,10 @@ export class UniAttachments {
     }
 
     private uploadFile(file: File) {
-        const token = this.authService.jwt;
         const activeCompany = this.authService.activeCompany;
-
         const data = new FormData();
-        data.append('Token', token);
+
+        data.append('Token', this.authService.jwt);
         data.append('Key', activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);

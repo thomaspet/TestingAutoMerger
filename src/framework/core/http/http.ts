@@ -193,8 +193,8 @@ export class UniHttp {
             headers: this.headers
         };
 
-        if (this.authService.getToken()) {
-            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.getToken());
+        if (this.authService.jwt) {
+            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
         }
 
         if (this.body) {
@@ -231,7 +231,7 @@ export class UniHttp {
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
-        const token = this.authService.getToken();
+        const token = this.authService.jwt;
         const companyKey = this.authService.getCompanyKey();
         let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
         year = year || this.browserStorage.getItem('ActiveYear');
