@@ -39,6 +39,7 @@ export interface IToast {
     count: number;
     action?: IToastAction;
     centered?: boolean;
+    done?: boolean;
 }
 
 @Injectable()

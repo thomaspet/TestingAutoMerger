@@ -75,6 +75,12 @@ export const NO = {
             'FILE_IN_USE_MSG': 'Filen er allerede brukt i bilagsføring eller på en leverandørfaktura og kan derfor ikke slettes. Ønsker du å markere som brukt slik at den forsvinner fra innboks?',
             'MULTIPLE_USE_MSG1': 'Flere leverandørfaktura knyttet til filen, viser siste',
             'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en leverandørfaktura. Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen og gå tilbake til innboksen og starte på nytt med riktig fil.'
+        },
+        POSTPOST: {
+            'ALL_WITH_OPEN': 'Alle med åpne poster',
+            'TITLE': 'Åpne poster {entity}',
+            'EXPORT': 'Eksport åpne poster',
+            'EXPORT_ALL': 'Eksport alle åpne poster'
         }
     },
 
@@ -88,6 +94,10 @@ export const NO = {
 
     TIMETRACKING: {
         'PERSON_NEW': 'Ny person'
+    },
+
+    TASKS: {
+        'TOOLBAR_HEADER': 'Dine oppgaver og godkjenninger'
     },
 
     STATUSES: {

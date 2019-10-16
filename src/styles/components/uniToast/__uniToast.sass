@@ -1,5 +1,5 @@
 uni-toast-list
-    ul.toast-list
+    .toast-list
         position: fixed
         bottom: 2rem
         right: 2rem
@@ -26,6 +26,9 @@ uni-toast
     text-align: left
     border-radius: 4px
     color: var(--text-color) !important
+    overflow: hidden
+    max-height: 999px
+    transition: max-height 0.75s ease-in-out
 
     &.good
         background-color: var(--toast-good)
@@ -35,6 +38,9 @@ uni-toast
 
     &.warn
         background-color: var(--toast-warn)
+
+    &.toast-done
+        max-height: 0
 
     i.toast-close-icon
         position: absolute

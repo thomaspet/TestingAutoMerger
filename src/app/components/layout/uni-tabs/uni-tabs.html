@@ -6,7 +6,7 @@
             [attr.aria-disabled]="tab.disabled"
             class="tab">
 
-            {{tab[labelProperty]}}
+            {{tab[labelProperty] | translate}}
             <strong *ngIf="tab[counterProperty]">{{tab[counterProperty]}}</strong>
             <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
                 info
@@ -23,7 +23,7 @@
             [class.active]="rla.isActive"
             class="tab">
 
-            {{tab[labelProperty]}}
+            {{tab[labelProperty] | translate}}
             <strong *ngIf="tab[counterProperty]">{{tab[counterProperty]}}</strong>
             <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
                 info
@@ -49,7 +49,7 @@
                     [attr.aria-disabled]="tab.disabled"
                     (click)="onTabClick(tab)">
 
-                    {{tab[labelProperty]}}
+                    {{tab[labelProperty] | translate}}
 
                     <section class="align-right">
                         <strong style="margin-left: 1rem">{{tab[counterProperty]}}</strong>
@@ -70,7 +70,7 @@
                     [attr.aria-disabled]="tab.disabled"
                     [routerLink]="tab.path">
 
-                    {{tab[labelProperty]}}
+                    {{tab[labelProperty] | translate}}
 
                     <section class="align-right">
                         <strong style="margin-left: 1rem">{{tab[counterProperty]}}</strong>

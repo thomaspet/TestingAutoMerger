@@ -19,7 +19,7 @@ import {ToastService, IToast} from './toastService';
             </li>
         </ul>
 
-        <ul class="toast-list" *ngIf="rightAlignedToasts?.length">
+        <!--ul class="toast-list" *ngIf="rightAlignedToasts?.length">
             <li *ngFor="let toast of rightAlignedToasts">
                 <uni-toast
                     role="alert"
@@ -28,11 +28,25 @@ import {ToastService, IToast} from './toastService';
                     [ngClass]="{
                         'bad' : toast.type === 1,
                         'good': toast.type === 2,
-                        'warn': toast.type === 3
+                        'warn': toast.type === 3,
+                        'toast-done': toast.done
                     }">
                 </uni-toast>
             </li>
-        </ul>
+        </ul-->
+        <div class="toast-list" *ngIf="rightAlignedToasts?.length">
+            <uni-toast *ngFor="let toast of rightAlignedToasts" id="toast.title"
+                role="alert"
+                [toast]="toast"
+                (dismiss)="toastDismissed(toast)"
+                [ngClass]="{
+                    'bad' : toast.type === 1,
+                    'good': toast.type === 2,
+                    'warn': toast.type === 3,
+                    'toast-done': toast.done
+                }">
+            </uni-toast>
+        </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -60,6 +74,10 @@ export class UniToastList {
     }
 
     public toastDismissed(toast) {
-        this.toastService.removeToast(toast.id);
+        toast.done = true;
+
+        setTimeout(() => {
+            this.toastService.removeToast(toast.id);
+        }, 1000);
     }
 }

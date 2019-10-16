@@ -53,7 +53,7 @@ export class PostPost {
 
     mainTabs: IUniTab[] = [
         {name: 'Alle', value: 'EVERY', disabled: false},
-        {name: 'Alle med åpne poster', value: 'ALL', disabled: false},
+        {name: 'ACCOUNTING.POSTPOST.ALL_WITH_OPEN', value: 'ALL', disabled: false},
         {
             name: `Differanser`,
             value: 'DIFF',
@@ -161,7 +161,7 @@ export class PostPost {
 
         this.tabService.addTab({
             url: this.pageStateService.getUrl(),
-            name: 'Åpne poster',
+            name: 'NAVBAR.OPEN_POST',
             active: true,
             moduleID: UniModules.PostPost
         });
@@ -445,7 +445,7 @@ export class PostPost {
 
     private setupToolbarConfig() {
         const reg = this.registers.find(r => r.Register === this.register);
-        let title = 'Åpne poster';
+        let title = 'ACCOUNTING.POSTPOST.TITLE~';
         if (reg) {
             title += ` - ${reg._DisplayName}`;
         }
@@ -454,8 +454,8 @@ export class PostPost {
             title: title,
             contextmenu: [
                 { label: 'Eksport kontoliste' , action: () => this.exportAccounts() },
-                { label: 'Eksport åpne poster', action: () => this.exportOpenPosts() },
-                { label: 'Eksport alle åpne poster', action: () => this.exportAllOpenPosts() }
+                { label: 'ACCOUNTING.POSTPOST.EXPORT', action: () => this.exportOpenPosts() },
+                { label: 'ACCOUNTING.POSTPOST.EXPORT_ALL', action: () => this.exportAllOpenPosts() }
             ],
         };
     }

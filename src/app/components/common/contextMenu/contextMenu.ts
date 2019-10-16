@@ -23,7 +23,7 @@ import {take} from 'rxjs/operators';
                     (click)="runAction(action)"
                     [attr.aria-disabled]="isActionDisabled(action)">
 
-                    {{action.label}}
+                    {{action.label | translate}}
                 </section>
             </ng-template>
         </dropdown-menu>

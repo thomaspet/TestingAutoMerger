@@ -15,7 +15,7 @@ import {StatisticsService} from '../../common/statisticsService';
 import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {UniTranslationService} from '@app/services/services';
+import {UniTranslationService} from '@app/services/common/translationService';
 import { map, tap, filter, switchMap } from 'rxjs/operators';
 
 enum StatusCodePayment {

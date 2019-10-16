@@ -39,7 +39,17 @@ export const OVERRIDE = {
             'FILE_IN_USE_MSG': 'Filen er allerede brukt til å føre bilag eller på en regning og kan derfor ikke slettes. Ønsker du å markere som brukt slik at den forsvinner fra innboks?',
             'MULTIPLE_USE_MSG1': 'Flere regninger knyttet til filen, viser siste',
             'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en regning, vi henter den nå. Om dette ikke stemmer kan du slette filen fra regningen og gå tilbake til innboksen og starte på nytt med riktig fil.'
+        },
+        POSTPOST: {
+            'ALL_WITH_OPEN': 'Alle med utestående',
+            'TITLE': 'Utestående {entity}',
+            'EXPORT': 'Eksport utestående',
+            'EXPORT_ALL': 'Eksport alle utestående'
         }
+    },
+
+    TASKS: {
+        'TOOLBAR_HEADER': 'Oppgaver og godkjenninger'
     },
 
     NAVBAR: {
