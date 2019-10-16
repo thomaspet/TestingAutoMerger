@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {ToastService, ToastType} from '../../uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../uniToast/toastService';
 import {
     ErrorService,
     PaymentBatchService
@@ -143,6 +143,10 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
 
     public sendPayments() {
         this.busy = true;
+        if (this.options.data.count && this.options.data.count > 100) {
+        this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                        'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+        }
         if (this.options.data.sendAll) {
             return this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
                 this.onClose.emit('Sendingen er fullført');
