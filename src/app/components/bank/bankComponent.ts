@@ -48,6 +48,7 @@ import { RequestMethod } from '@uni-framework/core/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 import { JournalingRulesModal } from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
+import { AuthService } from '@app/authService';
 
 @Component({
     selector: 'uni-bank-component',
@@ -87,6 +88,7 @@ export class BankComponent {
     private canEdit: boolean = true;
     private agreements: any[] = [];
     private companySettings: CompanySettings;
+    private isAutobankAdmin: boolean;
     hasAccessToAutobank: boolean;
     filter: string = '';
     failedFiles: any[] = [];
@@ -252,7 +254,9 @@ export class BankComponent {
         private elsaPurchasesService: ElsaPurchaseService,
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
+        private authService: AuthService,
     ) {
+        this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
         this.updateTab();
 
         Observable.forkJoin(
@@ -335,14 +339,15 @@ export class BankComponent {
             });
         }
 
-        if (this.hasAccessToAutobank && (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
+        if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements.length) &&
+            (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
             items.push({
                 label: 'Ny autobankavtale',
                 action: () => this.openAutobankAgreementModal(),
                 disabled: () => false
             });
 
-            if (this.agreements.length) {
+            if (this.isAutobankAdmin && this.agreements.length) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),
