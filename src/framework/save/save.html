@@ -7,14 +7,14 @@
         {{main.label | translate}}
     </button>
 
-    <ng-container *ngIf="actions?.length > 1">
+    <ng-container *ngIf="filteredActions?.length > 1">
         <button #toggle class="good toolbar-save-toggle">
             <i class="material-icons">expand_more</i>
         </button>
 
         <dropdown-menu [trigger]="toggle" [minWidth]="'14rem'">
             <ng-template>
-                <a *ngFor="let action of actions"
+                <a *ngFor="let action of filteredActions"
                     class="dropdown-menu-item"
                     (click)="onSave(action)"
                     [attr.aria-disabled]="action.disabled || busy">

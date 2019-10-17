@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, SimpleChange} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniModalService} from '../../modalService';
 import {IUniModal, IModalOptions, ConfirmActions} from '../../interfaces';
 import {Observable} from 'rxjs';
@@ -26,6 +26,7 @@ export class UniChooseReportModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 
+    busy: boolean;
     reports: ReportDefinition[];
     selectedReport: any;
     showParameters: boolean = false;
@@ -45,6 +46,7 @@ export class UniChooseReportModal implements IUniModal {
     ) {}
 
     ngOnInit() {
+        this.busy = true;
         Observable.forkJoin(
             this.reportTypeService.getFormType(this.options.data.type),
             this.companySettingsService.Get(1)
@@ -53,35 +55,47 @@ export class UniChooseReportModal implements IUniModal {
                 this.reports = data[0];
                 const company = data[1];
                 const entity = this.options.data.entity;
-                const defaultReportID = (entity && entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`])
-                    ? entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`]
-                    : company[`DefaultCustomer${this.options.data.typeName}ReportID`];
-                const defaultReport = defaultReportID && this.reports.find(report => report.ID === defaultReportID);
 
-                this.selectedReport = defaultReport || this.reports[0];
-                if (entity && entity.Customer.Localization) {
-                    this.selectedReport.localization = entity.Customer.Localization;
-                } else if (company.Localization) {
-                    this.selectedReport.localization = company.Localization;
+                let defaultReportID;
+                let localization;
+
+                if (entity && entity.Customer) {
+                    defaultReportID = entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`];
+                    localization = entity.Customer.Localization;
                 }
+
+                if (company) {
+                    if (!defaultReportID) {
+                        defaultReportID = company[`DefaultCustomer${this.options.data.typeName}ReportID`];
+                    }
+
+                    if (!localization) {
+                        localization = company.Localization;
+                    }
+                }
+
+                const defaultReport = defaultReportID && this.reports.find(report => report.ID === defaultReportID);
+                this.selectedReport = defaultReport || this.reports[0];
+                this.selectedReport.localization = localization;
+
                 this.loadReportParameters();
             },
-            err => this.errorService.handle(err)
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
-    }
-
-    ngAfterViewInit() {
-        if (document.getElementById('preview_button')) {
-            document.getElementById('preview_button').focus();
-        }
     }
 
     loadReportParameters() {
         if (!this.selectedReport || !this.selectedReport.ID) {
+            this.busy = false;
             return;
         }
 
-        this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + this.selectedReport.ID).subscribe(
+        this.reportDefinitionParameterService.GetAll(
+            'filter=ReportDefinitionId eq ' + this.selectedReport.ID
+        ).subscribe(
             res => {
                 const name = res[0].Name.includes('Number') ? 'nr' : res[0].Name.toLowerCase();
                 this.inputType.name = res[0].Name;
@@ -107,18 +121,23 @@ export class UniChooseReportModal implements IUniModal {
                 this.setReportParameters();
 
                 // Create default parameters
-                var keys = this.selectedReport.parameters.map(param => param.Name);
-                for (var i = 0; i < res.length; i++) {
-                    if (!keys.includes(res[i].Name))  {
+                const keys = this.selectedReport.parameters.map(param => param.Name);
+                res.forEach(param => {
+                    if (!keys.includes(param.Name)) {
                         this.defaultParameters.push(<CustomReportParameter> {
-                            Name: res[i].Name,
-                            value: res[i].DefaultValue
+                            Name: param.Name,
+                            value: param.DefaultValue
                         });
                     }
-                }
+                });
+
                 this.selectedReport.parameters.concat(this.defaultParameters);
+                this.busy = false;
             },
-            err => this.errorService.handle(err)
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 
@@ -135,7 +154,7 @@ export class UniChooseReportModal implements IUniModal {
         return this.selectedReport.parameters = [ <CustomReportParameter> {
             Name: this.inputType.name,
             value: this.fromNr
-        }].concat(this.defaultParameters)
+        }].concat(this.defaultParameters);
     }
 
     acceptAndSendEmail() {

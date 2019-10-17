@@ -13,10 +13,16 @@
 .status-indicator
     display: inline-flex
     align-items: center
-    color: var(--color-c2a)
+    color: var(--header-color)
     cursor: default
-    i.material-icons
-        margin: 0 4px 2px 0
+    font-weight: 500
+    font-size: 15px
+
+    @media only screen and (max-width: 1300px)
+        font-size: 14px
+
+    i.material-icons-outlined
+        margin-right: 4px
 
     .sub-status-counter
         position: absolute

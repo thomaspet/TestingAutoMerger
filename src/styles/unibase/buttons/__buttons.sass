@@ -14,6 +14,13 @@
     &:before
         border-color: #fff
 
+@mixin secondary-btn-color($color)
+    color: $color
+    &:hover, &:focus, &:active
+        border-color: $color
+    &:before
+        border-color: $color !important
+
 button, a.button
     position: relative
     height: 2.5rem
@@ -58,10 +65,10 @@ button, a.button
         padding: 0
         border: none
         width: 2.5rem
-        i.material-icons
+        i
             margin-bottom: 0
 
-    i.material-icons
+    i
         vertical-align: middle
         margin-bottom: 2px
 
@@ -91,16 +98,13 @@ button, a.button
 
     // Secondary
     &.secondary
-        color: var(--color-c2a)
         background-color: #fff
         border: 2px solid #ccc
         font-weight: 500
+        @include secondary-btn-color(var(--color-c2a))
+        &.good
+            @include secondary-btn-color(var(--color-good))
 
-        &:hover, &:focus, &:active, &.test
-            border-color: var(--color-c2a)
-
-        &:before
-            border-color: var(--color-c2a) !important
 
     // Tertiary
     &.tertiary
@@ -111,7 +115,7 @@ button, a.button
 
         &.c2a
             color: var(--color-c2a)
-            &:hover, &:focus, &:active, &.test
+            &:hover, &:focus, &:active
                 color: var(--color-c2a-hover)
 
             &.busy, &[aria-busy]:not([aria-busy=false])
@@ -120,7 +124,7 @@ button, a.button
 
         &.bad
             color: var(--color-bad)
-            &:hover, &:focus, &:active, &.test
+            &:hover, &:focus, &:active
                 color: var(--color-bad-hover)
 
             &.busy, &[aria-busy]:not([aria-busy=false])

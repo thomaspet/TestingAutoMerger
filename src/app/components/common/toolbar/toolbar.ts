@@ -1,14 +1,14 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnInit, OnChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IUniSaveAction, UniSave} from '@uni-framework/save/save';
 import {IStatus} from '../../common/toolbar/statustrack';
-import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {IUniTagsConfig, ITag} from './tags';
 import {ISelectConfig} from '@uni-framework/ui/uniform';
 import {IToolbarSearchConfig} from './toolbarSearch';
 import {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 import {Observable} from 'rxjs';
 import {cloneDeep} from 'lodash';
-
+import {finalize, take} from 'rxjs/operators';
+import {ErrorService} from '@app/services/services';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
 
@@ -18,6 +18,13 @@ export interface IToolbarSubhead {
     classname?: string;
     link?: string;
     event?: () => void;
+}
+
+export interface ToolbarButton {
+    label?: string;
+    icon?: string;
+    class?: string;
+    action: () => any | Observable<any>;
 }
 
 export interface IToolbarCreateNewAction {
@@ -42,6 +49,8 @@ export interface IToolbarConfig {
     entityID?: any;
     entityType?: string;
     numberSeriesTasks?: any;
+    buttons?: ToolbarButton[];
+    hideDisabledActions?: boolean;
 }
 
 export interface ICommentsConfig {
@@ -70,99 +79,39 @@ export interface IContextMenuItem {
     selector: 'uni-toolbar',
     templateUrl: './toolbar.html'
 })
-export class UniToolbar implements OnInit, OnChanges {
-    @ViewChild('toolbarRight') private toolbarRight;
+export class UniToolbar {
+    @ViewChild(UniSave) save: UniSave;
 
-    @ViewChild(UniSave) private save: UniSave;
+    @Input() tags: ITag[];
+    @Input() tagConfig: IUniTagsConfig;
+    @Input() config: IToolbarConfig;
+    @Input() saveactions: IUniSaveAction[];
+    @Input() contextmenu: IContextMenuItem[];
+    @Input() statustrack: IStatus[];
+    @Input() commentsConfig: ICommentsConfig;
+    @Input() searchConfig: IToolbarSearchConfig;
+    @Input() selectConfig: any;
+    @Input() subheads: IToolbarSubhead[];
+    @Input() validationMessages: IToolbarValidation[];
 
-    @Input() public tags: ITag[];
-    @Input() public tagConfig: IUniTagsConfig;
-    @Input() public config: IToolbarConfig;
-    @Input() public saveactions: IUniSaveAction[];
-    @Input() public shareActions: IContextMenuItem[];
-    @Input() public contextmenu: IContextMenuItem[];
-    @Input() public statustrack: IStatus[];
-    @Input() public commentsConfig: ICommentsConfig;
-    @Input() public autocompleteConfig: IAutoCompleteConfig;
-    @Input() public autocompleteModel: any = {};
-    @Input() public searchConfig: IToolbarSearchConfig;
-    @Input() public selectConfig: any;
-    @Input() public subheads: IToolbarSubhead[];
-    @Input() public validationMessages: IToolbarValidation[];
+    @Output() tagsChange = new EventEmitter();
+    @Output() tagsBusy: EventEmitter<boolean> = new EventEmitter();
 
-    @Output()
-    public tagsChange: EventEmitter<any> = new EventEmitter();
-    @Output()
-    public tagsBusy: EventEmitter<boolean> = new EventEmitter();
+    @Output() statusSelectEvent = new EventEmitter();
+    @Output() selectValueChanged = new EventEmitter();
 
-    @Output()
-    public statusSelectEvent: EventEmitter<any> = new EventEmitter();
+    searchVisible: boolean;
 
-    @Output()
-    public autocompleteReadyEvent: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public autocompleteChangeEvent: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public autocompleteFocusEvent: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public selectValueChanged: EventEmitter<any> = new EventEmitter();
-
-    private autocompleteField: UniFieldLayout;
-    public searchVisible: boolean;
-
-    public uniSelectConfig: ISelectConfig = {
+    uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
         searchable: false,
         hideDeleteButton: true
     };
 
-    public ngOnInit() {
-        Observable.fromEvent(window, 'resize')
-            .throttleTime(200)
-            .subscribe(event => {
-                if (window.innerWidth <= 1100 && this.toolbarRight) {
-                    const container = this.toolbarRight.nativeElement;
-                    const tools = container.querySelector('#toolbar-tools');
-                    const save = container.querySelector('#toolbar-save');
+    constructor(private errorService: ErrorService) {}
 
-                    const width = Math.max(
-                        tools && tools.clientWidth,
-                        save && save.clientWidth
-                    );
-
-                    container.setAttribute('style', `flex-basis: ${width + 'px'};`);
-                }
-            });
-    }
-
-    public ngOnChanges(change) {
-        if (this.config) {
-            if (this.config.saveactions) {
-                console.warn(`
-                    ATTN. DEVELOPERS
-                    For change detection reasons some fields has been moved out `
-                    + `of toolbar config and into separate inputs.
-                    See example below. Ask Anders or Jørgen if you have any questions.
-                    <uni-toolbar [saveactions]="foo"
-                                 [contextmenu]="bar"
-                                 [statustrack]="baz"
-                                 [config]="config">
-                    </uni-toolbar>
-                `);
-            }
-        }
-
-        if (change['autocompleteConfig']) {
-            this.autocompleteField = new UniFieldLayout();
-            this.autocompleteField.Property = '';
-            this.autocompleteField.FieldType = FieldType.AUTOCOMPLETE;
-            this.autocompleteField.Options = this.autocompleteConfig;
-        }
-
-        if (change['selectConfig']) {
+    ngOnChanges(changes) {
+        if (changes['selectConfig']) {
             this.selectConfig = cloneDeep(this.selectConfig);
         }
     }
@@ -179,6 +128,20 @@ export class UniToolbar implements OnInit, OnChanges {
             newAction();
         } else {
             newAction.action();
+        }
+    }
+
+    customButtonClick(button: ToolbarButton) {
+        const result = button.action();
+        if (result && result.subscribe) {
+            button['_busy'] = true;
+            result.pipe(
+                take(1),
+                finalize(() => button['_busy'] = false)
+            ).subscribe(
+                () => {},
+                err => this.errorService.handle(err)
+            );
         }
     }
 

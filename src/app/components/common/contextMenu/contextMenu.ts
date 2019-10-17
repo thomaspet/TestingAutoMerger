@@ -7,7 +7,7 @@ import {take} from 'rxjs/operators';
 @Component({
     selector: 'uni-context-menu',
     template: `
-    <section *ngIf="actions && actions.length">
+    <section *ngIf="filteredActions?.length">
         <button #toggle
             [attr.aria-busy]="loading$ | async"
             type="button"
@@ -19,7 +19,7 @@ import {take} from 'rxjs/operators';
         <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'12rem'">
             <ng-template>
                 <section class="dropdown-menu-item"
-                    *ngFor="let action of actions"
+                    *ngFor="let action of filteredActions"
                     (click)="runAction(action)"
                     [attr.aria-disabled]="isActionDisabled(action)">
 
@@ -33,9 +33,20 @@ import {take} from 'rxjs/operators';
 })
 export class ContextMenu {
     @Input() actions: IContextMenuItem[];
+    @Input() hideDisabled: boolean;
+
+    filteredActions: IContextMenuItem[];
     loading$ = new BehaviorSubject(false);
 
     constructor(private errorService: ErrorService) {}
+
+    ngOnChanges() {
+        if (this.actions && this.actions.length) {
+            this.filteredActions = this.hideDisabled
+                ? this.actions.filter(action => !action.disabled || !action.disabled())
+                : this.actions;
+        }
+    }
 
     ngOnDestroy() {
         this.loading$.complete();
@@ -56,7 +67,6 @@ export class ContextMenu {
             res.pipe(take(1)).subscribe(
                 () => this.loading$.next(false),
                 (err) => {
-                    console.log('err handler');
                     this.errorService.handle(err);
                     this.loading$.next(false);
                 },

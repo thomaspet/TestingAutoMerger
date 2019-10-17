@@ -1,4 +1,4 @@
-import {Component, Input, SimpleChanges, ChangeDetectorRef} from '@angular/core';
+import {Component, Input, ChangeDetectorRef} from '@angular/core';
 
 export interface IUniSaveAction {
     label: string;
@@ -16,22 +16,28 @@ export interface IUniSaveAction {
 })
 export class UniSave {
     @Input() actions: IUniSaveAction[];
+    @Input() hideDisabled: boolean;
 
+    filteredActions: IUniSaveAction[];
     busy: boolean = false;
     statusMessage: string;
     main: IUniSaveAction;
 
     constructor(private cdr: ChangeDetectorRef) {}
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['actions']) {
+    ngOnChanges() {
+        if (this.actions && this.actions.length) {
+            this.filteredActions = this.hideDisabled && this.actions.length > 1
+                ? this.actions.filter(action => action.main || !action.disabled)
+                : this.actions;
+
             this.main = this.getMainAction();
         }
     }
 
     getMainAction(): IUniSaveAction {
-        if (this.actions && this.actions.length) {
-            const mainAction = this.actions.find(action => action.main);
+        if (this.filteredActions && this.filteredActions.length) {
+            const mainAction = this.filteredActions.find(action => action.main);
             return mainAction || this.actions[0];
         }
     }
