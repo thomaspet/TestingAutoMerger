@@ -6,7 +6,7 @@
             <mat-spinner></mat-spinner>
         </section>
 
-        <p><strong>Klient: </strong>{{companyName}}</p>
+        <p><strong>Klient: </strong>{{authService?.activeCompany?.Name}}</p>
 
         <p *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
             <strong>Last ned mal: </strong>

@@ -2107,10 +2107,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.saveInvoice()
                 .catch(err => this.errorService.handle(err))
                 .then((invoice: CustomerInvoice) => {
-                    if (needsRedirect) {
-                        this.router.navigateByUrl('/sales/invoices/' + invoice.ID).then(() => openPreview(invoice));
-                    } else {
-                        openPreview(invoice);
+                    if (invoice && invoice.ID) {
+                        if (needsRedirect) {
+                            this.router.navigateByUrl('/sales/invoices/' + invoice.ID).then(() => openPreview(invoice));
+                        } else {
+                            openPreview(invoice);
+                        }
                     }
                 });
         } else {
