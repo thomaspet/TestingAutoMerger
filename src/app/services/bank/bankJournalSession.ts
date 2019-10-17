@@ -27,6 +27,11 @@ export class DebitCreditEntry {
     public Amount: number;
     public InvoiceNumber: string;
     public active = false;
+
+    constructor(date?: Date) {
+        if (date) { this.FinancialDate = date; }
+    }
+
 }
 
 export interface IAccount {
@@ -53,10 +58,21 @@ export interface INumberSerie {
 }
 
 export interface IJournal {
+    Description?: string;
     DraftLines: Array<any>;
     NumberSeriesID?: number;
     NumberSeriesTaskID?: number;
     FileIDs?: Array<number>;
+    Payments?: Array<any>;
+}
+
+export interface IDraft {
+    FileIDs?: Array<any>;
+    DebitAccount: IAccount;
+    CreditAccount: IAccount;
+    FinancialDate: Date;
+    JournalEntryDraftIDs?: Array<number>;
+    JournalEntryPaymentData?: Array<any>;
 }
 
 @Injectable()
@@ -96,23 +112,23 @@ export class BankJournalSession {
         this.accounts = [];
         this.busy = true;
 
-        const accountLoader = preloadAccountID
-            ? this.getAccountByID(preloadAccountID)
-            : this.statisticsService.GetAllUnwrapped('model=account&select=id as ID,accountnumber as AccountNumber'
-                + `,accountname as AccountName,vattypeid as VatTypeID`
-                + '&filter=accountnumber ge 1000 and accountnumber le 9999 and visible eq 1&orderby=accountnumber');
-        const vatLoader = this.HttpGet(`vattypes`);
-        const seriesLoader = this.HttpGet('number-series?action=get-active-numberseries&entityType=JournalEntry&year='
-            + this.currentYear);
-        return forkJoin(
-            accountLoader,
-            vatLoader,
-            seriesLoader
+        const obsList = [
+            this.HttpGet(`vattypes`),
+            this.HttpGet(`number-series?action=get-active-numberseries&entityType=JournalEntry&year=${this.currentYear}`)
+        ];
+
+        if (preloadAccountID) {
+            obsList.push(this.getAccountByID(preloadAccountID));
+        }
+
+        return forkJoin(...obsList
         ).pipe(
             tap(res => {
-                this.accounts = this.createAccountSuperLabel(Array.isArray(res[0]) ? res[0] : [res[0]]);
-                this.vatTypes = this.createVatSuperLabel(res[1]);
-                this.setupSeries(res[2]);
+                this.vatTypes = this.createVatSuperLabel(res[0]);
+                this.setupSeries(res[1]);
+                if (res[2]) {
+                    this.accounts = this.createAccountSuperLabel(Array.isArray(res[2]) ? res[2] : [res[2]]);
+                }
             }),
             finalize (() => this.busy = false)
         );
@@ -171,6 +187,12 @@ export class BankJournalSession {
         return jj;
     }
 
+    public load(entry: IJournal): Observable<IJournal> {
+        this.clear();
+        const lines = entry.DraftLines.map( x => {});
+        return null;
+    }
+
     private convertToJournalEntry(item: DebitCreditEntry) {
         const safeDate = toIso(item.FinancialDate);
         let dimensions: { DepartmentID?: number, ProjectID?: number };
@@ -204,6 +226,9 @@ export class BankJournalSession {
     }
 
     public getAccountByID(id: number): Observable<IAccount> {
+        if (id && id < 0) {
+            return undefined;
+        }
         const acc = this.accounts.find( x => x.ID === id);
         if (acc) { return Observable.from([acc]); }
         return this.HttpGet(`accounts/${id}?select=ID,AccountNumber,AccountName,VatTypeID`)
