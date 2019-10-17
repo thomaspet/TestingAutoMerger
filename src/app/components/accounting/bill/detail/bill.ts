@@ -90,6 +90,7 @@ import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import { AccountMandatoryDimensionService } from '@app/services/accounting/accountMandatoryDimensionService';
 import { ValidationMessage } from '@app/models/validationResult';
+import { isNullOrUndefined } from 'util';
 
 interface ITab {
     name: string;
@@ -1004,7 +1005,13 @@ export class BillView implements OnInit {
                 this.handleOcrResult(new OcrValuables(result));
 
                 const model = this.current.value;
-                this.updateJournalEntryManualDates(model.InvoiceDate, model.InvoiceDate);
+                // we don't have any deliverydate here???
+                this.updateJournalEntryManualDates(
+                    model.InvoiceDate,
+                    model.InvoiceDate,
+                    model.InvoiceDate,
+                    model.InvoiceDate
+                );
 
                 this.flagUnsavedChanged();
                 this.ocrData = result;
@@ -1617,28 +1624,28 @@ export class BillView implements OnInit {
                     );
             }
 
-            // if invoicedate has the same value as deliverydate, update deliverydate also
-            // when invoicedate is changed
             if ((!model.DeliveryDate && model.InvoiceDate)
                 || (change['InvoiceDate'].previousValue
                 && model.DeliveryDate.toString() === change['InvoiceDate'].previousValue.toString())) {
-                // deliverydate is default value for financialdate in the journalentry draftlines, so
-                // if any of the lines have the same value as the old deliverydate, update them to the
-                // new delivery date
                 model.DeliveryDate = model.InvoiceDate;
             }
-            this.updateJournalEntryManualDates(model.DeliveryDate, change['InvoiceDate'].currentValue);
 
+            this.updateJournalEntryManualDates(
+                change['InvoiceDate'].currentValue,
+                change['InvoiceDate'].previousValue,
+                model['DeliveryDate'],
+                model['DeliveryDate']
+            );
         }
 
         if (change['DeliveryDate']) {
-            // deliverydate is default value for financialdate in the journalentry draftlines, so
-            // if any of the lines have the same value as the old deliverydate, update them to the
-            // new delivery date
-            this.updateJournalEntryManualDates(change['DeliveryDate'].currentValue, model['InvoiceDate']);
+            this.updateJournalEntryManualDates(
+                model['InvoiceDate'],
+                model['InvoiceDate'],
+                change['DeliveryDate'].currentValue,
+                change['DeliveryDate'].previousValue,
+            );
         }
-
-
 
         if (change['CurrencyCodeID']) {
             if (model.CurrencyCodeID) {
@@ -2997,13 +3004,59 @@ export class BillView implements OnInit {
         }
     }
 
-
+/*
     private updateJournalEntryManualDates(financialDate: LocalDate, vatDate: LocalDate) {
         if (this.journalEntryManual) {
             const lines = this.journalEntryManual.getJournalEntryData();
             lines.map(line => {
                 line.VatDate = vatDate;
                 line.FinancialDate = financialDate;
+            });
+            this.journalEntryManual.setJournalEntryData(lines);
+        }
+    }*/
+
+    private isSameDate(date1: LocalDate, date2: LocalDate): boolean {
+        const d1 = moment(date1);
+        const d2 = moment(date2);
+        return d1.isSame(d2, 'date');
+    }
+
+    private updateJournalEntryManualDates(iDateNew: LocalDate, iDateOld: LocalDate, dDateNew: LocalDate, dDateOld: LocalDate) {
+        if (this.journalEntryManual) {
+
+            let lines = this.journalEntryManual.getJournalEntryData();
+            const isInvoiceDateUpdated =  !this.isSameDate(iDateNew, iDateOld);
+            const isDeliveryDateUpdated = !this.isSameDate(dDateNew, dDateOld);
+            const bookOnDeliverDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate;
+
+            lines = lines.map(line => {
+                // vatDate should always use invoiceDate
+                if (isNullOrUndefined(line.VatDate)) {
+                    line.VatDate = iDateNew; // if not set use new date, no other conserns
+                } else {
+                    // vatdate can be updated manually by user in the grid, then we shouldn't change it
+                    // so when we change invoicedate in invoice header, we must compare old invoiceDate
+                    // with the line's vatdate, if it is the same, we assume user haven't changed it manually
+                    // if it is different, we don't change the line
+                    if (isInvoiceDateUpdated && this.isSameDate(line.VatDate, iDateOld)) {
+                        line.VatDate = iDateNew;
+                    }
+                }
+                if (isNullOrUndefined(line.FinancialDate)) {
+                    line.FinancialDate = bookOnDeliverDate ? dDateNew : iDateNew;
+                } else {
+                    if (bookOnDeliverDate) {
+                        if (isDeliveryDateUpdated && this.isSameDate(line.FinancialDate, dDateOld)) {
+                            line.FinancialDate = dDateNew;
+                        }
+                    } else {
+                        if (isInvoiceDateUpdated && this.isSameDate(line.FinancialDate, iDateOld)) {
+                            line.FinancialDate = iDateNew;
+                        }
+                    }
+                }
+                return line;
             });
             this.journalEntryManual.setJournalEntryData(lines);
         }
@@ -3499,6 +3552,7 @@ export class BillView implements OnInit {
         return changesMade;
     }
 
+
     private UpdateSuppliersJournalEntry(): Promise<ILocalValidation> {
 
         return new Promise((resolve, reject) => {
@@ -3508,8 +3562,12 @@ export class BillView implements OnInit {
             } else {
                 const completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
                     if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
-                        item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
-                        item.VatDate = current.InvoiceDate || current.DeliveryDate;
+
+                        const fdate = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
+                        const vdate = current.InvoiceDate || current.DeliveryDate;
+
+                        item.FinancialDate = fdate;
+                        item.VatDate = vdate;
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                         item.Description = item.Description
                             || ('fakturanr. ' + current.InvoiceNumber);
@@ -4012,10 +4070,10 @@ export class BillView implements OnInit {
     private addEHFAccountingCostLines(items: Array<SupplierInvoiceItem>)
     {
         return new Promise((resolve,reject) => {
-            if (!items.some(line => line.AccountingCost && line.AccountingCost.trim().toLowerCase().includes('konto='))) { 
+            if (!items.some(line => line.AccountingCost && line.AccountingCost.trim().toLowerCase().includes('konto='))) {
                 resolve(false);
             }
-        
+
             // Map AccountingCost string to object
             const model = this.current.value;
             const lines = items.map((line) => {
@@ -4029,19 +4087,19 @@ export class BillView implements OnInit {
                 newpart.AmountCurrency = line.SumTotalExVatCurrency;
                 newpart.Description = line.ItemText;
                 newpart.FinancialDate = model.InvoiceDate;
-    
+
                 return newpart;
             });
-    
+
             // Group lines with equal parameters
             const groupedlines = [];
             lines.forEach(line => {
-                const existing = groupedlines.find(groupedline => 
+                const existing = groupedlines.find(groupedline =>
                     line.konto === groupedline.konto &&
                     line.avd === groupedline.avd &&
                     line.mvakode === groupedline.mvakode &&
                     line.prod === groupedline.prod &&
-                    line.prosj === groupedline.prosj           
+                    line.prosj === groupedline.prosj
                 );
                 if (existing) {
                     existing.Amount += line.Amount;
