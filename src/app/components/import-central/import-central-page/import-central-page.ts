@@ -8,6 +8,8 @@ import { DownloadTemplateModal } from '../modals/download-template/download-temp
 import { ImportTemplateModal } from '../modals/import-template/import-template-modal';
 import { ImportUIPermission, ImportSaftUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
+import { ImportCardModel } from '@app/models/import-central/ImportCardModel';
+import { ImportVoucherModal } from '../modals/custom-component-modals/imports/voucher/import-voucher-modal';
 
 @Component({
   selector: 'import-central-page',
@@ -16,14 +18,8 @@ import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import
 })
 export class ImportCentralPage {
 
-  customerType: TemplateType = TemplateType.Customer;
-  productType: TemplateType = TemplateType.Product;
-  supplierType: TemplateType = TemplateType.Supplier;
-  ledgerType: TemplateType = TemplateType.MainLedger;
-  payrollType: TemplateType = TemplateType.Payroll;
-  saftType: TemplateType = TemplateType.Saft;
   busy: boolean = true;
-
+  importCardsList: ImportCardModel[] = [];
   templateUrls = environment.IMPORT_CENTRAL_TEMPLATE_URLS;
 
   uiPermission = {
@@ -32,7 +28,9 @@ export class ImportCentralPage {
     supplier: new ImportUIPermission(),
     ledger: new ImportUIPermission(),
     payroll: new ImportUIPermission(),
-    saft: new ImportSaftUIPermission()
+    saft: new ImportSaftUIPermission(),
+    voucher: new ImportUIPermission(),
+
   }
 
   constructor(
@@ -45,6 +43,7 @@ export class ImportCentralPage {
       const permissions = res['Permissions'];
       this.uiPermission = this.importCentralService.getAccessibleComponents(permissions);
       this.busy = false;
+      this.initImportCards();
     },
       err => {
         this.busy = false;
@@ -53,10 +52,102 @@ export class ImportCentralPage {
     );
   }
 
+  private initImportCards() {
+    this.importCardsList.push(
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.product.hasComponentAccess,
+          hasTemplateAccess: this.uiPermission.product.hasTemplateAccess,
+          hasImportAccess: true
+        },
+        iconName: 'business_center',
+        title: 'Produkt',
+        importText: 'Importer produkter',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Product
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.customer.hasComponentAccess,
+          hasImportAccess: true,
+          hasTemplateAccess: this.uiPermission.customer.hasTemplateAccess
+        },
+        iconName: 'group',
+        title: 'Kunde',
+        importText: 'Importer kunder',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Customer
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.supplier.hasComponentAccess,
+          hasImportAccess: true,
+          hasTemplateAccess: this.uiPermission.supplier.hasTemplateAccess
+        },
+        iconName: 'contacts',
+        title: 'Leverandør',
+        importText: 'Importer leverandører',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Supplier
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.ledger.hasComponentAccess,
+          hasImportAccess: true,
+          hasTemplateAccess: this.uiPermission.ledger.hasTemplateAccess
+        },
+        iconName: 'receipt',
+        title: 'Kontoplan',
+        importText: 'Importer kontoplan',
+        downloadText: 'Last ned mal',
+        type: TemplateType.MainLedger
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.payroll.hasComponentAccess,
+          hasImportAccess: true,
+          hasTemplateAccess: this.uiPermission.payroll.hasTemplateAccess
+        },
+        iconName: 'payment',
+        title: 'Variable lønnsposter',
+        importText: 'Importer lønnsposter',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Payroll
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.saft.hasComponentAccess,
+          hasImportAccess: this.uiPermission.saft.hasImportAccess,
+          hasTemplateAccess: this.uiPermission.saft.hasExportAccess
+        },
+        iconName: 'insert_drive_file',
+        title: 'SAF-T',
+        importText: 'Importer SAF-T',
+        downloadText: 'Eksport SAF-T',
+        type: TemplateType.Saft
+      },
+      {
+        //TODO:: set UI permissions
+        uiPermission: {
+          hasComponentAccess: true,
+          hasImportAccess: true,
+          hasTemplateAccess: true
+        },
+        iconName: 'card_giftcard',
+        title: 'Voucher',
+        importText: 'Importer Voucher',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Voucher
+      }
+    );
+    this.importCardsList = this.importCardsList.filter(x => x.uiPermission.hasComponentAccess);
+  }
+
   private navigateToLogHistory(type: TemplateType) {
     this.router.navigate(['/import/log', { id: type }]);
   }
 
+  //checks with disclaimer agreement
   public openImportTemplateModal(templateType: TemplateType) {
     this.userService.getCurrentUser().subscribe(res => {
       if (res) {
@@ -78,8 +169,9 @@ export class ImportCentralPage {
 
   }
 
+  //
   public openImportModal(templateType: TemplateType) {
-    let header, jobName, type, templateUrl, conditionalStatement, formatStatement, downloadStatement;
+    let header, jobName, type, templateUrl, conditionalStatement, formatStatement, downloadStatement = '';
     switch (templateType) {
       case TemplateType.Product:
         header = 'Importer produkter';
@@ -118,17 +210,18 @@ export class ImportCentralPage {
         header = 'Importer lønnsposter';
         jobName = ImportJobName.Payroll;
         type = 'lønnsposter';
-        formatStatement = '';
-        downloadStatement = '';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL 
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL
         break;
       case TemplateType.Saft:
         header = 'Importer SAF-T';
         jobName = ImportJobName.Saft;
         type = 'SAF-T';
-        formatStatement = '';
-        downloadStatement = '';
-        templateUrl = ''
+        break;
+      case TemplateType.Voucher:
+        header = 'Importer Voucher';
+        jobName = ImportJobName.Voucher;
+        type = 'Voucher';
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER
         break;
       default:
         header = '';
@@ -136,66 +229,79 @@ export class ImportCentralPage {
         type = '';
         break;
     }
-    this.modalService.open(ImportTemplateModal,
-      {
-        header: header,
-        data: {
-          jobName: jobName,
-          type: type,
-          entity: templateType,
-          conditionalStatement: conditionalStatement,
-          formatStatement: formatStatement,
-          downloadStatement: downloadStatement,
-          downloadTemplateUrl: templateUrl
-        }
-      });
+    if (templateType === TemplateType.Voucher) {
+      this.modalService.open(ImportVoucherModal,
+        {
+          header: header,
+          data: {
+            jobName: jobName,
+            type: type,
+            entity: templateType,
+            conditionalStatement: conditionalStatement,
+            formatStatement: formatStatement,
+            downloadStatement: downloadStatement,
+            downloadTemplateUrl: templateUrl
+          }
+        });
+    } else {
+      this.modalService.open(ImportTemplateModal,
+        {
+          header: header,
+          data: {
+            jobName: jobName,
+            type: type,
+            entity: templateType,
+            conditionalStatement: conditionalStatement,
+            formatStatement: formatStatement,
+            downloadStatement: downloadStatement,
+            downloadTemplateUrl: templateUrl
+          }
+        });
+    }
   }
 
   public openDownloadTemplateModal(templateType: TemplateType) {
-    let header, message, data, downloadButton;
-    downloadButton ='Eksportmal';
+    let header, data, downloadButton;
+    downloadButton = 'Eksportmal';
     switch (templateType) {
       case TemplateType.Product:
         header = 'Produkt Eksportmal';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PRODUCT, EntityType: templateType, FileName: 'ProductTemplateWithData', Permisions: this.uiPermission.product, downloadButton:downloadButton };
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PRODUCT, EntityType: templateType, FileName: 'ProductTemplateWithData', Permisions: this.uiPermission.product, downloadButton: downloadButton };
         break;
       case TemplateType.Customer:
         header = 'Kunde Eksportmal';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.CUSTOMER, EntityType: templateType, FileName: 'CustomerTemplateWithData', Permisions: this.uiPermission.customer, downloadButton:downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.CUSTOMER, EntityType: templateType, FileName: 'CustomerTemplateWithData', Permisions: this.uiPermission.customer, downloadButton: downloadButton }
         break;
       case TemplateType.Supplier:
         header = 'Leverandør Eksportmal';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.SUPPLIER, EntityType: templateType, FileName: 'SupplierTemplateWithData', Permisions: this.uiPermission.supplier, downloadButton:downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.SUPPLIER, EntityType: templateType, FileName: 'SupplierTemplateWithData', Permisions: this.uiPermission.supplier, downloadButton: downloadButton }
         break;
       case TemplateType.MainLedger:
         header = 'Kontoplan Eksportmal';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger, downloadButton:downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger, downloadButton: downloadButton }
         break;
       case TemplateType.Payroll:
         header = 'Lønnsposter Eksportmal';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll, downloadButton:downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll, downloadButton: downloadButton }
         break;
       case TemplateType.Saft:
         header = 'SAF-T eksport';
-        message = 'Inkluder eksisterende';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton:'Eksporter SAF-T' }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton: 'Eksporter SAF-T' }
+        break;
+      case TemplateType.Voucher:
+        header = 'Voucher Eksportmal';
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton }
         break;
       default:
         header = '';
-        message = '';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: ''}
+        data = { StandardUniFormat: '', StandardizedExcelFormat: '' }
         break;
     }
 
     this.modalService.open(DownloadTemplateModal,
       {
         header: header,
-        message: message,
+        message: 'Inkluder eksisterende',
         data: data
       });
   }

@@ -112,6 +112,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
                 const [companysalary, mainOrg, zones, rules] = dataset;
+                companysalary['_TaxFreeOrgHelp'] = 'https://support.unimicro.no/kundestotte/lonn/rapportering/a-ordningen/'
+                + 'a-meldingen/grense-for-oppgaveplikt-or-skattefrie-selskaper-foreninger-og-institusjoner';
                 companysalary['_baseOptions'] = this.companySalaryService.getBaseOptions(companysalary);
                 this.companySalary$.next(companysalary);
                 this.agaZones = zones;
@@ -471,15 +473,19 @@ export class AgaAndSubEntitySettings implements OnInit {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
-
+        const link = 'https://support.unimicro.no/kundestotte/lonn/rapportering/a-ordningen/'
+            + 'a-meldingen/grense-for-oppgaveplikt-or-skattefrie-selskaper-foreninger-og-institusjoner';
         const taxAndFeeRules = new UniFieldLayout();
         taxAndFeeRules.EntityType = 'CompanySalary';
-        taxAndFeeRules.Label = 'Benytte skatte og avgiftsregel: ';
+        taxAndFeeRules.Label = 'Skatte og avgiftsregel: ';
         taxAndFeeRules.Property = '_baseOptions';
         taxAndFeeRules.FieldType = FieldType.CHECKBOXGROUP;
         taxAndFeeRules.Section = 2;
         taxAndFeeRules.FieldSet = 4;
         taxAndFeeRules.Legend = 'Skatte og avgiftsregler';
+        taxAndFeeRules.Tooltip = {
+            Text: `Skattefri organisasjon kan kun settes dersom alle lønnsavregniner på året har status Opprettet.`,
+        };
         taxAndFeeRules.Options = {
             multivalue: true,
             source: [
@@ -497,10 +503,25 @@ export class AgaAndSubEntitySettings implements OnInit {
                 {
                     ID: CompanySalaryBaseOptions.NettoPaymentForMaritim,
                     Name: 'Netto lønn for sjøfolk',
-                }
+                },
+                {
+                    ID: CompanySalaryBaseOptions.TaxFreeOrganization,
+                    Name: 'Skattefri organisasjon',
+                },
             ],
             valueProperty: 'ID',
             labelProperty: 'Name',
+        };
+
+        const supportLink = new UniFieldLayout();
+        supportLink.EntityType = 'CompanySalary';
+        supportLink.Property = '_TaxFreeOrgHelp';
+        supportLink.FieldType = FieldType.HYPERLINK;
+        supportLink.FieldSet = 4;
+        supportLink.Section = 2;
+        supportLink.Options = {
+            description: 'Hjelp skattefri organisasjon',
+            target: '_blank',
         };
 
         this.fields$.next([
@@ -533,6 +554,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             financialVacation,
             costFinancialVacation,
             taxAndFeeRules,
+            supportLink,
         ]);
     }
 

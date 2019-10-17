@@ -11,7 +11,7 @@
 
             <div class="success-message">
                 <strong class="progress-title">Progresjon</strong>
-                <div *ngFor="let prgrs of progress.reverse()" class="status-container">
+                <div *ngFor="let prgrs of progress" class="status-container">
                     <i class="material-icons progress-check">check_circle</i>
                     <span class="progress-time"> {{prgrs.Created | date:'HH:mm:ss'}}</span>
                     <span>{{prgrs.Progress}}</span>

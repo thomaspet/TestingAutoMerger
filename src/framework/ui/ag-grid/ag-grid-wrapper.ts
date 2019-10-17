@@ -57,7 +57,7 @@ export class AgGridWrapper {
 
     @Input() public config: UniTableConfig;
     @Input() public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
-
+    @Input() public useSpinner = false;
     @Input() public resource: any[] | ((params: HttpParams) => Observable<any>);
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false); // double binding
 
@@ -111,7 +111,6 @@ export class AgGridWrapper {
 
     groupingEnabled: boolean;
     aggregator: (nodes: RowNode[]) => any;
-
     constructor(
         public dataService: TableDataService,
         private tableUtils: TableUtils,
@@ -328,6 +327,7 @@ export class AgGridWrapper {
             setTimeout(() => {
                 api.doLayout();
                 api.sizeColumnsToFit();
+                this.dataService.isDataLoading = false;
             });
         }
     }
@@ -515,6 +515,7 @@ export class AgGridWrapper {
         // TODO: refactor this once every table using it is over on ag-grid
         // Should just emit the filterString, not an object containing it
         this.filtersChange.emit({filter: this.dataService.filterString});
+        this.dataService.isDataLoading = true;
     }
 
     public onEditorChange(event) {

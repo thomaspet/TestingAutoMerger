@@ -2,7 +2,7 @@ import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {environment} from 'src/environments/environment';
-import {ErrorService, FileService, UniFilesService, BudgetService} from '@app/services/services';
+import {ErrorService, FileService, BudgetService} from '@app/services/services';
 import {File} from '@app/unientities';
 import {AuthService} from '@app/authService';
 import {Subject} from 'rxjs';
@@ -63,12 +63,8 @@ import {Subject} from 'rxjs';
 })
 
 export class UniBudgetEditModal implements OnInit, IUniModal {
-
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     years = [
         new Date().getFullYear() - 1,
@@ -96,16 +92,10 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
     constructor(
         private authService: AuthService,
         private fileService: FileService,
-        private uniFilesService: UniFilesService,
         private errorService: ErrorService,
         private budgetService: BudgetService,
         private http: HttpClient
-        ) {
-            this.authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.token = authDetails.token;
-        });
-    }
+    ) {}
 
     public ngOnInit() {
         if (this.options && this.options.data && this.options.data.budget) {
@@ -147,8 +137,8 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
 
     private uploadFile(file: File) {
         const data = new FormData();
-        data.append('Token', this.token);
-        data.append('Key', this.activeCompany.Key);
+        data.append('Token', this.authService.jwt);
+        data.append('Key', this.authService.activeCompany.Key);
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
 

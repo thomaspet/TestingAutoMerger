@@ -193,6 +193,10 @@ export class UniHttp {
             headers: this.headers
         };
 
+        if (this.authService.jwt) {
+            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
+        }
+
         if (this.body) {
             options.body = this.body instanceof FormData ? this.body : JSON.stringify(this.body);
         }
@@ -216,11 +220,18 @@ export class UniHttp {
         this.method = undefined;
         this.body = undefined;
 
-        return httpRequest;
+        return httpRequest.catch((err) => {
+            if (err.status === 401) {
+                this.authService.clearAuthAndGotoLogin();
+                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
+            }
+
+            return Observable.throw(err);
+        });
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
-        const token = this.authService.getToken();
+        const token = this.authService.jwt;
         const companyKey = this.authService.getCompanyKey();
         let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
         year = year || this.browserStorage.getItem('ActiveYear');

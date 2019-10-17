@@ -1,7 +1,14 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatDatepickerModule, MatNativeDateModule, DateAdapter, MatAutocompleteModule, MatCheckboxModule} from '@angular/material';
+import {
+    MatDatepickerModule,
+    MatNativeDateModule,
+    DateAdapter,
+    MatAutocompleteModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule
+} from '@angular/material';
 
 import {AppPipesModule} from '../../../app/pipes/appPipesModule';
 
@@ -29,6 +36,7 @@ import {InputDropdownModule} from '../input-dropdown/input-dropdown';
         MatNativeDateModule,
         MatAutocompleteModule,
         MatCheckboxModule,
+        MatProgressSpinnerModule,
         AppPipesModule,
         DropdownMenuModule,
         InputDropdownModule,

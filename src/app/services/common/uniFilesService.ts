@@ -8,14 +8,12 @@ import {Observable} from 'rxjs';
 export class UniFilesService {
     private uniFilesBaseUrl: string = environment.BASE_URL_FILES;
     private uniFilesToken: string;
-    private uniEconomyToken: string;
     private activeCompany: any;
 
     constructor(private http: HttpClient, private authService: AuthService) {
         this.authService.authentication$.subscribe((authDetails) => {
             if (authDetails) {
                 this.activeCompany = authDetails.activeCompany;
-                this.uniEconomyToken = authDetails.token;
             }
         });
 
@@ -26,7 +24,7 @@ export class UniFilesService {
 
     upload(file, entityType?: string, entityID?: number) {
         const data = new FormData();
-        data.append('Token', this.authService.getToken());
+        data.append('Token', this.authService.jwt);
         data.append('Key', this.authService.getCompanyKey());
         data.append('CacheOnUpload', 'true');
         data.append('File', file);
@@ -48,7 +46,7 @@ export class UniFilesService {
         const url = `${this.uniFilesBaseUrl}/api/download?format=json`
             + `&id=${storageReference}`
             + `&key=${this.activeCompany.Key}`
-            + `&token=${this.uniEconomyToken}`;
+            + `&token=${this.authService.jwt}`;
 
         return this.http.get(url);
     }
@@ -57,7 +55,7 @@ export class UniFilesService {
         this.http.get(this.uniFilesBaseUrl + '/api/client/sync-ue-client-data', {
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         }).subscribe(
@@ -89,7 +87,7 @@ export class UniFilesService {
         return this.http.get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, {
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -100,7 +98,7 @@ export class UniFilesService {
             observe: 'body',
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -110,7 +108,7 @@ export class UniFilesService {
         return this.http.get(this.uniFilesBaseUrl + `/api/file/rotate-page/${id}/${page}/${rotateClockwise}`, {
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -121,7 +119,7 @@ export class UniFilesService {
             observe: 'body',
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -132,7 +130,7 @@ export class UniFilesService {
             observe: 'body',
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -142,7 +140,7 @@ export class UniFilesService {
         this.http.post(this.uniFilesBaseUrl + '/api/ocr/train-engine', body, {
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         }).subscribe(
@@ -163,7 +161,7 @@ export class UniFilesService {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -175,7 +173,7 @@ export class UniFilesService {
             observe: 'body',
             headers: {
                 'Accept': 'application/json',
-                'Token': this.uniEconomyToken,
+                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });

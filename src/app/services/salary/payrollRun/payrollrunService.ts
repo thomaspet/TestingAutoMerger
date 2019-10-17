@@ -411,8 +411,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return this.statisticsService.GetAll(
             `model=Tracelink`
             + `&select=PayrollRun.ID as ID,Payment.StatusCode as StatusCode,Payment.PaymentDate as PaymentDate,`
-            + `count(casewhen(Payment.StatusCode ne ${StatusCodePayment.Completed}\,1\,0)) as notPaid,`
-            + `count(casewhen(Payment.StatusCode eq ${StatusCodePayment.Completed}\,1\,0)) as paid`
+            + `sum(casewhen(Payment.StatusCode ne ${StatusCodePayment.Completed},1,0)) as notPaid,`
+            + `sum(casewhen(Payment.StatusCode eq ${StatusCodePayment.Completed},1,0)) as paid`
             + `&filter=SourceEntityName eq 'PayrollRun' and DestinationEntityName eq 'Payment' and Payment.PaymentDate le '${year}-12-31T23:59:59Z' `
             + `and Payment.PaymentDate ge '${year}-01-01T00:00:01Z' and (${runs.map(x => 'PayrollRun.ID eq ' + x.ID).join(' or ')})`
             + `&join=Tracelink.DestinationInstanceId eq Payment.ID as Payment and Tracelink.SourceInstanceId eq PayrollRun.ID as PayrollRun`
@@ -422,7 +422,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[], payments?: any[]): PayrollRun[] {
         return payrollRuns
             ? payrollRuns
-                .map(run => this.markPaymentStatus(run, payments.filter(p => p.ID === run.ID)))
+                .map(run => this.markPaymentStatus(run, payments ? payments.filter(p => p.ID === run.ID) : []))
             : [];
     }
 

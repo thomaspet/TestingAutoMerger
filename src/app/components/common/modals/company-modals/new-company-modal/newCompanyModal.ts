@@ -179,7 +179,7 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
                         this.http.post(url, newUserRoles, {
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + this.authService.getToken(),
+                                'Authorization': 'Bearer ' + this.authService.jwt,
                                 'CompanyKey': response.Key
                             }
                         }).subscribe(

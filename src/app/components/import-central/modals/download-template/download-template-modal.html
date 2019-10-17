@@ -20,7 +20,7 @@
             <label class="uni-label label-left" *ngIf="options?.data?.Permisions?.hasTemplateDataAccess">
                 <span>{{options.message}}</span>
                 <mat-checkbox class="check-box" [(ngModel)]="isSelected"
-                    [disabled]="options.data.EntityType == payrollType"
+                    [disabled]="options.data.EntityType == payrollType || options.data.EntityType == voucher"
                     [ngModelOptions]="{standalone: true}"
                     (click)="$event.stopPropagation()">
                 </mat-checkbox>

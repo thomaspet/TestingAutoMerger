@@ -182,6 +182,10 @@ export class UniTickerService {
 
                                                 if (typeof action.DisplayInActionBar !== 'boolean') {
                                                     action.DisplayInActionBar = true;
+                                                    //TODO: Remove when batch invoicing is ready
+                                                    if (action.Code === 'batch_invoicing') {
+                                                        action.DisplayInActionBar = false;
+                                                    }
                                                 }
                                                 if (typeof action.DisplayInContextMenu !== 'boolean') {
                                                     action.DisplayInContextMenu = false;

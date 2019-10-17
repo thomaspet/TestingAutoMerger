@@ -3105,6 +3105,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                     return newLine;
                 }).take(1);
+            } else {
+                return Observable.empty();
             }
         });
     }
@@ -3118,11 +3120,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             from(suggestionlines)
             .map(line => this.mapAccountingCostSuggestionLine(line))
             .combineAll()
-            .subscribe((journalentrylines) => {
-                this.addJournalEntryLines(journalentrylines);
-                returnValue.msg = 'Konteringsforslag lagt til basert på EHF linjene sin konteringsstreng.';
-                resolve(returnValue);
-            });
+            .subscribe(
+                (journalentrylines) => {
+                    this.addJournalEntryLines(journalentrylines);
+                    returnValue.msg = 'Konteringsforslag lagt til basert på EHF linjene sin konteringsstreng.';
+                    resolve(returnValue);
+                },
+                (err) => {
+                    console.log(err);
+                    resolve();
+                },
+                () => resolve()
+            );
         });
     }
 

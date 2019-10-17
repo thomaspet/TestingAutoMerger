@@ -1,19 +1,17 @@
-import {Injectable, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {Company, UserDto, ContractLicenseType} from './unientities';
-import {ReplaySubject} from 'rxjs';
+import { Injectable, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { Company, UserDto, ContractLicenseType } from './unientities';
+import { ReplaySubject } from 'rxjs';
 import 'rxjs/add/operator/map';
-import { UserManager, User } from 'oidc-client';
+import { UserManager, WebStorageStateStore } from 'oidc-client';
 import * as moment from 'moment';
 import * as $ from 'jquery';
-import * as jwt_decode from 'jwt-decode';
 
 export interface IAuthDetails {
-    token: string;
     activeCompany: Company;
     user: UserDto;
     hasActiveContract: boolean;
@@ -42,20 +40,18 @@ const PUBLIC_ROUTES = [];
 @Injectable()
 export class AuthService {
     userManager: UserManager;
-    userLoadededEvent: EventEmitter<User> = new EventEmitter<User>();
-    loggedIn = false;
 
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$ = new ReplaySubject<IAuthDetails>(1);
     public filesToken$ = new ReplaySubject<string>(1);
+    public token$ = new ReplaySubject<string>(1);
+
     public jwt: string;
-    public jwtDecoded: any;
-    public activeCompany: any;
-    public currentUser: UserDto;
-    public user: User;
-    public IdsUser: User; // user coming from identity server
     public filesToken: string;
+    public activeCompany: Company;
+    public currentUser: UserDto;
+
 
     private headers = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -84,78 +80,98 @@ export class AuthService {
     };
 
     constructor(private router: Router, private http: HttpClient) {
+        this.activeCompany = this.storage.getOnUser('activeCompany');
+        this.filesToken = this.storage.getOnUser('filesToken');
+
+        this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
-        this.userManager
-            .getUser()
-            .then(user => {
-                if (user && !user.expired) {
-                    this.loggedIn = true;
-                    this.IdsUser = user;
-                    this.userLoadededEvent.emit(user);
+        this.userManager.getUser().then(user => {
+
+            const onMissingAuth = () => {
+                this.authentication$.next({
+                    activeCompany: undefined,
+                    user: undefined,
+                    hasActiveContract: false,
+                });
+
+                this.clearAuthAndGotoLogin();
+                this.setLoadIndicatorVisibility(false);
+            };
+
+            if (user && !user.expired) {
+                this.jwt = user.access_token;
+
+                if (this.activeCompany) {
+                    this.loadCurrentSession().subscribe(
+                        auth => {
+                            this.filesToken$.next(this.filesToken);
+
+                            if (!auth.hasActiveContract) {
+                                this.router.navigateByUrl('contract-activation');
+                            }
+
+                            // Give the app a bit of time to initialise before we remove spinner
+                            // (less visual noise on startup)
+                            setTimeout(() => {
+                                this.setLoadIndicatorVisibility(false);
+                            }, 250);
+                        },
+                        () => onMissingAuth()
+                    );
                 } else {
-                    this.loggedIn = false;
+                    this.router.navigateByUrl('/init/login');
+                    this.setLoadIndicatorVisibility(false);
                 }
-            })
-            .catch(err => {
-                this.loggedIn = false;
-            });
-        this.userManager.events.addSilentRenewError(function(res) {
-            console.log(res);
+            } else {
+                onMissingAuth();
+            }
         });
 
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
-                this.user = user;
                 this.jwt = user.access_token;
-                this.jwtDecoded = this.decodeToken(this.jwt);
-                this.storage.saveOnUser('jwt', this.jwt);
             });
         });
-        this.activeCompany = this.storage.getOnUser('activeCompany');
 
-        this.jwt = this.storage.getOnUser('jwt');
-        this.jwtDecoded = this.decodeToken(this.jwt);
-        this.filesToken = this.storage.getOnUser('filesToken');
+        this.userManager.events.addSilentRenewError(function(res) {
+            console.log(res);
+        });
 
-        if (this.jwt && this.activeCompany) {
-            this.setLoadIndicatorVisibility(true);
-            this.loadCurrentSession().subscribe(
-                auth => {
-                    this.filesToken$.next(this.filesToken);
+        // if (this.jwt && this.activeCompany) {
+        //     this.setLoadIndicatorVisibility(true);
+        //     this.loadCurrentSession().subscribe(
+        //         auth => {
+        //             this.filesToken$.next(this.filesToken);
 
-                    if (!auth.hasActiveContract) {
-                        this.router.navigateByUrl('contract-activation');
-                    }
+        //             if (!auth.hasActiveContract) {
+        //                 this.router.navigateByUrl('contract-activation');
+        //             }
 
-                    // Give the app a bit of time to initialise before we remove spinner
-                    // (less visual noise on startup)
-                    setTimeout(() => {
-                        this.setLoadIndicatorVisibility(false);
-                    }, 250);
-                },
-                () => {
-                    this.setLoadIndicatorVisibility(false);
-                    this.authentication$.next({
-                        activeCompany: undefined,
-                        token: undefined,
-                        user: undefined,
-                        hasActiveContract: false
-                    });
+        //             // Give the app a bit of time to initialise before we remove spinner
+        //             // (less visual noise on startup)
+        //             setTimeout(() => {
+        //                 this.setLoadIndicatorVisibility(false);
+        //             }, 250);
+        //         },
+        //         () => {
+        //             this.setLoadIndicatorVisibility(false);
+        //             this.authentication$.next({
+        //                 activeCompany: undefined,
+        //                 user: undefined,
+        //                 hasActiveContract: false,
+        //             });
 
-                    this.clearAuthAndGotoLogin();
-                }
-            );
-        } else {
-            this.authentication$.next({
-                activeCompany: undefined,
-                token: undefined,
-                user: undefined,
-                hasActiveContract: false
-            });
-        }
+        //             this.clearAuthAndGotoLogin();
+        //         }
+        //     );
+        // } else {
+        //     this.authentication$.next({
+        //         activeCompany: undefined,
+        //         user: undefined,
+        //         hasActiveContract: false,
+        //     });
+        // }
 
-        // Check expired status every minute, with a 10 minute offset on the expiration check
-        // This allows the user to re-authenticate before http calls start 401'ing.
         // Also check if we have a files token, and re-authenticate with uni-files if not.
         setInterval(() => {
             if (this.jwt && !this.filesToken) {
@@ -189,17 +205,13 @@ export class AuthService {
             filterProtocolClaims: environment.filterProtocolClaims,
             loadUserInfo: environment.loadUserInfo,
             automaticSilentRenew: true,
-            silent_redirect_uri: baseUrl + environment.silent_redirect_uri
+            silent_redirect_uri: baseUrl + environment.silent_redirect_uri,
+            userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 
         return new UserManager(settings);
     }
 
-    /**
-     * Authenticates the user and returns an observable of the response
-     * @param {Object} credentials
-     * @returns Observable
-     */
     public authenticate(): void {
         this.userManager.signinRedirect();
     }
@@ -212,29 +224,27 @@ export class AuthService {
 
             const uniFilesUrl =
                 environment.BASE_URL_FILES + '/api/init/sign-in';
-            this.http
-                .post(uniFilesUrl, JSON.stringify(this.jwt), {
-                    headers: this.headers,
-                    observe: 'response'
-                })
-                .subscribe(
-                    res => {
-                        if (res && res.status === 200) {
-                            this.filesToken = res.body.toString();
-                            this.storage.saveOnUser(
-                                'filesToken',
-                                this.filesToken
-                            );
+            this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {
+                headers: this.headers,
+                observe: 'response'
+            }).subscribe(
+                res => {
+                    if (res && res.status === 200) {
+                        this.filesToken = res.body.toString();
+                        this.storage.saveOnUser(
+                            'filesToken',
+                            this.filesToken
+                        );
 
-                            this.filesToken$.next(this.filesToken);
-                            resolve(this.filesToken);
-                        }
-                    },
-                    err => {
-                        reject('Error authenticating');
-                        console.log('Error authenticating:', err);
+                        this.filesToken$.next(this.filesToken);
+                        resolve(this.filesToken);
                     }
-                );
+                },
+                err => {
+                    reject('Error authenticating');
+                    console.log('Error authenticating:', err);
+                }
+            );
         });
     }
 
@@ -242,45 +252,48 @@ export class AuthService {
      * Sets the current active company
      * @param {Object} activeCompany
      */
-    public setActiveCompany(
-        activeCompany: Company,
-        redirectUrl?: string
-    ): void {
+    public setActiveCompany(activeCompany: Company, redirectUrl?: string): void {
         let redirect = redirectUrl;
         if (!redirect) {
             redirect = this.getSafeRoute(this.router.url);
         }
 
-        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(navigationSuccess => {
-            if (navigationSuccess) {
-                this.setLoadIndicatorVisibility(true);
-                this.storage.saveOnUser('activeCompany', activeCompany);
-                this.storage.saveOnUser('lastActiveCompanyKey', activeCompany.Key);
+        this.router
+            .navigateByUrl('/reload', { skipLocationChange: true })
+            .then(navigationSuccess => {
+                if (navigationSuccess) {
+                    this.setLoadIndicatorVisibility(true);
+                    this.storage.saveOnUser('activeCompany', activeCompany);
+                    this.storage.saveOnUser('lastActiveCompanyKey', activeCompany.Key);
 
-                this.activeCompany = activeCompany;
-                this.companyChange.emit(activeCompany);
+                    this.activeCompany = activeCompany;
+                    this.companyChange.emit(activeCompany);
 
-                this.loadCurrentSession().take(1).subscribe(
-                    authDetails => {
-                        this.authentication$.next(authDetails);
-                        const forcedRedirect = this.getForcedRedirect(authDetails);
-                        if (forcedRedirect) {
-                            redirect = forcedRedirect;
-                        }
+                    this.loadCurrentSession().pipe(take(1)).subscribe(
+                        authDetails => {
+                            this.authentication$.next(authDetails);
+                            const forcedRedirect = this.getForcedRedirect(
+                                authDetails
+                            );
+                            if (forcedRedirect) {
+                                redirect = forcedRedirect;
+                            }
 
-                        setTimeout(() => {
-                            this.router.navigateByUrl(redirect || '');
+                            setTimeout(() => {
+                                this.router.navigateByUrl(redirect || '');
+                                this.setLoadIndicatorVisibility(false);
+                            });
+                        },
+                        () => {
+                            this.storage.removeOnUser(
+                                'lastActiveCompanyKey'
+                            );
+                            this.clearAuthAndGotoLogin();
                             this.setLoadIndicatorVisibility(false);
-                        });
-                    },
-                    () => {
-                        this.storage.removeOnUser('lastActiveCompanyKey');
-                        this.clearAuthAndGotoLogin();
-                        this.setLoadIndicatorVisibility(false);
-                    }
-                );
-            }
-        });
+                        }
+                    );
+                }
+            });
     }
 
     private getForcedRedirect(authDetails: IAuthDetails) {
@@ -290,7 +303,10 @@ export class AuthService {
             return 'contract-activation';
         }
 
-        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
+        if (
+            permissions.length === 1 &&
+            permissions[0] === 'ui_approval_accounting'
+        ) {
             return '/assignments/approvals';
         }
     }
@@ -313,48 +329,36 @@ export class AuthService {
     }
 
     loadCurrentSession(): Observable<IAuthDetails> {
-        const url = (environment.BASE_URL
-            + environment.API_DOMAINS.BUSINESS
-            + 'users?action=current-session')
-            .replace(/([^:]\/)\/+/g, '$1');
+        const url = (
+            environment.BASE_URL +
+            environment.API_DOMAINS.BUSINESS +
+            'users?action=current-session'
+        ).replace(/([^:]\/)\/+/g, '$1');
+
         return this.http.get<any>(url, {
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${this.jwt}`,
-                'CompanyKey': this.activeCompany.Key
+                Accept: 'application/json',
+                Authorization: `Bearer ${this.jwt}`,
+                CompanyKey: this.activeCompany.Key
             }
-        }).pipe(
-            map(user => {
-                this.currentUser = user;
+        }).pipe(map(user => {
+            this.currentUser = user;
 
-                const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
-                const hasActiveContract = user && !this.isTrialExpired(contract);
+            const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
+            const hasActiveContract = user && !this.isTrialExpired(contract);
 
-                const authDetails = {
-                    token: this.jwt,
-                    activeCompany: this.activeCompany,
-                    user: user,
-                    hasActiveContract: hasActiveContract,
-                    isDemo: contract.TypeName === 'Demo'
-                };
+            const authDetails = {
+                token: this.jwt,
+                activeCompany: this.activeCompany,
+                user: user,
+                hasActiveContract: hasActiveContract,
+                isDemo: contract.TypeName === 'Demo',
+            };
 
-                this.authentication$.next(authDetails);
-                return authDetails;
-            })
-        );
-    }
-
-    public getToken(): string {
-        return this.jwt;
-    }
-
-    /**
-     * Returns decoded web token for authenticated user
-     * @returns {String}
-     */
-    public getTokenDecoded(): any {
-        return this.jwtDecoded;
+            this.authentication$.next(authDetails);
+            return authDetails;
+        }));
     }
 
     /**
@@ -375,16 +379,12 @@ export class AuthService {
                 .then(user => {
                     if (user && !user.expired) {
                         this.jwt = user.access_token;
-                        this.jwtDecoded = this.decodeToken(this.jwt);
                         this.authenticateUniFiles();
 
-                        this.storage.saveOnUser('jwt', this.jwt);
                         const hasToken: boolean = !!this.jwt;
-                        const isTokenDecoded: boolean = !!this.jwtDecoded;
-                        const isExpired: boolean = this.isTokenExpired(
-                            this.jwtDecoded
-                        );
-                        resolve(hasToken && isTokenDecoded && !isExpired);
+                        resolve(hasToken);
+                    } else {
+                        resolve(false);
                     }
                 })
                 .catch(() => {
@@ -394,81 +394,30 @@ export class AuthService {
     }
 
     /**
-     * Returns a boolean indicating whether the user has selected an active company
-     * @returns {Boolean}
-     */
-    public hasActiveCompany(): boolean {
-        return !!this.activeCompany;
-    }
-
-    /**
      * Removes web token from localStorage and memory, then redirects to /login
      */
-    public clearAuthAndGotoLogin(): void  {
-        if (this.isAuthenticated()) {
-            this.authentication$.next({
-                token: undefined,
-                activeCompany: undefined,
-                user: undefined,
-                hasActiveContract: false
-            });
+    public clearAuthAndGotoLogin(): void {
+        this.authentication$.pipe(take(1)).subscribe(auth => {
+            if (auth && auth.user) {
+                this.authentication$.next({
+                    activeCompany: undefined,
+                    user: undefined,
+                    hasActiveContract: false,
+                });
 
-            this.filesToken$.next(undefined);
-
-            const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
-            this.http.post(url, '', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.jwt,
-                    'CompanyKey': this.activeCompany
-                }
-            }).subscribe(() => {}, () => {}); // ignore the response
-        }
-
-        this.storage.removeOnUser('jwt');
-        this.storage.removeOnUser('activeCompany');
-        this.storage.removeOnUser('activeFinancialYear');
-        this.storage.removeOnUser('filesToken');
-        this.storage.removeOnUser('lastActiveCompanyKey');
-        this.jwt = undefined;
-        this.jwtDecoded = undefined;
-        this.activeCompany = undefined;
-
-        this.setLoadIndicatorVisibility(false);
-        // this.router.navigateByUrl('init/login');
-        this.userManager.signoutRedirect();
-    }
-
-    /**
-     * Returns the decoded web token
-     * @returns {Object}
-     */
-    private decodeToken(token: string) {
-        try {
-            if (!token) {
-                return undefined;
-            } else {
-                return jwt_decode(token);
+                this.filesToken$.next(undefined);
+                this.userManager.signoutRedirect();
             }
-        } catch (e) {}
-    }
 
-    /**
-     * Returns a boolean indicating whether or not the token is expired.
-     * If offSetMinutes is passed to the function it will check if token
-     * will expire in the next n minutes
-     * @param {Object} decodedToken
-     * @param {Number} [offSetMinutes=0] offset
-     * @returns {Boolean}
-     */
-    public isTokenExpired(offsetMinutes: number = 0): boolean {
-        if (!this.jwtDecoded) {
-            return true;
-        }
-
-        const expires = new Date(0);
-        expires.setUTCSeconds(this.jwtDecoded.exp);
-        return expires.valueOf() < new Date().valueOf() + offsetMinutes * 60000;
+            this.storage.removeOnUser('activeCompany');
+            this.storage.removeOnUser('activeFinancialYear');
+            this.storage.removeOnUser('filesToken');
+            this.storage.removeOnUser('lastActiveCompanyKey');
+            this.jwt = undefined;
+            this.activeCompany = undefined;
+            this.setLoadIndicatorVisibility(false);
+            this.router.navigate(['/init/login']);
+        });
     }
 
     public canActivateRoute(user: UserDto, url: string): boolean {

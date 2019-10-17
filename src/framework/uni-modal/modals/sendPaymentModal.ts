@@ -1,11 +1,11 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {ToastService, ToastType} from '../../uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../uniToast/toastService';
 import {ErrorService, PaymentBatchService} from '@app/services/services';
 
 @Component({
     template: `
-        <section role="dialog" class="uni-modal uni-send-payment-modal uni-redesign">
+        <section role="dialog" class="uni-modal uni-send-payment-modal">
             <header>{{options.header || 'Send med autobank'}}</header>
             <article>
                 <section *ngIf="busy" class="modal-spinner">
@@ -29,8 +29,10 @@ import {ErrorService, PaymentBatchService} from '@app/services/services';
             </article>
 
             <footer>
-                <button class="good" [disabled]="!model.Password && !model.Code" (click)="onGoodClick()">{{ okButtonText }}</button>
-                <button class="bad" (click)="onBadClick()">Avbryt</button>
+                <button class="secondary" (click)="onBadClick()">Avbryt</button>
+                <button class="c2a" [disabled]="!model.Password && !model.Code" (click)="onGoodClick()">
+                    {{ okButtonText }}
+                </button>
             </footer>
         </section>
     `
@@ -138,6 +140,10 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
 
     public sendPayments() {
         this.busy = true;
+        if (this.options.data.count && this.options.data.count > 100) {
+        this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                        'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+        }
         if (this.options.data.sendAll) {
             return this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
                 this.onClose.emit('Sendingen er fullført');

@@ -12,7 +12,6 @@ import { UserDto } from '@uni-entities';
 export class SignalRService {
 
     user: UserDto;
-    userToken: string;
     userGlobalIdentity: string;
     currentCompanyKey: string;
     notifications: string[] = [];
@@ -27,7 +26,6 @@ export class SignalRService {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
                 this.user = auth.user;
-                this.userToken = auth.token;
                 this.userGlobalIdentity = auth.user.GlobalIdentity;
                 this.currentCompanyKey = auth.activeCompany.Key;
                 if (!this.connected) {
@@ -54,12 +52,11 @@ export class SignalRService {
 
     startConnection() {
         this.retryConnectionCounter = 0;
-        this.hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(
+        this.hubConnection = new signalR.HubConnectionBuilder().withUrl(
             environment.SIGNALR_PUSHHUB_URL,
-            { accessTokenFactory: () => this.userToken }
-            )
-            .build();
+            { accessTokenFactory: () => this.authService.jwt }
+        ).build();
+
         this.start();
 
         this.hubConnection.onclose(() => {

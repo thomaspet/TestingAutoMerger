@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {ErrorService, UniTranslationService} from './services/services';
@@ -31,10 +31,11 @@ const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
     templateUrl: './app.html',
 })
 export class App {
-    public isAuthenticated: boolean = false;
     private licenseAgreementModalOpen: boolean;
     private userlicenseModalOpen: boolean;
     public boostChatScriptUrl = environment.BOOST_AI_SCRIPT_URL;
+    isAuthenticated: boolean;
+    isOnInitRoute: boolean;
 
     constructor(
         private authService: AuthService,
@@ -65,7 +66,6 @@ export class App {
 
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = !!authDetails.user;
-
             if (this.isAuthenticated) {
                 this.toastService.clear();
                 const contractType = authDetails.user.License.ContractType.TypeName;
@@ -93,6 +93,19 @@ export class App {
                 this.router.navigateByUrl('/bureau');
             }
         });
+
+        this.checkForInitRoute();
+        this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd) {
+                this.checkForInitRoute();
+            }
+        });
+    }
+
+    private checkForInitRoute() {
+        if (this.router.url) {
+            this.isOnInitRoute = this.router.url.startsWith('/init');
+        }
     }
 
     private hasAcceptedCustomerLicense(user: UserDto): boolean {

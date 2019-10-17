@@ -24,7 +24,7 @@
                 <label class="bank-statement-upload">
                     <i class="material-icons">cloud_upload</i>
                     <span>Last opp</span>
-                    <input type="file" (change)="uploadFile($event)" />
+                    <input type="file" accept=".bck,.csv,.xml,.txt" (change)="uploadFile($event)" />
                 </label>
 
                 <ul *ngIf="files?.length" class="selectable file-selection-list">

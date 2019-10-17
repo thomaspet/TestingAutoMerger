@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {
-    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement, VatType, LocalDate
+    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement, VatType, LocalDate, Department, Dimensions, Employment, Project
 } from '../../../unientities';
 import {SupplementService, VatTypeService} from '../../../services/services';
 import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
@@ -175,6 +175,52 @@ export class SalaryTransViewService {
             ? ''
             : `${displayVal}
 `;
+    }
+
+    mapEmploymentToTrans(rowModel: SalaryTransaction, departments: Department[], projects: Project[]) {
+        const employment: Employment = rowModel['_Employment'];
+        rowModel['EmploymentID'] = (employment) ? employment.ID : null;
+
+        if (employment && employment.Dimensions) {
+            const department = departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+            rowModel['_Department'] = department;
+
+            const project = projects.find(x => x.ID === employment.Dimensions.ProjectID);
+            rowModel['_Project'] = project;
+
+            this.mapDepartmentToTrans(rowModel);
+            this.mapProjectToTrans(rowModel);
+        }
+    }
+
+    mapProjectToTrans(rowModel: SalaryTransaction) {
+        const project: Project = rowModel['_Project'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!project) {
+            rowModel.Dimensions.ProjectID = null;
+            return;
+        }
+
+        rowModel.Dimensions.ProjectID = project.ID;
+    }
+
+    mapDepartmentToTrans(rowModel: SalaryTransaction) {
+        const department: Department = rowModel['_Department'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!department) {
+            rowModel.Dimensions.DepartmentID = null;
+            return;
+        }
+
+        rowModel.Dimensions.DepartmentID = department.ID;
     }
 
     public openSupplements(row: SalaryTransaction, onClose: (trans: SalaryTransaction) => any, readOnly: boolean) {

@@ -34,7 +34,6 @@ import {
     CustomerInvoiceService,
     CustomerService,
     EHFService,
-    VIPPSService,
     ErrorService,
     NumberFormat,
     ProjectService,
@@ -65,7 +64,6 @@ import {
     UniConfirmModalV2,
     IModalOptions,
     UniChooseReportModal,
-    UniSendVippsInvoiceModal,
 } from '@uni-framework/uni-modal';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
@@ -234,7 +232,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private customerInvoiceService: CustomerInvoiceService,
         private customerService: CustomerService,
         private ehfService: EHFService,
-        private vippsService: VIPPSService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private numberFormat: NumberFormat,
@@ -1459,11 +1456,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             disabled: status !== StatusCodeCustomerInvoice.Draft
         });
 
-        this.saveActions.push({
-            label: 'Send til Vipps',
-            action: (done) => this.sendToVippsAction(done),
-            disabled: false
-        });
 
         if (this.aprilaOption.hasPermission && this.invoice.InvoiceType === InvoiceTypes.Invoice) {
             if (this.invoiceID === 0 || (this.invoice && (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft))) {
@@ -1510,32 +1502,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         ).onClose.subscribe((res: boolean) => {
 
-        });
-    }
-
-    private sendToVippsAction(doneHandler: (msg?: string) => void) {
-        this.vippsService.isActivated('Vipps').subscribe(data => {
-            if (data) {
-                this.modalService.open(UniSendVippsInvoiceModal, {
-                    data: this.invoice.ID
-                }).onClose.subscribe(text => {
-                    doneHandler();
-                });
-            } else {
-                this.modalService.confirm({
-                    header: 'Markedsplassen',
-                    message: 'Til markedsplassen for å kjøpe tilgang til å sende Vipps?',
-                    buttonLabels: {
-                        accept: 'Ja',
-                        cancel: 'Nei'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.router.navigateByUrl('/marketplace/modules');
-                    }
-                    doneHandler('');
-                });
-            }
         });
     }
 
