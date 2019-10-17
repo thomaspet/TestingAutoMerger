@@ -35,6 +35,7 @@ export class TableDataService {
 
     // Only maintained for inifinite scroll tables!
     private rowCountOnRemote: number;
+    public isDataLoading = false;
 
     constructor(
         private statisticsService: StatisticsService,
@@ -90,6 +91,7 @@ export class TableDataService {
             this.hasRemoteLookup = true;
             this.loadedRowCount = 0;
 
+            this.isDataLoading = true;
             this.gridApi.setDatasource(this.getRemoteDatasource(resource));
         }
 
@@ -192,6 +194,7 @@ export class TableDataService {
                         this.loadedRowCount = params.startRow + rows.length;
 
                         params.successCallback(rows, this.rowCountOnRemote);
+                        this.isDataLoading = false;
                     },
                     err => {
                         console.error(err);

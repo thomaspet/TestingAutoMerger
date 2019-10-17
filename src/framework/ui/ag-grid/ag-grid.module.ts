@@ -1,7 +1,10 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatMenuModule, MatDatepickerModule, MatNativeDateModule, DateAdapter, MatAutocompleteModule} from '@angular/material';
+import {
+    MatMenuModule, MatDatepickerModule, MatNativeDateModule, DateAdapter, MatAutocompleteModule,
+    MatProgressSpinnerModule
+} from '@angular/material';
 
 import {AppPipesModule} from '../../../app/pipes/appPipesModule';
 
@@ -27,6 +30,7 @@ import {UniDateAdapter} from '@app/date-adapter';
         MatDatepickerModule,
         MatNativeDateModule,
         MatAutocompleteModule,
+        MatProgressSpinnerModule,
         AppPipesModule,
         AgGridModule.withComponents([
             RowMenuRenderer
