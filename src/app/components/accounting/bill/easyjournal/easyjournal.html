@@ -5,36 +5,8 @@
 
 <article class="main" [attr.aria-busy]="busy" >
 
-    <strong>Dato</strong><br/>
-    <input type="date" [ngModel]="session?.items[0]?.FinancialDate | date:'yyyy-MM-dd'" >
+    <easyjournal-prepaid [session]="session"></easyjournal-prepaid>
 
-    <section class="panel">
-        <h3>Utgiftskonto</h3>
-
-        <table class="max">
-            <thead>
-                <tr>
-                    <th class="span">Tekst</th>
-                    <th class="large">Konto</th>
-                    <th class="small">Beløp</th>
-                    <th class="medium">Mva</th>
-                </tr>
-            </thead>
-            <tr *ngFor="let item of session?.items">
-                <td><input type="text" placeholder="Kommentar" [(ngModel)]="item.Description" ></td>
-                <td><div (click)="dropClick($event)" class="dropdown"><input type="text" placeholder="Velg konto" (ngModelChange)="onEdit('Debet', item, $event)" [ngModel]="item.Debet?.superLabel" ></div></td>
-                <td><input type="text" placeholder="0.00" (ngModelChange)="onEdit('Amount', item, $event)" [ngModel]="item.Amount" ></td>
-                <td>
-                    <select>
-                        <option *ngFor="let code of session.vatTypes">{{code.superLabel}}</option>
-                    </select>
-                </td>
-                <td><button tabindex="-1" (click)="removeRow(item)" class="button-clean"><i class="material-icons">delete</i></button></td>
-            </tr>
-        </table>
-
-    </section>
-    <button (click)="addRow()" class="button-clean"><i class="material-icons">add</i></button>
-
+    <easyjournal-entries [session]="session"></easyjournal-entries>
 
 </article>

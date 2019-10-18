@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { BankJournalSession, DebitCreditEntry, ErrorService } from '@app/services/services';
+export { EasyJournalPrepaid } from './prepaid/prepaid';
+export { EasyJournalEntries } from './entries/entries';
 
 @Component({
     selector: 'easyjournal',
@@ -38,10 +40,6 @@ export class EasyJournal implements OnInit {
     sessionReady() {
     }
 
-    onEdit(fieldName: string, item: DebitCreditEntry, value: string) {
-        // console.log('onEdit:' + fieldName, $event);
-    }
-
     save(): Promise<boolean> {
         return new Promise( (resolve, reject) => {
             return this.session.save().subscribe( x => {
@@ -52,21 +50,7 @@ export class EasyJournal implements OnInit {
 
     clear() {
         this.session.clear();
-        this.addRow();
-    }
-
-    addRow() {
         this.session.items.push(new DebitCreditEntry(new Date()));
     }
 
-    removeRow(row: DebitCreditEntry) {
-        const ix = this.session.items.indexOf(row);
-        this.session.items.splice( ix, 1);
-    }
-
-    dropClick(mse: MouseEvent) {
-        if (mse.offsetX > (<any>mse.target).clientWidth - 35) {
-            console.log('Drop it down!');
-        }
-    }
 }

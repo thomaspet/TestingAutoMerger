@@ -107,25 +107,25 @@ export class BankJournalSession {
         this.balance = this.calcTotal();
     }
 
-    initialize(preloadAccountID?: number) {
+    initialize(preloadAccountID?: number, defaultSerieName?: string) {
         this.clear();
         this.accounts = [];
         this.busy = true;
 
-        const obsList = [
+        const apiRequests = [
             this.HttpGet(`vattypes`),
             this.HttpGet(`number-series?action=get-active-numberseries&entityType=JournalEntry&year=${this.currentYear}`)
         ];
 
         if (preloadAccountID) {
-            obsList.push(this.getAccountByID(preloadAccountID));
+            apiRequests.push(this.getAccountByID(preloadAccountID));
         }
 
-        return forkJoin(...obsList
+        return forkJoin(...apiRequests
         ).pipe(
             tap(res => {
                 this.vatTypes = this.createVatSuperLabel(res[0]);
-                this.setupSeries(res[1]);
+                this.setupSeries(res[1], defaultSerieName);
                 if (res[2]) {
                     this.accounts = this.createAccountSuperLabel(Array.isArray(res[2]) ? res[2] : [res[2]]);
                 }
@@ -134,10 +134,10 @@ export class BankJournalSession {
         );
     }
 
-    private setupSeries(list, keyWord = 'bank') {
+    private setupSeries(list, keyWord?: string) {
         if (Array.isArray(list) && list.length > 0) {
             this.series = list;
-            if (this.series.length > 1) {
+            if (this.series.length > 1 && keyWord) {
                 this.selectedSerie = this.series.find( x => x.Name.toLowerCase().indexOf(keyWord) >= 0);
             }
             this.selectedSerie = this.selectedSerie || this.series[0];
