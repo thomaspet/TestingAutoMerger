@@ -1253,7 +1253,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         toolbarconfig.buttons = [{
             class: 'icon-button',
-            icon: 'picture_as_pdf',
+            icon: 'remove_red_eye',
             action: () => this.preview()
         }];
 
