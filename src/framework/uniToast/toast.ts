@@ -1,43 +1,9 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, HostListener} from '@angular/core';
 import {IToast} from './toastService';
-import {UniTranslationService} from '@app/services/services';
 
 @Component({
     selector: 'uni-toast',
-    template: `
-        <i class="material-icons toast-close-icon"
-            (click)="close()"
-            role="button"
-            aria-label="Close">
-            close
-        </i>
-
-        <header>
-            <i class="material-icons toast-type-icon">
-                {{ (toast.type === 1) ? 'error_outline' : (toast.type === 2) ? 'check_circle_outline' : 'warning' }}
-            </i>
-            <span>
-                {{toast.title | translate}}
-                <small class="toast-count" *ngIf="toast.count > 1">({{toast.count}})</small>
-            </span>
-            <span class="toast-action"
-                *ngIf="toast.action && toast.action.displayInHeader"
-                (click)="toast.action.click()">
-                {{toast.action.label}}
-            </span>
-        </header>
-
-        <section class="toast-message"
-            *ngIf="toast.message?.length"
-            [innerHTML]="toast.message | translate">
-        </section>
-
-        <span class="toast-action" role="button"
-            *ngIf="toast.action && !toast.action.displayInHeader"
-            (click)="toast.action.click()">
-            {{toast.action.label}}
-        </span>
-    `,
+    templateUrl: './toast.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToast {

@@ -1,0 +1,27 @@
+<i class="material-icons toast-type-icon">
+    {{ (toast.type === 1) ? 'error_outline' : (toast.type === 2) ? 'check_circle_outline' : 'warning' }}
+</i>
+
+<section class="toast-body">
+    <section class="header">
+        {{toast.title | translate}}
+        <small class="toast-count" *ngIf="toast.count > 1">({{toast.count}})</small>
+    </section>
+
+    <section class="message"
+        *ngIf="toast.message?.length"
+        [innerHTML]="toast.message | translate">
+    </section>
+
+    <button class="toast-action" *ngIf="toast.action" (click)="toast.action.click()">
+        {{toast.action.label}}
+    </button>
+
+</section>
+
+<i class="material-icons toast-close-icon"
+    (click)="close()"
+    role="button"
+    aria-label="Close">
+    close
+</i>
