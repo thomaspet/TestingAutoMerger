@@ -62,10 +62,6 @@
 
         <article class="vatreport_poster_widget">
             <ul class="vatreport_poster_events">
-                <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
-                    <i class="material-icons">{{isControlledWithoutWarnings ? 'check_circle' : 'error'}}</i>
-                    {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
-                </li>
                 <li [className]="isExecuted() ? 'success' : 'incomplete'">
                     <i class="material-icons">{{isExecuted ? 'check_circle' : 'error'}}</i>
                     {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}

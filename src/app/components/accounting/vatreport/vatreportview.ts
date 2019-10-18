@@ -338,7 +338,7 @@ export class VatReportView implements OnInit, OnDestroy {
         return true;
     }
     private IsPayActionDisabled() {
-        if (this.paymentStatus === this.defaultPaymentStatus && this.currentVatReport.StatusCode === StatusCodeVatReport.Approved && 
+        if (this.paymentStatus === this.defaultPaymentStatus && this.currentVatReport.StatusCode === StatusCodeVatReport.Approved &&
             (this.currentVatReport.VatReportArchivedSummary || (this.currentVatReport.VatReportArchivedSummaryID && this.currentVatReport.VatReportArchivedSummaryID > 0))) {
             return false;
         }
@@ -410,7 +410,23 @@ export class VatReportView implements OnInit, OnDestroy {
         this.reportMessages = null;
         this.vatReportService.getVatReportMessages(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
-            data => this.reportMessages = data,
+            data => {
+                this.reportMessages = data;
+                const tab = this.tabs[0];
+                if (this.isControlledWithoutWarnings()) {
+                    if (tab.tooltip) {
+                        delete tab.tooltip;
+                        delete tab.tooltipIcon;
+                        delete tab.tooltipClass;
+                        this.tabs = [].concat(this.tabs);
+                    }
+                } else {
+                    tab.tooltip = 'Automatisk kontroll har advarsler';
+                    tab.tooltipIcon = 'error';
+                    tab.tooltipClass = 'warn';
+                    this.tabs = [].concat(this.tabs);
+                }
+            },
             err => this.errorService.handle(err)
             );
         this.updateStatusText();
