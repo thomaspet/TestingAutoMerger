@@ -60,7 +60,7 @@ export interface IGroupConfig {
 
 @Component({
     selector: 'unitable-autocomplete',
-    templateUrl: './autocomplete.html',
+    templateUrl: './table-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UnitableAutocomplete implements OnInit {

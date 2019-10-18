@@ -52,6 +52,7 @@ import {
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 
 @NgModule({
     imports: [
@@ -85,6 +86,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
         NgSelectModule,
         DropdownMenuModule,
         ComboButtonModule,
+        AutocompleteModule,
     ],
     declarations: [
         UniComponentLoader,
@@ -130,6 +132,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
         NgSelectModule,
         DropdownMenuModule,
         ComboButtonModule,
+        AutocompleteModule,
 
         // Components
         UniModal,
@@ -143,7 +146,6 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniAvatar,
         UniInfo,
         UniShowReinvoiceStatus,
-
         UniComponentLoader,
 
         // Material

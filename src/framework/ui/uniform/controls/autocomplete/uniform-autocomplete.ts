@@ -27,16 +27,16 @@ import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/share';
 
 import * as _ from 'lodash';
-import {IGroupConfig} from '@uni-framework/ui/unitable/controls/autocomplete';
+import {IGroupConfig} from '@uni-framework/ui/unitable/controls/table-autocomplete';
 import {KeyCodes} from '@app/services/common/keyCodes';
 import {take, debounceTime} from 'rxjs/operators';
 
 @Component({
-    selector: 'uni-autocomplete-input',
-    templateUrl: './autocomplete.html',
+    selector: 'uniform-autocomplete',
+    templateUrl: './uniform-autocomplete.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UniAutocompleteInput extends BaseControl {
+export class UniFormAutocomplete extends BaseControl {
     @ViewChild('list') private list: ElementRef;
     @ViewChild('inputElement') private inputElement: ElementRef;
 
@@ -44,10 +44,10 @@ export class UniAutocompleteInput extends BaseControl {
     @Input() public model: any;
     @Input() public asideGuid: string;
 
-    @Output() public readyEvent: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
+    @Output() public readyEvent: EventEmitter<UniFormAutocomplete> = new EventEmitter<UniFormAutocomplete>(true);
     @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
-    @Output() public focusEvent: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
+    @Output() public focusEvent: EventEmitter<UniFormAutocomplete> = new EventEmitter<UniFormAutocomplete>(true);
 
     // state vars
     public busy$: BehaviorSubject<boolean> = new BehaviorSubject(false);

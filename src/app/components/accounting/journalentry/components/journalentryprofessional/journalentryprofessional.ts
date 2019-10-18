@@ -19,7 +19,7 @@ import {
     IContextMenuItem,
     IColumnTooltip
 } from '../../../../../../framework/ui/unitable/index';
-import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
+import {IGroupConfig} from '@uni-framework/ui/unitable/controls/table-autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
