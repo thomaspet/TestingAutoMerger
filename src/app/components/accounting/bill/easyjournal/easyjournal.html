@@ -3,20 +3,24 @@
     [saveactions]="saveActions">
 </uni-toolbar>
 
-<div class="viewmode">
-    <mat-slide-toggle
-        [(ngModel)]="viewModePayable"
-        (ngModelChange)="flipViewMode()"
-        [labelPosition]="'before'">
-        Utbetaling
-    </mat-slide-toggle>
-</div>
+<mat-slide-toggle class="viewmode"
+    [(ngModel)]="viewModePayable"
+    (ngModelChange)="flipViewMode()"
+    [labelPosition]="'before'">
+    Utbetaling
+</mat-slide-toggle>
 
 <article class="main" [attr.aria-busy]="busy" >
 
-    <easyjournal-prepaid *ngIf="!viewModePayable" [session]="session"></easyjournal-prepaid>
-    <easyjournal-payable *ngIf="viewModePayable" [session]="session"></easyjournal-payable>
+    <section class="panel">
+        <h3>Detaljer</h3>
+        <easyjournal-prepaid *ngIf="!viewModePayable" [session]="session"></easyjournal-prepaid>
+        <easyjournal-payable *ngIf="viewModePayable" [session]="session"></easyjournal-payable>
+    </section>
 
-    <easyjournal-entries [session]="session"></easyjournal-entries>
+    <section class="panel">
+        <h3>Utgiftskonto</h3>
+        <easyjournal-entries [session]="session"></easyjournal-entries>
+    </section>
 
 </article>

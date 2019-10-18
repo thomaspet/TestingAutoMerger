@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef  } from '@angular/core';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { BankJournalSession, DebitCreditEntry, ErrorService } from '@app/services/services';
@@ -25,13 +25,17 @@ export class EasyJournal implements OnInit {
     }];
 
     public toolbarConfig: IToolbarConfig = {
-        title: 'Manuelt bilag', omitFinalCrumb: true
+        title: this.getTitle(), omitFinalCrumb: true
     };
 
-    constructor(public session: BankJournalSession, private errorService: ErrorService) {
+    constructor(public session: BankJournalSession, private errorService: ErrorService, private chref: ChangeDetectorRef) {
         session.initialize()
             .finally( () => this.busy = false)
             .subscribe( () => this.sessionReady() );
+    }
+
+    private getTitle(): string {
+        return this.viewModePayable ? 'Utlegg - tilbakebetaling' : 'Utlegg - forhåndsbetalt';
     }
 
     ngOnInit() {
@@ -56,6 +60,9 @@ export class EasyJournal implements OnInit {
 
     flipViewMode() {
         this.viewModePayable = !this.viewModePayable;
+        this.toolbarConfig.title = this.getTitle();
+        this.chref.detectChanges();
+        console.log("flipped");
     }
 
 }
