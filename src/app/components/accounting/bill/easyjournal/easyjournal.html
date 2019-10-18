@@ -10,17 +10,54 @@
     Utbetaling
 </mat-slide-toggle>
 
-<article class="main" [attr.aria-busy]="busy" >
+<section class="application" [attr.aria-busy]="busy" >
 
-    <section class="panel">
-        <h3>Detaljer</h3>
-        <easyjournal-prepaid *ngIf="!viewModePayable" [session]="session"></easyjournal-prepaid>
-        <easyjournal-payable *ngIf="viewModePayable" [session]="session"></easyjournal-payable>
+    <section class="easyjournal-split-view">
+        <section class="input-section">
+            <section class="details uni-container">
+                <header>Detaljer</header>
+
+                <section>
+                    <easyjournal-prepaid *ngIf="!viewModePayable" [session]="session"></easyjournal-prepaid>
+                    <easyjournal-payable *ngIf="viewModePayable" [session]="session"></easyjournal-payable>
+                </section>
+            </section>
+
+            <section class="journaling uni-container">
+                <header>Utgiftskonto</header>
+                <easyjournal-entries [session]="session"></easyjournal-entries>
+                <footer>
+                    <span>Totalsum</span>
+                    <span>{{(session.balance | uninumberformat: 'money') || '0,00'}}</span>
+                </footer>
+            </section>
+        </section>
+
+        <section class="attachments uni-container">
+            <header>Vedlegg</header>
+
+            <section>Hello world</section>
+
+            <!-- <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+                <i class="material-icons">get_app</i>
+                Hent fra innboks
+            </span>
+
+            <uni-image
+                [singleImage]="false"
+                [uploadWithoutEntity]="!(current | async)?.ID"
+                [fileIDs]="(current | async)?.ID ? [] : startUpFileID"
+                [entity]="'SupplierInvoice'"
+                [entityID]="(current | async)?.ID"
+                [size]="1200"
+                [splitAllowed]="true"
+                [rotateAllowed]="true"
+                (fileListReady)="onFileListReady($event)"
+                (imageDeleted)="onImageDeleted($event)"
+                (imageUnlinked)="imageUnlinked($event)"
+                (useWord)="onUseWord($event)">
+            </uni-image> -->
+
+        </section>
     </section>
-
-    <section class="panel">
-        <h3>Utgiftskonto</h3>
-        <easyjournal-entries [session]="session"></easyjournal-entries>
-    </section>
-
-</article>
+</section>

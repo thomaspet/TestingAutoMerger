@@ -1,25 +1,44 @@
-<section>
-    <table class="max">
-        <thead>
-            <tr>
-                <th class="span">Tekst</th>
-                <th class="large">Konto</th>
-                <th class="small">Beløp</th>
-                <th class="medium">Mva</th>
-            </tr>
-        </thead>
-        <tr *ngFor="let item of session?.items">
-            <td><input type="text" placeholder="Kommentar" [(ngModel)]="item.Description" ></td>
-            <td><div (click)="dropClick($event)" class="dropdown"><input type="text" placeholder="Velg konto" (ngModelChange)="onEdit('Debet', item, $event)" [ngModel]="item.Debet?.superLabel" ></div></td>
-            <td><input type="text" placeholder="0.00" (ngModelChange)="onEdit('Amount', item, $event)" [ngModel]="item.Amount" ></td>
-            <td>
-                <select>
-                    <option *ngFor="let code of session.vatTypes">{{code.superLabel}}</option>
-                </select>
-            </td>
-            <td><button tabindex="-1" (click)="removeRow(item)" class="button-clean"><i class="material-icons">delete</i></button></td>
-        </tr>
-    </table>
+<section class="entry" *ngFor="let item of session?.items; let idx = index">
 
+    <!-- Header for entries after first one -->
+    <section *ngIf="idx > 0" class="entry-header">
+        Konteringslinje {{idx + 1}}
+        <button class="icon-button">
+            <i class="material-icons">close</i>
+        </button>
+    </section>
+
+    <section class="form-grid">
+        <label class="uni-label full-width">
+            <span>Kostnadskonto</span>
+            <select [(ngModel)]="item.Debet">
+                <option *ngFor="let account of session.accounts" [ngValue]="account">
+                    {{account.superLabel}}
+                </option>
+            </select>
+        </label>
+
+        <label class="uni-label">
+            <span>Beløp</span>
+            <input type="number" [(ngModel)]="item.Amount" />
+        </label>
+
+        <label class="uni-label">
+            <span>MVA</span>
+            <select [(ngModel)]="item.VatType">
+                <option *ngFor="let vatType of session.vatTypes" [ngValue]="vatType">
+                    {{vatType.superLabel}}
+                </option>
+            </select>
+        </label>
+
+        <label class="uni-label full-width">
+            <span>Beskrivelse</span>
+            <input type="text" [(ngModel)]="item.Description" />
+        </label>
+    </section>
 </section>
-<button (click)="addRow()" class="button-clean"><i class="material-icons">add</i></button>
+
+<button (click)="addRow()" class="secondary">
+    Del beløp over flere kontoer
+</button>

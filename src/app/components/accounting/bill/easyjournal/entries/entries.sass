@@ -1,53 +1,25 @@
-table.max
-    width: 100%
-    max-width: 70rem
+\:host
+    display: block
+
+.entry-header
+    font-weight: 500
+    font-size: 16px
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin: .75rem 0
+
+
+.form-grid
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(50%, 1fr) ) //1fr 1fr
+
+    // Negative margins to conteract the label margins for half-width inputs
+    margin: 0 -.5rem
+    label
+        margin: 0 .5rem .75rem
+        &.full-width
+            grid-column: span 2
+
+button.secondary
     margin-top: 1rem
-
-    border-spacing: 0 0.5rem
-
-    th
-        text-align: left
-
-    td
-        height: 2rem
-        padding-right: 5px
-
-        input, div
-            width: 100%
-            height: 100%
-
-        select
-            height: 100%
-            border-color: #ccc
-
-    th.small
-        width: 8rem
-
-    th.medium
-        width: 12rem
-
-    th.large
-        width: 19rem
-
-    th.span
-        min-width: 6rem
-
-hr
-    border: 6px solid #ddd
-    border-radius: 5px
-
-.button-clean
-    color: #aaa
-    background-color: transparent
-
-.dropdown
-    position: relative
-    display: inline-block
-
-.dropdown::before
-    position: absolute
-    content: "\25bc"
-    top: 0.5rem
-    right: 10px
-    height: 20px
-    width: 20px

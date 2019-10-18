@@ -1,19 +1,30 @@
-.main
-    margin: 0 2rem 0 1rem
-
 .viewmode
     position: absolute
     top: 2.6rem
     left: 20rem
     z-index: 1000
 
-.panel
-    padding: 1rem
-    margin: 1rem 1rem 0.5rem 0
-    background-color: white
-    border-radius: 5px
-    box-shadow: 1px 1px #ccc
+.easyjournal-split-view
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr))
+    grid-gap: .75rem
+    margin-bottom: 1rem
 
-    h3
-        margin-top: 0
-        margin-bottom: 0.5rem
+    .uni-container
+        margin: 0
+        header
+            font-weight: 500
+
+        &.journaling
+            margin-top: .75rem
+            padding-bottom: 0
+
+            footer
+                justify-content: space-between
+                height: 3.25rem
+                margin-top: 1.5rem
+                color: var(--header-color)
+                font-size: 15px
+                font-weight: 500
+                background: #fafafa
+                border-top: 1px solid var(--border-color)
