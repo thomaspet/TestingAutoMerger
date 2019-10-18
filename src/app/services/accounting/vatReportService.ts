@@ -248,7 +248,7 @@ export class VatReportService extends BizHttp<VatReport> {
         return statusType ? statusType.Text : '';
     };
 
-    public getPaymentStatus(vatReportID: number): Observable<any> {
+    public getPaymentStatus(vatReportID: number, defaultPaymentStatus: string = 'Ikke betalt'): Observable<any> {
         return Observable.forkJoin(
             this.statisticsService.GetAll(`model=Tracelink&filter=DestinationEntityName eq 'Payment' `
                 + `and SourceEntityName eq 'VatReport' and VatReport.ID eq ${vatReportID}`
@@ -256,7 +256,7 @@ export class VatReportService extends BizHttp<VatReport> {
                 + `&select=Payment.StatusCode as StatusCode`)
         ).map(responses => {
             const payments: Array<any> = responses[0].Data ? responses[0].Data : [];
-            let statusText = 'Ubetalt';
+            let statusText = defaultPaymentStatus;
             if (payments.length > 0)
             {
                 const statusCode = payments[0].StatusCode;
@@ -270,8 +270,7 @@ export class VatReportService extends BizHttp<VatReport> {
                     case 44011:
                     case 44015:
                     case 44016:
-                    case 44018:
-                        return 'Til betaling';
+                        return 'Sendt til betaling';
                     case 44004:
                     case 44006:
                     case 44018:
