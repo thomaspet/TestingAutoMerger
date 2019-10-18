@@ -60,7 +60,7 @@ import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-
 import {ReInvoiceInfoModal} from './bill/reinvoice-info-modal/reinvoice-info-modal';
 import {BillAssignmentModal} from './bill/assignment-modal/assignment-modal';
 import {BillInitModal} from './bill/bill-init-modal/bill-init-modal';
-import {EasyJournal, EasyJournalPrepaid, EasyJournalEntries} from './bill/easyjournal/easyjournal';
+import {EasyJournal, EasyJournalPrepaid, EasyJournalEntries, EasyJournalPayable} from './bill/easyjournal/easyjournal';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -151,6 +151,7 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         EasyJournal,
         EasyJournalPrepaid,
         EasyJournalEntries,
+        EasyJournalPayable,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,

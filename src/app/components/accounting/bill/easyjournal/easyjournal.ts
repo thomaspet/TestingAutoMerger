@@ -4,6 +4,7 @@ import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { BankJournalSession, DebitCreditEntry, ErrorService } from '@app/services/services';
 export { EasyJournalPrepaid } from './prepaid/prepaid';
 export { EasyJournalEntries } from './entries/entries';
+export { EasyJournalPayable } from './payable/payable';
 
 @Component({
     selector: 'easyjournal',
@@ -13,7 +14,7 @@ export { EasyJournalEntries } from './entries/entries';
 export class EasyJournal implements OnInit {
 
     busy = true;
-
+    viewModePayable = false;
 
     public saveActions: IUniSaveAction[] = [{
         label: 'Nytt bilag',
@@ -51,6 +52,10 @@ export class EasyJournal implements OnInit {
     clear() {
         this.session.clear();
         this.session.items.push(new DebitCreditEntry(new Date()));
+    }
+
+    flipViewMode() {
+        this.viewModePayable = !this.viewModePayable;
     }
 
 }
