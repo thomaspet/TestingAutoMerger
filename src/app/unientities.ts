@@ -881,8 +881,6 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public DebtCollectionSettingsID: number;
-    public DefaultProductInterestFeeID: number;
-    public DefaultProductReminderFeeID: number;
     public Deleted: boolean;
     public ID: number;
     public MinimumAmountToRemind: number;
@@ -892,8 +890,6 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public UpdatedBy: string;
     public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
-    public DefaultProductReminderFee: Product;
-    public DefaultProductInterestFee: Product;
     public DefaultReminderFeeAccountID: number;
     public CustomFields: any;
 }
