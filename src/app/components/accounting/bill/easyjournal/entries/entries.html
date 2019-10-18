@@ -4,7 +4,7 @@
     <section *ngIf="idx > 0" class="entry-header">
         Konteringslinje {{idx + 1}}
         <button class="icon-button">
-            <i class="material-icons">close</i>
+            <i class="material-icons" (click)="removeRow(entry)">close</i>
         </button>
     </section>
 
