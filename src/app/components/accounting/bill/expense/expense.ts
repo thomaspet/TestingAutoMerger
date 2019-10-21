@@ -72,8 +72,8 @@ export class Expense implements OnInit {
     save(): Promise<boolean> {
 
         return new Promise((resolve, reject) => {
-            const validation = this.session.validate();
             const xpList = this.session.convertToExpense();
+            const validation = this.session.validate();
             const xp = xpList[0];
             console.table(xp.DraftLines);
             console.log('content', xp );

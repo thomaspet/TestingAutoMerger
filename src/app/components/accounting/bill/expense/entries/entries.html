@@ -11,11 +11,7 @@
     <section class="form-grid">
         <label class="uni-label full-width">
             <span>Kostnadskonto</span>
-            <select [(ngModel)]="item.Debet">
-                <option *ngFor="let account of session.accounts" [ngValue]="account">
-                    {{account.superLabel}}
-                </option>
-            </select>
+            <autocomplete [options]="accountOptions" [value]="item.Debet" (valueChanges)="setAccount(item, $event)"></autocomplete>
         </label>
 
         <label class="uni-label">
