@@ -467,14 +467,8 @@ export class VatReportView implements OnInit, OnDestroy {
         .subscribe((responses) => {
             const submits: Array<any> = responses[0].Data ? responses[0].Data : [];
             const approvals: Array<any> = responses[1].Data ? responses[1].Data : [];
-            if (submits.length > 0)
-            {
-                this.submittedDate = submits[0].Date;
-            }
-            if (approvals.length > 0)
-            {
-                this.approvedDate = approvals[0].Date;
-            }
+            this.submittedDate = submits.length > 0 ? submits[0].Date : null;
+            this.approvedDate = approvals.length > 0 ? approvals[0].Date : null; 
         });
     }
 
