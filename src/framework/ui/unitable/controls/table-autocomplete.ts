@@ -68,7 +68,7 @@ export class UnitableAutocomplete implements OnInit {
     @ViewChild('dropdown') private dropdown: ElementRef;
 
     @Input()
-    private column: any;
+    public column: any;
 
     @Input()
     public inputControl: FormControl;
