@@ -120,7 +120,10 @@ export class AuthService {
                         () => onMissingAuth()
                     );
                 } else {
-                    this.router.navigateByUrl('/init/login');
+                    if (!this.router.url.startsWith('/init')) {
+                        this.router.navigate(['/init/login']);
+                    }
+
                     this.setLoadIndicatorVisibility(false);
                 }
             } else {
@@ -137,41 +140,6 @@ export class AuthService {
         this.userManager.events.addSilentRenewError(function(res) {
             console.log(res);
         });
-
-        // if (this.jwt && this.activeCompany) {
-        //     this.setLoadIndicatorVisibility(true);
-        //     this.loadCurrentSession().subscribe(
-        //         auth => {
-        //             this.filesToken$.next(this.filesToken);
-
-        //             if (!auth.hasActiveContract) {
-        //                 this.router.navigateByUrl('contract-activation');
-        //             }
-
-        //             // Give the app a bit of time to initialise before we remove spinner
-        //             // (less visual noise on startup)
-        //             setTimeout(() => {
-        //                 this.setLoadIndicatorVisibility(false);
-        //             }, 250);
-        //         },
-        //         () => {
-        //             this.setLoadIndicatorVisibility(false);
-        //             this.authentication$.next({
-        //                 activeCompany: undefined,
-        //                 user: undefined,
-        //                 hasActiveContract: false,
-        //             });
-
-        //             this.clearAuthAndGotoLogin();
-        //         }
-        //     );
-        // } else {
-        //     this.authentication$.next({
-        //         activeCompany: undefined,
-        //         user: undefined,
-        //         hasActiveContract: false,
-        //     });
-        // }
 
         // Also check if we have a files token, and re-authenticate with uni-files if not.
         setInterval(() => {
@@ -412,7 +380,10 @@ export class AuthService {
             this.jwt = undefined;
             this.activeCompany = undefined;
             this.setLoadIndicatorVisibility(false);
-            this.router.navigate(['/init/login']);
+
+            if (!this.router.url.startsWith('/init')) {
+                this.router.navigate(['/init/login']);
+            }
         });
     }
 
