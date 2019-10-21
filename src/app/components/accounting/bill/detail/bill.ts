@@ -3025,12 +3025,12 @@ export class BillView implements OnInit {
     private updateJournalEntryManualDates(iDateNew: LocalDate, iDateOld: LocalDate, dDateNew: LocalDate, dDateOld: LocalDate) {
         if (this.journalEntryManual) {
 
-            const lines = this.journalEntryManual.getJournalEntryData();
+            let lines = this.journalEntryManual.getJournalEntryData();
             const isInvoiceDateUpdated =  this.isSameDate(iDateNew, iDateOld);
             const isDeliveryDateUpdated = this.isSameDate(dDateNew, dDateOld);
             const bookOnDeliverDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate;
 
-            lines.map(line => {
+            lines = lines.map(line => {
                 // vatDate should always use invoiceDate
                 if (isNullOrUndefined(line.VatDate)) {
                     line.VatDate = iDateNew; // if not set use new date, no other conserns
@@ -3056,6 +3056,7 @@ export class BillView implements OnInit {
                         }
                     }
                 }
+                return line;
             });
             this.journalEntryManual.setJournalEntryData(lines);
         }
