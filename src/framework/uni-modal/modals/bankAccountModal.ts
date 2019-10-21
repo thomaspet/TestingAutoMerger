@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
@@ -7,8 +7,7 @@ import { UniModalService } from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
-import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankModal} from '@uni-framework/uni-modal/modals/bankModal';
 import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
 
@@ -18,7 +17,7 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
         <section role="dialog" class="uni-modal">
             <header>{{options.header || 'Bankkonto'}}</header>
             <article [attr.aria-busy]="busy">
-                <uni-form
+                <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
@@ -27,10 +26,18 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
                 </uni-form>
             </article>
             <footer>
-                <button class="secondary" (click)="close(false)">Avbryt</button>
+                <button
+                    class="secondary"
+                    (click)="close(false)"
+                    (keydown.shift.tab)="$event.preventDefault(); form?.focus()"
+                    (keydown.tab)="onCancelTab($event)">
+                    Avbryt
+                </button>
+
                 <button class="c2a"
                     (click)="close(true)"
-                    [disabled]="isDirty && !validAccount || !hasChanges">
+                    (keydown.tab)="$event.preventDefault()"
+                    [disabled]="!isDirty || !validAccount">
                     Ok
                 </button>
             </footer>
@@ -38,23 +45,17 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
     `
 })
 export class UniBankAccountModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Input() modalService: UniModalService;
+    @Output() onClose = new EventEmitter();
 
-    @Input()
-    public modalService: UniModalService;
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<BankAccount> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formConfig$ = new BehaviorSubject({autofocus: true});
+    public formModel$ = new BehaviorSubject(null);
+    public formFields$ = new BehaviorSubject([]);
 
     public isDirty: boolean;
     public validAccount: boolean = true;
     public busy: boolean = false;
-    public hasChanges: boolean = false;
     private saveBankAccountInModal: boolean = false;
     public bankAccounts: Array<BankAccount> = [];
     public accountInfo: any;
@@ -64,7 +65,6 @@ export class UniBankAccountModal implements IUniModal {
         private accountService: AccountService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private elementRef: ElementRef,
         private bankAccountService: BankAccountService,
         private statisticsService: StatisticsService
     ) {}
@@ -90,24 +90,25 @@ export class UniBankAccountModal implements IUniModal {
         });
     }
 
-    public onReady() {
-        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
-        if (inputs.length) {
-            const first = inputs[0];
-            first.focus();
-            first.value = first.value; // set cursor at end of text
-            const last = inputs[inputs.length - 1];
-            Observable.fromEvent(last, 'keydown')
-                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
-                .subscribe(() => this.close(true));
-        }
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formModel$.complete();
+        this.formFields$.complete();
+    }
 
+    public onReady() {
         if (this.accountInfo._ibanAccountSearch) {
             this.onFormChange({
                 _ibanAccountSearch: {
                     currentValue: this.accountInfo._ibanAccountSearch
                 }
             });
+        }
+    }
+
+    onCancelTab(event: KeyboardEvent) {
+        if (!this.isDirty || !this.validAccount) {
+            event.preventDefault();
         }
     }
 
@@ -172,8 +173,6 @@ export class UniBankAccountModal implements IUniModal {
     public onFormChange(changes) {
         this.isDirty = true;
         this.validAccount = true;
-        this.hasChanges = true;
-
 
         if (changes['AccountNumber']) {
             this.toastService.clear();

@@ -6,7 +6,8 @@
             [readonly]="readonly"
             [entity]="data"
             [entityType]="entityName"
-            (entityChange)="onDataChange($event)">
+            (entityChange)="onDataChange($event)"
+            (keydown.tab)="focusDetailsForm($event)">
         </tof-customer-card>
 
         <div class="required-dimension" *ngIf="validationMessage?.Level === 30">

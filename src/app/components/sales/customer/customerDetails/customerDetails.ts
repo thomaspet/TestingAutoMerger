@@ -1236,7 +1236,6 @@ export class CustomerDetails implements OnInit {
                 && customer.Info.Addresses[0].CountryCode !== 'NO';
         } catch (e) {}
 
-        console.log('Validating: ', orgNr, field, isInternationalCustomer);
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternationalCustomer);
     }
 

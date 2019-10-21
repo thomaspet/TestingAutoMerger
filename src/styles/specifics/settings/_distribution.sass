@@ -128,7 +128,7 @@ uni-distibution, batch-invoices-container
             display: block
 
     .entity-functionality-container
-        flex: 1
+        flex: 0 0 auto
         display: flex
         align-items: center
         justify-content: flex-end
@@ -137,24 +137,15 @@ uni-distibution, batch-invoices-container
         span
             font-size: 15px
         &.settings-view
-
             i
                 margin-left: 1rem
                 cursor: pointer
 
-        .change-customer-distribution-button
-            line-height: 16px
-            background-color: $uni-color-plus
-            margin: 0
-
-        .remove-customer-distribution-button
+        .remove-distribution
             color: $uni-color-bad
-            background-color: transparent
             margin: 0
-
             &.disabled
                 opacity: .25
-
             i
                 margin: 0
 

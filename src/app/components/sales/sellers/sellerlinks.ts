@@ -159,7 +159,6 @@ export class SellerLinks {
         ];
 
         this.sellerTableConfig = new UniTableConfig('common.seller.sellerlinks', !this.readonly, true, 15)
-            .setAutofocus(true)
             .setDefaultRowData({SellerID: 0})
             .setDeleteButton(!this.readonly)
             .setContextMenu(contextMenuItems)

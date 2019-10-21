@@ -1,4 +1,4 @@
-<section class="input-with-button" (clickOutside)="close()">
+<section class="input-with-button" (clickOutside)="close()" (keydown.f3)="onF3Key($event)">
     <input type="text"
         #inputElement
         [formControl]="searchControl"
@@ -68,7 +68,7 @@
             <section *ngIf="options?.createHandler" class="footer">
                 <a (click)="create()">
                     <i class="material-icons">add</i>
-                    {{options.createLabel || 'Opprett ny'}}
+                    {{options.createLabel || 'Opprett ny'}} (F3)
                 </a>
             </section>
         </section>
