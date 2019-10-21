@@ -266,7 +266,7 @@ export class AgGridWrapper {
             const loaded = Object.keys(state).every(key => state[key].pageStatus === 'loaded');
 
             if (loaded) {
-                this.onDataLoaded(event.api);
+                this.onDataLoaded();
                 this.dataLoaded.emit();
 
                 if (this.isInitialLoad) {
@@ -299,33 +299,8 @@ export class AgGridWrapper {
         }
     }
 
-    public onDataLoaded(api: GridApi) {
+    public onDataLoaded() {
         if (!this.localData) {
-            // const loadedRowCount = this.dataService.loadedRowCount;
-            // const pageSize = this.config.pageSize || 20;
-
-            // const hasSumRow = this.columns.some(col => col.isSumColumn);
-            // if (loadedRowCount < pageSize) {
-            //     let heightMultiplier = 1 + (loadedRowCount || 1);
-            //     if (hasSumRow || loadedRowCount === 0) {
-            //         heightMultiplier += 1;
-            //     }
-
-            //     this.tableHeight = (heightMultiplier * this.rowHeight) + 1 + 'px';
-            // } else {
-            //     let height = (pageSize + 1) * this.rowHeight;
-            //     if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
-            //         height -= 40;
-            //     }
-
-            //     if (hasSumRow || this.config.showTotalRowCount) {
-            //         height += this.rowHeight;
-            //     }
-
-            //     // +20 to make room for horizontal scrollbar
-            //     this.tableHeight = height + 20 + 'px';
-            // }
-
             if (this.dataService.loadedRowCount) {
                 this.agGridApi.hideOverlay();
             } else {
@@ -335,15 +310,13 @@ export class AgGridWrapper {
             this.calcTableHeight();
 
             setTimeout(() => {
-                // api.doLayout();
-                // api.sizeColumnsToFit();
                 this.dataService.isDataLoading = false;
             });
         }
     }
 
     private calcTableHeight() {
-        if (!this.localData) {
+        if (this.config && !this.localData) {
             const rowCount = this.dataService.loadedRowCount || 0;
             const pageSize = this.config.pageSize || 20;
             const hasSumRow = !!this.dataService.sumRow$.value;
@@ -351,7 +324,7 @@ export class AgGridWrapper {
             let tableHeight;
             if (rowCount < pageSize) {
                 let heightMultiplier = 1 + (rowCount || 1);
-                if (hasSumRow) { //  || rowCount === 0
+                if (hasSumRow) {
                     heightMultiplier += 1;
                 }
 
@@ -775,7 +748,13 @@ export class AgGridWrapper {
 
                     return this.tableUtils.getColumnValue(data, col, true);
                 },
-                cellRenderer: (params) => `<span>${params.value}</span>`
+                cellRenderer: (params) => {
+                    if (params.value) {
+                        return `<span>${params.value}</span>`;
+                    } else if (col.placeholder) {
+                        return `<span class="placeholder">${col.placeholder}</span>`;
+                    }
+                }
             };
 
             if (col.rowGroup) {

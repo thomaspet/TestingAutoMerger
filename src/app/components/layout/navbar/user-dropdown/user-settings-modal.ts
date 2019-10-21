@@ -4,6 +4,7 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UserService, ErrorService} from '@app/services/services';
 import {User} from '@app/unientities';
 import {forkJoin} from 'rxjs';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'user-settings-modal',
@@ -18,25 +19,22 @@ export class UserSettingsModal implements IUniModal {
     user: User;
     userDetailsForm: FormGroup;
     autobankPasswordForm: FormGroup;
+    epostButtonClicked: boolean;
 
     constructor(
         private errorService: ErrorService,
-        private userService: UserService
+        private userService: UserService,
+        private toast: ToastService
     ) {}
 
     public ngOnInit() {
         this.user = this.options.data || {};
+        this.epostButtonClicked = false;
 
         this.userDetailsForm = new FormGroup({
             DisplayName: new FormControl(this.user.DisplayName),
             PhoneNumber: new FormControl(this.user.PhoneNumber),
             Email: new FormControl(this.user.Email)
-        });
-
-        this.autobankPasswordForm = new FormGroup({
-            currentPassword: new FormControl(''),
-            newPassword: new FormControl(''),
-            confirmNewPassword: new FormControl('')
         });
     }
 
@@ -53,19 +51,6 @@ export class UserSettingsModal implements IUniModal {
             saveRequests.push(this.userService.Put(this.user.ID, this.user));
         }
 
-        if (this.autobankPasswordForm.dirty) {
-            const model = this.autobankPasswordForm.value;
-            const passwordsMatch = model.newPassword === model.confirmNewPassword;
-
-            // TODO: should probably have validation here (length etc)
-            if (passwordsMatch) {
-                saveRequests.push(this.userService.changeAutobankPassword({
-                    Password: model.currentPassword,
-                    NewPassword: model.newPassword
-                }));
-            }
-        }
-
         this.busy = true;
         if (saveRequests.length) {
             forkJoin(saveRequests).subscribe(
@@ -78,5 +63,12 @@ export class UserSettingsModal implements IUniModal {
         } else {
             this.onClose.emit(false);
         }
+    }
+
+    resetAutobankPassword() {
+        this.userService.changeAutobankPassword().subscribe(
+            () => this.toast.addToast('E-post er sendt', ToastType.good, ToastTime.short),
+            err => this.errorService.handle(err)
+        );
     }
 }

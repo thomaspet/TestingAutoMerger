@@ -213,5 +213,6 @@ export const NO = {
         'OTHER': 'Annet',
         'NUMBER_AND_REPORTS': 'Tall og rapporter',
         'EXPENSE': 'Utlegg'
+        'INBOX': 'Innboks'
     }
 };

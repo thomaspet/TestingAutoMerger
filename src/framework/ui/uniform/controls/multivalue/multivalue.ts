@@ -146,7 +146,11 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         if (this.isOpen) {
             this.close();
         } else {
-            this.open();
+            if (this.rows && this.rows.length) {
+                this.open();
+            } else {
+                this.addNew();
+            }
         }
     }
 
@@ -440,7 +444,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             case KeyCodes.SPACE:
                 if (!this.isOpen) {
                     event.preventDefault();
-                    this.open();
+                    this.toggle();
                 }
                 break;
             case KeyCodes.F4:

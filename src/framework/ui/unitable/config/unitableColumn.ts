@@ -91,6 +91,7 @@ export interface IUniTableColumn {
     linkClick?: (rowModel) => void;
     maxLength?: number;
     resizeable?: boolean;
+    placeholder?: string;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -137,6 +138,7 @@ export class UniTableColumn implements IUniTableColumn {
     public rowGroup?: boolean;
     public enableRowGroup?: boolean;
     public enablePivot?: boolean;
+    public placeholder: string;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -398,6 +400,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setMaxLength(maxLength: number) {
         this.maxLength = maxLength;
+        return this;
+    }
+
+    setPlaceholder(placeholder: string) {
+        this.placeholder = placeholder;
         return this;
     }
 }

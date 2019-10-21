@@ -4,14 +4,11 @@
     (statusSelectEvent)="setVatReportFromEvent($event)">
 </uni-toolbar>
 
-<header class="poster">
-
-    <section class="vatreport_poster">
+<section class="application">
+    <section class="uni-container vatreport_poster">
 
         <article class="vatreport_poster_widget">
             <dl class="vatreport_poster_details">
-                <dt>Firmanavn</dt>
-                <dd>{{companySettings?.CompanyName}}</dd>
                 <dt>Juridisk enhet</dt>
                 <dd>{{companySettings?.OrganizationNumber | uninumberformat:'orgno'}}</dd>
                 <dt *ngIf="companySettings?.CompanyBankAccount?.AccountNumber">Kontonr. for tilbakebetaling</dt>
@@ -19,7 +16,8 @@
 
                 <dt>Status for periode</dt>
                 <dd>{{statusCodePeriod}}</dd>
-
+                <dt>Betalingsstatus</dt>
+                <dd [className]="paymentStatus === 'Betalt' ? 'success' : paymentStatus === 'Sendt til betaling' ? 'inprogress' : ''">{{paymentStatus}}</dd>
             </dl>
         </article>
 
@@ -64,23 +62,26 @@
 
         <article class="vatreport_poster_widget">
             <ul class="vatreport_poster_events">
-                <li [className]="isControlledWithoutWarnings() ? 'success' : 'warn'">
-                    {{ isControlledWithoutWarnings() ? 'Automatisk kontroll ok' : 'Automatisk kontroll har advarsler' }}
-                </li>
                 <li [className]="isExecuted() ? 'success' : 'incomplete'">
+                    <i class="material-icons">{{isExecuted ? 'check_circle' : 'error'}}</i>
                     {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
+                    <time *ngIf="currentVatReport.ExecutedDate">{{currentVatReport.ExecutedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
                 </li>
                 <li [className]="isSent() ? 'success' : 'incomplete'">
+                    <i class="material-icons">{{isSent ? 'check_circle' : 'error'}}</i>
                     {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
+                    <time *ngIf="submittedDate">{{submittedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
                 </li>
                 <li [className]="isApproved() ? 'success' : 'incomplete'">
+                    <i class="material-icons">{{isApproved ? 'check_circle' : 'error'}}</i>
                     {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
+                    <time *ngIf="approvedDate">{{approvedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
                 </li>
             </ul>
         </article>
 
     </section>
-</header>
+</section>
 
 <create-corrected-vatreport-modal></create-corrected-vatreport-modal>
 

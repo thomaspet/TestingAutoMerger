@@ -1,7 +1,7 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {Address, Country} from '@uni-entities';
-import {UniFieldLayout, FieldType} from '../../ui/uniform';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {CountryService, PostalCodeService, ErrorService} from '@app/services/services';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
@@ -11,18 +11,28 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
         <section role="dialog" class="uni-modal">
             <header>{{options.header || 'Adresse'}}</header>
             <article>
-                <uni-form
+                <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
-                    (changeEvent)="formChange($event)"
-                    (readyEvent)="onReady()">
+                    (changeEvent)="formChange($event)">
                 </uni-form>
             </article>
 
             <footer>
-                <button class="secondary" (click)="close(false)">Avbryt</button>
-                <button class="c2a" (click)="close(true)">Ok</button>
+                <button
+                    class="secondary"
+                    (click)="close(false)"
+                    (keydown.shift.tab)="$event.preventDefault(); form?.focus()">
+                    Avbryt
+                </button>
+
+                <button
+                    class="c2a"
+                    (click)="close(true)"
+                    (keydown.tab)="$event.preventDefault()">
+                    Ok
+                </button>
             </footer>
         </section>
     `
@@ -31,17 +41,16 @@ export class UniAddressModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$ = new BehaviorSubject(null);
+    formFields$ = new BehaviorSubject([]);
 
-    public initialState: any;
+    initialState: any;
 
     constructor(
         private countryService: CountryService,
         private postalCodeService: PostalCodeService,
         private errorService: ErrorService,
-        private elementRef: ElementRef
     ) {}
 
     public ngOnInit() {
@@ -53,7 +62,6 @@ export class UniAddressModal implements IUniModal {
         }
         this.initialState = Object.assign({}, address);
         this.formModel$.next(address);
-
         this.formFields$.next(fields);
     }
 
@@ -63,7 +71,7 @@ export class UniAddressModal implements IUniModal {
         this.formFields$.complete();
     }
 
-    public formChange(changes) {
+    formChange(changes) {
         if (changes['PostalCode'] && changes['PostalCode'].currentValue) {
             const address = this.formModel$.getValue();
             this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
@@ -77,20 +85,8 @@ export class UniAddressModal implements IUniModal {
         }
     }
 
-    public onReady() {
-        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
-        if (inputs.length) {
-            const first = inputs[0];
-            first.focus();
-        }
-    }
-
-    public close(emitValue?: boolean) {
-        if (emitValue) {
-            this.onClose.emit(this.formModel$.getValue());
-        } else {
-            this.onClose.emit(this.initialState);
-        }
+    close(emitValue?: boolean) {
+        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
     }
 
     private getFormFields(): UniFieldLayout[] {

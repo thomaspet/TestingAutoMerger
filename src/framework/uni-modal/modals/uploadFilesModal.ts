@@ -8,6 +8,11 @@ import PerfectScrollbar from 'perfect-scrollbar';
 import {environment} from 'src/environments/environment';
 import {Observable, Subject} from 'rxjs';
 
+export enum EntityForFileUpload {
+    BANK = 1,
+    EXPENSE = 2
+}
+
 @Component({
     selector: 'uni-file-upload-modal',
     template: `
@@ -87,6 +92,7 @@ export class UniFileUploadModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
+    CURRENT_ENTITY: EntityForFileUpload = EntityForFileUpload.BANK;
     loading$: Subject<boolean> = new Subject();
     scrollbar: PerfectScrollbar;
     baseUrl: string = environment.BASE_URL_FILES;
@@ -103,6 +109,12 @@ export class UniFileUploadModal implements IUniModal {
         private authService: AuthService,
         private fileService: FileService
     ) {}
+
+    ngOnInit() {
+        if (this.options && this.options.data) {
+            this.CURRENT_ENTITY = this.options.data.entity || EntityForFileUpload.BANK;
+        }
+    }
 
     public uploadFile(event) {
         const source = event.srcElement || event.target;
@@ -139,31 +151,49 @@ export class UniFileUploadModal implements IUniModal {
                     });
                 }
 
-                this.http
-                    .asPUT()
-                    .usingBusinessDomain()
-                    .withEndPoint('/paymentbatches?action=get-file-statuses-from-file-ids')
-                    .withBody(this.uploadedFileIds)
-                    .send()
-                    .map(res => res.body)
-                    .subscribe((statuses: number[]) => {
+                if (this.CURRENT_ENTITY === EntityForFileUpload.BANK) {
+                    this.http
+                        .asPUT()
+                        .usingBusinessDomain()
+                        .withEndPoint('/paymentbatches?action=get-file-statuses-from-file-ids')
+                        .withBody(this.uploadedFileIds)
+                        .send()
+                        .map(res => res.body)
+                        .subscribe((statuses: number[]) => {
+                            this.loading$.next(false);
+                            this.files = this.files.map((f, i) => {
+                                f.selected = statuses[i] === 0 || statuses[i] === 30001;
+                                f.status = statuses[i];
+                                if (!f.selected) {
+                                    this.hasErrors = true;
+                                    this.message = 'Noen av filene du har valgt har blitt brukt før. Disse er ikke sjekket av.' +
+                                    ' Hvis du vil kjøre de på nytt, må du krysse av checkboksen for de.';
+                                }
+                                return f;
+                            });
+                        }, err => {
+                            this.errorService.handle('Kunne ikke hente status på filene');
+                            this.loading$.next(false);
+                    });
+                } else if (this.CURRENT_ENTITY === EntityForFileUpload.EXPENSE) {
+                    const tagQueries = [];
+                    this.uploadedFileIds.forEach(id => {
+                        tagQueries.push(this.fileService.tag(id, 'IncomingExpense'));
+                    });
+
+                    Observable.forkJoin(tagQueries).subscribe(() => {
                         this.loading$.next(false);
-                        this.files = this.files.map((f, i) => {
-                            f.selected = statuses[i] === 0 || statuses[i] === 30001;
-                            f.status = statuses[i];
-                            if (!f.selected) {
-                                this.hasErrors = true;
-                                this.message = 'Noen av filene du har valgt har blitt brukt før. ' +
-                                'Disse er ikke sjekket av. Hvis du vil kjøre de på nytt, må du krysse av checkboksen for de.';
-                            }
-                            return f;
+                        this.files = this.files.map(file => {
+                            file.selected = true;
+                            return file;
                         });
                     }, err => {
-                        this.errorService.handle('Kunne ikke hente status på filene');
                         this.loading$.next(false);
-                });
-
-                // Check it the files have been used
+                        this.hasErrors = true;
+                        this.message = 'Noe gikk galt da vi prøvde å legge dokumentene i innboksen. Anbefaler at du trykker avbryt, ' +
+                        'slik at filene blir slettet og modal lukker seg, og prøver på nytt.';
+                    });
+                }
             }, err => {
                 this.errorService.handle('Kunne ikke laste opp filene. Lukk modal og prøv igjen.');
                 this.loading$.next(false);
@@ -275,7 +305,6 @@ export class UniFileUploadModal implements IUniModal {
     }
 
     public close(cancel: boolean = false) {
-
         if (cancel) {
             if (this.files.length) {
                 this.removeAll(true);

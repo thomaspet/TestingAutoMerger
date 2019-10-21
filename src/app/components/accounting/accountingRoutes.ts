@@ -21,6 +21,7 @@ import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
+import {UniInbox} from './inbox/inbox';
 
 export const accountingRoutes: Routes = [
     {
@@ -33,6 +34,11 @@ export const accountingRoutes: Routes = [
         path: 'journalentry',
         component: JournalEntry,
         children: JournalEntryRoutes,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'inbox',
+        component: UniInbox,
         canDeactivate: [CanDeactivateGuard]
     },
     {

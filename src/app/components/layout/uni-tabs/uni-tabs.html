@@ -8,8 +8,11 @@
 
             {{tab[labelProperty] | translate}}
             <strong *ngIf="tab[counterProperty]">{{tab[counterProperty]}}</strong>
-            <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
-                info
+            <i *ngIf="tab.tooltip"
+                class="material-icons tab-tooltip"
+                [ngClass]="tab.tooltipClass"
+                [matTooltip]="tab.tooltip">
+                {{tab.tooltipIcon || 'info'}}
             </i>
         </a>
     </ng-container>

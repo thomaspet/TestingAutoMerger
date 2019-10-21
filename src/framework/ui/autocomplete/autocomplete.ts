@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {Customer} from '@uni-entities';
 import {FormControl} from '@angular/forms';
-import {debounceTime, take, finalize, tap} from 'rxjs/operators';
+import {debounceTime, take, finalize, tap, catchError} from 'rxjs/operators';
 import {Subscription, BehaviorSubject, Observable, of as observableOf} from 'rxjs';
 import {KeyCodes} from '@app/services/common/keyCodes';
 import {get} from 'lodash';
@@ -9,6 +9,7 @@ import {ErrorService} from '@app/services/services';
 
 export interface AutocompleteOptions {
     canClearValue?: boolean;
+    autofocus?: boolean;
     lookup: (query: string) => any[] | Observable<any[]>;
     placeholder?: string;
     displayField?: string;
@@ -38,7 +39,7 @@ export class Autocomplete {
     controlSubscription: Subscription;
 
     lookupResults: any[] = [];
-    focusIndex = 0;
+    focusIndex = -1;
     isExpanded$ = new BehaviorSubject<boolean>(false);
     loading$ = new BehaviorSubject<boolean>(false);
 
@@ -52,16 +53,7 @@ export class Autocomplete {
             }),
             debounceTime(200),
         ).subscribe(query => {
-            this.lookup(query).pipe(
-                take(1),
-                finalize(() => this.loading$.next(false))
-            ).subscribe(
-                items => {
-                    this.focusIndex = query && items.length ? 0 : -1;
-                    this.lookupResults = items;
-                },
-                err => this.errorService.handle(err)
-            );
+            this.lookup(query).subscribe(items => this.lookupResults = items);
         });
     }
 
@@ -74,6 +66,16 @@ export class Autocomplete {
     ngOnChanges(changes) {
         if (changes['customer']) {
             this.updateControlValue();
+        }
+
+        if (changes['options'] && this.options && this.options.autofocus) {
+            setTimeout(() => this.focus());
+        }
+    }
+
+    focus() {
+        if (this.inputElement && this.inputElement.nativeElement) {
+            this.inputElement.nativeElement.focus();
         }
     }
 
@@ -117,7 +119,6 @@ export class Autocomplete {
         if (refocus) {
             try {
                 this.inputElement.nativeElement.focus();
-                this.inputElement.nativeElement.select();
             } catch (e) {}
         }
     }
@@ -125,13 +126,7 @@ export class Autocomplete {
     toggle() {
         this.isExpanded$.next(!this.isExpanded$.value);
         if (this.isExpanded$.value) {
-            this.lookup('').pipe(
-                take(1),
-                finalize(() => this.loading$.next(false))
-            ).subscribe(
-                items => this.lookupResults = items,
-                err => this.errorService.handle(err)
-            );
+            this.lookup('').subscribe(items => this.lookupResults = items);
         }
     }
 
@@ -140,13 +135,21 @@ export class Autocomplete {
         this.updateControlValue();
     }
 
+    onF3Key(event: KeyboardEvent) {
+        event.preventDefault();
+        this.create();
+    }
+
     create() {
-        this.isExpanded$.next(false);
-        this.options.createHandler().subscribe(newEntity => {
-            if (newEntity) {
-                this.select(newEntity);
-            }
-        });
+        if (this.options && this.options.createHandler) {
+            this.options.createHandler().subscribe(newEntity => {
+                if (newEntity) {
+                    this.select(newEntity);
+                }
+            });
+
+            this.isExpanded$.next(false);
+        }
     }
 
     onFocus() {
@@ -178,6 +181,10 @@ export class Autocomplete {
             break;
             case KeyCodes.ENTER:
             case KeyCodes.TAB:
+                if (!this.isExpanded$.value) {
+                    return;
+                }
+
                 if (this.loading$.value && this.searchControl.value) {
                     // User tried selecting while the search was still in progress
                     this.selectBestMatch(this.searchControl.value);
@@ -221,28 +228,40 @@ export class Autocomplete {
     }
 
     private selectBestMatch(query: string) {
-        this.lookup(query).subscribe(
-            items => {
-                let bestMatch;
-                let bestMatchCount = 0;
-                (items || []).forEach(item => {
-                    const displayValue = this.getDisplayValue(item);
-                    const matchCount = this.getNumberOfMatchingCharacters(displayValue, query);
-                    if (matchCount > bestMatchCount) {
-                        bestMatch = item;
-                        bestMatchCount = matchCount;
-                    }
-                });
+        this.lookup(query).subscribe(items => {
+            let bestMatch;
+            let bestMatchCount = 0;
+            (items || []).forEach(item => {
+                const displayValue = this.getDisplayValue(item);
+                const matchCount = this.getNumberOfMatchingCharacters(displayValue, query);
+                if (matchCount > bestMatchCount) {
+                    bestMatch = item;
+                    bestMatchCount = matchCount;
+                }
+            });
 
+            if (bestMatch) {
                 this.select(bestMatch, false);
-            },
-            err => this.errorService.handle(err)
-        );
+            } else {
+                this.updateControlValue();
+            }
+        });
     }
 
     private lookup(query: string): Observable<any[]> {
-        const lookupResult = this.options.lookup(query);
-        return Array.isArray(lookupResult) ? observableOf(lookupResult) : lookupResult;
+        this.loading$.next(true);
+
+        const lookupResult = this.options.lookup(query) || [];
+        const res$ = Array.isArray(lookupResult) ? observableOf(lookupResult) : lookupResult;
+        return res$.pipe(
+            take(1),
+            tap(items => this.focusIndex = query && items.length ? 0 : -1),
+            catchError(err => {
+                this.errorService.handle(err);
+                return observableOf([]);
+            }),
+            finalize(() => this.loading$.next(false))
+        );
     }
 
     private getNumberOfMatchingCharacters(s1: string, s2: string) {

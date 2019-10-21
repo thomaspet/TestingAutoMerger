@@ -158,6 +158,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: '',
                 links: [
                     {
+                        name: 'NAVBAR.INBOX',
+                        url: '/accounting/inbox',
+                        moduleID: UniModules.Inbox,
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.SUPPLIER_INVOICE',
                         url: '/accounting/bills',
                         moduleID: UniModules.Bills,

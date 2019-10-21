@@ -87,6 +87,8 @@ import { UniJournalEntryLineModal } from '@uni-framework/uni-modal/modals/Journa
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
 import {UniCostAllocationList} from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
+import {UniInbox} from './inbox/inbox';
+import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
 
 @NgModule({
     imports: [
@@ -133,6 +135,8 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
         FileFromInboxModal,
+        UniInbox,
+        NewOutgoingWizardModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -220,7 +224,8 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         BillTransitionModal,
         BillInitModal,
         ReInvoiceInfoModal,
-        UniJournalEntryLineModal
+        UniJournalEntryLineModal,
+        NewOutgoingWizardModal
     ],
     exports: [
         AccountSettings,

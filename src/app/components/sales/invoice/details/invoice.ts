@@ -1785,7 +1785,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
                                 (res) => {
                                     this.selectConfig = undefined;
-                                    if (isCreditNote && res['CustomValues'].AprilaOrderStatus) {
+                                    if (isCreditNote && this.aprilaOption.hasPermission && res['CustomValues'] &&
+                                     res['CustomValues'].AprilaOrderStatus) {
                                         this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
                                     }
                                 },

@@ -18,6 +18,7 @@ import {
     UniAutobankAgreementModal,
     ConfirmActions,
     UniFileUploadModal,
+    EntityForFileUpload,
     IModalOptions,
     UniConfirmModalWithCheckbox
 } from '../../../framework/uni-modal';
@@ -955,7 +956,8 @@ export class BankComponent {
     public fileUploaded(done) {
         this.modalService.open(
             UniFileUploadModal,
-            { closeOnClickOutside: false, buttonLabels: { accept: 'Bokfør valgte innbetalingsfiler' }} )
+            { closeOnClickOutside: false, buttonLabels: { accept: 'Bokfør valgte innbetalingsfiler' },
+            data: { entity: EntityForFileUpload.BANK }} )
         .onClose.subscribe((fileIDs) => {
 
             if (fileIDs && fileIDs.length) {
@@ -1006,7 +1008,7 @@ export class BankComponent {
     public recieptUploaded() {
         this.modalService.open(
             UniFileUploadModal,
-            {closeOnClickOutside: false, buttonLabels: { accept: 'Bokfør valgte bankfiler' }} )
+            {closeOnClickOutside: false, buttonLabels: { accept: 'Bokfør valgte bankfiler' }, data: { entity: EntityForFileUpload.BANK }} )
         .onClose.subscribe((fileIDs) => {
             if (fileIDs && fileIDs.length) {
                 const queries = fileIDs.map(id => {

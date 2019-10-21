@@ -40,6 +40,7 @@ import {DebtCollection} from './reminder/debtCollection/debtCollection';
 import {SentToDebtCollection} from './reminder/sentToDebtCollection/sentToDebtCollection';
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
+import {CustomerEditModal} from './common/customer-edit-modal/customer-edit-modal';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings';
@@ -102,6 +103,7 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
 
         TofHead,
         TofCustomerCard,
+        CustomerEditModal,
         TofDetailsForm,
         TofDeliveryForm,
         TradeItemTable,
@@ -170,7 +172,8 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         AvtaleGiroModal,
         AprilaOfferModal,
         AprilaCreditNoteModal,
-        BatchInvoiceModal
+        BatchInvoiceModal,
+        CustomerEditModal,
     ],
     providers: [
         TradeItemHelper,

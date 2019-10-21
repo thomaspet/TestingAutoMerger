@@ -100,6 +100,13 @@ export class TofHead implements OnChanges {
         }
     }
 
+    focusDetailsForm(event?: KeyboardEvent) {
+        event.preventDefault();
+        if (this.detailsForm && this.detailsForm.form) {
+            this.detailsForm.form.focus();
+        }
+    }
+
     isReadOnly(): boolean {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
     }
