@@ -1,13 +1,12 @@
 <label class="uni-label">
     <span>Betalt fra</span>
-    <select placeholder="Velg konto">
-        <option>Driftskonto</option>
-        <option>Firmakort SR-BANK</option>
-        <option>Firmakort COOP</option>
+    <select (change)="onChange($event)" >
+        <option *ngIf="busy">Henter bankkontoer...</option>
+        <option *ngFor="let acc of bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
     </select>
 </label>
 
 <label class="uni-label">
     <span>Dato</span>
-    <input type="date" [ngModel]="session?.items[0]?.FinancialDate | date:'yyyy-MM-dd'" >
+    <input type="date" [(ngModel)]="session.payment.PaymentDate" >
 </label>

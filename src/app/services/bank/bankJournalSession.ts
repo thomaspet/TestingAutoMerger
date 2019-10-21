@@ -6,74 +6,8 @@ import { BankUtil } from './bankStatmentModels';
 import { safeDec, toIso } from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { FinancialYearService } from '../accounting/financialYearService';
-
-export class DebitCreditEntry {
-    public FinancialDate: Date;
-
-    public Debet: IAccount;
-    public DebetVatTypeID?: number;
-    public DebetAccountID: number;
-
-    public Credit: IAccount;
-    public CreditVatTypeID?: number;
-    public CreditAccountID: number;
-
-    public Description: string;
-    public VatType?: IVatType;
-
-    public Department?: any;
-    public Project?: any;
-
-    public Amount: number;
-    public InvoiceNumber: string;
-    public active = false;
-
-    constructor(date?: Date) {
-        if (date) { this.FinancialDate = date; }
-    }
-
-}
-
-export interface IAccount {
-    ID: number;
-    AccountNumber: number;
-    AccountName: string;
-    VatTypeID: number;
-    superLabel?: string;
-}
-
-export interface IVatType {
-    ID: number;
-    VatCode: string;
-    VatPercent: number;
-    Name: string;
-    OutputVat: boolean;
-    superLabel?: string;
-}
-
-export interface INumberSerie {
-    ID: number;
-    DisplayName: string;
-    Name: string;
-}
-
-export interface IJournal {
-    Description?: string;
-    DraftLines: Array<any>;
-    NumberSeriesID?: number;
-    NumberSeriesTaskID?: number;
-    FileIDs?: Array<number>;
-    Payments?: Array<any>;
-}
-
-export interface IDraft {
-    FileIDs?: Array<any>;
-    DebitAccount: IAccount;
-    CreditAccount: IAccount;
-    FinancialDate: Date;
-    JournalEntryDraftIDs?: Array<number>;
-    JournalEntryPaymentData?: Array<any>;
-}
+import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode } from './bankjournalmodels';
+export * from './bankjournalmodels';
 
 @Injectable()
 export class BankJournalSession {
@@ -86,6 +20,7 @@ export class BankJournalSession {
     public currentYear = 0;
     public series: Array<INumberSerie> = [];
     public selectedSerie: INumberSerie;
+    public payment: PaymentInfo = new PaymentInfo();
 
     constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
         this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
@@ -93,6 +28,7 @@ export class BankJournalSession {
 
     clear() {
         this.items = [];
+        this.payment = new PaymentInfo();
         this.busy = false;
     }
 
@@ -142,6 +78,58 @@ export class BankJournalSession {
             }
             this.selectedSerie = this.selectedSerie || this.series[0];
         }
+    }
+
+    public convertToExpense() {
+        this.balance = this.calcTotal();
+        const jr = this.convertToJournal();
+        const content = (jr && jr.length > 0) ? jr[0] : {
+            DraftLines: [],
+            FileIDs: [],
+            Payments: [{}],
+            Description: 'Return expense'
+        };
+        if (this.payment.Mode === PaymentMode.PrepaidWithCompanyBankAccount) {
+            content.Description = 'Prepaid expense';
+            // Add virtual item
+            if (this.payment && this.payment.PaidWith) {
+                this.cacheAccount(this.payment.PaidWith);
+                const dc = this.addRow(this.payment.PaidWith.ID, 0, this.payment.PaymentDate, 'Utlegg', true );
+                const jln = this.convertToJournalEntry(dc);
+                jln.AccountID = this.payment.PaidWith.ID;
+                jln.Amount = -this.balance;
+                content.DraftLines.push(jln);
+            }
+        }
+        return [content];
+    }
+
+    public validate(): { success: boolean; messages?: string[] } {
+
+        if (this.items === undefined || this.items.length === 0) {
+            return { success: false, messages: ['Ingen posteringer'] };
+        }
+
+        if (this.balance === 0 && this.payment.Mode !== PaymentMode.None) {
+            return { success: false, messages: ['Betalingen må ha konteringsdetaljer'] };
+        }
+
+        if (this.balance !== 0 && this.payment.Mode === PaymentMode.None) {
+            return { success: false, messages: ['Det er differanse i bilaget'] };
+        }
+
+        let validItems = 0;
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            if (item.Amount && (item.Debet || item.Credit)) {
+                validItems++;
+            }
+        }
+        if (validItems === 0) {
+            return { success: false, messages: ['Det mangler gyldige konteringer'] };
+        }
+
+        return { success: true };
     }
 
     public convertToJournal(asDraft = false) {
@@ -239,14 +227,15 @@ export class BankJournalSession {
 
     public cacheAccount(acc) {
         if (!(acc && acc.ID)) { return; }
-        const match = this.accounts.find( x => x.ID === acc.id);
+        const match = this.accounts.find( x => x.ID === acc.ID);
         if (!match) {
+            console.log('caching accoung:' + acc.ID, acc);
             this.createAccountSuperLabel([acc]);
             this.accounts.push(acc);
         }
     }
 
-    public addRow(debetAccountID: number, amount: number, date: Date, text = '') {
+    public addRow(debetAccountID: number, amount: number, date: Date, text = '', virtual = false) {
         const item = new DebitCreditEntry();
         const acc = this.accounts.find( x => x.ID === debetAccountID );
         if (acc) {
@@ -264,8 +253,11 @@ export class BankJournalSession {
         item.Amount = Math.abs(amount);
         item.FinancialDate = date;
         item.Description = text;
-        this.items.push(item);
-        this.balance = this.calcTotal();
+        if (!virtual) {
+            this.items.push(item);
+            this.balance = this.calcTotal();
+        }
+        return item;
     }
 
 
@@ -333,6 +325,10 @@ export class BankJournalSession {
             params += (i === 0 ? '?' : '&') + `${args[i]}=${args[i + 1]}`;
         }
         return this.HttpGet(route + params);
+    }
+
+    public statisticsQuery(query: string) {
+        return this.statisticsService.GetAll(query);
     }
 
     private HttpGet(route: string) {
