@@ -15,7 +15,7 @@ import {UniTablePipe} from './unitablePipe';
 import {UniCalendar} from './controls/common/calendar';
 import {UniTableColumnConfigEditor} from './columnMenu/columnConfigEditor';
 import {UnitableTextInput} from './controls/text';
-import {UnitableAutocomplete} from './controls/autocomplete';
+import {UnitableAutocomplete} from './controls/table-autocomplete';
 import {UnitableTypeahead} from './controls/typeahead';
 import {UnitableNumberInput} from './controls/number';
 import {UnitableDateTimepicker} from './controls/dateTimePicker/dateTimePicker';

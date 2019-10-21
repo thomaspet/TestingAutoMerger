@@ -75,11 +75,9 @@
 
 <!-- TOOLBAR RIGHT -->
 <section #toolbarRight class="toolbar-right">
-
-
     <button *ngIf="config?.navigation?.prev"
         title="Forrige"
-        class="icon-button prev"
+        class="toolbar-button icon-button prev"
         type="button"
         (click)="navigate('prev')">
         <i class="material-icons">navigate_before</i>
@@ -87,7 +85,7 @@
 
     <button *ngIf="config?.navigation?.next"
         title="Neste"
-        class="icon-button next"
+        class="toolbar-button icon-button next"
         type="button"
         (click)="navigate('next')">
         <i class="material-icons">navigate_next</i>
@@ -99,25 +97,36 @@
         [toggleMode]="true">
     </uni-comments>
 
+    <button *ngFor="let button of config?.buttons"
+        class="toolbar-button"
+        [ngClass]="button.class"
+        (click)="customButtonClick(button)"
+        [attr.aria-busy]="button['_busy']">
+
+        <i class="material-icons" *ngIf="button.icon">{{button.icon}}</i>
+        {{button.label}}
+    </button>
+
     <button *ngIf="config?.navigation?.add"
         [title]="config.navigation.add.label || 'Opprett ny'"
-        class="new-button"
+        class="toolbar-button new-button"
         type="button"
         (click)="onCreateNewClick()">
 
         <i class="material-icons">add</i>
-        <span>{{config.navigation.add.label || 'Opprett ny'}}</span>
+        {{config.navigation.add.label || 'Opprett ny'}}
     </button>
 
-    <uni-toolbar-share *ngIf="shareActions" [shareActions]="shareActions"></uni-toolbar-share>
-
-    <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
-        [actions]="contextmenu || config.contextmenu">
+    <uni-context-menu
+        *ngIf="contextmenu || config?.contextmenu"
+        [actions]="contextmenu || config.contextmenu"
+        [hideDisabled]="config?.hideDisabledActions">
     </uni-context-menu>
 
     <uni-save id="toolbar-save"
         *ngIf="saveactions || config?.saveactions"
-        [actions]="saveactions || config.saveactions">
+        [actions]="saveactions || config?.saveactions"
+        [hideDisabled]="config?.hideDisabledActions">
     </uni-save>
 
 </section>

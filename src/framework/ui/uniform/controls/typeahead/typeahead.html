@@ -1,4 +1,4 @@
-<section class="input-with-button" (clickOutside)="onClickOutside()">
+<section (clickOutside)="onClickOutside()">
     <input #inputElement
         [formControl]="control"
         [readonly]="readOnly$ | async"
@@ -9,13 +9,6 @@
         type="text"
         tabindex="-1"
     />
-    <button
-        type="button"
-        tabIndex="-1"
-        (click)="toggle()"
-        [disabled]="readOnly$ | async">
-        <i class="material-icons">more_horiz</i>
-    </button>
 </section>
 
 <input-dropdown-menu #dropdown [input]="inputElement" [visible]="isExpanded && lookupResults?.length">

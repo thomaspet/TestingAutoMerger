@@ -564,6 +564,13 @@ export class UniRecurringInvoice implements OnInit {
         this.updateSaveActions();
     }
 
+    onFreetextChange() {
+        // Stupid data flow requires this
+        this.invoice = _.cloneDeep(this.invoice);
+        this.isDirty = true;
+        this.updateSaveActions();
+    }
+
     private updateCurrency(invoice: RecurringInvoice, getCurrencyRate: boolean) {
         let shouldGetCurrencyRate = getCurrencyRate;
 

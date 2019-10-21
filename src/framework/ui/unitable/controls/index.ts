@@ -1,4 +1,4 @@
-export * from './autocomplete';
+export * from './table-autocomplete';
 export * from './number';
 export * from './select';
 export * from './text';
@@ -6,7 +6,7 @@ export * from './typeahead';
 export * from './dateTimePicker/dateTimePicker';
 export * from './localDatePicker/LocalDatePicker';
 
-import {UnitableAutocomplete} from './autocomplete';
+import {UnitableAutocomplete} from './table-autocomplete';
 import {UnitableNumberInput} from './number';
 import {UnitableSelect} from './select';
 import {UnitableTextInput} from './text';

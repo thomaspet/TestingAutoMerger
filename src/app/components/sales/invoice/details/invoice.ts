@@ -72,7 +72,7 @@ import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
 import { TradeHeaderCalculationSummary } from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import { IToolbarConfig, ICommentsConfig, IToolbarSubhead, IContextMenuItem } from '../../../common/toolbar/toolbar';
+import { IToolbarConfig, ICommentsConfig, IToolbarSubhead } from '../../../common/toolbar/toolbar';
 import { StatusTrack, IStatus, STATUSTRACK_STATES } from '../../../common/toolbar/statustrack';
 
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
@@ -139,7 +139,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     companySettings: CompanySettings;
     saveActions: IUniSaveAction[] = [];
-    shareActions: IContextMenuItem[];
     toolbarconfig: IToolbarConfig;
     commentsConfig: ICommentsConfig;
 
@@ -712,6 +711,13 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.updateSaveActions();
     }
 
+    onFreetextChange() {
+        // Stupid data flow requires this
+        this.invoice = cloneDeep(this.invoice);
+        this.isDirty = true;
+        this.updateSaveActions();
+    }
+
     private updateCurrency(invoice: CustomerInvoice, getCurrencyRate: boolean) {
         let shouldGetCurrencyRate = getCurrencyRate;
 
@@ -1212,21 +1218,61 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
             statustrack: this.getStatustrackConfig(),
-            navigation: {
-                prev: this.previousInvoice.bind(this),
-                next: this.nextInvoice.bind(this),
-                add: () => this.invoice.ID ? this.router.navigateByUrl('/sales/invoices/0') : this.ngOnInit()
-            },
-            contextmenu: [{
-                label: 'Periodisering',
-                action: () => this.accrueInvoice(),
-                disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
-            }],
             entityID: this.invoiceID,
-            entityType: 'CustomerInvoice'
+            entityType: 'CustomerInvoice',
+            hideDisabledActions: true,
+            contextmenu: [
+                {
+                    label: 'Periodisering',
+                    action: () => this.accrueInvoice(),
+                    disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
+                },
+                {
+                    label: 'Send via utsendelsesplan',
+                    action: () => this.distribute(),
+                    disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber || !this.isDistributable
+                },
+                {
+                    label: 'Skriv ut / send e-post',
+                    action: () => this.printOrEmail(),
+                    disabled: () => !this.invoice.ID
+                },
+                {
+                    label: 'Send purring',
+                    action: () => this.sendReminderAction(),
+                    disabled: () => {
+                        return !this.invoice.ID || (
+                            this.invoice.DontSendReminders
+                                || this.invoice.StatusCode === StatusCode.Completed
+                                || this.invoice.StatusCode === 42004
+                        );
+                    }
+                }
+            ],
         };
 
-        this.updateShareActions();
+        toolbarconfig.buttons = [{
+            class: 'icon-button',
+            icon: 'remove_red_eye',
+            action: () => this.preview()
+        }];
+
+        if (this.invoice.ID) {
+            toolbarconfig.buttons.push({
+                label: 'Ny faktura',
+                action: () => this.router.navigateByUrl('/sales/invoices/0')
+            });
+        }
+
+        if (!this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
+            toolbarconfig.buttons.push({
+                label: 'Lagre kladd',
+                action: () => new Observable(observer => {
+                    this.saveAsDraft(() => observer.complete());
+                })
+            });
+        }
+
         this.toolbarconfig = toolbarconfig;
     }
 
@@ -1335,35 +1381,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         return subheads;
     }
 
-    // Save actions
-    private updateShareActions() {
-        this.shareActions = [
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber || !this.isDistributable
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.invoice.ID
-            },
-            {
-                label: 'Send purring',
-                action: () => this.sendReminderAction(),
-                disabled: () => {
-                    return !this.invoice.ID || (
-                        this.invoice.DontSendReminders
-                            || this.invoice.StatusCode === StatusCode.Completed
-                            || this.invoice.StatusCode === 42004
-                    );
-                }
-            }
-        ];
-    }
-
     private updateSaveActions() {
         if (!this.invoice) { return; }
+
         this.saveActions = [];
         const transitions = (this.invoice['_links'] || {}).transitions;
         const id = this.invoice.ID;
@@ -1374,7 +1394,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.saveActions.push({
                 label: 'Lagre som kladd',
                 action: done => this.saveAsDraft(done),
-                disabled: false
             });
         } else {
             if (this.isDirty && id) {
@@ -1387,7 +1406,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             });
                         }
                     }),
-                    disabled: false,
                     main: true
                 });
             }
@@ -1510,17 +1528,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.invoice = this.tofHelper.beforeSave(this.invoice);
 
         return new Promise((resolve, reject) => {
-            const saveRequest = (this.invoice.ID > 0)
-                ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
-                : this.customerInvoiceService.Post(this.invoice);
             if (this.invoice.PaymentDueDate < this.invoice.InvoiceDate) {
                 return reject('Forfallsdato må være lik eller senere enn fakturadato.');
             }
+
+            const saveRequest = (this.invoice.ID > 0)
+                ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
+                : this.customerInvoiceService.Post(this.invoice);
 
             this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
                 if (canSave) {
                     saveRequest.subscribe(
                         res => {
+                            this.isDirty = false;
                             this.updateTab(res);
 
                             if (res.InvoiceNumber) { this.selectConfig = undefined; }
@@ -2064,7 +2084,43 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    private chooseForm() {
+    private preview() {
+        const openPreview = (invoice) => {
+            this.modalService.open(UniChooseReportModal, {
+                data: {
+                    name: 'Faktura',
+                    typeName: 'Invoice',
+                    entity: invoice,
+                    type: ReportTypeEnum.INVOICE,
+                    hideEmailButton: true,
+                    hidePrintButton: true
+                }
+            });
+        };
+
+        if (this.isDirty || !this.invoice.ID) {
+            const needsRedirect = !this.invoice.ID;
+            if (!this.invoice.StatusCode) {
+                this.invoice.StatusCode = StatusCode.Draft;
+            }
+
+            this.saveInvoice()
+                .catch(err => this.errorService.handle(err))
+                .then((invoice: CustomerInvoice) => {
+                    if (invoice && invoice.ID) {
+                        if (needsRedirect) {
+                            this.router.navigateByUrl('/sales/invoices/' + invoice.ID).then(() => openPreview(invoice));
+                        } else {
+                            openPreview(invoice);
+                        }
+                    }
+                });
+        } else {
+            openPreview(this.invoice);
+        }
+    }
+
+    private printOrEmail() {
         return this.modalService.open(
             UniChooseReportModal,
             {
@@ -2340,32 +2396,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 this.errorService.handle(err);
                 done('Noe gikk galt under sletting');
             }
-        );
-    }
-
-    private nextInvoice() {
-        this.customerInvoiceService.getNextID(this.invoice.ID).subscribe(
-            id => {
-                if (id) {
-                    this.router.navigateByUrl('/sales/invoices/' + id);
-                } else {
-                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer etter denne');
-                }
-            },
-            err => this.errorService.handle(err)
-        );
-    }
-
-    private previousInvoice() {
-        this.customerInvoiceService.getPreviousID(this.invoice.ID).subscribe(
-            id => {
-                if (id) {
-                    this.router.navigateByUrl('/sales/invoices/' + id);
-                } else {
-                    this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer før denne');
-                }
-            },
-            err => this.errorService.handle(err)
         );
     }
 

@@ -58,7 +58,7 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig, IToolbarSubhead, IContextMenuItem} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -104,7 +104,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     orderItems: CustomerOrderItem[];
 
     saveActions: IUniSaveAction[] = [];
-    shareActions: IContextMenuItem[];
 
     currencyInfo: string;
     summaryLines: ISummaryLine[];
@@ -660,6 +659,13 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.updateSaveActions();
     }
 
+    onFreetextChange() {
+        // Stupid data flow requires this
+        this.order = cloneDeep(this.order);
+        this.isDirty = true;
+        this.updateSaveActions();
+    }
+
     private updateCurrency(order: CustomerOrder, getCurrencyRate: boolean) {
         let shouldGetCurrencyRate = getCurrencyRate;
 
@@ -1068,7 +1074,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
             }
         }
 
-        this.updateShareActions();
         this.toolbarconfig = {
             title: orderText,
             subheads: this.getToolbarSubheads(),
@@ -1078,10 +1083,21 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 next: this.nextOrder.bind(this),
                 add: () => this.order.ID ? this.router.navigateByUrl('sales/orders/0') : this.ngOnInit()
             },
+            contextmenu: [
+                {
+                    label: 'Send via utsendelsesplan',
+                    action: () => this.distribute(),
+                    disabled: () => !this.order.ID || !this.isDistributable
+                },
+                {
+                    label: 'Skriv ut / send e-post',
+                    action: () => this.chooseForm(),
+                    disabled: () => !this.order.ID
+                }
+            ],
             entityID: this.orderID,
             entityType: 'CustomerOrder'
         };
-
     }
 
     private printAction(reportForm: ReportDefinition): Observable<any> {
@@ -1154,21 +1170,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 obs.complete();
             });
         });
-    }
-
-    private updateShareActions() {
-        this.shareActions = [
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.order.ID || !this.isDistributable
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.order.ID
-            }
-        ];
     }
 
     private updateSaveActions() {

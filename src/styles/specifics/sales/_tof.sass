@@ -42,25 +42,10 @@ article.tof-head
         uni-field
             @include labelLength(10rem)
 
-    .tof-freetext,
     .tof-attachments,
     .tof-reminders,
     .tof-sellers
         box-sizing: border-box
-
-    .tof-freetext
-        label
-            display: block
-            line-height: 2rem
-            margin-bottom: 1rem
-
-            span
-                width: 10rem
-
-            span+*
-                width: calc(100% - 10rem)
-                float: right
-
 
 tof-customer-card
     display: block
@@ -142,14 +127,28 @@ tof-customer-card
     uni-tradeitem-table
         display: block
 
-
-    .tof-summary
+    .freetext-and-summary
         display: flex
-        .currency-info
-            flex: 0 0 auto
-            margin: 1rem 2rem .5rem auto
-            font-size: 14px
+        justify-content: space-between
+        padding-bottom: 1rem
 
-        .vertical-summary
-            flex: 0 0 25rem
-            margin: 1rem .5rem .5rem
+        .freetext
+            flex: 1
+            max-width: 35rem
+            span
+                display: block
+                margin: 0 0 .25rem 2px
+                color: var(--header-color)
+                font-weight: 500
+                font-size: 14px
+
+        .tof-summary
+            display: flex
+            .currency-info
+                flex: 0 0 auto
+                margin-top: .25rem
+                font-size: 14px
+            .vertical-summary
+                flex: 0 0 auto
+                min-width: 25rem
+                margin-left: 1.5rem

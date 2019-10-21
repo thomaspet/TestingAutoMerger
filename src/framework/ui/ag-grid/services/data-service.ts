@@ -219,9 +219,8 @@ export class TableDataService {
                             .subscribe((sums: {[field: string]: number | boolean}) => {
                                 if (sums) {
                                     sums['_isSumRow'] = true;
+                                    this.sumRow$.next(Array.isArray(sums) ? sums : [sums]);
                                 }
-
-                                this.sumRow$.next(Array.isArray(sums) ? sums : [sums]);
                             });
                     } else {
                         const sumColumns = this.config.columns.filter(col => col.isSumColumn);

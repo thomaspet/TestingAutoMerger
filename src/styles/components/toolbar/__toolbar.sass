@@ -142,25 +142,22 @@ uni-toolbar
     text-align: right
     margin-left: auto
 
-    button.icon-button, .new-button
+    button.toolbar-button,
+    uni-context-menu .toggle-button,
+    uni-comments .toggle-button
         background-color: #fff
         border: 1px solid var(--border-color)
         margin-right: .5rem
-        i.material-icons
-            color: var(--toolbar-icon-color)
+        color: var(--header-color)
+        font-weight: 500
+        &:hover
+            border-color: var(--header-color)
 
-    .new-button
-        color: var(--toolbar-icon-color)
-        i.material-icons
-            // color: var(--color-c2a)
-            font-size: 20px
+    .new-button i.material-icons
+        font-size: 20px
 
     > button + button
         margin-left: 0
-
-    .share-button i.material-icons
-        font-size: 21px
-
 
 @media screen and (max-width: 1400px)
     .prev, .next

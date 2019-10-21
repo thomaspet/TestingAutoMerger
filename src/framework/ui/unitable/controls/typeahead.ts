@@ -25,22 +25,13 @@ export interface ITypeaheadOptions {
 @Component({
     selector: 'unitable-typeahead',
     template: `
-        <section class="input-with-button">
-            <input #input
-                type="text"
-                [formControl]="inputControl"
-                (keypress)="busy = true"
-                (keydown)="onKeyDown($event)"
-                role="combobox"
-            />
-
-            <button
-                type="button"
-                tabIndex="-1"
-                (click)="toggle()">
-                <i class="material-icons">more_horiz</i>
-            </button>
-        </section>
+        <input #input
+            type="text"
+            [formControl]="inputControl"
+            (keypress)="busy = true"
+            (keydown)="onKeyDown($event)"
+            role="combobox"
+        />
 
         <input-dropdown-menu [input]="input" [visible]="expanded && lookupResults?.length">
             <ng-template>
@@ -158,14 +149,6 @@ export class UnitableTypeahead implements OnInit {
         }
 
         return undefined;
-    }
-
-    public toggle() {
-        if (this.expanded) {
-            this.expanded = false;
-        } else {
-            this.expand();
-        }
     }
 
     private expand() {

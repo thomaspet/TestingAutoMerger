@@ -376,7 +376,7 @@ export class TradeItemTable {
             .setVisible(false);
 
         // Columns
-        const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
+        const productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setJumpToColumn('NumberOfItems')
             .setOptions({

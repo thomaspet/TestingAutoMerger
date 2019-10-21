@@ -13,7 +13,7 @@
     </span>
 
     <ng-container [ngSwitch]="field?.FieldType">
-        <uni-autocomplete-input #selectedComponent
+        <uniform-autocomplete #selectedComponent
             *ngSwitchCase="0"
             [field]="field"
             [model]="model"
@@ -22,7 +22,7 @@
             (changeEvent)="onChangeHandler($event)"
             (inputEvent)="onInputHandler($event)"
             (focusEvent)="onFocusHandler($event)">
-        </uni-autocomplete-input>
+        </uniform-autocomplete>
 
         <uni-select-input #selectedComponent
             *ngSwitchCase="3"

@@ -7,7 +7,7 @@ export * from './textarea/textarea';
 export * from './url/url';
 export * from './hyperlink/hyperlink';
 export * from './select/select-wrapper';
-export * from './autocomplete/autocomplete';
+export * from './autocomplete/uniform-autocomplete';
 export * from './multivalue/multivalue';
 export * from './radio-group/radio-group';
 export * from './checkbox-group/checkbox-group';
@@ -24,7 +24,7 @@ import {UniTextareaInput} from './textarea/textarea';
 import {UniUrlInput} from './url/url';
 import {UniHyperlinkInput} from './hyperlink/hyperlink';
 import {UniSelectInput} from './select/select-wrapper';
-import {UniAutocompleteInput} from './autocomplete/autocomplete';
+import {UniFormAutocomplete} from './autocomplete/uniform-autocomplete';
 import {UniMultivalueInput} from './multivalue/multivalue';
 import {UniRadiogroupInput} from './radio-group/radio-group';
 import {UniCheckboxgroupInput} from './checkbox-group/checkbox-group';
@@ -36,7 +36,7 @@ import { UniStaticTextInput } from '@uni-framework/ui/uniform/controls/static-te
 import { UniMultiSelectInput } from '@uni-framework/ui/uniform/controls/multiselect/multiselect';
 
 export const CONTROLS = [
-    UniAutocompleteInput, // 0 - autocomplete
+    UniFormAutocomplete, // 0 - autocomplete
     UniButtonInput, // 1 - button
     UniSelectInput, // 3 - select
     UniSelectInput, // UniMaskedInput, // 4 - masked

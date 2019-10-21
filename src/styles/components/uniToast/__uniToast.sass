@@ -1,86 +1,61 @@
 uni-toast-list
-    .toast-list
-        position: fixed
-        bottom: 2rem
-        right: 2rem
-        z-index: #{map-get($zindex, modal) + 1}
-
-        list-style: none
-        margin: 0
-
-        &.centered
-            top: .35rem
-            right: 50%
-            transform: translateX(50%)
+    position: fixed
+    bottom: 2rem
+    right: 2rem
+    z-index: #{map-get($zindex, modal) + 1}
+    display: flex
+    flex-direction: column-reverse
 
 uni-toast
-    font-family: var(--font-family)
-    position: relative
-    display: block
-    cursor: pointer
-    height: auto
-    vertical-align: center
+    display: flex
     width: 35rem
-    margin: .5rem
-    padding: 18px 2rem 18px 1rem
-    text-align: left
-    border-radius: 4px
+    padding: 1rem
+    font-family: var(--font-family)
     color: var(--text-color) !important
-    overflow: hidden
-    max-height: 999px
-    transition: max-height 0.75s ease-in-out
+    cursor: pointer
+    border: 1px solid var(--border-color)
+    border-radius: 4px
+    transition: opacity 0.3s ease-in-out
+
+    & + uni-toast
+        margin-bottom: .5rem
 
     &.good
         background-color: var(--toast-good)
-
     &.bad
         background-color: var(--toast-bad)
-
     &.warn
         background-color: var(--toast-warn)
-
     &.toast-done
-        max-height: 0
+        opacity: 0
 
-    i.toast-close-icon
-        position: absolute
-        top: 15px
-        right: 10px
-        font-size: 22px
     i.toast-type-icon
+        flex: 0 0 auto
+        margin-right: 1rem
         color: var(--text-color)
-        font-size: 1.4rem
-        margin-right: .5rem
+        font-size: 22px
 
-    header
-        display: flex
-        align-items: center
-        font: 500 15px var(--font-family)
-
-        span
-            flex: 1
-
+    .toast-body
+        flex: 1
+        .header
+            font-weight: 500
+            font-size: 15px
             small.toast-count
                 color: var(--text-color)
                 font-weight: 300
                 font-size: 13px
 
-            &.toast-action
-                flex: 0 0 auto
-                margin: 1px 10px 0 auto
+        .message
+            margin-top: 10px
+            font-size: 13px
 
-    .toast-message
-        display: block
-        padding-top: 10px
-        font: 400 13px var(--font-family)
-        margin-left: 1.9rem
+        .toast-action
+            height: 30px
+            font-size: 13px
+            min-width: 8rem
+            margin-top: 1rem
 
-    .toast-action
-        display: inline-block
-        padding-top: 10px
-        font-size: 14px
-        text-decoration: underline
-
-    header .toast-action
-        padding-top: 0
-        margin-left: 5px
+    i.toast-close-icon
+        flex: 0 0 auto
+        margin-left: 1rem
+        font-size: 22px

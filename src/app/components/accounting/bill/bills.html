@@ -22,13 +22,13 @@
     <section class="bill-container">
         <!-- List -->
         <section class="uni-container bill-list">
-            <uni-autocomplete-input
+            <uniform-autocomplete
                 *ngIf="activeFilterIndex > 1 && activeFilterIndex < 5"
                 class="assignee-filter"
                 [field]="assigneeFilterField"
                 [model]="searchParams$"
                 (changeEvent)="onFormFilterChange($event)">
-            </uni-autocomplete-input>
+            </uniform-autocomplete>
 
             <div class="bill-list-sum" *ngIf="this.currentFilter.name === 'Inbox'">
                 {{currentFilter.label}} ({{currentFilter.count}} stk.)

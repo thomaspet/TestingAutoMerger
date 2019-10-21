@@ -1,4 +1,4 @@
-import {UnitableAutocomplete} from '../controls/autocomplete';
+import {UnitableAutocomplete} from '../controls/table-autocomplete';
 import {UnitableTypeahead} from '../controls/typeahead';
 import {UnitableTextInput} from '../controls/text';
 import {UnitableNumberInput} from '../controls/number';

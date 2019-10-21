@@ -23,6 +23,54 @@ export interface FlowInput {
 // tslint:disable:max-line-length
 export const FLOW_TEMPLATES: FlowTemplate[] = [
     {
+        TemplateName: 'AutomaticBankReconciliation',
+        MaterialIcon1: 'payment',
+        MaterialIcon2: 'done_all',
+        Color: 'red',
+        Label: {
+            no: 'Automatisk bankavstemming',
+            en: 'Automatic bank-reconciliation'
+        },
+        TemplateComment: {
+            no: 'Automatisk bankavstemming ved mottak av kontoutskrift fra autobank',
+            en: 'Automatic reconciliation at reception of autobank-reconciliation-files'
+        },
+        Input: [{
+            Placeholder: '$AutoMatch',
+            Name: 'automatch',
+            Label: {
+                no: 'Automatisk merking',
+                en: 'Automatch'
+            },
+            Type: 'bool',
+            DefaultValue: 'true'
+        }, {
+            Placeholder: '$maxdayoffset',
+            Name: 'maxdayoffset',
+            Label: {
+                no: 'Maks antall dager avvik i dato',
+                en: 'Number of days offset'
+            },
+            Type: 'integer',
+            DefaultValue: '5'
+        }, {
+            Placeholder: '$AssignToEmail',
+            Name: 'notify',
+            Label: {
+                no: 'Varsling til (epost)',
+                en: 'Notify (email)'
+            },
+            Type: 'Email',
+            DefaultValue: '@@user_email'
+        }],
+        Eventplan: <Eventplan>{
+            Name: 'Automatisk bankavstemming',
+            OperationFilter: 'C',
+            ModelFilter: 'FileTag',
+            PlanType: EventplanType.Custom,
+            JobNames: 'ImportBankstatement',
+        }
+    }, {
         TemplateName: 'AutoAssignIncomingFiles',
         MaterialIcon1: 'attach_file',
         MaterialIcon2: 'thumb_up',

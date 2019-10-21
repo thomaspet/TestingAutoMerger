@@ -2,9 +2,11 @@
     <header>{{options.data.name}}</header>
 
     <article>
-        <section class="report-type">
-            <h3>Blankett-formular</h3>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
 
+        <section class="report-type">
             <mat-radio-group [(ngModel)]="selectedReport" (ngModelChange)="loadReportParameters()">
                 <mat-radio-button *ngFor="let report of reports" [value]="report">
                     {{report.Description}}
@@ -17,33 +19,37 @@
         </section>
 
         <section class="report-parameters" *ngIf="showParameters">
-            <h3>Parametere</h3>
+            <label class="uni-label">
+                <span>{{inputFromLabel}}</span>
+                <input type="text" [(ngModel)]="fromNr">
+            </label>
 
-            <mat-form-field class="example-full-width">
-                <input matInput [placeholder]="inputFromLabel" [(ngModel)]="fromNr">
-            </mat-form-field>
-
-            <mat-form-field *ngIf="inputType.secondInputType">
-                <input matInput [placeholder]="inputToLabel" [(ngModel)]="toNr">
-            </mat-form-field>
+            <label class="uni-label" *ngIf="inputType.secondInputType">
+                <span>{{inputToLabel}}</span>
+                <input type="text" [(ngModel)]="toNr">
+            </label>
         </section>
     </article>
 
     <footer>
-        <button class="previewButton" type="button" id="preview_button" (click)="preview()">
+        <button class="secondary pull-left" (click)="cancel()">
+            Avbryt
+        </button>
+
+        <button class="secondary good" (click)="preview()">
             Forhåndsvis
         </button>
 
-        <button class="good" id="good_button_ok" (click)="acceptAndSendEmail()">
+        <button class="good"
+            *ngIf="!options?.data?.hideEmailButton"
+            (click)="acceptAndSendEmail()">
             Send e-post
         </button>
 
-        <button class="good" id="good_button_ok" (click)="acceptAndPrintOut()">
+        <button class="good"
+            *ngIf="!options?.data?.hidePrintButton"
+            (click)="acceptAndPrintOut()">
             Skriv ut
-        </button>
-
-        <button class="cancel" (click)="cancel()">
-            Avbryt
         </button>
     </footer>
 </section>

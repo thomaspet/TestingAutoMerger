@@ -14,7 +14,6 @@ import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
-import {UniToolbarShare} from './toolbar/share';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
@@ -101,7 +100,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         UniToolbar,
         UniToolbarSearch,
         UniToolbarValidation,
-        UniToolbarShare,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,
