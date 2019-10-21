@@ -8,6 +8,8 @@ export interface IUniTab {
     path?: string;
     disabled?: boolean;
     tooltip?: string;
+    tooltipIcon?: string;
+    tooltipClass?: string;
     value?: any;
     count?: number;
     onClick?: () => void;

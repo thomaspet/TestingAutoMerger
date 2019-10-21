@@ -20,29 +20,14 @@
                 <span>E-post</span>
                 <input disabled formControlName="Email" type="email">
             </label>
+
+            <label *ngIf="user?.BankIntegrationUserName" class="uni-label label-left">
+                <span>Endre autobankpassord</span>
+                <button [disabled]="epostButtonClicked" (click)="resetAutobankPassword(); epostButtonClicked=true;">
+                    Send E-post
+                </button>
+            </label>
         </form>
-
-        <!-- Change autobank password -->
-        <section *ngIf="user?.BankIntegrationUserName" class="reset-autobank-password">
-            <strong>Endre autobank passord</strong>
-            <form *ngIf="autobankPasswordForm" [formGroup]="autobankPasswordForm" autocomplete="off">
-                <label class="uni-label label-left">
-                    <span>Nåværende passord</span>
-                    <input formControlName="currentPassword" type="password" autocomplete="new-password">
-                </label>
-
-                <label class="uni-label label-left">
-                    <span>Nytt passord</span>
-                    <input formControlName="newPassword" type="password" autocomplete="new-password">
-                </label>
-
-                <label class="uni-label label-left">
-                    <span>Bekreft passord</span>
-                    <input formControlName="confirmNewPassword" type="password" autocomplete="new-password">
-                </label>
-            </form>
-            <small>Glemt passord? Autobank administrator kan nullstille fra Innstillinger > Brukere</small>
-        </section>
     </article>
 
     <footer>
