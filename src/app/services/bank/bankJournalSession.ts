@@ -264,7 +264,7 @@ export class BankJournalSession {
 
 
     public setValue(fieldName: string, newValue: any, rowIndex: number, row?: DebitCreditEntry) {
-        const match = this.items[rowIndex];
+        const match = this.items[(rowIndex === undefined ? this.items.indexOf(row) : rowIndex)];
         switch (fieldName) {
             case 'Debet':
                 this.cacheAccount(newValue);
@@ -276,6 +276,13 @@ export class BankJournalSession {
                 break;
             case 'Amount':
                 match.Amount = safeDec(newValue);
+                break;
+            case 'VatType':
+                if (BankUtil.isString(newValue)) {
+                    this.setVatType(match, parseInt(newValue, 10));
+                    break;
+                }
+                this.setVatType(match, newValue.ID);
                 break;
             default:
                 return row;
@@ -294,16 +301,23 @@ export class BankJournalSession {
                 item.Credit = acc;
             }
             if (acc.VatTypeID) {
-                if (isDebet) {
-                    item.CreditVatTypeID = undefined;
-                    item.DebetVatTypeID = acc.VatTypeID;
-                } else {
-                    item.DebetVatTypeID = undefined;
-                    item.CreditVatTypeID = acc.VatTypeID;
-                }
-                item.VatType = this.vatTypes.find( x => x.ID === acc.VatTypeID);
+                this.setVatType(item, acc.VatTypeID);
             }
         }
+    }
+
+    private setVatType(item: DebitCreditEntry, vatTypeID: number, isDebet = true) {
+        if (vatTypeID <= 0) { return; }
+        const vi = this.vatTypes.find( x => x.ID === vatTypeID);
+        if (!vi) { return; }
+        if (isDebet) {
+            item.CreditVatTypeID = undefined;
+            item.DebetVatTypeID = vatTypeID;
+        } else {
+            item.DebetVatTypeID = undefined;
+            item.CreditVatTypeID = vatTypeID;
+        }
+        item.VatType = vi;
     }
 
 
