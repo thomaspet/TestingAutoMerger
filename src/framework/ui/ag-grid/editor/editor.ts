@@ -78,6 +78,8 @@ export class TableEditor {
     public currentRowIndex: number;
     public currentCellIndex: number;
 
+    moving: boolean;
+
     constructor(
         private dataService: TableDataService,
         private utils: TableUtils,
@@ -96,7 +98,11 @@ export class TableEditor {
 
         this.moveThrottle
             .throttleTime(100)
-            .subscribe(event => this.move(event.direction, event.key));
+            .subscribe(event => {
+                if (!this.moving) {
+                    this.move(event.direction, event.key);
+                }
+            });
     }
 
     public ngOnChanges(changes) {
@@ -130,7 +136,7 @@ export class TableEditor {
                 // Make sure there is always an empty row at the bottom
                 // if config.autoAddNewRow is true
                 const rowCount = this.agGridApi.getDisplayedRowCount();
-                if (this.config.autoAddNewRow && rowIndex >= (rowCount - 1)) {
+                if (this.config.autoAddNewRow && rowIndex >= rowCount) {
                     this.dataService.addRow();
                 }
 
@@ -162,11 +168,10 @@ export class TableEditor {
                 if (!editorData.cancel) {
                     this.openEditor(editorData.initValue, editorData.initAsDirty);
                 }
-            });
 
+                this.moving = false;
+            }).catch(() => this.moving = false);
         });
-
-
     }
 
     private openEditor(initValue: string, initAsDirty: boolean) {
@@ -396,6 +401,8 @@ export class TableEditor {
     }
 
     private move(direction: 'up'|'down'|'left'|'right', keyCode?: number) {
+        this.moving = true;
+
         // REVISIT: simpler way to get table data?
         const data = [];
         this.agGridApi.forEachNode(node => {
@@ -461,6 +468,8 @@ export class TableEditor {
                 // this.agGridApi.ensureColumnVisible(uniColumn.field);
                 this.activate(rowIndex, cellIndex);
             }
+        } else {
+            this.moving = false;
         }
     }
 

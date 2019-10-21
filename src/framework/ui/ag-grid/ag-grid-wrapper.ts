@@ -748,7 +748,13 @@ export class AgGridWrapper {
 
                     return this.tableUtils.getColumnValue(data, col, true);
                 },
-                cellRenderer: (params) => `<span>${params.value}</span>`
+                cellRenderer: (params) => {
+                    if (params.value) {
+                        return `<span>${params.value}</span>`;
+                    } else if (col.placeholder) {
+                        return `<span class="placeholder">${col.placeholder}</span>`;
+                    }
+                }
             };
 
             if (col.rowGroup) {
