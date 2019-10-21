@@ -235,7 +235,7 @@ export const CHARTS = [
     },
     {
         id: 'reminder_list',
-        description: 'Arbeidsliste',
+        description: 'Huskeliste',
         permissions: ['ui_accounting'],
         width: 3,
         height: 3,

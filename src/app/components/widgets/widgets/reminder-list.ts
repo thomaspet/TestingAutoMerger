@@ -67,9 +67,11 @@ export class ReminderListWidget {
             this.widgetDataService.getData('/api/kpi/companies'),
             this.approvalService.GetAll(filter, ['Task.Model']),
             this.widgetDataService.getData(`/api/statistics?model=Payment&select=sum(casewhen((Payment.IsCustomerPayment eq 'true' ` +
-            `and Payment.StatusCode eq '44018' )\,1\,0)) as payments`)
+            `and Payment.StatusCode eq '44018' )\,1\,0)) as payments`),
+            this.widgetDataService.getData(`/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/` +
+            `0?action=get-supplierInvoice-inbox`)
         )
-        .subscribe(([data, comp, approvals, payments]) => {
+        .subscribe(([data, comp, approvals, payments, inbox]) => {
 
             // Taskss
             const tasks = (data && data.Data || []).map(item => {
@@ -85,19 +87,25 @@ export class ReminderListWidget {
 
             // Company KPI
             const kpi = (myCompany && myCompany.Kpi || [])
-                .filter(item => item.Counter && item.Name !== 'Approved')
+                .filter(item => item.Counter && item.Name !== 'Approved' && item.Name !== 'Inbox')
                 .map(item => {
                     item._icon = this.getIcon(item.Name);
-                    item._label = item.Name === 'Inbox'
-                        ? `Elementer i innboksen (${item.Counter})`
-                        : item.Name === 'ToBePayed'
+                    item._label = item.Name === 'ToBePayed'
                         ? `Regninger til betaling (${item.Counter})`
                         : `Faktura klar for purring (${item.Counter})`;
                     item._typeText = this.getTranslatedTypeText(item.Name);
-                    item._url = item.Name === 'Inbox' ? '/accounting/bills?filter=Inbox' : item.Name === 'ToBePayed'
-                        ? '/accounting/bills?filter=ForApproval' : '/sales/reminders/ready';
+                    item._url = item.Name === 'ToBePayed' ? '/accounting/bills?filter=ToPayment' : '/sales/reminders/ready';
                     return item;
                 });
+
+            if (inbox && inbox.length) {
+                kpi.unshift({
+                    _icon: 'mail_outline',
+                    _label: `Elementer i innboksen (${inbox.length})`,
+                    _typeText: 'Innboks',
+                    _url : '/accounting/inbox'
+                });
+            }
 
             // APPROVALS
             const apps = (approvals || []).map((approval) => {
@@ -172,8 +180,6 @@ export class ReminderListWidget {
                 return 'note';
             case 'Customer':
                 return 'person_outline';
-            case 'Inbox':
-                return 'mail_outline';
             case 'ToBePayed':
                 return 'assignment_returned';
             case 'ToBeReminded':

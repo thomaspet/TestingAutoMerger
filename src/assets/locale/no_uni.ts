@@ -208,6 +208,7 @@ export const NO = {
         'HOME': 'Hjem',
         'REGISTER': 'Register',
         'OTHER': 'Annet',
-        'NUMBER_AND_REPORTS': 'Tall og rapporter'
+        'NUMBER_AND_REPORTS': 'Tall og rapporter',
+        'INBOX': 'Innboks'
     }
 };

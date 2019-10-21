@@ -60,6 +60,7 @@ export enum UniModules {
     CurrencyOverride = 315,
     Budget          = 316,
     CostAllocation  = 317,
+    Inbox           = 318,
 
     Bank            = 450,
     Payment         = 451,
