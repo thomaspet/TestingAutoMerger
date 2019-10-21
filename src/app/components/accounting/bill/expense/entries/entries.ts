@@ -2,11 +2,11 @@ import { Component, Input } from '@angular/core';
 import { BankJournalSession, DebitCreditEntry } from '@app/services/services';
 
 @Component({
-    selector: 'easyjournal-entries',
+    selector: 'expense-entries',
     templateUrl: 'entries.html',
     styleUrls: ['entries.sass']
 })
-export class EasyJournalEntries {
+export class ExpenseEntries {
     @Input() session: BankJournalSession;
 
     addRow() {

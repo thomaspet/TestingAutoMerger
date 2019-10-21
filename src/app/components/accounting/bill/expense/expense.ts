@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
-import { BankJournalSession, DebitCreditEntry, ErrorService } from '@app/services/services';
-export { EasyJournalPrepaid } from './prepaid/prepaid';
-export { EasyJournalEntries } from './entries/entries';
-export { EasyJournalPayable } from './payable/payable';
+import { BankJournalSession, DebitCreditEntry, ErrorService, PageStateService } from '@app/services/services';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+export { ExpensePrepaid } from './prepaid/prepaid';
+export { ExpenseEntries } from './entries/entries';
+export { ExpensePayable } from './payable/payable';
 
 @Component({
-    selector: 'easyjournal',
-    templateUrl: './easyjournal.html',
-    styleUrls: [ './easyjournal.sass' ]
+    selector: 'expense',
+    templateUrl: './expense.html',
+    styleUrls: [ './expense.sass' ]
 })
-export class EasyJournal implements OnInit {
+export class Expense implements OnInit {
 
     busy = true;
     viewModePayable = false;
@@ -28,10 +29,23 @@ export class EasyJournal implements OnInit {
         title: this.getTitle(), omitFinalCrumb: true
     };
 
-    constructor(public session: BankJournalSession, private errorService: ErrorService) {
+    constructor(
+        public session: BankJournalSession,
+        private errorService: ErrorService,
+        private pageStateService: PageStateService,
+        private tabService: TabService) {
         session.initialize()
             .finally( () => this.busy = false)
             .subscribe( () => this.sessionReady() );
+
+        this.tabService.addTab({
+            name: 'NAVBAR.EXPENSE',
+            url: '/accounting/expense',
+            moduleID: UniModules.Bills,
+            active: true
+        });
+
+        this.checkPath();
     }
 
     private getTitle(): string {
@@ -43,6 +57,13 @@ export class EasyJournal implements OnInit {
     }
 
     sessionReady() {
+    }
+
+    private checkPath() {
+        const params = this.pageStateService.getPageState();
+        if (params.filter) {
+
+        }
     }
 
     save(): Promise<boolean> {

@@ -68,6 +68,7 @@ export const OVERRIDE = {
         'HOUR_REG': 'Registrere timer',
         'BILLING_HOURS': 'Fakturere timer',
         'PERSONS': 'Timebrukere',
-        'BUY': 'Kjøp'
+        'BUY': 'Kjøp',
+        'EXPENSE': 'Utlegg'
     }
 };

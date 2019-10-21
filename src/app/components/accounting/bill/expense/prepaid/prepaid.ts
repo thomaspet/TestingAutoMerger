@@ -2,10 +2,11 @@ import { Component, Input } from '@angular/core';
 import { BankJournalSession } from '@app/services/services';
 
 @Component({
-    selector: 'easyjournal-payable',
-    templateUrl: 'payable.html',
-    styleUrls: ['payable.sass']
+    selector: 'expense-prepaid',
+    templateUrl: 'prepaid.html',
+    styleUrls: ['prepaid.sass']
 })
-export class EasyJournalPayable {
+export class ExpensePrepaid {
     @Input() session: BankJournalSession;
+
 }
