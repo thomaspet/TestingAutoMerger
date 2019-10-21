@@ -297,7 +297,7 @@ export class BankJournalSession {
             if (!x.Amount) { return; }
             let value = x.Amount;
             if (x.Debet && x.Credit) { value = 0; } else if (x.Credit) { value = -value; }
-            sum += value;
+            sum = BankUtil.safeAdd(sum, value);
         });
         return sum;
     }
