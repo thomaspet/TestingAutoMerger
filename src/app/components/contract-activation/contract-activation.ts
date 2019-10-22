@@ -2,10 +2,13 @@ import {Component, HostBinding} from '@angular/core';
 import {FormGroup, FormControl, Validators, AbstractControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {forkJoin} from 'rxjs';
+import {take} from 'rxjs/operators';
 
-import {CompanySettings, User, Agency, Company} from '@uni-entities';
+import {CompanySettings, Agency, Company} from '@uni-entities';
 import {AuthService} from '@app/authService';
 import {CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
+import {ElsaCustomer} from '@app/models';
+import {environment} from 'src/environments/environment';
 import {
     ModulusService,
     CompanySettingsService,
@@ -15,17 +18,17 @@ import {
     CompanyService,
     ElsaCustomersService,
 } from '@app/services/services';
-import { take } from 'rxjs/operators';
-import { ElsaCustomer } from '@app/models';
 
 @Component({
     selector: 'contract-activation',
     templateUrl: './contract-activation.html',
     styleUrls: ['./contract-activation.sass'],
-    host: {'class': 'uni-redesign'}
 })
 export class ContractActivation {
     @HostBinding('class.overlay') trialExpired: boolean;
+
+    isSrEnvironment = environment.isSrEnvironment;
+    isSrCustomer: boolean;
 
     licenseData: FormGroup;
     noBrRegMatch: boolean;
@@ -170,6 +173,14 @@ export class ContractActivation {
                                 this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
                                 this.router.navigateByUrl('/');
                             });
+
+                            if (this.isSrEnvironment && !this.isSrCustomer) {
+                                let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde.html';
+                                if (settings.OrganizationNumber) {
+                                    url += `?bm-orgNumber=${settings.OrganizationNumber}`;
+                                }
+                                window.open(url, '_blank');
+                            }
                         },
                         err => this.errorService.handle(err)
                     );

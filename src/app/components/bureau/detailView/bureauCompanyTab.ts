@@ -26,12 +26,6 @@ const FILE_BASE = environment.BASE_URL_FILES;
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
 <section class="company-overview" *ngIf="!!viewData && !!company">
-    <section class="logo" [attr.aria-busy]="!logoUrl">
-        <img *ngIf="!!logoUrl" [src]="logoUrl" />
-    </section>
-    <a (click)="navigateToCompanyUrl('/')" class="company_name">
-        {{company.Name}}
-    </a>
     <section class="highlighted-bar">
         <section>
             <span>Virksomheter</span>
@@ -61,10 +55,8 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
 
     public accountingYear: number;
     public viewData: any[];
-    public logoUrl: string;
     @HostBinding('class.no_access') public noAccess: boolean = false;
 
-    private authToken: string;
     private subscription: Subscription;
 
     constructor(
@@ -72,13 +64,11 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
         private authService: AuthService,
-        private uniFilesService: UniFilesService,
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
         financialYearService: FinancialYearService,
     ) {
         this.accountingYear = financialYearService.getActiveYear();
-        this.authService.filesToken$.subscribe(token => this.authToken = token);
     }
 
     public ngAfterViewInit() {
@@ -97,13 +87,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
                     .finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
                     .do(() => this.cd.markForCheck())
                     .subscribe(
-                        result => {
-                            this.viewData = result;
-                            this.logoUrl = undefined;
-                            this.getLogoUrl(this.company.Key)
-                                .do(() => this.cd.markForCheck())
-                                .subscribe(logoUrl => this.logoUrl = logoUrl);
-                        },
+                        result => this.viewData = result,
                         err => {
                             if (err.status === 403) {
                                 this.noAccess = true;
@@ -148,23 +132,6 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
             .map(this.customHttpService.singleStatisticsExtractor)
             .map(result => result.countid);
     }
-
-    private getLogoUrl(companyKey: string): Observable<string> {
-        const logoUrlObservable = this.customHttpService
-            .get(`/api/biz/files/${CompanySettings.EntityType}/1`, companyKey)
-            .map(response => response.body)
-            .map(files => files.length && files[0]
-                    ? `${FILE_BASE}/api/image/?key=${companyKey}&token=${this.authToken}&id=${files[0].StorageReference}`
-                    : '/assets/Logo-Placeholder.png'
-            );
-
-        return Observable.fromPromise(
-            this.uniFilesService
-                .checkAuthentication()
-                .catch(() => this.authService.authenticateUniFiles())
-        ).switchMap(() => logoUrlObservable);
-    }
-
 
     public navigateToCompanyUrl(url: string) {
         this.authService.setActiveCompany(<any>this.company, url);

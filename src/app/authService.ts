@@ -164,6 +164,8 @@ export class AuthService {
 
     private getUserManager(): UserManager {
         const baseUrl = window.location.origin;
+        console.log('SIGN OUT REDIRECT: ' + baseUrl + environment.post_logout_redirect_uri);
+
         const settings: any = {
             authority: environment.authority,
             client_id: environment.client_id,

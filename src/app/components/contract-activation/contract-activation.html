@@ -89,25 +89,25 @@
                     </span>
                 </mat-checkbox>
 
+                <!-- SR Only -->
+                <mat-checkbox *ngIf="isSrEnvironment"
+                    [(ngModel)]="isSrCustomer"
+                    [ngModelOptions]="{standalone: true}">
+
+                    <span class="checkbox-label">
+                        Jeg er allerede SR-bank bedriftskunde (ikke påkrevd)
+                    </span>
+                </mat-checkbox>
+
                 <button
                     type="button"
                     class="good"
                     [attr.aria-busy]="busy"
-                    [disabled]="!f.form.valid || noBrRegMatch"
+                    [disabled]="!f?.form?.valid || noBrRegMatch"
                     (click)="activate()">
                     Aktiver kontrakt
                 </button>
             </section>
         </form>
     </section>
-
-
-</section>
-
-
-<section class="info-section">
-    <img src="../../../../../assets/ue_activation-min.png" alt="Uni Economy bilde">
-
-    <h1>Uni Economy</h1>
-    <h2>Fremtidens økonomisystem i skyen</h2>
 </section>
