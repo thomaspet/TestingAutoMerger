@@ -1,21 +1,24 @@
 uni-toast-list
     position: fixed
-    bottom: 2rem
-    right: 2rem
+    top: 4rem
+    left: calc(50% - 21rem)
     z-index: #{map-get($zindex, modal) + 1}
     display: flex
     flex-direction: column-reverse
 
 uni-toast
     display: flex
-    width: 35rem
+    width: 42rem
     padding: 1rem
     font-family: var(--font-family)
     color: var(--text-color) !important
     cursor: pointer
     border: 1px solid var(--border-color)
     border-radius: 4px
-    transition: opacity 0.3s ease-in-out
+    overflow: hidden
+    opacity: 1
+    transform: none
+    transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76)
 
     & + uni-toast
         margin-bottom: .5rem
@@ -28,6 +31,7 @@ uni-toast
         background-color: var(--toast-warn)
     &.toast-done
         opacity: 0
+        transform: rotateX(-90deg)
 
     i.toast-type-icon
         flex: 0 0 auto
@@ -39,14 +43,13 @@ uni-toast
         flex: 1
         .header
             font-weight: 500
-            font-size: 15px
+            font-size: 16px
             small.toast-count
                 color: var(--text-color)
                 font-weight: 300
                 font-size: 13px
 
         .message
-            margin-top: 10px
             font-size: 13px
 
         .toast-action
