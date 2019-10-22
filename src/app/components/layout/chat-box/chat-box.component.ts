@@ -55,7 +55,7 @@ export class ChatBoxComponent implements OnInit {
             this.getComments();
         }
 
-        this.userService.GetAll().subscribe(
+        this.userService.GetAll('filter=statuscode eq 110001').subscribe(
             users => this.users = users,
             err => this.errorService.handle(err)
         );
