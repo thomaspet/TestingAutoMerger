@@ -73,8 +73,9 @@ export class Signup {
             .subscribe(
                 res => {
                     this.busy = false;
-                    this.successMessage = 'Vi vil nå verifisere e-posten din. '
-                        + 'Vennligst sjekk innboks for videre informasjon.';
+                    this.successMessage = 'En e-post med mer informasjon ble sendt til: <br><b>'
+                        + this.step1Form.controls['Email'].value
+                        + '</b><br>Vennligst sjekk innboksen din.';
                 },
                 err => {
                     this.step1Form.enable();

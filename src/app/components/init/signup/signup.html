@@ -11,9 +11,9 @@
         {{errorMessage}}
     </small>
 
-    <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
+    <small class="validation good" *ngIf="successMessage" [innerHTML]="successMessage"></small>
 
-    <form #step1="ngForm" *ngIf="!confirmationCode" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
+    <form #step1="ngForm" *ngIf="!confirmationCode && !successMessage" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
         <label for="companyNameInput">Selskapsnavn</label>
         <input id="companyNameInput"
             type="text"
