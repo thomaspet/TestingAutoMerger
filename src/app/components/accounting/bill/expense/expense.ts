@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { BankJournalSession, DebitCreditEntry, ErrorService, PageStateService, PaymentMode } from '@app/services/services';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { Router } from '@angular/router';
+import { ExpensePrepaid } from './prepaid/prepaid';
 export { ExpensePrepaid } from './prepaid/prepaid';
 export { ExpenseEntries } from './entries/entries';
 export { ExpensePayable } from './payable/payable';
@@ -15,6 +16,7 @@ export { ExpensePayable } from './payable/payable';
     styleUrls: [ './expense.sass' ]
 })
 export class Expense implements OnInit {
+    @ViewChild(ExpensePrepaid) prepaidView: ExpensePrepaid;
 
     busy = true;
     viewModePayable = false;
@@ -84,6 +86,10 @@ export class Expense implements OnInit {
                 return;
             }
 
+            // this.dumpExpense();
+            // resolve(true);
+            // return;
+
             // Save
             this.session.save()
                 .finally(() => resolve(true))
@@ -107,9 +113,18 @@ export class Expense implements OnInit {
         });
     }
 
+    dumpExpense() {
+        const xpL = this.session.convertToExpense();
+        if (xpL && xpL.length > 0) {
+            const xp = xpL[0];
+            console.log(xp);
+            console.table(xp.DraftLines);
+        }
+    }
+
     clear() {
         this.session.clear();
-        this.checkPaymentMode();
+        this.checkPaymentMode(true);
         this.session.items.push(new DebitCreditEntry(new Date()));
     }
 
@@ -119,8 +134,13 @@ export class Expense implements OnInit {
         this.toolbarConfig.title = this.getTitle();
     }
 
-    checkPaymentMode() {
+    checkPaymentMode(reset = false) {
         this.session.payment.Mode = this.viewModePayable ? PaymentMode.PrepaidByEmployee : PaymentMode.PrepaidWithCompanyBankAccount;
+        if (reset && this.session.payment.Mode === PaymentMode.PrepaidWithCompanyBankAccount) {
+            if (this.prepaidView) {
+                this.prepaidView.clear();
+            }
+        }
     }
 
 }

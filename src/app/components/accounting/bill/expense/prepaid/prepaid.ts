@@ -28,12 +28,23 @@ export class ExpensePrepaid implements OnInit {
             + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'
             + '&top=50&distinct=false'
             + '&orderby=casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,0,1)').subscribe( x => {
-                this.bankAccounts = x.Data;
-                if (x.Data && x.Data.length > 0) {
-                    this.onChange(x.Data[0]);
-                }
+                this.setBankAccounts(x.Data);
                 this.busy = false;
             });
+    }
+
+    setBankAccounts(list: Array<any>) {
+        this.bankAccounts = list || [];
+        if (list && list.length > 0) {
+            this.onChange(list[0]);
+        }
+    }
+
+    clear() {
+        if (this.bankAccounts && this.bankAccounts.length > 0) {
+            const first = this.bankAccounts[0];
+            this.onChange(first);
+        }
     }
 
     onChange(value: { AccountID: number, AccountName: string, AccountNumber: number }) {

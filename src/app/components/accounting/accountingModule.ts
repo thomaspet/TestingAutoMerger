@@ -11,6 +11,7 @@ import {
     MatProgressBarModule,
     MatMenuModule,
     MatOptionModule,
+    DateAdapter,
 } from '@angular/material';
 
 import {LayoutModule} from '../layout/layoutModule';
@@ -89,6 +90,7 @@ import {UniCostAllocationList} from '@app/components/accounting/cost-allocation/
 import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
 import {UniInbox} from './inbox/inbox';
 import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
+import { UniDateAdapter } from '@app/date-adapter';
 
 @NgModule({
     imports: [
@@ -284,6 +286,7 @@ import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
         UniCostAllocationList,
     ],
     providers: [
+        { provide: DateAdapter, useClass: UniDateAdapter },
         PeriodFilterHelper,
     ]
 })

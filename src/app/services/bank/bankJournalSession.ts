@@ -91,6 +91,7 @@ export class BankJournalSession {
     }
 
     public convertToExpense() {
+        console.log('converToExpense', this.payment);
         this.balance = this.calcTotal();
         const jr = this.convertToJournal();
         const content = (jr && jr.length > 0) ? jr[0] : {
