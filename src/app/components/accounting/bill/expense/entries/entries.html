@@ -1,0 +1,40 @@
+<section class="entry" *ngFor="let item of session?.items; let idx = index">
+
+    <!-- Header for entries after first one -->
+    <section *ngIf="idx > 0" class="entry-header">
+        Konteringslinje {{idx + 1}}
+        <button class="icon-button">
+            <i class="material-icons" (click)="removeRow(entry)">close</i>
+        </button>
+    </section>
+
+    <section class="form-grid">
+        <label class="uni-label full-width">
+            <span>Kostnadskonto</span>
+            <autocomplete [options]="accountOptions" [value]="item.Debet" (valueChanges)="setAccount(item, $event)"></autocomplete>
+        </label>
+
+        <label class="uni-label">
+            <span>Beløp</span>
+            <input type="number" [(ngModel)]="item.Amount" />
+        </label>
+
+        <label class="uni-label">
+            <span>MVA</span>
+            <select [ngModel]="item.VatType?.ID" (change)="session.setValue('VatType', $event.target.value, undefined, item)" >
+                <option *ngFor="let vatType of session.vatTypes" [value]="vatType.ID">
+                    {{vatType.superLabel}}
+                </option>
+            </select>
+        </label>
+
+        <label class="uni-label full-width">
+            <span>Beskrivelse</span>
+            <input type="text" [(ngModel)]="item.Description" />
+        </label>
+    </section>
+</section>
+
+<button (click)="addRow()" class="secondary">
+    Del beløp over flere kontoer
+</button>

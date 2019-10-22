@@ -81,6 +81,9 @@ export const NO = {
             'TITLE': 'Åpne poster {entity}',
             'EXPORT': 'Eksport åpne poster',
             'EXPORT_ALL': 'Eksport alle åpne poster'
+        },
+        EXPENSE: {
+            'TITLE': 'Utlegg'
         }
     },
 
@@ -209,6 +212,7 @@ export const NO = {
         'REGISTER': 'Register',
         'OTHER': 'Annet',
         'NUMBER_AND_REPORTS': 'Tall og rapporter',
+        'EXPENSE': 'Utlegg',
         'INBOX': 'Innboks'
     }
 };

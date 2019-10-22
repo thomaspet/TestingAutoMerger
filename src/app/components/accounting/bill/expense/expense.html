@@ -1,0 +1,63 @@
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
+
+<mat-slide-toggle class="viewmode"
+    [ngModel]="viewModePayable"
+    (ngModelChange)="flipViewMode()"
+    [labelPosition]="'before'">
+    Utbetaling
+</mat-slide-toggle>
+
+<section class="application" [attr.aria-busy]="busy" >
+
+    <section class="expense-split-view">
+        <section class="input-section">
+            <section class="details uni-container">
+                <header>Detaljer</header>
+
+                <section>
+                    <expense-prepaid *ngIf="!viewModePayable" [session]="session"></expense-prepaid>
+                    <expense-payable *ngIf="viewModePayable" [session]="session"></expense-payable>
+                </section>
+            </section>
+
+            <section class="journaling uni-container">
+                <header>Utgiftskonto</header>
+                <expense-entries [session]="session"></expense-entries>
+                <footer>
+                    <span>Totalsum</span>
+                    <span>{{(session.balance | uninumberformat: 'money') || '0,00'}}</span>
+                </footer>
+            </section>
+        </section>
+
+        <section class="attachments uni-container">
+            <header>Vedlegg</header>
+
+            <section>Last opp</section>
+
+            <!-- <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+                <i class="material-icons">get_app</i>
+                Hent fra innboks
+            </span>
+
+            <uni-image
+                [singleImage]="false"
+                [uploadWithoutEntity]="!(current | async)?.ID"
+                [fileIDs]="(current | async)?.ID ? [] : startUpFileID"
+                [entity]="'SupplierInvoice'"
+                [entityID]="(current | async)?.ID"
+                [size]="1200"
+                [splitAllowed]="true"
+                [rotateAllowed]="true"
+                (fileListReady)="onFileListReady($event)"
+                (imageDeleted)="onImageDeleted($event)"
+                (imageUnlinked)="imageUnlinked($event)"
+                (useWord)="onUseWord($event)">
+            </uni-image> -->
+
+        </section>
+    </section>
+</section>

@@ -6,58 +6,8 @@ import { BankUtil } from './bankStatmentModels';
 import { safeDec, toIso } from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { FinancialYearService } from '../accounting/financialYearService';
-
-export class DebitCreditEntry {
-    public FinancialDate: Date;
-
-    public Debet: IAccount;
-    public DebetVatTypeID?: number;
-    public DebetAccountID: number;
-
-    public Credit: IAccount;
-    public CreditVatTypeID?: number;
-    public CreditAccountID: number;
-
-    public Description: string;
-    public VatType?: IVatType;
-
-    public Department?: any;
-    public Project?: any;
-
-    public Amount: number;
-    public InvoiceNumber: string;
-    public active = false;
-}
-
-export interface IAccount {
-    ID: number;
-    AccountNumber: number;
-    AccountName: string;
-    VatTypeID: number;
-    superLabel?: string;
-}
-
-export interface IVatType {
-    ID: number;
-    VatCode: string;
-    VatPercent: number;
-    Name: string;
-    OutputVat: boolean;
-    superLabel?: string;
-}
-
-export interface INumberSerie {
-    ID: number;
-    DisplayName: string;
-    Name: string;
-}
-
-export interface IJournal {
-    DraftLines: Array<any>;
-    NumberSeriesID?: number;
-    NumberSeriesTaskID?: number;
-    FileIDs?: Array<number>;
-}
+import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode } from './bankjournalmodels';
+export * from './bankjournalmodels';
 
 @Injectable()
 export class BankJournalSession {
@@ -70,6 +20,7 @@ export class BankJournalSession {
     public currentYear = 0;
     public series: Array<INumberSerie> = [];
     public selectedSerie: INumberSerie;
+    public payment: PaymentInfo = new PaymentInfo();
 
     constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
         this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
@@ -77,12 +28,23 @@ export class BankJournalSession {
 
     clear() {
         this.items = [];
+        this.payment = new PaymentInfo();
         this.busy = false;
     }
 
     save(asDraft = false) {
         this.busy = true;
-        const cargo = this.convertToJournal(asDraft);
+
+        let cargo: any;
+        switch (this.payment.Mode) {
+            case PaymentMode.None:
+                cargo = this.convertToJournal(asDraft);
+                break;
+            default:
+                cargo = this.convertToExpense();
+                break;
+        }
+
         const route = asDraft ? 'journalentries?action=save-journal-entries-as-draft' : 'journalentries?action=book-journal-entries';
         return this.HttpPost(route, cargo).finally( () => this.busy = false );
     }
@@ -91,41 +53,96 @@ export class BankJournalSession {
         this.balance = this.calcTotal();
     }
 
-    initialize(preloadAccountID?: number) {
+    initialize(preloadAccountID?: number, defaultSerieName?: string) {
         this.clear();
         this.accounts = [];
         this.busy = true;
 
-        const accountLoader = preloadAccountID
-            ? this.getAccountByID(preloadAccountID)
-            : this.statisticsService.GetAllUnwrapped('model=account&select=id as ID,accountnumber as AccountNumber'
-                + `,accountname as AccountName,vattypeid as VatTypeID`
-                + '&filter=accountnumber ge 1000 and accountnumber le 9999 and visible eq 1&orderby=accountnumber');
-        const vatLoader = this.HttpGet(`vattypes`);
-        const seriesLoader = this.HttpGet('number-series?action=get-active-numberseries&entityType=JournalEntry&year='
-            + this.currentYear);
-        return forkJoin(
-            accountLoader,
-            vatLoader,
-            seriesLoader
+        const apiRequests = [
+            this.HttpGet(`vattypes`),
+            this.HttpGet(`number-series?action=get-active-numberseries&entityType=JournalEntry&year=${this.currentYear}`)
+        ];
+
+        if (preloadAccountID) {
+            apiRequests.push(this.getAccountByID(preloadAccountID));
+        }
+
+        return forkJoin(...apiRequests
         ).pipe(
             tap(res => {
-                this.accounts = this.createAccountSuperLabel(Array.isArray(res[0]) ? res[0] : [res[0]]);
-                this.vatTypes = this.createVatSuperLabel(res[1]);
-                this.setupSeries(res[2]);
+                this.vatTypes = this.createVatSuperLabel(res[0]);
+                this.setupSeries(res[1], defaultSerieName);
+                if (res[2]) {
+                    this.accounts = this.createAccountSuperLabel(Array.isArray(res[2]) ? res[2] : [res[2]]);
+                }
             }),
             finalize (() => this.busy = false)
         );
     }
 
-    private setupSeries(list, keyWord = 'bank') {
+    private setupSeries(list, keyWord?: string) {
         if (Array.isArray(list) && list.length > 0) {
             this.series = list;
-            if (this.series.length > 1) {
+            if (this.series.length > 1 && keyWord) {
                 this.selectedSerie = this.series.find( x => x.Name.toLowerCase().indexOf(keyWord) >= 0);
             }
             this.selectedSerie = this.selectedSerie || this.series[0];
         }
+    }
+
+    public convertToExpense() {
+        console.log('converToExpense', this.payment);
+        this.balance = this.calcTotal();
+        const jr = this.convertToJournal();
+        const content = (jr && jr.length > 0) ? jr[0] : {
+            DraftLines: [],
+            FileIDs: [],
+            Payments: [{}],
+            Description: 'Return expense'
+        };
+        if (this.payment.Mode === PaymentMode.PrepaidWithCompanyBankAccount) {
+            content.Description = 'Prepaid expense';
+            // Align dates in journal to match payment-date
+            content.DraftLines.forEach(x => x.FinancialDate = toIso(this.payment.PaymentDate));
+            // Add virtual item (the payment-entry)
+            if (this.payment && this.payment.PaidWith) {
+                this.cacheAccount(this.payment.PaidWith);
+                const dc = this.addRow(this.payment.PaidWith.ID, 0, this.payment.PaymentDate, 'Utlegg', true );
+                const jln = this.convertToJournalEntry(dc);
+                jln.AccountID = this.payment.PaidWith.ID;
+                jln.Amount = -this.balance;
+                content.DraftLines.push(jln);
+            }
+        }
+        return [content];
+    }
+
+    public validate(): { success: boolean; messages?: string[] } {
+
+        if (this.items === undefined || this.items.length === 0) {
+            return { success: false, messages: ['Ingen posteringer'] };
+        }
+
+        if (this.balance === 0 && this.payment.Mode !== PaymentMode.None) {
+            return { success: false, messages: ['Betalingen må ha et beløp'] };
+        }
+
+        if (this.balance !== 0 && this.payment.Mode === PaymentMode.None) {
+            return { success: false, messages: ['Det er differanse i bilaget'] };
+        }
+
+        let validItems = 0;
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            if (item.Amount && (item.Debet || item.Credit)) {
+                validItems++;
+            }
+        }
+        if (validItems === 0) {
+            return { success: false, messages: ['Det mangler gyldige konteringer'] };
+        }
+
+        return { success: true };
     }
 
     public convertToJournal(asDraft = false) {
@@ -139,12 +156,14 @@ export class BankJournalSession {
                 if (item.Debet) {
                     const debet = this.convertToJournalEntry(item);
                     debet.AccountID = item.Debet.ID;
+                    if (item.DebetVatTypeID !== undefined) { debet.VatTypeID = item.DebetVatTypeID; }
                     entry.DraftLines.push(debet);
                     balance = BankUtil.safeAdd(balance, debet.Amount);
                 }
                 if (item.Credit) {
                     const credit = this.convertToJournalEntry(item);
                     credit.AccountID = item.Credit.ID;
+                    if (item.CreditVatTypeID !== undefined) { credit.VatTypeID = item.CreditVatTypeID; }
                     credit.Amount = -item.Amount;
                     entry.DraftLines.push(credit);
                     balance = BankUtil.safeAdd(balance, credit.Amount);
@@ -169,6 +188,12 @@ export class BankJournalSession {
             jj.NumberSeriesTaskID = seriesTaskID;
         }
         return jj;
+    }
+
+    public load(entry: IJournal): Observable<IJournal> {
+        this.clear();
+        const lines = entry.DraftLines.map( x => {});
+        return null;
     }
 
     private convertToJournalEntry(item: DebitCreditEntry) {
@@ -204,6 +229,9 @@ export class BankJournalSession {
     }
 
     public getAccountByID(id: number): Observable<IAccount> {
+        if (id && id < 0) {
+            return undefined;
+        }
         const acc = this.accounts.find( x => x.ID === id);
         if (acc) { return Observable.from([acc]); }
         return this.HttpGet(`accounts/${id}?select=ID,AccountNumber,AccountName,VatTypeID`)
@@ -214,14 +242,15 @@ export class BankJournalSession {
 
     public cacheAccount(acc) {
         if (!(acc && acc.ID)) { return; }
-        const match = this.accounts.find( x => x.ID === acc.id);
+        const match = this.accounts.find( x => x.ID === acc.ID);
         if (!match) {
+            console.log('caching accoung:' + acc.ID, acc);
             this.createAccountSuperLabel([acc]);
             this.accounts.push(acc);
         }
     }
 
-    public addRow(debetAccountID: number, amount: number, date: Date, text = '') {
+    public addRow(debetAccountID: number, amount: number, date: Date, text = '', virtual = false) {
         const item = new DebitCreditEntry();
         const acc = this.accounts.find( x => x.ID === debetAccountID );
         if (acc) {
@@ -239,13 +268,16 @@ export class BankJournalSession {
         item.Amount = Math.abs(amount);
         item.FinancialDate = date;
         item.Description = text;
-        this.items.push(item);
-        this.balance = this.calcTotal();
+        if (!virtual) {
+            this.items.push(item);
+            this.balance = this.calcTotal();
+        }
+        return item;
     }
 
 
     public setValue(fieldName: string, newValue: any, rowIndex: number, row?: DebitCreditEntry) {
-        const match = this.items[rowIndex];
+        const match = this.items[(rowIndex === undefined ? this.items.indexOf(row) : rowIndex)];
         switch (fieldName) {
             case 'Debet':
                 this.cacheAccount(newValue);
@@ -257,6 +289,13 @@ export class BankJournalSession {
                 break;
             case 'Amount':
                 match.Amount = safeDec(newValue);
+                break;
+            case 'VatType':
+                if (BankUtil.isString(newValue)) {
+                    this.setVatType(match, parseInt(newValue, 10));
+                    break;
+                }
+                this.setVatType(match, newValue.ID);
                 break;
             default:
                 return row;
@@ -275,9 +314,23 @@ export class BankJournalSession {
                 item.Credit = acc;
             }
             if (acc.VatTypeID) {
-                item.VatType = this.vatTypes.find( x => x.ID === acc.VatTypeID);
+                this.setVatType(item, acc.VatTypeID);
             }
         }
+    }
+
+    private setVatType(item: DebitCreditEntry, vatTypeID: number, isDebet = true) {
+        if (vatTypeID <= 0) { return; }
+        const vi = this.vatTypes.find( x => x.ID === vatTypeID);
+        if (!vi) { return; }
+        if (isDebet) {
+            item.CreditVatTypeID = undefined;
+            item.DebetVatTypeID = vatTypeID;
+        } else {
+            item.DebetVatTypeID = undefined;
+            item.CreditVatTypeID = vatTypeID;
+        }
+        item.VatType = vi;
     }
 
 
@@ -308,6 +361,10 @@ export class BankJournalSession {
             params += (i === 0 ? '?' : '&') + `${args[i]}=${args[i + 1]}`;
         }
         return this.HttpGet(route + params);
+    }
+
+    public statisticsQuery(query: string) {
+        return this.statisticsService.GetAll(query);
     }
 
     private HttpGet(route: string) {

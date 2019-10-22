@@ -7,7 +7,7 @@
     border: 1px solid var(--border-color)
     padding-bottom: 1rem
 
-    > *:not(header):not(uni-tabs):not(button)
+    > *:not(header):not(footer):not(uni-tabs):not(button)
         padding: 1rem 1rem 0
 
     > button
@@ -21,6 +21,14 @@
         font-size: 17px
         @media screen and (max-width: 1300px)
             font-size: 15px
+
+    > footer
+        display: flex
+        align-items: center
+        height: 2.5rem
+        padding: 0 1rem
+        border-bottom-left-radius: var(--section-radius)
+        border-bottom-right-radius: var(--section-radius)
 
     uni-tabs
         margin-bottom: .25rem

@@ -11,6 +11,7 @@ import {
     MatProgressBarModule,
     MatMenuModule,
     MatOptionModule,
+    DateAdapter,
 } from '@angular/material';
 
 import {LayoutModule} from '../layout/layoutModule';
@@ -60,6 +61,7 @@ import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-
 import {ReInvoiceInfoModal} from './bill/reinvoice-info-modal/reinvoice-info-modal';
 import {BillAssignmentModal} from './bill/assignment-modal/assignment-modal';
 import {BillInitModal} from './bill/bill-init-modal/bill-init-modal';
+import {Expense, ExpensePrepaid, ExpenseEntries, ExpensePayable} from './bill/expense/expense';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -88,6 +90,7 @@ import {UniCostAllocationList} from '@app/components/accounting/cost-allocation/
 import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
 import {UniInbox} from './inbox/inbox';
 import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
+import { UniDateAdapter } from '@app/date-adapter';
 
 @NgModule({
     imports: [
@@ -151,6 +154,10 @@ import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
         ReInvoiceInfoModal,
         BillAssignmentModal,
         BillInitModal,
+        Expense,
+        ExpensePrepaid,
+        ExpenseEntries,
+        ExpensePayable,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
@@ -279,6 +286,7 @@ import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
         UniCostAllocationList,
     ],
     providers: [
+        { provide: DateAdapter, useClass: UniDateAdapter },
         PeriodFilterHelper,
     ]
 })

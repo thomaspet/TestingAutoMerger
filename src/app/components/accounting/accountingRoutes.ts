@@ -15,6 +15,7 @@ import {SupplierList} from './supplier/list/supplierList';
 import {PostPost} from './postpost/postpost';
 import {TransqueryDetails} from './transquery/transqueryDetails';
 import {UniBudgetView} from './budget/budgetview';
+import {Expense} from './bill/expense/expense';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
@@ -104,6 +105,11 @@ export const accountingRoutes: Routes = [
     {
         path: 'costallocation',
         component: UniCostAllocation,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'expense',
+        component: Expense,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

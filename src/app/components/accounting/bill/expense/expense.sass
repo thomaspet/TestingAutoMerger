@@ -1,0 +1,30 @@
+.viewmode
+    position: absolute
+    top: 2.6rem
+    left: 20rem
+    z-index: 301
+
+.expense-split-view
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr))
+    grid-gap: .75rem
+    margin-bottom: 1rem
+
+    .uni-container
+        margin: 0
+        header
+            font-weight: 500
+
+        &.journaling
+            margin-top: .75rem
+            padding-bottom: 0
+
+            footer
+                justify-content: space-between
+                height: 3.25rem
+                margin-top: 1.5rem
+                color: var(--header-color)
+                font-size: 15px
+                font-weight: 500
+                background: #fafafa
+                border-top: 1px solid var(--border-color)

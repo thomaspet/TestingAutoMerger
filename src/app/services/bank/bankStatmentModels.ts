@@ -40,6 +40,10 @@ export class BankUtil {
         }
         return (S4() + S4() + '-' + S4() + '-4' + S4().substr(0, 3) + '-' + S4() + '-' + S4() + S4() + S4()).toLowerCase();
     }
+
+    static isString(x: any): boolean {
+        return x !== null && x !== undefined && x.constructor === String;
+    }
 }
 
 export class StageGroup {
