@@ -21,7 +21,7 @@ import { Observable } from 'rxjs';
             </header>
 
             <article>
-                <section [innerHtml]="options.message"></section>
+                <section *ngIf="!disableCreditButton" [innerHtml]="options.message"></section>
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>
@@ -34,13 +34,14 @@ import { Observable } from 'rxjs';
             </article>
 
             <footer>
-                <button class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady || disableCreditButton">
+                <button *ngIf="!disableCreditButton" class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady || disableCreditButton">
                     {{options.buttonLabels.accept}}
                 </button>
 
                 <button class="cancel" (click)="cancel($event)">
                     {{options.buttonLabels.cancel}}
                 </button>
+
             </footer>
         </section>
     `
@@ -163,8 +164,11 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             }
 
             if (this.showAccountingLockedInfo || this.showVatLockedDateInfo) {
-                message = 'Bilaget kan ikke krediteres! Regnskaps- eller mvadato er innenfor låsingsdato.';
+                message = 'Dersom du ønsker å kreditere dette bilaget må du låse opp regnskapet for gjeldende periode først.';
+                this.options.buttonLabels.cancel = 'Ok';
                 this.disableCreditButton = true;
+                this.showVatLockedDateInfo = false;
+
             }
 
 
