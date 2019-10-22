@@ -178,7 +178,7 @@ export class SalaryTransViewService {
     }
 
     mapEmploymentToTrans(rowModel: SalaryTransaction, departments: Department[], projects: Project[]) {
-        const employment: Employment = rowModel['_Employment'];
+        const employment: Employment = rowModel['_Employment'] || rowModel['employment'];
         rowModel['EmploymentID'] = (employment) ? employment.ID : null;
 
         if (employment && employment.Dimensions) {
