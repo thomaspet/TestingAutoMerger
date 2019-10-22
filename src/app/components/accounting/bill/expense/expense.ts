@@ -4,6 +4,7 @@ import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { BankJournalSession, DebitCreditEntry, ErrorService, PageStateService, PaymentMode } from '@app/services/services';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { Router } from '@angular/router';
 export { ExpensePrepaid } from './prepaid/prepaid';
 export { ExpenseEntries } from './entries/entries';
 export { ExpensePayable } from './payable/payable';
@@ -35,7 +36,8 @@ export class Expense implements OnInit {
         private errorService: ErrorService,
         private pageStateService: PageStateService,
         private tabService: TabService,
-        private toast: ToastService) {
+        private toast: ToastService,
+        private router: Router) {
         session.initialize()
             .finally( () => this.busy = false)
             .subscribe( () => this.sessionReady() );
@@ -72,21 +74,36 @@ export class Expense implements OnInit {
     save(): Promise<boolean> {
 
         return new Promise((resolve, reject) => {
-            const xpList = this.session.convertToExpense();
-            const validation = this.session.validate();
-            const xp = xpList[0];
-            console.table(xp.DraftLines);
-            console.log('content', xp );
-            this.toast.addToast('Sum: ' + this.session.balance, validation.success ? ToastType.good : ToastType.bad,
-                6, validation.success ? `${xp.Description} (${xp.DraftLines.length} journalentrylines)`
-                : validation.messages[0]);
-            resolve(false);
-        });
 
-        return new Promise( (resolve, reject) => {
-            return this.session.save().subscribe( x => {
-                resolve(true);
-            }, err => { this.errorService.handle(err); resolve(false); });
+            // Validation
+            this.session.recalc();
+            const validation = this.session.validate();
+            if (validation.success === false) {
+                this.toast.addToast('Sum: ' + this.session.balance, ToastType.bad, 6, validation.messages[0]);
+                resolve(false);
+                return;
+            }
+
+            // Save
+            this.session.save()
+                .finally(() => resolve(true))
+                .subscribe( x => {
+                    const jnr = (x && x.length > 0) ? x[0].JournalEntryNumber : undefined;
+                    if (jnr) {
+                        this.toast.addToast(`Utført`, ToastType.good, 5, `Utlegg bokført som bilag nr. ${jnr}`,
+                            { label: 'Vis bilaget',
+                            click: () => {
+                                const jNum = jnr.split('-')[0];
+                                const jYr = jnr.split('-')[1];
+                                this.router.navigateByUrl(`/accounting/transquery?JournalEntryNumber=${jNum}&AccountYear=${jYr}`);
+                            },
+                            displayInHeader: true });
+                        this.clear();
+                    } else {
+                        this.toast.addToast(`Utført`, ToastType.warn, 5, `Noe gikk galt. Finner ikke bilagsnummeret.`);
+                    }
+                }, err => this.errorService.handle(err));
+
         });
     }
 

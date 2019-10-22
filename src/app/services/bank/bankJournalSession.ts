@@ -34,7 +34,17 @@ export class BankJournalSession {
 
     save(asDraft = false) {
         this.busy = true;
-        const cargo = this.convertToJournal(asDraft);
+
+        let cargo: any;
+        switch (this.payment.Mode) {
+            case PaymentMode.None:
+                cargo = this.convertToJournal(asDraft);
+                break;
+            default:
+                cargo = this.convertToExpense();
+                break;
+        }
+
         const route = asDraft ? 'journalentries?action=save-journal-entries-as-draft' : 'journalentries?action=book-journal-entries';
         return this.HttpPost(route, cargo).finally( () => this.busy = false );
     }
@@ -91,7 +101,9 @@ export class BankJournalSession {
         };
         if (this.payment.Mode === PaymentMode.PrepaidWithCompanyBankAccount) {
             content.Description = 'Prepaid expense';
-            // Add virtual item
+            // Align dates in journal to match payment-date
+            content.DraftLines.forEach(x => x.FinancialDate = toIso(this.payment.PaymentDate));
+            // Add virtual item (the payment-entry)
             if (this.payment && this.payment.PaidWith) {
                 this.cacheAccount(this.payment.PaidWith);
                 const dc = this.addRow(this.payment.PaidWith.ID, 0, this.payment.PaymentDate, 'Utlegg', true );
