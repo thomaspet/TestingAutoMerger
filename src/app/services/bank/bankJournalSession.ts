@@ -111,7 +111,7 @@ export class BankJournalSession {
         }
 
         if (this.balance === 0 && this.payment.Mode !== PaymentMode.None) {
-            return { success: false, messages: ['Betalingen må ha konteringsdetaljer'] };
+            return { success: false, messages: ['Betalingen må ha et beløp'] };
         }
 
         if (this.balance !== 0 && this.payment.Mode === PaymentMode.None) {
