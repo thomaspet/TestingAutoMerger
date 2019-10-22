@@ -466,7 +466,7 @@ export class VatReportView implements OnInit, OnDestroy {
             const submits: Array<any> = responses[0].Data ? responses[0].Data : [];
             const approvals: Array<any> = responses[1].Data ? responses[1].Data : [];
             this.submittedDate = submits.length > 0 ? submits[0].Date : null;
-            this.approvedDate = approvals.length > 0 ? approvals[0].Date : null; 
+            this.approvedDate = approvals.length > 0 ? approvals[0].Date : null;
         });
     }
 
@@ -669,7 +669,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public UndoExecution(done) {
        if (this.currentVatReport.StatusCode !== StatusCodeVatReport.Executed) {
             if (confirm(
-                'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i Uni Economy på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
+                'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i systemet på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
             )) {
                 this.UndoExecutionPeriod(done);
             } else {

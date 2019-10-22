@@ -509,10 +509,9 @@ export class WageTypeService extends BizHttp<WageType> {
                         EntityType: 'wagetype',
                         Property: 'Systemtype',
                         FieldType: FieldType.TEXT,
-                        Label: 'UE lønnsart',
+                        Label: 'Standard lønnsart',
                         Tooltip: {
-                            Text: `Kobling mot Uni Economy standard lønnsartregister for
-                             automatisk vedlikehold av lønnsarten fra systemleverandør.`,
+                            Text: `Kobling mot standard lønnsartregister for automatisk vedlikehold av lønnsarten.`,
                         },
                         FieldSet: 1,
                         Section: 0

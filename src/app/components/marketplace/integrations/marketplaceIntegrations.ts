@@ -1,11 +1,12 @@
 import {Component, OnInit, Pipe, PipeTransform} from '@angular/core';
+import {environment} from 'src/environments/environment';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
 import {UserRoleService, ElsaProductService, ErrorService, ElsaPurchaseService} from '@app/services/services';
-import { forkJoin } from 'rxjs';
-import { AuthService } from '@app/authService';
+import {forkJoin} from 'rxjs';
+import {AuthService} from '@app/authService';
 
 @Pipe({name: 'filterIntegrations'})
 export class FilterIntegrationsPipe implements PipeTransform {
@@ -26,6 +27,8 @@ export class FilterIntegrationsPipe implements PipeTransform {
     styleUrls: ['./marketplaceIntegrations.sass'],
 })
 export class MarketplaceIntegrations implements OnInit {
+    isSrEnvironment = environment.isSrEnvironment;
+
     activeIntegrations: ElsaProduct[];
     upcomingIntegrations: ElsaProduct[];
     searchText: string = '';

@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
@@ -39,6 +40,7 @@ export class App {
     isOnInitRoute: boolean;
 
     constructor(
+        private titleService: Title,
         private authService: AuthService,
         private modalService: UniModalService,
         private toastService: ToastService,
@@ -50,6 +52,11 @@ export class App {
         private translationService: UniTranslationService,
         public chatBoxService: ChatBoxService,
     ) {
+        if (!this.titleService.getTitle()) {
+            const title = this.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+            this.titleService.setTitle(title);
+        }
+
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event: any ) {
             if (event.toElement && event.toElement.className === 'uni-image-upload') {

@@ -342,7 +342,7 @@ export class UniWidgetCanvas {
      }
 
     hardReset() {
-        if (!confirm('Ønsker du å gå tilbake til Uni Micro standard layout? Dette vil fjerne alle dine endringer')) {
+        if (!confirm('Ønsker du å gå tilbake til standard layout? Dette vil fjerne alle dine endringer')) {
             return;
         }
 

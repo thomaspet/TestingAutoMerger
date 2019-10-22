@@ -134,7 +134,7 @@ export class UniBankListModal implements IUniModal, OnInit {
             saveAs(blob, file.Name);
         }, err => {
             this.toastService.addToast('Noe gikk galt', ToastType.bad, ToastTime.medium,
-            'Kunne ikke laste ned fil. Prøv å last ned på nytt. Om feilen vedvarer, ta kontakt med Uni Micro kundeservice');
+            'Kunne ikke laste ned fil. Prøv å last ned på nytt. Om feilen vedvarer, ta kontakt med kundesenter');
             console.log(err);
         });
     }

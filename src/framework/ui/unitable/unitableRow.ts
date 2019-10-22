@@ -147,7 +147,7 @@ export class UniTableRow implements OnChanges {
             if (url.includes('mailto:')) {
                 window.location.href = url;
             } else if (url.includes('https') || url.includes('http') || url.includes('www')) {
-                if (window.confirm('Du forlater nå Uni Economy')) {
+                if (window.confirm('Du forlater nå applikasjonen')) {
                     if (!url.includes('http')) {
                         url = 'https://' + url;
                     }
