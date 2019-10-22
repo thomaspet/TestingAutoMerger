@@ -578,7 +578,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
 
     // MARKETPLACE
     {
-        name: 'NAVBAR.MARKEDPLACE',
+        name: 'NAVBAR.MARKETPLACE',
         url: '/marketplace',
         icon: 'marketplace',
         mdIcon: 'shopping_basket',

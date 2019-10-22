@@ -33,7 +33,8 @@ const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 export class App {
     private licenseAgreementModalOpen: boolean;
     private userlicenseModalOpen: boolean;
-    public boostChatScriptUrl = environment.BOOST_AI_SCRIPT_URL;
+
+    isSrEnvironment = environment.isSrEnvironment;
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
 
@@ -50,7 +51,7 @@ export class App {
         public chatBoxService: ChatBoxService,
     ) {
         // prohibit dropping of files unless otherwise specified
-        document.addEventListener('dragover', function( event ) {
+        document.addEventListener('dragover', function( event: any ) {
             if (event.toElement && event.toElement.className === 'uni-image-upload') {
                 event.preventDefault();
                 event.dataTransfer.dropEffect = 'copy';
@@ -100,6 +101,11 @@ export class App {
                 this.checkForInitRoute();
             }
         });
+
+        // TODO: remove before SR goes live
+        if (this.isSrEnvironment) {
+            document.body.classList.add('sr-theme');
+        }
     }
 
     private checkForInitRoute() {

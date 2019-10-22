@@ -19,7 +19,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
-import {theme} from 'src/themes/theme';
+import {environment} from 'src/environments/environment';
 
 import {Chart} from 'chart.js';
 import 'chartjs-plugin-datalabels';
@@ -104,7 +104,7 @@ export class UniWidgetCanvas {
 
     canvasHeight: number;
 
-    hideLinks: boolean = theme.hideLinks;
+    isSrEnvironment = environment.isSrEnvironment;
 
     constructor(
         private cdr: ChangeDetectorRef,

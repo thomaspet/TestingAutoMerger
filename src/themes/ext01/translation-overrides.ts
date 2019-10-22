@@ -1,5 +1,5 @@
 /* tslint:disable */
-export const OVERRIDE = {
+export const TRANSLATION_OVERRIDES = {
     ENTITIES: {
         'SupplierInvoice': 'Regning',
         'RecurringInvoice': 'Gjentakende faktura',

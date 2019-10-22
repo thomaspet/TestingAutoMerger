@@ -19,7 +19,6 @@
             "assets": [
               "src/assets",
               "src/themes",
-              "src/favicon.png",
               "src/robots.txt",
               "src/security.txt",
               "src/fileviewer.html",
@@ -41,7 +40,7 @@
               "optimization": true,
               "buildOptimizer": false,
               "outputHashing": "all",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": false,
               "extractLicenses": true,
@@ -52,7 +51,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true
@@ -103,49 +102,12 @@
                 }
               ]
             },
-            "ext01": {
-              "aot": true,
-              "optimization": true,
-              "buildOptimizer": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.ext01.ts"
-                },
-                {
-                  "replace": "src/assets/favicon.ico",
-                  "with": "src/themes/ext01/favicon.ico"
-                },
-                {
-                  "replace": "src/themes/theme.ts",
-                  "with": "src/themes/theme.ext01.ts"
-                },
-                {
-                  "replace": "src/assets/locale/override.ts",
-                  "with": "src/assets/locale/override.ext01.ts"
-                },
-                {
-                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
-                },
-                {
-                  "replace": "src/assets/dashboard-configs/main-dashboard.ts",
-                  "with": "src/assets/dashboard-configs/main-dashboard.ext01.ts"
-                }
-              ]
-            },
             "test-serve": {
               "aot": false,
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -161,7 +123,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -194,7 +156,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -205,12 +167,41 @@
                 }
               ]
             },
+            "ext01": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "extractCss": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext01.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext01.ico"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext01.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                }
+              ]
+            },
             "ext01-serve": {
               "aot": false,
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -220,24 +211,16 @@
                   "with": "src/environments/environment.ext01.ts"
                 },
                 {
-                  "replace": "src/assets/favicon.ico",
-                  "with": "src/themes/ext01/favicon.ico"
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext01.ico"
                 },
                 {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
                 {
-                  "replace": "src/assets/locale/override.ts",
-                  "with": "src/assets/locale/override.ext01.ts"
-                },
-                {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
-                },
-                {
-                  "replace": "src/assets/dashboard-configs/main-dashboard.ts",
-                  "with": "src/assets/dashboard-configs/main-dashboard.ext01.ts"
                 }
               ]
             },

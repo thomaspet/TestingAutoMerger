@@ -4,8 +4,9 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-
     useProdMode: false,
+    isSrEnvironment: false,
+
     // Identity Server Settings
     authority: 'https://dev-login.unieconomy.no',
     client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
@@ -28,8 +29,6 @@ export const environment = {
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
-    BOOST_AI_SCRIPT_URL: '',
-    BOOST_AI_API_URL: '',
 
     API_DOMAINS: {
         INIT: '/api/init/',

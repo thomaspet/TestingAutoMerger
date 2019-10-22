@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniWidgetCanvas, DefaultWidgetLayout} from '../widgets/widgetCanvas';
 import * as Chart from 'chart.js';
-import {LAYOUT_MAIN} from 'src/assets/dashboard-configs/main-dashboard';
+import {theme} from 'src/themes/theme';
 import {AuthService} from '@app/authService';
 
 @Component({
@@ -11,10 +11,10 @@ import {AuthService} from '@app/authService';
 export class Dashboard {
     @ViewChild(UniWidgetCanvas) widgetCanvas: UniWidgetCanvas;
 
-    layout: DefaultWidgetLayout = LAYOUT_MAIN;
+    layout: DefaultWidgetLayout = theme.dashboardConfig;
     companyName: string;
 
-    constructor( private authService: AuthService ) {
+    constructor(private authService: AuthService) {
         let companyName = this.authService.activeCompany && this.authService.activeCompany.Name;
         companyName = (companyName || '').substring(0, 40);
         if (companyName.length === 40) {
@@ -22,7 +22,6 @@ export class Dashboard {
         }
         this.companyName = companyName;
 
-        // Avoid compile error. Seems to be something weird with the chart.js typings file
-        (<any> Chart).defaults.global.maintainAspectRatio = false;
+        Chart.defaults.global.maintainAspectRatio = false;
     }
 }

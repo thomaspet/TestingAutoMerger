@@ -1,14 +1,16 @@
 uni-toast-list
     position: fixed
-    top: 4rem
-    left: calc(50% - 21rem)
+    top: 1.25rem
+    left: 50%
+    transform: translateX(-50%)
     z-index: #{map-get($zindex, modal) + 1}
     display: flex
-    flex-direction: column-reverse
+    flex-direction: column
 
 uni-toast
     display: flex
-    width: 42rem
+    width: 40rem
+    max-width: 95vw
     padding: 1rem
     font-family: var(--font-family)
     color: var(--text-color) !important
@@ -21,7 +23,7 @@ uni-toast
     transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76)
 
     & + uni-toast
-        margin-bottom: .5rem
+        margin-top: .5rem
 
     &.good
         background-color: var(--toast-good)

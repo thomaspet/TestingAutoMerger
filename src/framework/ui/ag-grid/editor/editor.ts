@@ -7,7 +7,6 @@ import {
     ChangeDetectorRef,
     ComponentFactoryResolver,
     ElementRef,
-    ApplicationRef,
     ComponentRef,
     ViewChild,
     ViewContainerRef
@@ -20,11 +19,7 @@ import {TableDataService} from '../services/data-service';
 import {TableUtils} from '../services/table-utils';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
-import {
-    GridApi,
-    ColDef,
-    IDatasource,
-} from 'ag-grid-community';
+import {GridApi} from 'ag-grid-community';
 
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -85,7 +80,6 @@ export class TableEditor {
         private utils: TableUtils,
         private cdr: ChangeDetectorRef,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private appRef: ApplicationRef,
         private elRef: ElementRef
     ) {
         this.dataService.localDataChange$.subscribe(() => {

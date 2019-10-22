@@ -1941,7 +1941,7 @@ export class BillView implements OnInit {
         this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan).then((value: any) => {
             if (value.msg) {
                 if (this.smartBookingSettings.showNotification) {
-                    this.toast.addToast('Smart bokføring', value.type, 15, value.msg);
+                    this.toast.addToast('Smart bokføring', value.type, 10, value.msg);
                 }
 
                 if (this.smartBookingSettings.addNotifcationAsComment) {
@@ -3319,41 +3319,50 @@ export class BillView implements OnInit {
                 });
             };
 
-            const isValidKID: boolean = this.modulusService.isValidKID(current.PaymentID);
-            // Query to see if invoiceID/supplierID combo has been used before
-            this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID, current.ID)
-                .subscribe((data: any) => {
-                    if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
-                        let message: string = '';
-                        if (!isValidKID) {
-                            message += `<li>KID-nr. er ikke gyldig.</li>`;
-                        }
-                        if (data && data.Data && data.Data[0].countid > 0) {
-                            message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
-                        }
-                        message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
-                        this.modalService.open(UniConfirmModalV2,
-                            {
-                                buttonLabels: {
-                                    accept: 'Lagre',
-                                    cancel: 'Avbryt'
-                                },
-                                header: 'Vil du lagre?',
-                                message: message
-                            }).onClose.subscribe((res) => {
-                            if (res === ConfirmActions.ACCEPT) {
-                                saveFunc();
-                            } else {
-                                resolve({ success: false });
-                                if (done) {
-                                    done('Lagring avbrutt');
-                                }
-                            }
-                        });
-                    } else {
-                        saveFunc();
-                    }
+            if (!this.modulusService.isValidKID(current.PaymentID)) {
+                this.toast.toast({
+                    title: 'KID er ikke gyldig',
+                    type: ToastType.bad,
+                    duration: 5
                 });
+
+                resolve({ success: false });
+                if (done) {
+                    done();
+                }
+
+                return;
+            }
+
+            // Query to see if invoiceID/supplierID combo has been used before
+            this.supplierInvoiceService.checkInvoiceData(
+                current.InvoiceNumber, current.SupplierID, current.ID
+            ).subscribe((data: any) => {
+                if ((data && data.Data && data.Data[0].countid > 0)) {
+                    const message = 'Faktura med samme fakturanr. og leverandør er allerede lagret.'
+                        + '<br> Du kan ignorere dette og lagre om ønskelig.';
+
+                    this.modalService.open(UniConfirmModalV2, {
+                        buttonLabels: {
+                            accept: 'Lagre',
+                            cancel: 'Avbryt'
+                        },
+                        header: 'Vil du lagre?',
+                        message: message
+                    }).onClose.subscribe(res => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            saveFunc();
+                        } else {
+                            resolve({ success: false });
+                            if (done) {
+                                done('Lagring avbrutt');
+                            }
+                        }
+                    });
+                } else {
+                    saveFunc();
+                }
+            });
         });
     }
 

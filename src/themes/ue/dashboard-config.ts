@@ -1,4 +1,5 @@
-export const LAYOUT_MAIN = {
+// UE main dashboard config
+export const DASHBOARD_CONFIG = {
     large: [
         {x: 0, y: 0, widgetID: 'kpi_profitability'},
         {x: 3, y: 0, widgetID: 'kpi_liquidity'},

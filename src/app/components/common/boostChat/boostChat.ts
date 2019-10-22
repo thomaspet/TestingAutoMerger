@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { environment } from 'src/environments/environment';
 
 type ExtendedWindow = typeof window & {
     boostChatPanel: any;
@@ -18,8 +17,8 @@ type ExtendedWindow = typeof window & {
 export class BoostChat {
     private chatPanel: any = null;
     public chatPanelReady = false;
-    private chatScriptUrl = environment.BOOST_AI_SCRIPT_URL;
-    private chatApiUrl = environment.BOOST_AI_API_URL;
+    private chatScriptUrl = 'https://435984srpoc.boost.ai/chatPanel/chatPanel.js';
+    private chatApiUrl = 'https://435984srpoc.boost.ai/api';
 
     constructor() {
         if (this.chatScriptUrl && this.chatApiUrl) {

@@ -1,4 +1,5 @@
-export const LAYOUT_MAIN = {
+// EXT01 main dashboard config
+export const DASHBOARD_CONFIG = {
     large: [
         {x: 0, y: 0, widgetID: 'chart_and_table_customers'},
         {x: 7, y: 0, widgetID: 'public_duedates'},

@@ -159,7 +159,7 @@ export const NO = {
         'PAYMENT_BATCH': 'Utbetalingsbunter',
         'PAYMENT_BATCH_AUTO': 'Avtalegirobunter',
         'BANK_RECONCILIATION': 'Bankavstemming',
-        'MARKEDPLACE': 'Markedsplass',
+        'MARKETPLACE': 'Markedsplass',
         'SALARY': 'Lønn',
         'PAYROLL': 'Lønnsavregning',
         'AMELDING': 'A-melding',

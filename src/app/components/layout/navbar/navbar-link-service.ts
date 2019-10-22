@@ -1,16 +1,15 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {cloneDeep} from 'lodash';
 import {AuthService} from '@app/authService';
 import {NAVBAR_LINKS} from './navbar-links';
 import {INavbarLinkSection, SETTINGS_LINKS} from './navbar-links-common';
 import {UniModules} from './tabstrip/tabService';
-import {UserDto, User} from '@uni-entities';
+import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
-import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {Observable} from 'rxjs';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {theme} from 'src/themes/theme';
-import * as _ from 'lodash';
+import {environment} from 'src/environments/environment';
+
 export type SidebarState = 'collapsed' | 'expanded';
 
 
@@ -31,7 +30,6 @@ export class NavbarLinkService {
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
         private http: UniHttp,
-        private toastService: ToastService,
         browserStorage: BrowserStorageService,
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';
@@ -50,19 +48,16 @@ export class NavbarLinkService {
 
     public resetNavbar() {
         this.settingsSection$.next(this.getSettingsFilteredByPermissions(this.user));
-        if (!theme.hideLinks) {
+        if (!environment.isSrEnvironment) {
             const linkSections = this.getLinksFilteredByPermissions(this.user);
 
             this.getDimensionRouteSection(this.user).subscribe(
                 dimensionLinks => {
                     if (dimensionLinks) {
-                        // linkSections = this.linkSections$.getValue();
                         const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
 
-                        // Insert before settings (or marketplace if no settings access)
-                        const insertIndex = linkSections.findIndex(section => {
-                            return section.name === 'Innstillinger' || section.name === 'Markedsplass';
-                        });
+                        // Insert before marketplace
+                        const insertIndex = linkSections.findIndex(section => section.name === 'NAVBAR.MARKETPLACE');
 
                         // If dimensions is already in the list, just update
                         if (dimensionsIdx !== -1) {
@@ -88,7 +83,7 @@ export class NavbarLinkService {
     }
 
     private getSettingsFilteredByPermissions(user: UserDto): any[] {
-        const settingsSections: INavbarLinkSection[] = _.cloneDeep(SETTINGS_LINKS);
+        const settingsSections: INavbarLinkSection[] = cloneDeep(SETTINGS_LINKS);
         // Filter out links the user doesnt have access to for every section
         settingsSections.forEach(section => {
             section.linkGroups = section.linkGroups.map(group => {
@@ -109,7 +104,7 @@ export class NavbarLinkService {
     private getLinksFilteredByPermissions(user): any[] {
 
         const fromLocalStorage = this.company.Key ? localStorage.getItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`) : null;
-        const routeSections: INavbarLinkSection[] = _.cloneDeep(NAVBAR_LINKS);
+        const routeSections: INavbarLinkSection[] = cloneDeep(NAVBAR_LINKS);
 
         if (fromLocalStorage) {
             const valuesFromLS: any[] = JSON.parse(fromLocalStorage);

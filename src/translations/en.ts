@@ -38,7 +38,7 @@ export const EN = {
         'PAYMENTS': 'Payments',
         'PAYMENT_BATCH': 'Payment batches',
         'PAYMENT_BATCH_AUTO': 'Avtalegiro batches',
-        'MARKEDPLACE': 'Markedsplass',
+        'MARKETPLACE': 'Markedsplass',
         'SALARY': 'Salary',
         'PAYROLL': 'Payroll',
         'AMELDING': 'A-Melding',

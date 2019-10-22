@@ -1,17 +1,17 @@
 import {Injectable} from '@angular/core';
-import * as _ from 'lodash';
+import {get} from 'lodash';
 import {BehaviorSubject} from 'rxjs';
-import {NO} from '../../../assets/locale/no_uni';
-import {OVERRIDE} from '../../../assets/locale/override';
-import {EN} from '../../../assets/locale/en';
+import {NO, EN} from 'src/translations';
+import {theme} from 'src/themes/theme';
 
 @Injectable()
 export  class UniTranslationService {
     locale: BehaviorSubject<string> = new BehaviorSubject('NO');
+    overrides = theme.translationOverrides;
+
     DICTIONARY: any = {
         NO: NO,
         EN: EN,
-        OVERRIDE: OVERRIDE
     };
 
     constructor() {
@@ -36,8 +36,8 @@ export  class UniTranslationService {
             paramsInString = [];
         }
 
-        let translation = _.get(this.DICTIONARY.OVERRIDE, stringToTranslate)
-            || _.get(this.DICTIONARY[this.locale.getValue()], stringToTranslate);
+        let translation = get(this.overrides, stringToTranslate)
+            || get(this.DICTIONARY[this.locale.getValue()], stringToTranslate);
 
         if (translation && translation.includes('{') && translation.includes('}')) {
             paramsInString.forEach(paramValue => {
