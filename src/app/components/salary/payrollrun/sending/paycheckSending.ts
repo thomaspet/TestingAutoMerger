@@ -1,9 +1,10 @@
 import {Component, OnInit, Input, ViewChild, Output, EventEmitter} from '@angular/core';
 import {Employee} from '@uni-entities';
-import {PayrollrunService} from '@app/services/services';
+import {PayrollrunService, StatisticsService, ErrorService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import { SalaryHelperMethods } from '../../helperMethods/salaryHelperMethods';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -30,11 +31,15 @@ export class PaycheckSending implements OnInit {
     empsWithEmail: Employee[];
     tabs: IUniTab[];
 
-    constructor(private payrollrunService: PayrollrunService) {}
+    constructor(
+        private payrollrunService: PayrollrunService,
+        private statisticsService: StatisticsService,
+        private salaryHelper: SalaryHelperMethods,
+        private errorService: ErrorService,
+    ) {}
 
     ngOnInit() {
         this.loadEmployeesInPayrollrun();
-        this.setupPaycheckTable();
     }
 
     resetRows() {
@@ -81,11 +86,11 @@ export class PaycheckSending implements OnInit {
                 } else {
                     employee['_paycheckFormat'] = PaycheckFormat.PRINT;
                 }
+                employee['_categories'] = '';
             });
 
             this.empsWithEmail = employees.filter(x => x['_paycheckFormat'] === PaycheckFormat.E_MAIL);
             this.empsWithoutEmail = employees.filter(x => x['_paycheckFormat'] === PaycheckFormat.PRINT);
-            this.employees = employees;
             this.allEmployees = employees;
 
             this.tabs = [
@@ -93,7 +98,30 @@ export class PaycheckSending implements OnInit {
                 { name: 'Med e-post', onClick: () => this.filterEmpsWithEmail(), count: this.empsWithEmail.length },
                 { name: 'Uten e-post', onClick: () => this.filterEmpsWithoutEmail(), count: this.empsWithoutEmail.length }
             ];
-            this.busy.next(false);
+
+            const empIDs = employees.map(emp => emp.ID);
+            const filter = 'model=employeeCategoryLink&select=EmployeeID as EmployeeID,EmployeeCategory.Name as Name,EmployeeCategory.ID as Number&expand=EmployeeCategory&filter=' + this.salaryHelper.odataFilter(empIDs, 'EmployeeID');
+
+            this.statisticsService.GetAll(filter).subscribe(res => {
+                if (res.Data && res.Data.length) {
+                    employees.map(emp => {
+                        let string = '';
+                        res.Data.filter(x => x.EmployeeID === emp.ID).map((x, i) => i === 0 ? string += `${x.Number} - ${x.Name}` : string += `, ${x.Number} - ${x.Name}`);
+                        
+                        return emp['_categories'] = string;
+                    });
+                }
+                
+                this.employees = employees;
+                this.busy.next(false);
+                return this.setupPaycheckTable();
+            },
+            err => {
+                this.employees = employees;
+                this.busy.next(false);
+                this.setupPaycheckTable();
+                return this.errorService.handle(err);
+            });
         });
     }
 
@@ -102,12 +130,13 @@ export class PaycheckSending implements OnInit {
         const employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn');
         const emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'E-post');
         const typeCol = new UniTableColumn('_paycheckFormat', 'Type');
+        const categoryCol = new UniTableColumn('_categories', 'Kategori').setWidth('12rem').setVisible(false);
 
         this.tableConfig = new UniTableConfig('salary.payrollrun.sending.paychecks', false, true, 25)
             .setSearchable(true)
-            .setColumnMenuVisible(false)
+            .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol]);
+            .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol, categoryCol]);
     }
 }
