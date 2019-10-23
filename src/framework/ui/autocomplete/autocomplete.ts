@@ -66,7 +66,7 @@ export class Autocomplete {
     }
 
     ngOnChanges(changes) {
-        if (changes['customer']) {
+        if (changes['value']) {
             this.updateControlValue();
         }
 
