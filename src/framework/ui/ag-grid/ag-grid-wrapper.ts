@@ -649,6 +649,7 @@ export class AgGridWrapper {
     onColumnRowGroupChanged(event) {
         if (this.config.groupsDefaultExpanded) {
             event.api.expandAll();
+            this.allIsExpanded = true;
         }
     }
 
