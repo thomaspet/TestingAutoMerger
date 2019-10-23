@@ -156,10 +156,11 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
 
             // check if any daters
             if (minFinancialDate && companySettings.AccountingLockedDate
-                && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
+                && moment(minFinancialDate).startOf('day') <= moment(companySettings.AccountingLockedDate).startOf('day')) {
                 this.showAccountingLockedInfo = true;
+
             } if (minVatDate && companySettings.VatLockedDate
-                && moment(minVatDate) <= moment(companySettings.VatLockedDate)) {
+                && moment(minVatDate).startOf('day') <= moment(companySettings.VatLockedDate).startOf('day')) {
                 this.showVatLockedDateInfo = true;
             }
 
