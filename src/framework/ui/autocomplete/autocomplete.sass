@@ -10,6 +10,18 @@
     mat-spinner
         margin: 1rem auto
 
+.autocomplete-input-wrapper
+    display: flex
+    align-items: center
+    autocomplete
+        flex: 1
+    mat-checkbox
+        flex: 0 0 auto
+        margin-left: 1.5rem
+
+        ::ng-deep .mat-checkbox-label
+            font-size: 15px
+
 .result-container
     display: flex
     flex-direction: column
@@ -61,6 +73,7 @@ table
             border-top: 1px solid var(--border-color)
 
     tbody tr.focused, tbody tr:hover
+        cursor: pointer
         background: var(--dropdown-select-background)
         color: var(--dropdown-select-color)
 

@@ -13,9 +13,6 @@
                 (keydown.shift.tab)="$event.preventDefault()"
                 (keydown.tab)="onSearchShiftTab($event)">
             </autocomplete>
-
-            <mat-checkbox [(ngModel)]="searchCompanies">Firma</mat-checkbox>
-            <mat-checkbox [(ngModel)]="searchPeople">Privatpersoner</mat-checkbox>
         </section>
 
         <uni-form

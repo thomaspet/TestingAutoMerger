@@ -10,7 +10,7 @@ import {ErrorService} from '@app/services/services';
 export interface AutocompleteOptions {
     canClearValue?: boolean;
     autofocus?: boolean;
-    lookup: (query: string) => any[] | Observable<any[]>;
+    lookup: (query: string, filterCheckboxValues?: boolean[]) => any[] | Observable<any[]>;
     placeholder?: string;
     displayField?: string;
     displayFunction?: (item) => string;
@@ -19,6 +19,10 @@ export interface AutocompleteOptions {
     editHandler?: (item) => Observable<any>;
     createHandler?: () => Observable<any>;
     createLabel?: string;
+    filterCheckboxes?: {
+        label: string;
+        value: boolean;
+    }[];
 }
 
 @Component({
@@ -52,9 +56,7 @@ export class Autocomplete {
                 this.isExpanded$.next(true);
             }),
             debounceTime(200),
-        ).subscribe(query => {
-            this.lookup(query).subscribe(items => this.lookupResults = items);
-        });
+        ).subscribe(query => this.performLookup(query));
     }
 
     ngOnDestroy() {
@@ -73,10 +75,45 @@ export class Autocomplete {
         }
     }
 
+    performLookup(query: string) {
+        this.loading$.next(true);
+        this.lookupFunction(query).pipe(
+            tap(items => this.focusIndex = query && items.length ? 0 : -1),
+            finalize(() => this.loading$.next(false))
+        ).subscribe(items => this.lookupResults = items);
+    }
+
+    private lookupFunction(query: string): Observable<any[]> {
+        const filterCheckboxValues = this.options.filterCheckboxes
+            && this.options.filterCheckboxes.map(checkbox => checkbox.value);
+
+        const lookupResult = this.options.lookup(query, filterCheckboxValues) || [];
+        const res$ = Array.isArray(lookupResult) ? observableOf(lookupResult) : lookupResult;
+        return res$.pipe(
+            take(1),
+            catchError(err => {
+                this.errorService.handle(err);
+                return observableOf([]);
+            }),
+        );
+    }
+
     focus() {
         if (this.inputElement && this.inputElement.nativeElement) {
             this.inputElement.nativeElement.focus();
         }
+    }
+
+    toggle() {
+        this.isExpanded$.next(!this.isExpanded$.value);
+        if (this.isExpanded$.value) {
+            this.performLookup('');
+        }
+    }
+
+    close() {
+        this.isExpanded$.next(false);
+        this.updateControlValue();
     }
 
     getDisplayValue(item) {
@@ -121,18 +158,6 @@ export class Autocomplete {
                 this.inputElement.nativeElement.focus();
             } catch (e) {}
         }
-    }
-
-    toggle() {
-        this.isExpanded$.next(!this.isExpanded$.value);
-        if (this.isExpanded$.value) {
-            this.lookup('').subscribe(items => this.lookupResults = items);
-        }
-    }
-
-    close() {
-        this.isExpanded$.next(false);
-        this.updateControlValue();
     }
 
     onF3Key(event: KeyboardEvent) {
@@ -228,7 +253,7 @@ export class Autocomplete {
     }
 
     private selectBestMatch(query: string) {
-        this.lookup(query).subscribe(items => {
+        this.lookupFunction(query).subscribe(items => {
             let bestMatch;
             let bestMatchCount = 0;
             (items || []).forEach(item => {
@@ -246,22 +271,6 @@ export class Autocomplete {
                 this.updateControlValue();
             }
         });
-    }
-
-    private lookup(query: string): Observable<any[]> {
-        this.loading$.next(true);
-
-        const lookupResult = this.options.lookup(query) || [];
-        const res$ = Array.isArray(lookupResult) ? observableOf(lookupResult) : lookupResult;
-        return res$.pipe(
-            take(1),
-            tap(items => this.focusIndex = query && items.length ? 0 : -1),
-            catchError(err => {
-                this.errorService.handle(err);
-                return observableOf([]);
-            }),
-            finalize(() => this.loading$.next(false))
-        );
     }
 
     private getNumberOfMatchingCharacters(s1: string, s2: string) {

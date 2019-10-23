@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
-import {MatProgressSpinnerModule} from '@angular/material';
+import {MatProgressSpinnerModule, MatCheckboxModule} from '@angular/material';
 import {Autocomplete} from './autocomplete';
 import {ClickOutsideModule} from '@uni-framework/click-outside/click-outside.module';
 
@@ -13,7 +13,8 @@ import {ClickOutsideModule} from '@uni-framework/click-outside/click-outside.mod
         ReactiveFormsModule,
         InputDropdownModule,
         MatProgressSpinnerModule,
-        ClickOutsideModule
+        MatCheckboxModule,
+        ClickOutsideModule,
     ],
     declarations: [Autocomplete],
     exports: [Autocomplete]

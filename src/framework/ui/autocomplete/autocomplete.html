@@ -1,16 +1,24 @@
-<section class="input-with-button" (clickOutside)="close()" (keydown.f3)="onF3Key($event)">
-    <input type="text"
-        #inputElement
-        [formControl]="searchControl"
-        (keydown)="onKeyDown($event)"
-        [readonly]="readonly"
-        (focus)="onFocus()"
-        [placeholder]="options?.placeholder || ''"
-    />
+<section class="autocomplete-input-wrapper" (clickOutside)="close()">
+    <section class="input-with-button" (keydown.f3)="onF3Key($event)">
+        <input type="text"
+            #inputElement
+            [formControl]="searchControl"
+            (keydown)="onKeyDown($event)"
+            [readonly]="readonly"
+            (focus)="onFocus()"
+            [placeholder]="options?.placeholder || ''"
+        />
 
-    <button type="button" [disabled]="readonly" (click)="toggle(); inputElement.focus()">
-        <i class="material-icons">search</i>
-    </button>
+        <button type="button" [disabled]="readonly" (click)="toggle(); inputElement.focus()">
+            <i class="material-icons">search</i>
+        </button>
+    </section>
+
+    <mat-checkbox *ngFor="let checkbox of options?.filterCheckboxes"
+        [(ngModel)]="checkbox.value"
+        (ngModelChange)="performLookup(searchControl.value)">
+        {{checkbox.label}}
+    </mat-checkbox>
 </section>
 
 <input-dropdown-menu [input]="inputElement" [visible]="isExpanded$ | async">
@@ -57,8 +65,6 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <!-- TODO: "Viser kun de 50 første resultatene" -->
 
                 <section class="no-results" *ngIf="!lookupResults?.length">
                     Ingen resultater

@@ -27,8 +27,6 @@ export class CustomerEditModal implements IUniModal {
 
     isDirty: boolean;
     externalLookupOptions: AutocompleteOptions;
-    searchCompanies = true;
-    searchPeople = true;
 
     constructor(
         private modalService: UniModalService,
@@ -63,11 +61,15 @@ export class CustomerEditModal implements IUniModal {
         this.externalLookupOptions = {
             placeholder: 'Søk i 1880/Brønnøysundregistrene',
             autofocus: true,
-            lookup: (query) => {
+            lookup: (query, filterCheckboxValues) => {
                 return this.integrationServerCaller.businessRelationSearch(
-                    query, 50, this.searchCompanies, this.searchPeople
+                    query, 50, filterCheckboxValues[0], filterCheckboxValues[1]
                 );
             },
+            filterCheckboxes: [
+                { label: 'Selskaper', value: true },
+                { label: 'Privatpersoner', value: true }
+            ],
             resultTableColumns: [
                 { header: 'Navn', field: 'Name' },
                 { header: 'Adresse', field: 'Streetaddress' },
@@ -163,6 +165,11 @@ export class CustomerEditModal implements IUniModal {
 
         this.isDirty = true;
         this.customer$.next(customer);
+        setTimeout(() => {
+            if (this.form) {
+                this.form.focus();
+            }
+        });
     }
 
     save() {
@@ -172,15 +179,15 @@ export class CustomerEditModal implements IUniModal {
 
         // Remove duplicates (api should probably handle this..)
         const customer = this.customer$.value;
-        customer.Info.Addresses = customer.Info.Addresses.filter(address => {
+        customer.Info.Addresses = customer.Info.Addresses && customer.Info.Addresses.filter(address => {
             return address.ID || address._createguid !== customer.Info.InvoiceAddress._createguid;
         });
 
-        customer.Info.Phones = customer.Info.Phones.filter(phone => {
+        customer.Info.Phones = customer.Info.Phones && customer.Info.Phones.filter(phone => {
             return phone.ID || phone._createguid !== customer.Info.DefaultPhone._createguid;
         });
 
-        customer.Info.Emails = customer.Info.Emails.filter(email => {
+        customer.Info.Emails = customer.Info.Emails && customer.Info.Emails.filter(email => {
             return email.ID || email._createguid !== customer.Info.DefaultEmail._createguid;
         });
 
