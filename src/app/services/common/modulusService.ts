@@ -98,14 +98,16 @@ export class ModulusService {
         };
     }
 
-    public isValidOrgNr(orgNr: string): boolean {
+    public isValidOrgNr(orgNr: string, acceptPerson: boolean = true): boolean {
         if (orgNr) {
             if (isNaN(parseInt(orgNr, 10))) {
                 return false;
             }
 
             if (orgNr.length !== 9) {
-                return false;
+                if (!acceptPerson || orgNr.length !== 11) {
+                    return false;
+                }
             }
 
             return this.modulus11(orgNr);

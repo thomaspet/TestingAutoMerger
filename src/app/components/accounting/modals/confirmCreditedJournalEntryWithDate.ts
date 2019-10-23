@@ -20,7 +20,7 @@ import {Observable} from 'rxjs';
             </header>
 
             <article>
-                <section [innerHtml]="options.message"></section>
+                <section *ngIf="!disableCreditButton" [innerHtml]="options.message"></section>
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>
@@ -37,19 +37,19 @@ import {Observable} from 'rxjs';
                     {{options.buttonLabels.cancel}}
                 </button>
 
-                <button class="c2a" id="good_button_ok" (click)="accept()" [disabled]="!formReady || disableCreditButton">
+                <button *ngIf="!disableCreditButton"
+                    class="c2a"
+                    (click)="accept()"
+                    [disabled]="!formReady">
                     {{options.buttonLabels.accept}}
                 </button>
             </footer>
         </section>
     `
 })
-export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, AfterViewInit {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+export class ConfirmCreditedJournalEntryWithDate implements IUniModal {
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     public vatLockedDateReformatted: string;
     public accountingLockedDateReformatted: string;
@@ -57,9 +57,6 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     public relatedJournalEntriesMessage: string;
 
     public creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-
 
     public showVatLockedDateInfo: boolean = false;
     public showAccountingLockedInfo: boolean = false;
@@ -83,12 +80,8 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
         this.findNonLockedDate();
     }
 
-    public ngAfterViewInit() {
-        setTimeout(function() {
-            if (document.getElementById('good_button_ok')) {
-                document.getElementById('good_button_ok').focus();
-            }
-        });
+    ngOnDestroy() {
+        this.creditingData$.complete();
     }
 
     private findNonLockedDate() {
@@ -162,8 +155,11 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             }
 
             if (this.showAccountingLockedInfo || this.showVatLockedDateInfo) {
-                message = 'Bilaget kan ikke krediteres! Regnskaps- eller mvadato er innenfor låsingsdato.';
+                message = 'Dersom du ønsker å kreditere dette bilaget må du låse opp regnskapet for gjeldende periode først.';
+                this.options.buttonLabels.cancel = 'Ok';
                 this.disableCreditButton = true;
+                this.showVatLockedDateInfo = false;
+
             }
 
 

@@ -5,11 +5,12 @@
 
     <!-- Signup step 1 -->
     <section class="step1" *ngIf="!confirmationCode">
-        <small class="validation good" *ngIf="step1Success">
-            Vi vil nå verifisere eposten din. Vennligst sjekk innboks for videre informasjon.
+        <small *ngIf="step1Success" class="validation success-message">
+            En e-post med mer informasjon vil bli sendt til:
+            <br> {{step1Form.controls['Email'].value}}
         </small>
 
-        <form #step1="ngForm" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
+        <form #step1="ngForm" *ngIf="!step1Success" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
             <label class="uni-label">
                 <span>Selskapsnavn</span>
                 <input type="text" autofocus formControlName="CompanyName" />
@@ -32,7 +33,7 @@
                 <input type="tel" formControlName="PhoneNumber" />
             </label>
 
-            <re-captcha *ngIf="!step1Success" class="recaptcha" formControlName="RecaptchaResponse"></re-captcha>
+            <re-captcha class="recaptcha" formControlName="RecaptchaResponse"></re-captcha>
 
             <small class="privacy-info">
                 Ved registrerering godtar du lagring og bruk av dine personlige data.

@@ -47,7 +47,7 @@ export class Signup {
 
             if (params['code']) {
                 this.confirmationCode = params['code'];
-                // this.validateConfirmationCode(this.confirmationCode);
+                this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
             } else {
                 this.step1Form.enable();
@@ -62,8 +62,8 @@ export class Signup {
         this.busy = true;
         this.errorMessage = '';
 
-        this.busy = false;
         this.step1Success = true;
+        this.busy = false;
 
         this.http.asPOST()
             .usingInitDomain()
@@ -76,6 +76,7 @@ export class Signup {
                     this.step1Success = true;
                 },
                 err => {
+                    this.step1Success = false;
                     this.step1Form.enable();
                     this.busy = false;
                     grecaptcha.reset();

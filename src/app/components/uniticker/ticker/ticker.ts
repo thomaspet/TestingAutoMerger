@@ -1483,6 +1483,7 @@ export class UniTicker {
 
         if (this.groupingIsOn && this.ticker.IsTopLevelTicker) {
             config.setRowGroupPanelShow('always')
+                .setGroupsDefaultExpanded(true)
                 .setSuppressMakeColumnVisibleAfterUnGroup(true)
                 .setSuppressDragLeaveHidesColumns(true)
                 .setAutoGroupColumnDef({
