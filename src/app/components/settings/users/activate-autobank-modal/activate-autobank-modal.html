@@ -6,9 +6,9 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <p *ngFor="let message of errorMessages" role="alert" class="bad">
+        <section *ngFor="let message of errorMessages" class="alert bad">
             {{message}}
-        </p>
+        </section>
 
         <form [formGroup]="autobankData">
             <label class="uni-label label-left">

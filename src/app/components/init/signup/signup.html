@@ -1,11 +1,11 @@
 <section class="authentication-component">
     <h1>Ny demo</h1>
 
-    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
+    <small class="alert error" *ngIf="errorMessage">{{errorMessage}}</small>
 
     <!-- Signup step 1 -->
     <section class="step1" *ngIf="!confirmationCode">
-        <small *ngIf="step1Success" class="validation success-message">
+        <small *ngIf="step1Success" class="alert good center">
             En e-post med mer informasjon vil bli sendt til:
             <br> {{step1Form.controls['Email'].value}}
         </small>
@@ -51,7 +51,7 @@
 
     <!-- Signup step 2 -->
     <section class="step2" *ngIf="confirmationCode">
-        <small class="validation info" *ngIf="!errorMessage">
+        <small class="alert info" *ngIf="!errorMessage">
             Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
         </small>
 

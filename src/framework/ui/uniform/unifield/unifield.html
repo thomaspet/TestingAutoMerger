@@ -210,9 +210,7 @@
 </label>
 
 <section *ngIf="errorMessages?.length" [style.margin-left]="labelWidth" class="validation-results">
-    <small role="alert"
-        *ngFor="let error of errorMessages"
-        [ngClass]="error.isWarning ? 'warn' : 'bad'">
+    <small *ngFor="let error of errorMessages" [ngClass]="error.isWarning ? 'warn' : 'bad'">
         {{error | uniformErrorTemplate}}
     </small>
 </section>

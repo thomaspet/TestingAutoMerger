@@ -1,6 +1,6 @@
 ﻿<article class="authentication-component">
     <h1>Registrer bruker</h1>
-    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
+    <small class="alert error" *ngIf="errorMessage">{{errorMessage}}</small>
 
     <form #f="ngForm" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()">
         <label class="uni-label">

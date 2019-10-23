@@ -1,46 +1,11 @@
-uni-field.error input
-    @extend .validation.error
+uni-field.error
+    input
+        border-color: var(--color-bad)
+    > label
+        color: var(--color-bad)
 
-uni-field.error > label
-    @extend .bad
-
-uni-field.error > label > small.error
-    @extend .bad
-
-uni-field.warn input
-    @extend .validation.warn
-
-uni-field.warn > label
-    @extend .warn
-
-uni-field.warn > label > small.warn
-    @extend .warn
-    border: none
-    background: none
-
-.validation, p[role=alert]
-    display: block
-    padding: .5rem
-    margin: 2rem 1rem
-    font-weight: 500
-    box-sizing: border-box
-    border-width: pxToRem(1)
-    border-style: solid
-    border-radius: pxToRem(3)
-    background-color: rgba(0, 0, 0, 0.03)
-
-    &.error
-        border-color: var(--color-bad) !important
-        color: var(--color-bad) !important
-
-    &.info
-        border-color: var(--color-c2a)
-        color: var(--color-c2a)
-
-    &.good, &.success
-        border-color: var(--color-good)
-        color: var(--color-good)
-
-    &.warn
+uni-field.warn
+    input
         border-color: var(--color-warn)
+    > label
         color: var(--color-warn)

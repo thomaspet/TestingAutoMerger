@@ -18,9 +18,7 @@
 
     <mat-checkbox [checked]="model$.value.empsAndChanged" (change)="checkboxChange($event)">Ta med endrede skattekort</mat-checkbox>
 
-    <p *ngIf="error"
-        role="alert"
-        class="error">{{error}}</p>
+    <section *ngIf="error" class="alert bad">{{error}}</section>
 
     <footer>
         <span *ngIf="empCount" style="float: left; margin-top: 1.5rem;">{{empCount}} ansatte i utvalget</span>
