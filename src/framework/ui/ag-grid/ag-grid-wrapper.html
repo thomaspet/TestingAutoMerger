@@ -84,6 +84,7 @@
         (rowClicked)="onRowClick($event)"
         (cellClicked)="onCellClick($event)"
         (columnMoved)="columnMoveDebouncer$.next($event)"
+        (columnRowGroupChanged)="onColumnRowGroupChanged($event)"
 
         [context]="context"
         [frameworkComponents]="cellRendererComponents"

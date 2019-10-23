@@ -324,7 +324,6 @@ export class AgGridWrapper {
             this.agGridApi.expandAll();
         }
         this.allIsExpanded = !this.allIsExpanded;
-        this.config.groupDefaultExpanded = this.allIsExpanded ? -1 : 0;
     }
 
     public onRowDragEnd(event: RowDragEndEvent) {
@@ -645,6 +644,12 @@ export class AgGridWrapper {
 
     public onRowSelected(event) {
         this.rowSelect.emit(event.data);
+    }
+
+    onColumnRowGroupChanged(event) {
+        if (this.config.groupsDefaultExpanded) {
+            event.api.expandAll();
+        }
     }
 
     private sumTotalInGroup(values) {
