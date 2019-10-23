@@ -133,9 +133,8 @@ export class UniBankAccountModal implements IUniModal {
                     return;
                 });
             } else {
-                if (account.Account) {
+                if (account.Account && !account.AccountID) {
                     account.AccountID = account.Account.ID;
-                    account.Account = null;
                 }
                 if (this.saveBankAccountInModal) {
                     this.SaveBankAccount(account);
