@@ -14,14 +14,14 @@
 
                 <section class="sidebar-section-header" (click)="toggleSection(idx, section)">
                     <i class="material-icons-outlined"
-                        *ngIf="section.mdIcon"
+                        *ngIf="section.icon"
                         [matTooltip]="section.name | translate"
                         [matTooltipDisabled]="popover || state === 'expanded'"
                         matTooltipPosition="right"
                         matTooltipClass="sidebar-tooltip"
                         [ngClass]="{'sidebar-link-icon': section.url}"
                         (click)="navigateToSectionUrl(section.url, $event)">
-                        {{section.mdIcon}}
+                        {{section.icon}}
                     </i>
                     <span>{{ section.name | translate }}</span>
                 </section>

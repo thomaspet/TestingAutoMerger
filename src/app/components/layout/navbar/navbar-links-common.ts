@@ -20,7 +20,6 @@ export interface INavbarLinkSection {
     name: string;
     url: string;
     icon: string;
-    mdIcon?: string;
     hidden?: boolean;
     megaMenuGroupIndex: number;
     isOnlyLinkSection?: boolean;
@@ -36,7 +35,6 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
         name: 'NAVBAR.SETTINGS',
         url: '/settings',
         icon: 'settings',
-        mdIcon: 'settings',
         megaMenuGroupIndex: 0,
         hidden: true,
         linkGroups: [

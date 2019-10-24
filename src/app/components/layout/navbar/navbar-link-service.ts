@@ -149,9 +149,8 @@ export class NavbarLinkService {
                 return {
                     name: 'NAVBAR.DIMENSION',
                     url: '/dimensions',
-                    icon: 'dimension',
+                    icon: 'developer_board',
                     isSuperSearchComponent: true,
-                    mdIcon: 'developer_board',
                     megaMenuGroupIndex: 0,
                     linkGroups: [{
                         name: '',
