@@ -136,6 +136,7 @@ export class UniBankAccountModal implements IUniModal {
                 if (account.Account && !account.AccountID) {
                     account.AccountID = account.Account.ID;
                 }
+                account.Account = null;
                 if (this.saveBankAccountInModal) {
                     this.SaveBankAccount(account);
                 } else {
@@ -143,6 +144,9 @@ export class UniBankAccountModal implements IUniModal {
                 }
             }
         } else {
+            account = this.formModel$.getValue();
+            account.Account = null;
+            this.formModel$.next(account);
             this.onClose.emit(null);
         }
     }
