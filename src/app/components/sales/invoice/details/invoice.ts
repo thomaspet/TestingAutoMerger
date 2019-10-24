@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, forkJoin, of as observableOf } from 'rxjs';
-import { switchMap, map, take } from 'rxjs/operators';
+import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
+import { switchMap, map, take, tap } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -494,6 +494,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     numberSeriesChange(selectedSerie) {
         this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
+        this.invoice = cloneDeep(this.invoice);
     }
 
     private getCollectorStatusText(status: CollectorStatus): string {
@@ -540,24 +541,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private askAddressSettings(doneHandler: (msg?: string) => void) {
-        this.modalService.confirm({
-            header: 'Ditt firma mangler adresse informasjon',
-            message: 'Gå til firmainnstillinger for å fylle ut minimum adresselinje 1?',
-            buttonLabels: {
-                accept: 'Ja',
-                cancel: 'Nei'
-            }
-        }).onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                doneHandler('');
-                this.router.navigate(['/settings/company']);
-            } else {
-                doneHandler('Husk å fylle ut minimum adresselinje 1 i firmainnstillingene for å sende EHF');
-            }
-        });
-    }
-
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -573,29 +556,21 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
-            const acceptBtnTxt = (this.invoiceID && this.invoiceID > 0) ? 'Lagre' : 'Lagre som kladd';
-            return this.modalService.openUnsavedChangesModal(acceptBtnTxt).onClose
-                .switchMap(result => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        if (!this.invoice.ID && !this.invoice.StatusCode) {
-                            this.invoice.StatusCode = StatusCode.Draft;
-                        }
+            const saveAsDraft = !this.invoice.InvoiceNumber;
 
-                        return Observable.fromPromise(this.saveInvoice())
-                            .catch(err => {
-                                this.handleSaveError(err);
-                                return Observable.of(false);
-                            })
-                            .map(res => !!res);
-                    }
+            return this.modalService.openUnsavedChangesModal(
+                saveAsDraft ? 'Lagre som kladd' : 'Lagre'
+            ).onClose.pipe(switchMap(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    return this.save(saveAsDraft, false).pipe(map(res => !!res));
+                }
 
-                    return Observable.of(result !== ConfirmActions.CANCEL);
-                });
+                return Observable.of(result !== ConfirmActions.CANCEL);
+            }));
         }
 
         return true;
     }
-
 
     onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
@@ -1133,22 +1108,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private refreshInvoice(invoice: CustomerInvoice): void {
         this.isDirty = false;
+        invoice = cloneDeep(invoice);
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft)
             || !!invoice.AccrualID;
         this.readonlyDraft = !!invoice.AccrualID;
-        this.invoiceItems = invoice.Items.sort(
-            function (itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
-        );
 
         this.currentCustomer = invoice.Customer;
-
-        invoice.DefaultSeller = invoice.DefaultSeller;
-
         this.currentInvoiceDate = invoice.InvoiceDate;
 
-        this.invoice = cloneDeep(invoice);
+        this.invoiceItems = invoice.Items.sort((a, b) => a.SortIndex - b.SortIndex);
+        this.invoice = invoice;
+
         this.recalcItemSums(invoice.Items);
         this.updateCurrency(invoice, true);
 
@@ -1156,7 +1128,13 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.tradeItemTable.getMandatoryDimensionsReports();
         }
 
-        this.isDistributable = this.tofHelper.isDistributable('CustomerInvoice', this.invoice, this.companySettings, this.distributionPlans);
+        this.isDistributable = this.tofHelper.isDistributable(
+            'CustomerInvoice', this.invoice, this.companySettings, this.distributionPlans
+        );
+
+        if (invoice.InvoiceNumber) {
+            this.selectConfig = undefined;
+        }
 
         this.updateTab();
         this.updateToolbar();
@@ -1267,9 +1245,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (!this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
             toolbarconfig.buttons.push({
                 label: 'Lagre kladd',
-                action: () => new Observable(observer => {
-                    this.saveAsDraft(() => observer.complete());
-                })
+                action: () => this.save(true)
             });
         }
 
@@ -1300,7 +1276,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 });
             }
         } else {
-            this.saveAsDraft(() => this.openAccrualModal(data));
+            this.save(true).subscribe(
+                () => this.openAccrualModal(data),
+                err => this.errorService.handle(err)
+            );
         }
     }
 
@@ -1393,19 +1372,29 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (!this.invoice.InvoiceNumber) {
             this.saveActions.push({
                 label: 'Lagre som kladd',
-                action: done => this.saveAsDraft(done),
+                action: (done) => {
+                    this.save(true).subscribe(
+                        () => done('Lagring fullført'),
+                        err => {
+                            this.errorService.handle(err);
+                            done('Lagring avbrutt');
+                        }
+                    );
+                },
             });
         } else {
             if (this.isDirty && id) {
                 this.saveActions.push({
                     label: 'Lagre endringer',
-                    action: done => this.saveInvoice(done).then(res => {
-                        if (res) {
-                            this.getInvoice(this.invoice.ID).subscribe(invoice => {
-                                this.refreshInvoice(invoice);
-                            });
-                        }
-                    }),
+                    action: (done) => {
+                        this.save().subscribe(
+                            () => done('Lagring fullført'),
+                            err => {
+                                this.errorService.handle(err);
+                                done('Lagring avbrutt');
+                            }
+                        );
+                    },
                     main: true
                 });
             }
@@ -1464,7 +1453,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.saveActions.push({
             label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
-            action: (done) => this.reminderStop(done),
+            action: (done) => {
+                this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
+                this.save().subscribe(
+                    () => done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet'),
+                    err => {
+                        this.errorService.handle(err);
+                        done('Lagring feilet');
+                    }
+                );
+            },
             disabled: this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
         });
 
@@ -1523,38 +1521,52 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private saveInvoice(done = (msg: string) => { }): Promise<CustomerInvoice> {
+    private save(saveAsDraft = false, reloadInvoiceAfterSave = true): Observable<CustomerInvoice> {
+        if (saveAsDraft && !this.invoice.StatusCode) {
+            this.invoice.StatusCode = StatusCode.Draft;
+        }
+
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
         this.invoice = this.tofHelper.beforeSave(this.invoice);
 
-        return new Promise((resolve, reject) => {
-            if (this.invoice.PaymentDueDate < this.invoice.InvoiceDate) {
-                return reject('Forfallsdato må være lik eller senere enn fakturadato.');
-            }
-
-            const saveRequest = (this.invoice.ID > 0)
-                ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
-                : this.customerInvoiceService.Post(this.invoice);
-
-            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
-                if (canSave) {
-                    saveRequest.subscribe(
-                        res => {
-                            this.isDirty = false;
-                            this.updateTab(res);
-
-                            if (res.InvoiceNumber) { this.selectConfig = undefined; }
-                            resolve(res);
-                            this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.invoiceItems);
-                            done('Lagring fullført');
-
-                        },
-                        err => reject(err));
-                } else {
-                    done('Lagring avbrutt');
-                }
+        if (this.invoice.PaymentDueDate < this.invoice.InvoiceDate) {
+            this.toastService.toast({
+                title: 'Forfallsdato må være lik eller senere enn fakturadato.',
+                type: ToastType.bad,
+                duration: 5
             });
-        });
+
+            return throwError('');
+        }
+
+        const navigateAfterSave = !this.invoice.ID;
+        const saveRequest = (this.invoice.ID > 0)
+            ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
+            : this.customerInvoiceService.Post(this.invoice);
+
+        return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
+            if (canSave) {
+                return saveRequest.pipe(
+                    switchMap(res => {
+                        this.isDirty = false;
+                        if (reloadInvoiceAfterSave) {
+                            if (navigateAfterSave) {
+                                this.router.navigateByUrl('sales/invoices/' + res.ID);
+                                return observableOf(res);
+                            } else {
+                                return this.getInvoice(this.invoice.ID).pipe(
+                                    tap(invoice => this.refreshInvoice(invoice))
+                                );
+                            }
+                        } else {
+                            return observableOf(res);
+                        }
+                    })
+                );
+            } else {
+                return throwError('');
+            }
+        }));
     }
 
     private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
@@ -1688,145 +1700,103 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private transition(done: any) {
-        const isDraft = this.invoice.ID >= 1;
+        let orgNumberCheck;
+        if (this.invoice.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.invoice.Customer.OrgNumber)) {
+            orgNumberCheck = this.modalService.confirm({
+                header: 'Bekreft kunde',
+                message: `Ugyldig org.nr. '${this.invoice.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.pipe(map(res => res === ConfirmActions.ACCEPT));
+        } else {
+            orgNumberCheck = observableOf(true);
+        }
 
-        const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
-        const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
+        forkJoin(
+            observableFrom(this.checkVatLimitsBeforeSaving()),
+            orgNumberCheck
+        ).subscribe(([vatOk, orgNumberOk]) => {
+            if (!vatOk || !orgNumberOk) {
+                done('Lagring avbrutt');
+                return;
+            }
 
-        this.checkVatLimitsBeforeSaving()
-            .then(doSave => {
-                if (doSave) {
-                    if (this.invoice.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.invoice.Customer.OrgNumber)) {
-                        return this.modalService.open(UniConfirmModalV2, {
-                            header: 'Bekreft kunde',
-                            message: `Ugyldig org.nr. '${this.invoice.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
-                            buttonLabels: {
-                                accept: 'Ja',
-                                cancel: 'Avbryt'
-                            }
-                        }).onClose.subscribe(
-                            response => {
-                                if (response === ConfirmActions.ACCEPT) {
-                                    // send dummy function to saveInvoice to avoid setting done before the
-                                    // invoicing is completed (so the button does not appear to be clickable)
-                                    // before the invoicing is complete
-                                    this.saveInvoice((s) => { }).then((invoice) => {
-                                        if (invoice) {
-                                            this.isDirty = false;
+            const wasDraft = this.invoice.ID >= 1;
+            const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
 
-                                            // Update ID to avoid posting multiple times
-                                            // in case any of the following requests fail
-                                            if (invoice.ID && !this.invoice.ID) {
-                                                this.invoice.ID = invoice.ID;
-                                            }
+            const successText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
+            const errorText = isCreditNote ? 'Kreditering feilet' : 'Fakturering feilet';
 
-                                            if (!isDraft) {
-                                                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                                                done(doneText);
-                                                return;
-                                            }
+            // Copy paste aprila stuff from old function
+            if (!isCreditNote && this.aprilaOption.hasPermission && this.aprilaOption.autoSellInvoice) {
+                this.invoice['CustomValues'] = {
+                    CustomAprilaReferenceID: 'tempValueToSkipAutoDistribution'
+                };
+            } else if (this.aprilaOption.hasPermission) {
+                this.invoice['CustomValues'] = {
+                    CustomAprilaReferenceID: null
+                };
+            }
 
-                                            this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                                                (res) => this.selectConfig = undefined,
-                                                (err) => this.errorService.handle(err),
-                                                () => {
-                                                    this.getInvoice(invoice.ID).subscribe(res => {
-                                                        this.refreshInvoice(res);
-                                                        done(doneText);
-                                                    });
-                                                }
-                                            );
-                                        } else {
-                                            done('Lagring feilet');
-                                        }
-                                    }).catch(error => {
-                                        this.handleSaveError(error, done);
-                                    });
+            const reloadInvoice = (ID, doneText) => {
+                if (wasDraft) {
+                    this.getInvoice(ID).subscribe(res => {
+                        this.refreshInvoice(res);
+                        done(doneText);
+                    });
+                } else {
+                    this.router.navigateByUrl('/sales/invoices/' + ID);
+                    done(doneText);
+                }
+            };
+
+            this.save(false, false).subscribe(
+                invoice => {
+                    this.isDirty = false;
+
+                    // If the invoice was a draft we need to run the transition,
+                    // if not its already saved as an invoice
+                    const transition = wasDraft
+                        ? this.customerInvoiceService.Transition(invoice.ID, null, 'invoice')
+                        : observableOf(invoice);
+
+                    transition.subscribe(
+                        res => {
+                            // Copy paste aprila stuff from old function
+                            if (this.aprilaOption.hasPermission) {
+                                if (isCreditNote && res['CustomValues'] && res['CustomValues'].AprilaOrderStatus) {
+                                    this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
                                 }
-                                return done();
-                            }
-                        );
-                    }
 
-
-                    if (!isCreditNote && this.aprilaOption.hasPermission && this.aprilaOption.autoSellInvoice) {
-
-                        this.invoice['CustomValues'] = {
-                            CustomAprilaReferenceID: 'tempValueToSkipAutoDistribution'
-                        };
-                    } else if (this.aprilaOption.hasPermission) {
-                        this.invoice['CustomValues'] = {
-                            CustomAprilaReferenceID: null
-                        };
-                    }
-
-                    // send dummy function to saveInvoice to avoid setting done before the
-                    // invoicing is completed (so the button does not appear to be clickable)
-                    // before the invoicing is complete
-                    this.saveInvoice((s) => { }).then((invoice) => {
-                        if (invoice) {
-                            this.isDirty = false;
-                            // Update ID to avoid posting multiple times
-                            // in case any of the following requests fail
-                            if (invoice.ID && !this.invoice.ID) {
-                                this.invoice.ID = invoice.ID;
-                            }
-
-                            if (!isDraft) {
-                                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-
-                                if (!isCreditNote && this.aprilaOption.hasPermission && this.aprilaOption.autoSellInvoice) {
+                                if (!isCreditNote && this.aprilaOption.autoSellInvoice) {
                                     this.openAprilaOfferModal(invoice, done);
                                 }
-                                done(doneText);
-                                return;
                             }
 
-                            this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                                (res) => {
-                                    this.selectConfig = undefined;
-                                    if (isCreditNote && this.aprilaOption.hasPermission && res['CustomValues'] &&
-                                     res['CustomValues'].AprilaOrderStatus) {
-                                        this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
-                                    }
-                                },
-                                (err) => {
-                                    const errMsg: string = err.error.Message;
-                                    if (isCreditNote && errMsg && errMsg.indexOf('AprilaError') > -1) {
-                                        this.openAprilaCreditNoteModal('ERROR');
-                                    } else {
-                                        this.errorService.handle(err);
-                                    }
+                            reloadInvoice(invoice.ID, successText);
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            if (isCreditNote) {
+                                const errMsg: string = err.error.Message;
+                                if (errMsg && errMsg.indexOf('AprilaError') > -1) {
+                                    this.openAprilaCreditNoteModal('ERROR');
+                                }
+                            }
 
-                                    done('Feil oppstod!');
-
-                                },
-                                () => {
-
-                                    if (!isCreditNote && this.aprilaOption.hasPermission && this.aprilaOption.autoSellInvoice) {
-                                        this.openAprilaOfferModal(invoice, done);
-                                    }
-
-                                    this.getInvoice(invoice.ID).subscribe(res => {
-                                        this.refreshInvoice(res);
-                                        done(doneText);
-                                    });
-                                });
-
-
-
-
-                        } else {
-                            done('Lagring feilet');
+                            reloadInvoice(invoice.ID, errorText);
                         }
-                    }).catch(error => this.handleSaveError(error, done));
-                } else {
-                    done('Lagring avbrutt');
+                    );
+                },
+                err => {
+                    this.errorService.handle(err);
+                    done(errorText);
                 }
-            });
+            );
+        });
     }
-
-
 
     private checkVatLimitsBeforeSaving(): Promise<boolean> {
         if (this.companySettings.TaxMandatoryType !== 2) {
@@ -1835,7 +1805,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         } else if (this.companySettings.TaxMandatoryType === 2) {
             // we are planning to use VAT when a limit is reached, so we need to check if the
             // limit is now reached before running invoicing
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 this.journalEntryService.getTaxableIncomeLast12Months(this.invoice.DeliveryDate || this.invoice.InvoiceDate)
                     .subscribe(existingAmount => {
                         const linesWithVatCode6 =
@@ -1901,60 +1871,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    private reminderStop(done) {
-        this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
-
-        this.saveInvoice(done).then((invoice) => {
-            if (invoice) {
-                this.isDirty = false;
-                this.updateToolbar();
-                this.updateSaveActions();
-                done(this.invoice.DontSendReminders ? 'Purrestopp aktivert' : 'Purrestopp opphevet');
-            } else {
-                done('Lagring feilet');
-            }
-        }).catch(error => {
-            this.handleSaveError(error, done);
-        });
-    }
-
-    private saveAsDraft(done) {
-        const requiresPageRefresh = !this.invoice.ID;
-        if (!this.invoice.StatusCode) {
-            this.invoice.StatusCode = StatusCode.Draft;
-        }
-
-        this.saveInvoice(done).then((invoice) => {
-            if (invoice) {
-                this.isDirty = false;
-                if (requiresPageRefresh) {
-                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                } else {
-                    this.getInvoice(this.invoice.ID).subscribe(
-                        res => {
-                            this.refreshInvoice(res);
-                            done('Lagring fullført');
-                        },
-                        err => {
-                            this.errorService.handle(err);
-                            done('Lagring feilet');
-                        }
-                    );
-                }
-            } else {
-                done('Lagring feilet');
-            }
-        }).catch(error => {
-            this.handleSaveError(error, done);
-        });
-    }
-
     private printAction(reportForm: ReportDefinition): Observable<any> {
         const savedInvoice = this.isDirty
-            ? Observable.fromPromise(this.saveInvoice())
+            ? this.save()
             : Observable.of(this.invoice);
 
-        return savedInvoice.switchMap((invoice) => {
+        return savedInvoice.switchMap(() => {
             return this.modalService.open(UniPreviewModal, {
                 data: reportForm
             }).onClose.switchMap(() => {
@@ -1971,7 +1893,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private sendEmailAction(reportForm: ReportDefinition, entity: CustomerInvoice, entityTypeName: string, name: string): Observable<any> {
         const savedInvoice = this.isDirty
-            ? Observable.fromPromise(this.saveInvoice())
+            ? this.save()
             : Observable.of(this.invoice);
 
         return savedInvoice.switchMap(invoice => {
@@ -2081,7 +2003,21 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 this.sendEHF(doneHandler);
             }
         } else {
-            this.askAddressSettings(doneHandler);
+            this.modalService.confirm({
+                header: 'Ditt firma mangler adresse informasjon',
+                message: 'Gå til firmainnstillinger for å fylle ut minimum adresselinje 1?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    doneHandler('');
+                    this.router.navigate(['/settings/company']);
+                } else {
+                    doneHandler('Husk å fylle ut minimum adresselinje 1 i firmainnstillingene for å sende EHF');
+                }
+            });
         }
     }
 
@@ -2100,22 +2036,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         };
 
         if (this.isDirty || !this.invoice.ID) {
-            const needsRedirect = !this.invoice.ID;
-            if (!this.invoice.StatusCode) {
-                this.invoice.StatusCode = StatusCode.Draft;
-            }
+            const saveAsDraft = !this.invoice.InvoiceNumber;
 
-            this.saveInvoice()
-                .catch(err => this.errorService.handle(err))
-                .then((invoice: CustomerInvoice) => {
-                    if (invoice && invoice.ID) {
-                        if (needsRedirect) {
-                            this.router.navigateByUrl('/sales/invoices/' + invoice.ID).then(() => openPreview(invoice));
-                        } else {
-                            openPreview(invoice);
-                        }
-                    }
-                });
+            this.save(saveAsDraft).subscribe(
+                (invoice) => openPreview(invoice),
+                err => this.errorService.handle(err)
+            );
         } else {
             openPreview(this.invoice);
         }
@@ -2302,7 +2228,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private creditInvoice(done) {
         this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID).subscribe(
             (data) => {
-                done('Kreditering fullført');
+                done('Kreditkladd opprettet');
                 this.router.navigateByUrl('/sales/invoices/' + data.ID);
             },
             (err) => {
@@ -2379,14 +2305,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private handleSaveError(error, donehandler?) {
-        if (donehandler) {
-            donehandler('Lagring avbrutt');
-        }
-
-        this.errorService.handle(error);
-    }
-
     private deleteInvoice(done) {
         this.customerInvoiceService.Remove(this.invoice.ID, null).subscribe(
             (res) => {
@@ -2441,10 +2359,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
         });
-    }
-
-    private checkProductPurchase(productCode: string) {
-        return this.elsaPurchaseService.getPurchaseByProductName(productCode);
     }
 
     sellInvoiceToAprila(done) {

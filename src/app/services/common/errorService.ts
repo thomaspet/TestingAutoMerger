@@ -42,6 +42,10 @@ export class ErrorService {
             return;
         }
 
+        if (typeof err === 'string') {
+            return err;
+        }
+
         const errorBody = this.getErrorBody(err);
         if (errorBody) {
             if (errorBody.message || errorBody.Message) {
