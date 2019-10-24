@@ -172,6 +172,12 @@ export class TableEditor {
         this.initValue = initValue;
         const editorClass = this.currentColumn.editor;
         const factory = this.componentFactoryResolver.resolveComponentFactory(editorClass);
+
+        // Editor should be destroyed before this code runs, but check just in case
+        if (this.editor) {
+            this.editor.destroy();
+        }
+
         this.editor = this.editorContainer.createComponent(factory);
         const component = this.editor.instance;
 
@@ -442,7 +448,8 @@ export class TableEditor {
                 cellIndex = this.getNextEditableCellIndex(cellIndex + 1, data[rowIndex]);
                 if (cellIndex === undefined) {
                     rowIndex = this.getNextEditableRowIndex(rowIndex + 1, data);
-                    cellIndex = this.getNextEditableCellIndex(0, data[rowIndex]);
+                    const updatedData = this.dataService.getViewData();
+                    cellIndex = this.getNextEditableCellIndex(0, updatedData[rowIndex]);
                 }
             break;
         }
