@@ -1,15 +1,15 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {UniModalService} from '../../modalService';
-import {IUniModal, IModalOptions, ConfirmActions} from '../../interfaces';
 import {Observable} from 'rxjs';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ReportDefinition, ReportParameter} from '@uni-entities';
-
+import {SendEmail} from '@app/models/sendEmail';
+import {IUniModal, IModalOptions, UniModalService, UniSendEmailModal} from '@uni-framework/uni-modal';
 import {
     ReportTypeService,
     ErrorService,
     ReportDefinitionParameterService,
     CompanySettingsService,
+    EmailService,
 } from '@app/services/services';
 
 class CustomReportParameter extends ReportParameter {
@@ -18,13 +18,13 @@ class CustomReportParameter extends ReportParameter {
 }
 
 @Component({
-    selector: 'choose-report-modal',
-    templateUrl: './chooseReportModal.html',
-    styleUrls: ['./chooseReportModal.sass']
+    selector: 'tof-report-modal',
+    templateUrl: './tof-report-modal.html',
+    styleUrls: ['./tof-report-modal.sass']
 })
-export class UniChooseReportModal implements IUniModal {
+export class TofReportModal implements IUniModal {
     @Input() options: IModalOptions = {};
-    @Output() onClose: EventEmitter<any> = new EventEmitter();
+    @Output() onClose = new EventEmitter();
 
     busy: boolean;
     reports: ReportDefinition[];
@@ -37,36 +37,50 @@ export class UniChooseReportModal implements IUniModal {
     inputType: {name: string, secondInputType: string, secondName: string} = {name: 'nr', secondInputType: null, secondName: null};
     defaultParameters: CustomReportParameter[] = [];
 
+    entityLabel: string;
+    entityType: string;
+    entityTypeShort: string; // e.g Invoice instead of CustomerInvoice
+    entity: any;
+    reportType: number;
+
     constructor(
         private reportTypeService: ReportTypeService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private companySettingsService: CompanySettingsService,
+        private emailService: EmailService
     ) {}
 
     ngOnInit() {
+        const modalData = this.options.data || {};
+        this.entityLabel = modalData.entityLabel;
+        this.entityType = modalData.entityType;
+        this.entityTypeShort = this.entityType.replace('Customer', '');
+        this.entity = modalData.entity;
+        this.reportType = modalData.reportType;
+
         this.busy = true;
         Observable.forkJoin(
-            this.reportTypeService.getFormType(this.options.data.type),
+            this.reportTypeService.getFormType(this.reportType),
             this.companySettingsService.Get(1)
         ).subscribe(
             data => {
                 this.reports = data[0];
                 const company = data[1];
-                const entity = this.options.data.entity;
+                const entity = this.entity;
 
                 let defaultReportID;
                 let localization;
 
                 if (entity && entity.Customer) {
-                    defaultReportID = entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`];
+                    defaultReportID = entity.Customer[`DefaultCustomer${this.entityTypeShort}ReportID`];
                     localization = entity.Customer.Localization;
                 }
 
                 if (company) {
                     if (!defaultReportID) {
-                        defaultReportID = company[`DefaultCustomer${this.options.data.typeName}ReportID`];
+                        defaultReportID = company[`DefaultCustomer${this.entityTypeShort}ReportID`];
                     }
 
                     if (!localization) {
@@ -102,16 +116,16 @@ export class UniChooseReportModal implements IUniModal {
                 this.inputType.secondInputType = null;
 
                 this.fromNr = res[0].Name.includes('Id')
-                    ? this.options.data.entity.ID
-                    : this.options.data.entity[this.options.data.typeName + 'Number'];
+                    ? this.entity.ID
+                    : this.entity[this.entityTypeShort + 'Number'];
 
                 this.toNr = this.fromNr;
 
                 this.inputFromLabel = res.length > 1
-                    ? `Fra ${this.options.data.name.toLowerCase()} ${name}`
-                    : `${this.options.data.name} ${name}`;
+                    ? `Fra ${this.entityLabel.toLowerCase()} ${name}`
+                    : `${this.entityLabel} ${name}`;
 
-                this.inputToLabel = `Til ${this.options.data.name.toLowerCase()} ${name}`;
+                this.inputToLabel = `Til ${this.entityLabel.toLowerCase()} ${name}`;
 
                 if (res[1] && res[1].Type === 'Number') {
                     this.inputType.secondName = res[1].Name;
@@ -157,25 +171,6 @@ export class UniChooseReportModal implements IUniModal {
         }].concat(this.defaultParameters);
     }
 
-    acceptAndSendEmail() {
-        this.setReportParameters();
-        this.onClose.emit({
-            action: 'email',
-            form: this.selectedReport,
-            entity: this.options.data.entity,
-            entityTypeName: this.options.data.typeName,
-            name: this.options.data.name
-        });
-    }
-
-    acceptAndPrintOut() {
-        this.setReportParameters();
-        this.onClose.emit({
-            action: 'print',
-            form: this.selectedReport,
-        });
-    }
-
     preview() {
         this.setReportParameters();
         this.modalService.open(UniPreviewModal, {
@@ -184,6 +179,48 @@ export class UniChooseReportModal implements IUniModal {
     }
 
     cancel() {
-        this.onClose.emit(ConfirmActions.CANCEL);
+        this.onClose.emit();
+    }
+
+    sendEmail() {
+        this.setReportParameters();
+
+        const model = <SendEmail> {};
+        model.EntityType = this.entityType;
+        model.EntityID = this.entity.ID;
+        model.CustomerID = this.entity.CustomerID;
+        model.EmailAddress = this.entity.EmailAddress;
+
+        const entityNumber = this.entity[`${this.entityTypeShort}Number`]
+            ? `nr. ` + this.entity[`${this.entityTypeShort}Number`]
+            : 'kladd';
+
+        model.Subject = `${this.entityLabel} ${entityNumber}`;
+        model.Message = `Vedlagt finner du ${this.entityLabel.toLowerCase()} ${entityNumber}`;
+
+        this.modalService.open(UniSendEmailModal, {
+            data: {
+                model: model,
+                reportType: this.reportType,
+                entity: this.entity,
+                parameters: this.selectedReport.parameters,
+                form: this.selectedReport
+            }
+        }).onClose.subscribe(email => {
+            if (email) {
+                this.emailService.sendEmailWithReportAttachment(
+                    `Models.Sales.${model.EntityType}`,
+                    email.model.selectedForm.ID,
+                    email.model.sendEmail
+                );
+
+                this.onClose.emit('email');
+            }
+        });
+    }
+
+    print() {
+        this.preview();
+        this.onClose.emit('print');
     }
 }

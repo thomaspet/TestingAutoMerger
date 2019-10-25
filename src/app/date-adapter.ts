@@ -45,6 +45,10 @@ export class UniDateAdapter extends NativeDateAdapter {
     parse(value: any): Date {
         let date = value;
 
+        if (value === '*') {
+            return new Date();
+        }
+
         if (typeof date === 'string') {
             date = this.autocompleteDate(date);
         }

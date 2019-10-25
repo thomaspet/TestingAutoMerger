@@ -1,30 +1,26 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import { FieldType, UniForm } from '@uni-framework/ui/uniform';
-declare const _;
+import {FieldType} from '@uni-framework/ui/uniform';
 
 @Component({
-    selector: 'uni-distribute',
+    selector: 'tof-distribution-form',
     template: `
     <uni-form
         [fields]="fields$"
         [model]="model$"
         [config]="{}"
-        (changeEvent)="onFormChange($event)">
+        (changeEvent)="onFormChange()">
     </uni-form>`
 })
+export class TofDistributionForm implements OnInit {
+    @Input() distributionPlans: any[] = [];
+    @Input() reports: any[] = [];
+    @Input() entity: any;
+    @Input() entityType: string;
+    @Output() entityChange = new EventEmitter();
 
-
-export class UniDistibutionTOFView implements OnInit {
-
-    @Input() public distributionPlans: any[] = [];
-    @Input() public reports: any[] = [];
-    @Input() public entity: any;
-    @Input() public entityType: string;
-    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
-
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<any> = new BehaviorSubject({});
+    fields$ = new BehaviorSubject([]);
+    model$ = new BehaviorSubject({});
 
     constructor() {}
 
@@ -32,12 +28,17 @@ export class UniDistibutionTOFView implements OnInit {
         this.setUpFields();
     }
 
-    public ngOnChanges(changes) {
+    ngOnDestroy() {
+        this.fields$.complete();
+        this.model$.complete();
+    }
+
+    public ngOnChanges() {
         this.model$.next(this.entity);
         this.setUpFields();
     }
 
-    public onFormChange(changes) {
+    public onFormChange() {
         this.entityChange.emit(this.entity);
     }
 
@@ -65,12 +66,12 @@ export class UniDistibutionTOFView implements OnInit {
                 EntityType: this.entityType,
                 Property: 'UseReportID',
                 FieldType: FieldType.DROPDOWN,
-                Label: 'Rapport',
+                Label: 'Blankett',
                 ReadOnly: false,
                 Options: {
                     source: this.reports,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     debounceTime: 200,
                     addEmptyValue: true
                 },

@@ -35,7 +35,6 @@ import {
     ReportService,
     UserService,
     NumberSeriesService,
-    EmailService,
     SellerService,
     VatTypeService,
     DimensionSettingsService,
@@ -49,7 +48,6 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
-    UniChooseReportModal,
 } from '@uni-framework/uni-modal';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
@@ -60,7 +58,6 @@ import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalcul
 import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {TofHead} from '../../common/tofHead';
@@ -72,6 +69,8 @@ import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {cloneDeep} from 'lodash';
+import {tap} from 'rxjs/operators';
+import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 
 @Component({
     selector: 'quote-details',
@@ -87,8 +86,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
-    private printStatusPrinted: string = '200';
-    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
 
     private numberSeries: NumberSeries[];
@@ -213,7 +210,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private projectService: ProjectService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
@@ -1044,7 +1040,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 },
                 {
                     label: 'Skriv ut / send e-post',
-                    action: () => this.chooseForm(),
+                    action: () => this.printOrEmail(),
                     disabled: () => !this.quote.ID
                 }
             ],
@@ -1083,39 +1079,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.errorService.handle(error);
     }
 
-    private printAction(reportForm: ReportDefinition): Observable<any> {
-        const savedQuote = this.isDirty
-            ? Observable.fromPromise(this.saveQuote())
-            : Observable.of(this.quote);
-
-        return savedQuote.switchMap((order) => {
-            return this.modalService.open(UniPreviewModal, {
-                data: reportForm
-            }).onClose.switchMap(() => {
-                return this.customerQuoteService.setPrintStatus(
-                    this.quote.ID,
-                    this.printStatusPrinted
-                ).finally(() => {
-                    this.quote.PrintStatus = +this.printStatusPrinted;
-                    this.updateToolbar();
-                });
-            });
-        });
-    }
-
-    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerQuote, entityTypeName: string, name: string): Observable<any> {
-        const savedQuote = this.isDirty
-            ? Observable.fromPromise(this.saveQuote())
-            : Observable.of(this.quote);
-
-        return savedQuote.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
-            .finally(() => {
-                this.customerQuoteService.setPrintStatus(this.quote.ID, this.printStatusEmail).take(1).subscribe();
-            });
-        });
-    }
-
     private distribute() {
         return Observable.create((obs) => {
             this.reportService.distribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
@@ -1131,28 +1094,32 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private chooseForm() {
-        return this.modalService.open(
-            UniChooseReportModal,
-            { data: {
-                name: 'Tilbud',
-                typeName: 'Quote',
-                type: ReportTypeEnum.QUOTE,
-                entity: this.quote
-            }}
-        ).onClose.map(res => {
-            if (res === ConfirmActions.CANCEL || !res) {
-                return;
+    private printOrEmail() {
+        return this.modalService.open(TofReportModal, {
+            data: {
+                entityLabel: 'Tilbud',
+                entityType: 'CustomerQuote',
+                entity: this.quote,
+                reportType: ReportTypeEnum.QUOTE
+            }
+        }).onClose.pipe(tap(selectedAction => {
+            let printStatus;
+            if (selectedAction === 'print') {
+                printStatus = '200';
+            } else if (selectedAction === 'email') {
+                printStatus = '100';
             }
 
-            if (res.action === 'print') {
-                this.printAction(res.form).subscribe();
+            if (printStatus) {
+                this.customerQuoteService.setPrintStatus(this.quote.ID, printStatus).subscribe(
+                    () => {
+                        this.quote.PrintStatus = +printStatus;
+                        this.updateToolbar();
+                    },
+                    err => console.error(err)
+                );
             }
-
-            if (res.action === 'email') {
-                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
-            }
-        });
+        }));
     }
 
     private updateSaveActions() {

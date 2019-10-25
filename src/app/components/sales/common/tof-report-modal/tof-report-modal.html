@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal">
-    <header>{{options.data.name}}</header>
+    <header>{{options?.header || entityLabel}}</header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
@@ -42,13 +42,13 @@
 
         <button class="good"
             *ngIf="!options?.data?.hideEmailButton"
-            (click)="acceptAndSendEmail()">
+            (click)="sendEmail()">
             Send e-post
         </button>
 
         <button class="good"
             *ngIf="!options?.data?.hidePrintButton"
-            (click)="acceptAndPrintOut()">
+            (click)="print()">
             Skriv ut
         </button>
     </footer>

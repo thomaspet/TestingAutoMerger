@@ -1,0 +1,37 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Send faktura</header>
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <!-- TODO: warn if invoice is already sent -->
+
+        <label class="uni-label">
+            <span>Velg utsendingsmetode</span>
+
+            <div #toggle class="sending-dropdown">
+                <span>{{activeSendingOption?.label}}</span>
+                <i class="material-icons">expand_more</i>
+            </div>
+
+            <dropdown-menu [trigger]="toggle">
+                <ng-template>
+                    <section class="dropdown-menu-item"
+                        *ngFor="let option of sendingOptions"
+                        (click)="activeSendingOption = option">
+                        {{option.label}}
+                    </section>
+                </ng-template>
+            </dropdown-menu>
+
+        </label>
+
+
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="activeSendingOption?.action()">Send</button>
+    </footer>
+</section>

@@ -22,6 +22,10 @@ export interface IModalOptions {
         reject?: string;
         cancel?: string;
     };
+    buttonClasses?: {
+        accept?: string;
+        reject?: string;
+    };
     cancelValue?: any;
     modalConfig?: any;
     activateClickOutside?: boolean; // removeMe?

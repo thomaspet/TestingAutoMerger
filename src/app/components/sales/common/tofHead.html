@@ -88,14 +88,14 @@
             [entityType]="entityName">
         </uni-dimension-view>
 
-        <uni-distribute
+        <tof-distribution-form
             *ngIf="activeTab === 'distribution'"
             [distributionPlans]="distributionPlans"
             [reports]="reports"
             [entity]="data"
             [entityType]="entityName"
             (entityChange)="onDataChange($event)">
-        </uni-distribute>
+        </tof-distribution-form>
 
         <section class="tof-reminders" *ngIf="activeTab === 'reminders'">
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>

@@ -20,7 +20,6 @@ import {
     VatType,
     Department,
     User,
-    ReportDefinition,
     StatusCodeCustomerInvoiceReminder,
     StatusCodeSharing
 } from '@uni-entities';
@@ -33,7 +32,6 @@ import {
     CustomerInvoiceReminderService,
     CustomerInvoiceService,
     CustomerService,
-    EHFService,
     ErrorService,
     NumberFormat,
     ProjectService,
@@ -43,7 +41,6 @@ import {
     JournalEntryService,
     UserService,
     NumberSeriesService,
-    EmailService,
     SellerService,
     VatTypeService,
     DimensionSettingsService,
@@ -63,7 +60,6 @@ import {
     ConfirmActions,
     UniConfirmModalV2,
     IModalOptions,
-    UniChooseReportModal,
 } from '@uni-framework/uni-modal';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
@@ -86,12 +82,13 @@ import { TofHelper } from '../../salesHelper/tofHelper';
 import { TradeItemHelper, ISummaryLine } from '../../salesHelper/tradeItemHelper';
 
 import { UniReminderSendingModal } from '../../reminder/sending/reminderSendingModal';
-import { UniPreviewModal } from '../../../reports/modals/preview/previewModal';
 import { AccrualModal } from '@app/components/common/modals/accrualModal';
 
 import { cloneDeep } from 'lodash';
 import { AprilaOfferModal } from '../modals/aprila-offer/aprila-offer-modal';
 import { AprilaCreditNoteModal } from '../modals/aprila-credit-note/aprila-credit-note-modal';
+import {SendInvoiceModal} from '../modals/send-invoice-modal/send-invoice-modal';
+import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -111,13 +108,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     @Input() invoiceID: any;
 
-    private printStatusPrinted: string = '200';
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
     private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private ehfEnabled: boolean = false;
     private askedAboutSettingDimensionsOnItems: boolean;
 
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
@@ -230,7 +225,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerService: CustomerService,
-        private ehfService: EHFService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private numberFormat: NumberFormat,
@@ -246,7 +240,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
@@ -1211,11 +1204,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber || !this.isDistributable
                 },
                 {
-                    label: 'Skriv ut / send e-post',
-                    action: () => this.printOrEmail(),
-                    disabled: () => !this.invoice.ID
-                },
-                {
                     label: 'Send purring',
                     action: () => this.sendReminderAction(),
                     disabled: () => {
@@ -1407,6 +1395,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 disabled: !status || status === StatusCodeCustomerInvoice.Draft,
                 main: status === StatusCodeCustomerInvoice.Paid && !this.isDirty
             });
+
+            if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced) {
+                this.saveActions.push({
+                    label: 'Send faktura',
+                    main: true,
+                    action: (done) => {
+                        this.modalService.open(SendInvoiceModal, {
+                            data: this.invoice
+                        });
+                        done();
+                    }
+                });
+            }
         }
 
         this.saveActions.push({
@@ -1415,7 +1416,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
                 }
-               return this.transition(done);
+                return this.transition(done);
             },
             disabled: id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer,
             main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
@@ -1432,14 +1433,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             },
             disabled: false,
             main: !id || transitions
-        });
-
-        this.saveActions.push({
-            label: 'Send EHF',
-            action: (done) => this.sendEHFAction(done),
-            disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: printStatus !== 300 && this.ehfEnabled
-                && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         if (this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
@@ -1463,7 +1456,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     }
                 );
             },
-            disabled: this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
+            disabled: !this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
         });
 
         this.saveActions.push({
@@ -1871,164 +1864,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    private printAction(reportForm: ReportDefinition): Observable<any> {
-        const savedInvoice = this.isDirty
-            ? this.save()
-            : Observable.of(this.invoice);
-
-        return savedInvoice.switchMap(() => {
-            return this.modalService.open(UniPreviewModal, {
-                data: reportForm
-            }).onClose.switchMap(() => {
-                return this.customerInvoiceService.setPrintStatus(
-                    this.invoice.ID,
-                    this.printStatusPrinted
-                ).finally(() => {
-                    this.invoice.PrintStatus = +this.printStatusPrinted;
-                    this.updateToolbar();
-                });
-            });
-        });
-    }
-
-    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerInvoice, entityTypeName: string, name: string): Observable<any> {
-        const savedInvoice = this.isDirty
-            ? this.save()
-            : Observable.of(this.invoice);
-
-        return savedInvoice.switchMap(invoice => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
-        });
-    }
-
-    private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.ehfService.isEHFActivated()) {
-            this.askSendEHF(doneHandler);
-        } else {
-            this.modalService.confirm({
-                header: 'EHF er ikke aktivert',
-                message: 'Sending av EHF er ikke aktivert. Ønsker du å gå til markedplassen for aktivering?',
-                buttonLabels: {
-                    accept: 'Ja',
-                    cancel: 'Nei'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.router.navigateByUrl('/marketplace/modules?productName=EHF');
-                }
-
-                doneHandler('');
-            });
-        }
-    }
-
-    private sendEHF(doneHandler: (msg: string) => void = null) {
-        let notEnoughInfoToCheckEhf: boolean = false;
-
-        if (this.invoice.Customer.PeppolAddress || this.invoice.Customer.OrgNumber) {
-            const peppoladdress =
-                this.invoice.Customer.PeppolAddress ?
-                    this.invoice.Customer.PeppolAddress :
-                    '9908:' + this.invoice.Customer.OrgNumber;
-
-            if (peppoladdress) {
-                this.ehfService.GetAction(
-                    null, 'is-ehf-receiver', 'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
-                ).subscribe(enabled => {
-                    if (enabled) {
-                        this.reportService.distributeWithType(this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF').subscribe(
-                            () => {
-                                this.toastService.addToast(
-                                    'Faktura lagt i kø for EHF-utsendelse',
-                                    ToastType.good,
-                                    ToastTime.medium,
-                                    'Status på sendingen oppdateres løpende under Nøkkeltall \\ Utsendelse');
-
-                                if (doneHandler) {
-                                    doneHandler('EHF lagt i kø for utsendelse');
-                                    this.invoice.PrintStatus = 300;
-                                    this.updateSaveActions();
-                                }
-                            },
-                            (err) => {
-                                if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
-                                this.errorService.handle(err);
-                            });
-                    } else {
-                        this.toastService.addToast(
-                            'Kan ikke sende faktura som EHF',
-                            ToastType.bad,
-                            ToastTime.long,
-                            'Mottakeren er ikke en gyldig EHF-mottaker'
-                        );
-                        doneHandler('Sending feilet');
-                    }
-                }, err => this.errorService.handle(err));
-            } else {
-                notEnoughInfoToCheckEhf = true;
-            }
-        } else {
-            notEnoughInfoToCheckEhf = true;
-        }
-
-        if (notEnoughInfoToCheckEhf) {
-            this.toastService.addToast(
-                'Kan ikke sende faktura som EHF',
-                ToastType.bad,
-                ToastTime.long,
-                'Ugylig Peppol adresse eller organisasjonsnr angitt på kunden'
-            );
-            doneHandler('Sending feilet');
-        }
-    }
-
-    private askSendEHF(doneHandler: (msg: string) => void = null) {
-        if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
-            if (this.invoice.PrintStatus === 300) {
-                this.modalService.confirm({
-                    header: 'Bekreft EHF sending',
-                    message: 'Vil du sende EHF på nytt?',
-                    buttonLabels: {
-                        accept: 'Send',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.sendEHF(doneHandler);
-                    } else {
-                        doneHandler('');
-                    }
-                });
-            } else {
-                this.sendEHF(doneHandler);
-            }
-        } else {
-            this.modalService.confirm({
-                header: 'Ditt firma mangler adresse informasjon',
-                message: 'Gå til firmainnstillinger for å fylle ut minimum adresselinje 1?',
-                buttonLabels: {
-                    accept: 'Ja',
-                    cancel: 'Nei'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    doneHandler('');
-                    this.router.navigate(['/settings/company']);
-                } else {
-                    doneHandler('Husk å fylle ut minimum adresselinje 1 i firmainnstillingene for å sende EHF');
-                }
-            });
-        }
-    }
-
     private preview() {
         const openPreview = (invoice) => {
-            this.modalService.open(UniChooseReportModal, {
+            this.modalService.open(TofReportModal, {
                 data: {
-                    name: 'Faktura',
-                    typeName: 'Invoice',
+                    entityLabel: 'Faktura',
+                    entityType: 'CustomerInvoice',
                     entity: invoice,
-                    type: ReportTypeEnum.INVOICE,
+                    reportType: ReportTypeEnum.INVOICE,
                     hideEmailButton: true,
                     hidePrintButton: true
                 }
@@ -2045,32 +1888,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         } else {
             openPreview(this.invoice);
         }
-    }
-
-    private printOrEmail() {
-        return this.modalService.open(
-            UniChooseReportModal,
-            {
-                data: {
-                    name: 'Faktura',
-                    typeName: 'Invoice',
-                    entity: this.invoice,
-                    type: ReportTypeEnum.INVOICE
-                }
-            }
-        ).onClose.map(res => {
-            if (res === ConfirmActions.CANCEL || !res) {
-                return;
-            }
-
-            if (res.action === 'print') {
-                this.printAction(res.form).subscribe();
-            }
-
-            if (res.action === 'email') {
-                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
-            }
-        });
     }
 
     private sendReminderAction(): Observable<any> {
@@ -2355,6 +2172,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     onTradeItemsChange() {
         setTimeout(() => {
+            if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
+                this.isDirty = true;
+            }
+
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);

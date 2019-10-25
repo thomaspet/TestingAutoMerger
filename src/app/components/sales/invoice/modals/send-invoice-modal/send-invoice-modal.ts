@@ -1,0 +1,262 @@
+import {Component, EventEmitter} from '@angular/core';
+import {IModalOptions, IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {CustomerInvoice, DistributionPlan, CompanySettings} from '@app/unientities';
+import {map, catchError} from 'rxjs/operators';
+import {forkJoin, of as observableOf} from 'rxjs';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {ReportTypeEnum} from '@app/models';
+import {Router} from '@angular/router';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {
+    ErrorService,
+    // DistributionPlanService,
+    CompanySettingsService,
+    EHFService,
+    ReportService,
+    CustomerInvoiceService,
+    StatisticsService
+} from '@app/services/services';
+import {TofReportModal} from '@app/components/sales/common/tof-report-modal/tof-report-modal';
+import * as moment from 'moment';
+
+@Component({
+    selector: 'send-invoice-modal',
+    templateUrl: './send-invoice-modal.html',
+    styleUrls: ['./send-invoice-modal.sass']
+})
+export class SendInvoiceModal implements IUniModal {
+    options: IModalOptions = {};
+    onClose = new EventEmitter();
+
+    busy: boolean;
+    invoice: CustomerInvoice;
+    existingSharings: any[]; // typeme
+    companySettings: CompanySettings;
+
+    sendingOptions: {label: string; action: () => void}[] = [
+        { label: 'Send på epost', action: () => this.sendEmail() },
+        { label: 'Skriv ut', action: () => this.print() },
+    ];
+
+    activeSendingOption = this.sendingOptions[0];
+
+    constructor(
+        private router: Router,
+        private modalService: UniModalService,
+        private errorService: ErrorService,
+        private toastService: ToastService,
+        private reportService: ReportService,
+        private statisticsService: StatisticsService,
+        private companySettingsService: CompanySettingsService,
+        private invoiceService: CustomerInvoiceService,
+        private ehfService: EHFService,
+    ) {}
+
+    public ngOnInit() {
+        this.busy = true;
+        this.invoice = this.options.data;
+
+        this.sendingOptions = [
+            { label: 'Send på epost', action: () => this.sendEmail() },
+            { label: 'Skriv ut', action: () => this.print() },
+        ];
+
+        if (this.invoice.DistributionPlanID) {
+            this.sendingOptions.unshift({
+                label: 'Send via utsendelsesplan',
+                action: () => this.runDistributionPlan()
+            });
+        }
+
+        this.activeSendingOption = this.sendingOptions[0];
+
+        const existingSharingsQuery = `model=Sharing&orderby=ID desc`
+            + `&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoice.ID}`
+            + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To`;
+
+        forkJoin(
+            this.statisticsService.GetAllUnwrapped(existingSharingsQuery),
+            this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing']),
+        ).subscribe(
+            res => {
+                this.existingSharings = res[0] || [];
+                this.companySettings = res[1];
+
+                this.canSendEHF(this.companySettings).subscribe(canSendEHF => {
+                    if (canSendEHF) {
+                        this.sendingOptions.push({
+                            label: 'Send EHF',
+                            action: () => this.sendEHF()
+                        });
+
+                        if (!this.invoice.DistributionPlanID) {
+                            this.activeSendingOption = this.sendingOptions[this.sendingOptions.length - 1];
+                        }
+                    }
+
+                    this.busy = false;
+                });
+            },
+            () => this.busy = false
+        );
+    }
+
+    private canSendEHF(settings: CompanySettings) {
+        const ehfActive = this.ehfService.isEHFActivated(settings);
+        const peppoladdress = this.invoice.Customer.PeppolAddress
+            || '9908:' + this.invoice.Customer.OrgNumber;
+
+        if (ehfActive && peppoladdress) {
+            const params = `peppoladdress=${peppoladdress}&entitytype=CustomerInvoice`;
+            return this.ehfService.GetAction(null, 'is-ehf-receiver', params).pipe(
+                catchError(() => observableOf(false)),
+                map(canSend => !!canSend)
+            );
+        } else {
+            return observableOf(false);
+        }
+    }
+
+    private print() {
+        this.modalService.open(TofReportModal, {
+            header: 'Skriv ut faktura',
+            data: {
+                entityLabel: 'Faktura',
+                entityType: 'CustomerInvoice',
+                entity: this.invoice,
+                reportType: ReportTypeEnum.INVOICE,
+                hideEmailButton: true
+            }
+        }).onClose.subscribe(selectedAction => {
+            if (selectedAction === 'print') {
+                this.invoiceService.setPrintStatus(this.invoice.ID, '200').subscribe();
+                this.onClose.emit();
+            }
+        });
+    }
+
+    private sendEmail() {
+        this.modalService.open(TofReportModal, {
+            header: 'Send faktura på epost',
+            data: {
+                entityLabel: 'Faktura',
+                entityType: 'CustomerInvoice',
+                entity: this.invoice,
+                reportType: ReportTypeEnum.INVOICE,
+                hidePrintButton: true
+            }
+        }).onClose.subscribe(selectedAction => {
+            if (selectedAction === 'email') {
+                this.invoiceService.setPrintStatus(this.invoice.ID, '100').subscribe();
+                this.onClose.emit();
+            }
+        });
+    }
+
+    private runDistributionPlan() {
+        if (moment(this.invoice.InvoiceDate).isAfter(moment(), 'days')) {
+            const invoiceDate = moment(this.invoice.InvoiceDate).format('DD.MM.YYYY');
+            const dialogMessage = `Fakturadato er satt til ${invoiceDate}. `
+                + ` Ønsker du å sende den med en gang, eller legge inn automatisk sending på fakturadato?`;
+
+            this.modalService.confirm({
+                header: 'Sende nå eller frem i tid?',
+                message: dialogMessage,
+                buttonLabels: {
+                    accept: 'Send nå',
+                    reject: 'Send på fakturadato',
+                    cancel: 'Avbryt'
+                },
+                buttonClasses: {
+                    accept: 'c2a',
+                    reject: 'secondary'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.CANCEL) {
+                    return;
+                }
+
+                const distributionRequest = response === ConfirmActions.ACCEPT
+                    ? this.reportService.distribute(this.invoice.ID, 'Models.Sales.CustomerInvoice')
+                    : this.reportService.distributeWithDate(this.invoice.ID, 'Models.Sales.CustomerInvoice', this.invoice.InvoiceDate);
+
+                this.busy = true;
+                distributionRequest.subscribe(
+                    () => {
+                        this.toastService.toast({
+                            title: 'Faktura er lagt i kø for utsendelse',
+                            type: ToastType.good,
+                            duration: 5
+                        });
+
+                        this.onClose.emit();
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        this.busy = false;
+                    }
+                );
+            });
+        }
+    }
+
+    private sendEHF() {
+        if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
+            let shouldSendEhf = observableOf(true);
+
+            if (this.invoice.PrintStatus === 300) {
+                shouldSendEhf = this.modalService.confirm({
+                    header: 'Bekreft EHF sending',
+                    message: 'Vil du sende EHF på nytt?',
+                    buttonLabels: {
+                        accept: 'Send',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.pipe(map(res => res === ConfirmActions.ACCEPT));
+            }
+
+            shouldSendEhf.subscribe(send => {
+                if (!send) {
+                    this.busy = false;
+                    return;
+                }
+
+                this.reportService.distributeWithType(
+                    this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF'
+                ).subscribe(
+                    () => {
+                        // TODO: Do we have to update printStatus?
+                        // this.invoice.PrintStatus = 300;
+                        this.toastService.toast({
+                            title: 'Faktura lagt i kø for EHF-utsendelse',
+                            type: ToastType.good,
+                            duration: 5,
+                        });
+
+                        this.onClose.emit();
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        this.busy = false;
+                    }
+                );
+            });
+        } else {
+            this.modalService.confirm({
+                header: 'Ditt firma mangler adresse',
+                message: 'Vil du gå til firmainnstillinger og fylle ut dette nå?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.router.navigate(['/settings/company']);
+                    this.onClose.emit();
+                } else {
+                    this.busy = false;
+                }
+            });
+        }
+    }
+}

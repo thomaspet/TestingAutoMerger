@@ -67,6 +67,7 @@ import * as moment from 'moment';
                 <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                 <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">eFaktura</span>
             </section>
+
         </section>
     `
 })

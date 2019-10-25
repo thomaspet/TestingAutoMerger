@@ -7,7 +7,6 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
-    UniChooseReportModal,
 } from '@uni-framework/uni-modal';
 import {
     CompanySettings,
@@ -24,7 +23,7 @@ import {
     VatType,
     Department,
     User,
-    ReportDefinition, Contact,
+    Contact,
 } from '@uni-entities';
 import {
     CompanySettingsService,
@@ -41,7 +40,6 @@ import {
     ReportService,
     UserService,
     NumberSeriesService,
-    EmailService,
     SellerService,
     VatTypeService,
     DimensionSettingsService,
@@ -61,7 +59,6 @@ import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalcul
 import {IToolbarConfig, ICommentsConfig, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {TofHead} from '../../common/tofHead';
@@ -78,6 +75,7 @@ import {AuthService} from '@app/authService';
 
 import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
+import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 
 @Component({
     selector: 'order-details',
@@ -93,8 +91,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private companySettings: CompanySettings;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
-    private printStatusPrinted: string = '200';
-    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
     private projectID: number;
@@ -232,7 +228,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
@@ -1091,7 +1086,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 },
                 {
                     label: 'Skriv ut / send e-post',
-                    action: () => this.chooseForm(),
+                    action: () => this.printOrEmail(),
                     disabled: () => !this.order.ID
                 }
             ],
@@ -1100,59 +1095,30 @@ export class OrderDetails implements OnInit, AfterViewInit {
         };
     }
 
-    private printAction(reportForm: ReportDefinition): Observable<any> {
-        const savedOrder = this.isDirty
-            ? Observable.fromPromise(this.saveOrder())
-            : Observable.of(this.order);
+    private printOrEmail() {
+        return this.modalService.open(TofReportModal, {
+            data: {
+                entityLabel: 'Ordre',
+                entityType: 'CustomerOrder',
+                entity: this.order,
+                reportType: ReportTypeEnum.ORDER
+            }
+        }).onClose.map(selectedAction => {
+            let printStatus;
+            if (selectedAction === 'print') {
+                printStatus = '200';
+            } else if (selectedAction === 'email') {
+                printStatus = '100';
+            }
 
-        return savedOrder.switchMap((order) => {
-            return this.modalService.open(UniPreviewModal, {
-                data: reportForm
-            }).onClose.switchMap(() => {
-                return this.customerOrderService.setPrintStatus(
+            if (printStatus) {
+                this.customerOrderService.setPrintStatus(
                     this.order.ID,
-                    this.printStatusPrinted
-                ).finally(() => {
-                    this.order.PrintStatus = +this.printStatusPrinted;
+                    printStatus
+                ).subscribe(() => {
+                    this.order.PrintStatus = +printStatus;
                     this.updateToolbar();
                 });
-            });
-        });
-    }
-
-    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerOrder, entityTypeName: string, name: string): Observable<any> {
-        const savedOrder = this.isDirty
-            ? Observable.fromPromise(this.saveOrder())
-            : Observable.of(this.order);
-
-        return savedOrder.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
-            .finally(() => {
-                this.customerOrderService.setPrintStatus(this.order.ID, this.printStatusEmail).take(1).subscribe();
-            });
-        });
-    }
-
-    private chooseForm() {
-        return this.modalService.open(
-            UniChooseReportModal,
-            {data: {
-                name: 'Ordre',
-                typeName: 'Order',
-                entity: this.order,
-                type: ReportTypeEnum.ORDER
-            }}
-        ).onClose.map(res => {
-            if (res === ConfirmActions.CANCEL || !res) {
-                return;
-            }
-
-            if (res.action === 'print') {
-                this.printAction(res.form).subscribe();
-            }
-
-            if (res.action === 'email') {
-                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
             }
         });
     }

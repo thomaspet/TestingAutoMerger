@@ -25,6 +25,7 @@ import { QuoteList } from './quote/list/quoteList';
 
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
+import {SendInvoiceModal} from './invoice/modals/send-invoice-modal/send-invoice-modal';
 import {UniRecurringInvoice} from './recurringInvoice/recurringInvoiceDetails';
 import {RecurringInvoiceList} from './recurringInvoice/recurringInvoiceList';
 import {UniRecurringInvoiceLogModal} from './recurringInvoice/recurringInvoiceLogModal';
@@ -43,6 +44,8 @@ import {TofCustomerCard} from './common/customerCard';
 import {CustomerEditModal} from './common/customer-edit-modal/customer-edit-modal';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
+import {TofReportModal} from './common/tof-report-modal/tof-report-modal';
+import {TofDistributionForm} from './common/tof-distribution-form';
 import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings';
 import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
@@ -58,7 +61,6 @@ import {SellerList} from './sellers/sellerList';
 import {SellerLinks} from './sellers/sellerlinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
-import {UniDistibutionTOFView} from './common/distibutionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
@@ -106,13 +108,15 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         CustomerEditModal,
         TofDetailsForm,
         TofDeliveryForm,
+        TofDistributionForm,
         TradeItemTable,
+        TofReportModal,
         UniRecurringInvoiceSettingsView,
         UniTofSelectModal,
-        UniDistibutionTOFView,
 
         InvoiceList,
         InvoiceDetails,
+        SendInvoiceModal,
 
         UniRecurringInvoice,
         RecurringInvoiceList,
@@ -164,6 +168,8 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         UniReminderSendingMethodModal,
         ReminderSending,
         InvoiceReminders,
+        SendInvoiceModal,
+        TofReportModal,
         UniTofSelectModal,
         UniProductDetailsModal,
         KidModalComponent,

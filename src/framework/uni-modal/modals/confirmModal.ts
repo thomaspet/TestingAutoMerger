@@ -14,15 +14,20 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
             </article>
 
             <footer [ngClass]="options?.footerCls">
-                <button *ngIf="options.buttonLabels.cancel" class="pull-left cancel" (click)="cancel()">
+                <button *ngIf="options.buttonLabels.cancel" class="pull-left secondary" (click)="cancel()">
                     {{options.buttonLabels.cancel}}
                 </button>
 
-                <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
+                <button *ngIf="options.buttonLabels.reject"
+                    [ngClass]="options.buttonClasses?.reject || 'bad'"
+                    (click)="reject()">
                     {{options.buttonLabels.reject}}
                 </button>
 
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
+                <button *ngIf="options.buttonLabels.accept"
+                    [ngClass]="options.buttonClasses?.accept || 'good'"
+                    id="good_button_ok"
+                    (click)="accept()">
                     {{options.buttonLabels.accept}}
                 </button>
             </footer>
@@ -30,11 +35,8 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
     `
 })
 export class UniConfirmModalV2 implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {
