@@ -57,35 +57,45 @@ export class UniEventsWidget implements AfterViewInit {
             value: 0,
             icon: 'inbox',
             class: 'green-event',
-            link: '/accounting/bills?filter=All'
+            link: '/accounting/bills?filter=All',
+            permission: 'ui_accounting_bills',
+            hasAccess: true
         },
         {
             label: 'Faktura',
             value: 0,
             icon: 'credit_card',
             class: 'green-event',
-            link: '/sales/invoices'
+            link: '/sales/invoices',
+            permission: 'ui_sales_invoices',
+            hasAccess: true
         },
         {
             label: 'Ordre',
             value: 0,
             icon: 'business',
             class: 'green-event',
-            link: '/sales/orders'
+            link: '/sales/orders',
+            permission: 'ui_sales_orders',
+            hasAccess: true
         },
         {
             label: 'Tilbud',
             value: 0,
             icon: 'local_offer',
             class: 'green-event',
-            link: '/sales/quotes'
+            link: '/sales/quotes',
+            permission: 'ui_sales_quotes',
+            hasAccess: true
         },
         {
             label: 'Kunder',
             value: 0,
             icon: 'people_outline',
             class: 'green-event',
-            link: '/sales/customer'
+            link: '/sales/customer',
+            permission: 'ui_sales_customer',
+            hasAccess: true
         }
     ];
 
@@ -106,7 +116,9 @@ export class UniEventsWidget implements AfterViewInit {
         Observable.forkJoin(this.getQueries()).subscribe(
             res => {
                 res.forEach((data, index) => {
-                    this.formattedData[index].value = data.Data[0].value;
+                    const next = this.formattedData.find(item => item.hasAccess);
+                    next.value = data.Data[0].value;
+                    next.hasAccess = false;
                 });
                 this.cdr.markForCheck();
             },
@@ -132,7 +144,12 @@ export class UniEventsWidget implements AfterViewInit {
             + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`),
             this.widgetDataService.getData(`/api/statistics?model=Customer&select=count(ID) as value&`
             + `filter=createdat ge '${moment().subtract(this.currentTimeSpan.timespan, 'd').format('YYYY-MM-DD')}'`)
-        ];
+        ].filter((query, index) => {
+            if (!this.widgetDataService.hasAccess(this.formattedData[index].permission)) {
+                this.formattedData[index].hasAccess = false;
+            }
+            return this.formattedData[index].hasAccess;
+        });
     }
 
     public onClickNavigate(row) {
