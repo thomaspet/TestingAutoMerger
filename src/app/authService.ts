@@ -159,17 +159,18 @@ export class AuthService {
 
     private getUserManager(): UserManager {
         const baseUrl = window.location.origin;
+
         const settings: any = {
             authority: environment.authority,
             client_id: environment.client_id,
-            redirect_uri: baseUrl + environment.redirect_uri,
+            redirect_uri: baseUrl + '/assets/auth.html',
+            silent_redirect_uri: baseUrl + '/assets/silent-renew.html',
             post_logout_redirect_uri: baseUrl + environment.post_logout_redirect_uri,
-            response_type: environment.response_type,
-            scope: environment.scope,
-            filterProtocolClaims: environment.filterProtocolClaims,
-            loadUserInfo: environment.loadUserInfo,
+            response_type: 'id_token token',
+            scope: 'profile openid AppFramework',
+            filterProtocolClaims: true,
+            loadUserInfo: true,
             automaticSilentRenew: true,
-            silent_redirect_uri: baseUrl + environment.silent_redirect_uri,
             userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 
