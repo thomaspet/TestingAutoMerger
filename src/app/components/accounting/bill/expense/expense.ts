@@ -82,12 +82,12 @@ export class Expense implements OnInit {
         if (this.session.payment.Mode === PaymentMode.PrepaidByEmployee) {
            this.saveActions = [{
                 label: 'Bokfør og lag utbetaling',
-                action: () => setTimeout(() => this.save(true)), main: true, disabled: false
+                action: (done) => setTimeout(() => this.save(true).then( () => done() )), main: true, disabled: false
             }];
         } else {
             this.saveActions = [{
                 label: 'Bokfør',
-                action: () => setTimeout(() => this.save(false)), main: true, disabled: false
+                action: (done) => setTimeout(() => this.save(false).then( () => done() )), main: true, disabled: false
             }];
         }
     }
