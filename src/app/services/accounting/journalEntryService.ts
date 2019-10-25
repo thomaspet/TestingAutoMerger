@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup, JournalEntryType} from '../../unientities';
+import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup, JournalEntryType, SupplierInvoice} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/from';
@@ -915,13 +915,20 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
             });
 
-            if (multipleDates.length > 0) {
+            if (multipleDates.length > 0 && mode !== JournalEntryMode.SupplierInvoice) {
                 multipleDates.forEach(journalEntryNo => {
                     const message = new ValidationMessage();
                     message.Level = ValidationLevel.Warning;
                     message.Message = `Bilag ${journalEntryNo || ''} er fordelt på flere regnskapsdatoer`;
                     result.Messages.push(message);
                 });
+            }
+
+            if (mode === JournalEntryMode.SupplierInvoice) {
+                const message = new ValidationMessage();
+                message.Level = ValidationLevel.Info;
+                message.Message = `Bilagets dato vil settes i henhold til firmainnstilling, og automatisk få faktura- eller leveringsdato ved lagring.`;
+                result.Messages.push(message);
             }
 
             if (doValidateBalance) {
