@@ -50,9 +50,7 @@ export class SendInvoiceModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private invoiceService: CustomerInvoiceService,
         private ehfService: EHFService,
-    ) {
-        console.log(this.sharingTypeTexts[0]);
-    }
+    ) {}
 
     public ngOnInit() {
         this.busy = true;
@@ -83,8 +81,6 @@ export class SendInvoiceModal implements IUniModal {
             res => {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
-
-                console.log(this.previousSharings);
 
                 this.canSendEHF(this.companySettings).subscribe(canSendEHF => {
                     if (canSendEHF) {

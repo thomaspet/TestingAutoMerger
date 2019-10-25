@@ -1769,6 +1769,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             }
 
                             reloadInvoice(invoice.ID, successText);
+                            if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
+                                if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
+                                    this.toastService.toast({
+                                        title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
+                                        type: ToastType.good,
+                                        duration: 5
+                                    });
+                                } else {
+                                    this.modalService.open(SendInvoiceModal, {
+                                        data: this.invoice
+                                    });
+                                }
+                            }
                         },
                         err => {
                             this.errorService.handle(err);
