@@ -34,7 +34,7 @@
             </tr>
         </table>
 
-        <section class="warning" *ngIf="withPayment">
+        <section class="warning" *ngIf="session.payment.Mode == 2 && withPayment">
             <strong>Utbetaling:</strong>
             <table width="100%">
                 <tr><td>- fra selskapets bankkonto</td><td class="right">{{session.payment?.SystemBankAccount?.AccountNumber}}</td></tr>

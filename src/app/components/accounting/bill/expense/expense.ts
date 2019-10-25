@@ -83,7 +83,7 @@ export class Expense implements OnInit {
     }
 
     private getTitle(): string {
-        return this.session.payment.Mode === PaymentMode.PrepaidByEmployee ? 'Kvittering - tilbakebetaling' : 'Kvittering - forhåndsbetalt';
+        return this.session.payment.Mode === PaymentMode.PrepaidByEmployee ? 'Utlegg - tilbakebetaling' : 'Kvittering - forhåndsbetalt';
     }
 
     ngOnInit() {
