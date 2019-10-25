@@ -13,21 +13,27 @@ export class TopTenCustomersWidget {
     widget: IUniWidget;
     customers: any[];
     currentYear = new Date().getFullYear();
+    unauthorized: boolean = false;
 
     constructor(
         private dataService: WidgetDataService,
         private router: Router,
         private cdr: ChangeDetectorRef
     ) {
-        this.dataService.getData(this.getEndPoint()).subscribe((res) => {
-            this.customers = (res || []).filter(customer => {
-                return customer.SumPreviousYear > 0
-                    || customer.SumThisYear > 0
-                    || customer.SumRest > 0;
-            });
+        if (this.dataService.hasAccess('ui_sales_invoices')) {
+            this.dataService.getData(this.getEndPoint()).subscribe((res) => {
+                this.customers = (res || []).filter(customer => {
+                    return customer.SumPreviousYear > 0
+                        || customer.SumThisYear > 0
+                        || customer.SumRest > 0;
+                });
 
+                this.cdr.markForCheck();
+            });
+        } else {
+            this.unauthorized = true;
             this.cdr.markForCheck();
-        });
+        }
     }
 
     goToCustomer(id: number) {

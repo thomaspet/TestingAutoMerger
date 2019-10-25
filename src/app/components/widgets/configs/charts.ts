@@ -29,7 +29,7 @@ export const CHARTS = [
     {
         id: 'invoiced',
         description: 'Fakturert',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_invoices'],
         width: 5,
         height: 3,
         widgetType: 'invoiced',
@@ -40,7 +40,7 @@ export const CHARTS = [
     {
         id: 'payment_chart',
         description: 'Innbetalinger',
-        permissions: ['ui_sales'],
+        permissions: ['ui_bank_payments'],
         width: 9,
         height: 4,
         widgetType: 'payment_chart',
@@ -67,7 +67,7 @@ export const CHARTS = [
     {
         id: 'unpaid_supplierinvoice',
         description: 'Leverandørgjeld',
-        permissions: ['ui_accounting'],
+        permissions: ['ui_accounting_bills'],
         width: 4,
         height: 3,
         widgetType: 'unpaid',
@@ -80,7 +80,7 @@ export const CHARTS = [
     {
         id: 'unpaid_customerinvoice',
         description: 'Kundefordringer',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_invoices'],
         width: 4,
         height: 3,
         widgetType: 'unpaid',
@@ -154,7 +154,7 @@ export const CHARTS = [
     {
         id: 'chart_restamount_per_customer',
         description: 'Utestående per kunde',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_invoices'],
         width: 4,
         height: 3,
         widgetType: 'chart',

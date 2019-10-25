@@ -31,7 +31,9 @@ export class UniSumWidget implements AfterViewInit {
     ) {}
 
     public ngAfterViewInit() {
-        this.widgetDataService.getData(this.widget.config.dataEndpoint)
+        if ((this.widget && this.widget.permissions && this.widget.permissions[0]
+            && this.widgetDataService.hasAccess(this.widget.permissions[0]) || !this.widget.permissions)) {
+            this.widgetDataService.getData(this.widget.config.dataEndpoint)
             .subscribe(
                 (res) => {
                     if (typeof res === 'number') {
@@ -55,6 +57,7 @@ export class UniSumWidget implements AfterViewInit {
                     this.cdr.markForCheck();
                 }, err => {}
             );
+        }
     }
 
     public onClickNavigate() {
