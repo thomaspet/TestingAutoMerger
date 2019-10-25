@@ -921,10 +921,12 @@ export class CompanySettingsComponent implements OnInit {
                     switch (bankAccountType) {
                         case 'company':
                             bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
+                            bankaccount.AccountID = !bankaccount.AccountID ? this.defaultCompanyAccount.ID : bankaccount.AccountID;
                             break;
 
                         case 'tax':
                             bankaccount.Account = !bankaccount.Account ? this.defaultTaxAccount : bankaccount.Account;
+                            bankaccount.AccountID = !bankaccount.AccountID ? this.defaultTaxAccount.ID : bankaccount.AccountID;
                             break;
 
                         default:
