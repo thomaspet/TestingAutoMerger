@@ -145,18 +145,15 @@ export class Expense implements OnInit {
     }
 
     setDefaultText() {
-        let text = 'Utlegg';
+        let userInput = (this.session.items.length > 0 ? this.session.items[0].Description : '');
         switch (this.session.payment.Mode) {
             case PaymentMode.PrepaidByEmployee:
-                text = `Til: ${this.session.payment.PaymentTo.AccountName}`;
-                break;
-            case PaymentMode.PrepaidWithCompanyBankAccount:
-                text = (this.session.items.length > 0 ? this.session.items[0].Description : text) || text;
+                userInput = userInput || `Til: ${this.session.payment.PaymentTo.AccountName}`;
                 break;
             default:
                 break;
         }
-        this.session.payment.Description = text;
+        this.session.payment.Description = userInput || 'Utlegg';
     }
 
     showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {
