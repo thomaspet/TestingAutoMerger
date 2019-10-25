@@ -1,10 +1,8 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {AuthService} from '../../../authService';
 import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
-import {Company} from '../../../unientities';
 
 @Component({
     selector: 'uni-signup',
@@ -12,7 +10,6 @@ import {Company} from '../../../unientities';
 })
 export class Signup {
     public confirmationCode: string;
-    private recaptchaResponse: string;
     public busy: boolean;
 
     public successMessage: string;
@@ -21,11 +18,14 @@ export class Signup {
     public step1Form: FormGroup;
     public step2Form: FormGroup;
 
+    public step1Successful = false;
+    public step2Successful = false;
+    public invalidConfirmationCode = false;
+    public userExists = false;
+
     constructor(
         private http: UniHttp,
         private route: ActivatedRoute,
-        private authService: AuthService,
-        private router: Router,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
@@ -73,6 +73,7 @@ export class Signup {
             .subscribe(
                 res => {
                     this.busy = false;
+                    this.step1Successful = true;
                     this.successMessage = 'En e-post med mer informasjon ble sendt til: <br><b>'
                         + this.step1Form.controls['Email'].value
                         + '</b><br>Vennligst sjekk innboksen din.';
@@ -80,6 +81,7 @@ export class Signup {
                 err => {
                     this.step1Form.enable();
                     this.busy = false;
+                    this.step1Successful = false;
                     grecaptcha.reset();
                     this.step1Form.value.RecaptchaResponse = null;
                     try {
@@ -125,10 +127,11 @@ export class Signup {
             .send()
             .subscribe(
                 res => {
-                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.body);
+                    this.step2Successful = true;
                 },
                 err => {
                     this.busy = false;
+                    this.step2Successful = false;
                     let errorMessage;
                     try {
                         const errorBody = err.body;
@@ -146,38 +149,25 @@ export class Signup {
             .withEndPoint(`validate-confirmation?code=${code}`)
             .send()
             .subscribe(
-                () => {},
+                () => this.invalidConfirmationCode = false,
                 err => {
-                    let usernameExists;
 
                     // Try catch to avoid having to null check everything
                     try {
                         const errorBody = err.body;
-                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                        this.userExists = errorBody.Messages[0].Message.toLowerCase().indexOf('user') >= 0;
                     } catch (e) { }
 
-                    if (usernameExists) {
+                    if (this.userExists) {
                         this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
                     } else {
                         this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                        this.invalidConfirmationCode = true;
                     }
 
                     this.busy = false;
                 }
             );
-    }
-
-    public attemptLogin(
-        username: string,
-        password: string,
-        company: Company
-    ) {
-        if (!company) {
-            this.router.navigateByUrl('/init/login');
-            return;
-        }
-
-        this.authService.authenticate();
     }
 
 }

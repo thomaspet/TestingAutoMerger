@@ -3,7 +3,7 @@
         Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.
     </p>
 
-    <small class="validation info" *ngIf="confirmationCode && !successMessage && !errorMessage">
+    <small class="validation info" *ngIf="confirmationCode && !successMessage && !errorMessage && !step2Successful">
         Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
     </small>
 
@@ -43,7 +43,7 @@
             formControlName="PhoneNumber"
         />
 
-        <small class="privacy-info" *ngIf="!confirmationCode">
+        <small class="privacy-info">
             Når du registrerer deg her bekrefter du at du godtar lagring og bruk
             av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
         </small>
@@ -53,15 +53,18 @@
         <button
             type="submit"
             class="auth-button bad"
-            *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"
             [disabled]="busy || !step1.form.valid">
             START REGISTRERING
         </button>
     </form>
 
-    <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
-        <i class="material-icons username-tooltip" matTooltip="Brukernavn kan inneholde bokstaver, tall, bindestrek, understrek og punktom">help_outline</i>
+    <form #step2="ngForm" 
+        *ngIf="confirmationCode && !step2Successful && !invalidConfirmationCode && !userExists" 
+        [formGroup]="step2Form" 
+        (ngSubmit)="submitStep2Form()"
+    >
+        <i class="material-icons username-tooltip" matTooltip="Brukernavn kan inneholde bokstaver, tall, bindestrek, understrek og punktum">help_outline</i>
         <label for="usernameInput">Brukernavn</label>
         <input id="usernameInput"
             type="text"
@@ -101,7 +104,19 @@
         </button>
     </form>
 
-    <section class="links">
+    <ng-container *ngIf="step2Successful && !errorMessage">
+        <small class="validation good">
+            Registrering fullført!<br>Prøveperioden på 30 dager er nå aktiv.
+        </small>
+        <button class="auth-button c2a" [routerLink]="['/init/login']">
+            Gå til innlogging
+        </button>
+    </ng-container>
+
+    <section class="links" *ngIf="!step2Successful && !invalidConfirmationCode && !step1Successful">
         <a [routerLink]="['/init/login']">Tilbake til innlogging</a>
+    </section>
+    <section class="links" *ngIf="invalidConfirmationCode">
+        <a [routerLink]="['/init/sign-up']" (click)="invalidConfirmationCode = false">Tilbake til registrering</a>
     </section>
 </article>
