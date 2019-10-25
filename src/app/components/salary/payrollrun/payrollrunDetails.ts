@@ -970,6 +970,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.getPayrollRun();
         this.refreshTranses();
         super.updateState(REFRESH_EMPS_ACTION, true, false);
+        super.updateState(REFRESH_SUMS_KEY, true, false);
     }
 
     public recalcTaxOnPayrun() {
