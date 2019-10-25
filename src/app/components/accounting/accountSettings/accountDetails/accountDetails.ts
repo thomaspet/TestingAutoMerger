@@ -570,7 +570,27 @@ export class AccountDetails implements OnInit {
                     Property: 'LockManualPosts',
                     FieldType: FieldType.CHECKBOX,
                     Label: 'Sperre manuelle poster',
-                }
+                },
+                // Fieldset 5 (description)
+                {
+                    FieldSet: 5,
+                    Legend: 'Kontohjelp',
+                    EntityType: 'Account',
+                    Property: 'Keywords',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Søkeord',
+                    Tooltip: {
+                        Text: 'Kommaseparerte ord som kan søkes på for å finne denne kontoen'
+                    }
+                },
+                {
+                    FieldSet: 5,
+                    Legend: 'Kontohjelp',
+                    EntityType: 'Account',
+                    Property: 'Description',
+                    FieldType: FieldType.TEXTAREA,
+                    Label: 'Beskrivelse',
+                },
             ]
         };
     }

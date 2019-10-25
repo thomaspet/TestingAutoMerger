@@ -83,15 +83,14 @@ import {
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
-import { IUniTab } from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
-import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
-import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-import { AccountMandatoryDimensionService } from '@app/services/accounting/accountMandatoryDimensionService';
-import { ValidationMessage } from '@app/models/validationResult';
-import { BillInitModal } from '../bill-init-modal/bill-init-modal';
-import { isNullOrUndefined } from 'util';
+import {FileFromInboxModal} from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
+import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
+import {ValidationMessage} from '@app/models/validationResult';
+import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 
 interface ITab {
     name: string;
@@ -997,13 +996,7 @@ export class BillView implements OnInit {
                 this.handleOcrResult(new OcrValuables(result));
 
                 const model = this.current.value;
-                // we don't have any deliverydate here???
-                this.updateJournalEntryManualDates(
-                    model.InvoiceDate,
-                    model.InvoiceDate,
-                    model.InvoiceDate,
-                    model.InvoiceDate
-                );
+                this.updateJournalEntryManualDates(model.InvoiceDate, model.InvoiceDate);
 
                 this.flagUnsavedChanged();
                 this.ocrData = result;
@@ -1616,28 +1609,35 @@ export class BillView implements OnInit {
                     );
             }
 
+            // if invoicedate has the same value as deliverydate, update deliverydate also
+            // when invoicedate is changed
             if ((!model.DeliveryDate && model.InvoiceDate)
                 || (change['InvoiceDate'].previousValue
                 && model.DeliveryDate.toString() === change['InvoiceDate'].previousValue.toString())) {
+                // deliverydate is default value for financialdate in the journalentry draftlines, so
+                // if any of the lines have the same value as the old deliverydate, update them to the
+                // new delivery date
                 model.DeliveryDate = model.InvoiceDate;
             }
 
-            this.updateJournalEntryManualDates(
-                change['InvoiceDate'].currentValue,
-                change['InvoiceDate'].previousValue,
-                model['DeliveryDate'],
-                model['DeliveryDate']
-            );
+            const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? model.DeliveryDate : model.InvoiceDate;
+            const vd = model.InvoiceDate;
+
+            this.updateJournalEntryManualDates(fd, vd);
+
         }
 
         if (change['DeliveryDate']) {
-            this.updateJournalEntryManualDates(
-                model['InvoiceDate'],
-                model['InvoiceDate'],
-                change['DeliveryDate'].currentValue,
-                change['DeliveryDate'].previousValue,
-            );
+            // deliverydate is default value for financialdate in the journalentry draftlines, so
+            // if any of the lines have the same value as the old deliverydate, update them to the
+            // new delivery date
+
+            if (this.companySettings.BookCustomerInvoiceOnDeliveryDate) {
+                this.updateJournalEntryManualDates(change['DeliveryDate'].currentValue, model['InvoiceDate']);
+            }
         }
+
+
 
         if (change['CurrencyCodeID']) {
             if (model.CurrencyCodeID) {
@@ -1931,9 +1931,23 @@ export class BillView implements OnInit {
     }
 
     private runSmartBooking(orgNumber, showToastIfNotRan: boolean = false) {
+
         if (!this.current.getValue().TaxInclusiveAmountCurrency || (!this.smartBookingSettings.turnOnSmartBooking && !showToastIfNotRan)) {
             if (this.smartBookingSettings.showNotification && showToastIfNotRan) {
-                this.toast.addToast('Smart bokføring', ToastType.warn, 15, 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_ERROR_MSG');
+                this.toast.toast({
+                    title: 'Smart bokføring',
+                    type: ToastType.warn,
+                    duration: 10,
+                    message: 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_ERROR_MSG'
+                });
+            } else {
+                const financialDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate
+                    ? this.current.getValue().DeliveryDate
+                    : this.current.getValue().InvoiceDate;
+
+                const vatDate = this.current.getValue().InvoiceDate;
+
+                this.updateJournalEntryManualDates(financialDate, vatDate);
             }
             return;
         }
@@ -2625,12 +2639,18 @@ export class BillView implements OnInit {
             this.toast.addToast('Kostnadsdelingen må settes opp før fakturaen kan bokføres.', ToastType.bad, 7);
             return Observable.of(false);
         }
+
+        const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
+        const vd = current.InvoiceDate;
+
+        this.updateJournalEntryManualDates(fd, vd);
+
         //Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
         if (this.validationMessage && this.validationMessage.Level === ValidationLevel.Error) {
             this.toast.addToast('Fakturaen kan ikke bokføres', ToastType.bad, 7, this.validationMessage.Message);
             return Observable.of(false);
         }
-        if (this.journalEntryManual.validationResult && this.journalEntryManual.validationResult.Messages && this.journalEntryManual.validationResult.Messages.length > 0) {
+        if (this.journalEntryManual.validationResult && this.journalEntryManual.validationResult.Messages && this.journalEntryManual.validationResult.Messages.filter(msg => msg.Level !== ValidationLevel.Info).length > 0) {
             let validationMessage = '';
             this.journalEntryManual.validationResult.Messages.forEach((msg) => {
                 validationMessage += msg.Message + '<br>';
@@ -2995,58 +3015,13 @@ export class BillView implements OnInit {
         }
     }
 
-/*
+
     private updateJournalEntryManualDates(financialDate: LocalDate, vatDate: LocalDate) {
         if (this.journalEntryManual) {
-            const lines = this.journalEntryManual.getJournalEntryData();
-            lines.map(line => {
+            let lines = this.journalEntryManual.getJournalEntryData();
+            lines = lines.map(line => {
                 line.VatDate = vatDate;
                 line.FinancialDate = financialDate;
-            });
-            this.journalEntryManual.setJournalEntryData(lines);
-        }
-    }*/
-
-    private isSameDate(date1: LocalDate, date2: LocalDate): boolean {
-        const d1 = moment(date1);
-        const d2 = moment(date2);
-        return d1.isSame(d2, 'date');
-    }
-
-    private updateJournalEntryManualDates(iDateNew: LocalDate, iDateOld: LocalDate, dDateNew: LocalDate, dDateOld: LocalDate) {
-        if (this.journalEntryManual) {
-
-            let lines = this.journalEntryManual.getJournalEntryData();
-            const isInvoiceDateUpdated =  !this.isSameDate(iDateNew, iDateOld);
-            const isDeliveryDateUpdated = !this.isSameDate(dDateNew, dDateOld);
-            const bookOnDeliverDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate;
-
-            lines = lines.map(line => {
-                // vatDate should always use invoiceDate
-                if (isNullOrUndefined(line.VatDate)) {
-                    line.VatDate = iDateNew; // if not set use new date, no other conserns
-                } else {
-                    // vatdate can be updated manually by user in the grid, then we shouldn't change it
-                    // so when we change invoicedate in invoice header, we must compare old invoiceDate
-                    // with the line's vatdate, if it is the same, we assume user haven't changed it manually
-                    // if it is different, we don't change the line
-                    if (isInvoiceDateUpdated && this.isSameDate(line.VatDate, iDateOld)) {
-                        line.VatDate = iDateNew;
-                    }
-                }
-                if (isNullOrUndefined(line.FinancialDate)) {
-                    line.FinancialDate = bookOnDeliverDate ? dDateNew : iDateNew;
-                } else {
-                    if (bookOnDeliverDate) {
-                        if (isDeliveryDateUpdated && this.isSameDate(line.FinancialDate, dDateOld)) {
-                            line.FinancialDate = dDateNew;
-                        }
-                    } else {
-                        if (isInvoiceDateUpdated && this.isSameDate(line.FinancialDate, iDateOld)) {
-                            line.FinancialDate = iDateNew;
-                        }
-                    }
-                }
                 return line;
             });
             this.journalEntryManual.setJournalEntryData(lines);
@@ -3417,6 +3392,11 @@ export class BillView implements OnInit {
         current.FreeTxt = this.currentFreeTxt;
         current.Supplier.CostAllocation = null;
 
+        const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
+        const vd = current.InvoiceDate;
+
+        this.updateJournalEntryManualDates(fd, vd);
+
         if (!current.JournalEntry) {
             current.JournalEntry = new JournalEntry();
             current.JournalEntry.DraftLines = [];
@@ -3552,7 +3532,6 @@ export class BillView implements OnInit {
         return changesMade;
     }
 
-
     private UpdateSuppliersJournalEntry(): Promise<ILocalValidation> {
 
         return new Promise((resolve, reject) => {
@@ -3562,12 +3541,8 @@ export class BillView implements OnInit {
             } else {
                 const completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
                     if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
-
-                        const fdate = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
-                        const vdate = current.InvoiceDate || current.DeliveryDate;
-
-                        item.FinancialDate = fdate;
-                        item.VatDate = vdate;
+                        item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
+                        item.VatDate = current.InvoiceDate || current.DeliveryDate;
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                         item.Description = item.Description
                             || ('fakturanr. ' + current.InvoiceNumber);

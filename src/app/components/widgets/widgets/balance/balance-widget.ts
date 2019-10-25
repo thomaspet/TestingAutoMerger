@@ -132,7 +132,7 @@ export class BalanceWidget {
 
                             if (item) {
                                 const percent = (item.Sum * 100) / this.absoluteSum;
-                                return Math.round(percent) + '%';
+                                return Math.abs(Math.round(percent)) + '%';
                             }
 
                             return chartvalue;

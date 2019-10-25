@@ -1,6 +1,7 @@
 <section class="widget-wrapper">
     <section class="content">
-        <table>
+        <section *ngIf="unauthorized" class="missing-access">Mangler tilgang: Kan ikke vise største kunder uten fakturamodulen</section>
+        <table *ngIf="!unauthorized">
             <thead>
                 <tr>
                     <th class="customer">10 STØRSTE KUNDER</th>

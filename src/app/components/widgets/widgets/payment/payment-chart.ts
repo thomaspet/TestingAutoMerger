@@ -13,6 +13,7 @@ import {Router} from '@angular/router';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import { Observable } from 'rxjs';
+import {WidgetDataService} from '../../widgetDataService';
 
 interface IPeriode {
     label: string;
@@ -38,6 +39,7 @@ export class PaymentWidget implements AfterViewInit {
     chartConfig: any;
     incommingCounter: any;
     outgoingCounter: any;
+    unauthorized: boolean = false;
 
     tooltip;
 
@@ -72,6 +74,7 @@ export class PaymentWidget implements AfterViewInit {
     constructor(
         private statisticsService: StatisticsService,
         private numberFormatService: NumberFormat,
+        private widgetDataService: WidgetDataService,
         private router: Router,
         private cdr: ChangeDetectorRef
     ) { }
@@ -90,48 +93,52 @@ export class PaymentWidget implements AfterViewInit {
     }
 
     private getDataAndLoadChart() {
-        Observable.forkJoin(
-            this.statisticsService.GetAllUnwrapped(`model=Payment&filter=StatusCode eq '44004'&select=${this.generateSelect('true')}`),
-            this.statisticsService.GetAllUnwrapped(`model=Payment&filter=StatusCode eq '44004' and isPaymentClaim eq 'false' and ` +
-            `isPaymentCancellationRequest eq 'false'&select=${this.generateSelect('false')}`)
-        ).subscribe(([incomming, outgoing]) => {
-            this.chartConfig = this.getEmptyResultChart();
+        if (this.widgetDataService.hasAccess('ui_bank_payments')) {
+            Observable.forkJoin(
+                this.statisticsService.GetAllUnwrapped(`model=Payment&filter=StatusCode eq '44004'&select=${this.generateSelect('true')}`),
+                this.statisticsService.GetAllUnwrapped(`model=Payment&filter=StatusCode eq '44004' and isPaymentClaim eq 'false' and ` +
+                `isPaymentCancellationRequest eq 'false'&select=${this.generateSelect('false')}`)
+            ).subscribe(([incomming, outgoing]) => {
+                this.chartConfig = this.getEmptyResultChart();
 
-            const incommingDataset = [];
-            const outgoingDataset = [];
+                const incommingDataset = [];
+                const outgoingDataset = [];
 
-            let totalIncomming = 0;
-            let totalOutgoing = 0;
+                let totalIncomming = 0;
+                let totalOutgoing = 0;
 
-            for (const key in incomming[0]) {
-                if (key) {
-                    if (key.includes('sum')) {
-                        totalIncomming += incomming[0][key] || 0;
-                        incommingDataset.push(incomming[0][key] || 0);
+                for (const key in incomming[0]) {
+                    if (key) {
+                        if (key.includes('sum')) {
+                            totalIncomming += incomming[0][key] || 0;
+                            incommingDataset.push(incomming[0][key] || 0);
+                        }
                     }
                 }
-            }
-            this.incommingCounter = incomming[0];
+                this.incommingCounter = incomming[0];
 
-            for (const key in outgoing[0]) {
-                if (key) {
-                    if (key.includes('sum')) {
-                        totalOutgoing += outgoing[0][key] || 0;
-                        outgoingDataset.push(outgoing[0][key] || 0);
+                for (const key in outgoing[0]) {
+                    if (key) {
+                        if (key.includes('sum')) {
+                            totalOutgoing += outgoing[0][key] || 0;
+                            outgoingDataset.push(outgoing[0][key] || 0);
+                        }
                     }
                 }
-            }
 
-            this.outgoingCounter = outgoing[0];
+                this.outgoingCounter = outgoing[0];
 
-            this.chartConfig.data.datasets[0].data = incommingDataset;
-            this.chartConfig.data.datasets[1].data = outgoingDataset;
+                this.chartConfig.data.datasets[0].data = incommingDataset;
+                this.chartConfig.data.datasets[1].data = outgoingDataset;
 
-            this.totalIncommmingInPeriod = this.numberFormatService.asMoney(totalIncomming);
-            this.totalOutgoingInPeriod = this.numberFormatService.asMoney(totalOutgoing);
+                this.totalIncommmingInPeriod = this.numberFormatService.asMoney(totalIncomming);
+                this.totalOutgoingInPeriod = this.numberFormatService.asMoney(totalOutgoing);
 
-            this.drawChart();
-        });
+                this.drawChart();
+            });
+        } else {
+            this.unauthorized = true;
+        }
     }
 
     public updateData(index: number) {

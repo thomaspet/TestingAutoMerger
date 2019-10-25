@@ -170,7 +170,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
                     .pipe(
                         map(runCats => runCats.map(runCat => ({
                             run: this.cleanTransesOnRun(runCat.run),
-                            categories: runCat.categories.filter(cat => cat.ID !== categoryID)
+                            categories: runCat.categories.filter(cat => cat.ID === categoryID)
                         }))),
                         map(runCats => runCats.filter(runCat => (runCat.categories.length && runCat.run.transactions.length))),
                     )

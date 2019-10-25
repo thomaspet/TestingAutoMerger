@@ -968,15 +968,20 @@ export class BankComponent {
                 Observable.forkJoin(queries)
                     .subscribe((result: any) => {
                         if (result && result.length) {
+                            let collectionOfBatchIds = [];
                             result.forEach((res) => {
-                                if (res && res.ProgressUrl) {
+                                if (res && res.Value && res.Value.ProgressUrl) {
                                     this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
                                     'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
                                     done();
-                                    this.paymentBatchService.waitUntilJobCompleted(res.ID).subscribe(jobResponse => {
-                                        if (jobResponse && !jobResponse.HasError) {
+                                    this.paymentBatchService.waitUntilJobCompleted(res.Value.ID).subscribe(jobResponse => {
+                                        if (jobResponse && !jobResponse.HasError && jobResponse.Result === null) {
                                             this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
                                             `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                                        } else if (jobResponse && !jobResponse.HasError && jobResponse.Result) {
+                                            const paymentBatchIds = jobResponse.Result.map(paymentBatch => paymentBatch.ID);
+                                            collectionOfBatchIds = collectionOfBatchIds.concat(paymentBatchIds);
+                                            this.createToastWithStatus(collectionOfBatchIds);
                                         } else {
                                             this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
                                         }
@@ -984,12 +989,16 @@ export class BankComponent {
                                         this.tickerContainer.mainTicker.reloadData();
                                     });
                                 } else {
-                                    this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
+                                    const paymentBatchIds = res.map(paymentBatch => paymentBatch.ID);
+                                    collectionOfBatchIds = collectionOfBatchIds.concat(paymentBatchIds);
                                     this.tickerContainer.getFilterCounts();
                                     this.tickerContainer.mainTicker.reloadData();
                                     done();
                                 }
                             });
+                            if (collectionOfBatchIds.length) {
+                                this.createToastWithStatus(collectionOfBatchIds);
+                            }
                         } else {
                             done();
                         }
@@ -997,12 +1006,23 @@ export class BankComponent {
                     err => {
                         this.errorService.handle(err);
                         done();
-                    }
-                );
+                    });
             } else {
                 done();
             }
         });
+    }
+
+    private createToastWithStatus(batchIds) {
+        this.getSumOfPayments(batchIds).subscribe(status => {
+            this.toastService.addToast(
+                'Status:',
+                ToastType.good, ToastTime.long,
+                `Ignorerte betalinger pga. bankregler: ${ status[0].IgnoredPayments } <br>
+                Bokførte betalinger: ${ status[0].JournaledPayments } <br>
+                Betalinger som ikke ble bokført: ${ status[0].NonJournaledPayments }`);
+        },
+        err => this.errorService.handle(err));
     }
 
     public recieptUploaded() {
@@ -1410,5 +1430,14 @@ export class BankComponent {
         + `and SupplierInvoice.JournalEntryID eq JournalEntryLine.JournalEntryID and JournalEntryLine.AccountID eq Account.ID`);
     }
 
+    private getSumOfPayments(paymentBatchIds: any[]): Observable<any> {
+        const filter = 'paymentBatchId eq ' + paymentBatchIds.join(' or ID eq ');
+        return this.statisticsService.GetAllUnwrapped(
+            `model=payment&select=sum(casewhen((Payment.StatusCode%20eq%20%2744020%27)%5C,1%5C,0))`
+            + `%20as%20IgnoredPayments,sum(casewhen((Payment.StatusCode%20ne%20%2744020%27%20and%20`
+            + `Payment.AutoJournal%20eq%20%27true%27)%5C,1%5C,0))%20as%20JournaledPayments,sum(`
+            + `casewhen((Payment.StatusCode%20ne%20%2744020%27%20and%20Payment.AutoJournal%`
+            + `20eq%20%27false%27)%5C,1%5C,0))%20as%20NonJournaledPayments&filter=${filter}`);
+    }
 }
 

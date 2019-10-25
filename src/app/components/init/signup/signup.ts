@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
@@ -19,10 +19,14 @@ export class Signup {
     step1Form: FormGroup;
     step2Form: FormGroup;
 
+    step1Successful: boolean;
+    step2Successful: boolean;
+    invalidConfirmationCode: boolean;
+    userExists: boolean;
+
     constructor(
         private http: UniHttp,
         private route: ActivatedRoute,
-        private router: Router,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
@@ -73,12 +77,13 @@ export class Signup {
             .subscribe(
                 () => {
                     this.busy = false;
-                    this.step1Success = true;
+                    this.step1Successful = true;
                 },
                 err => {
                     this.step1Success = false;
                     this.step1Form.enable();
                     this.busy = false;
+                    this.step1Successful = false;
                     grecaptcha.reset();
                     this.step1Form.value.RecaptchaResponse = null;
 
@@ -116,9 +121,12 @@ export class Signup {
             .withBody(requestBody)
             .send()
             .subscribe(
-                () => this.router.navigateByUrl('/init/login'),
+                res => {
+                    this.step2Successful = true;
+                },
                 err => {
                     this.busy = false;
+                    this.step2Successful = false;
                     let errorMessage;
 
                     console.log(err);
@@ -139,21 +147,20 @@ export class Signup {
             .withEndPoint(`validate-confirmation?code=${code}`)
             .send()
             .subscribe(
-                () => this.step2Form.enable(),
+                () => this.invalidConfirmationCode = false,
                 err => {
-                    this.step2Form.disable();
-                    let usernameExists;
 
                     // Try catch to avoid having to null check everything
                     try {
-                        const errorBody = err.error;
-                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                        const errorBody = err.body;
+                        this.userExists = errorBody.Messages[0].Message.toLowerCase().indexOf('user') >= 0;
                     } catch (e) { }
 
-                    if (usernameExists) {
+                    if (this.userExists) {
                         this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
                     } else {
                         this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                        this.invalidConfirmationCode = true;
                     }
 
                     this.busy = false;

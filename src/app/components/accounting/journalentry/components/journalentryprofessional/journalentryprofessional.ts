@@ -1134,17 +1134,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             row.JournalEntryTypeID = copyFromJournalEntryLine.JournalEntryTypeID;
             row.JournalEntryType = copyFromJournalEntryLine.JournalEntryType;
 
-            this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
-            .map(res => res[0])
-            .subscribe(sums => {
-                row.Amount += sums.SumReminderFee;
-                row.NetAmount += sums.SumReminderFee;
-                row.AmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFee;
-                row.NetAmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
+            if (copyFromJournalEntryLine.CustomerInvoiceID) {
+                this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
+                .map(res => res[0])
+                .subscribe(sums => {
+                    row.Amount += sums.SumReminderFee;
+                    row.NetAmount += sums.SumReminderFee;
+                    row.AmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFee;
+                    row.NetAmountCurrency += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
 
-                setTimeout(() => this.table.triggerChange());
+                    setTimeout(() => this.table.triggerChange());
+                    resolve();
+                });
+            }
+            else {
                 resolve();
-            });
+            }
         });
     }
 

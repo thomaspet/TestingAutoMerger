@@ -8,6 +8,7 @@ import {
     EventEmitter
 } from '@angular/core';
 import {StatisticsService, NumberFormat} from '@app/services/services';
+import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
@@ -22,7 +23,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
             </section>
 
             <section *ngIf="missingData" class="no-content">
-                Mangler data
+                {{ missingDataMsg }}
             </section>
 
             <div *ngIf="!missingData" class="content">
@@ -46,10 +47,12 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     chartConfig: any;
     totalAmount: number = 0;
     missingData: boolean;
+    missingDataMsg: string = 'Mangler data'
 
     constructor(
         private statisticsService: StatisticsService,
         private numberFormatService: NumberFormat,
+        private widgetDataService: WidgetDataService,
         private cdr: ChangeDetectorRef
     ) {}
 
@@ -61,57 +64,64 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     }
 
     private getDataAndLoadChart() {
-        const queryString = this.widget.config.dataEndpoint
+        if (this.widgetDataService.hasAccess(this.widget.permissions[0])) {
+            const queryString = this.widget.config.dataEndpoint
             ? this.widget.config.dataEndpoint
             : `model=${this.widget.config.model}&select=${this.generateSelect()}`;
 
-        this.statisticsService.GetAllUnwrapped(queryString).subscribe(result => {
+            this.statisticsService.GetAllUnwrapped(queryString).subscribe(result => {
 
-            this.totalAmount = 0;
-            const data = [];
-            for (const key in result[0]) {
-                if (key) {
-                    data.push(result[0][key]);
-                    this.totalAmount += result[0][key];
+                this.totalAmount = 0;
+                const data = [];
+                for (const key in result[0]) {
+                    if (key) {
+                        data.push(result[0][key]);
+                        this.totalAmount += result[0][key];
+                    }
                 }
-            }
 
-            if (data.some(sum => !!sum)) {
-                this.missingData = false;
-                this.chartConfig = this.getEmptyResultChart();
-                this.chartConfig.data.labels = this.widget.config.labels;
-                if (this.widget.config.function === 'unpaid') {
-                    this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
-                } else {
-                    this.chartConfig.options.plugins.doughnutlabel.labels = [
-                        {
-                            text: 'Prosjektprosent',
-                            font: { size: '14' }
-                        },
-                        {
-                            text: (data[0] / this.totalAmount * 100).toFixed(2) + ' %',
-                            font: { size: '20' }
-                        }
-                    ];
-                    this.chartConfig.options.legend.display = false;
-                    this.chartConfig.data.datasets[0].backgroundColor = ['#0a83a5', '#ecf5f8'];
-                    this.chartConfig.options.tooltips = {
-                        callbacks: {
-                            label: (tooltipItem, array) => {
-                                return array.labels[tooltipItem.index] + ': '
-                                + (array.datasets[tooltipItem.datasetIndex].data[tooltipItem.index] / 60).toFixed(2) + ' timer';
+                if (data.some(sum => !!sum)) {
+                    this.missingData = false;
+                    this.chartConfig = this.getEmptyResultChart();
+                    this.chartConfig.data.labels = this.widget.config.labels;
+                    if (this.widget.config.function === 'unpaid') {
+                        this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
+                    } else {
+                        this.chartConfig.options.plugins.doughnutlabel.labels = [
+                            {
+                                text: 'Prosjektprosent',
+                                font: { size: '14' }
+                            },
+                            {
+                                text: (data[0] / this.totalAmount * 100).toFixed(2) + ' %',
+                                font: { size: '20' }
                             }
-                        }
-                    };
+                        ];
+                        this.chartConfig.options.legend.display = false;
+                        this.chartConfig.data.datasets[0].backgroundColor = ['#0a83a5', '#ecf5f8'];
+                        this.chartConfig.options.tooltips = {
+                            callbacks: {
+                                label: (tooltipItem, array) => {
+                                    return array.labels[tooltipItem.index] + ': '
+                                    + (array.datasets[tooltipItem.datasetIndex].data[tooltipItem.index] / 60).toFixed(2) + ' timer';
+                                }
+                            }
+                        };
+                    }
+
+                    this.chartConfig.data.datasets[0].data = data;
+                    this.drawChart();
+                } else {
+                    this.missingData = true;
+                    this.cdr.markForCheck();
                 }
 
-                this.chartConfig.data.datasets[0].data = data;
-                this.drawChart();
-            } else {
-                this.missingData = true;
-            }
-
-        });
+            });
+        } else {
+            this.missingData = true;
+            this.missingDataMsg = 'Mangler tilgang';
+            this.cdr.markForCheck();
+        }
     }
 
     public generateSelect() {

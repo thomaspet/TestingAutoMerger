@@ -994,21 +994,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
                                 line['_rowSelected'] = true;
                             }
 
-                            // Calculate reminderfee                            
-                            forkJoin(lines.map(line => this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${line.CustomerInvoiceID} and statuscode eq 42101`)))
-                                .subscribe(res => {
-                                    res.map(res => res[0]).map((sums, i: number) => {
-                                        lines[i]['_SumReminderFee'] = sums.SumReminderFee;
-                                        lines[i]['_SumReminderFeeCurrency'] = sums.SumReminderFeeCurrency;
-                                        lines[i]['_SumInterestFee'] = sums.SumInterestFee;
-                                        lines[i]['_SumInterestFeeCurrency'] = sums.SumInterestFeeCurrency;
-                                        lines[i]['RestAmount'] += sums.SumReminderFee + sums.SumInterestFee;
-                                        lines[i]['RestAmountCurrency'] += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
-                                    });
+                            if (line && line.CustomerInvoiceID) {
+                                // Calculate reminderfee
+                                forkJoin(lines.map(line => this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${line.CustomerInvoiceID} and statuscode eq 42101`)))
+                                    .subscribe(res => {
+                                        res.map(res => res[0]).map((sums, i: number) => {
+                                            lines[i]['_SumReminderFee'] = sums.SumReminderFee;
+                                            lines[i]['_SumReminderFeeCurrency'] = sums.SumReminderFeeCurrency;
+                                            lines[i]['_SumInterestFee'] = sums.SumInterestFee;
+                                            lines[i]['_SumInterestFeeCurrency'] = sums.SumInterestFeeCurrency;
+                                            lines[i]['RestAmount'] += sums.SumReminderFee + sums.SumInterestFee;
+                                            lines[i]['RestAmountCurrency'] += sums.SumReminderFeeCurrency + sums.SumInterestFeeCurrency;
+                                        });
 
-                                    this.openPostsForSelectedRow = lines;
-                                    this.openPostRetrievingDataInProgress = false;
-                            });
+                                        this.openPostsForSelectedRow = lines;
+                                        this.openPostRetrievingDataInProgress = false;
+                                });
+                            } else {
+                                this.openPostsForSelectedRow = lines;
+                                this.openPostRetrievingDataInProgress = false;
+                            }
                         }
                     }, err => {
                         this.openPostRetrievingDataInProgress = false;

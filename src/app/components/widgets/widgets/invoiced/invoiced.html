@@ -2,7 +2,7 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section class="filters">
+        <section class="filters" *ngIf="!unauthorized">
             <button #toggle class="tertiary toggle-button">
                 {{ currentPeriod.label }}
                 <i class="material-icons">expand_more</i>
@@ -45,11 +45,11 @@
                     <span>{{(tooltip.unpaid | uninumberformat:'money') || '0,00'}}</span>
                 </section>
             </section>
-
+            <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>
             <canvas #chartCanvas></canvas>
         </div>
 
-        <section class="chart-legend">
+        <section class="chart-legend" *ngIf="!unauthorized">
             <section class="legend">
                 <span class="indicator invoiceinvoiced"></span>
                 Fakturert: <strong>{{ totalInvoiceInPeriod }}</strong>

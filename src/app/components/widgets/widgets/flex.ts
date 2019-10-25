@@ -2,6 +2,7 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/co
 import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
 import {TimesheetService} from '../../../services/services';
+import {WidgetDataService} from '../widgetDataService';
 import * as moment from 'moment';
 
 @Component({
@@ -26,22 +27,24 @@ export class UniFlexWidget {
     constructor(
         private router: Router,
         private timesheetService: TimesheetService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private widgetDataService: WidgetDataService
     ) {}
 
     public ngAfterViewInit() {
-
-        this.timesheetService.initUser().subscribe(
-            (timesheet) => {
-                if (timesheet && timesheet.currentRelation) {
-                    this.getFlexBalance(timesheet.currentRelation.ID);
-                } else {
-                    this.displayValue = '0';
-                    this.cdr.markForCheck();
-                }
-            },
-            err => {/* fail silently */}
-        );
+        if (this.widgetDataService.hasAccess('ui_timetracking_timeentry')) {
+            this.timesheetService.initUser().subscribe(
+                (timesheet) => {
+                    if (timesheet && timesheet.currentRelation) {
+                        this.getFlexBalance(timesheet.currentRelation.ID);
+                    } else {
+                        this.displayValue = '0';
+                        this.cdr.markForCheck();
+                    }
+                },
+                err => {/* fail silently */}
+            );
+        }
     }
 
     private getFlexBalance(relationID) {
