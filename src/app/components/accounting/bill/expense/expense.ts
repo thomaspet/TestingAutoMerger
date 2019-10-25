@@ -29,7 +29,7 @@ export class Expense implements OnInit {
 
     public saveActions: IUniSaveAction[] = [{
         label: 'Bokfør',
-        action: (done) => setTimeout(() => this.save(true, done)), main: true, disabled: false
+        action: (done) => setTimeout(() => this.save(true).then( () => done() )), main: true, disabled: false
     }];
     // , {
     //     label: 'Nullstill',
@@ -108,45 +108,55 @@ export class Expense implements OnInit {
         });
     }
 
-    save(withPayment = false, done?): Promise<boolean> {
+    save(withPayment = false): Promise<boolean> {
+
+        // Payment only possible with mode == PaymentMode.PrepaidByEmployee
+        const createPayment = withPayment && this.session.payment.Mode === PaymentMode.PrepaidByEmployee;
 
         return new Promise((resolve, reject) => {
 
             // Validation
             this.session.recalc();
-            const validation = this.session.validate(withPayment);
+            const validation = this.session.validate(createPayment);
             if (validation.success === false) {
                 this.toast.addToast(validation.messages[0], ToastType.bad, 4);
                 resolve(false);
-                if (done) {
-                    done();
-                }
                 return;
             }
 
+            this.setDefaultText();
+
             // Ask user to confirm before saving
-            this.openSummary(withPayment).then( ok => {
+            this.openSummary(createPayment).then( ok => {
                 if (ok) {
-                    this.session.save(false, this.fileIds, withPayment).subscribe( x => {
-                        this.showSavedJournalToast(x, withPayment);
-                        if (done) {
-                            done();
-                        }
+                    this.session.save(false, this.fileIds, createPayment).subscribe( x => {
+                        this.showSavedJournalToast(x, createPayment);
+                        resolve(true);
                     }, err => {
                         this.errorService.handle(err);
-                        if (done) {
-                            done();
-                        }
+                        resolve(false);
                     });
                 } else {
-                    if (done) {
-                        done();
-                    }
                     resolve(false);
                 }
             });
 
         });
+    }
+
+    setDefaultText() {
+        let text = 'Utlegg';
+        switch (this.session.payment.Mode) {
+            case PaymentMode.PrepaidByEmployee:
+                text = `Til: ${this.session.payment.PaymentTo.AccountName}`;
+                break;
+            case PaymentMode.PrepaidWithCompanyBankAccount:
+                text = (this.session.items.length > 0 ? this.session.items[0].Description : text) || text;
+                break;
+            default:
+                break;
+        }
+        this.session.payment.Description = text;
     }
 
     showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {

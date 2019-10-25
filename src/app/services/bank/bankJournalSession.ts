@@ -124,8 +124,14 @@ export class BankJournalSession {
             Description: 'Return expense'
         };
         if (this.payment.Mode !== PaymentMode.None) {
-            // Align dates in journal to match payment-date
-            content.DraftLines.forEach(x => x.FinancialDate = toIso(this.payment.PaymentDate));
+
+            const description = this.payment.Description || 'Utlegg';
+
+            // Check dates and description on all entries
+            content.DraftLines.forEach(x => {
+                x.FinancialDate = toIso(this.payment.PaymentDate);
+                x.Description = x.Description || description;
+            });
 
             const acc = this.payment.Mode === PaymentMode.PrepaidByEmployee
                 ? this.payment.PaymentTo
@@ -134,7 +140,7 @@ export class BankJournalSession {
             // Add virtual item (the payment-entry)
             if (this.payment && acc) {
                 this.cacheAccount(acc);
-                const dc = this.addRow(acc.ID, 0, this.payment.PaymentDate, 'Utlegg', true );
+                const dc = this.addRow(acc.ID, 0, this.payment.PaymentDate, description, true );
                 const jln = this.convertToJournalEntry(dc);
                 jln.AccountID = acc.ID;
                 jln.Amount = -this.balance;
