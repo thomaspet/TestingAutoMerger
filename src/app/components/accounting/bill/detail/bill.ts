@@ -1639,10 +1639,13 @@ export class BillView implements OnInit {
             // deliverydate is default value for financialdate in the journalentry draftlines, so
             // if any of the lines have the same value as the old deliverydate, update them to the
             // new delivery date
+
             if (this.companySettings.BookCustomerInvoiceOnDeliveryDate) {
                 this.updateJournalEntryManualDates(change['DeliveryDate'].currentValue, model['InvoiceDate']);
             }
         }
+
+
 
         if (change['CurrencyCodeID']) {
             if (model.CurrencyCodeID) {
@@ -1936,6 +1939,7 @@ export class BillView implements OnInit {
     }
 
     private runSmartBooking(orgNumber, showToastIfNotRan: boolean = false) {
+
         if (!this.current.getValue().TaxInclusiveAmountCurrency || (!this.smartBookingSettings.turnOnSmartBooking && !showToastIfNotRan)) {
             if (this.smartBookingSettings.showNotification && showToastIfNotRan) {
                 this.toast.addToast('Smart bokføring', ToastType.warn, 15,
@@ -1946,10 +1950,6 @@ export class BillView implements OnInit {
 
                 this.updateJournalEntryManualDates(fd, vd);
             }
-
-
-
-            this.updateJournalEntryManualDates()
             return;
         }
 
