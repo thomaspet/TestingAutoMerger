@@ -32,6 +32,10 @@ export class WidgetDataService {
         return this.request(endpoint);
     }
 
+    public hasAccess(permission: string) {
+        return this.authService.hasUIPermission(this.authService.currentUser, permission);
+    }
+
     public replaceWithUserID(string) {
         return string.replace('<userID>', <any> this.authService.currentUser.ID);
     }

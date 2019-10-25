@@ -35,7 +35,7 @@ export const COUNTERS = [
     {
         id: 'sum_overdue_invoices',
         description: 'Restsum forfalte faktura',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_invoices'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -53,7 +53,7 @@ export const COUNTERS = [
     {
         id: 'sum_order_reserves',
         description: 'Totalsum ordrereserver',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_orders'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -71,7 +71,7 @@ export const COUNTERS = [
     {
         id: 'count_customer',
         description: 'Antall kunder',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_customer'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -87,7 +87,7 @@ export const COUNTERS = [
     {
         id: 'sum_products',
         description: 'Antall produkter',
-        permissions: ['ui_sales'],
+        permissions: ['ui_sales_products'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -136,7 +136,7 @@ export const COUNTERS = [
     {
         id: 'payment_no_match',
         description: 'Innbetalt ingen match',
-        permissions: [],
+        permissions: ['ui_bank_payments'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -152,7 +152,7 @@ export const COUNTERS = [
     {
         id: 'payment_list',
         description: 'Utbetalingsliste',
-        permissions: [],
+        permissions: ['ui_bank_payments'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -168,7 +168,7 @@ export const COUNTERS = [
     {
         id: 'reconciliation_list',
         description: 'Bankavstemning',
-        permissions: [],
+        permissions: ['ui_bank_reconciliation'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -185,7 +185,7 @@ export const COUNTERS = [
     {
         id: 'autobank_agreements',
         description: 'Autobankavtaler',
-        permissions: [],
+        permissions: ['ui_bank_payments'],
         width: 3,
         height: 1,
         widgetType: 'sum',
@@ -201,7 +201,7 @@ export const COUNTERS = [
     {
         id: 'customers_with_avtalegiro',
         description: 'Avtalegiro',
-        permissions: [],
+        permissions: ['ui_bank_payments'],
         width: 3,
         height: 1,
         widgetType: 'sum',

@@ -2,7 +2,8 @@
     Component,
     ViewChild,
     ElementRef,
-    EventEmitter
+    EventEmitter,
+    ChangeDetectorRef
 } from '@angular/core';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDatasetBuilder} from '../widgetDatasetBuilder';
@@ -20,6 +21,7 @@ import * as Chart from 'chart.js';
             </section>
 
             <section class="content" [attr.aria-busy]="!(dataLoaded | async)">
+                <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>
                 <canvas style="max-height: 220px" #chartElement></canvas>
             </section>
         </section>
@@ -35,9 +37,11 @@ export class UniChartWidget {
 
     private labels: string[];
     private datasets: any[] = [];
-    public dataLoaded: EventEmitter<boolean> = new EventEmitter();
+    dataLoaded: EventEmitter<boolean> = new EventEmitter();
+    unauthorized: boolean = false;
 
-    constructor(private widgetDataService: WidgetDataService) {}
+
+    constructor(private widgetDataService: WidgetDataService, private cdr: ChangeDetectorRef) {}
 
     public ngAfterViewInit() {
         if (this.widget) {
@@ -64,21 +68,27 @@ export class UniChartWidget {
             this.myChart.destroy();
         }
 
-        this.widgetDataService.getData(this.widget.config.dataEndpoint[0]).subscribe(
-            res => {
-                if (!res.Success) {
-                    return;
-                }
+        if (this.widget && this.widget.permissions && this.widget.permissions[0]
+            && this.widgetDataService.hasAccess(this.widget.permissions[0])
+            || (!this.widget.permissions || this.widget.permissions.length === 0)) {
+                this.widgetDataService.getData(this.widget.config.dataEndpoint[0]).subscribe(
+                    res => {
+                        if (!res.Success) { return; }
 
-                const builderResult = this.builder.buildPieDataset(res.Data, this.widget.config);
-                this.labels = builderResult.labels.map(l => l.substr(0, 20));
-                this.datasets = builderResult.dataset;
-                this.drawChart();
-            },
-            err => {
-                this.dataLoaded.emit(true);
+                        const builderResult = this.builder.buildPieDataset(res.Data, this.widget.config);
+                        this.labels = builderResult.labels.map(l => l.substr(0, 20));
+                        this.datasets = builderResult.dataset;
+                        this.drawChart();
+                    },
+                    err => {
+                        this.dataLoaded.emit(true);
+                    }
+                );
+            } else {
+                this.dataLoaded.next(true);
+                this.unauthorized = true;
+                this.cdr.markForCheck();
             }
-        );
     }
 
     private loadChartWidget() {
@@ -87,33 +97,37 @@ export class UniChartWidget {
             this.myChart.destroy();
         }
 
-        let sources = [];
-        this.widget.config.dataEndpoint.forEach((endpoint) => {
-            sources.push(this.widgetDataService.getData(endpoint));
-        });
-
-        Observable.forkJoin(sources).subscribe(
-            res => {
-                res.forEach((item: any, i) => {
-                    if (item.Success) {
-                        this.datasets.push(this.builder.buildSingleColorDataset(
-                            item.Data,
-                            i,
-                            this.widget.config
-                        ));
-
-                        this.labels = this.widget.config.labels;
-                    }
+        if (this.widget && this.widget.permissions && this.widget.permissions[0]
+            && this.widgetDataService.hasAccess(this.widget.permissions[0])
+            || (!this.widget.permissions || this.widget.permissions.length === 0)) {
+                const sources = [];
+                this.widget.config.dataEndpoint.forEach((endpoint) => {
+                    sources.push(this.widgetDataService.getData(endpoint));
                 });
 
-                this.drawChart();
-            },
-            err => this.dataLoaded.emit(true)
-        );
+                Observable.forkJoin(sources).subscribe(res => {
+                    res.forEach((item: any, i) => {
+                        if (item.Success) {
+                            this.datasets.push(this.builder.buildSingleColorDataset(
+                                item.Data,
+                                i,
+                                this.widget.config
+                            ));
+                            this.labels = this.widget.config.labels;
+                        }
+                    });
+                    this.drawChart();
+                },
+                err => this.dataLoaded.emit(true));
+            } else {
+                this.dataLoaded.next(true);
+                this.unauthorized = true;
+                this.cdr.markForCheck();
+            }
     }
 
     private drawChart() {
-        let options = this.widget.config.options || {};
+        const options = this.widget.config.options || {};
         options.responsive = true;
         options.maintainAspectRatio = false;
 

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import {StatisticsService, NumberFormat} from '@app/services/services';
 import {IUniWidget} from '../../uniWidget';
+import {WidgetDataService} from '../../widgetDataService';
 import {Router} from '@angular/router';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
@@ -36,6 +37,7 @@ export class InvoicedWidget implements AfterViewInit {
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
     chartRef: any;
     chartConfig: any;
+    unauthorized: boolean = false;
 
     tooltip;
 
@@ -70,6 +72,7 @@ export class InvoicedWidget implements AfterViewInit {
     constructor(
         private statisticsService: StatisticsService,
         private numberFormatService: NumberFormat,
+        private widgetDataService: WidgetDataService,
         private router: Router,
         private cdr: ChangeDetectorRef
     ) {
@@ -90,40 +93,45 @@ export class InvoicedWidget implements AfterViewInit {
     }
 
     private getDataAndLoadChart() {
-        Observable.forkJoin(
-            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&filter=InvoiceType eq 0&select=${this.generateSelect('TaxInclusiveAmount')}`),
-            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&filter=InvoiceType eq 0&select=${this.generateSelect('RestAmount')}`)
-        ).subscribe(([invoiced, rest]) => {
-            this.chartConfig = this.getEmptyResultChart();
+        if (this.widgetDataService.hasAccess('ui_sales_invoices')) {
+            Observable.forkJoin(
+                this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&filter=InvoiceType eq 0&select=${this.generateSelect('TaxInclusiveAmount')}`),
+                this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&filter=InvoiceType eq 0&select=${this.generateSelect('RestAmount')}`)
+            ).subscribe(([invoiced, rest]) => {
+                this.chartConfig = this.getEmptyResultChart();
 
-            const invoicedDataset = [];
-            const paidDataset = [];
+                const invoicedDataset = [];
+                const paidDataset = [];
 
-            let totalInvoiced = 0;
-            let totalPaid = 0;
+                let totalInvoiced = 0;
+                let totalPaid = 0;
 
-            for (const key in invoiced[0]) {
-                if (key) {
-                    const invoicedAmount = invoiced[0][key] || 0;
-                    const restAmount = rest[0][key] || 0;
-                    const paidAmount = invoicedAmount - restAmount;
+                for (const key in invoiced[0]) {
+                    if (key) {
+                        const invoicedAmount = invoiced[0][key] || 0;
+                        const restAmount = rest[0][key] || 0;
+                        const paidAmount = invoicedAmount - restAmount;
 
-                    totalInvoiced += invoicedAmount;
-                    totalPaid += paidAmount;
+                        totalInvoiced += invoicedAmount;
+                        totalPaid += paidAmount;
 
-                    invoicedDataset.push(invoicedAmount);
-                    paidDataset.push(paidAmount);
+                        invoicedDataset.push(invoicedAmount);
+                        paidDataset.push(paidAmount);
+                    }
                 }
-            }
 
-            this.chartConfig.data.datasets[0].data = paidDataset;
-            this.chartConfig.data.datasets[1].data = invoicedDataset;
+                this.chartConfig.data.datasets[0].data = paidDataset;
+                this.chartConfig.data.datasets[1].data = invoicedDataset;
 
-            this.totalInvoiceInPeriod = this.numberFormatService.asMoney(totalInvoiced);
-            this.totalPaidInPeriod = this.numberFormatService.asMoney(totalPaid);
+                this.totalInvoiceInPeriod = this.numberFormatService.asMoney(totalInvoiced);
+                this.totalPaidInPeriod = this.numberFormatService.asMoney(totalPaid);
 
-            this.drawChart();
-        });
+                this.drawChart();
+            });
+        } else {
+            this.unauthorized = true;
+            this.cdr.markForCheck();
+        }
     }
 
     public updateData(index: number) {
