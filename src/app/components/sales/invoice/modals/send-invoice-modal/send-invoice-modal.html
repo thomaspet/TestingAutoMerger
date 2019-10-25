@@ -1,11 +1,19 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>Send faktura</header>
+    <header>Sending av faktura {{invoice?.InvoiceNumber || ''}}</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
         <!-- TODO: warn if invoice is already sent -->
+        <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
+            <section *ngFor="let sharing of previousSharings" class="sharing">
+                <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>
+                <span class="text">{{getSharingText(sharing)}}</span>
+                <span class="status">{{getSharingStatus(sharing)}}</span>
+            </section>
+        </section>
+
 
         <label class="uni-label">
             <span>Velg utsendingsmetode</span>

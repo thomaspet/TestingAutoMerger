@@ -1,6 +1,6 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
-import {CustomerInvoice, DistributionPlan, CompanySettings} from '@app/unientities';
+import {CustomerInvoice, DistributionPlan, CompanySettings, SharingType, StatusCodeSharing} from '@app/unientities';
 import {map, catchError} from 'rxjs/operators';
 import {forkJoin, of as observableOf} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal';
@@ -30,7 +30,7 @@ export class SendInvoiceModal implements IUniModal {
 
     busy: boolean;
     invoice: CustomerInvoice;
-    existingSharings: any[]; // typeme
+    previousSharings: any[];
     companySettings: CompanySettings;
 
     sendingOptions: {label: string; action: () => void}[] = [
@@ -50,7 +50,9 @@ export class SendInvoiceModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private invoiceService: CustomerInvoiceService,
         private ehfService: EHFService,
-    ) {}
+    ) {
+        console.log(this.sharingTypeTexts[0]);
+    }
 
     public ngOnInit() {
         this.busy = true;
@@ -70,17 +72,19 @@ export class SendInvoiceModal implements IUniModal {
 
         this.activeSendingOption = this.sendingOptions[0];
 
-        const existingSharingsQuery = `model=Sharing&orderby=ID desc`
+        const previousSharingsQuery = `model=Sharing`
             + `&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoice.ID}`
             + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To`;
 
         forkJoin(
-            this.statisticsService.GetAllUnwrapped(existingSharingsQuery),
+            this.statisticsService.GetAllUnwrapped(previousSharingsQuery),
             this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing']),
         ).subscribe(
             res => {
-                this.existingSharings = res[0] || [];
+                this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
+
+                console.log(this.previousSharings);
 
                 this.canSendEHF(this.companySettings).subscribe(canSendEHF => {
                     if (canSendEHF) {
@@ -99,6 +103,46 @@ export class SendInvoiceModal implements IUniModal {
             },
             () => this.busy = false
         );
+    }
+
+    getSharingText(sharing) {
+        switch (sharing.SharingType) {
+            case SharingType.Unknown:
+                return 'Sending via utsendingsplan';
+            case SharingType.Print:
+                return 'Skrevet ut';
+            case SharingType.Email:
+                return `Sendt på epost til ${sharing.SharingTo}`;
+            case SharingType.AP:
+                return 'Sending via aksesspunkt/EHF';
+            case SharingType.Vipps:
+                return 'Sending via Vipps';
+            case SharingType.Export:
+                return 'Eksportert';
+            case SharingType.InvoicePrint:
+                return 'Fakturaprint';
+            case SharingType.Efaktura:
+                return 'Sending via eFaktura';
+            case SharingType.Avtalegiro:
+                return 'Sending via avtalegiro';
+            case SharingType.Factoring:
+                return 'Factoring';
+        }
+    }
+
+    getSharingStatus(sharing) {
+        switch (sharing.SharingStatusCode) {
+            case StatusCodeSharing.Pending:
+                return 'Planlagt / i kø';
+            case StatusCodeSharing.InProgress:
+                return 'Behandles';
+            case StatusCodeSharing.Completed:
+                return 'Fullført';
+            case StatusCodeSharing.Cancelled:
+                return 'Avbrutt';
+            case StatusCodeSharing.Failed:
+                return 'Feilet';
+        }
     }
 
     private canSendEHF(settings: CompanySettings) {
