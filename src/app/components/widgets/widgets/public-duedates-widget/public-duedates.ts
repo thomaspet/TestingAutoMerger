@@ -38,42 +38,45 @@ export class PublicDueDatesWidget {
     ) { }
 
     public ngAfterViewInit() {
-        this.dataHolder = this.getDummyData();
-        this.dataLoaded = true;
+        this.widgetDataService.getData('/api/biz/deadlines?action=number-of-days-filtered&nrOfDays=30').subscribe((items) => {
 
-        // Needs redraw on canvas size change  -- TODO --
+            this.dataHolder = items;
+            this.dataLoaded = true;
 
-        if (this.dataHolder.length) {
-            const canvas = this.canvas.nativeElement;
-            this.ctx = this.canvas.nativeElement.getContext('2d');
+            // Needs redraw on canvas size change  -- TODO --
 
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
+            if (this.dataHolder.length) {
+                const canvas = this.canvas.nativeElement;
+                this.ctx = this.canvas.nativeElement.getContext('2d');
 
-            canvas.width  = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
 
-            this.middleHeight = this.canvas.nativeElement.height / 2;
-            this.middleWidth = this.canvas.nativeElement.width / 2;
-            this.width = this.canvas.nativeElement.width - 40;
+                canvas.width  = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
 
-            for (let i = 0; i < 7; i++) {
-                this.numberXValues.push({
-                    label: i * 5,
-                    position: (i * (this.width / 6)) + 20
-                });
+                this.middleHeight = this.canvas.nativeElement.height / 2;
+                this.middleWidth = this.canvas.nativeElement.width / 2;
+                this.width = this.canvas.nativeElement.width - 40;
+
+                for (let i = 0; i < 7; i++) {
+                    this.numberXValues.push({
+                        label: i * 5,
+                        position: (i * (this.width / 6)) + 20
+                    });
+                }
+
+                for (let i = 0; i < 30; i++) {
+                    this.pointsXValues.push((i * (this.width / 29)) + 20);
+                }
+                this.getDataAndLoadList();
+            } else {
+                const canvas = this.canvas.nativeElement;
+                canvas.style.width = '0';
+                canvas.style.height = '0';
+                this.cdr.markForCheck();
             }
-
-            for (let i = 0; i < 30; i++) {
-                this.pointsXValues.push((i * (this.width / 29)) + 20);
-            }
-            this.getDataAndLoadList();
-        } else {
-            const canvas = this.canvas.nativeElement;
-            canvas.style.width = '0';
-            canvas.style.height = '0';
-            this.cdr.markForCheck();
-        }
+        });
     }
 
     onClick(event) {
@@ -88,7 +91,7 @@ export class PublicDueDatesWidget {
     getDataAndLoadList() {
         this.dataHolder.map((item) => {
             const now = moment().format('YYYYMMDD');
-            item.duedays = moment(now).diff(moment(item.Date), 'days') * -1;
+            item.duedays = moment(now).diff(moment(item.Deadline), 'days') * -1;
             return item;
         });
         this.drawBaseLine();
@@ -182,11 +185,11 @@ export class PublicDueDatesWidget {
                 this.ctx.textAlign = 'center';
             }
 
-            this.ctx.fillText(this.dataHolder[index].Label, this.pointsXValues[item.duedays], y + textAlignmentValue);
+            this.ctx.fillText(this.dataHolder[index].Name, this.pointsXValues[item.duedays], y + textAlignmentValue);
 
             // Draw blue infor circle icons
             this.ctx.fillStyle = '#0071CD';
-            const xValue = this.pointsXValues[item.duedays] + 10 + (this.ctx.measureText(this.dataHolder[index].Label).width *
+            const xValue = this.pointsXValues[item.duedays] + 10 + (this.ctx.measureText(this.dataHolder[index].Name).width *
                 ( item.duedays < 2 ? 1 : item.duedays >= 28 ? 0 : 0.5));
 
             this.ctx.beginPath();
@@ -198,14 +201,5 @@ export class PublicDueDatesWidget {
             this.ctx.fillText('i', xValue, y + textAlignmentValue);
             this.infoPointPositions.push({ x: xValue, y: y + textAlignmentValue, item: item } );
         });
-    }
-
-    getDummyData() {
-        return [
-            { Label: 'A-Melding', InfoText: 'A-melding for september', Date: '20191005' },
-            { Label: 'Mva', InfoText: 'Mva-melding for alminnelig næring', Date: '20191010' },
-            { Label: 'Aksjonæravtale', InfoText: 'Merverdiavgift, kompensasjonsmelding – frist for levering', Date: '20191018' },
-            { Label: 'Skattemelding', InfoText: 'Skatteoppgjør - siste pulje er klar', Date: '20191027' }
-        ];
     }
 }

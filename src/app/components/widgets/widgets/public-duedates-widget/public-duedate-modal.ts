@@ -11,8 +11,8 @@ import * as moment from 'moment';
                 <div class="section-div">
                     <span class="date-section"> {{ duedateItem._date }} </span>
                     <div class="info-section">
-                        <label> {{ duedateItem.Label }} </label>
-                        <span> {{ duedateItem.InfoText }} </span>
+                        <label> {{ duedateItem.Name }} </label>
+                        <span> {{ duedateItem.AdditionalInfo }} </span>
                         <a href="https://www.skatteetaten.no/bedrift-og-organisasjon/starte-og-drive/frister-gebyrer-og-tilleggsskatt/frister-og-oppgaver/" target="_blank">Gå til skatteetaten for mer info</a>
                     </div>
                 </div>
