@@ -267,11 +267,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
-                const wagetype: WageType = dataItem.Wagetype 
-                    ? dataItem.Wagetype 
-                    : this.wagetypes
-                        ? this.wagetypes.find(x => x.ID === dataItem.WageTypeID)
-                        : undefined;
+                const wagetype: WageType = dataItem.Wagetype || (this.wagetypes && this.wagetypes.find(x => x.ID === dataItem.WageTypeID));
 
                 if (!wagetype) {
                     return;
