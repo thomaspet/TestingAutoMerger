@@ -20,17 +20,9 @@ export class ExpensePrepaid implements OnInit {
     }
 
     loadBankAccounts() {
-        this.session.statisticsQuery('model=bankaccount&select=ID as ID,AccountID as AccountID'
-            + ',BankAccountType as BankAccountType,Account.AccountNumber as AccountNumber'
-            + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name'
-            + ',casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,1,0) as IsDefault'
-            + '&filter=companysettingsid gt 0&expand=bank,account'
-            + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'
-            + '&top=50&distinct=false'
-            + '&orderby=casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,0,1)').subscribe( x => {
-                this.setBankAccounts(x.Data);
-                this.busy = false;
-            });
+        this.session.getSystemBankAccounts()
+            .finally(() => this.busy = false)
+            .subscribe( x => this.setBankAccounts(x));
     }
 
     setBankAccounts(list: Array<any>) {
@@ -52,7 +44,8 @@ export class ExpensePrepaid implements OnInit {
             ID: value.AccountID,
             AccountNumber: value.AccountNumber,
             AccountName: value.AccountName,
-            VatTypeID: 0
+            VatTypeID: 0,
+            superLabel: `${value.AccountNumber} - ${value.AccountName}`
         };
     }
 }

@@ -30,6 +30,7 @@ export interface IAccount {
     AccountNumber: number;
     AccountName: string;
     VatTypeID: number;
+    BusinessRelationID?: number;
     superLabel?: string;
 }
 
@@ -72,13 +73,19 @@ export enum PaymentMode {
     PrepaidByEmployee = 2
 }
 
-export class PaymentInfo {
-    private _paymentDate: Date;
+export interface IBankAccount {
+    ID: number;
+    AccountNumber: string;
+    IBAN?: string;
+}
 
+export class PaymentInfo {
     public Mode: PaymentMode = PaymentMode.None;
     public PaidWith: IAccount;
-    public get PaymentDate(): Date { return this._paymentDate; }
-    public set PaymentDate(value: Date) { this._paymentDate = value; }
+    public PaymentDate: Date;
     public PaymentTo: IAccount;
-    public PaymentAccount: string;
+    public PaymentAccount: IBankAccount;
+    public SystemBankAccount: IBankAccount;
+    public Amount: number;
+    public Description: string;
 }

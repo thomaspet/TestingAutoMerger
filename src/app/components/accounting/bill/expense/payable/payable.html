@@ -1,26 +1,29 @@
-<label class="uni-label">
-    <span>Mottaker (ansatt/leverandør)</span>
-    <select placeholder="Velg ansatt">
-        <option>Velg mottaker</option>
-        <option>Ole Olsen</option>
-        <option>Jan Pettersen</option>
-        <option>Steely Overlord</option>
-    </select>
-</label>
+<section class="form-grid">
+    <label class="uni-label full-width">
+        <span>Mottaker (ansatt/leverandør)</span>
+        <!-- <select placeholder="Velg ansatt">
+            <option>Velg mottaker</option>
+            <option>Ole Olsen</option>
+            <option>Jan Pettersen</option>
+            <option>Steely Overlord</option>
+        </select> -->
 
-<table>
-    <tr><td>
-        <label class="uni-label">
-            <span>Bankkonto</span>
-            <select placeholder="Velg bankkonto">
-                <option>1111.11.11113</option>
-                <option>Ny bankkonto</option>
-            </select>
-        </label>
-    </td><td>
-        <label class="uni-label">
-            <span>Dato</span>
-            <input type="date">
-        </label>
-    </td></tr>
-</table>
+        <autocomplete [options]="accountOptions" [value]="session.payment.PaymentTo" (valueChanges)="setAccount($event)"></autocomplete>
+
+    </label>
+    <label class="uni-label">
+        <span>Bankkonto</span>
+        <input readonly type="text" [ngModel]="session.payment.PaymentAccount?.AccountNumber" >
+    </label>
+
+    <label class="uni-label">
+        <span>Dato</span>
+        <section class="input-with-button">
+            <input #dateInput type="text" placeholder="I dag" [(ngModel)]="session.payment.PaymentDate" [matDatepicker]="picker" (keydown.enter)="dateInput.blur();dateInput.focus();" >
+            <button (click)="picker.open()">
+                <i class="material-icons">date_range</i>
+            </button>
+            <mat-datepicker #picker></mat-datepicker>
+        </section>
+    </label>
+</section>

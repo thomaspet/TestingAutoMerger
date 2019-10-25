@@ -26,14 +26,14 @@ export class NewOutgoingWizardModal implements IUniModal {
             label: 'Kvittering',
             infoText: 'Kjøp som er betalt av selskapet',
             value: '2',
-            route: '/accounting/journal?modeID=2&guid='
+            route: '/accounting/expense?mode=1&fileid='
         },
         {
             selected: false,
             label: 'Utlegg',
             infoText: 'Kjøp hvor ansatt eller eksterne har lagt ut privat',
             value: '3',
-            route: '/accounting/journal?modeID=2&guid='
+            route: '/accounting/expense?mode=2&fileid='
         }
     ];
 

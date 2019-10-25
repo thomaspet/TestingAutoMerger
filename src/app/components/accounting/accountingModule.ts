@@ -61,7 +61,8 @@ import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-
 import {ReInvoiceInfoModal} from './bill/reinvoice-info-modal/reinvoice-info-modal';
 import {BillAssignmentModal} from './bill/assignment-modal/assignment-modal';
 import {BillInitModal} from './bill/bill-init-modal/bill-init-modal';
-import {Expense, ExpensePrepaid, ExpenseEntries, ExpensePayable} from './bill/expense/expense';
+import {Expense, ExpensePrepaid, ExpenseEntries, ExpensePayable, ExpenseSummaryModal} from './bill/expense/expense';
+import {RecieverModal} from './bill/expense/reciever-modal/reciever-modal';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -158,6 +159,8 @@ import { UniDateAdapter } from '@app/date-adapter';
         ExpensePrepaid,
         ExpenseEntries,
         ExpensePayable,
+        ExpenseSummaryModal,
+        RecieverModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
@@ -227,7 +230,9 @@ import { UniDateAdapter } from '@app/date-adapter';
         BillInitModal,
         ReInvoiceInfoModal,
         UniJournalEntryLineModal,
-        NewOutgoingWizardModal
+        NewOutgoingWizardModal,
+        ExpenseSummaryModal,
+        RecieverModal
     ],
     exports: [
         AccountSettings,

@@ -1,0 +1,32 @@
+<section role="dialog" class="uni-modal new-reciever-modal" style="width: 35vw">
+    <header>Opprett ny mottaker</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <uni-form
+            [model]="supplier$"
+            [fields]="fields$"
+            [config]="config$"
+            (changeEvent)="isDirty = true">
+        </uni-form>
+        <section *ngIf="!types.length && dataLoaded" style="display: flex; padding: 1rem; align-items: center; border: 1px solid #CCC;">
+            <i class="material-icons" style="margin-right: 1rem; color: var(--toast-bad)">info</i>
+            <span style="font-size: 14px">
+                Du har ikke noe oppsett for mottaker i nummerserier. Hvis du trykker på "Opprett mottaker",
+                vil systemet opprette en nummerserie i ledig serie, koble til konto "2910 - Gjeld til ansatte" og
+                slå på PostPost på denne kontoen.
+            </span>
+        </section>
+        <small class="bad">
+            {{ errorMsg }}
+        </small>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="close()">Avbryt</button>
+        <button class="c2a" (click)="save()">Opprett mottaker</button>
+    </footer>
+</section>

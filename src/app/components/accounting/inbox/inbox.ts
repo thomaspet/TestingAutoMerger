@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Router, Route} from '@angular/router';
+import {Router} from '@angular/router';
 import {SupplierInvoiceService, FileService} from '@app/services/services';
 import {NewOutgoingWizardModal} from './new-outgoing-wizard-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -8,9 +8,7 @@ import {
     UniModalService,
     EntityForFileUpload,
     UniFileUploadModal,
-    UniConfirmModalV2,
     ConfirmActions,
-    IModalOptions
 } from '@uni-framework/uni-modal';
 import { File } from '@uni-entities';
 
@@ -29,12 +27,15 @@ export class UniInbox {
     currentFileID: number = 0;
     showPreview: boolean = false;
     dataLoaded: boolean = false;
-    saveActions = [{
-        label: 'Last opp',
-        action: done => this.uploadFile(done),
-        main: true,
-        disabled: false
-    }];
+    toolbarConfig = {
+        title: 'NAVBAR.INBOX',
+        buttons: [{
+            label: 'Last opp',
+            class: 'inbox-upload-button',
+            icon: 'cloud_upload',
+            action: () => this.uploadFile()
+        }]
+    };
 
     constructor (
         private supplierInvoiceService: SupplierInvoiceService,
@@ -55,6 +56,11 @@ export class UniInbox {
                 item._date = moment(item.CreatedAt).format('DD.MMM YYYY');
                 return item;
             });
+
+            // Open first document by default
+            if (this.inboxList.length) {
+                this.onDocumentClick(this.inboxList[0]);
+            }
             this.dataLoaded = true;
         });
     }
@@ -69,15 +75,7 @@ export class UniInbox {
         event.stopPropagation();
         this.modalService.open(NewOutgoingWizardModal).onClose.subscribe((res) => {
             if (res) {
-                switch (parseInt(res.value, 10)) {
-                    case 1:
-                        this.router.navigateByUrl(res.route + item.ID);
-                        break;
-                    case 2:
-                    case 3:
-                        alert(res.label + ' valgt');
-                        // this.router.navigateByUrl('/');
-                }
+                this.router.navigateByUrl(res.route + item.ID);
             }
         });
     }
@@ -124,7 +122,7 @@ export class UniInbox {
         this.fileIds = [];
     }
 
-    uploadFile(done) {
+    uploadFile() {
         this.modalService.open(
             UniFileUploadModal,
             {closeOnClickOutside: false, buttonLabels: { accept: 'Legg i innboks' }, data: { entity: EntityForFileUpload.EXPENSE }} )
@@ -132,9 +130,6 @@ export class UniInbox {
             console.log(response);
             if (!!response) {
                 this.getDataAndLoadList();
-            }
-            if (done) {
-                done();
             }
         });
     }

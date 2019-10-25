@@ -6,7 +6,7 @@ import { BankUtil } from './bankStatmentModels';
 import { safeDec, toIso } from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { FinancialYearService } from '../accounting/financialYearService';
-import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode } from './bankjournalmodels';
+import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode, IBankAccount } from './bankjournalmodels';
 export * from './bankjournalmodels';
 
 @Injectable()
@@ -21,6 +21,7 @@ export class BankJournalSession {
     public series: Array<INumberSerie> = [];
     public selectedSerie: INumberSerie;
     public payment: PaymentInfo = new PaymentInfo();
+    public bankAccounts: Array<{}>;
 
     constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
         this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
@@ -28,11 +29,10 @@ export class BankJournalSession {
 
     clear() {
         this.items = [];
-        this.payment = new PaymentInfo();
         this.busy = false;
     }
 
-    save(asDraft = false) {
+    save(asDraft = false, fileIDs?: Array<number>, includePayment = true) {
         this.busy = true;
 
         let cargo: any;
@@ -41,22 +41,56 @@ export class BankJournalSession {
                 cargo = this.convertToJournal(asDraft);
                 break;
             default:
-                cargo = this.convertToExpense();
+                cargo = this.convertToExpense(fileIDs);
                 break;
+        }
+
+        if (includePayment) {
+            this.addPayment(cargo);
         }
 
         const route = asDraft ? 'journalentries?action=save-journal-entries-as-draft' : 'journalentries?action=book-journal-entries';
         return this.HttpPost(route, cargo).finally( () => this.busy = false );
     }
 
+    addPayment(cargo) {
+        if (!(this.payment.PaymentTo && this.payment.PaymentAccount && cargo && cargo.length > 0)) { return; }
+        const first = cargo[0];
+        first.Payments = first.Payments || [];
+        first.Payments.push({
+            Description: this.payment.Description,
+            Amount: this.payment.Amount || this.balance,
+            DueDate: BankUtil.IsoDate(this.payment.PaymentDate),
+            FromBankAccountID: this.payment.SystemBankAccount.ID,
+            ToBankAccountID: this.payment.PaymentAccount.ID,
+            PaymentDate: BankUtil.IsoDate(this.payment.PaymentDate),
+            BusinessRelationID: this.payment.PaymentTo.BusinessRelationID,
+            AutoJournal: true,
+            PaymentCodeID: 1
+        });
+    }
+
+    getSystemBankAccounts() {
+        return this.statisticsQuery('model=bankaccount&select=ID as ID,AccountID as AccountID'
+        + ',BankAccountType as BankAccountType,Account.AccountNumber as AccountNumber'
+        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name'
+        + ',casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,1,0) as IsDefault'
+        + '&filter=companysettingsid gt 0&expand=bank,account'
+        + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'
+        + '&top=50&distinct=false'
+        + '&orderby=casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,0,1)')
+            .map( x => x.Data );
+    }
+
     recalc() {
         this.balance = this.calcTotal();
     }
 
-    initialize(preloadAccountID?: number, defaultSerieName?: string) {
+    initialize(mode: PaymentMode, preloadAccountID?: number, defaultSerieName?: string) {
         this.clear();
         this.accounts = [];
         this.busy = true;
+        this.payment.Mode = mode;
 
         const apiRequests = [
             this.HttpGet(`vattypes`),
@@ -80,55 +114,68 @@ export class BankJournalSession {
         );
     }
 
-    private setupSeries(list, keyWord?: string) {
-        if (Array.isArray(list) && list.length > 0) {
-            this.series = list;
-            if (this.series.length > 1 && keyWord) {
-                this.selectedSerie = this.series.find( x => x.Name.toLowerCase().indexOf(keyWord) >= 0);
-            }
-            this.selectedSerie = this.selectedSerie || this.series[0];
-        }
-    }
-
-    public convertToExpense() {
-        console.log('converToExpense', this.payment);
+    public convertToExpense(fileIDs?: Array<number>) {
         this.balance = this.calcTotal();
         const jr = this.convertToJournal();
         const content = (jr && jr.length > 0) ? jr[0] : {
             DraftLines: [],
-            FileIDs: [],
+            fileIDs: [],
             Payments: [{}],
             Description: 'Return expense'
         };
-        if (this.payment.Mode === PaymentMode.PrepaidWithCompanyBankAccount) {
-            content.Description = 'Prepaid expense';
+        if (this.payment.Mode !== PaymentMode.None) {
             // Align dates in journal to match payment-date
             content.DraftLines.forEach(x => x.FinancialDate = toIso(this.payment.PaymentDate));
+
+            const acc = this.payment.Mode === PaymentMode.PrepaidByEmployee
+                ? this.payment.PaymentTo
+                : this.payment.PaidWith;
+
             // Add virtual item (the payment-entry)
-            if (this.payment && this.payment.PaidWith) {
-                this.cacheAccount(this.payment.PaidWith);
-                const dc = this.addRow(this.payment.PaidWith.ID, 0, this.payment.PaymentDate, 'Utlegg', true );
+            if (this.payment && acc) {
+                this.cacheAccount(acc);
+                const dc = this.addRow(acc.ID, 0, this.payment.PaymentDate, 'Utlegg', true );
                 const jln = this.convertToJournalEntry(dc);
-                jln.AccountID = this.payment.PaidWith.ID;
+                jln.AccountID = acc.ID;
                 jln.Amount = -this.balance;
                 content.DraftLines.push(jln);
             }
         }
+        if (fileIDs && fileIDs.length > 0) {
+            content.fileIDs = fileIDs;
+        }
         return [content];
     }
 
-    public validate(): { success: boolean; messages?: string[] } {
+    public validate(withPayment = false): { success: boolean; messages?: string[], errField?: string } {
+
+        if (this.payment.Mode === PaymentMode.PrepaidByEmployee && !this.payment.PaymentTo ) {
+            return { success: false, messages: ['Mottaker må fylles ut'], errField: 'payment.PaymentTo' };
+        }
+
+        if (this.payment.Mode === PaymentMode.PrepaidByEmployee) {
+            if (withPayment && !BankUtil.IsValidAccount(this.payment.PaymentAccount)) {
+                return { success: false, messages: ['Ugyldig bankkonto'], errField: 'payment.PaymentAccount' };
+            }
+            if (withPayment && (!(this.payment.SystemBankAccount && this.payment.SystemBankAccount.ID))) {
+                return { success: false, messages: ['Systemkonto for utbetaling mangler'], errField: 'payment.SystemBankAccount' };
+            }
+        }
+
+        if (this.payment.Mode === PaymentMode.PrepaidWithCompanyBankAccount && !this.payment.PaidWith ) {
+            return { success: false, messages: ['"Betalt fra" må fylles ut'], errField: 'payment.PaidWith' };
+        }
 
         if (this.items === undefined || this.items.length === 0) {
-            return { success: false, messages: ['Ingen posteringer'] };
+            return { success: false, messages: ['Ingen posteringer'], errField: 'item.Debet' };
         }
 
         if (this.balance === 0 && this.payment.Mode !== PaymentMode.None) {
-            return { success: false, messages: ['Betalingen må ha et beløp'] };
+            return { success: false, messages: ['Beløp mangler'], errField: 'item.Amount' };
         }
 
         if (this.balance !== 0 && this.payment.Mode === PaymentMode.None) {
-            return { success: false, messages: ['Det er differanse i bilaget'] };
+            return { success: false, messages: ['Det er differanse i bilaget'], errField: 'item.Amount' };
         }
 
         let validItems = 0;
@@ -139,10 +186,31 @@ export class BankJournalSession {
             }
         }
         if (validItems === 0) {
-            return { success: false, messages: ['Det mangler gyldige konteringer'] };
+            return { success: false, messages: ['Utgiftskonto mangler'], errField: 'item.Debet' };
         }
 
         return { success: true };
+    }
+
+    public getVatSummary(): { sum: number, details: Array<{ vatPercent: number, sum: number }> } {
+        let vatSum = 0;
+        const vatGroups = [];
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            if (item.Amount && (item.Debet || item.Credit) && item.VatType) {
+                const vt = item.VatType;
+                const itemVatSum = (item.Amount / (100 + vt.VatPercent)) * vt.VatPercent;
+                let vMatch = vatGroups.find( x => x.vatPercent === vt.VatPercent);
+                if (!vMatch) {
+                    vMatch = { vatPercent: vt.VatPercent, sum: itemVatSum };
+                    vatGroups.push(vMatch);
+                } else {
+                    vMatch.sum = BankUtil.safeAdd( vMatch.sum, itemVatSum );
+                }
+                vatSum = BankUtil.safeAdd( vatSum, itemVatSum );
+            }
+        }
+        return { sum: vatSum, details: vatGroups };
     }
 
     public convertToJournal(asDraft = false) {
@@ -177,54 +245,6 @@ export class BankJournalSession {
         if (entry.DraftLines.length > 0) {
             list.push(entry);
         }
-        return list;
-    }
-
-    private newJournal(draftLines = [], seriesTaskID?: number): IJournal {
-        const jj = <IJournal>{ DraftLines: draftLines, FileIDs: [] };
-        if (this.selectedSerie) {
-            jj.NumberSeriesID = this.selectedSerie.ID;
-        } else if (seriesTaskID) {
-            jj.NumberSeriesTaskID = seriesTaskID;
-        }
-        return jj;
-    }
-
-    public load(entry: IJournal): Observable<IJournal> {
-        this.clear();
-        const lines = entry.DraftLines.map( x => {});
-        return null;
-    }
-
-    private convertToJournalEntry(item: DebitCreditEntry) {
-        const safeDate = toIso(item.FinancialDate);
-        let dimensions: { DepartmentID?: number, ProjectID?: number };
-        if (item.Department && item.Department.ID) {
-            dimensions = dimensions || { DepartmentID: 0 };
-            dimensions.DepartmentID = item.Department.ID;
-        }
-        if (item.Project && item.Project.ID) {
-            dimensions = dimensions || { ProjectID: 0 };
-            dimensions.ProjectID = item.Project.ID;
-        }
-        return <any>{
-            AccountID: undefined,
-            Description: item.Description,
-            FinancialDate: safeDate,
-            Amount: item.Amount,
-            Dimensions: dimensions
-        };
-    }
-
-    private createAccountSuperLabel(list: IAccount[]): IAccount[] {
-        if (list === undefined) { return []; }
-        list.forEach( x => x.superLabel = `${x.AccountNumber} - ${x.AccountName}`);
-        return list;
-    }
-
-    private createVatSuperLabel(list: IVatType[]): IVatType[] {
-        if (list === undefined) { return []; }
-        list.forEach( x => x.superLabel = `${x.VatPercent}% - ${x.Name}`);
         return list;
     }
 
@@ -302,6 +322,58 @@ export class BankJournalSession {
         }
         this.balance = this.calcTotal();
         return match;
+    }
+
+    private setupSeries(list, keyWord?: string) {
+        if (Array.isArray(list) && list.length > 0) {
+            this.series = list;
+            if (this.series.length > 1 && keyWord) {
+                this.selectedSerie = this.series.find( x => x.Name.toLowerCase().indexOf(keyWord) >= 0);
+            }
+            this.selectedSerie = this.selectedSerie || this.series[0];
+        }
+    }
+
+    private newJournal(draftLines = [], seriesTaskID?: number): IJournal {
+        const jj = <IJournal>{ DraftLines: draftLines, FileIDs: [] };
+        if (this.selectedSerie) {
+            jj.NumberSeriesID = this.selectedSerie.ID;
+        } else if (seriesTaskID) {
+            jj.NumberSeriesTaskID = seriesTaskID;
+        }
+        return jj;
+    }
+
+    private convertToJournalEntry(item: DebitCreditEntry) {
+        const safeDate = toIso(item.FinancialDate);
+        let dimensions: { DepartmentID?: number, ProjectID?: number };
+        if (item.Department && item.Department.ID) {
+            dimensions = dimensions || { DepartmentID: 0 };
+            dimensions.DepartmentID = item.Department.ID;
+        }
+        if (item.Project && item.Project.ID) {
+            dimensions = dimensions || { ProjectID: 0 };
+            dimensions.ProjectID = item.Project.ID;
+        }
+        return <any>{
+            AccountID: undefined,
+            Description: item.Description,
+            FinancialDate: safeDate,
+            Amount: item.Amount,
+            Dimensions: dimensions
+        };
+    }
+
+    private createAccountSuperLabel(list: IAccount[]): IAccount[] {
+        if (list === undefined) { return []; }
+        list.forEach( x => x.superLabel = `${x.AccountNumber} - ${x.AccountName}`);
+        return list;
+    }
+
+    private createVatSuperLabel(list: IVatType[]): IVatType[] {
+        if (list === undefined) { return []; }
+        list.forEach( x => x.superLabel = `${x.VatPercent}% - ${x.Name}`);
+        return list;
     }
 
     private setAccount(item: DebitCreditEntry, acc: IAccount, isDebet = true) {
