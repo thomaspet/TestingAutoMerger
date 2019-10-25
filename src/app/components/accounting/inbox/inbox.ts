@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {SupplierInvoiceService, FileService} from '@app/services/services';
 import {NewOutgoingWizardModal} from './new-outgoing-wizard-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import * as moment from 'moment';
 import {
     UniModalService,
@@ -42,11 +43,19 @@ export class UniInbox {
         private modalService: UniModalService,
         private fileService: FileService,
         private toast: ToastService,
+        private tabService: TabService,
         private router: Router
     ) { }
 
     ngOnInit() {
         this.getDataAndLoadList();
+
+        this.tabService.addTab({
+            name: 'NAVBAR.INBOX',
+            url: '/accounting/inbox',
+            moduleID: UniModules.Inbox,
+            active: true
+        });
     }
 
     getDataAndLoadList() {

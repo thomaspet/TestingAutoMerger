@@ -151,11 +151,11 @@ export class UniSidebar {
         this.router.navigateByUrl(url);
     }
 
-    public navigateToSectionUrl(url: string, clickEvent: MouseEvent) {
+    public navigateToSectionUrl(section: INavbarLinkSection, clickEvent: MouseEvent) {
         // Icon clicks on collapsed sidebar should not navigate
-        if (url && (this.popover || this.state === 'expanded')) {
+        if ((section.url || section.onIconClickUrl) && (this.popover || this.state === 'expanded')) {
             clickEvent.stopPropagation();
-            this.router.navigateByUrl(url);
+            this.router.navigateByUrl(section.onIconClickUrl || section.url);
         }
     }
 

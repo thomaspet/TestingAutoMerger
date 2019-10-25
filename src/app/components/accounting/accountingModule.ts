@@ -92,6 +92,7 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
 import {UniInbox} from './inbox/inbox';
 import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
 import { UniDateAdapter } from '@app/date-adapter';
+import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirect-modal';
 
 @NgModule({
     imports: [
@@ -140,6 +141,7 @@ import { UniDateAdapter } from '@app/date-adapter';
         FileFromInboxModal,
         UniInbox,
         NewOutgoingWizardModal,
+        DoneRedirectModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -232,7 +234,8 @@ import { UniDateAdapter } from '@app/date-adapter';
         UniJournalEntryLineModal,
         NewOutgoingWizardModal,
         ExpenseSummaryModal,
-        RecieverModal
+        RecieverModal,
+        DoneRedirectModal
     ],
     exports: [
         AccountSettings,

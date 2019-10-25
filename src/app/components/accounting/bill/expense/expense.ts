@@ -13,6 +13,7 @@ export { ExpenseEntries } from './entries/entries';
 export { ExpensePayable } from './payable/payable';
 import { UniImage } from '@uni-framework/uniImage/uniImage';
 import { UniModalService } from '@uni-framework/uni-modal';
+import {DoneRedirectModal} from './done-redirect-modal/done-redirect-modal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 
 @Component({
@@ -27,15 +28,7 @@ export class Expense implements OnInit {
     busy = true;
     fileIds: number[] = [];
 
-    public saveActions: IUniSaveAction[] = [{
-        label: 'Bokfør',
-        action: (done) => setTimeout(() => this.save(true).then( () => done() )), main: true, disabled: false
-    }];
-    // , {
-    //     label: 'Nullstill',
-    //     action: (done) => setTimeout(() => { this.clear(); done(); }), main: true, disabled: false
-    // }];
-
+    public saveActions: IUniSaveAction[] = [];
     public toolbarConfig: IToolbarConfig;
 
     constructor(
@@ -58,12 +51,15 @@ export class Expense implements OnInit {
 
             session.initialize(mode)
                 .finally( () => this.busy = false)
-                .subscribe( () => this.setupToolbarConfig() );
+                .subscribe( () => {
+                    this.setupToolbarConfig();
+                    this.setUpSaveActions();
+                });
 
             this.tabService.addTab({
                 name: 'NAVBAR.EXPENSE',
                 url: this.pageStateService.getUrl(),
-                moduleID: UniModules.Bills,
+                moduleID: UniModules.Inbox,
                 active: true
             });
         });
@@ -82,16 +78,26 @@ export class Expense implements OnInit {
         }
     }
 
+    setUpSaveActions() {
+        if (this.session.payment.Mode === PaymentMode.PrepaidByEmployee) {
+           this.saveActions = [{
+                label: 'Bokfør og lag utbetaling',
+                action: () => setTimeout(() => this.save(true)), main: true, disabled: false
+            }];
+        } else {
+            this.saveActions = [{
+                label: 'Bokfør',
+                action: () => setTimeout(() => this.save(false)), main: true, disabled: false
+            }];
+        }
+    }
+
     private getTitle(): string {
         return this.session.payment.Mode === PaymentMode.PrepaidByEmployee ? 'Utlegg - tilbakebetaling' : 'Kvittering - forhåndsbetalt';
     }
 
     ngOnInit() {
         this.clear();
-    }
-
-    sessionReady() {
-        // Do something here?
     }
 
     public openAddFileModal() {
@@ -129,11 +135,13 @@ export class Expense implements OnInit {
             // Ask user to confirm before saving
             this.openSummary(createPayment).then( ok => {
                 if (ok) {
+                    this.busy = true;
                     this.session.save(false, this.fileIds, createPayment).subscribe( x => {
                         this.showSavedJournalToast(x, createPayment);
                         resolve(true);
                     }, err => {
                         this.errorService.handle(err);
+                        this.busy = false;
                         resolve(false);
                     });
                 } else {
@@ -158,28 +166,19 @@ export class Expense implements OnInit {
 
     showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {
         const jnr = (response && response.length > 0) ? response[0].JournalEntryNumber : undefined;
-        const jNum = jnr.split('-')[0];
-        const jYr = jnr.split('-')[1];
-
-        let msg = `Utlegg bokført som <a href="/#/accounting/transquery?JournalEntryNumber=${jNum}&`
-        + `AccountYear=${jYr}">bilagsnr. ${jnr}</a>`;
-        msg += withPayment ? ', og er sendt til betalingslisten.' : '';
-
-        // Only show action when payment..
-        const action = withPayment ? {
-            label: 'Gå til betalingslisten',
-            click: () => {
-                this.router.navigateByUrl(`/bank/ticker?code=payment_list`);
-            },
-            displayInHeader: true
-        } : null;
-
-        if (jnr) {
-            this.toast.addToast(`Utført`, ToastType.good, 10, msg, action);
-            this.clear();
-        } else {
-            this.toast.addToast(`Utført`, ToastType.warn, 5, `Noe gikk galt. Finner ikke bilagsnummeret.`);
-        }
+        this.tabService.currentActiveTab.url = '/accounting/inbox';
+        this.busy = false;
+        this.modalService.open(DoneRedirectModal, {
+            closeOnClickOutside: false,
+            closeOnEscape: false,
+            hideCloseButton: true,
+            data: {
+                number: jnr.split('-')[0],
+                year: jnr.split('-')[1],
+                journalEntryNumber: jnr,
+                withPayment: withPayment
+            }
+        });
     }
 
     openSummary(withPayment = false) {
@@ -199,27 +198,11 @@ export class Expense implements OnInit {
 
     clear() {
         this.session.clear();
-        this.checkPaymentMode(true);
+
+        if (this.prepaidView) {
+            this.prepaidView.clear();
+        }
         this.session.payment.PaymentDate = new Date();
         this.session.items.push(new DebitCreditEntry(new Date()));
     }
-
-    checkPaymentMode(reset = false) {
-        switch (this.session.payment.Mode) {
-            case PaymentMode.PrepaidWithCompanyBankAccount:
-                    this.saveActions[0].label = 'Bokfør';
-                if (reset && this.prepaidView) {
-                    this.prepaidView.clear();
-                }
-                break;
-            case PaymentMode.PrepaidByEmployee:
-                this.saveActions[0].label = 'Bokfør og lag utbetaling';
-                break;
-        }
-    }
-
-    onFileSplitCompleted() {
-        // todo: add some handler here
-    }
-
 }

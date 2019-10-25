@@ -30,7 +30,7 @@ export class NewOutgoingWizardModal implements IUniModal {
         },
         {
             selected: false,
-            label: 'Utlegg',
+            label: 'Tilbakebetaling',
             infoText: 'Kjøp hvor ansatt eller eksterne har lagt ut privat',
             value: '3',
             route: '/accounting/expense?mode=2&fileid='
@@ -49,7 +49,6 @@ export class NewOutgoingWizardModal implements IUniModal {
     }
 
     close() {
-        console.log(this.VALUE_ITEMS.find(i => i.selected));
         this.onClose.emit(this.VALUE_ITEMS.find(i => i.selected));
     }
 

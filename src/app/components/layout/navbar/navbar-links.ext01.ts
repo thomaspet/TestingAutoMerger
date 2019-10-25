@@ -146,8 +146,9 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     },
 
     {
-        name: 'NAVBAR.BUY',
+        name: 'NAVBAR.EXPENSE',
         url: '/accounting',
+        onIconClickUrl: '/accounting/inbox',
         icon: 'receipt',
         megaMenuGroupIndex: 1,
         linkGroups: [

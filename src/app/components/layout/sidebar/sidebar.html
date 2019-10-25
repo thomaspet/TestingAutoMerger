@@ -20,7 +20,7 @@
                         matTooltipPosition="right"
                         matTooltipClass="sidebar-tooltip"
                         [ngClass]="{'sidebar-link-icon': section.url}"
-                        (click)="navigateToSectionUrl(section.url, $event)">
+                        (click)="navigateToSectionUrl(section, $event)">
                         {{section.icon}}
                     </i>
                     <span>{{ section.name | translate }}</span>

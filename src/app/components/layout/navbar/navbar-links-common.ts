@@ -23,6 +23,7 @@ export interface INavbarLinkSection {
     hidden?: boolean;
     megaMenuGroupIndex: number;
     isOnlyLinkSection?: boolean;
+    onIconClickUrl?: string;
     linkGroups: {
         name: string;
         links: INavbarLink[];
