@@ -1,5 +1,5 @@
 <header class="dashboard-header uni-redesign" [ngClass]="{ 'no-link-dashboard': isSrEnvironment }">
-    <span class="title">{{companyName}}</span>
+    <span class="title">{{ isSrEnvironment ? activeLinkLabel : companyName}}</span>
 
     <ng-container *ngIf="!isSrEnvironment">
         <ul class="links" *ngIf="links">

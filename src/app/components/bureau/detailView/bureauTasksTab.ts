@@ -46,7 +46,7 @@ const BASE = environment.BASE_URL;
         <section class="text-container">
             <p>
                 Fakturainnboks
-                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=ForApproval')">{{viewData[0]}}</a>
+                <a (click)="navigateToCompanyUrl(inboxUrl)">{{viewData[0]}}</a>
             </p>
 
             <p>
@@ -59,9 +59,11 @@ const BASE = environment.BASE_URL;
 `
 })
 export class BureauTaskTab implements AfterViewInit, OnDestroy {
-    public company: KpiCompany;
-    public accountingYear: number;
-    public viewData: any[];
+    company: KpiCompany;
+    accountingYear: number;
+    viewData: any[];
+    inboxUrl: string = environment.isSrEnvironment ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
+
     private subscription: Subscription;
     @HostBinding('class.no_access') public noAccess: boolean = false;
 
