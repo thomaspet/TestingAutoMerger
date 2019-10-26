@@ -306,9 +306,11 @@ export class Expense implements OnInit {
             this.session.payment.PaymentDate = new Date(formattedResult.InvoiceDate);
             this.session.items[0].Amount = parseFloat(formattedResult.TaxInclusiveAmount);
             this.toast.clear();
-            this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
             if (formattedResult.Orgno) {
+                this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
                 this.runSmartBooking(formattedResult.Orgno);
+            } else {
+                this.toast.addToast('OCR-resultater lagt til. Fant ingen orgnr, så kan ikke kjøre smart bokføring', ToastType.good, 5);
             }
 
             }, (err) => {

@@ -23,7 +23,7 @@
         <!-- List -->
         <section class="uni-container bill-list">
             <uniform-autocomplete
-                *ngIf="activeFilterIndex > 1 && activeFilterIndex < 5"
+                *ngIf="currentFilter.name === 'Rejected' || currentFilter.name === 'ForApproval' || currentFilter.name === 'Approved'"
                 class="assignee-filter"
                 [field]="assigneeFilterField"
                 [model]="searchParams$"

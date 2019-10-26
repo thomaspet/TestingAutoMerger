@@ -105,6 +105,7 @@ export class UniWidgetCanvas {
     canvasHeight: number;
 
     isSrEnvironment = environment.isSrEnvironment;
+    activeLinkLabel: string = 'Hjem';
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -179,6 +180,19 @@ export class UniWidgetCanvas {
 
     ngOnChanges() {
         if (this.defaultLayout && this.layoutName) {
+            // When in SR, show name of current dashboard instead of companyname..
+            if (this.layoutName === 'dashboard') {
+                this.activeLinkLabel = 'Hjem';
+            } else {
+                const active = this.links.find(link => link.url === ('/' + this.layoutName));
+                if (active) {
+                    this.activeLinkLabel = active.label;
+                } else {
+                    // Should never happen, but just in case!
+                    this.activeLinkLabel = 'Startside';
+                }
+            }
+
             const layout = this.canvasHelper.getSavedLayout(this.layoutName);
             this.initializeLayout(layout);
         }

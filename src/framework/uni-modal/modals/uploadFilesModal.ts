@@ -74,13 +74,11 @@ export enum EntityForFileUpload {
             </article>
 
             <footer class="center">
-                <button class="good rounded" [disabled]="getNumberOfSelected() < 1" (click)="close()">
+                <button (click)="close(true)" class="secondary"> Avbryt </button>
+                <button class="c2a" [disabled]="getNumberOfSelected() < 1" (click)="close()">
                     {{ options?.buttonLabels?.accept || 'Last opp' }}
                 </button>
 
-                <button (click)="close(true)">
-                    Avbryt
-                </button>
             </footer>
         </section>
     `

@@ -28,15 +28,12 @@ export class UniInbox {
     currentFileID: number = 0;
     showPreview: boolean = false;
     dataLoaded: boolean = false;
-    toolbarConfig = {
-        title: 'NAVBAR.INBOX',
-        buttons: [{
-            label: 'Last opp',
-            class: 'inbox-upload-button',
-            icon: 'cloud_upload',
-            action: () => this.uploadFile()
-        }]
-    };
+    sortValue: string = '';
+    sortOrder: number = 1;
+    saveActions = [{
+        label: 'Last opp',
+        action: (done) => this.uploadFile(done), main: true, disabled: false
+    }];
 
     constructor (
         private supplierInvoiceService: SupplierInvoiceService,
@@ -72,6 +69,17 @@ export class UniInbox {
             }
             this.dataLoaded = true;
         });
+    }
+
+    sortInboxList(sortValue: string) {
+        const order = this.sortOrder * (this.sortValue === sortValue ? -1 : 1);
+
+        this.sortValue = sortValue;
+        this.sortOrder = order;
+
+        const temp = this.inboxList.sort((a, b) => b[sortValue] > a[sortValue] ? (-1 * order) : (1 * order) );
+
+        this.inboxList = [...temp];
     }
 
     onDocumentClick(item) {
@@ -131,12 +139,12 @@ export class UniInbox {
         this.fileIds = [];
     }
 
-    uploadFile() {
+    uploadFile(done = () => {}) {
         this.modalService.open(
             UniFileUploadModal,
             {closeOnClickOutside: false, buttonLabels: { accept: 'Legg i innboks' }, data: { entity: EntityForFileUpload.EXPENSE }} )
         .onClose.subscribe((response) => {
-            console.log(response);
+            done();
             if (!!response) {
                 this.getDataAndLoadList();
             }

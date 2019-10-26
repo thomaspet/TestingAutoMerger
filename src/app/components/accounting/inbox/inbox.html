@@ -1,12 +1,12 @@
-<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+<uni-toolbar [config]="{title: 'NAVBAR.INBOX'}" [saveactions]="saveActions"></uni-toolbar>
 
 <section class="inbox-container">
     <section class="inbox-list-view" *ngIf="inboxList?.length">
         <ul id="inbox-item-header-list">
             <li class="inbox-list-header-row">
-                <span class="filename-inbox-field"> Filnavn </span>
-                <span style="flex: 1"> Tekst </span>
-                <span class="date-inbox-field"> Dato </span>
+                <span class="filename-inbox-field" (click)="sortInboxList('Name')"> Filnavn </span>
+                <span style="flex: 1" (click)="sortInboxList('Description')"> Tekst </span>
+                <span class="date-inbox-field" (click)="sortInboxList('CreatedAt')"> Dato </span>
                 <span></span>
             </li>
         </ul>

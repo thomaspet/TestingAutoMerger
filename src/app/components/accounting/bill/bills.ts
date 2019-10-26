@@ -35,6 +35,7 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import { BillTransitionModal, BillMassTransition } from './bill-transition-modal/bill-transition-modal';
 import {ReInvoiceInfoModal} from './reinvoice-info-modal/reinvoice-info-modal';
+import {environment} from 'src/environments/environment';
 
 interface IFilter {
     name: string;
@@ -113,7 +114,8 @@ export class BillsView implements OnInit {
             hotCounter: true
         },
         {
-            label: 'Kladd', name: 'Draft',
+            label: 'Kladd',
+            name: 'Draft',
             filter: 'isnull(statuscode,'
                 + StatusCodeSupplierInvoice.Draft
                 + ') eq '
@@ -188,6 +190,8 @@ export class BillsView implements OnInit {
         omitFinalCrumb: true
     };
 
+    isSrEnvironment = environment.isSrEnvironment;
+
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -214,6 +218,10 @@ export class BillsView implements OnInit {
     }
 
     public ngOnInit() {
+        // Remove inbox from filters if SR-environment
+        if (this.isSrEnvironment) {
+            this.filters.shift();
+        }
         this.refreshList(this.currentFilter, true);
         this.updateSaveActions(0);
     }
