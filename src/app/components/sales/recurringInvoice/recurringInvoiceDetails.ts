@@ -1042,8 +1042,8 @@ export class UniRecurringInvoice implements OnInit {
 
     private deleteRecurringInvoice(done) {
         this.modalService.open(UniConfirmModalV2, {
-            header: 'Slette repeterende faktura?',
-            message: 'Er du sikker på at du vil slette denne repeterende faktura? Dette kan ikke angres.',
+            header: 'SALES.RECURRING_INVOICE.DELETE',
+            message: 'SALES.RECURRING_INVOICE.DELETE_CONFIRM',
             buttonLabels: {
                 accept: 'Slett',
                 cancel: 'Avbryt'
@@ -1051,7 +1051,7 @@ export class UniRecurringInvoice implements OnInit {
         }).onClose.subscribe((res) => {
             if (res === ConfirmActions.ACCEPT) {
                 this.recurringInvoiceService.Remove(this.invoice.ID).subscribe(() => {
-                    this.toastService.addToast('Slettet', ToastType.good, 6, `Repeterende fakturanr. ${this.invoice.ID} er fjernet.`);
+                    this.toastService.addToast('Slettet', ToastType.good, 6, `SALES.RECURRING_INVOICE.DELETED_NR~${this.invoice.ID}`);
                     this.router.navigateByUrl('/sales/recurringinvoice');
                 }, err => this.handleSaveError(err));
             } else {
@@ -1082,7 +1082,7 @@ export class UniRecurringInvoice implements OnInit {
             this.hasWarned = true;
         } else if (this.invoice.StatusCode === 46002 && !this.invoice.DistributionPlanID) {
             this.toastService.addToast('Utsendelsesplan mangler', ToastType.warn, 15,
-            'Det er ikke definert en utsendelsesplan på denne repeterende faktura. Gå til fanen "Utsendelse" for å velge en,' +
+            'Det er ikke definert en utsendelsesplan på denne faktura. Gå til fanen "Utsendelse" for å velge en,' +
             ' eller gå til Innstillinger -> Utsendelse for å lage en ny plan.');
             this.hasWarned = true;
         }

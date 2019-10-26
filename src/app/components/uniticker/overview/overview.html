@@ -6,7 +6,7 @@
                 <li *ngFor="let ticker of group.Tickers"
                     (click)="navigateToTicker(ticker)"
                     [attr.aria-selected]="ticker.Code === selectedTicker?.Code">
-                    {{ticker.Name}}
+                    {{ticker.Name | translate}}
                 </li>
             </ul>
         </li>
@@ -14,7 +14,7 @@
 
     <section class="overview-ticker-section">
         <section class="overview-ticker-header">
-            <span class="ticker-title">{{tickerTitle || 'Oversikt'}}</span>
+            <span class="ticker-title">{{tickerTitle || 'Oversikt' | translate}}</span>
 
             <section class="ticker-actions pull-right">
                 <!-- <span class="ticker-create-new" *ngIf="createNewAction" (click)="onCreateNewClick()">

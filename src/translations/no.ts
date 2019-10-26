@@ -37,7 +37,11 @@ export const NO = {
             'RECURRING_INVOICE_NEW': 'Ny repeterende faktura',
             'RECURRING_INVOICE_NUMBER': 'Repeterende fakturanr. {nr}',
             'LOG_HEADER': 'Fakturalogg for repeterende fakturanr. {nr}',
-            'GOTO': 'Gå til repeterende fakturanr. {nr}'
+            'GOTO': 'Gå til repeterende fakturanr. {nr}',
+            'MISSING_DIM_TOAST_TITLE': 'Repeterende faktura(er) mangler dimensjon(er)',
+            'DELETE': 'Slette repeterende faktura?',
+            'DELETE_CONFIRM': 'Er du sikker på at du vil slette denne repeterende faktura? Dette kan ikke angres.',
+            'DELETED_NR': 'Repeterende fakturanr. {id} er fjernet.'
         },
         COMMON: {
             'DELVIERY_DATE': 'Leveringsdato',

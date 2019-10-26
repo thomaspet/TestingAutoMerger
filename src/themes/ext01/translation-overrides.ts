@@ -9,7 +9,11 @@ export const TRANSLATION_OVERRIDES = {
             'RECURRING_INVOICE_NEW': 'Ny gjentakende faktura',
             'RECURRING_INVOICE_NUMBER': 'Gjentakende fakturanr. {nr}',
             'LOG_HEADER': 'Fakturalogg for gjentakende fakturanr. {nr}',
-            'GOTO': 'Gå til gjentakende fakturanr. {nr}'
+            'GOTO': 'Gå til gjentakende fakturanr. {nr}',
+            'MISSING_DIM_TOAST_TITLE': 'Gjentakende faktura(er) mangler dimensjon(er)',
+            'DELETE': 'Slette gjentakende faktura?',
+            'DELETE_CONFIRM': 'Er du sikker på at du vil slette denne gjentakende faktura? Dette kan ikke angres.',
+            'DELETED_NR': 'Gjentakende fakturanr. {id} er fjernet.'
         }
     },
 

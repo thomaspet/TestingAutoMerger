@@ -448,7 +448,7 @@ export class AccountDetails implements OnInit {
         this.accountMandatoryDimensionService.checkRecurringInvoices(accountID).subscribe((res) => {
             if (res) {
                 this.toastService.toast({
-                    title: 'Repeterende faktura(er) mangler dimensjon(er)',
+                    title: 'SALES.RECURRING_INVOICE.MISSING_DIM_TOAST_TITLE',
                     message: res,
                     type: ToastType.warn,
                     duration: 5

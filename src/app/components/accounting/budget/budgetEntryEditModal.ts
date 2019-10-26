@@ -12,7 +12,7 @@ import {
     selector: 'uni-budget-download-template-modal',
     template: `
     <section role="dialog" class="uni-modal" style="width: 80vw; font-size: .9rem">
-        <header>Budsjettspost</header>
+        <header>Budsjettpost</header>
 
         <article class="budget-entry-modal-container">
             <div *ngIf="currentDepartment">
