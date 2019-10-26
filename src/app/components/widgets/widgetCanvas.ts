@@ -24,6 +24,8 @@ import {environment} from 'src/environments/environment';
 import {Chart} from 'chart.js';
 import 'chartjs-plugin-datalabels';
 Chart.defaults.global.plugins.datalabels.display = false;
+Chart.defaults.global.defaultFontFamily = 'MuseoSans, Roboto';
+
 
 import {
     SHORTCUT_LISTS,

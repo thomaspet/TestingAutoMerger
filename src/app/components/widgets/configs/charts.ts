@@ -196,7 +196,7 @@ export const CHARTS = [
     },
     // SR TEMPORARY
     {
-        id: 'unpaid_customerinvoice_sr',
+        id: 'unpaid_supplierinvoice_sr',
         description: 'Leverandørgjeld',
         permissions: ['ui_accounting'],
         width: 3,
@@ -209,29 +209,12 @@ export const CHARTS = [
         }
     },
     {
-        id: 'chart_and_table_accounts',
-        description: 'Likviditet og prognose',
+        id: 'overdue_invoices',
+        description: 'Kundefordringer og kunder jeg bør purre på',
         permissions: ['ui_accounting'],
         width: 7,
         height: 3,
-        widgetType: 'chartAndTable',
-        config: {
-            model: 'Account'
-        }
-    },
-    {
-        id: 'chart_and_table_customers',
-        description: 'Kundefordringer & kunder jeg bør purre på',
-        permissions: ['ui_accounting'],
-        width: 7,
-        height: 3,
-        widgetType: 'chartAndTable',
-        config: {
-            model: 'CustomerInvoice',
-            labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager'],
-            colors: ['#008A00', '#FFF000', '#FF9100', '#DA3D00']
-
-        }
+        widgetType: 'overdue_invoices',
     },
     {
         id: 'reminder_list',
@@ -259,7 +242,7 @@ export const CHARTS = [
     {
         id: 'public_duedates',
         description: 'Offentlige frister neste 30 dager',
-        width: 4,
+        width: 5,
         height: 3,
         widgetType: 'public_duedates',
         config: { }

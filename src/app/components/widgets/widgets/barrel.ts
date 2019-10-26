@@ -22,7 +22,7 @@ import {UniTimetrackingCharts} from './timetracking-charts/timetracking-charts';
 import {AssignmentsWidget} from './assignments/assignments-widget';
 import {ExpensesWidget} from './expenses/expenses-widget';
 import {BalanceWidget} from './balance/balance-widget';
-import {ChartAndTableWidget} from './chartAndTableWidget/chartAndTable';
+import {OverdueInvoicesWidget} from './overdue-invoices/overdue-invoices';
 import {ReminderListWidget} from './reminder-list';
 import {PaymentWidget} from './payment/payment-chart';
 import {PublicDueDatesWidget} from './public-duedates-widget/public-duedates';
@@ -51,7 +51,7 @@ export const UNI_WIDGETS = [
     AssignmentsWidget,
     ExpensesWidget,
     BalanceWidget,
-    ChartAndTableWidget,
+    OverdueInvoicesWidget,
     ReminderListWidget,
     PaymentWidget,
     PublicDueDatesWidget
@@ -80,7 +80,7 @@ export * from './timetracking-charts/timetracking-charts';
 export * from './assignments/assignments-widget';
 export * from './expenses/expenses-widget';
 export * from './balance/balance-widget';
-export * from './chartAndTableWidget/chartAndTable';
+export * from './overdue-invoices/overdue-invoices';
 export * from './reminder-list';
 export * from './payment/payment-chart';
 export * from './public-duedates-widget/public-duedates';

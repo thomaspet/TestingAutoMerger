@@ -7,7 +7,7 @@ import {
     ElementRef,
     EventEmitter
 } from '@angular/core';
-import {StatisticsService, NumberFormat, CustomerInvoiceReminderService} from '@app/services/services';
+import {StatisticsService, NumberFormat} from '@app/services/services';
 import {IUniWidget} from '../../uniWidget';
 import {Router} from '@angular/router';
 import * as Chart from 'chart.js';
@@ -15,74 +15,37 @@ import * as moment from 'moment';
 import { Observable } from 'rxjs';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 
-interface IPeriode {
-    label: string;
-    numberOfElements: number;
-    timeSpan: 'month' | 'w' | 'd';
-    index: number;
-}
-
 @Component({
-    selector: 'chart-and-table-widget',
-    templateUrl: './chartAndTable.html',
-    styleUrls: ['./chartAndTable.sass'],
+    selector: 'overdue-invoices-widget',
+    templateUrl: './overdue-invoices.html',
+    styleUrls: ['./overdue-invoices.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
-export class ChartAndTableWidget implements AfterViewInit {
-    @ViewChild('chartCanvas') private canvas: ElementRef;
+export class OverdueInvoicesWidget implements AfterViewInit {
+    @ViewChild('chartCanvas') canvas: ElementRef;
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
 
-    isCustomer: boolean = true;
-    chartRef: any;
-    chartConfig: any;
+    chartRef;
+    chartConfig;
     totalAmount: number = 0;
     missingData: boolean;
     dataHolder: number[] = [];
-    tableData: any[] = [];
-    headers: string[] = ['Kunde', 'Fakturanr', 'Utestående', 'Forfalt dato'];
-    accountTableLeaders: string[] = ['Startsaldo', 'Penger inn', 'Penger ut', 'Sluttsaldo'];
+    tableData = [];
     show = [true, true, true, true];
-
-    accounts: IPeriode[] = [
-        {
-            label: 'Siste 12 mnd',
-            numberOfElements: 12,
-            timeSpan: 'month',
-            index: 0
-        },
-        {
-            label: 'Siste 10 uker',
-            numberOfElements: 10,
-            timeSpan: 'w',
-            index: 1
-        },
-        {
-            label: 'Siste 10 dager',
-            numberOfElements: 10,
-            timeSpan: 'd',
-            index: 2
-        }
-    ];
-
-    totalInvoiceInPeriod: string = '';
-    totalPaidInPeriod: string = '';
-
-    currentAccount = this.accounts[0];
+    colors = ['#008A00', '#E7A733', '#FF9100', '#DA3D00'];
+    chartLegends = ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager'];
 
     constructor(
         private statisticsService: StatisticsService,
         private numberFormatService: NumberFormat,
-        private reminderService: CustomerInvoiceReminderService,
         private router: Router,
         private cdr: ChangeDetectorRef
-    ) { }
+    ) {}
 
     ngAfterViewInit() {
         if (this.widget) {
-            this.isCustomer = this.widget.config.model === 'CustomerInvoice';
             this.getDataAndLoadChart();
         }
     }
@@ -95,39 +58,32 @@ export class ChartAndTableWidget implements AfterViewInit {
     }
 
     private getDataAndLoadChart() {
-        const queries: any[] = [];
-
-        if (this.isCustomer) {
-            queries.push(this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&select=${this.getCustomerSumQuery()}`));
-            queries.push(this.statisticsService.GetAllUnwrapped(this.getCustomersThatNeedAttention()));
-        } else {
-            // ACCOUNT QUERY - IDONNO
-            this.headers = [
-                moment().format('MMM'),
-                moment().add('M', 1).format('MMM'),
-                moment().add('M', 2).format('MMM'),
-                moment().add('M', 4).format('MMM')
-            ];
-        }
-
-        Observable.forkJoin(queries).subscribe((response) => {
-            this.formatChartData(response[0]);
-            if (this.isCustomer) {
+        Observable.forkJoin(
+            this.statisticsService.GetAllUnwrapped(`model=CustomerInvoice&select=${this.getCustomerSumQuery()}`),
+            this.statisticsService.GetAllUnwrapped(this.getCustomersThatNeedAttention())
+        ).subscribe(
+            response => {
+                this.formatChartData(response[0]);
                 this.tableData = response[1].map((customer) => {
-                    customer.value1 = customer.CustomerName;
-                    customer.value2 = customer.InvoiceNumber;
-                    customer.value3 = this.numberFormatService.asMoney(customer.RestAmount);
-                    customer.value4 = moment(customer.PaymentDueDate).format('DD.MM.YY');
-                    customer.color = this.getCustomerDueColor(customer.PaymentDueDate);
+                    const sinceDueDate = moment().diff(moment(customer.PaymentDueDate), 'days');
+                    if (sinceDueDate <= 30) {
+                        customer.color = this.colors[1];
+                    } else if (sinceDueDate >= 31 && sinceDueDate <= 60) {
+                        customer.color = this.colors[2];
+                    } else {
+                        customer.color = this.colors[3];
+                    }
+
                     return customer;
                 });
+            },
+            err => {
+                if (err && err.status === 403) {
+                    this.missingData = true;
+                    this.cdr.markForCheck();
+                }
             }
-        }, err => {
-            if (err && err.status === 403) {
-                this.missingData = true;
-                this.cdr.markForCheck();
-            }
-        });
+        );
     }
 
     addhiddenClass(id: string, index) {
@@ -144,14 +100,14 @@ export class ChartAndTableWidget implements AfterViewInit {
     }
 
     reDrawAfterLegendClick() {
-        this.chartRef.config.data.labels = this.widget.config.labels.map((l, i) =>  {
+        this.chartRef.config.data.labels = this.chartLegends.map((l, i) =>  {
             if (this.show[i]) {
                 return l;
             }
         });
         this.chartRef.config.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
 
-        this.chartRef.config.data.datasets[0].backgroundColor = this.widget.config.colors.map((l, i) => {
+        this.chartRef.config.data.datasets[0].backgroundColor = this.colors.map((l, i) => {
             if (this.show[i]) {
                 return l;
             }
@@ -163,18 +119,6 @@ export class ChartAndTableWidget implements AfterViewInit {
         });
 
         this.chartRef.update();
-    }
-
-    getCustomerDueColor(date) {
-        const sinceDueDate = moment().diff(moment(date), 'days');
-
-        if (sinceDueDate <= 30) {
-            return this.widget.config.colors[1];
-        } else if (sinceDueDate >= 31 && sinceDueDate <= 60) {
-            return this.widget.config.colors[2];
-        } else {
-            return this.widget.config.colors[3];
-        }
     }
 
     formatChartData(result) {
@@ -190,24 +134,24 @@ export class ChartAndTableWidget implements AfterViewInit {
         if (this.dataHolder.some(sum => !!sum)) {
             this.missingData = false;
             this.chartConfig = this.getEmptyResultChart();
-            this.chartConfig.data.labels = this.widget.config.labels.slice();
+            this.chartConfig.data.labels = this.chartLegends.slice();
             this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
 
             this.chartConfig.data.datasets[0].data = this.dataHolder;
-            this.chartConfig.data.datasets[0].backgroundColor = this.widget.config.colors;
+            this.chartConfig.data.datasets[0].backgroundColor = this.colors;
             this.drawChart();
         } else {
             this.missingData = true;
         }
     }
 
-    public sendReminder(invoice: any) {
-        this.reminderService.createInvoiceRemindersForInvoicelist([invoice.ID]).subscribe((run) => {
-            this.onClickNavigate('/sales/reminders/reminded?runNumber=', run && run[0] && run[0].ID);
-        }, err => {
-            console.error('Kunne ikke opprette purring');
-        });
-    }
+    // public sendReminder(invoice: any) {
+    //     this.reminderService.createInvoiceRemindersForInvoicelist([invoice.ID]).subscribe((run) => {
+    //         this.onClickNavigate('/sales/reminders/reminded?runNumber=', run && run[0] && run[0].ID);
+    //     }, err => {
+    //         console.error('Kunne ikke opprette purring');
+    //     });
+    // }
 
     public getCustomerSumQuery() {
         // Ikke forfalt
@@ -235,14 +179,12 @@ export class ChartAndTableWidget implements AfterViewInit {
         `&top=3&join=CustomerInvoice.ID eq CustomerInvoiceReminder.CustomerInvoiceID as Reminder&expand=Customer&orderby=PaymentDueDate`;
     }
 
-    toggleButtonClick() {
-        if (this.isCustomer) {
-            this.router.navigateByUrl('/sales/invoices?filter=overdue_invoices');
-        }
-    }
-
     onClickNavigate(route: string, ID: number) {
         this.router.navigateByUrl(route + ID);
+    }
+
+    goToOverdueList() {
+        this.router.navigateByUrl('/sales/invoices?filter=overdue_invoices')
     }
 
     private drawChart() {
@@ -252,18 +194,6 @@ export class ChartAndTableWidget implements AfterViewInit {
         this.chartRef = new Chart(<any> this.canvas.nativeElement, this.chartConfig);
         this.cdr.markForCheck();
         this.dataLoaded.emit(true);
-    }
-
-    getHeaders() {
-        if (this.isCustomer) {
-            return ['Kunde', 'Kundenr', 'Utestående', 'Forfalt dato'];
-        }
-    }
-
-    getKeys() {
-        if (this.isCustomer) {
-            return ['CustomerName', 'CustomerNumber', 'RestAmount', 'PaymentDueDate'];
-        }
     }
 
     private getEmptyResultChart() {
@@ -289,14 +219,7 @@ export class ChartAndTableWidget implements AfterViewInit {
                     steps: 50,
                     easing: 'easeOutBounce'
                 },
-                legend: {
-                    display: false,
-                    position: 'left',
-                    reverse: true,
-                    labels: {
-                        usePointStyle: true
-                    }
-                },
+                legend: { display: false },
                 tooltips: {
                     callbacks: {
                         label: (tooltipItem, array) => {
@@ -323,11 +246,13 @@ export class ChartAndTableWidget implements AfterViewInit {
         return [
             {
                 text: 'Sum',
-                font: { size: '16', weight: 'bold' }
+                color: '#262626',
+                font: { size: '14' }
             },
             {
                 text: this.numberFormatService.asMoney(this.totalAmount),
-                font: { size: '16', weight: 'bold' }
+                color: '#262626',
+                font: { size: '16', weight: '500' }
             }
         ];
     }

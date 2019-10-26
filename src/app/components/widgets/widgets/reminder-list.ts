@@ -21,7 +21,7 @@ import {Observable} from 'rxjs';
             <div class="content reminder-list-widget">
                 <ul id="reminder-list" [ngClass]="!items.length && dataLoaded ? 'empty-list' : ''">
                     <li *ngFor="let item of items" (click)="goToTaskView(item)" title="Gå til liste">
-                        <i class="material-icons"> {{ item._icon }} </i>
+                        <i class="material-icons-outlined"> {{ item._icon }} </i>
                         <div>
                             <span>{{ item._label }} </span>
                             <span> {{ item._typeText }}  </span>

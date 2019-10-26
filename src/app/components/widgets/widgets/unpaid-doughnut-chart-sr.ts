@@ -34,12 +34,12 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
                     <section class="legend-top">
 
                         <section class="result-legend" id="notdue" (click)="addhiddenClass('notdue', 0)">
-                            <span class="indicator notdue"></span>
+                            <span class="indicator" [style.background]="colors[0]"></span>
                             Ikke forfalt
                         </section>
 
                         <section class="result-legend" id="due1" (click)="addhiddenClass('due1', 2)">
-                            <span class="indicator due2"></span>
+                            <span class="indicator" [style.background]="colors[1]"></span>
                             31 - 60 dager
                         </section>
 
@@ -48,12 +48,12 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
                     <section class="legend-top">
 
                         <section class="result-legend" id="due2" (click)="addhiddenClass('due2', 1)">
-                            <span class="indicator due1"></span>
+                            <span class="indicator" [style.background]="colors[2]"></span>
                             1 - 30 dager
                         </section>
 
                         <section class="result-legend" id="due3" (click)="addhiddenClass('due3', 3)">
-                            <span class="indicator due3"></span>
+                            <span class="indicator" [style.background]="colors[3]"></span>
                             Over 60 dager
                         </section>
 
@@ -71,7 +71,8 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
-    colors: string[] = ['#008A00', '#FFF000', '#FF9100', '#DA3D00'];
+    // colors: string[] = ['#008A00', '#FFF000', '#FF9100', '#DA3D00'];
+    colors = ['#008A00', '#FF9100', '#FFF001', '#DA3D00'];
     show = [true, true, true, true];
 
     chartRef: Chart; //  = new Chart(null, null);
@@ -245,11 +246,13 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
         return [
             {
                 text: 'Sum',
-                font: { size: '18' }
+                color: '#262626',
+                font: { size: '16' }
             },
             {
                 text: this.numberFormatService.asMoney(this.totalAmount),
-                font: { size: '18', weight: 'bold' }
+                color: '#262626',
+                font: { size: '17', weight: '500' }
             }
         ];
     }

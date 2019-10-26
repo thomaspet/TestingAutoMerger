@@ -36,7 +36,7 @@ import {
     ExpensesWidget,
     BalanceWidget,
     SRUnpaidDoughnutChart,
-    ChartAndTableWidget,
+    OverdueInvoicesWidget,
     ReminderListWidget,
     PaymentWidget,
     PublicDueDatesWidget
@@ -87,7 +87,7 @@ export const WIDGET_MAP = {
     assignments: AssignmentsWidget,
     expenses: ExpensesWidget,
     balance: BalanceWidget,
-    chartAndTable: ChartAndTableWidget,
+    overdue_invoices: OverdueInvoicesWidget,
     reminderList: ReminderListWidget,
     payment_chart: PaymentWidget,
     public_duedates: PublicDueDatesWidget
