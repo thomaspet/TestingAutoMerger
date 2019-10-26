@@ -30,13 +30,13 @@ export class ExpenseEntries {
         if (isNumeric > 0) {
             filter = `startswith(accountnumber,'${lcaseText}')`;
         } else {
-            filter = `contains(accountname,'${lcaseText}')`;
+            filter = `contains(accountname,'${lcaseText}') or contains(keywords,'${lcaseText}')`;
         }
 
         filter = (lcaseText === '' ? '' : ('( ' + filter + ' ) and ')) + 'accountnumber ge 4000 and accountnumber le 9000';
 
         return this.session
-            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID'
+            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description'
                 , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
                 .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
     }
