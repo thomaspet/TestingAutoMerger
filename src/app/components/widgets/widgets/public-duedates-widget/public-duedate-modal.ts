@@ -39,7 +39,7 @@ export class PublicDuedatesModal implements IUniModal {
 
     public ngOnInit() {
         this.duedateItem = this.options && this.options.data;
-        this.duedateItem._date = moment(this.duedateItem.Date).format('DD MMM');
+        this.duedateItem._date = moment(this.duedateItem.Deadline).format('DD MMM');
     }
 
     close(emitValue?: boolean) {
