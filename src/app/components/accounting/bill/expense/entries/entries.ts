@@ -15,6 +15,7 @@ export class ExpenseEntries {
     accountOptions: AutocompleteOptions = {
         lookup: x => this.lookupAccountByQuery(x),
         displayFunction: item => `${item.AccountNumber} - ${item.AccountName}`,
+        placeholder: 'Søk etter kontonummer, kontonavn eller stikkord'
     };
 
     private lookupAccountByQuery(txt: string) {
