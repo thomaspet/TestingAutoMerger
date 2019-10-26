@@ -107,24 +107,6 @@ export class PublicDueDatesWidget {
         this.ctx.lineTo(this.canvas.nativeElement.width - 20, this.middleHeight);
         this.ctx.stroke();
         this.drawBaseText();
-
-        const animate = () => {
-            if (percent > 100) {
-                return;
-            }
-            requestAnimationFrame(animate);
-
-            const x = ((this.canvas.nativeElement.width - 20) / 100) * percent;
-
-            this.ctx.lineTo(x || 20, this.middleHeight);
-            this.ctx.stroke();
-
-            if (percent >= 100) {
-                this.drawBaseText();
-            }
-            percent += 4;
-        };
-        // animate();
     }
 
     drawBaseText() {

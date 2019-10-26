@@ -38,7 +38,7 @@
             </span>
 
             <ul *ngIf="statusHistory?.length">
-                <li *ngFor="let logEntry of activeStatus.logEntries">
+                <li *ngFor="let logEntry of statusHistory">
                     <span>
                         {{logEntry.FromStatusText || 'Ingen status' }}
                         <i class="material-icons">arrow_right</i>
@@ -46,7 +46,7 @@
                     </span>
 
                     <span>{{logEntry.CreatedByName}}</span>
-                    <span>{{formatTime(logEntry.CreatedAt)}}</span>
+                    <span>{{logEntry.CreatedAt | date: 'dd.MM.yyyy HH:MM'}}</span>
                 </li>
             </ul>
         </section>
