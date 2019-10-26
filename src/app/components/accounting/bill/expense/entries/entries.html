@@ -22,7 +22,7 @@
         <label class="uni-label">
             <span>MVA</span>
             <select [ngModel]="item.VatType?.ID" (change)="session.setValue('VatType', $event.target.value, undefined, item)" >
-                <option *ngFor="let vatType of session.vatTypes" [value]="vatType.ID">
+                <option *ngFor="let vatType of session.vatTypesCost" [value]="vatType.ID">
                     {{vatType.superLabel}}
                 </option>
             </select>

@@ -23,6 +23,10 @@ export class BankJournalSession {
     public payment: PaymentInfo = new PaymentInfo();
     public bankAccounts: Array<{}>;
 
+    public get vatTypesCost(): Array<IVatType> {
+        return this.vatTypes.filter( x => !x.OutputVat );
+    }
+
     constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
         this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
     }
@@ -155,11 +159,10 @@ export class BankJournalSession {
 
     public validate(withPayment = false): { success: boolean; messages?: string[], errField?: string } {
 
-        if (this.payment.Mode === PaymentMode.PrepaidByEmployee && !this.payment.PaymentTo ) {
-            return { success: false, messages: ['Mottaker må fylles ut'], errField: 'payment.PaymentTo' };
-        }
-
         if (this.payment.Mode === PaymentMode.PrepaidByEmployee) {
+            if ( !this.payment.PaymentTo ) {
+                return { success: false, messages: ['Mottaker må fylles ut'], errField: 'payment.PaymentTo' };
+            }
             if (withPayment && !BankUtil.IsValidAccount(this.payment.PaymentAccount)) {
                 return { success: false, messages: ['Ugyldig bankkonto'], errField: 'payment.PaymentAccount' };
             }
