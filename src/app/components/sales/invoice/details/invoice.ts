@@ -68,7 +68,7 @@ import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
 import { TradeHeaderCalculationSummary } from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import { IToolbarConfig, ICommentsConfig, IToolbarSubhead } from '../../../common/toolbar/toolbar';
+import { IToolbarConfig, ICommentsConfig, IToolbarSubhead, UniToolbar } from '../../../common/toolbar/toolbar';
 import { StatusTrack, IStatus, STATUSTRACK_STATES } from '../../../common/toolbar/statustrack';
 
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
@@ -103,8 +103,9 @@ export enum CollectorStatus {
     templateUrl: './invoice.html'
 })
 export class InvoiceDetails implements OnInit, AfterViewInit {
-    @ViewChild(TofHead) private tofHead: TofHead;
-    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
+    @ViewChild(UniToolbar) toolbar: UniToolbar;
+    @ViewChild(TofHead) tofHead: TofHead;
+    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
@@ -1404,7 +1405,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     action: (done) => {
                         this.modalService.open(SendInvoiceModal, {
                             data: this.invoice
+                        }).onClose.subscribe(() => {
+                            setTimeout(() => {
+                                if (this.toolbar) {
+                                    this.toolbar.refreshSharingStatuses();
+                                }
+                            }, 500);
                         });
+
                         done();
                     }
                 });
@@ -1777,6 +1785,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                         type: ToastType.good,
                                         duration: 5
                                     });
+
+                                    setTimeout(() => {
+                                        if (this.toolbar) {
+                                            this.toolbar.refreshSharingStatuses();
+                                        }
+                                    }, 500);
                                 } else {
                                     this.modalService.open(SendInvoiceModal, {
                                         data: this.invoice

@@ -38,7 +38,7 @@ export class SendInvoiceModal implements IUniModal {
         { label: 'Skriv ut', action: () => this.print() },
     ];
 
-    activeSendingOption = this.sendingOptions[0];
+    selectedOption = this.sendingOptions[0];
 
     constructor(
         private router: Router,
@@ -68,7 +68,7 @@ export class SendInvoiceModal implements IUniModal {
             });
         }
 
-        this.activeSendingOption = this.sendingOptions[0];
+        this.selectedOption = this.sendingOptions[0];
 
         const previousSharingsQuery = `model=Sharing`
             + `&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoice.ID}`
@@ -90,7 +90,7 @@ export class SendInvoiceModal implements IUniModal {
                         });
 
                         if (!this.invoice.DistributionPlanID) {
-                            this.activeSendingOption = this.sendingOptions[this.sendingOptions.length - 1];
+                            this.selectedOption = this.sendingOptions[this.sendingOptions.length - 1];
                         }
                     }
 
@@ -99,6 +99,13 @@ export class SendInvoiceModal implements IUniModal {
             },
             () => this.busy = false
         );
+    }
+
+    runSelectedOption() {
+        console.log(this.selectedOption);
+        if (this.selectedOption) {
+            this.selectedOption.action();
+        }
     }
 
     getSharingText(sharing) {
@@ -129,9 +136,9 @@ export class SendInvoiceModal implements IUniModal {
     getSharingStatus(sharing) {
         switch (sharing.SharingStatusCode) {
             case StatusCodeSharing.Pending:
-                return 'Planlagt / i kø';
             case StatusCodeSharing.InProgress:
-                return 'Behandles';
+                return 'Planlagt / i kø';
+            // return 'Behandles';
             case StatusCodeSharing.Completed:
                 return 'Fullført';
             case StatusCodeSharing.Cancelled:
@@ -224,7 +231,7 @@ export class SendInvoiceModal implements IUniModal {
                 distributionRequest.subscribe(
                     () => {
                         this.toastService.toast({
-                            title: 'Faktura er lagt i kø for utsendelse',
+                            title: 'Faktura er lagt i utsendingskø',
                             type: ToastType.good,
                             duration: 5
                         });
@@ -237,6 +244,25 @@ export class SendInvoiceModal implements IUniModal {
                     }
                 );
             });
+        } else {
+            this.busy = true;
+            this.reportService.distribute(
+                this.invoice.ID, 'Models.Sales.CustomerInvoice'
+            ).subscribe(
+                () => {
+                    this.toastService.toast({
+                        title: 'Faktura er lagt i utsendingskø',
+                        type: ToastType.good,
+                        duration: 5
+                    });
+
+                    this.onClose.emit();
+                },
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                }
+            );
         }
     }
 

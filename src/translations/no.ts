@@ -130,7 +130,7 @@ export const NO = {
         'OVERVIEW': 'Oversikt',
         'RESULT_BALANCE': 'Resultat og balanse',
         'DISTRIBUTION': 'Utsendelse',
-        'DISTRIBUTION_LIST': 'Utsendinger - liste',
+        'DISTRIBUTION_LIST': 'Utsendingsliste',
         'EXTRACT': 'Uttrekk (BETA)',
         'REPORTS': 'Rapporter',
         'SALES': 'Salg',

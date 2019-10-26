@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {StatisticsService} from '@app/services/services';
-import {StatusCodeSharing} from '@uni-entities';
+import {StatusCodeSharing, SharingType} from '@uni-entities';
 
 @Component({
     selector: 'toolbar-sharing-status',
@@ -14,11 +14,15 @@ export class ToolbarSharingStatus {
     sharingHistory: any[];
     sharingStatusText: string;
 
-    statusIndicator: {label: string; class: string};
+    statusIndicator: {label: string; class?: string, icon?: string};
 
     constructor(private statisticsService: StatisticsService) {}
 
     ngOnChanges() {
+        this.loadStatuses();
+    }
+
+    loadStatuses() {
         if (this.entityType && this.entityID) {
             const previousSharingsQuery = `model=Sharing`
                 + `&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entityID}`
@@ -37,37 +41,77 @@ export class ToolbarSharingStatus {
     }
 
     private getStatusIndicator(sharing) {
-        console.log(sharing);
         switch (sharing.SharingStatusCode) {
             case StatusCodeSharing.Pending:
-                return {
-                    label: 'Utsending planlagt / i kø',
-                    class: ''
-                };
+                // return {
+                //     label: 'Utsending planlagt / i kø',
+                //     icon: 'timelapse'
+                // };
             case StatusCodeSharing.InProgress:
                 return {
-                    label: 'Utsending behandles',
-                    class: ''
+                    label: 'I utsendingskø',
+                    icon: 'timelapse'
                 };
             case StatusCodeSharing.Completed:
                 return {
                     label: 'Utsending fullført',
-                    class: 'good'
+                    class: 'good',
+                    icon: 'check_circle'
                 };
             case StatusCodeSharing.Cancelled:
                 return {
                     label: 'Utsending avbrutt',
-                    class: 'warn'
+                    class: 'warn',
+                    icon: 'error_outline'
                 };
             case StatusCodeSharing.Failed:
                 return {
                     label: 'Utsending feilet',
-                    class: 'bad'
+                    class: 'bad',
+                    icon: 'error_outline'
                 };
         }
 
         return;
     }
 
+    getSharingText(sharing) {
+        switch (sharing.SharingType) {
+            case SharingType.Unknown:
+                return 'Sending via utsendingsplan';
+            case SharingType.Print:
+                return 'Skrevet ut';
+            case SharingType.Email:
+                return `Sendt på epost`;
+            case SharingType.AP:
+                return 'Sending via aksesspunkt/EHF';
+            case SharingType.Vipps:
+                return 'Sending via Vipps';
+            case SharingType.Export:
+                return 'Eksportert';
+            case SharingType.InvoicePrint:
+                return 'Fakturaprint';
+            case SharingType.Efaktura:
+                return 'Sending via eFaktura';
+            case SharingType.Avtalegiro:
+                return 'Sending via avtalegiro';
+            case SharingType.Factoring:
+                return 'Factoring';
+        }
+    }
 
+    getSharingStatus(sharing) {
+        switch (sharing.SharingStatusCode) {
+            case StatusCodeSharing.Pending:
+            case StatusCodeSharing.InProgress:
+                return 'Planlagt / i kø';
+            // return 'Behandles';
+            case StatusCodeSharing.Completed:
+                return 'Fullført';
+            case StatusCodeSharing.Cancelled:
+                return 'Avbrutt';
+            case StatusCodeSharing.Failed:
+                return 'Feilet';
+        }
+    }
 }

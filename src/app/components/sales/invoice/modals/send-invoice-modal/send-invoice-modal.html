@@ -19,7 +19,7 @@
             <span>Velg utsendingsmetode</span>
 
             <div #toggle class="sending-dropdown">
-                <span>{{activeSendingOption?.label}}</span>
+                <span>{{selectedOption?.label}}</span>
                 <i class="material-icons">expand_more</i>
             </div>
 
@@ -27,7 +27,7 @@
                 <ng-template>
                     <section class="dropdown-menu-item"
                         *ngFor="let option of sendingOptions"
-                        (click)="activeSendingOption = option">
+                        (click)="selectedOption = option">
                         {{option.label}}
                     </section>
                 </ng-template>
@@ -40,6 +40,6 @@
 
     <footer>
         <button class="secondary" (click)="onClose.emit()">Avbryt</button>
-        <button class="c2a" (click)="activeSendingOption?.action()">Send</button>
+        <button class="c2a" (click)="runSelectedOption()">Send</button>
     </footer>
 </section>

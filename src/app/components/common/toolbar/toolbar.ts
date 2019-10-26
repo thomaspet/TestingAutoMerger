@@ -9,6 +9,7 @@ import {Observable} from 'rxjs';
 import {cloneDeep} from 'lodash';
 import {finalize, take} from 'rxjs/operators';
 import {ErrorService} from '@app/services/services';
+import {ToolbarSharingStatus} from './sharing-status/sharing-status';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
 
@@ -88,6 +89,7 @@ export interface IContextMenuItem {
     templateUrl: './toolbar.html'
 })
 export class UniToolbar {
+    @ViewChild(ToolbarSharingStatus) sharingStatus: ToolbarSharingStatus;
     @ViewChild(UniSave) save: UniSave;
 
     @Input() tags: ITag[];
@@ -121,6 +123,12 @@ export class UniToolbar {
     ngOnChanges(changes) {
         if (changes['selectConfig']) {
             this.selectConfig = cloneDeep(this.selectConfig);
+        }
+    }
+
+    refreshSharingStatuses() {
+        if (this.sharingStatus) {
+            this.sharingStatus.loadStatuses();
         }
     }
 
