@@ -4,14 +4,14 @@
     <article>
 
         <i class="material-icons">done_all</i>
-        <span>Utlegg bokført som <a (click)="navigate(url)"> bilagsnr. {{ this.journalEntryNumber }} </a>
+        <span>Utlegg bokført som <a (click)="close(url)"> bilagsnr. {{ this.journalEntryNumber }} </a>
             {{ withPayment ? ', og er sendt til betalingslisten.' : '' }} </span> <br/>
         <section [innerHtml]="msg"></section>
     </article>
 
     <footer>
-        <button class="secondary pull-left" (click)="navigate('/')">Gå til startside</button>
-        <button class="secondary" (click)="navigate('/bank/ticker?code=payment_list')" *ngIf="withPayment">Gå til betalingslisten</button>
-        <button class="c2a" (click)="navigate('/accounting/inbox')">Tilbake til innboks</button>
+        <button class="secondary pull-left" (click)="close('/')">Gå til startside</button>
+        <button class="secondary" (click)="close('/bank/ticker?code=payment_list')" *ngIf="withPayment">Gå til betalingslisten</button>
+        <button class="c2a" (click)="close('/accounting/inbox')">Tilbake til innboks</button>
     </footer>
 </section>

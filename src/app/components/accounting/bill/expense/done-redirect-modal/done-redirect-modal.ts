@@ -1,6 +1,4 @@
 import {Component, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
-import {StatisticsService} from '@app/services/services';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 
 @Component({
@@ -10,14 +8,14 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 })
 export class DoneRedirectModal implements IUniModal {
     options: IModalOptions = {};
-    onClose: EventEmitter<any> = new EventEmitter();
+    onClose: EventEmitter<string> = new EventEmitter();
 
     withPayment: boolean;
     journalEntryNumber: any;
     msg: string = '';
     url: string = '';
 
-    constructor( private router: Router ) { }
+    constructor() { }
 
     public ngOnInit() {
         if (this.options && this.options.data) {
@@ -34,13 +32,7 @@ export class DoneRedirectModal implements IUniModal {
         }
     }
 
-    close() {
-        this.onClose.emit(false);
-    }
-
-    navigate(url: string) {
-
-        this.router.navigateByUrl(url);
-        this.close();
+    close(url: string) {
+        this.onClose.emit(url);
     }
 }

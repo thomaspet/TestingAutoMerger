@@ -39,7 +39,8 @@
                 [rotateAllowed]="true"
                 [uploadWithoutEntity]="true"
                 [readonly]="false"
-                [fileIDs]="fileIds">
+                [fileIDs]="fileIds"
+                (fileListReady)="onFileListReady($event)">
             </uni-image>
 
         </section>
