@@ -11,10 +11,10 @@
     <section class="form-grid">
         <label class="uni-label full-width">
             <span>Kostnadskonto</span>
-            <autocomplete [options]="accountOptions" [value]="item.Debet" (valueChanges)="setAccount(item, $event)"></autocomplete>
+            <autocomplete class="validate-item-Debet" [options]="accountOptions" [value]="item.Debet" (valueChanges)="setAccount(item, $event)"></autocomplete>
         </label>
 
-        <label class="uni-label">
+        <label class="uni-label validate-item-Amount">
             <span>Beløp</span>
             <input type="number" [(ngModel)]="item.Amount" />
         </label>

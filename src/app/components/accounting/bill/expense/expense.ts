@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { BankJournalSession, DebitCreditEntry, ErrorService, PageStateService, PaymentMode } from '@app/services/services';
@@ -39,7 +39,8 @@ export class Expense implements OnInit {
         private toast: ToastService,
         private router: Router,
         private route: ActivatedRoute,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private self: ElementRef
     ) {
 
         this.route.queryParams.subscribe(params => {
@@ -126,6 +127,7 @@ export class Expense implements OnInit {
             const validation = this.session.validate(createPayment);
             if (validation.success === false) {
                 this.toast.addToast(validation.messages[0], ToastType.bad, 4);
+                this.focusErrorElement(validation.errField);
                 resolve(false);
                 return;
             }
@@ -150,6 +152,19 @@ export class Expense implements OnInit {
             });
 
         });
+    }
+
+    focusErrorElement(fieldName: string) {
+        if (!fieldName) { return; }
+        const name = `validate-${(fieldName.replace('.', '-'))}`;
+        const list = this.self.nativeElement.getElementsByClassName(name);
+        if (list && list.length > 0) {
+            const inputs = list[0].getElementsByTagName('input');
+            if (inputs && inputs.length) {
+                inputs[0].focus();
+                inputs[0].select();
+            }
+        }
     }
 
     setDefaultText() {

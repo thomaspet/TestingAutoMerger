@@ -1,15 +1,7 @@
 <section class="form-grid">
-    <label class="uni-label full-width">
+    <label class="uni-label full-width validate-payment-PaymentTo" >
         <span>Mottaker (ansatt/leverandør)</span>
-        <!-- <select placeholder="Velg ansatt">
-            <option>Velg mottaker</option>
-            <option>Ole Olsen</option>
-            <option>Jan Pettersen</option>
-            <option>Steely Overlord</option>
-        </select> -->
-
         <autocomplete [options]="accountOptions" [value]="session.payment.PaymentTo" (valueChanges)="setAccount($event)"></autocomplete>
-
     </label>
     <label class="uni-label">
         <span>Bankkonto</span>
