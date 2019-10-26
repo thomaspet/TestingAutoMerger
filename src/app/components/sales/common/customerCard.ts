@@ -58,7 +58,7 @@ import * as moment from 'moment';
                 </a>
             </div>
 
-            <section class="sharing-badges">
+            <!--<section class="sharing-badges">
                 <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I sendingskø</span>
                 <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">Fakturaprint</span>
                 <span [attr.title]="printTitle" [ngClass]="printClass">Utskrift</span>
@@ -66,7 +66,7 @@ import * as moment from 'moment';
                 <span [attr.title]="emailTitle" [ngClass]="emailClass">E-post</span>
                 <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                 <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">eFaktura</span>
-            </section>
+            </section>-->
 
         </section>
     `

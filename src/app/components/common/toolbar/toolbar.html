@@ -33,6 +33,12 @@
         (statusSelectEvent)="selectStatus($event)">
     </uni-statustrack>
 
+    <toolbar-sharing-status
+        *ngIf="config?.showSharingStatus && config?.entityType && config?.entityID"
+        [entityType]="config?.entityType"
+        [entityID]="config?.entityID">
+    </toolbar-sharing-status>
+
     <uni-toolbar-validation
         *ngIf="validationMessages?.length"
         [validationMessages]="validationMessages">

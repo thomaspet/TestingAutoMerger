@@ -32,10 +32,17 @@ export interface IToolbarCreateNewAction {
     action: () => void;
 }
 
+export interface StatusIndicator {
+    label: string;
+    class: string;
+    tooltip: string;
+}
+
 export interface IToolbarConfig {
     title?: string;
     subheads?: IToolbarSubhead[];
     statustrack?: IStatus[];
+    sharingStatusConfig?: {entityType: string, entityID: number};
     navigation?: {
         find?: (query: string) => void;
         prev?: () => void;
@@ -48,6 +55,7 @@ export interface IToolbarConfig {
     omitFinalCrumb?: boolean;
     entityID?: any;
     entityType?: string;
+    showSharingStatus?: boolean;
     numberSeriesTasks?: any;
     buttons?: ToolbarButton[];
     hideDisabledActions?: boolean;

@@ -1191,6 +1191,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             statustrack: this.getStatustrackConfig(),
             entityID: this.invoiceID,
             entityType: 'CustomerInvoice',
+            showSharingStatus: true,
             hideDisabledActions: true,
             contextmenu: [
                 {
