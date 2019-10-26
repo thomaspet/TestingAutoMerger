@@ -8,7 +8,7 @@
 
 <label class="uni-label">
     <span>Dato</span>
-    <section class="input-with-button">
+    <section class="input-with-button validate-payment-PaymentDate">
         <input #dateInput type="text" placeholder="I dag" [(ngModel)]="session.payment.PaymentDate" [matDatepicker]="picker" (keydown.enter)="dateInput.blur();dateInput.focus();">
         <button (click)="picker.open()">
             <i class="material-icons">date_range</i>

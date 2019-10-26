@@ -98,12 +98,6 @@ export class Expense implements OnInit {
             omitFinalCrumb: true,
             title: this.getTitle()
         };
-        if (this.session.payment.Mode === PaymentMode.PrepaidByEmployee) {
-            this.toolbarConfig.buttons = [{
-                label: 'Bokfør',
-                action: () => this.save(false),
-            }];
-        }
     }
 
     setUpSaveActions() {
@@ -118,6 +112,10 @@ export class Expense implements OnInit {
                 action: (done) => setTimeout(() => this.save(false).then( () => done() )), main: true, disabled: false
             }];
         }
+        this.saveActions.push( {
+            label: 'Analyser dokumentet (ocr)',
+            action: (done) => setTimeout(() => this.runOcr().then( () => done() )), main: true, disabled: false
+        });
     }
 
     private getTitle(): string {
@@ -185,19 +183,6 @@ export class Expense implements OnInit {
             });
 
         });
-    }
-
-    focusErrorElement(fieldName: string) {
-        if (!fieldName) { return; }
-        const name = `validate-${(fieldName.replace('.', '-'))}`;
-        const list = this.self.nativeElement.getElementsByClassName(name);
-        if (list && list.length > 0) {
-            const inputs = list[0].getElementsByTagName('input');
-            if (inputs && inputs.length) {
-                inputs[0].focus();
-                inputs[0].select();
-            }
-        }
     }
 
     setDefaultText() {
@@ -298,22 +283,62 @@ export class Expense implements OnInit {
         }
     }
 
-    private runOcr(file: any) {
-        this.toast.addToast('OCR-scann startet', ToastType.good, 5);
-        this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`).subscribe((result: IOcrServiceResult) => {
-            // Need to map OCR-response to current
-            const formattedResult = new OcrValuables(result);
-            this.session.payment.PaymentDate = new Date(formattedResult.InvoiceDate);
-            this.session.items[0].Amount = parseFloat(formattedResult.TaxInclusiveAmount);
-            this.toast.clear();
-            this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
-            if (formattedResult.Orgno) {
-                this.runSmartBooking(formattedResult.Orgno);
-            }
-
+    private runOcr(file?: any) {
+        file = file || this.fileIds && this.fileIds.length > 0 ? { ID: this.fileIds[0] } : undefined;
+        return new Promise( (resolve, reject) => {
+            if (!file) { resolve(false); return; }
+            this.toast.addToast('OCR-scann startet', ToastType.good, 5);
+            this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
+                .subscribe((result: IOcrServiceResult) => {
+                    const formattedResult = new OcrValuables(result);
+                    if (formattedResult.InvoiceDate) {
+                        this.session.payment.PaymentDate = new Date(formattedResult.InvoiceDate);
+                        this.highLightInput('payment.PaymentDate');
+                    }
+                    if (formattedResult.Amount) {
+                        this.session.items[0].Amount = formattedResult.Amount;
+                        this.highLightInput('item.Amount');
+                    }
+                    this.toast.clear();
+                    this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
+                    if (formattedResult.Orgno) {
+                        this.runSmartBooking(formattedResult.Orgno);
+                    }
+                    resolve(true);
             }, (err) => {
                 this.errorService.handle(err);
+                resolve(false);
             });
+        });
+    }
+
+    private highLightInput(fieldName: string, seconds = 10) {
+        const fx = this.getChildInputField(fieldName);
+        if (fx) {
+            fx.style.cssText = 'background-color: #efe';
+            setTimeout(() => { fx.style.cssText = ''; }, seconds * 1000);
+        }
+    }
+
+
+    focusErrorElement(fieldName: string) {
+        const fx = this.getChildInputField(fieldName);
+        if (fx) {
+            fx.focus();
+            fx.select();
+        }
+    }
+
+    getChildInputField(fieldName: string): HTMLInputElement {
+        if (!fieldName) { return; }
+        const name = `validate-${(fieldName.replace('.', '-'))}`;
+        const list = this.self.nativeElement.getElementsByClassName(name);
+        if (list && list.length > 0) {
+            const inputs = list[0].getElementsByTagName('input');
+            if (inputs && inputs.length) {
+                return inputs[0];
+            }
+        }
     }
 
     private runSmartBooking(orgNumber) {
@@ -321,6 +346,15 @@ export class Expense implements OnInit {
             if (!res || !res.Suggestion) {
                 this.toastIfNoSmartBooking('Ingen bokføringsforslag funnet på denne leverandøren. Vi vil huske din neste bokføring.');
                 return;
+            }
+
+            if (res.Name) {
+                if (this.session.items.length > 0) {
+                    this.session.items[0].Description = res.Name;
+                    this.highLightInput('item.Description');
+                } else {
+                    this.session.payment.Description = res.Name;
+                }
             }
 
             // Check for account to suggest
@@ -356,9 +390,10 @@ export class Expense implements OnInit {
                             ? 'Kostnadskonto er lagt til basert på bokføringer gjort på' +
                                 ' denne leverandøren i UniEconomy'
                             : 'Kostnadskonto er lagt til basert på bokføringer gjort i UniEconomy' +
-                                ' på levernadører i samme bransje som valgt leverandør på din faktura.';
+                                ' på leverandører i samme bransje som valgt leverandør på din faktura.';
                         this.toastIfNoSmartBooking(msg, ToastType.good, 'Smart bokføring');
                         this.session.setValue('Debet', match, 0);
+                        this.highLightInput('item.Debet');
                     } else {
                         this.toastIfNoSmartBooking(`Smart bokføring foreslo konto ${res.Suggestion.AccountNumber} men denne kontoen` +
                         ` (og nærliggende kontoer) mangler i din kontoplan.`);
