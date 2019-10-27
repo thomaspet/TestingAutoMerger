@@ -273,7 +273,6 @@ export class BankJournalSession {
         if (!(acc && acc.ID)) { return; }
         const match = this.accounts.find( x => x.ID === acc.ID);
         if (!match) {
-            console.log('caching accoung:' + acc.ID, acc);
             this.createAccountSuperLabel([acc]);
             this.accounts.push(acc);
         } else if (!acc.superLabel) {

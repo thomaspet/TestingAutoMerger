@@ -482,6 +482,14 @@ export class BillView implements OnInit {
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Leverandør',
                 Legend: 'Kjøpsfaktura',
+                classes: 'bill-small-field',
+                Section: 0
+            },
+            <any> {
+                Property: 'BankAccountID',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Betal til bankkonto',
+                Classes: 'bill-small-field right',
                 Section: 0
             },
             <any> {
@@ -502,6 +510,7 @@ export class BillView implements OnInit {
                 Property: 'DeliveryDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Leveringsdato',
+                Classes: 'bill-small-field',
                 Section: 0,
             },
             <any> {
@@ -512,16 +521,10 @@ export class BillView implements OnInit {
                 Section: 0
             },
             <any> {
-                Property: 'BankAccountID',
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Bankkonto',
-                Classes: 'bill-small-field right',
-                Section: 0
-            },
-            <any> {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
                 Label: 'KID',
+                Classes: 'bill-small-field right',
                 Section: 0
             },
             <any> {
