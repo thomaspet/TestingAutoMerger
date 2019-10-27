@@ -107,7 +107,8 @@
         class="toolbar-button"
         [ngClass]="button.class"
         (click)="customButtonClick(button)"
-        [attr.aria-busy]="button['_busy']">
+        [attr.aria-busy]="button['_busy']"
+        [matTooltip]="button.tooltip">
 
         <i class="material-icons" *ngIf="button.icon">{{button.icon}}</i>
         {{button.label}}

@@ -1,5 +1,5 @@
 <section *ngIf="activeStatus" class="status-container" [ngClass]="{'has-substatus': activeStatus.substatusList?.length}">
-    <section class="status-indicator">
+    <section class="status-indicator" [ngClass]="activeStatus.class">
         <i class="material-icons-outlined">info</i>
         {{activeStatus.title}}
         <span class="sub-status-counter" *ngIf="activeStatus.substatusList?.length">

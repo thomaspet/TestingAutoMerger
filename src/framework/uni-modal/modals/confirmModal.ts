@@ -19,13 +19,13 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
                 </button>
 
                 <button *ngIf="options.buttonLabels.reject"
-                    [ngClass]="options.buttonClasses?.reject || 'bad'"
+                    class="secondary"
                     (click)="reject()">
                     {{options.buttonLabels.reject}}
                 </button>
 
                 <button *ngIf="options.buttonLabels.accept"
-                    [ngClass]="options.buttonClasses?.accept || 'good'"
+                    class="c2a"
                     id="good_button_ok"
                     (click)="accept()">
                     {{options.buttonLabels.accept}}

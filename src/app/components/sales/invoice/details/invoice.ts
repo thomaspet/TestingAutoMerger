@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
-import { switchMap, map, take, tap } from 'rxjs/operators';
+import { switchMap, map, take, tap, finalize } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -136,6 +136,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     companySettings: CompanySettings;
     saveActions: IUniSaveAction[] = [];
     toolbarconfig: IToolbarConfig;
+    toolbarStatus: IStatus[];
     commentsConfig: ICommentsConfig;
 
     vatTypes: VatType[];
@@ -1028,6 +1029,52 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
+    private setToolbarStatus() {
+        if (!this.invoice || !this.invoice.ID) {
+            this.toolbarStatus = undefined;
+            return;
+        }
+
+        const status: IStatus = {
+            title: this.customerInvoiceService.getStatusText(this.invoice.StatusCode),
+            state: STATUSTRACK_STATES.Active
+        };
+
+        if (this.invoice.InvoiceNumber) {
+            const pastDueDate = moment(this.invoice.PaymentDueDate).isBefore(moment(), 'days')
+                && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Paid
+                && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Sold
+                && ( this.invoice.RestAmount >= 0 || this.invoice.RestAmountCurrency >= 0 );
+
+            if (pastDueDate) {
+                status.title = 'Forfalt';
+                status.class = 'bad';
+            }
+        }
+
+        this.toolbarStatus = [status];
+
+        if (this.invoice.CollectorStatusCode) {
+            const statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
+            if (statusText !== '') {
+                const debtCollectorStatus: IStatus = {
+                    title: statusText,
+                    class: 'warn',
+                    state: STATUSTRACK_STATES.Active,
+                };
+                this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
+                    debtCollectorStatus.substatusList = substatus ? substatus : [];
+                    this.toolbarStatus = [debtCollectorStatus];
+                }).catch(err => {
+                    this.errorService.handle(err);
+                    this.toolbarStatus = [debtCollectorStatus];
+                });
+            }
+        }
+
+        console.log(this.invoice);
+    }
+
     private getStatustrackConfig() {
         const statustrack: IStatus[] = [];
         let activeStatus = 0;
@@ -1044,6 +1091,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             statuses.splice(spliceIndex, 1);
         }
 
+        console.log(statuses);
         statuses.forEach((status) => {
             let _state: STATUSTRACK_STATES;
 
@@ -1066,19 +1114,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             });
         });
 
-        if (this.invoice.DontSendReminders) {
+        // if (this.invoice.DontSendReminders) {
 
-            this.getReminderStoppedSubStatus().then(substatus => {
-                statustrack.push({
-                    title: 'Purrestoppet',
-                    state: STATUSTRACK_STATES.Obsolete,
-                    code: 0,
-                    substatusList: substatus ? [substatus] : []
-                });
-            }).catch(err => this.errorService.handle(err));
-        }
-
-
+        //     this.getReminderStoppedSubStatus().then(substatus => {
+        //         statustrack.push({
+        //             title: 'Purrestoppet',
+        //             state: STATUSTRACK_STATES.Obsolete,
+        //             code: 0,
+        //             substatusList: substatus ? [substatus] : []
+        //         });
+        //     }).catch(err => this.errorService.handle(err));
+        // }
 
         if (this.invoice.CollectorStatusCode > 42500
             && this.invoice.CollectorStatusCode < 42505
@@ -1189,40 +1235,23 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
-            statustrack: this.getStatustrackConfig(),
+            // statustrack: this.getStatustrackConfig(),
             entityID: this.invoiceID,
             entityType: 'CustomerInvoice',
             showSharingStatus: true,
             hideDisabledActions: true,
-            contextmenu: [
-                {
-                    label: 'Periodisering',
-                    action: () => this.accrueInvoice(),
-                    disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
-                },
-                {
-                    label: 'Send via utsendelsesplan',
-                    action: () => this.distribute(),
-                    disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber || !this.isDistributable
-                },
-                {
-                    label: 'Send purring',
-                    action: () => this.sendReminderAction(),
-                    disabled: () => {
-                        return !this.invoice.ID || (
-                            this.invoice.DontSendReminders
-                                || this.invoice.StatusCode === StatusCode.Completed
-                                || this.invoice.StatusCode === 42004
-                        );
-                    }
-                }
-            ],
+            contextmenu: [{
+                label: 'Periodisering',
+                action: () => this.accrueInvoice(),
+                disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
+            }],
         };
 
         toolbarconfig.buttons = [{
             class: 'icon-button',
             icon: 'remove_red_eye',
-            action: () => this.preview()
+            action: () => this.preview(),
+            tooltip: 'Forhåndsvis'
         }];
 
         if (this.invoice.ID) {
@@ -1240,6 +1269,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         this.toolbarconfig = toolbarconfig;
+        this.setToolbarStatus();
     }
 
     private accrueInvoice() {
@@ -1357,7 +1387,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         const transitions = (this.invoice['_links'] || {}).transitions;
         const id = this.invoice.ID;
         const status = this.invoice.StatusCode;
-        const printStatus = this.invoice.PrintStatus;
 
         if (!this.invoice.InvoiceNumber) {
             this.saveActions.push({
@@ -1416,11 +1445,42 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         done();
                     }
                 });
+
+                this.saveActions.push({
+                    label: 'Skriv ut / send på epost',
+                    action: (done) => {
+                        this.modalService.open(TofReportModal, {
+                            header: 'Skriv ut / send på epost',
+                            data: {
+                                entityLabel: 'Faktura',
+                                entityType: 'CustomerInvoice',
+                                entity: this.invoice,
+                                reportType: ReportTypeEnum.INVOICE,
+                            }
+                        }).onClose.subscribe(selectedAction => {
+                            if (selectedAction) {
+                                if (selectedAction === 'print') {
+                                    this.customerInvoiceService.setPrintStatus(this.invoice.ID, '200').subscribe();
+                                } else if (selectedAction === 'email') {
+                                    this.customerInvoiceService.setPrintStatus(this.invoice.ID, '100').subscribe();
+                                }
+
+                                setTimeout(() => {
+                                    if (this.toolbar) {
+                                        this.toolbar.refreshSharingStatuses();
+                                    }
+                                }, 500);
+                            }
+
+                            done();
+                        });
+                    }
+                });
             }
         }
 
         this.saveActions.push({
-            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer og send',
             action: done => {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
@@ -1431,25 +1491,24 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
         });
 
-        this.saveActions.push({
-            label: 'Ny basert på',
-            action: (done) => {
-                this.newBasedOn().then(res => {
-                    done('Faktura kopiert');
-                }).catch(error => {
-                    done(error);
-                });
-            },
-            disabled: false,
-            main: !id || transitions
-        });
-
         if (this.invoice.InvoiceType !== InvoiceTypes.CreditNote) {
             this.saveActions.push({
                 label: 'Registrer betaling',
                 action: (done) => this.payInvoice(done),
                 disabled: !transitions || !transitions['pay'],
                 main: id > 0 && transitions['pay'] && !this.isDirty
+            });
+
+            this.saveActions.push({
+                label: 'Send purring',
+                action: (done) => {
+                    this.sendReminderAction().pipe(finalize(() => done())).subscribe();
+                },
+                disabled: !this.invoice.ID || (
+                    this.invoice.DontSendReminders
+                    || this.invoice.StatusCode === StatusCode.Completed
+                    || this.invoice.StatusCode === 42004
+                )
             });
         }
 
@@ -1469,11 +1528,23 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
 
         this.saveActions.push({
+            label: 'Ny basert på',
+            action: (done) => {
+                this.newBasedOn().then(res => {
+                    done('Faktura kopiert');
+                }).catch(error => {
+                    done(error);
+                });
+            },
+            disabled: false,
+            main: !id || transitions
+        });
+
+        this.saveActions.push({
             label: 'Slett',
             action: (done) => this.deleteInvoice(done),
             disabled: status !== StatusCodeCustomerInvoice.Draft
         });
-
 
         if (this.aprilaOption.hasPermission && this.invoice.InvoiceType === InvoiceTypes.Invoice) {
             if (this.invoiceID === 0 || (this.invoice && (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft))) {
@@ -1943,9 +2014,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                         obs.complete();
                                         this.updateRemindersOnInvoice();
                                     });
-                                }, (err) => {
-                                    this.toastService.addToast(
-                                        'Purring ikke laget', ToastType.bad, 5, 'Kunne ikke lage purring. Er maks antall purringer nådd?');
+                                },
+                                () => {
+                                    this.toastService.toast({
+                                        title: 'Purring ikke laget',
+                                        type: ToastType.bad,
+                                        duration: 5,
+                                        message: 'Kunne ikke lage purring. Er ikke faktura forfalt enda, eller er maks antall purringer nådd?'
+                                    });
                                     obs.complete();
                                 });
                         } else {
@@ -1977,96 +2053,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private updateRemindersOnInvoice() {
         this.customerInvoiceReminderService.getCustomerInvoiceReminderList(this.invoice.ID).subscribe((res) => {
             this.invoice.CustomerInvoiceReminders = res;
-        });
-    }
-
-    private distribute() {
-        return Observable.create((obs) => {
-            var invoicedate = moment(this.invoice.InvoiceDate);
-            if (invoicedate.isAfter(moment(), 'days')) {
-                this.modalService.confirm({
-                    header: 'Sende nå eller frem i tid?',
-                    message: `Fakturadato er frem i tid ønsker du likevel å sende nå eller bestille automatisk utsendelse til ${invoicedate.format('YYYY.MM.DD')}?`,
-                    buttonLabels: {
-                        accept: 'Send',
-                        reject: 'Bestill til fakturadato',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    switch (response) {
-                        case ConfirmActions.ACCEPT:
-                            this.askExistingSharing().subscribe(readyToSend => {
-                                readyToSend
-                                    ? this.doDistribute(obs)
-                                    : obs.complete();
-                            });
-                            break;
-                        case ConfirmActions.REJECT:
-                            this.doDistribute(obs, true);
-                            break;
-                        default:
-                            obs.complete();
-                            break;
-                    }
-                });
-            } else {
-                this.askExistingSharing().subscribe(readyToSend => {
-                    readyToSend
-                        ? this.doDistribute(obs)
-                        : obs.complete();
-                });
-            }
-        });
-    }
-
-    private askExistingSharing(): Observable<boolean> {
-        return Observable.create((obs) => {
-            this.statisticsService.GetAllUnwrapped(
-                `model=Sharing&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoiceID}`
-                + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`)
-                .subscribe(existingSharings => {
-                    if ((this.invoice.PrintStatus && this.invoice.PrintStatus !== 0)
-                        || (existingSharings.find(x =>
-                            x.SharingStatusCode !== StatusCodeSharing.Failed
-                            && x.SharingStatusCode !== StatusCodeSharing.Cancelled))) {
-                        this.modalService.confirm({
-                            header: 'Allerede utsendt?',
-                            message: 'Det ser ut som fakturaen allerede er utsendt eller at ' +
-                                'utsendelse er bestilt. Vil du sende den på nytt likevel?',
-                            buttonLabels: {
-                                accept: 'Ja',
-                                cancel: 'Nei'
-                            }
-                        }).onClose.subscribe(response => {
-                            obs.next(response === ConfirmActions.ACCEPT);
-                            obs.complete();
-                        });
-                    } else {
-                        obs.next(true);
-                        obs.complete();
-                    }
-                },
-                    err => {
-                        obs.next(false);
-                        obs.complete();
-                        this.errorService.handle(err);
-                });
-        });
-    }
-
-    private doDistribute(obs, distributeWithDate = false) {
-        const distribute = distributeWithDate
-            ? this.reportService.distributeWithDate(this.invoice.ID, this.distributeEntityType, this.invoice.InvoiceDate)
-            : this.reportService.distribute(this.invoice.ID, this.distributeEntityType);
-        distribute.subscribe(() => {
-            this.toastService.addToast(
-                'Faktura er lagt i kø for utsendelse',
-                ToastType.good,
-                ToastTime.short);
-            obs.complete();
-        }, err => {
-            this.errorService.handle(err);
-            obs.complete();
         });
     }
 

@@ -6,7 +6,7 @@ import {EHFService} from '@app/services/services';
 @Component({
     selector: 'uni-reminder-sending-modal',
     template: `
-        <section class="uni-modal medium">
+        <section class="uni-modal">
             <header>Utsendelse av purringer</header>
 
             <article>
@@ -14,13 +14,15 @@ import {EHFService} from '@app/services/services';
             </article>
 
             <footer>
-                <button class="good" (click)="send()">Send valgte til epost/utskrift</button>
-                <button *ngIf="ehfService.isInvoicePrintActivated()" class="good" (click)="reminderSending.sendInvoicePrint()">
+                <button class="secondary pull-left" (click)="close()">Lukk</button>
+
+                <button class="secondary" (click)="send()">Send valgte til epost/utskrift</button>
+                <button *ngIf="ehfService.isInvoicePrintActivated()" class="secondary" (click)="reminderSending.sendInvoicePrint()">
                     Send valgte til fakturaprint
                 </button>
-                <button class="warning" (click)="reminderSending.sendPrint(true)">Skriv ut valgte</button>
-                <button class="good" (click)="save()">Lagre endringer</button>
-                <button class="bad" (click)="close()">Lukk</button>
+                <button class="secondary" (click)="reminderSending.sendPrint(true)">Skriv ut valgte</button>
+                <button class="c2a" (click)="save()">Lagre endringer</button>
+
             </footer>
         </section>
     `

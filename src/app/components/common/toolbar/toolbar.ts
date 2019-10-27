@@ -26,6 +26,7 @@ export interface ToolbarButton {
     icon?: string;
     class?: string;
     action: () => any | Observable<any>;
+    tooltip?: string;
 }
 
 export interface IToolbarCreateNewAction {

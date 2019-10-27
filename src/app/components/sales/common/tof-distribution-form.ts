@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {FieldType} from '@uni-framework/ui/uniform';
+import { CompanySettings } from '@uni-entities';
 
 @Component({
     selector: 'tof-distribution-form',
@@ -17,6 +18,7 @@ export class TofDistributionForm implements OnInit {
     @Input() reports: any[] = [];
     @Input() entity: any;
     @Input() entityType: string;
+    @Input() companySettings: CompanySettings;
     @Output() entityChange = new EventEmitter();
 
     fields$ = new BehaviorSubject([]);
@@ -43,6 +45,11 @@ export class TofDistributionForm implements OnInit {
     }
 
     private setUpFields() {
+        const canClearPlan = this.companySettings && (
+            !this.companySettings.Distributions.CustomerInvoiceDistributionPlanID
+            || !this.companySettings.AutoDistributeInvoice
+        );
+
         const fields = [
             {
                 FieldSet: 1,
@@ -57,7 +64,7 @@ export class TofDistributionForm implements OnInit {
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     debounceTime: 200,
-                    addEmptyValue: true
+                    addEmptyValue: canClearPlan
                 },
             },
             {

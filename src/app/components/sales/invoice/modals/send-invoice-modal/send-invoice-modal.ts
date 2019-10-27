@@ -213,10 +213,6 @@ export class SendInvoiceModal implements IUniModal {
                     accept: 'Send nå',
                     reject: 'Send på fakturadato',
                     cancel: 'Avbryt'
-                },
-                buttonClasses: {
-                    accept: 'c2a',
-                    reject: 'secondary'
                 }
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.CANCEL) {

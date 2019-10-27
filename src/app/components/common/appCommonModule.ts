@@ -62,7 +62,8 @@ import {
     MatCheckboxModule,
     MatSelectModule,
     MatSlideToggleModule,
-    MatRadioModule
+    MatRadioModule,
+    MatTooltipModule,
 } from '@angular/material';
 
 import {NewTaskModal} from '../common/new-task-list/new-task-list';
@@ -89,7 +90,8 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         MatCheckboxModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatRadioModule
+        MatRadioModule,
+        MatTooltipModule
     ],
     declarations: [
         PredefinedDescriptionList,

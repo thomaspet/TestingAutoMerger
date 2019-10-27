@@ -11,6 +11,7 @@ export enum STATUSTRACK_STATES {
 
 export interface IStatus {
     title: string;
+    class?: string;
     subtitle?: string;
     state: STATUSTRACK_STATES;
     code?: number;
