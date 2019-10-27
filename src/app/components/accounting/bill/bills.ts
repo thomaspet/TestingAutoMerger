@@ -889,7 +889,11 @@ export class BillsView implements OnInit {
     }
 
     public onAddNew() {
-        this.router.navigateByUrl('/accounting/bills/0');
+        if (this.isSrEnvironment) {
+            this.router.navigateByUrl('/accounting/inbox');
+        } else {
+            this.router.navigateByUrl('/accounting/bills/0');
+        }
     }
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {

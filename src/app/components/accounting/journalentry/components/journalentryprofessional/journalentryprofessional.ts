@@ -1703,6 +1703,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             netAmountCol.setVisible(false);
             costAllocationCol.setVisible(false);
             debitAccountCol.setWidth('20%');
+            debitAccountCol.setPlaceholder('Velg konto');
 
             columns = [
                 debitAccountCol,

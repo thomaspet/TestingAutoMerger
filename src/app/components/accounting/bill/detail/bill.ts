@@ -2132,7 +2132,7 @@ export class BillView implements OnInit {
             if (hasJournalEntry) {
                 filter.push('journal');
             }
-            this.addActions(it._links.transitions, list, mainFirst, ['assign', 'approve', 'journal', 'sendForPayment'], filter);
+            this.addActions(it._links.transitions, list, mainFirst, ['journal', 'assign', 'approve', 'sendForPayment'], filter);
 
             // Reassign as admin
             if (!it._links.transitions.hasOwnProperty('reAssign')
