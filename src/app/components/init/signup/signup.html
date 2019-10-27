@@ -18,11 +18,6 @@
 
         <form #step1="ngForm" *ngIf="!step1Successful" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
             <label class="uni-label">
-                <span>Selskapsnavn</span>
-                <input type="text" placeholder="Selskapsnavn" autofocus formControlName="CompanyName" />
-            </label>
-
-            <label class="uni-label">
                 <span>Ditt navn</span>
                 <input type="text" placeholder="Ditt navn" formControlName="DisplayName" />
             </label>
@@ -30,11 +25,6 @@
             <label class="uni-label">
                 <span>E-post</span>
                 <input type="email" placeholder="E-post" formControlName="Email" />
-            </label>
-
-            <label class="uni-label">
-                <span>Telefonnummer</span>
-                <input type="tel" placeholder="Telefonnummer" formControlName="PhoneNumber" />
             </label>
 
             <re-captcha class="recaptcha" formControlName="RecaptchaResponse"></re-captcha>

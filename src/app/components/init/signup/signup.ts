@@ -30,10 +30,8 @@ export class Signup {
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
-            CompanyName: new FormControl('', Validators.required),
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
-            PhoneNumber: new FormControl('', Validators.required),
             RecaptchaResponse: new FormControl('', Validators.required)
         });
 
@@ -71,7 +69,7 @@ export class Signup {
 
         this.http.asPOST()
             .usingInitDomain()
-            .withEndPoint('confirmation')
+            .withEndPoint('sign-up')
             .withBody(this.step1Form.value)
             .send()
             .subscribe(
