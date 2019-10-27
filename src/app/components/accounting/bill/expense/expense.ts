@@ -96,8 +96,17 @@ export class Expense implements OnInit {
     setupToolbarConfig() {
         this.toolbarConfig =  {
             omitFinalCrumb: true,
-            title: this.getTitle()
+            title: this.getTitle(),
+            buttons: (this.session.payment.Mode === PaymentMode.PrepaidByEmployee)
+                ? [{ label: 'Bokfør', action: () => this.save(false) }]
+                : undefined
         };
+        if (this.session.payment.Mode === PaymentMode.PrepaidByEmployee) {
+            this.toolbarConfig.buttons = [{
+                label: 'Bokfør',
+                action: () => this.save(false),
+            }];
+        }
     }
 
     setUpSaveActions() {
