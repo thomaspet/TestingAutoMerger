@@ -1837,37 +1837,45 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                     transition.subscribe(
                         res => {
-                            // Copy paste aprila stuff from old function
-                            if (this.aprilaOption.hasPermission) {
-                                if (isCreditNote && res['CustomValues'] && res['CustomValues'].AprilaOrderStatus) {
-                                    this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
+                            this.getInvoice(invoice.ID).subscribe(updatedInvoice => {
+                                this.refreshInvoice(updatedInvoice);
+                                done(successText);
+
+                                // Copy paste aprila stuff from old function
+                                if (this.aprilaOption.hasPermission) {
+                                    if (isCreditNote && res['CustomValues'] && res['CustomValues'].AprilaOrderStatus) {
+                                        this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
+                                    }
+
+                                    if (!isCreditNote && this.aprilaOption.autoSellInvoice) {
+                                        this.openAprilaOfferModal(invoice, done);
+                                    }
                                 }
 
-                                if (!isCreditNote && this.aprilaOption.autoSellInvoice) {
-                                    this.openAprilaOfferModal(invoice, done);
-                                }
-                            }
+                                if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
+                                    if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
+                                        this.toastService.toast({
+                                            title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
+                                            type: ToastType.good,
+                                            duration: 5
+                                        });
 
-                            reloadInvoice(invoice.ID, successText);
-                            if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
-                                if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
-                                    this.toastService.toast({
-                                        title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
-                                        type: ToastType.good,
-                                        duration: 5
-                                    });
-
-                                    setTimeout(() => {
-                                        if (this.toolbar) {
-                                            this.toolbar.refreshSharingStatuses();
-                                        }
-                                    }, 500);
-                                } else {
-                                    this.modalService.open(SendInvoiceModal, {
-                                        data: this.invoice
-                                    });
+                                        setTimeout(() => {
+                                            if (this.toolbar) {
+                                                this.toolbar.refreshSharingStatuses();
+                                            }
+                                        }, 500);
+                                    } else {
+                                        this.modalService.open(SendInvoiceModal, {
+                                            data: this.invoice
+                                        });
+                                    }
                                 }
-                            }
+
+                                if (wasDraft) {
+                                    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
+                                }
+                            });
                         },
                         err => {
                             this.errorService.handle(err);
@@ -1878,7 +1886,15 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 }
                             }
 
-                            reloadInvoice(invoice.ID, errorText);
+                            if (wasDraft) {
+                                this.getInvoice(invoice.ID).subscribe(updatedInvoice => {
+                                    this.refreshInvoice(updatedInvoice);
+                                    done(errorText);
+                                });
+                            } else {
+                                this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
+                                done(errorText);
+                            }
                         }
                     );
                 },
