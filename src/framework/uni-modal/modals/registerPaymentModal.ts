@@ -44,8 +44,8 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
                 </FONT>
             </article>
             <footer>
-                <button class="good" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button class="secondary" (click)="close(false)">Avbryt</button>
+                <button class="c2a" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
             </footer>
         </section>
     `

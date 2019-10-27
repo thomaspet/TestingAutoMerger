@@ -17,7 +17,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
     selector: 'sr-unpaid-doughnut-widget',
     template: `
         <section class="widget-wrapper">
-            <section class="header sr-widget-header">
+            <section class="header">
                 <span>{{ widget.description }}</span>
             </section>
 

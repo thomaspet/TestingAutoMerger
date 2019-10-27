@@ -14,7 +14,7 @@ import {
 // for all appfrontend, not just widgets.
 import {
     UniShortcutWidget,
-    UniChartWidget,
+    UniPieChartWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniSumWidget,
@@ -65,7 +65,7 @@ export interface IUniWidget {
 // CUSTOM SR WIDGET MAP??? :ANDERS??
 export const WIDGET_MAP = {
     shortcuts: UniShortcutWidget,
-    chart: UniChartWidget,
+    pieChart: UniPieChartWidget,
     clock: UniClockWidget,
     sum: UniSumWidget,
     companyLogo: UniCompanyLogoWidget,

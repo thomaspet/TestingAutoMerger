@@ -37,17 +37,16 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 })
 
 export class UniUnpaidDoughnutChart implements AfterViewInit {
-    @ViewChild('unpaidDoughnutChart')
-    private unpaidDoughnutChart: ElementRef;
+    @ViewChild('unpaidDoughnutChart') unpaidDoughnutChart: ElementRef;
 
     widget: IUniWidget;
-    dataLoaded: EventEmitter<boolean> = new EventEmitter();
+    dataLoaded = new EventEmitter<boolean>();
 
     chartRef: any;
     chartConfig: any;
     totalAmount: number = 0;
     missingData: boolean;
-    missingDataMsg: string = 'Mangler data'
+    missingDataMsg: string = 'Mangler data';
 
     constructor(
         private statisticsService: StatisticsService,
@@ -168,7 +167,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
             data: {
                 datasets: [{
                     data: [],
-                    backgroundColor: ['#94E4FF', '#7BCBFF', '#62B2FF', '#4898F3', '#2F7FDA'],
+                    backgroundColor: ['#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF'],
                     label: '',
                     borderColor: 'white'
                 }],

@@ -125,30 +125,13 @@ export const CHARTS = [
         permissions: ['ui_salary'],
         width: 5,
         height: 3,
-        widgetType: 'chart',
+        widgetType: 'pieChart',
         config: {
-            chartType: 'pie',
-            labels: [],
-            colors: [],
-            dataEndpoint: [
-                '/api/statistics?model=Employee&select=count(ID) as '
-                + 'Count,Employments.JobName as JobName&expand=Employments'
-            ],
+            dataEndpoint: '/api/statistics?model=Employee&select=count(ID) as '
+                + 'Count,Employments.JobName as JobName&expand=Employments',
             labelKey: 'JobName',
             valueKey: 'Count',
             maxNumberOfLabels: 7,
-            useIf: '',
-            addDataValueToLabel: false,
-            dataset: [],
-            options: {
-                cutoutPercentage: 0,
-                animation: {
-                    animateScale: true
-                },
-                legend: {
-                    position: 'left'
-                },
-            }
         }
     },
     {
@@ -157,30 +140,14 @@ export const CHARTS = [
         permissions: ['ui_sales_invoices'],
         width: 4,
         height: 3,
-        widgetType: 'chart',
+        widgetType: 'pieChart',
         config: {
-            chartType: 'pie',
-            labels: [],
-            colors: [],
-            dataEndpoint: [
-                '/api/statistics?model=Customer&select=Info.Name as Name,'
+            dataEndpoint: '/api/statistics?model=Customer&select=Info.Name as Name,'
                 + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
-                + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
-            ],
+                + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0',
             valueKey: 'RestAmount',
             labelKey: 'Name',
             maxNumberOfLabels: 7,
-            useIf: '',
-            addDataValueToLabel: false,
-            dataset: [],
-            options: {
-                animation: {
-                    animateScale: true
-                },
-                legend: {
-                    position: 'left'
-                }
-            }
         }
     },
     {

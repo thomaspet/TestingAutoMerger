@@ -4,8 +4,8 @@
 
         <section *ngIf="!unauthorized" class="filters">
             <button *ngFor="let year of years"
-                class="tertiary"
-                [ngClass]="{'c2a': year === currentYear}"
+                class="pill"
+                [ngClass]="{'active': year === currentYear}"
                 (click)="yearChange(year)">
                 {{year}}
             </button>
@@ -69,17 +69,17 @@
 
         <section *ngIf="!unauthorized && !isLineChart" class="chart-legend">
             <section class="legend">
-                <span class="indicator income"></span>
+                <span class="indicator" [style.background]="barColors[0]"></span>
                 Inntekter: <strong>{{ (income | uninumberformat:'money') || 0}}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator cost"></span>
+                <span class="indicator" [style.background]="barColors[1]"></span>
                 Kostnader: <strong>{{ (cost * -1 | uninumberformat:'money') || 0}}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator result"></span>
+                <span class="indicator" [style.background]="barColors[2]"></span>
                 Resultat: <strong>{{ (sum | uninumberformat:'money') || 0 }}</strong>
             </section>
         </section>

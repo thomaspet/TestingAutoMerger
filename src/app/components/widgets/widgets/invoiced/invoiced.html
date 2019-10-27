@@ -51,12 +51,12 @@
 
         <section class="chart-legend" *ngIf="!unauthorized">
             <section class="legend">
-                <span class="indicator invoiceinvoiced"></span>
+                <span class="indicator" [style.background]="COLORS[0]"></span>
                 Fakturert: <strong>{{ totalInvoiceInPeriod }}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator invoicepaid"></span>
+                <span class="indicator" [style.background]="COLORS[1]"></span>
                 Innbetalt: <strong>{{ totalPaidInPeriod }}</strong>
             </section>
         </section>

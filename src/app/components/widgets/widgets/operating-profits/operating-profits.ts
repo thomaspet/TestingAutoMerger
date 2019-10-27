@@ -33,7 +33,8 @@ export class OperatingProfitWidget {
     accumulatedResult: any[] = [];
     runningResult: any[] = [];
     isLineChart: boolean = false;
-    lineColors: any = ['#008A00', '#0071CD', '#FF9100'];
+    lineColors = ['#008A00', '#008ED2', '#FF9100'];
+    barColors = ['#0071CD', '#7FC6E8', 'rgba(89, 104, 121, .75)'];
     show = [true, true, true];
     dataHolder: any[] = [];
 
@@ -253,7 +254,7 @@ export class OperatingProfitWidget {
                 datasets: [{
                     label: 'Resultat',
                     data: [],
-                    borderColor: 'rgba(89, 104, 121, .75)',
+                    borderColor: this.barColors[2],
                     pointBorderColor: '#fff',
                     pointBackgroundColor: (context) => {
                         let value = 0;
@@ -263,7 +264,8 @@ export class OperatingProfitWidget {
                             console.error(e);
                         }
 
-                        return value >= 0 ? '#62B2FF' : '#FCD292';
+                        // return value >= 0 ? '#62B2FF' : '#FCD292';
+                        return value >= 0 ? this.barColors[0] : this.barColors[1];
                     },
                     borderWidth: 1.25,
                     pointBorderWidth: 1.25,
@@ -278,14 +280,14 @@ export class OperatingProfitWidget {
                 {
                     label: 'Inntekter',
                     data: [],
-                    backgroundColor: '#62B2FF',
+                    backgroundColor: this.barColors[0],
                     borderWidth: 0,
                     stack: 1,
                 },
                 {
                     label: 'Kostnader',
                     data: [],
-                    backgroundColor: '#FCD292',
+                    backgroundColor: this.barColors[1],
                     borderWidth: 0,
                     stack: 1
                 }
@@ -387,7 +389,7 @@ export class OperatingProfitWidget {
                     data: [],
                     backgroundColor: this.lineColors[2],
                     borderColor: this.lineColors[2],
-                    borderWidth: 5,
+                    borderWidth: 4,
                     fill: false,
                     options: {
                         fill: false
@@ -401,7 +403,7 @@ export class OperatingProfitWidget {
                     data: [],
                     backgroundColor: this.lineColors[0],
                     borderColor: this.lineColors[0],
-                    borderWidth: 5,
+                    borderWidth: 4,
                     fill: false,
                     options: {
                         fill: false
@@ -415,7 +417,7 @@ export class OperatingProfitWidget {
                     data: [],
                     backgroundColor: this.lineColors[1],
                     borderColor: this.lineColors[1],
-                    borderWidth: 5,
+                    borderWidth: 4,
                     lineTension: 0,
                     fill: false,
                     options: {

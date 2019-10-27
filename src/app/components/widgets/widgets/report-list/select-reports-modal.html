@@ -31,23 +31,10 @@
                 </section>
             </mat-expansion-panel>
         </mat-accordion>
-
-        <!-- <section *ngFor="let group of reportGroups">
-            <span>{{group.name}}</span>
-            <mat-selection-list>
-                <mat-list-option *ngFor="let report of group.reports"
-                    checkboxPosition="before"
-                    [selected]="report._selected"
-                    (click)="report._selected = !report._selected">
-
-                    {{report.Name}}
-                </mat-list-option>
-            </mat-selection-list>
-        </section> -->
     </article>
 
-    <footer class="center">
-        <button class="c2a rounded" (click)="submit()">Bekreft</button>
+    <footer>
         <button (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="submit()">Lagre</button>
     </footer>
 </section>

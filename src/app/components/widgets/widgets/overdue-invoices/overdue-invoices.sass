@@ -1,14 +1,16 @@
-table
+.table-section
     flex: 1
     margin-top: auto
     margin-left: 2rem
-    font-size: 15px
+    font-size: 14px
+    min-height: 10rem
+    .no-overdue-invoices
+        margin-left: 1rem
+
+table
     border-collapse: collapse
     table-layout: fixed
     width: 100%
-
-    @media (max-width: 1300px)
-        font-size: 14px
 
     tbody tr
         border-top: 1px solid var(--border-color)

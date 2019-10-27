@@ -1,17 +1,15 @@
 import {Component, Input, Output, EventEmitter, SimpleChange} from '@angular/core';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {CompanySettings, ReportDefinition} from '../../../app/unientities';
-import {SendEmail} from '../../../../src/app/models/sendEmail';
-import { CustomerService } from '@app/services/sales/customerService';
-import { UserService } from '@app/services/common/userService';
-import { CompanySettingsService } from '@app/services/common/companySettingsService';
-import { ErrorService } from '@app/services/common/errorService';
+import {UniFieldLayout, FieldType} from '../../ui/uniform';
+import {CompanySettings, ReportDefinition} from '@uni-entities';
+import {SendEmail} from '@app/models/sendEmail';
+import {CustomerService} from '@app/services/sales/customerService';
+import {UserService} from '@app/services/common/userService';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
+import {ErrorService} from '@app/services/common/errorService';
 import {ReportTypeService} from '@app/services/reports/reportTypeService';
-
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-import { ReportDefinitionParameterService } from '@app/services/reports/reportDefinitionParameterService';
+import {ReportDefinitionParameterService} from '@app/services/reports/reportDefinitionParameterService';
 
 @Component({
     selector: 'uni-send-email-modal',
@@ -28,23 +26,23 @@ import { ReportDefinitionParameterService } from '@app/services/reports/reportDe
             </article>
 
             <footer>
-                <span class="warn" *ngIf="invalidEmail">Ugyldig e-post</span>
-                <button class="good" (click)="close(true)">Send</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <span *ngIf="invalidEmail" class="warn" style="margin-right: 2rem">
+                    Ugyldig e-post
+                </span>
+
+                <button class="secondary" (click)="close(false)">Avbryt</button>
+                <button class="c2a" (click)="close(true)">Send</button>
             </footer>
         </section>
     `
 })
 export class UniSendEmailModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public formModel$: BehaviorSubject<{sendEmail: SendEmail, selectedForm: any}> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formConfig$ = new BehaviorSubject({autofocus: true});
+    public formModel$ = new BehaviorSubject<{sendEmail: SendEmail, selectedForm: any}>(null);
+    public formFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     private formList: ReportDefinition[];
     private selectedReport: ReportDefinition;
     private parameterName: string;
@@ -60,8 +58,14 @@ export class UniSendEmailModal implements IUniModal {
         private reportDefinitionParameterService: ReportDefinitionParameterService,
     ) {}
 
-    public ngOnInit() {
+    ngOnInit() {
         this.initFormModel();
+    }
+
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formFields$.complete();
+        this.formModel$.complete();
     }
 
     emailChange(change: SimpleChange) {

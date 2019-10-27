@@ -32,7 +32,7 @@ import * as moment from 'moment';
             <div class="content event-widget-content">
                 <ul>
                     <li *ngFor="let data of formattedData">
-                        <i class="material-icons" [ngClass]="data.class"> {{ data.icon }} </i>
+                        <i class="material-icons-outlined" [ngClass]="data.class"> {{ data.icon }} </i>
                         <span (click)="onClickNavigate(data)"> {{ data.label | translate }} </span>
                         <span class="event-new-value" [ngClass]="data.class"> {{ data.value }} </span>
                     </li>
@@ -57,7 +57,7 @@ export class UniEventsWidget implements AfterViewInit {
         {
             label: 'NAVBAR.SUPPLIER_INVOICE',
             value: 0,
-            icon: 'inbox',
+            icon: 'receipt',
             class: 'green-event',
             link: '/accounting/bills?filter=All',
             permission: 'ui_accounting_bills',
@@ -75,7 +75,7 @@ export class UniEventsWidget implements AfterViewInit {
         {
             label: 'Ordre',
             value: 0,
-            icon: 'business',
+            icon: 'description',
             class: 'green-event',
             link: '/sales/orders',
             permission: 'ui_sales_orders',

@@ -10,13 +10,13 @@ uni-widget-canvas
     box-sizing: border-box
     margin-right: 10px
     margin-bottom: 10px
-    border: 1px dashed $uni-color-positive
+    border: 1px dashed var(--border-color)
     border-radius: var(--section-radius)
 
 .grid-anchor
     z-index: #{map-get($zindex, base) + 1}
     &.valid-anchor
-        border: 2px solid $uni-color-positive
+        border: 2px solid var(--border-color)
     &.invalid-anchor
         border: 2px solid var(--color-bad)
 
@@ -32,7 +32,7 @@ uni-widget-canvas
         display: block
         position: absolute
         background: #fff
-        border: 1px solid rgba(0, 0, 0, .1)
+        border: 1px solid var(--border-color)
         border-radius: var(--section-radius)
 
     &.edit-mode
@@ -140,6 +140,21 @@ uni-widget-canvas
         padding: 0 1.5rem
         .filters
             margin-left: auto
+
+            button.pill
+                font-size: 13px
+                font-weight: 400
+                border: 1px solid var(--border-color)
+                border-radius: 25px
+                padding: 0 15px
+                height: 1.5rem
+                &.active
+                    background: var(--widget-c2a)
+                    color: #fff
+                    border: none
+                & + button.pill
+                    margin-left: .5rem
+
             button.tertiary
                 font-weight: 400
                 padding: 0
@@ -151,6 +166,7 @@ uni-widget-canvas
                 &.toggle-button i.material-icons
                     font-size: 21px
                     margin-bottom: 1px
+                    color: var(--link-color)
 
     .content
         flex: 1
@@ -379,10 +395,11 @@ uni-shortcuts
         flex: 1
         div.header
             color: #8E98AB
-            font-size: .9rem
-            margin-bottom: 8px
+            font-size: 15px
+            margin-bottom: 5px
         div
-            font-size: 1.7rem
+            font-size: 1.5rem
+            color: var(--widget-header-color)
 
     i.material-icons
         flex: 0 0 auto
@@ -390,17 +407,17 @@ uni-shortcuts
         border-radius: 50%
 
     &.green-counter i.material-icons
-        color: #05C46B
-        background: #DAF6E9
+        color: #008A00 // #05C46B
+        background: #E1F4E3 // #DAF6E9
     &.blue-counter i.material-icons
-        color: #2699FB
-        background: #E3EEFB
+        color: var(--color-c2a-dark) // #2699FB
+        background: #DFF1F9 // #E3EEFB
     &.yellow-counter i.material-icons
-        color: #FFC048
-        background: #FFF6E4
-    &.pink-counter i.material-icons
-        color: #E01E5A
-        background: #FBE1E6
+        color: #FF9100 // #FFC048
+        background: #F8F5EB // #FFF6E4
+    &.red-counter i.material-icons
+        color: #da3d00 // #E01E5A
+        background: #FBE6E0 // #FBE1E6
 
     .icon-section
         flex: 1
@@ -438,36 +455,27 @@ uni-shortcuts
 
 .event-widget-content
     padding-top: .5rem !important
-
     ul
         list-style: none
         margin: 0
         height: 100%
-        font-weight: 500
-        font-size: .9rem
+        font-size: 15px
         li
             display: flex
             height: 3.5rem
             align-items: center
-            padding: 0 .75rem
-
-            & + li
-                border-top: 2px solid #f5f5f5
-
+            padding: 0 .25rem
             i
                 margin-right: 1rem
-
+                color: var(--widget-c2a)
             span
                 &:first-of-type
                     flex: 1
-                    margin: 0
-
                     &:hover
                         cursor: pointer
-                        color: #2699FB
-
+                        color: var(--link-color)
                 &.event-new-value
-                    font-size: 1rem
+                    font-weight: 500
 
 .widget-filter-menu
     list-style: none
@@ -543,33 +551,30 @@ header.dashboard-header
         font-weight: 500
         color: #707D90
         text-decoration: none
-        padding: 8px 20px
+        padding: 8px 15px
         border-radius: var(--section-radius)
         &:hover
             background: rgba(0, 0, 0, .07)
-
         &.active
-            color: #fff
-            background: var(--color-c2a)
+            color: var(--color-c2a)
 
-    @media screen and (max-width: 1400px)
-        .title
-            display: none
-        .links
-            margin-left: 0
-    @media screen and (max-width: 700px)
-        .title
-            display: block
-            margin-right: auto
-        .links
-            display: none
+    &:not(.no-link-dashboard)
+        @media screen and (max-width: 1400px)
+            .title
+                display: none
+            .links
+                margin-left: 0
+        @media screen and (max-width: 700px)
+            .title
+                display: block
+                margin-right: auto
+            .links
+                display: none
 
     &.no-link-dashboard
-        span
+        .title
             flex: 1 !important
             max-width: none
-        .links
-            display: none !important
 
 .hidden-class
     text-decoration: line-through
@@ -612,18 +617,6 @@ sr-unpaid-doughnut-widget
                 .due3
                     background: #DA3D00
 
-.sr-widget-header
-    &.chart-and-table
-        height: 60px
-
-    .filters .toggle-button
-        padding: 0 .2rem !important
-        border: 2px solid $uni-color-scale6
-        font-weight: 500 !important
-        height: 34px
-        line-height: 31px
-        width: 7rem
-
 .legend-vertical-class
     margin-top: .75rem
     .legend-row
@@ -639,73 +632,3 @@ sr-unpaid-doughnut-widget
             border-radius: 50%
             margin-right: 8px
             background: #738293
-
-
-
-.reminder-list-widget
-    padding: 0 1rem 1rem 1rem !important
-    margin: 0
-    text-align: left
-    flex: 1
-
-    ul
-        height: 100%
-        position: relative
-        margin: 0
-        padding: 5px .25rem
-
-        &.empty-list
-            display: none
-
-        li
-            display: flex
-            align-items: center
-            height: 3.25rem
-            cursor: pointer
-            padding: 0 10px
-
-            font-size: 12px
-            font-family: var(--font-family)
-            color: var(--text-color)
-            white-space: nowrap
-            text-overflow: ellipsis
-            overflow: hidden
-
-            & + li
-                margin-top: 10px
-
-            i
-                vertical-align: middle
-                color: var(--header-color)
-
-            div
-                flex: 1
-                display: flex
-                flex-direction: column
-                justify-content: center
-                margin: 0 .5rem 0 1rem
-                overflow: hidden
-                white-space: nowrap
-                text-overflow: ellipsis
-
-                span
-                    line-height: 18px
-                    &:first-of-type
-                        font-weight: bold
-                        font-size: 14px
-
-    .no-items-message
-        display: block
-        width: 100%
-        height: 100%
-        display: flex
-        align-items: center
-        justify-content: center
-        flex-direction: column
-        color: var(--color-good)
-
-        i
-            font-size: 55px
-            margin-bottom: 1.4rem
-
-

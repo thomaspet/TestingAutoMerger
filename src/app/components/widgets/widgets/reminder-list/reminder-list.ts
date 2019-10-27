@@ -1,23 +1,28 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
-import {IUniWidget} from '../uniWidget';
-import {AuthService} from '../../../authService';
+import {IUniWidget} from '../../uniWidget';
+import {AuthService} from '@app/authService';
 import {ApprovalService} from '@app/services/services';
 import PerfectScrollbar from 'perfect-scrollbar';
-import {WidgetDataService} from '../widgetDataService';
-import {NewTaskModal} from '../../common/new-task-list/new-task-list';
+import {WidgetDataService} from '../../widgetDataService';
+import {NewTaskModal} from '../../../common/new-task-list/new-task-list';
 import {UniModalService} from '@uni-framework/uni-modal';
-import { Task, ApprovalStatus } from '@uni-entities';
+import {ApprovalStatus } from '@uni-entities';
 import {Observable} from 'rxjs';
 
 @Component({
     selector: 'uni-reminder-list',
     template: `
         <section class="widget-wrapper">
-            <section class="header sr-widget-header">
+            <section class="header">
                 <span style="flex: 1"> {{ widget.description }} </span>
-                <i class="material-icons" (click)="newTask()" title="Opprett ny oppgave" style="cursor: pointer;"> add </i>
+
+                <a class="add-task" (click)="newTask()">
+                    <i class="material-icons">add</i>
+                    Ny oppgave
+                </a>
             </section>
+
             <div class="content reminder-list-widget">
                 <ul id="reminder-list" [ngClass]="!items.length && dataLoaded ? 'empty-list' : ''">
                     <li *ngFor="let item of items" (click)="goToTaskView(item)" title="Gå til liste">
@@ -35,6 +40,7 @@ import {Observable} from 'rxjs';
             </div>
         </section>
     `,
+    styleUrls: ['./reminder-list.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 

@@ -19,14 +19,6 @@ import {WidgetDataService} from '../../widgetDataService';
                 <span>Balansefordeling</span>
             </section>
             <div class="content">
-                <!--
-                <section class="chart-legend">
-                    <section *ngFor="let item of items; let idx = index" class="legend">
-                        <span class="indicator" [ngStyle]="{'background': colors[idx]}"></span>
-                        {{item.SubGroupName}}: <strong>{{ item.Sum | uninumberformat:'money'}}</strong>
-                    </section>
-                </section>
-                -->
                 <div class="canvas-wrapper">
                     <canvas #canvas></canvas>
                 </div>
@@ -47,8 +39,10 @@ export class BalanceWidget {
 
     data;
     absoluteSum;
-    v2 = ['#62B2FF', '#4DB6AC', '#94E4FF', '#7BCBFF', '#f6dc8d', '#80E9DF', '#FF9989', '#FF6656', '#FFDE29'];
-    colors = ['#2F7FDA', '#4898F3', '#62B2FF', '#7BCBFF', '#94E4FF', '#E1FFFF', '#4DB6AC', '#81C784', '#AED581', '#DCE775'];
+    colors = [
+        '#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF', '#CEEEFF', '#DFF1F9',
+        /* end of sketched colors */ '#f6dc8d', '#4DB6AC'
+    ];
 
     constructor(
         private dataService: WidgetDataService,
@@ -101,7 +95,7 @@ export class BalanceWidget {
                 labels: this.data.map(i => i.SubGroupName),
                 datasets: [{
                     data: this.data.map(i => Math.abs(i.Sum)),
-                    backgroundColor: this.v2, // this.colors,
+                    backgroundColor: this.colors,
                     label: '',
                     borderColor: 'white',
                 }]
