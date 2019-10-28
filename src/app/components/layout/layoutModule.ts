@@ -35,7 +35,6 @@ import {
     MatMenuModule,
     MatExpansionModule,
     MatProgressBarModule,
-    MatCardModule
 } from '@angular/material';
 
 import {ChatBoxComponent} from './chat-box/chat-box.component';
@@ -55,7 +54,6 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         MatMenuModule,
         MatExpansionModule,
         MatProgressBarModule,
-        MatCardModule,
 
         UniFrameworkModule,
         AppPipesModule,

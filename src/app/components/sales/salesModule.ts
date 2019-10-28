@@ -65,7 +65,11 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
-import { MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule, MatSelectModule, MatOptionModule } from '@angular/material';
+import {
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatTreeModule,
+ } from '@angular/material';
 import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
 import { AprilaOfferModal } from './invoice/modals/aprila-offer/aprila-offer-modal';
 import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
@@ -80,10 +84,6 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         MatSlideToggleModule,
         MatTreeModule,
         MatTooltipModule,
-        MatCardModule,
-        MatProgressBarModule,
-        MatSelectModule,
-        MatOptionModule,
 
         RouterModule.forChild(salesRoutes),
 

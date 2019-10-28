@@ -7,47 +7,62 @@
         display: flex
         flex-direction: column
         width: 25rem
-        background-color: $uni-color-scale9
-        padding: 0
-        border-bottom-left-radius: 0
-        border-bottom-right-radius: 0
         height: 30rem
+        background-color: #fff
+        padding: 0
 
-        .chat-header
-            background-color: $uni-color-toolbar
+        &.minimized
+            width: 15rem
+            height: unset
+            border: none
+            .header span.title:hover
+                text-decoration: none
+
+        .header
+            flex: 0 0 auto
+            height: 3rem
+            display: flex
             align-items: center
+            padding: 0 1rem
             cursor: pointer
             color: #fff
+            background: var(--color-c2a)
+            border: 1px solid var(--color-c2a)
+            border-top-left-radius: var(--section-radius)
+            border-top-right-radius: var(--section-radius)
 
-            ::ng-deep .mat-card-header-text
-                margin: 0 0 0 16px
-
-            a
-                color: #fff
-                text-transform: capitalize
-                padding: .75rem 0
-                &.underline:hover
+            span.title
+                margin-right: auto
+                overflow: hidden
+                white-space: nowrap
+                text-overflow: ellipsis
+                &:hover
                     text-decoration: underline
 
+            .unread-indicator, .close-button
+                flex: 0 0 auto
+                margin-left: 1rem
+
             .close-button
-                float: right
-                margin: auto 16px auto auto
+                font-size: 22px
 
-        .unread-indicator
-            position: absolute
-            top: -7px
-            right: -5px
-            width: 17px
-            height: 17px
-            line-height: 17px
-            border-radius: 50%
-            background: red
-            text-align: center
-            font-size: 11px
-            color: white
+            .unread-indicator
+                width: 24px
+                height: 24px
+                border-radius: 50%
+                background: var(--color-bad)
+                font-size: 12px
+                color: #fff
+                display: flex
+                justify-content: center
+                align-items: center
 
-        .chat-messages
-            padding: 0 16px
+        .messages, .footer
+            border-left: 1px solid var(--border-color)
+            border-right: 1px solid var(--border-color)
+
+        .messages
+            flex: 1
             overflow: auto
             margin: 0
             height: 100%
@@ -56,26 +71,30 @@
                 min-height: 0
                 display: flex
                 flex-direction: column-reverse
-
+                padding-bottom: 1rem
                 .message-row
-                    padding: 1rem
+                    display: flex
                     flex-wrap: nowrap
+                    padding: 1rem 1rem 0
+                    justify-content: flex-start
+                    .avatar
+                        margin: auto 1rem auto 0
 
-                    &.float-left
-                        justify-content: flex-start
-                        .avatar
-                            margin: auto 1rem auto 0
-
-                    &.float-right
-                        justify-content: flex-end
+                    &.from-current-user
+                        flex-direction: row-reverse
                         .avatar
                             margin: auto 0 auto 1rem
 
                     .message
+                        display: flex
                         width: fit-content
+                        flex-direction: column
+                        background: #F4F4F4
+                        border-radius: var(--section-radius)
                         padding: 8px 16px
 
                         .message-text
+                            font-size: 15px
                             white-space: pre-line
 
                             ::ng-deep .mention
@@ -87,39 +106,34 @@
                             display: block
                             font-size: 12px
 
-        .chat-footer
-            padding: 16px
-            margin: 0
+        .footer
+            flex: 0 0 auto
+            display: flex
+            border-top: 1px solid var(--border-color)
+            word-break: break-all
 
-            mat-card
-                word-break: break-all
-                padding: 8px 16px
+            ul
+                bottom: 2rem
+                left: 1rem
+                position: absolute
+                bottom: 1rem
+                left: 0
+                width: 15rem
+                max-height: 17rem
+                border-radius: pxToRem(3)
+                box-sizing: border-box
+                overflow-y: auto
+                visibility: hidden
+                &[aria-expanded]:not([aria-expanded=false])
+                    visibility: visible
 
-                ul
-                    bottom: 2rem
-                    left: 1rem
-                    position: absolute
-                    bottom: 1rem
-                    left: 0
-                    width: 15rem
-                    max-height: 17rem
-                    border-radius: pxToRem(3)
-                    box-sizing: border-box
-                    overflow-y: auto
-                    visibility: hidden
-                    &[aria-expanded]:not([aria-expanded=false])
-                        visibility: visible
+            .message-input
+                min-height: 4rem
+                max-height: 8rem
+                padding: 10px 1rem
+                border: none
+                outline: none
+                resize: none
+                overflow: auto
+                word-break: break-word
 
-                .message-input
-                    border: none
-                    outline: none
-                    width: 100%
-                    min-height: unset
-                    resize: none
-                    overflow: auto
-                    max-height: 8rem
-                    word-break: break-word
-
-    .minimized
-        width: 15rem
-        height: unset

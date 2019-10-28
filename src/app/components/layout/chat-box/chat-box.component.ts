@@ -39,7 +39,8 @@ export class ChatBoxComponent implements OnInit {
         private errorService: ErrorService,
         private router: Router,
         private userService: UserService,
-        public signalRService: SignalRService) {}
+        public signalRService: SignalRService
+    ) {}
 
     ngOnInit() {
         if (this.businessObject) {
@@ -85,12 +86,10 @@ export class ChatBoxComponent implements OnInit {
 
     scrollToBottom() {
         setTimeout(() => {
-            if (this.chatContainer) {
-                try {
-                    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-                } catch (err) {
-                    console.error(err);
-                }
+            try {
+                this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+            } catch (err) {
+                console.error(err);
             }
         });
     }
