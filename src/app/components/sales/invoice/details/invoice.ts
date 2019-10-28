@@ -21,7 +21,6 @@ import {
     Department,
     User,
     StatusCodeCustomerInvoiceReminder,
-    StatusCodeSharing
 } from '@uni-entities';
 
 import {
@@ -931,36 +930,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
 
-    private getReminderStoppedSubStatus(): Promise<any> {
-        let reminderStopSubStatus: any = null;
-        let reminderStoppedByText = '';
-        let reminderStoppedTimeStamp: Date = null;
-
-        return new Promise((resolve, reject) => {
-            this.statisticsService.GetAll(
-                `model=AuditLog&orderby=AuditLog.CreatedAt desc&filter=AuditLog.EntityID eq ${this.invoiceID} and `
-                + `EntityType eq 'CustomerInvoice' and Field eq 'DontSendReminders' and NewValue eq `
-                + `'true'&select=User.DisplayName as Username,Auditlog.CreatedAt as `
-                + `Date&join=AuditLog.CreatedBy eq User.GlobalIdentity `
-            )
-                .map(data => data.Data ? data.Data : [])
-                .subscribe(brdata => {
-                    if (brdata && brdata.length > 0) {
-                        reminderStoppedByText = `Aktivert av ${brdata[0]['Username']} `
-                            + `${moment(new Date(brdata[0]['Date'])).fromNow()}`;
-                        reminderStoppedTimeStamp = new Date(brdata[0]['Date']);
-
-                        reminderStopSubStatus = {
-                            title: reminderStoppedByText,
-                            state: STATUSTRACK_STATES.Active,
-                            timestamp: reminderStoppedTimeStamp
-                        };
-                        resolve(reminderStopSubStatus);
-                    }
-                }, err => reject(err));
-        });
-    }
-
     private getCollectionSubStatus(colStatus: CollectorStatus): Promise<any> {
 
         let subStatux: any = null;
@@ -1071,79 +1040,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 });
             }
         }
-
-        console.log(this.invoice);
-    }
-
-    private getStatustrackConfig() {
-        const statustrack: IStatus[] = [];
-        let activeStatus = 0;
-        if (this.invoice) {
-            activeStatus = this.invoice.StatusCode || 1;
-        }
-
-        const statuses = [...this.customerInvoiceService.statusTypes];
-        const spliceIndex = (activeStatus === StatusCodeCustomerInvoice.PartlyPaid)
-            ? statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.Paid)
-            : statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.PartlyPaid);
-
-        if (spliceIndex >= 0) {
-            statuses.splice(spliceIndex, 1);
-        }
-
-        console.log(statuses);
-        statuses.forEach((status) => {
-            let _state: STATUSTRACK_STATES;
-
-            if (status.Code > activeStatus) {
-                _state = STATUSTRACK_STATES.Future;
-            } else if (status.Code < activeStatus) {
-                _state = STATUSTRACK_STATES.Completed;
-            } else if (status.Code === activeStatus) {
-                _state = STATUSTRACK_STATES.Active;
-            }
-
-            if (status.Code === StatusCodeCustomerInvoice.Sold && activeStatus !== StatusCodeCustomerInvoice.Sold) {
-                return;
-            }
-
-            statustrack.push({
-                title: status.Text,
-                state: _state,
-                code: status.Code
-            });
-        });
-
-        // if (this.invoice.DontSendReminders) {
-
-        //     this.getReminderStoppedSubStatus().then(substatus => {
-        //         statustrack.push({
-        //             title: 'Purrestoppet',
-        //             state: STATUSTRACK_STATES.Obsolete,
-        //             code: 0,
-        //             substatusList: substatus ? [substatus] : []
-        //         });
-        //     }).catch(err => this.errorService.handle(err));
-        // }
-
-        if (this.invoice.CollectorStatusCode > 42500
-            && this.invoice.CollectorStatusCode < 42505
-            && !this.invoice.DontSendReminders
-        ) {
-            const statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
-            if (statusText !== '') {
-                this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
-                    statustrack.push({
-                        title: statusText,
-                        state: STATUSTRACK_STATES.Obsolete,
-                        code: 0,
-                        substatusList: substatus ? substatus : []
-                    });
-                }).catch(err => this.errorService.handle(err));
-            }
-        }
-
-        return statustrack;
     }
 
     private refreshInvoice(invoice: CustomerInvoice): void {
@@ -1502,9 +1398,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.saveActions.push({
                 label: 'Send purring',
                 action: (done) => {
-                    this.sendReminderAction().pipe(finalize(() => done())).subscribe();
+                    this.sendReminderAction(done);
                 },
-                disabled: !this.invoice.ID || (
+                disabled: !this.invoice.InvoiceNumber || (
                     this.invoice.DontSendReminders
                     || this.invoice.StatusCode === StatusCode.Completed
                     || this.invoice.StatusCode === 42004
@@ -1813,18 +1709,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 };
             }
 
-            const reloadInvoice = (ID, doneText) => {
-                if (wasDraft) {
-                    this.getInvoice(ID).subscribe(res => {
-                        this.refreshInvoice(res);
-                        done(doneText);
-                    });
-                } else {
-                    this.router.navigateByUrl('/sales/invoices/' + ID);
-                    done(doneText);
-                }
-            };
-
             this.save(false, false).subscribe(
                 invoice => {
                     this.isDirty = false;
@@ -1853,6 +1737,18 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 }
 
                                 if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
+                                    const onSendingComplete = () => {
+                                        setTimeout(() => {
+                                            if (this.toolbar) {
+                                                this.toolbar.refreshSharingStatuses();
+                                            }
+                                        }, 500);
+
+                                        if (!wasDraft) {
+                                            this.router.navigateByUrl('/sales/invoices/' + updatedInvoice.ID);
+                                        }
+                                    };
+
                                     if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
                                         this.toastService.toast({
                                             title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
@@ -1860,15 +1756,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             duration: 5
                                         });
 
-                                        setTimeout(() => {
-                                            if (this.toolbar) {
-                                                this.toolbar.refreshSharingStatuses();
-                                            }
-                                        }, 500);
+                                        onSendingComplete();
                                     } else {
                                         this.modalService.open(SendInvoiceModal, {
                                             data: this.invoice
-                                        });
+                                        }).onClose.subscribe(() => onSendingComplete());
                                     }
                                 }
 
@@ -2005,70 +1897,61 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    private sendReminderAction(): Observable<any> {
-        return Observable.create((obs) => {
-            this.customerInvoiceReminderService.checkCustomerInvoiceReminders(this.invoice.ID).subscribe((reminderList) => {
-                if (reminderList && reminderList.Data && reminderList.Data.length) {
-                    const options: IModalOptions = {
-                        buttonLabels: {
-                            accept: 'Kjør ny purring',
-                            reject: 'Åpne aktiv purring',
-                            cancel: 'Avbryt'
-                        },
-                        header: 'Faktura har aktiv purring',
-                        message: 'Denne faktura har en aktiv purring. Vil du åpne den og sende den på nytt, eller kjøre ny purrejobb?'
-                    };
-                    this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((result: ConfirmActions) => {
-                        if (result === ConfirmActions.CANCEL) {
-                            obs.complete();
-                        } else if (result === ConfirmActions.ACCEPT) {
-                            this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist
-                                ([this.invoice.ID]).subscribe((reminders) => {
-                                    return this.modalService.open(UniReminderSendingModal, {
-                                        data: reminders
-                                    }).onClose.subscribe((res) => {
-                                        obs.complete();
-                                        this.updateRemindersOnInvoice();
-                                    });
-                                },
-                                () => {
-                                    this.toastService.toast({
-                                        title: 'Purring ikke laget',
-                                        type: ToastType.bad,
-                                        duration: 5,
-                                        message: 'Kunne ikke lage purring. Er ikke faktura forfalt enda, eller er maks antall purringer nådd?'
-                                    });
-                                    obs.complete();
-                                });
-                        } else {
-                            return this.modalService.open(UniReminderSendingModal, { data: reminderList.Data }).onClose.subscribe((res) => {
-                                obs.complete();
-                            });
-                        }
+    private sendReminderAction(doneCallback) {
+        const sendReminder = () => {
+            this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID]).subscribe(
+                reminders => {
+                    this.toastService.toast({
+                        title: 'Purring opprettet',
+                        type: ToastType.good,
+                        duration: 5
                     });
-                } else {
-                    this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist
-                        ([this.invoice.ID]).subscribe((reminders) => {
-                            return this.modalService.open(UniReminderSendingModal, {
-                                data: reminders
-                            }).onClose.subscribe((res) => {
-                                obs.complete();
-                                this.updateRemindersOnInvoice();
-                            });
-                        }, (err) => {
-                            this.toastService.addToast(
-                                'Purring ikke laget', ToastType.bad, 5, 'Kunne ikke lage purring. Er maks antall purringer nådd?');
-                            obs.complete();
-                        });
+
+                    // Reload invoice so toolbar status etc is updated
+                    this.customerInvoiceService.invalidateCache();
+                    this.getInvoice(this.invoice.ID).subscribe(
+                        invoice => this.refreshInvoice(invoice),
+                        () => {}
+                    );
+
+                    this.modalService.open(UniReminderSendingModal, { data: reminders });
+                    doneCallback();
+                },
+                () => {
+                    doneCallback();
+                    this.toastService.toast({
+                        title: 'Purring ikke laget',
+                        type: ToastType.bad,
+                        duration: 5,
+                        message: 'Kunne ikke sende purring. Er ikke faktura forfalt enda, eller er maks antall purringer nådd?'
+                    });
                 }
-            });
-        });
+            );
+        };
 
-    }
-
-    private updateRemindersOnInvoice() {
-        this.customerInvoiceReminderService.getCustomerInvoiceReminderList(this.invoice.ID).subscribe((res) => {
-            this.invoice.CustomerInvoiceReminders = res;
+        this.customerInvoiceReminderService.checkCustomerInvoiceReminders(this.invoice.ID).subscribe((reminderList) => {
+            if (reminderList && reminderList.Data && reminderList.Data.length) {
+                this.modalService.open(UniConfirmModalV2, {
+                    buttonLabels: {
+                        accept: 'Kjør ny purring',
+                        reject: 'Åpne aktiv purring',
+                        cancel: 'Avbryt'
+                    },
+                    header: 'Faktura har aktiv purring',
+                    message: 'Denne faktura har en aktiv purring. Vil du åpne den og sende den på nytt, eller kjøre ny purrejobb?'
+                }).onClose.subscribe((result: ConfirmActions) => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        sendReminder();
+                    } else if (result === ConfirmActions.REJECT) {
+                        this.modalService.open(UniReminderSendingModal, { data: reminderList.Data });
+                        doneCallback();
+                    } else {
+                        doneCallback();
+                    }
+                });
+            } else {
+                sendReminder();
+            }
         });
     }
 

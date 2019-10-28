@@ -32,7 +32,13 @@ export class ToolbarSharingStatus {
                 sharings => {
                     if (sharings && sharings.length) {
                         this.sharingHistory = sharings;
-                        this.statusIndicator = this.getStatusIndicator(sharings[sharings.length - 1]);
+
+                        const nonPrintSharings = sharings.filter(s => s.SharingType !== SharingType.Print);
+                        if (nonPrintSharings && nonPrintSharings.length) {
+                            this.statusIndicator = this.getStatusIndicator(nonPrintSharings[nonPrintSharings.length - 1]);
+                        } else {
+                            this.statusIndicator = this.getStatusIndicator(sharings[sharings.length - 1]);
+                        }
                     }
                 },
                 err => console.error(err)
@@ -41,12 +47,15 @@ export class ToolbarSharingStatus {
     }
 
     private getStatusIndicator(sharing) {
+        if (sharing.SharingType === SharingType.Print) {
+            return {
+                label: 'Skrevet ut',
+                icon: 'print'
+            };
+        }
+
         switch (sharing.SharingStatusCode) {
             case StatusCodeSharing.Pending:
-                // return {
-                //     label: 'Utsending planlagt / i kø',
-                //     icon: 'timelapse'
-                // };
             case StatusCodeSharing.InProgress:
                 return {
                     label: 'I utsendingskø',
