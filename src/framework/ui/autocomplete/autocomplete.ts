@@ -10,6 +10,7 @@ import {ErrorService} from '@app/services/services';
 export interface AutocompleteOptions {
     canClearValue?: boolean;
     autofocus?: boolean;
+    openSearchOnFocus?: boolean;
     lookup: (query: string, filterCheckboxValues?: boolean[]) => any[] | Observable<any[]>;
     placeholder?: string;
     displayField?: string;

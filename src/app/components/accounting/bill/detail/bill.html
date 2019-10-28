@@ -13,6 +13,16 @@
                 [(activeIndex)]="detailsTabIndex"
                 (activeIndexChange)="onDetailsTabClick($event)">
             </uni-tabs>
+            <label class="supplier-expense-label" *ngIf="detailsTabIndex === 0">
+                <span>Leverandør</span>
+                <autocomplete
+                    class="customer-select"
+                    [options]="autocompleteOptions"
+                    [readonly]="supplierIsReadOnly"
+                    [value]="(current | async).Supplier"
+                    (valueChanges)="newSupplierSelected($event)">
+                </autocomplete>
+            </label>
             <uni-form
                 *ngIf="detailsTabIndex === 0"
                 [config]="formConfig$"

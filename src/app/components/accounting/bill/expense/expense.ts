@@ -306,11 +306,12 @@ export class Expense implements OnInit {
                     }
                     if (formattedResult.Amount) {
                         this.session.items[0].Amount = formattedResult.Amount;
+                        this.session.recalc();
                         this.highLightInput('item.Amount');
                     }
                     this.toast.clear();
-                    this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
                     if (formattedResult.Orgno) {
+                        this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
                         this.runSmartBooking(formattedResult.Orgno);
                     } else {
                         this.toast.addToast('OCR-resultater lagt til. Fant ingen orgnr, så kan ikke kjøre smart bokføring',

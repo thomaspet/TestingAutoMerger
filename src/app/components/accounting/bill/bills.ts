@@ -25,7 +25,6 @@ import {
     FileService,
     ReInvoicingService
 } from '../../../services/services';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniImage} from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
 import {FieldType} from '../../../../framework/ui/uniform/field-type.enum';
@@ -197,7 +196,6 @@ export class BillsView implements OnInit {
         private supplierInvoiceService: SupplierInvoiceService,
         private toast: ToastService,
         private router: Router,
-        private browserStorage: BrowserStorageService,
         private errorService: ErrorService,
         private pageStateService: PageStateService,
         private modalService: UniModalService,
@@ -209,12 +207,10 @@ export class BillsView implements OnInit {
     ) {
         this.tabService.addTab({
             name: 'NAVBAR.SUPPLIER_INVOICE',
-            url: '/accounting/bills',
+            url: this.pageStateService.getUrl(),
             moduleID: UniModules.Bills,
             active: true
         });
-
-        this.checkPath();
     }
 
     public ngOnInit() {
@@ -222,6 +218,8 @@ export class BillsView implements OnInit {
         if (this.isSrEnvironment) {
             this.filters.shift();
         }
+
+        this.checkPath();
         this.refreshList(this.currentFilter, true);
         this.updateSaveActions(0);
     }
@@ -799,7 +797,7 @@ export class BillsView implements OnInit {
                 const ixAll = this.filters.findIndex(x => x.name === 'All');
                 this.filters[ixAll].count = count;
                 this.filters[ixAll].total = total;
-                this.totals.grandTotal = this.filters[this.activeFilterIndex].total;
+                this.totals.grandTotal = this.currentFilter && this.currentFilter.total; //  this.filters[this.activeFilterIndex].total;
             }, err => this.errorService.handle(err));
     }
 
@@ -909,8 +907,8 @@ export class BillsView implements OnInit {
             const index = this.filters.findIndex(f => f.name === filter.name);
             if (index >= 0) {
                 this.activeFilterIndex = index;
-                this.browserStorage.setItem('bills.defaultFilterIndex', index);
             }
+            this.tabService.currentActiveTab.url = this.pageStateService.getUrl();
         }
     }
 
@@ -941,10 +939,9 @@ export class BillsView implements OnInit {
         }
 
         // Default-filter?
-        if (this.currentFilter === undefined) {
-            const filterIndex = this.browserStorage.getItem('bills.defaultFilterIndex') || 0;
-            this.activeFilterIndex = filterIndex;
-            this.currentFilter = this.filters[filterIndex] || this.filters[0];
+        if (!this.currentFilter) {
+            this.activeFilterIndex = 0;
+            this.currentFilter = this.filters[0];
         }
     }
 

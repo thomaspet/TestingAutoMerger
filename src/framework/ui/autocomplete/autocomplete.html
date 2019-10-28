@@ -6,10 +6,11 @@
             (keydown)="onKeyDown($event)"
             [readonly]="readonly"
             (focus)="onFocus()"
+            (click)="toggle()"
             [placeholder]="options?.placeholder || ''"
         />
 
-        <button type="button" [disabled]="readonly" (click)="toggle(); inputElement.focus()">
+        <button type="button" [disabled]="readonly" (click)="$event.stopPropagation(); toggle(); inputElement.focus()">
             <i class="material-icons">search</i>
         </button>
     </section>

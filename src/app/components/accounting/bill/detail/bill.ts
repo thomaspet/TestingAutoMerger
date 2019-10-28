@@ -79,6 +79,7 @@ import {
     BrowserStorageService,
     ReInvoicingService,
     AssignmentDetails,
+    StatisticsService
 } from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
@@ -91,6 +92,7 @@ import {FileFromInboxModal} from '../../modals/file-from-inbox-modal/file-from-i
 import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
+import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 
 interface ITab {
     name: string;
@@ -165,7 +167,6 @@ export class BillView implements OnInit {
 
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
-    public uniSearchConfig: IUniSearchConfig;
 
     private hasSuggestions: boolean = false;
     private suggestions: Array<IJournalHistoryItem> = [];
@@ -177,6 +178,7 @@ export class BillView implements OnInit {
     public hasLoadedCustomDimensions: boolean = false;
     public isBlockedSupplier: boolean = false;
     public orgNumber: string;
+    autocompleteOptions: any;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -286,9 +288,43 @@ export class BillView implements OnInit {
         private paymentService: PaymentService,
         private browserStorageService: BrowserStorageService,
         private reinvoicingService: ReInvoicingService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private statisticsService: StatisticsService
     ) {
         this.actions = this.rootActions;
+
+        this.autocompleteOptions = {
+            placeholder: 'Velg leverandør',
+            autofocus: true,
+            canClearValue: false,
+            lookup: query => this.supplierLookup(query),
+            displayFunction: item => {
+                if (item) {
+                    const name = item.Info ? item.Info.Name : item.Name;
+                    return item.SupplierNumber ? `${item.SupplierNumber} - ${name}` : name;
+                }
+
+                return '';
+            },
+            resultTableColumns: [
+                { header: 'Leverandørnr', field: 'SupplierNumber' },
+                { header: 'Navn', field: 'Name' },
+                { header: 'Adresse', field: 'AddressLine1' },
+                {
+                    header: 'Poststed',
+                    template: item => {
+                        if (item.PostalCode || item.City) {
+                            return `${item.PostalCode} - ${item.City}`;
+                        }
+                    }
+                },
+                { header: 'Orgnummer', field: 'OrgNumber' },
+            ],
+            createLabel: 'Opprett ny leverandør',
+            createHandler: () => {
+                return this.modalService.open(SupplierEditModal, {header: 'Ny leverandør'}).onClose;
+            }
+        };
 
         // Get settings from localstorage or use default
         const settings = this.browserStorageService.getSpecificViewSettings('SUPPLIERINVOICE');
@@ -304,6 +340,38 @@ export class BillView implements OnInit {
         this.current.subscribe((invoice) => {
             this.tryUpdateCostAllocationData(invoice);
         });
+    }
+
+    supplierLookup(query: string) {
+        const expand = 'Info.DefaultPhone,Info.InvoiceAddress';
+        const select = [
+            'Supplier.ID as ID',
+            'Info.Name as Name',
+            'Supplier.OrgNumber as OrgNumber',
+            'InvoiceAddress.AddressLine1 as AddressLine1',
+            'InvoiceAddress.PostalCode as PostalCode',
+            'InvoiceAddress.City as City',
+            'Supplier.SupplierNumber as SupplierNumber',
+            'Supplier.StatusCode as StatusCode',
+        ].join(',');
+
+        let filter = `(Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 70001)`;
+
+        if (query && query.length) {
+            const queryFilter = ['Supplier.OrgNumber', 'Supplier.SupplierNumber', 'Info.Name']
+                .map(field => `contains(${field},'${query}')`)
+                .join(' or ');
+
+            filter += ` and ( ${queryFilter} )`;
+        }
+
+        const odata = `model=Supplier`
+            + `&expand=${expand}`
+            + `&select=${select}`
+            + `&filter=${filter}`
+            + `&orderby=Info.Name&top=50&distinct=true`;
+
+        return this.statisticsService.GetAllUnwrapped(odata);
     }
 
     public ngOnInit() {
@@ -478,14 +546,6 @@ export class BillView implements OnInit {
     private initForm() {
         const fields = [
             <any> {
-                Property: 'Supplier',
-                FieldType: FieldType.UNI_SEARCH,
-                Label: 'Leverandør',
-                Legend: 'Kjøpsfaktura',
-                classes: 'bill-small-field',
-                Section: 0
-            },
-            <any> {
                 Property: 'BankAccountID',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Betal til bankkonto',
@@ -564,26 +624,6 @@ export class BillView implements OnInit {
                 }
             }
         ];
-
-        this.uniSearchConfig = this.uniSearchSupplierConfig.generateDoNotCreateNew(
-            this.supplierExpandOptions,
-            (currentInputValue) => {
-                return this.modalService.open(UniNewSupplierModal, {
-                    data: currentInputValue
-                }).onClose.asObservable().map((returnValue) => {
-                    if (returnValue && returnValue.Info) {
-                        returnValue.Info.BankAccounts = returnValue.Info.BankAccounts || [];
-                    }
-                    this.uniForm.field('Supplier').focus();
-                    return returnValue;
-                });
-            });
-
-        // Extend config with stuff that can't come from layout system
-        const supplierField = fields.find(f => f.Property === 'Supplier');
-        supplierField.Options = {
-            uniSearchConfig: this.uniSearchConfig
-        };
 
         const sumField = fields.find(f => f.Property === 'TaxInclusiveAmountCurrency');
         sumField.Options = {
@@ -1875,6 +1915,12 @@ export class BillView implements OnInit {
         }
     }
 
+    public newSupplierSelected(supplier) {
+        if (supplier) {
+            this.fetchNewSupplier(supplier.ID);
+        }
+    }
+
     private fetchNewSupplier(id: number, updateCombo = false) {
         if (id) {
             this.supplierService.clearCache();
@@ -2044,20 +2090,13 @@ export class BillView implements OnInit {
         if (supplier) {
             current.SupplierID = supplier.ID;
             current.Supplier = supplier;
-            this.uniSearchConfig.initialItem$.next(current.Supplier);
+            if (supplier.Info.DefaultBankAccountID) {
+                current.BankAccountID = supplier.Info.DefaultBankAccountID;
+                current.BankAccount = supplier.Info.DefaultBankAccount;
+            }
         }
 
         this.current.next(current);
-
-        if (this.uniSearchConfig) {
-            this.uniSearchConfig.initialItem$.next(null);
-        } else {
-            setTimeout(() => {
-                if (this.uniSearchConfig) {
-                    this.uniSearchConfig.initialItem$.next(null);
-                }
-            });
-        }
 
         this.currentSupplierID = 0;
         this.sumRemainder = 0;
@@ -2865,9 +2904,6 @@ export class BillView implements OnInit {
                     this.loadActionsFromEntity();
                     this.lookupHistory();
                     this.checkLockStatus();
-
-
-                    this.uniSearchConfig.initialItem$.next(invoice.Supplier);
 
                     // set diff to null until the journalentry is loaded, the data is calculated correctly
                     // through the onJournalEntryManualDataLoaded event

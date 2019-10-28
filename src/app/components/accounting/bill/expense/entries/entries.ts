@@ -14,6 +14,7 @@ export class ExpenseEntries {
     cachedQuery = {};
     accountOptions: AutocompleteOptions = {
         lookup: x => this.lookupAccountByQuery(x),
+        openSearchOnFocus: true,
         displayFunction: item => `${item.AccountNumber} - ${item.AccountName}`,
         placeholder: 'Søk etter kontonummer, kontonavn eller stikkord'
     };
@@ -52,6 +53,10 @@ export class ExpenseEntries {
 
     addRow() {
         this.session.items.push(new DebitCreditEntry(new Date()));
+    }
+
+    recalc() {
+        this.session.recalc();
     }
 
     removeRow(row: DebitCreditEntry) {

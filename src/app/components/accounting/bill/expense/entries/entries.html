@@ -16,12 +16,12 @@
 
         <label class="uni-label validate-item-Amount">
             <span>Beløp</span>
-            <input type="number" [(ngModel)]="item.Amount" />
+            <input type="number" [(ngModel)]="item.Amount" (change)="recalc()"/>
         </label>
 
         <label class="uni-label">
             <span>MVA</span>
-            <select [ngModel]="item.VatType?.ID" (change)="session.setValue('VatType', $event.target.value, undefined, item)" >
+            <select [ngModel]="item.VatType?.ID" (change)="session.setValue('VatType', $event.target.value, undefined, item)">
                 <option *ngFor="let vatType of session.vatTypesCost" [value]="vatType.ID">
                     {{vatType.superLabel}}
                 </option>

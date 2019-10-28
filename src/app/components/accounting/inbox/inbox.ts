@@ -10,6 +10,8 @@ import {
     EntityForFileUpload,
     UniFileUploadModal,
     ConfirmActions,
+    UniConfirmModalV2,
+    IModalOptions
 } from '@uni-framework/uni-modal';
 import { File } from '@uni-entities';
 
@@ -55,7 +57,7 @@ export class UniInbox {
         });
     }
 
-    getDataAndLoadList() {
+    getDataAndLoadList(index: number = 0) {
         this.supplierInvoiceService.fetch('filetags/' + this.TAG_NAMES.join('|') + '/0?action=get-supplierInvoice-inbox')
         .subscribe((reponse) => {
             this.inboxList = reponse.map((item) => {
@@ -63,9 +65,15 @@ export class UniInbox {
                 return item;
             });
 
-            // Open first document by default
             if (this.inboxList.length) {
-                this.onDocumentClick(this.inboxList[0]);
+                this.onDocumentClick(this.inboxList[index]);
+                setTimeout(() => {
+                    const list = document.getElementById('inbox-item-list');
+                    if (list) {
+                        list.scrollTop = index * 50;
+                    }
+                });
+
             }
             this.dataLoaded = true;
         });
@@ -108,18 +116,27 @@ export class UniInbox {
                 modalMessage = 'ACCOUNTING.SUPPLIER_INVOICE.FILE_IN_USE_MSG';
             }
 
-            this.modalService.confirm({
-                header: 'Slett fil',
-                message: modalMessage
-            }).onClose.subscribe(res => {
-                if (res === ConfirmActions.ACCEPT) {
+            const options: IModalOptions = {
+                header: 'Slette fil',
+                message: modalMessage,
+                buttonLabels: {
+                    reject: 'Slett',
+                    accept: 'Avbryt'
+                },
+                footerCls: 'delete-button-outline'
+            };
+
+            this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                if (res === ConfirmActions.REJECT) {
                     if (item.ID === this.currentFileID) {
                         this.closePreview();
                     }
                     this.supplierInvoiceService.send('files/' + item.ID, undefined, 'DELETE').subscribe(
                         () => {
                             this.toast.addToast('Fil slettet', ToastType.good, 5);
-                            this.getDataAndLoadList();
+                            const index = item.ID === this.currentFileID ? 0
+                                : this.inboxList.findIndex(file => file.ID === this.currentFileID);
+                            this.getDataAndLoadList(index > - 1 ? index : 0);
                         }, error => {
                             this.fileService.tag(item.ID, item.FileTags[0].TagName, 90000).subscribe(() => {
                                 this.toast.addToast('Fil fjernet fra innboks', ToastType.good, 2);
@@ -146,7 +163,7 @@ export class UniInbox {
         .onClose.subscribe((response) => {
             done();
             if (!!response) {
-                this.getDataAndLoadList();
+                this.getDataAndLoadList(this.inboxList.length);
             }
         });
     }

@@ -93,6 +93,7 @@ import {UniInbox} from './inbox/inbox';
 import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
 import { UniDateAdapter } from '@app/date-adapter';
 import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirect-modal';
+import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal';
 
 @NgModule({
     imports: [
@@ -142,6 +143,7 @@ import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirec
         UniInbox,
         NewOutgoingWizardModal,
         DoneRedirectModal,
+        SupplierEditModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -235,7 +237,8 @@ import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirec
         NewOutgoingWizardModal,
         ExpenseSummaryModal,
         RecieverModal,
-        DoneRedirectModal
+        DoneRedirectModal,
+        SupplierEditModal
     ],
     exports: [
         AccountSettings,
