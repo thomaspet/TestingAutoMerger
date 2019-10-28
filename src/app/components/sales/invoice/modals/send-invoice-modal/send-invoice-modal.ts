@@ -102,7 +102,6 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     runSelectedOption() {
-        console.log(this.selectedOption);
         if (this.selectedOption) {
             this.selectedOption.action();
         }

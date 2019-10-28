@@ -1,6 +1,6 @@
 <uni-toolbar
     *ngIf="!modalMode"
-    [config]="toolbarconfig"
+    [config]="{title: 'Purringer'}"
     [saveactions]="saveactions">
 </uni-toolbar>
 
@@ -8,7 +8,6 @@
     <section class="uni-container" *ngIf="remindersAll">
         <ag-grid-wrapper
             *ngIf="remindersAll.length"
-            class="transquery-grid-font-size"
             [resource]="remindersAll"
             [config]="reminderTable">
         </ag-grid-wrapper>

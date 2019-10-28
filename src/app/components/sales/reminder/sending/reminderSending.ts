@@ -80,17 +80,10 @@ export class ReminderSending {
 
     currentRunNumber: number = 0;
     private distributeEntityType: string = 'Models.Sales.CustomerInvoiceReminder';
-    private changedReminders: CustomerInvoiceReminder[] = [];
 
     searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
     config$: BehaviorSubject<any> = new BehaviorSubject({});
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-
-    private numberFormat: INumberFormat = {
-        thousandSeparator: ' ',
-        decimalSeparator: ',',
-        decimalLength: 2
-    };
 
     saveactions: IUniSaveAction[] = [
          {
@@ -120,37 +113,11 @@ export class ReminderSending {
     ) {
         route.queryParams.subscribe((params) => {
             const runNumber = +params['runNumber'];
-            if (runNumber)
-            {
+            if (runNumber) {
                 this.currentRunNumber = runNumber;
             }
+
             this.setupReminderTable();
-        });
-    }
-
-    saveReminders(done: (msg: string) => void = () => {}) {
-        const requests = [];
-        for (let i = 0; i < this.changedReminders.length; i++) {
-
-            if (typeof this.changedReminders[i].DueDate === 'string') {
-                this.changedReminders[i].DueDate = new LocalDate(this.changedReminders[i].DueDate.toString());
-            }
-
-            requests.push(this.reminderService.Put(this.changedReminders[i].ID, this.changedReminders[i]));
-        }
-        Observable.forkJoin(requests)
-            .subscribe(resp => {
-                this.toastService.addToast('Purringer ble lagret.', ToastType.good, 5);
-                this.saveactions[4].main = false;
-                this.saveactions[0].main = true;
-                this.saveactions = [...this.saveactions];
-                this.changedReminders = [];
-                done('Purringene ble lagret.');
-                this.loadAll();
-            }, (err) => {
-            done('Feil ved lagring av purringer');
-            this.loadAll();
-            this.errorService.handle(err);
         });
     }
 
@@ -229,13 +196,11 @@ export class ReminderSending {
                     selectedWithoutDistribution.push(selected.find(x => x.ID == id));
                 }
             });
-            if (selectedWithDistribution.length > 0)
-            {
+            if (selectedWithDistribution.length > 0) {
                 this.doDistribute(done, selectedWithDistribution.slice(0, -1));
                 done('Purringer sendt');
             }
-            if (selectedWithoutDistribution.length > 0)
-            {
+            if (selectedWithoutDistribution.length > 0) {
                 this.openSendMethodModal(selectedWithoutDistribution, done);
             }
         });
@@ -323,20 +288,18 @@ export class ReminderSending {
             });
             filter = filter.slice(0, -2) + ')';
         }
-        this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
-            .subscribe((remindersAll: CustomReminder[]) => {
-                if (this.currentRunNumber > 0)
-                {
+        this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter).subscribe(
+            (remindersAll: CustomReminder[]) => {
+                if (this.currentRunNumber > 0) {
                     this.remindersAll = remindersAll.map(reminder => {
                         reminder['_rowSelected'] = true;
                         return reminder;
                     });
-                }
-                else
-                {
+                } else {
                     this.remindersAll = remindersAll;
                 }
-        });
+            }
+        );
     }
 
     getSelected() {
@@ -352,10 +315,10 @@ export class ReminderSending {
     }
 
     sendEmail(doneHandler?, emailReminders = []) {
-        if (emailReminders.length === 0)
-        {
+        if (emailReminders.length === 0) {
             emailReminders = this.getSelectedEmail();
         }
+
         if (emailReminders.length === 0) { return; }
         this.reminderService.sendAction(emailReminders.map(reminder => reminder.ID)).subscribe(() => {
             this.loadAll();//Kan skippes..?
@@ -383,10 +346,10 @@ export class ReminderSending {
     }
 
     sendPrint(all: boolean, printReminders: CustomReminder[] = []) {
-        if (printReminders.length === 0)
-        {
+        if (printReminders.length === 0) {
             printReminders = all ? this.getSelected() : this.getSelectedPrint();
         }
+
         if (printReminders.length === 0) { return; }
         this.reminderService.sendAction(printReminders.map(reminder => reminder.ID)).subscribe(() => {
             this.loadAll(); //Er det nødvendig å hente data etter Print? Ingen data er endret. Valgte rader blir u-valgt, det er vel den eneste forskjellen
@@ -410,8 +373,7 @@ export class ReminderSending {
     }
 
     sendInvoicePrint(done?: (message: string) => void, selected?: CustomReminder[]) {
-        if (!selected)
-        {
+        if (!selected) {
             selected = this.getSelected();
             if (selected.length === 0) {
                 this.toastService.addToast(
@@ -434,78 +396,48 @@ export class ReminderSending {
     private setupReminderTable() {
         this.updateReminderList();
 
-        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
-            .setWidth('8%')
-            .setFilterOperator('contains');
-
-        const jobNumberCol = new UniTableColumn('RunNumber', 'Purrejobb', UniTableColumnType.Text)
-            .setWidth('8%')
-            .setFilterOperator('contains');
-
+        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr');
+        const jobNumberCol = new UniTableColumn('RunNumber', 'Purrejobb');
         const remindedDateCol = new UniTableColumn('RemindedDate', 'Purredato', UniTableColumnType.LocalDate);
-
-        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
-            .setWidth('8%')
-            .setFilterOperator('contains');
-
+        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.');
         const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+        // const customerCol = new UniTableColumn('CustomerName', 'Kunde')
+        //     .setWidth('15rem')
+        //     .setTemplate(row => `${row.CustomerNumber || ''} - ${row.CustomerName || ''}`);
 
-        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr')
             .setWidth('100px').setFilterOperator('startswith');
 
-        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
-            .setWidth('20%')
-            .setFilterOperator('contains');
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde');
 
-        const emailCol = new UniTableColumn('EmailAddress', 'E-post', UniTableColumnType.Text)
-            .setFilterOperator('contains');
+        const emailCol = new UniTableColumn('EmailAddress', 'E-post');
 
-        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-            .setTemplate((reminder) => {
-                return this.reminderService.getStatusText(reminder.StatusCode);
-            });
+        const statusCol = new UniTableColumn('StatusCode', 'Status').setTemplate((reminder) => {
+            return this.reminderService.getStatusText(reminder.StatusCode);
+        });
 
-        const currencyCodeCol = new UniTableColumn('_CurrencyCode', 'Valuta', UniTableColumnType.Text)
-            .setFilterOperator('contains')
-            .setWidth('5%');
+        const currencyCodeCol = new UniTableColumn('_CurrencyCode', 'Valuta')
+            .setVisible(false);
 
         const taxInclusiveAmountCol = new UniTableColumn(
-            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number
-        )
-            .setWidth('8%')
-            .setFilterOperator('eq')
-            .setFormat('{0:n}')
-            .setNumberFormat(this.numberFormat)
-            .setConditionalCls((item) => {
-                return (+item.TaxInclusiveAmountCurrency >= 0)
-                    ? 'number-good' : 'number-bad';
-            })
-            .setCls('column-align-right');
+            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Money
+        ).setConditionalCls((item) => {
+            return (+item.TaxInclusiveAmountCurrency >= 0)
+                ? 'number-good' : 'number-bad';
+        });
 
-        const restAmountCol = new UniTableColumn('_RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
-            .setWidth('10%')
-            .setFilterOperator('eq')
-            .setFormat('{0:n}')
-            .setNumberFormat(this.numberFormat)
+        const restAmountCol = new UniTableColumn('_RestAmountCurrency', 'Restsum', UniTableColumnType.Money)
             .setConditionalCls((item) => {
                 return (+item._RestAmountCurrency <= 0) ? 'number-good' : 'number-bad';
             });
 
-        const feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
-            .setWidth('10%')
-            .setFilterOperator('eq')
-            .setFormat('{0:n}')
-            .setNumberFormat(this.numberFormat)
+        const feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Money)
             .setConditionalCls((item) => {
                 return (+item.RestAmountCurrency <= item.InterestFeeCurrency)
                     || (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
             });
 
-        const interestAmountCol = new UniTableColumn('InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
-            .setWidth('10%')
-            .setFilterOperator('eq')
-            .setFormat('{0:n}')
-            .setNumberFormat(this.numberFormat)
+        const interestAmountCol = new UniTableColumn('InterestFeeCurrency', 'Renter', UniTableColumnType.Money)
             .setVisible(false)
             .setConditionalCls((item) => {
                 return (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
@@ -525,38 +457,31 @@ export class ReminderSending {
         const sharingDateCol = new UniTableColumn('LastSharingDate', 'Siste utsendelsesdato', UniTableColumnType.LocalDate)
             .setVisible(false);
 
-        if (!this.modalMode) {
+        if (this.modalMode) {
+            jobNumberCol.visible = false;
+        } else {
             invoiceNumberCol.setType(UniTableColumnType.Link);
             invoiceNumberCol.setLinkResolver(reminder => `/sales/invoices/${reminder.InvoiceID}`);
 
-            customerNumberCol.setType(UniTableColumnType.Link);
-            customerNumberCol.setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
-
             customerNameCol.setType(UniTableColumnType.Link);
             customerNameCol.setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
-
         }
 
         this.reminderTable = new UniTableConfig('sales.reminders.reminderSending', false, true, 25)
             .setSearchable(true)
-            .setColumnMenuVisible(true)
-            .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
-            .setDeleteButton(false)
-            .setSortable(true)
-            .setContextMenu([
-                {
-                    action: (rows) => this.openEditModal(rows),
-                    label: 'Rediger linje',
-                }
-            ])
+            .setContextMenu([{
+                action: (rows) => this.openEditModal(rows),
+                label: 'Rediger linje',
+            }])
             .setColumns([
                 jobNumberCol, reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol,
-                feeAmountCol, interestAmountCol, dueDateCol, statusCol, remindedDateCol, lastSharingCol, sharingStatusCol, sharingDateCol
+                feeAmountCol, interestAmountCol, dueDateCol, statusCol, remindedDateCol,
+                lastSharingCol, sharingStatusCol, sharingDateCol
             ]);
-        if (this.currentRunNumber > 0)
-        {
+
+        if (this.currentRunNumber > 0) {
             const filter: ITableFilter = {
                 field: 'RunNumber',
                 operator: 'eq',
@@ -578,22 +503,18 @@ export class ReminderSending {
     }
 
     openSendMethodModal(selected: CustomReminder[], done) {
-        this.modalService.open(UniReminderSendingMethodModal, { data: { reminders: selected } }).onClose.subscribe(res => {
-            if (!res)
-            {
+        this.modalService.open(UniReminderSendingMethodModal, {
+            data: { reminders: selected }
+        }).onClose.subscribe(res => {
+            if (!res) {
                 done('Utsendelse av purringer ble avbrutt');
                 return;
             }
-            if (res === 'SendEmailPrint')
-            {
+            if (res === 'SendEmailPrint') {
                 this.sendReminders(done, false, selected);
-            }
-            else if (res === 'SendPrint')
-            {
+            } else if (res === 'SendPrint') {
                 this.sendReminders(done, true, selected);
-            }
-            else if (res === 'SendInvoicePrint')
-            {
+            } else if (res === 'SendInvoicePrint') {
                 this.sendInvoicePrint(done, selected);
             }
         });

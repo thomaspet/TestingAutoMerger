@@ -135,6 +135,7 @@ export class AgGridWrapper {
                 this.markedRowCount = rows ? rows.length : 0;
                 this.sumMarkedRows = (rows && this.sumColName) ? this.sumTotalInGroup(rows.map(row => row[this.sumColName])) : 0;
                 this.rowSelectionChange.emit(rows);
+                this.cdr.markForCheck();
             });
 
         this.columnMoveDebouncer$
