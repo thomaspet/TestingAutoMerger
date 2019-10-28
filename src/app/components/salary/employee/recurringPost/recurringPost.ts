@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {
-    WageTypeService, UniCacheService, AccountService,
+    UniCacheService, AccountService,
     ErrorService, SalaryTransactionSuggestedValuesService, SalaryTransactionService
 } from '../../../../services/services';
 import {SalaryTransViewService} from '../../sharedServices/salaryTransViewService';
@@ -38,7 +38,6 @@ export class RecurringPost extends UniView {
 
     constructor(
         public router: Router,
-        private wagetypeService: WageTypeService,
         protected cacheService: UniCacheService,
         protected route: ActivatedRoute,
         private _accountService: AccountService,
@@ -158,7 +157,7 @@ export class RecurringPost extends UniView {
         const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
-                const wagetype: WageType = dataItem['_Wagetype'] || dataItem.Wagetype;
+                const wagetype: WageType = dataItem.Wagetype || (this.wagetypes && this.wagetypes.find(x => x.WageTypeNumber === dataItem.WageTypeNumber));
 
                 if (!wagetype) {
                     return;

@@ -187,10 +187,13 @@ export class SalaryTransViewService {
 
             const project = projects.find(x => x.ID === employment.Dimensions.ProjectID);
             rowModel['_Project'] = project;
-
-            this.mapDepartmentToTrans(rowModel);
-            this.mapProjectToTrans(rowModel);
+        } else {
+            rowModel['_Project'] = null;
+            rowModel['_Department'] = null;
         }
+
+        this.mapDepartmentToTrans(rowModel);
+        this.mapProjectToTrans(rowModel);
     }
 
     mapProjectToTrans(rowModel: SalaryTransaction) {

@@ -1,11 +1,11 @@
-import {Component, OnDestroy} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom
+    TaxType, StdWageType, GetRateFrom, CompanySalary
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService, StatisticsService} from '../../../services/services';
+import {WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService, StatisticsService, CompanySalaryService} from '../../../services/services';
 import {WageTypeViewService} from './services/wageTypeViewService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -14,10 +14,11 @@ import {UniView} from '../../../../framework/core/uniView';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {Subscription} from 'rxjs';
+import { take, map, catchError, switchMap, filter } from 'rxjs/operators';
 
 const WAGETYPE_KEY = 'wagetype';
 
@@ -25,7 +26,7 @@ const WAGETYPE_KEY = 'wagetype';
     selector: 'uni-wagetype-view',
     templateUrl: './wageTypeView.html'
 })
-export class WageTypeView extends UniView implements OnDestroy {
+export class WageTypeView extends UniView implements OnDestroy, OnInit {
     public busy: boolean;
     private url: string = '/salary/wagetypes/';
     private subs: Subscription[] = [];
@@ -38,6 +39,7 @@ export class WageTypeView extends UniView implements OnDestroy {
 
     public childRoutes: any[];
     public contextMenuItems$: ReplaySubject<IContextMenuItem[]> = new ReplaySubject<IContextMenuItem[]>(1);
+    private companySalary$: ReplaySubject<CompanySalary> = new ReplaySubject(1);
 
     constructor(
         private route: ActivatedRoute,
@@ -51,6 +53,7 @@ export class WageTypeView extends UniView implements OnDestroy {
         private wageTypeViewService: WageTypeViewService,
         private pageStateService: PageStateService,
         private statisticsService: StatisticsService,
+        private companySalaryService: CompanySalaryService,
     ) {
 
         super(router.url, cacheService);
@@ -116,6 +119,12 @@ export class WageTypeView extends UniView implements OnDestroy {
         })
     ];
 
+    }
+
+    public ngOnInit() {
+        this.companySalaryService
+            .getCompanySalary()
+            .subscribe(comp => this.companySalary$.next(comp));
     }
 
     public ngOnDestroy() {
@@ -284,19 +293,32 @@ export class WageTypeView extends UniView implements OnDestroy {
     private getWageType() {
         this.wageTypeService
             .getWageType(this.wagetypeID)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe((wageType: WageType) =>
-                super.updateState(
-                    WAGETYPE_KEY,
-                    wageType.ID ? wageType : this.setDefaultValues(wageType), false));
+            .pipe(
+                catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                switchMap(wt => this.setDefaultValuesIfNeeded(wt)),
+            )
+            .subscribe((wageType: WageType) => super.updateState( WAGETYPE_KEY, wageType, false));
     }
 
-    private setDefaultValues(wageType: WageType): WageType {
+    private setDefaultValuesIfNeeded(wageType: WageType): Observable<WageType> {
+        if (wageType.ID) {
+            return of(wageType);
+        }
+        return this.companySalary$
+            .pipe(
+                take(1),
+                map((comp) => this.setDefaultValues(wageType, comp)),
+            );
+    }
+
+    private setDefaultValues(wageType: WageType, companySalary: CompanySalary): WageType {
         wageType.WageTypeNumber = null;
         wageType.SpecialAgaRule = SpecialAgaRule.Regular;
         wageType.AccountNumber = 5000;
         wageType.Base_Payment = true;
-        wageType.SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
+        wageType.SpecialTaxAndContributionsRule = companySalary.Base_TaxFreeOrganization
+            ? SpecialTaxAndContributionsRule.TaxFreeOrganization
+            : SpecialTaxAndContributionsRule.Standard;
         wageType.taxtype = TaxType.Tax_Table;
         wageType.StandardWageTypeFor = StdWageType.None;
         wageType.GetRateFrom = GetRateFrom.WageType;
@@ -340,16 +362,18 @@ export class WageTypeView extends UniView implements OnDestroy {
     public newWagetype() {
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
-                this.wageTypeService.GetNewEntity().subscribe((response) => {
-                    if (response) {
+                this.wageTypeService
+                    .GetNewEntity()
+                    .pipe(
+                        catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                        filter(wt => !!wt),
+                        switchMap(wt => this.setDefaultValuesIfNeeded(wt))
+                    )
+                    .subscribe((response) => {
                         this.wageType = response;
-                        if (this.wageType.ID === 0) {
-                            this.setDefaultValues(this.wageType);
-                        }
                         const childRoute = this.router.url.split('/').pop();
                         this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
-                    }
-                }, err => this.errorService.handle(err));
+                    });
             }
         });
     }

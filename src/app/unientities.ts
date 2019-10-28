@@ -2304,6 +2304,7 @@ export class CompanySalary extends UniEntity {
     public Base_PayAsYouEarnTaxOnPensions: boolean;
     public Base_SpesialDeductionForMaritim: boolean;
     public Base_Svalbard: boolean;
+    public Base_TaxFreeOrganization: boolean;
     public CalculateFinancialTax: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;

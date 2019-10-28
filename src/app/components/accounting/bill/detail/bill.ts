@@ -3580,8 +3580,13 @@ export class BillView implements OnInit {
             } else {
                 const completeAccount = (item: JournalEntryLineDraft, addToList = false) => {
                     if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
-                        item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
-                        item.VatDate = current.InvoiceDate || current.DeliveryDate;
+
+                        const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
+                        const vd = current.InvoiceDate;
+
+                        item.FinancialDate = fd;
+                        item.VatDate = vd;
+
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
                         item.Description = item.Description
                             || ('fakturanr. ' + current.InvoiceNumber);
