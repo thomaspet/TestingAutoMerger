@@ -47,6 +47,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     totalAmount: number = 0;
     missingData: boolean;
     missingDataMsg: string = 'Mangler data';
+    colors = ['#008A00', '#FF9100', '#FFF001', '#DA3D00', '#A20076'];
 
     constructor(
         private statisticsService: StatisticsService,
@@ -167,7 +168,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
             data: {
                 datasets: [{
                     data: [],
-                    backgroundColor: ['#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF'],
+                    backgroundColor: this.colors, // ['#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF'],
                     label: '',
                     borderColor: 'white'
                 }],
@@ -176,7 +177,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutoutPercentage: 80,
+                cutoutPercentage: 78,
                 animation: {
                     animateScale: true
                 },

@@ -39,6 +39,11 @@ export class CanvasHelper {
             if (config) {
                 config.x = item.x;
                 config.y = item.y;
+
+                if (item.widthOverride) {
+                    config.width = item.widthOverride;
+                }
+
                 widgets.push(config);
             }
         });
