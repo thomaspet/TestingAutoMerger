@@ -19,6 +19,7 @@
 
         <button type="button"
             tabindex="-1"
+            style="pointer-events: none"
             [disabled]="readOnly$ | async">
             <i class="material-icons">{{rows?.length ? 'expand_more' : 'add'}}</i>
         </button>
