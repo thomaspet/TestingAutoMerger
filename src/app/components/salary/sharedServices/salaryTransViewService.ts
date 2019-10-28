@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {
-    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement, VatType, LocalDate
+    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement, VatType, LocalDate, Department, Dimensions, Employment, Project
 } from '../../../unientities';
 import {SupplementService, VatTypeService} from '../../../services/services';
 import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
@@ -29,7 +29,7 @@ export class SalaryTransViewService {
             .setTemplate((rowModel: any) => {
                 const vatType = rowModel.VatType;
                 if (vatType) {
-                    return `${vatType.VatCode}: ${this.getPercent(vatType, rowModel, fromDateField)}%`;
+                    return `${vatType.VatCode}: ${this.getVatPercent(vatType, rowModel, fromDateField)}%`;
                 }
                 return '';
             })
@@ -79,15 +79,14 @@ export class SalaryTransViewService {
             });
     }
 
-    private getPercent(vatType: VatType, rowModel: any, fromDateField: string): number {
-
+    private getVatPercent(vatType: VatType, rowModel: any, fromDateField: string): number {
         if (!vatType.VatTypePercentages) {
             return 0;
         }
-
+        const fromDate = new LocalDate('' + rowModel[fromDateField]);
         const percentage = vatType.VatTypePercentages.find(x =>
-            x.ValidFrom <= new LocalDate(rowModel[fromDateField]) &&
-            (x.ValidTo >= new LocalDate(rowModel[fromDateField]) || !x.ValidTo));
+            (x.ValidFrom <= fromDate) &&
+            ((x.ValidTo >= fromDate) || !x.ValidTo));
         return vatType.VatPercent || percentage && percentage.VatPercent || 0;
     }
 
@@ -176,6 +175,52 @@ export class SalaryTransViewService {
             ? ''
             : `${displayVal}
 `;
+    }
+
+    mapEmploymentToTrans(rowModel: SalaryTransaction, departments: Department[], projects: Project[]) {
+        const employment: Employment = rowModel['_Employment'];
+        rowModel['EmploymentID'] = (employment) ? employment.ID : null;
+
+        if (employment && employment.Dimensions) {
+            const department = departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+            rowModel['_Department'] = department;
+
+            const project = projects.find(x => x.ID === employment.Dimensions.ProjectID);
+            rowModel['_Project'] = project;
+
+            this.mapDepartmentToTrans(rowModel);
+            this.mapProjectToTrans(rowModel);
+        }
+    }
+
+    mapProjectToTrans(rowModel: SalaryTransaction) {
+        const project: Project = rowModel['_Project'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!project) {
+            rowModel.Dimensions.ProjectID = null;
+            return;
+        }
+
+        rowModel.Dimensions.ProjectID = project.ID;
+    }
+
+    mapDepartmentToTrans(rowModel: SalaryTransaction) {
+        const department: Department = rowModel['_Department'];
+
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = new Dimensions();
+        }
+
+        if (!department) {
+            rowModel.Dimensions.DepartmentID = null;
+            return;
+        }
+
+        rowModel.Dimensions.DepartmentID = department.ID;
     }
 
     public openSupplements(row: SalaryTransaction, onClose: (trans: SalaryTransaction) => any, readOnly: boolean) {

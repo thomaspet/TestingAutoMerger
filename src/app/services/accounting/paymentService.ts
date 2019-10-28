@@ -14,7 +14,7 @@ export class PaymentService extends BizHttp<Payment> {
     }
 
     public createPaymentBatchForAll() {
-        return super.PostAction(null, 'create-payment-batch-for-all-payments');
+        return super.PostAction(null, 'create-payment-batch-for-all-payments', 'acceptjob=true');
     }
 
     public createPaymentBatch(paymentIDs: Array<number>, isManual: boolean = false): Observable<any> {

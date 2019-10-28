@@ -12,7 +12,8 @@ export class ImportCentralService {
         supplier: new ImportUIPermission(),
         ledger: new ImportUIPermission(),
         payroll: new ImportUIPermission(),
-        saft: new ImportSaftUIPermission()
+        saft: new ImportSaftUIPermission(),
+        voucher: new ImportUIPermission()
     }
 
     public getTemplateWithData(entityType) {
@@ -37,16 +38,13 @@ export class ImportCentralService {
 
     public getAccessibleComponents(permissions) {
         this.resetSaftUIPermissions();
-        ['customer', 'product', 'supplier', 'ledger', 'payroll'].forEach(ent => this.resetUIPermissions(ent));
+        const imports = ['customer', 'product', 'supplier', 'ledger', 'payroll', 'voucher'];
+        imports.forEach(ent => this.resetUIPermissions(ent));
         if (permissions.length) {
             permissions.map(per => {
                 let uiKeys = per.split('_');
                 if (uiKeys.includes('import')) {
-                    this.setPermissions(uiKeys, 'customer');
-                    this.setPermissions(uiKeys, 'product');
-                    this.setPermissions(uiKeys, 'supplier');
-                    this.setPermissions(uiKeys, 'ledger');
-                    this.setPermissions(uiKeys, 'payroll');
+                    imports.forEach(im => this.setPermissions(uiKeys, im));
                     if (uiKeys.includes('saf-t-import')) {
                         this.setPermissionSaft(uiKeys, SaftPermissions.import);
                     } else if (uiKeys.includes('saf-t-export')) {
@@ -55,11 +53,7 @@ export class ImportCentralService {
                 }
             });
         } else {
-            this.setPermissions(permissions, 'customer');
-            this.setPermissions(permissions, 'product');
-            this.setPermissions(permissions, 'supplier');
-            this.setPermissions(permissions, 'ledger');
-            this.setPermissions(permissions, 'payroll');
+            imports.forEach(im => this.setPermissions(permissions, im));
             this.setPermissionSaft(permissions, 'saft');
         }
         return this.uiPermission;

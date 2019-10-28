@@ -29,8 +29,6 @@ export class UniUploadFileSaveAction {
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter<File>();
 
     private baseUrl: string = environment.BASE_URL_FILES;
-    private uniEconomyToken: any;
-    private activeCompany: any;
     textOnButton: string = 'Last opp';
 
     constructor(
@@ -38,12 +36,7 @@ export class UniUploadFileSaveAction {
         private errorService: ErrorService,
         private authService: AuthService,
         private fileService: FileService
-    ) {
-        this.authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.uniEconomyToken = authDetails.token;
-        });
-    }
+    ) {}
 
     public ngOnInit() {
         this.textOnButton = this.buttonText;
@@ -62,8 +55,8 @@ export class UniUploadFileSaveAction {
 
     private uploadFile(file: File) {
         const data = new FormData();
-        data.append('Token', this.uniEconomyToken);
-        data.append('Key', this.activeCompany.Key);
+        data.append('Token', this.authService.jwt);
+        data.append('Key', this.authService.activeCompany.Key);
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
 

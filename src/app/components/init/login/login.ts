@@ -1,29 +1,29 @@
-import {Component, ViewChild, ElementRef} from '@angular/core';
-import {FormControl, Validators} from '@angular/forms';
-import {Router} from '@angular/router';
-import {AuthService} from '../../../authService';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
-import {Logger} from '../../../../framework/core/logger';
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../authService';
+import { UniHttp } from '../../../../framework/core/http/http';
+import {
+    UniSelect,
+    ISelectConfig
+} from '../../../../framework/ui/uniform/index';
+import { Logger } from '../../../../framework/core/logger';
 import * as $ from 'jquery';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import { BrowserStorageService } from '@uni-framework/core/browserStorageService';
+import { UserManager } from 'oidc-client';
 
 @Component({
     selector: 'uni-login',
-    templateUrl: './login.html'
+    templateUrl: './login.html',
+    styleUrls:['./login.sass']
 })
 export class Login {
-    @ViewChild(UniSelect)
-    private select: UniSelect;
-
     @ViewChild('loginForm')
     private loginForm: ElementRef;
-
+    @ViewChild(UniSelect)
+    private select: UniSelect;
     @ViewChild('companySelector')
     private companySelector: ElementRef;
-
-    public usernameControl: FormControl = new FormControl('', Validators.required);
-    public passwordControl: FormControl = new FormControl('', Validators.required);
 
     public working: boolean;
     public errorMessage: string = '';
@@ -37,42 +37,28 @@ export class Login {
         private _router: Router,
         private http: UniHttp,
         private logger: Logger,
-        private browserStorage: BrowserStorageService,
+        private browserStorage: BrowserStorageService
     ) {
         this.selectConfig = {
             displayProperty: 'Name',
-            placeholder: 'Velg selskap',
+            placeholder: 'Velg selskap'
         };
+        // If user Authenticated
+        this._authService.isAuthenticated().then(isAuthenticated => {
+            if (isAuthenticated) {
+                this.selectCompany();
+            }
+        });
+
     }
 
-    public login(event: Event) {
-        event.preventDefault();
-        this.errorMessage = '';
-        this.working = true;
-        this.usernameControl.disable();
-        this.passwordControl.disable();
-
-        this._authService.authenticate({
-            username: this.usernameControl.value,
-            password: this.passwordControl.value
-        }).subscribe(
-            () => {
-                this.usernameControl.setValue('');
-                this.passwordControl.setValue('');
-                this.selectCompany();
-            },
-            () => {
-                this.working = false;
-                this.usernameControl.enable();
-                this.passwordControl.enable();
-                this.passwordControl.setValue(null);
-                this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.';
-            }
-        );
+    public login() {
+        this._authService.authenticate();
     }
 
     private selectCompany() {
-        this.http.asGET()
+        this.http
+            .asGET()
             .usingInitDomain()
             .withEndPoint('companies')
             .send()
@@ -91,10 +77,14 @@ export class Login {
                 this.availableCompanies = response.body;
 
                 try {
-                    const lastActiveCompanyKey = this.browserStorage.getItem('lastActiveCompanyKey');
-                    const lastActiveCompany = this.availableCompanies.find((company) => {
-                        return company.Key === lastActiveCompanyKey;
-                    });
+                    const lastActiveCompanyKey = this.browserStorage.getItem(
+                        'lastActiveCompanyKey'
+                    );
+                    const lastActiveCompany = this.availableCompanies.find(
+                        company => {
+                            return company.Key === lastActiveCompanyKey;
+                        }
+                    );
 
                     if (lastActiveCompany) {
                         this.onCompanySelected(lastActiveCompany);
@@ -115,15 +105,13 @@ export class Login {
 
     public resetLogin() {
         this.missingCompanies = false;
-        this.usernameControl.enable();
-        this.passwordControl.enable();
-        $(this.companySelector.nativeElement).hide();
-        $(this.loginForm.nativeElement).show();
+        this._authService.clearAuthAndGotoLogin();
     }
 
     public onCompanySelected(company) {
         if (company) {
-            const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
+            const url =
+                this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');
             this._authService.setActiveCompany(company, url);
         }

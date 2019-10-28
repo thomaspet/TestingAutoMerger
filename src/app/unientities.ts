@@ -881,8 +881,6 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public DebtCollectionSettingsID: number;
-    public DefaultProductInterestFeeID: number;
-    public DefaultProductReminderFeeID: number;
     public Deleted: boolean;
     public ID: number;
     public MinimumAmountToRemind: number;
@@ -892,8 +890,7 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public UpdatedBy: string;
     public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
-    public DefaultProductReminderFee: Product;
-    public DefaultProductInterestFee: Product;
+    public DefaultReminderFeeAccountID: number;
     public CustomFields: any;
 }
 
@@ -1446,13 +1443,9 @@ export class BatchInvoice extends UniEntity {
     public Items: Array<BatchInvoiceItem>;
     public StatusCode: number;
     public YourRef: string;
-/* Andre felt i backend:
-        public string Comment { get; set; }
-        [ReadOnly]
-        public int Processed { get; set; }
-        [ReadOnly]
-        public int TotalToProcess { get; set; }
-*/
+    public Comment: string;
+    public Processed: number;
+    public TotalToProcess: number;
 }
 
 export class BatchInvoiceItem extends UniEntity {
@@ -8961,6 +8954,7 @@ export enum SpecialTaxAndContributionsRule{
     PayAsYouEarnTaxOnPensions = 4,
     JanMayenAndBiCountries = 5,
     NettoPaymentForMaritim = 6,
+    TaxFreeOrganization = 7,
 }
 
 

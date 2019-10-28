@@ -75,14 +75,12 @@ export class UserService extends BizHttp<User> {
             .map(res => res.body);
     }
 
-    public changeAutobankPassword(body: any) {
+    public changeAutobankPassword() {
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint('users?action=change-autobank-password')
-            .withBody(body)
-            .send()
-            .map(res => res.body);
+            .withEndPoint('users?action=self-reset-autobank-password')
+            .send();
     }
 
     public getUsersByGUIDs(GUIDs: string[]): Observable<User[]> {

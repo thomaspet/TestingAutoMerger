@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {UniHttp} from '../../core/http/http';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
-import {ErrorService, FileService, UniFilesService} from '../../../app/services/services';
+import {ErrorService, FileService} from '../../../app/services/services';
 import {AuthService} from '../../../app/authService';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {environment} from 'src/environments/environment';
@@ -96,8 +96,6 @@ export class UniFileUploadModal implements IUniModal {
     uploadedFileIds: any[];
     hasErrors: boolean = false;
     message: string = '';
-    token: any;
-    activeCompany: any;
     allFilesSelected: boolean = false;
 
     constructor(
@@ -105,14 +103,8 @@ export class UniFileUploadModal implements IUniModal {
         private http: UniHttp,
         private errorService: ErrorService,
         private authService: AuthService,
-        private uniFilesService: UniFilesService,
         private fileService: FileService
-    ) {
-        authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.token = authDetails.token;
-        });
-     }
+    ) {}
 
     public uploadFile(event) {
         const source = event.srcElement || event.target;
@@ -186,8 +178,8 @@ export class UniFileUploadModal implements IUniModal {
 
     private fileUploadFunction(file) {
         const data = new FormData();
-        data.append('Token', this.token);
-        data.append('Key', this.activeCompany.Key);
+        data.append('Token', this.authService.jwt);
+        data.append('Key', this.authService.activeCompany.Key);
         data.append('Caption', ''); // Where should we get this from the user?
         data.append('File', <any>file);
 

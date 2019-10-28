@@ -92,7 +92,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
         )
         .pipe(
             map(([runCats, empCats]) => this.getPayrollRunsWithTransesForDeletion(runCats, empCats)),
-            switchMap(runs =>  runs[0] ? this.askIfTheUserWantsToForceDelete(runs) : Observable.of({action: ConfirmActions.ACCEPT, runs: null})),
+            switchMap(runs =>  runs.length ? this.askIfTheUserWantsToForceDelete(runs) : Observable.of({action: ConfirmActions.ACCEPT, runs: null})),
             filter(result => result.action === ConfirmActions.ACCEPT),
             map(result => result.runs),
             switchMap((runs) => runs ? this.deleteTransesOnRuns(runs) : Observable.of([])),
@@ -168,11 +168,11 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
                         )
                     )
                     .pipe(
-                        map(runCats => runCats.filter(runCat => !(runCat.categories.length || runCat.run.transactions.length))),
                         map(runCats => runCats.map(runCat => ({
                             run: this.cleanTransesOnRun(runCat.run),
                             categories: runCat.categories.filter(cat => cat.ID !== categoryID)
-                        })))
+                        }))),
+                        map(runCats => runCats.filter(runCat => (runCat.categories.length && runCat.run.transactions.length))),
                     )
                 )
             );

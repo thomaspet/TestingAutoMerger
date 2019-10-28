@@ -182,10 +182,6 @@ export class UniTickerService {
 
                                                 if (typeof action.DisplayInActionBar !== 'boolean') {
                                                     action.DisplayInActionBar = true;
-                                                    //TODO: Remove when batch invoicing is ready
-                                                    if (action.Code === 'batch_invoicing') {
-                                                        action.DisplayInActionBar = false;
-                                                    }
                                                 }
                                                 if (typeof action.DisplayInContextMenu !== 'boolean') {
                                                     action.DisplayInContextMenu = false;
@@ -652,6 +648,9 @@ export class UniTickerService {
 
                     if (externalModel && externalModel.DetailsUrl) {
                         url = externalModel.DetailsUrl;
+                        if (modelName === 'CustomerInvoiceReminder') {
+                            url = url + '/reminded';
+                        }
 
                         if (column.LinkNavigationProperty) {
                             const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');

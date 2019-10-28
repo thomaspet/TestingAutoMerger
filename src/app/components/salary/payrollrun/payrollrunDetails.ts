@@ -987,6 +987,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     .recalculateTax(this.payrollrunID)
                     .finally(() => this.busy = false)
                     .subscribe(() => {
+                        this.updateState(REFRESH_SUMS_KEY, true, false);
                         this.getData();
                     }, err => this.errorService.handle(err));
             }

@@ -90,9 +90,8 @@ export class UniQueryDetails {
             });
         });
 
-        const token = this.authService.getTokenDecoded();
-        if (token) {
-            this.currentUserGlobalIdentity = token.nameid;
+        if (this.authService.currentUser) {
+            this.currentUserGlobalIdentity = this.authService.currentUser.GlobalIdentity;
         }
 
         this.lookupFunction = (urlParams: HttpParams) => {

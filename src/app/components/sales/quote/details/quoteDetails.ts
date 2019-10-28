@@ -89,6 +89,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
     private printStatusPrinted: string = '200';
+    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
 
     private numberSeries: NumberSeries[];
@@ -129,6 +130,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     distributionPlans: any[];
     reports: any[];
 
+    isDistributable = false;
+
     private customerExpands: string[] = [
         'Info',
         'Info.Addresses',
@@ -152,7 +155,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller.Seller',
+        'Distributions'
     ];
 
     private quoteExpands: string[] = [
@@ -473,6 +477,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
                 this.recalcItemSums(quote.Items);
                 this.updateCurrency(quote, true);
+
+                this.isDistributable = this.tofHelper.isDistributable('CustomerQuote', this.quote, this.companySettings, this.distributionPlans);
 
                 this.updateTab();
                 this.updateToolbar();
@@ -1094,7 +1100,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             : Observable.of(this.quote);
 
         return savedQuote.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
+            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
+            .finally(() => {
+                this.customerQuoteService.setPrintStatus(this.quote.ID, this.printStatusEmail).take(1).subscribe();
+            });
         });
     }
 
@@ -1103,7 +1112,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             {
                 label: 'Send via utsendelsesplan',
                 action: () => this.distribute(),
-                disabled: () => !this.quote.ID
+                disabled: () => !this.quote.ID || !this.isDistributable
             },
             {
                 label: 'Skriv ut / send e-post',

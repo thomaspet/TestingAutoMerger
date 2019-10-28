@@ -9,6 +9,8 @@ export interface IUniTab {
     value?: any;
     count?: number;
     onClick?: () => void;
+    tooltipIcon?: string;
+    tooltipClass?: string;
 }
 
 @Component({
@@ -24,8 +26,8 @@ export interface IUniTab {
                     {{tab[labelProperty]}}
                     <strong>{{tab[counterProperty]}}</strong>
 
-                    <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
-                        info
+                    <i class="material-icons tab-tooltip {{tab.tooltipClass || ''}}" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
+                        {{tab.tooltipIcon || 'info'}}
                     </i>
                 </ng-template>
             </mat-tab>

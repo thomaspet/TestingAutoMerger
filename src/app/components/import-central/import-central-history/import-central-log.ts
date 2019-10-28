@@ -28,7 +28,8 @@ export class ImportCentralLog implements OnInit {
         supplier: new ImportUIPermission(),
         ledger: new ImportUIPermission(),
         payroll: new ImportUIPermission(),
-        saft: new ImportSaftUIPermission()
+        saft: new ImportSaftUIPermission(),
+        voucher: new ImportUIPermission()
     }
 
     constructor(
@@ -67,6 +68,7 @@ export class ImportCentralLog implements OnInit {
             placeholder: 'Entity',
             searchable: false,
             displayProperty: 'name',
+            hideDeleteButton: true
         };
         let templateType = [];
         templateType.push({ id: TemplateType.All, name: 'All' });

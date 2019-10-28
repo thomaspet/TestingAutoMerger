@@ -271,7 +271,7 @@ export class VariablePayrollsComponent {
             let filterString = params.get('filter') || '';
             filterString += filterString ? ' and ' : '';
             filterString += `(PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq 'false' and isnull(SalaryBalanceID,0) eq 0 and`
-            + ` (SystemType eq 0 or SystemType eq 5 or SystemType eq 6 or SystemType eq 7))`;
+            + ` (SystemType eq 0 or SystemType eq 5 or SystemType eq 6))`;
 
             params = params.set('model', 'SalaryTransaction');
             params = params.set('filter', filterString);

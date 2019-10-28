@@ -77,7 +77,6 @@ export class UniImage {
     private baseUrl: string = environment.BASE_URL_FILES;
 
     private token: any;
-    private uniEconomyToken: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
 
@@ -112,15 +111,16 @@ export class UniImage {
         this.authService.authentication$.pipe(
             takeUntil(this.onDestroy$)
         ).subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.refreshFiles();
+            if (authDetails && authDetails.activeCompany) {
+                this.activeCompany = authDetails.activeCompany;
+                this.refreshFiles();
+            }
         });
 
         this.authService.filesToken$.pipe(
             takeUntil(this.onDestroy$)
         ).subscribe(token => {
             this.token = token;
-            this.uniEconomyToken = this.authService.jwt;
             if (this.files) {
                 this.files = this.setThumbnailUrls(this.files);
                 this.showFile(this.currentFile);
@@ -634,7 +634,7 @@ export class UniImage {
 
     private uploadFile(file) {
         const data = new FormData();
-        data.append('Token', this.uniEconomyToken);
+        data.append('Token', this.authService.jwt);
         data.append('Key', this.activeCompany.Key);
         if (this.entity) {
             data.append('EntityType', this.entity);

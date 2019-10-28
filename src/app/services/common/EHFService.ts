@@ -23,7 +23,11 @@ export class EHFService extends BizHttp<EHFLog> {
         this.entityType = EHFLog.EntityType;
         this.DefaultOrderBy = null;
 
-        this.http.authService.authentication$.subscribe(() => this.updateActivated());
+        this.http.authService.authentication$.subscribe(auth => {
+            if (auth && auth.user) {
+                this.updateActivated();
+            }
+        });
     }
 
     public activate(activate) {
@@ -32,7 +36,7 @@ export class EHFService extends BizHttp<EHFLog> {
     }
 
     public updateActivated() {
-        this.companySettingsService.Get(1, ["APOutgoing"]).subscribe(settings => {
+        this.companySettingsService.Get(1, ['APOutgoing']).subscribe(settings => {
             this.companySettings$.next(settings);
         });
     }

@@ -1,0 +1,16 @@
+<script src="./oidc-client/oidc-client.min.js"></script>
+<script>
+
+  var mgr = new Oidc.UserManager({ userStore: new Oidc.WebStorageStateStore({ store: window.localStorage }) });
+  mgr.signinRedirectCallback().then((res) => {
+      console.log(res)
+      window.location = "/#/init/login";
+
+    }, error => {
+        console.error(error);
+    });
+
+</script>
+
+
+

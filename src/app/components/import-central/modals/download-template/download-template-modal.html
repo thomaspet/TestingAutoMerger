@@ -13,12 +13,12 @@
                     </uni-select>
                 </label>
             </div>
-            <div class="check-box-section"
+            <div class="check-box-section row-check"
                 *ngIf="options.data.Permisions.hasTemplateDataAccess && options.data.EntityType !== saft">
                 <label class="title"></label>
                 <label class="check-box-container">
                     <mat-checkbox class="check-box" [(ngModel)]="isSelected"
-                        [disabled]="options.data.EntityType == payrollType" [ngModelOptions]="{standalone: true}"
+                        [disabled]="options.data.EntityType == payrollType || options.data.EntityType == voucher" [ngModelOptions]="{standalone: true}"
                         (click)="$event.stopPropagation()">
                     </mat-checkbox>
                     <label class="option-text">

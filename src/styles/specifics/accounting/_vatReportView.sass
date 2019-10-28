@@ -4,6 +4,16 @@
     @extend .amelding_poster_widget
 .vatreport_poster_details
     @extend .amelding_poster_details
+
+    dd
+
+        &.success
+            color: $uni-color-good
+
+        &.inprogress
+            color: $uni-color-action
+
+
 .vatreport_poster_figures
     width: 100%
     padding: 1rem
@@ -30,30 +40,7 @@
         white-space: nowrap
 
 .vatreport_poster_events
-    li
-        width: 100%
-        border-radius: pxToRem(3)
-        display: block
-        list-style: none
-        text-align: center
-        padding: .2rem 1rem
-        font-size: 1rem
-
-        &:not(:last-of-type)
-            margin-bottom: .5rem
-
-        &.success
-            color: $uni-color-good
-            border: pxToRem(2) solid $uni-color-good
-
-        &.warn
-            color: $uni-color-warn
-            border: pxToRem(2) solid $uni-color-warn
-
-        &.incomplete
-            color: $uni-color-scale5
-            border: pxToRem(2) solid $uni-color-scale5
-
+    @extend .amelding_poster_events
 
 vat-report-view
     .comment

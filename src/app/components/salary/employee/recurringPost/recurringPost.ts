@@ -273,15 +273,15 @@ export class RecurringPost extends UniView {
                 }
 
                 if (event.field === '_Project') {
-                    this.mapProjectToTrans(row);
+                    this.salaryTransViewService.mapProjectToTrans(row);
                 }
 
                 if (event.field === '_Department') {
-                    this.mapDepartmentToTrans(row);
+                    this.salaryTransViewService.mapDepartmentToTrans(row);
                 }
 
                 if (event.field === '_Employment') {
-                    this.mapEmploymentToTrans(row);
+                    this.salaryTransViewService.mapEmploymentToTrans(row, this.departments, this.projects);
                 }
 
                 let obs = null;
@@ -333,7 +333,7 @@ export class RecurringPost extends UniView {
                 rowModel['_Employment'] = employment;
             }
         }
-        this.mapEmploymentToTrans(rowModel);
+        this.salaryTransViewService.mapEmploymentToTrans(rowModel, this.departments, this.projects);
 
         const wagetype = rowModel['_Wagetype'];
         rowModel['Text'] = wagetype.WageTypeName;
@@ -365,23 +365,6 @@ export class RecurringPost extends UniView {
         }
     }
 
-    private mapEmploymentToTrans(rowModel: SalaryTransaction) {
-        const employment = rowModel['_Employment'];
-        rowModel['EmploymentID'] = (employment) ? employment.ID : null;
-
-        if (employment && employment.Dimensions) {
-            const department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
-
-            rowModel['_Department'] = department || rowModel['_Department'];
-
-            const project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
-            rowModel['_Project'] = project || rowModel['_Project'];
-
-            this.mapDepartmentToTrans(rowModel);
-            this.mapProjectToTrans(rowModel);
-        }
-    }
-
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
         rowModel.EmployeeID = this.employeeID;
         return this.salaryTransService.completeTrans(rowModel).map(trans => {
@@ -400,36 +383,6 @@ export class RecurringPost extends UniView {
         }
 
         rowModel.Account = account.AccountNumber;
-    }
-
-    private mapProjectToTrans(rowModel: SalaryTransaction) {
-        const project = rowModel['_Project'];
-
-        if (!rowModel.Dimensions) {
-            rowModel.Dimensions = new Dimensions();
-        }
-
-        if (!project) {
-            rowModel.Dimensions.ProjectID = null;
-            return;
-        }
-
-        rowModel.Dimensions.ProjectID = project.ID;
-    }
-
-    private mapDepartmentToTrans(rowModel: SalaryTransaction) {
-        const department: Department = rowModel['_Department'];
-
-        if (!rowModel.Dimensions) {
-            rowModel.Dimensions = new Dimensions();
-        }
-
-        if (!department) {
-            rowModel.Dimensions.DepartmentID = null;
-            return;
-        }
-
-        rowModel.Dimensions.DepartmentID = department.ID;
     }
 
     private calcItem(rowModel: SalaryTransaction): SalaryTransaction {

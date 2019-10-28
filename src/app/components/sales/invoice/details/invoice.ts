@@ -34,7 +34,6 @@ import {
     CustomerInvoiceService,
     CustomerService,
     EHFService,
-    VIPPSService,
     ErrorService,
     NumberFormat,
     ProjectService,
@@ -65,7 +64,6 @@ import {
     UniConfirmModalV2,
     IModalOptions,
     UniChooseReportModal,
-    UniSendVippsInvoiceModal,
 } from '@uni-framework/uni-modal';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
@@ -163,6 +161,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
+    isDistributable = false;
+
     private customerExpands: string[] = [
         'DeliveryTerms',
         'Dimensions',
@@ -234,7 +234,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private customerInvoiceService: CustomerInvoiceService,
         private customerService: CustomerService,
         private ehfService: EHFService,
-        private vippsService: VIPPSService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private numberFormat: NumberFormat,
@@ -1154,6 +1153,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (this.tradeItemTable) {
             this.tradeItemTable.getMandatoryDimensionsReports();
         }
+
+        this.isDistributable = this.tofHelper.isDistributable('CustomerInvoice', this.invoice, this.companySettings, this.distributionPlans);
+
         this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
@@ -1342,7 +1344,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             {
                 label: 'Send via utsendelsesplan',
                 action: () => this.distribute(),
-                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
+                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber || !this.isDistributable
             },
             {
                 label: 'Skriv ut / send e-post',
@@ -1402,7 +1404,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.saveActions.push({
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
-            action: done =>  {
+            action: done => {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
                 }
@@ -1454,11 +1456,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             disabled: status !== StatusCodeCustomerInvoice.Draft
         });
 
-        this.saveActions.push({
-            label: 'Send til Vipps',
-            action: (done) => this.sendToVippsAction(done),
-            disabled: false
-        });
 
         if (this.aprilaOption.hasPermission && this.invoice.InvoiceType === InvoiceTypes.Invoice) {
             if (this.invoiceID === 0 || (this.invoice && (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft))) {
@@ -1505,32 +1502,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         ).onClose.subscribe((res: boolean) => {
 
-        });
-    }
-
-    private sendToVippsAction(doneHandler: (msg?: string) => void) {
-        this.vippsService.isActivated('Vipps').subscribe(data => {
-            if (data) {
-                this.modalService.open(UniSendVippsInvoiceModal, {
-                    data: this.invoice.ID
-                }).onClose.subscribe(text => {
-                    doneHandler();
-                });
-            } else {
-                this.modalService.confirm({
-                    header: 'Markedsplassen',
-                    message: 'Til markedsplassen for å kjøpe tilgang til å sende Vipps?',
-                    buttonLabels: {
-                        accept: 'Ja',
-                        cancel: 'Nei'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.router.navigateByUrl('/marketplace/modules');
-                    }
-                    doneHandler('');
-                });
-            }
         });
     }
 
@@ -2184,6 +2155,45 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private distribute() {
         return Observable.create((obs) => {
+            var invoicedate = moment(this.invoice.InvoiceDate);
+            if (invoicedate.isAfter(moment(), 'days')) {
+                this.modalService.confirm({
+                    header: 'Sende nå eller frem i tid?',
+                    message: `Fakturadato er frem i tid ønsker du likevel å sende nå eller bestille automatisk utsendelse til ${invoicedate.format('YYYY.MM.DD')}?`,
+                    buttonLabels: {
+                        accept: 'Send',
+                        reject: 'Bestill til fakturadato',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    switch (response) {
+                        case ConfirmActions.ACCEPT:
+                            this.askExistingSharing().subscribe(readyToSend => {
+                                readyToSend
+                                    ? this.doDistribute(obs)
+                                    : obs.complete();
+                            });
+                            break;
+                        case ConfirmActions.REJECT:
+                            this.doDistribute(obs, true);
+                            break;
+                        default:
+                            obs.complete();
+                            break;
+                    }
+                });
+            } else {
+                this.askExistingSharing().subscribe(readyToSend => {
+                    readyToSend
+                        ? this.doDistribute(obs)
+                        : obs.complete();
+                });
+            }
+        });
+    }
+
+    private askExistingSharing(): Observable<boolean> {
+        return Observable.create((obs) => {
             this.statisticsService.GetAllUnwrapped(
                 `model=Sharing&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoiceID}`
                 + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`)
@@ -2201,25 +2211,27 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 cancel: 'Nei'
                             }
                         }).onClose.subscribe(response => {
-                            if (response === ConfirmActions.ACCEPT) {
-                                this.doDistribute(obs);
-                            } else {
-                                obs.complete();
-                            }
+                            obs.next(response === ConfirmActions.ACCEPT);
+                            obs.complete();
                         });
                     } else {
-                        this.doDistribute(obs);
+                        obs.next(true);
+                        obs.complete();
                     }
                 },
                     err => {
+                        obs.next(false);
                         obs.complete();
                         this.errorService.handle(err);
-                    });
+                });    
         });
     }
 
-    private doDistribute(obs) {
-        this.reportService.distribute(this.invoice.ID, this.distributeEntityType).subscribe(() => {
+    private doDistribute(obs, distributeWithDate = false) {
+        const distribute = distributeWithDate
+            ? this.reportService.distributeWithDate(this.invoice.ID, this.distributeEntityType, this.invoice.InvoiceDate)
+            : this.reportService.distribute(this.invoice.ID, this.distributeEntityType);
+        distribute.subscribe(() => {
             this.toastService.addToast(
                 'Faktura er lagt i kø for utsendelse',
                 ToastType.good,

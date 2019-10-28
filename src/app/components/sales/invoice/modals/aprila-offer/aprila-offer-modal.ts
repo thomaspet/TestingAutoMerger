@@ -55,7 +55,8 @@ export class AprilaOfferModal implements OnInit, IUniModal {
                 } else if (this.offer.Status === 'Rejected') {
                     this.isOffered = false;
                     this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalings tilbud avvist`;
-                    this.offerLimitMessage = `Du har brukt  ${Math.round(this.offer.Limits.Limit - this.offer.Limits.RemainingLimit)}, - av din totale ramme (${this.offer.Limits.Limit})`;
+                    this.offerLimitMessage = `Du har brukt  ${Math.round(this.offer.Limits.Limit - this.offer.Limits.RemainingLimit)},
+                    - av din totale ramme (${this.offer.Limits.Limit})`;
                 } else if (this.offer.Status === 'UnableToHandle') {
                     this.isOffered = false;
                 }

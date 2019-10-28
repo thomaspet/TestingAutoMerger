@@ -43,7 +43,8 @@ export class WageTypeService extends BizHttp<WageType> {
         { ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene' },
         { ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn' },
         { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk' },
-        { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister' }
+        { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister' },
+        { ID: SpecialTaxAndContributionsRule.TaxFreeOrganization, Name: 'Skattefri organisasjon'}
     ];
 
     private taxType: {ID: TaxType, Name: string}[] = [

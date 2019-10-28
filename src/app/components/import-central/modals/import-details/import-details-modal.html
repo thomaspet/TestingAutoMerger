@@ -15,7 +15,7 @@
                         class="file-name">({{options.data.hangfireJobId}})</span> var vellykket. </label>
                 <div class="success-message">
                     <p class="progress-title">Progresjon</p>
-                    <div *ngFor="let prgrs of progress.reverse()" class="status-container">
+                    <div *ngFor="let prgrs of progress" class="status-container">
                         <i class="material-icons progress-check">check_circle</i>
                         <p class="progress-time"> {{prgrs.Created | date:'HH:mm:ss'}}</p>
                         <p>{{prgrs.Progress}}</p>

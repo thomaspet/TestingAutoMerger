@@ -4,6 +4,7 @@ import {CommentService} from './commentService';
 import {ErrorService} from '../../app/services/services';
 import { ChatBoxService } from '@app/components/layout/chat-box/chat-box.service';
 import { BusinessObject } from '@app/models';
+import { SignalRService } from '@app/services/common/signal-r.service';
 
 @Component({
     selector: 'uni-comments',
@@ -27,6 +28,7 @@ export class UniComments {
         private chatBoxService: ChatBoxService,
         private commentService: CommentService,
         private errorService: ErrorService,
+        private signalRService: SignalRService,
         private cdr: ChangeDetectorRef
     ) {
         this.commentService.comments$.subscribe(comments => {
@@ -54,7 +56,11 @@ export class UniComments {
     }
 
     openChatBox() {
-        const businessObject: BusinessObject = { EntityID: this.entityID, EntityType: this.entity };
+        const businessObject: BusinessObject = {
+            EntityID: this.entityID,
+            EntityType: this.entity,
+            CompanyKey: this.signalRService.currentCompanyKey,
+        };
         const businessObjectExists = this.chatBoxService.businessObjects
             .getValue()
             .find(bo => bo.EntityID === businessObject.EntityID && bo.EntityType.toLowerCase() === businessObject.EntityType.toLowerCase());

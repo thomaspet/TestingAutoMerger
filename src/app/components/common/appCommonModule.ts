@@ -71,6 +71,7 @@ import { ImportCentralTemplateModal } from './modals/import-central-modal/import
 import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
 import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
 import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
+import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
 
 @NgModule({
     imports: [
@@ -137,6 +138,7 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
         ImportCentralTemplateModal,
         DisclaimerModal,
         ImportTemplateModal,
+        ImportVoucherModal,
 
         WorkEditor,
         UniTimeModal,
@@ -174,6 +176,7 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
         SelectDistributionPlanModal,
         DisclaimerModal,
         ImportTemplateModal,
+        ImportVoucherModal,
         JournalingRulesModal
     ],
     exports: [

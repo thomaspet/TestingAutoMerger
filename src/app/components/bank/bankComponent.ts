@@ -48,6 +48,7 @@ import { RequestMethod } from '@uni-framework/core/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 import { JournalingRulesModal } from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
+import { AuthService } from '@app/authService';
 
 @Component({
     selector: 'uni-bank-component',
@@ -87,6 +88,7 @@ export class BankComponent {
     private canEdit: boolean = true;
     private agreements: any[] = [];
     private companySettings: CompanySettings;
+    private isAutobankAdmin: boolean;
     hasAccessToAutobank: boolean;
     filter: string = '';
     failedFiles: any[] = [];
@@ -252,7 +254,9 @@ export class BankComponent {
         private elsaPurchasesService: ElsaPurchaseService,
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
+        private authService: AuthService,
     ) {
+        this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
         this.updateTab();
 
         Observable.forkJoin(
@@ -335,14 +339,15 @@ export class BankComponent {
             });
         }
 
-        if (this.hasAccessToAutobank && (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
+        if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements.length) &&
+            (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
             items.push({
                 label: 'Ny autobankavtale',
                 action: () => this.openAutobankAgreementModal(),
                 disabled: () => false
             });
 
-            if (this.agreements.length) {
+            if (this.isAutobankAdmin && this.agreements.length) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),
@@ -1066,61 +1071,59 @@ export class BankComponent {
             return;
         }
         if (isManualPayment && count) {
-            // Dont show if small set of payments
-            if (parseInt(count, 10) > 50) {
-                this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
-                'Det opprettes en betalingsjobb og genereres en utbetalingsfil. ' +
-                'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
-            }
-
             this.paymentService.createPaymentBatchForAll().subscribe((result) => {
-                // Only result if post action
-                if (result) {
-                    // Run action to generate paymentfile based on batch
-                    this.paymentBatchService.generatePaymentFile(result.ID)
-                    .subscribe((updatedPaymentBatch: PaymentBatch) => {
-                        if (updatedPaymentBatch.PaymentFileID) {
-                            this.toastService.addToast(
-                                'Utbetalingsfil laget, henter fil...',
-                                ToastType.good, 5
-                            );
-                            this.updateSaveActions(this.selectedTicker.Code);
-
-                            this.fileService
-                                .downloadXml(updatedPaymentBatch.PaymentFileID)
-                                .subscribe((blob) => {
-                                    doneHandler('Utbetalingsfil hentet');
-
-                                    // Download file so the user can open it
-                                    saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                    this.tickerContainer.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                },
-                                err => {
-                                    doneHandler('Feil ved henting av utbetalingsfil');
-                                    this.errorService.handle(err);
-                                });
+                if (result && result.ProgressUrl) {
+                    // runs as hangfire job (decided by back-end)
+                    this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                        'Det opprettes en betalingsjobb og genereres en utbetalingsfil. ' +
+                        'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+                    this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
+                        if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {
+                            this.paymentBatchService.generatePaymentFile(batchJobResponse.Result.ID).subscribe((startFileJob: any) => {
+                                if (startFileJob && startFileJob.Value && startFileJob.Value.ProgressUrl) {
+                                    this.paymentBatchService.waitUntilJobCompleted(startFileJob.Value.ID).subscribe(fileJobResponse => {
+                                        if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
+                                            && fileJobResponse.Result.ID > 0) {
+                                                return this.DownloadFile(doneHandler, fileJobResponse.Result);
+                                        } else {
+                                            this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
+                                                fileJobResponse.Result);
+                                        }
+                                    });
+                                }
+                            });
                         } else {
-                            this.toastService.addToast(
-                                'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
-                                ToastType.bad
-                            );
-                            this.updateSaveActions(this.selectedTicker.Code);
-                            doneHandler('Feil ved henting av utbetalingsfil');
+                            this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
+                                batchJobResponse.Result);
                         }
-                    },
-                    err => {
-                        doneHandler('Feil ved generering av utbetalingsfil');
-                        this.errorService.handle(err);
+                    });
+                } else {
+                    // runs as non hangfire job
+                    this.paymentBatchService.generatePaymentFile(result.ID)
+                    .subscribe((fileResult: any) => {
+                        if (fileResult && fileResult.Value && fileResult.Value.ProgressUrl) {
+                            this.paymentBatchService.waitUntilJobCompleted(fileResult.Value.ID).subscribe(fileJobResponse => {
+                                if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
+                                    && fileJobResponse.Result.ID > 0) {
+                                        return this.DownloadFile(doneHandler, fileJobResponse.Result);
+                                } else {
+                                    this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
+                                        fileJobResponse.Result);
+                                }
+                            });
+                        } else {
+                            return this.DownloadFile(doneHandler, fileResult);
+                        }
                     });
                 }
+
             }, err => {
                 doneHandler('');
                 this.errorService.handle(err);
             });
         } else {
             this.modalService.open(UniSendPaymentModal, {
-                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true }
+                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true , count: count}
             }).onClose.subscribe( res => {
                 doneHandler(res);
                 if (res === 'Sendingen er fullført') {
@@ -1132,6 +1135,29 @@ export class BankComponent {
             },
             err => doneHandler('Feil ved sending av autobank'));
         }
+    }
+
+    private DownloadFile(doneHandler: (status: string) => any, file: File) {
+        this.toastService.addToast(
+            'Utbetalingsfil laget, henter fil...',
+            ToastType.good, 5
+        );
+        this.updateSaveActions(this.selectedTicker.Code);
+
+        this.fileService
+            .downloadXml(file.ID)
+            .subscribe((blob) => {
+                doneHandler('Utbetalingsfil hentet');
+
+                // Download file so the user can open it
+                saveAs(blob, `payments_${file.ID}.xml`);
+                this.tickerContainer.getFilterCounts();
+                this.tickerContainer.mainTicker.reloadData();
+            },
+            err => {
+                doneHandler('Feil ved henting av utbetalingsfil');
+                this.errorService.handle(err);
+            });
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {

@@ -3,7 +3,8 @@ import {CustomerInvoiceReminderSettings, DebtCollectionSettings} from '@uni-enti
 import {FieldType} from '@uni-framework/ui/uniform';
 import {
     CustomerInvoiceReminderSettingsService,
-    JobService
+    JobService,
+    UniSearchAccountConfig
 } from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import {DebtCollectionAutomations, DebtCollectionFormat} from '@app/models/sales/reminders/debtCollectionAutomations';
@@ -22,7 +23,8 @@ export class ReminderSettings {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
-                private jobService: JobService) {
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private jobService: JobService) {
     }
 
     public ngOnChanges() {
@@ -84,6 +86,17 @@ export class ReminderSettings {
                 FieldType: FieldType.CHECKBOX,
                 Section: 0,
                 FieldSet: 1
+            },
+            {
+                Property: 'DefaultReminderFeeAccountID',
+                Label: 'Standardkonto purregebyr',
+                FieldType: FieldType.UNI_SEARCH,
+                Section: 0,
+                FieldSet: 1,
+                Options: {
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
+                    valueProperty: 'ID'
+                }
             },
             {
                 Legend: 'Inkassoinnstillinger',

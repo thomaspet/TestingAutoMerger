@@ -12,12 +12,12 @@ import { UserDto } from '@uni-entities';
 export class SignalRService {
 
     user: UserDto;
-    userToken: string;
     userGlobalIdentity: string;
     currentCompanyKey: string;
     notifications: string[] = [];
     pushMessage$: BehaviorSubject<PushMessage> = new BehaviorSubject(null);
 
+    connected = false;
     retryConnectionCounter = 0;
 
     public hubConnection: signalR.HubConnection;
@@ -26,13 +26,11 @@ export class SignalRService {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
                 this.user = auth.user;
-                this.userToken = auth.token;
                 this.userGlobalIdentity = auth.user.GlobalIdentity;
                 this.currentCompanyKey = auth.activeCompany.Key;
-                if (this.hubConnection) {
-                    this.hubConnection.stop();
+                if (!this.connected) {
+                    this.startConnection();
                 }
-                this.startConnection();
 
             } else if (this.hubConnection) {
                 this.hubConnection.stop();
@@ -53,24 +51,30 @@ export class SignalRService {
     }
 
     startConnection() {
-        this.hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(
+        this.retryConnectionCounter = 0;
+        this.hubConnection = new signalR.HubConnectionBuilder().withUrl(
             environment.SIGNALR_PUSHHUB_URL,
-            { accessTokenFactory: () => this.userToken }
-            )
-            .build();
-            this.start();
-        }
+            { accessTokenFactory: () => this.authService.jwt }
+        ).build();
+
+        this.start();
+
+        this.hubConnection.onclose(() => {
+            this.connected = false;
+            setTimeout(() => this.start(), 1000);
+        });
+    }
 
     async start() {
-        if (this.hubConnection) {
+        if (!this.connected && this.hubConnection) {
             await this.hubConnection.start()
                 .then(() => {
                     console.log('SignalR connection started');
+                    this.connected = true;
                     this.addGlobalListener();
                 })
                 .catch(err => {
-                    console.log('Error while starting SignalR connection: ' + this.userToken);
+                    console.log('Error while starting SignalR connection');
                     if (this.retryConnectionCounter < 5) {
                         console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
                         setTimeout(() => this.start(), 5000);

@@ -35,6 +35,7 @@ export class ImportDetailsModal implements OnInit, IUniModal {
                 this.jobRun = jobRun;
                 this.log = jobRun ? jobRun.JobRunLogs : [];
                 this.progress = jobRun ? jobRun.Progress : [];
+                this.progress.reverse();
                 this.setJobStatus();
                 this.isFetching = false;
             }

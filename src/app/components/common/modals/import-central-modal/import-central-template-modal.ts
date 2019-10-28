@@ -4,7 +4,7 @@ import { ImportFileType, ImportDialogModel, ImportOption } from '@app/models/imp
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
-import { FileService, ErrorService, JobService } from '@app/services/services';
+import { ErrorService, JobService } from '@app/services/services';
 import { HttpClient } from '@angular/common/http';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
@@ -55,18 +55,11 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
     `,
     styleUrls: ['./import-central-template-modal.sass']
 })
-export class ImportCentralTemplateModal implements OnInit, IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
+export class ImportCentralTemplateModal implements IUniModal {
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     file: File;
-    activeCompany: any;
-    companyName: string;
-    token: any;
     loading$: Subject<any> = new Subject();
     baseUrl: string = environment.BASE_URL_FILES;
 
@@ -77,21 +70,18 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
 
     constructor(
         private authService: AuthService,
-        private fileService: FileService,
         private errorService: ErrorService,
         private http: HttpClient,
         private jobService: JobService,
         private modalService: UniModalService
     ) {
-        this.authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-            this.companyName = authDetails.activeCompany.Name;
-            this.token = authDetails.token;
-        });
         this.fileType = ImportFileType.StandardizedExcelFormat;
     }
 
-    public ngOnInit() { }
+
+    ngOnDestroy() {
+        this.loading$.complete();
+    }
 
     public uploadFileChange(event) {
         const source = event.srcElement || event.target;
@@ -109,8 +99,8 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
 
     private uploadFile(file: File) {
         const data = new FormData();
-        data.append('Token', this.token);
-        data.append('Key', this.activeCompany.Key);
+        data.append('Token', this.authService.jwt);
+        data.append('Key', this.authService.activeCompany.Key);
         data.append('EntityType', this.options.data.entityType);
         data.append('Description', this.options.data.description);
         data.append('WithPublicAccessToken', 'true');
@@ -128,17 +118,19 @@ export class ImportCentralTemplateModal implements OnInit, IUniModal {
             this.loading$.next(true);
             // NOTE: comment when testing and hardcode the file in backend.
             this.uploadFile(this.file).subscribe((res) => {
-                var fileURL = `${this.baseUrl}/api/externalfile/${this.activeCompany.Key}/${res.StorageReference}/${res._publictoken}`;
-               
+                const company = this.authService.activeCompany;
+                const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res._publictoken}`;
+
                 this.importModel = {
-                    CompanyKey: this.activeCompany.Key,
-                    CompanyName: this.companyName,
+                    CompanyKey: company.Key,
+                    CompanyName: company.Name,
                     Url: fileURL,
                     ImportFileType: this.fileType,
                     ImportOption : this.importOption
-                }
+                };
+
                 this.jobService.startJob(this.options.data.jobName, 0, this.importModel).subscribe(
-                    res => {
+                    () => {
                         this.loading$.complete();
                         this.close();
                     },

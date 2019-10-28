@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {ToastService, ToastType} from '../../uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../uniToast/toastService';
 import {
     ErrorService,
     PaymentBatchService
@@ -122,23 +122,31 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
         }
     }
 
-    public handleAutobankError(error: any) {
-        if (error.status === 400) { // Bad Request
+    public handleAutobankError(response: any) {
+        if (response.status === 400) { // Bad Request
             this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
-            this.errorService.handle(error);
+            this.errorService.handle(response);
             this.busy = false;
-        } else if (error.status === 504) { // Bad Gateway or Timeout
+        } else if (response.status === 500 && response.error && response.error.Message
+            && response.error.Message.indexOf('invalid_grant - invalid_username_or_password') > 0) {
+            this.msg = 'Noe gikk galt. Sjekk at passordet ditt er korrekt';
+            this.busy = false;
+        } else if (response.status === 504) { // Bad Gateway or Timeout
             this.msg = 'Noe gikk galt i overføring av betalinger. Vennligst sjekk med banken din om betalingen er mottatt';
-            this.errorService.handle(error);
+            this.errorService.handle(response);
             this.busy = false;
         } else {
-            this.errorService.handle(error);
+            this.errorService.handle(response);
             this.busy = false;
         }
     }
 
     public sendPayments() {
         this.busy = true;
+        if (this.options.data.count && this.options.data.count > 100) {
+        this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                        'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+        }
         if (this.options.data.sendAll) {
             return this.paymentBatchService.sendAllToPayment(this.model).subscribe(res => {
                 this.onClose.emit('Sendingen er fullført');

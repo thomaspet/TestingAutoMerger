@@ -38,18 +38,17 @@
             <div *ngIf="!isOffered && offer && offer.Reasons">
                 <div class="error" *ngFor="let error of offer.Reasons">
                     <label class="error-title">{{error.ReasonCode}}</label>
-                    <label class="error-message">{{error.ReasonDescription}}</label>                  
+                    <label class="error-message">{{error.ReasonDescription}}</label>                    
                 </div>
                 <div class="error">
                     <label class="error-reason"> <i class="material-icons">error</i> {{offerLimitMessage}} </label>                    
-                </div>    
-
+                </div>
+               
             </div>
 
-            
             <div class="error" *ngIf="isError">
                 <label class="error-title">Kan ikke selge denne fakturaen. Aprila svarer ikke for øyeblikket</label>
-                <label class="error-message">Du kan prøve igjen eller sende faktura på vanlig måte.</label>              
+                <label class="error-message">Du kan prøve igjen eller sende faktura på vanlig måte.</label>          
             </div>
         </div>
     </article>

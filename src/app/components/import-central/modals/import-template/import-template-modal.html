@@ -8,7 +8,7 @@
             <label class="title">
                 Klient
                 <span class="value">
-                    {{companyName}}
+                    {{authService?.activeCompany?.Name}}
                 </span>
             </label>
 
@@ -31,7 +31,7 @@
                 </label>
                 <label class="statement" *ngIf="options.data.isExternal">
                     Før du laster opp filen til Uni Economy, så vær vennlig og les gjennom våre vilkår. <a
-                        (click)="openDisclaimerNote()">disclaimer note.</a>
+                        (click)="openDisclaimerNote()">Vilkår.</a>
                 </label>
             </div>
 

@@ -5,7 +5,7 @@
     [filters]="dataService?.advancedSearchFilters"
     (filtersChange)="onFiltersChange($event)">
 </table-filters>
-
+<mat-spinner diameter="20" *ngIf="useSpinner && dataService.isDataLoading"></mat-spinner>
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
     [ngStyle]="{

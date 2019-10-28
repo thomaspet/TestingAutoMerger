@@ -343,7 +343,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 }
 
                 if (event.field === 'employment') {
-                    this.mapEmploymentToTrans(row);
+                    this.salaryTransViewService.mapEmploymentToTrans(row, this.departments, this.projects);
                 }
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
@@ -361,11 +361,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 }
 
                 if (event.field === '_Project') {
-                    this.mapProjectToTrans(row);
+                    this.salaryTransViewService.mapProjectToTrans(row);
                 }
 
                 if (event.field === '_Department') {
-                    this.mapDepartmentToTrans(row);
+                    this.salaryTransViewService.mapDepartmentToTrans(row);
                 }
 
                 if (event.field === 'FromDate' || event.field === 'ToDate') {
@@ -435,7 +435,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             const employment = this.employee.Employments.find(emp => emp.Standard === true);
             if (employment) {
                 rowModel['employment'] = employment;
-                this.mapEmploymentToTrans(rowModel);
+                this.salaryTransViewService.mapEmploymentToTrans(rowModel, this.departments, this.projects);
             }
         }
 
@@ -473,23 +473,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         });
     }
 
-    private mapEmploymentToTrans(rowModel: SalaryTransaction) {
-        const employment = rowModel['employment'];
-        rowModel['EmploymentID'] = (employment) ? employment.ID : null;
-
-        if (employment && employment.Dimensions) {
-            const department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
-
-            rowModel['_Department'] = department || rowModel['_Department'];
-
-            const project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
-            rowModel['_Project'] = project || rowModel['_Project'];
-
-            this.mapDepartmentToTrans(rowModel);
-            this.mapProjectToTrans(rowModel);
-        }
-    }
-
     private mapAccountToTrans(rowModel: SalaryTransaction) {
         const account: Account = rowModel['_Account'];
         if (!account) {
@@ -498,36 +481,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         }
 
         rowModel.Account = account.AccountNumber;
-    }
-
-    private mapProjectToTrans(rowModel: SalaryTransaction) {
-        const project = rowModel['_Project'];
-
-        if (!rowModel.Dimensions) {
-            rowModel.Dimensions = new Dimensions();
-        }
-
-        if (!project) {
-            rowModel.Dimensions.ProjectID = null;
-            return;
-        }
-
-        rowModel.Dimensions.ProjectID = project.ID;
-    }
-
-    private mapDepartmentToTrans(rowModel: SalaryTransaction) {
-        const department: Department = rowModel['_Department'];
-
-        if (!rowModel.Dimensions) {
-            rowModel.Dimensions = new Dimensions();
-        }
-
-        if (!department) {
-            rowModel.Dimensions.DepartmentID = null;
-            return;
-        }
-
-        rowModel.Dimensions.DepartmentID = department.ID;
     }
 
     private mapVatToTrans(rowModel: SalaryTransaction) {

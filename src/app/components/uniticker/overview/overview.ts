@@ -28,7 +28,7 @@ export class UniTickerOverview {
     public tickerTitle: string;
     public createNewAction: TickerAction;
     public exportBusy: boolean;
-
+    public navigatingToTicker = false;
     constructor(
         private tabService: TabService,
         private uniTickerService: UniTickerService,
@@ -125,10 +125,14 @@ export class UniTickerOverview {
     }
 
     public navigateToTicker(ticker: Ticker) {
-        this.router.navigate(['/overview'], {
-            queryParams: { code: ticker.Code },
-            skipLocationChange: false
-        });
+        this.navigatingToTicker = true;
+        setTimeout(() => { // give some time to component to restart and restart also ag-grid-wrapper filters
+            this.router.navigate(['/overview'], {
+                queryParams: { code: ticker.Code },
+                skipLocationChange: false
+            });
+            this.navigatingToTicker = false;
+        }, 100);
     }
 
     public onCreateNewClick() {

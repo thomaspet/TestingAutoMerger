@@ -43,6 +43,15 @@ export class ChatBoxComponent implements OnInit {
 
     ngOnInit() {
         if (this.businessObject) {
+            if (this.signalRService.hubConnection) {
+                this.signalRService.hubConnection
+                    .invoke('RegisterListener', <PushMessage>{
+                        entityType: this.businessObject.EntityType,
+                        entityID: this.businessObject.EntityID,
+                        companyKey: this.businessObject.CompanyKey
+                    })
+                    .catch(err => console.error(err));
+            }
             this.getComments();
         }
 
@@ -66,14 +75,6 @@ export class ChatBoxComponent implements OnInit {
                 this.filteredUsers = [];
             }
         });
-
-        this.signalRService.hubConnection
-            .invoke('RegisterListener', <PushMessage>{
-                entityType: this.businessObject.EntityType,
-                entityID: this.businessObject.EntityID,
-                companyKey: this.signalRService.currentCompanyKey
-            })
-            .catch(err => console.error(err));
 
         this.signalRService.pushMessage$.subscribe(message => {
             if (message && message.entityType.toLowerCase() === this.businessObject.EntityType.toLowerCase()) {
@@ -100,7 +101,7 @@ export class ChatBoxComponent implements OnInit {
             .invoke('UnRegisterListener', <PushMessage>{
                 entityType: this.businessObject.EntityType,
                 entityID: this.businessObject.EntityID,
-                companyKey: this.signalRService.currentCompanyKey,
+                companyKey: this.businessObject.CompanyKey,
             })
             .catch(err => console.error(err));
         let businessObjects = this.chatBoxService.businessObjects.getValue();
@@ -108,13 +109,20 @@ export class ChatBoxComponent implements OnInit {
             return !(
                 businessObject.EntityType === this.businessObject.EntityType
                 && businessObject.EntityID === this.businessObject.EntityID
+                && businessObject.CompanyKey === this.businessObject.CompanyKey
             );
         });
         this.chatBoxService.businessObjects.next(businessObjects);
     }
 
     getComments() {
-        this.commentService.getAll(this.businessObject.EntityType, this.businessObject.EntityID).subscribe((comments: Comment[]) => {
+        this.commentService
+            .getAll(
+                this.businessObject.EntityType,
+                this.businessObject.EntityID,
+                this.businessObject.CompanyKey
+            )
+            .subscribe((comments: Comment[]) => {
             this.unreadCount = 0;
             this.comments = comments.reverse();
 
@@ -135,6 +143,15 @@ export class ChatBoxComponent implements OnInit {
             });
             this.scrollToBottom();
         });
+    }
+
+    toggleMinimized() {
+        this.minimized = !this.minimized;
+        this.unreadCount = 0;
+        this.readTimestamp = new Date();
+        if (!this.minimized) {
+            this.scrollToBottom();
+        }
     }
 
     navigateToBusinessObject(event: any) {
@@ -196,10 +213,14 @@ export class ChatBoxComponent implements OnInit {
 
         this.comments.unshift(commentDraft);
         this.scrollToBottom();
-        this.commentService.post(this.businessObject.EntityType, this.businessObject.EntityID, this.inputControl.value).subscribe(
-            () => {},
-            err => console.error(err)
-        );
+        this.commentService
+            .post(
+                this.businessObject.EntityType,
+                this.businessObject.EntityID,
+                this.inputControl.value,
+                this.businessObject.CompanyKey
+            )
+            .subscribe(() => {}, err => console.error(err));
 
         this.inputControl.setValue('');
     }

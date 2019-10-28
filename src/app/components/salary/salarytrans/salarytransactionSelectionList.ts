@@ -556,7 +556,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     }
 
     private getAga(employee: IEmployee) {
-        if (employee.SubEntity.AgaZone > 0) {
+        if (employee.SubEntity.AgaZone) {
             const obs = !this.agaZone || (employee.SubEntity.AgaZone !== this.agaZone.ID)
                 ? this._agaZoneService
                     .Get(employee.SubEntity.AgaZone)

@@ -73,7 +73,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         this.populateCache();
         this.authService.authentication$.subscribe((auth: IAuthDetails) => {
-            if (auth && auth.token) {
+            if (auth && auth.user) {
                 this.populateCache();
             }
         });

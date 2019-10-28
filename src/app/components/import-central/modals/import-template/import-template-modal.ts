@@ -15,11 +15,8 @@ import { DisclaimerModal } from '../disclaimer/disclaimer-modal';
     styleUrls: ['./import-template-modal.sass']
 })
 export class ImportTemplateModal implements OnInit, IUniModal {
-
-
     @Input() options: IModalOptions = {};
-
-    @Output() onClose: EventEmitter<any> = new EventEmitter();
+    @Output() onClose = new EventEmitter();
 
     @ViewChild('file') fileElement: ElementRef<HTMLElement>;
 
@@ -32,8 +29,9 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     loading$: Subject<any> = new Subject();
     payrollType: TemplateType = TemplateType.Payroll;
 
-    //saft related
+    // saft related
     saftType: TemplateType = TemplateType.Saft;
+    voucherType: TemplateType = TemplateType.Voucher;
     isOpening: boolean = false;
     isKeepRecords: boolean = false;
     isUpdate: boolean = false;
@@ -42,18 +40,16 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     selectedPayroll = {
         name: 'no payrolls found',
         id: 0
-    }
+    };
+
     operators: any[] = [];
     config: ISelectConfig;
 
     // controller realated variables
     fileServerUrl: string = environment.BASE_URL_FILES;
-    companyKey: string;
-    companyName: string;
-    token: string;
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
 
-    //options in radio buttons (import options)
+    // options in radio buttons (import options)
     importOption: ImportOption = ImportOption.Skip;
     skip: ImportOption = ImportOption.Skip;
     override: ImportOption = ImportOption.Override;
@@ -63,19 +59,14 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     baseUrl: string = environment.BASE_URL_FILES;
 
     constructor(
-        private authService: AuthService,
-        private http: HttpClient, 
+        public authService: AuthService,
+        private http: HttpClient,
         private jobService: JobService,
         private toastService: ToastService,
         private payrollService: PayrollrunService,
         private errorService: ErrorService,
-        private modalService: UniModalService) {
-        this.authService.authentication$.take(1).subscribe((authDetails) => {
-            this.companyKey = authDetails.activeCompany.Key;
-            this.companyName = authDetails.activeCompany.Name;
-            this.token = authDetails.token;
-        });
-    }
+        private modalService: UniModalService
+    ) {}
 
     ngOnInit(): void {
         if (this.options.data.entity == this.payrollType) {
@@ -101,7 +92,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         }
     }
 
-    // Trigger click event of input file 
+    // Trigger click event of input file
     public selectFile() {
         if (!this.isFileDetached) {
             if (this.fileElement) {
@@ -144,8 +135,8 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     private uploadFileToFileServer(file: File) {
         const data = new FormData();
-        data.append('Token', this.token);
-        data.append('Key', this.companyKey);
+        data.append('Token', this.authService.jwt);
+        data.append('Key', this.authService.activeCompany.Key);
         data.append('EntityType', this.options.data.entityType);
         data.append('Description', this.options.data.description);
         data.append('WithPublicAccessToken', 'true');
@@ -164,44 +155,50 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         let dataToImport = {};
         this.loading$.next(true);
         // NOTE: comment when testing and hardcode the file in backend.
-        this.uploadFileToFileServer(file).subscribe((res) => {
-        var fileURL = `${this.baseUrl}/api/externalfile/${this.companyKey}/${res.StorageReference}/${res._publictoken}`;
-        this.loading$.next(false);
-        let importModel = {
-            CompanyKey: this.companyKey,
-            CompanyName: this.companyName,
-            Url: fileURL,
-            ImportFileType: this.fileType,
-            ImportOption: this.importOption,
-            OtherParams: { payrollId: this.selectedPayroll.id }
-        }
-        dataToImport = importModel;
-        if (this.options.data.entity === this.saftType) {
-            let saftModel = {
-                FileID: res.ExternalId,
-                FileName: res.Name,
-                CompanyKey: this.companyKey,
-                IncludeStartingBalance: this.isOpening,
-                ReuseExistingNumbers: this.isKeepRecords,
-                UpdateExistingData: this.isUpdate,
-                Automark: this.isAutomatic
-            }
-            dataToImport = saftModel;
-        }
-        this.loading$.next(true);
-        this.importFileToJobServer(this.options.data.jobName, dataToImport).subscribe(
-            res => {
-                this.close();
-                this.showToast(file.name, this.options.data.entity);
+        this.uploadFileToFileServer(file).subscribe(
+            (res) => {
+                const company = this.authService.activeCompany;
+                const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res._publictoken}`;
                 this.loading$.next(false);
+                const importModel = {
+                    CompanyKey: company.Key,
+                    CompanyName: company.Name,
+                    Url: fileURL,
+                    ImportFileType: this.fileType,
+                    ImportOption: this.importOption,
+                    OtherParams: { payrollId: this.selectedPayroll.id }
+                };
+
+                dataToImport = importModel;
+                if (this.options.data.entity === this.saftType) {
+                    const saftModel = {
+                        FileID: res.ExternalId,
+                        FileName: res.Name,
+                        CompanyKey: company.Key,
+                        IncludeStartingBalance: this.isOpening,
+                        ReuseExistingNumbers: this.isKeepRecords,
+                        UpdateExistingData: this.isUpdate,
+                        Automark: this.isAutomatic
+                    };
+
+                    dataToImport = saftModel;
+                }
+                this.loading$.next(true);
+                this.importFileToJobServer(this.options.data.jobName, dataToImport).subscribe(
+                    () => {
+                        this.close();
+                        this.showToast(file.name, this.options.data.entity);
+                        this.loading$.next(false);
+                    },
+                    err => { this.errorService.handle(err); this.loading$.next(false); }
+                );
+                // NOTE: comment when testing.
             },
-            err => { this.errorService.handle(err); this.loading$.next(false); }
+            err => {
+                this.loading$.next(false);
+                this.errorService.handle(err);
+            }
         );
-        // NOTE: comment when testing.
-        }, err => {
-            this.loading$.next(false);
-            this.errorService.handle(err);
-        });
     }
 
     // common (drag&drop and file select) method to handle file attach

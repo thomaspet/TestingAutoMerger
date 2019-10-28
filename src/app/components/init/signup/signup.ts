@@ -176,17 +176,7 @@ export class Signup {
             return;
         }
 
-        this.authService.authenticate({
-            username: username,
-            password: password
-        }).subscribe(
-            () => {
-                this.authService.setActiveCompany(company, '/');
-            },
-            () => {
-                this.router.navigateByUrl('/init/login');
-            }
-        );
+        this.authService.authenticate();
     }
 
 }

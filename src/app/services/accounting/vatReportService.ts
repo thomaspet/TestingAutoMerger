@@ -151,6 +151,15 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.body);
     }
 
+    public payVat(vatReportId: number): Observable<any> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${vatReportId}?action=pay-vat&vatReportId=${vatReportId}`)
+            .send()
+            .map(response => response.body);
+    }
+
     public getVatReportSummary(vatReportId: number, periodId: number): Observable<VatReportSummary[]> {
         return this.http
             .asGET()
@@ -239,4 +248,38 @@ export class VatReportService extends BizHttp<VatReport> {
         return statusType ? statusType.Text : '';
     };
 
+    public getPaymentStatus(vatReportID: number, defaultPaymentStatus: string = 'Ikke betalt'): Observable<any> {
+        return Observable.forkJoin(
+            this.statisticsService.GetAll(`model=Tracelink&filter=DestinationEntityName eq 'Payment' `
+                + `and SourceEntityName eq 'VatReport' and VatReport.ID eq ${vatReportID}`
+                + `&join=Tracelink.SourceInstanceId eq VatReport.ID and Tracelink.DestinationInstanceId eq Payment.ID`
+                + `&select=Payment.StatusCode as StatusCode`)
+        ).map(responses => {
+            const payments: Array<any> = responses[0].Data ? responses[0].Data : [];
+            let statusText = defaultPaymentStatus;
+            if (payments.length > 0)
+            {
+                const statusCode = payments[0].StatusCode;
+                switch (statusCode) {
+                    case 44001:
+                    case 44002:
+                    case 44005:
+                    case 44007:
+                    case 44008:
+                    case 44009:
+                    case 44011:
+                    case 44015:
+                    case 44016:
+                        return 'Sendt til betaling';
+                    case 44004:
+                    case 44006:
+                    case 44018:
+                        return 'Betalt';
+                    default:
+                        return statusText;
+                }
+            }
+            return statusText;
+        });
+    }
 }

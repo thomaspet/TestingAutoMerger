@@ -24,7 +24,8 @@ import {
     VatReportService,
     AltinnAuthenticationService,
     VatTypeService,
-    CompanySettingsService
+    CompanySettingsService,
+    StatisticsService
 } from '../../../services/services';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
@@ -56,6 +57,10 @@ export class VatReportView implements OnInit, OnDestroy {
     public contextMenuItems: IContextMenuItem[] = [];
     public toolbarconfig: IToolbarConfig;
     private periodDateFormat: PeriodDateFormatPipe;
+    private defaultPaymentStatus: string = 'Ikke betalt';
+    public paymentStatus: string;
+    public submittedDate: Date;
+    public approvedDate: Date;
 
     public activeTabIndex: number = 1;
     public tabs: IUniTab[] = [
@@ -75,6 +80,7 @@ export class VatReportView implements OnInit, OnDestroy {
         private errorService: ErrorService,
         private modalService: UniModalService,
         private router: Router,
+        private statisticsService: StatisticsService
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
         this.tabService.addTab({
@@ -282,6 +288,13 @@ export class VatReportView implements OnInit, OnDestroy {
         });
 
         this.actions.push({
+            label: 'Betale MVA',
+            action: (done) => this.payVatReport(done),
+            disabled: this.IsPayActionDisabled(),
+            main: !this.IsPayActionDisabled()
+        });
+
+        this.actions.push({
             label: 'Opprett endringsmelding ',
             action: (done) => this.createCorrectiveVatReport(done),
             disabled: this.IsCreateCorrectionMessageAcionDisabled(),
@@ -324,6 +337,13 @@ export class VatReportView implements OnInit, OnDestroy {
         }
         return true;
     }
+    private IsPayActionDisabled() {
+        if (this.paymentStatus === this.defaultPaymentStatus && this.currentVatReport.StatusCode === StatusCodeVatReport.Approved &&
+            (this.currentVatReport.VatReportArchivedSummary || (this.currentVatReport.VatReportArchivedSummaryID && this.currentVatReport.VatReportArchivedSummaryID > 0))) {
+            return false;
+        }
+        return true;
+    }
     public IsApproveActionDisabled() {
         if (this.currentVatReport.StatusCode === StatusCodeVatReport.Submitted) {
             return false;
@@ -348,6 +368,7 @@ export class VatReportView implements OnInit, OnDestroy {
     private setVatreport(vatReport: VatReport) {
         this.currentVatReport = vatReport;
         this.vatReportService.refreshVatReport(this.currentVatReport);
+        this.getStatusDates(vatReport.ID);
 
         this.tabs[2].hidden = !this.currentVatReport.ExternalRefNo || !this.isSent();
 
@@ -389,12 +410,32 @@ export class VatReportView implements OnInit, OnDestroy {
         this.reportMessages = null;
         this.vatReportService.getVatReportMessages(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
-            data => this.reportMessages = data,
+            data => {
+                this.reportMessages = data;
+                const tab = this.tabs[0];
+                if (this.isControlledWithoutWarnings()) {
+                    if (tab.tooltip) {
+                        delete tab.tooltip;
+                        delete tab.tooltipIcon;
+                        delete tab.tooltipClass;
+                        this.tabs = [].concat(this.tabs);
+                    }
+                } else {
+                    tab.tooltip = 'Automatisk kontroll har advarsler';
+                    tab.tooltipIcon = 'error';
+                    tab.tooltipClass = 'warn';
+                    this.tabs = [].concat(this.tabs);
+                }
+            },
             err => this.errorService.handle(err)
             );
         this.updateStatusText();
         this.getVatReportsInPeriod();
-        this.updateSaveActions();
+        this.vatReportService.getPaymentStatus(vatReport.ID, this.defaultPaymentStatus)
+            .subscribe((res) => {
+                this.paymentStatus = res;
+                this.updateSaveActions();
+            });
     }
 
     private getVatReportsInPeriod() {
@@ -408,6 +449,33 @@ export class VatReportView implements OnInit, OnDestroy {
                     this.updateToolbar();
                 }
             }, err => this.errorService.handle(err));
+    }
+
+    private getStatusDates(vatReportID: number) {
+        Observable.forkJoin(
+            this.statisticsService.GetAll(
+                    `model=AuditLog&orderby=AuditLog.CreatedAt&filter=AuditLog.EntityID eq `
+                    + `${vatReportID} and EntityType eq 'VatReport' and Field eq 'StatusCode' and NewValue eq '32002'`
+                    + `&select=Auditlog.CreatedAt as Date`
+                ),
+            this.statisticsService.GetAll(
+                    `model=AuditLog&orderby=AuditLog.CreatedAt&filter=AuditLog.EntityID eq `
+                    + `${vatReportID} and EntityType eq 'VatReport' and Field eq 'StatusCode' and NewValue eq '32004'`
+                    + `&select=Auditlog.CreatedAt as Date`
+                )
+        )
+        .subscribe((responses) => {
+            const submits: Array<any> = responses[0].Data ? responses[0].Data : [];
+            const approvals: Array<any> = responses[1].Data ? responses[1].Data : [];
+            if (submits.length > 0)
+            {
+                this.submittedDate = submits[0].Date;
+            }
+            if (approvals.length > 0)
+            {
+                this.approvedDate = approvals[0].Date;
+            }
+        });
     }
 
     private updateStatusText() {
@@ -587,6 +655,22 @@ export class VatReportView implements OnInit, OnDestroy {
                 this.errorService.handle(err);
                 done('Det skjedde en feil, forsøk igjen senere');
             });
+    }
+
+
+    public payVatReport(done) {
+        this.vatReportService.payVat(this.currentVatReport.ID).subscribe(res => {
+            this.spinner(this.vatReportService.getPaymentStatus(this.currentVatReport.ID, this.defaultPaymentStatus))
+            .subscribe((res) => {
+                this.paymentStatus = res;
+                this.updateSaveActions();
+            });
+            done('Betaling utført');
+        },
+        err => {
+            this.errorService.handle(err);
+            done('Det skjedde en feil ved betaling av MVA')
+        });
     }
 
 

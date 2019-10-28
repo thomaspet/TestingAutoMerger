@@ -2,9 +2,9 @@ import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary, PostingSummaryDraft
+    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummaryDraft
 } from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin, of} from 'rxjs';
 import {ErrorService} from '../../common/errorService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
@@ -15,6 +15,7 @@ import {StatisticsService} from '../../common/statisticsService';
 import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import { map, tap, filter, switchMap } from 'rxjs/operators';
 
 enum StatusCodePayment {
     Queued = 44001,
@@ -171,16 +172,22 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public runSettling(ID: number, done: (message: string) => void = null) {
-        return this.salaryTransactionService
-            .GetAll(`filter=PayrollRunID eq ${ID}`)
-            .map(transes => this.validateTransesOnRun(transes, done))
-            .filter((validates: boolean) => validates)
-            .switchMap(() => super.PutAction(ID, 'calculate'))
-            .do(() => this.clearRelatedCaches());
+        return this.validateBeforeCalculation(ID)
+            .pipe(
+                tap(validates => {
+                    if (validates || !done) {
+                        return;
+                    }
+                    done('Avregning avbrutt');
+                }),
+                filter((validates: boolean) => validates),
+                switchMap(() => super.PutAction(ID, 'calculate')),
+                tap(() => this.clearRelatedCaches()),
+            );
     }
 
-    public controlPayroll(ID) {
-        return super.PutAction(ID, 'control');
+    public controlPayroll(ID): Observable<boolean> {
+        return super.PutAction(ID, 'control').pipe(map(() => true));
     }
 
     public recalculateTax(ID: number) {
@@ -291,49 +298,79 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(null, 'otp-export', `runs=${payrollIDs}&month=${otpPeriode}&year=${otpYear}&&asXml=${asXml}`);
     }
 
-    public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null): boolean {
-        let validates: boolean = true;
-        if (!transes.length) {
-            this.toastService
-                .addToast(
-                    'Avregning avbrutt',
-                    ToastType.bad,
-                    ToastTime.medium,
-                    'Ingen lønnsposter i lønnsavregning');
-            if (done) {
-                done('Avregning avbrutt');
-            }
-            validates = false;
-        }
-        if (validates) {
-            for (let i = 0; i < transes.length; i++) {
-                const trans = transes[i];
-                if (!trans.Sum) {
-                    continue;
-                }
-                if (!trans.Account) {
+    public validateBeforeCalculation(runID: number): Observable<boolean> {
+        return forkJoin(
+            this.validateRunHasTranses(runID),
+            this.validateAccountsOnTranses(runID),
+        )
+        .pipe(
+            map(result => result.reduce((acc, curr) => acc && curr, true))
+        );
+    }
+
+    private validateAccountsOnTranses(runID: number): Observable<boolean> {
+        return this.statisticsService
+            .GetAllUnwrapped(
+                `SELECT=EmployeeNumber as EmployeeNumber,ID as ID,WageTypeNumber as WageTypeNumber,Text as Text&` +
+                `MODEL=SalaryTransaction&` +
+                `FILTER=Account eq 0 and PayrollRunID eq ${runID} and Sum ne 0`
+            )
+            .pipe(
+                tap(transes => {
+                    if (!transes.length) {
+                        return;
+                    }
+                    const emps: {[empNumber: number]: any[]} = {};
+                    transes.forEach(trans => {
+                        if (!emps[trans.EmployeeNumber]) {
+                            emps[trans.EmployeeNumber] = [];
+                        }
+                        emps[trans.EmployeeNumber].push(trans);
+                    });
+                    const text = Object
+                        .keys(emps)
+                        .map(key => {
+                            const transGroup = emps[key];
+                            return `<dt>Ansatt nr ${key}</dt>`
+                                + transGroup.map(trans =>
+                                    `<dd>`
+                                    + `Lønnsart: ${trans.WageTypeNumber}<br>`
+                                    + `Tekst: '${trans.Text}'`
+                                    + `</dd>`
+                                ).join('<br>');
+                        }).join('<br>');
                     this.toastService
                         .addToast('Konto mangler',
                             ToastType.bad,
-                            ToastTime.medium,
-                            `Ansatt nr ${trans.EmployeeNumber}:
-                            Lønnspost nr ${trans.ID},
-                            med lønnsart ${trans.WageTypeNumber},
-                            tekst '${trans.Text}' mangler konto`);
-                    if (done) {
-                        done('Ikke avregnet');
-                    }
-                    validates = false;
-                    break;
-                }
-            }
-        }
-        return validates;
+                            ToastTime.forever,
+                            `<dl>${text}</dl>`);
+
+                }),
+                map(transes => !transes.length),
+            );
     }
 
-    public setPaymentStatusOnPayroll(payrollRun: PayrollRun): Observable<PayrollRun> {
-        return this.getPaymentsOnPayrollRun(payrollRun.ID)
-            .map(payments => this.markPaymentStatus(payrollRun, payments));
+    private validateRunHasTranses(runID: number): Observable<boolean> {
+        return this.statisticsService
+            .GetAllUnwrapped(
+                `SELECT=count(ID) as count&` +
+                `MODEL=SalaryTransaction&` +
+                `FILTER=PayrollRunID eq ${runID}`
+            )
+            .pipe(
+                map(data => !!data[0].count),
+                tap(hasTranses => {
+                    if (hasTranses) {
+                        return;
+                    }
+                    this.toastService
+                        .addToast(
+                            'Avregning avbrutt',
+                            ToastType.bad,
+                            ToastTime.medium,
+                            'Ingen lønnsposter i lønnsavregning');
+                })
+            );
     }
 
     public getAll(queryString: string, includePayments: boolean = false): Observable<PayrollRun[]> {
@@ -351,17 +388,39 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
         queryList.push(filter);
         if (includePayments) {
-            queryList.push('includePayments=true');
+            return this.GetAll(queryList.join('&'))
+            .switchMap(runs => 
+                runs.length ? forkJoin(
+                    of(runs),
+                    this.getPaymentsOnRun(runs, year)
+                ) : Observable.of([])
+            )
+            .map((list) => {
+                const [runs, payments] = list;
+                return this.setPaymentStatusOnPayrollList(runs, payments);
+            });
         }
 
         return this.GetAll(queryList.join('&'))
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
 
-    public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[]): PayrollRun[] {
+    getPaymentsOnRun(runs: PayrollRun[], year: number) {
+        return this.statisticsService.GetAll(
+            `model=Tracelink`
+            + `&select=PayrollRun.ID as ID,Payment.StatusCode as StatusCode,Payment.PaymentDate as PaymentDate,`
+            + `sum(casewhen(Payment.StatusCode ne ${StatusCodePayment.Completed},1,0)) as notPaid,`
+            + `sum(casewhen(Payment.StatusCode eq ${StatusCodePayment.Completed},1,0)) as paid`
+            + `&filter=SourceEntityName eq 'PayrollRun' and DestinationEntityName eq 'Payment' and Payment.PaymentDate le '${year}-12-31T23:59:59Z' `
+            + `and Payment.PaymentDate ge '${year}-01-01T00:00:01Z' and (${runs.map(x => 'PayrollRun.ID eq ' + x.ID).join(' or ')})`
+            + `&join=Tracelink.DestinationInstanceId eq Payment.ID as Payment and Tracelink.SourceInstanceId eq PayrollRun.ID as PayrollRun`
+        ).map(x => x.Data);
+    }
+
+    public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[], payments?: any[]): PayrollRun[] {
         return payrollRuns
             ? payrollRuns
-                .map(run => this.markPaymentStatus(run))
+                .map(run => this.markPaymentStatus(run, payments ? payments.filter(p => p.ID === run.ID) : []))
             : [];
     }
 
@@ -379,15 +438,15 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         }
     }
 
-    private markPaymentStatus(payrollRun: PayrollRun, payments?: Payment[]): PayrollRun {
+    private markPaymentStatus(payrollRun: PayrollRun, payments?: any[]): PayrollRun {
         payments = payments || payrollRun['Payments'] || [];
         if (payments.length <= 0) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
-        } else if (!payments.some(pay => pay.StatusCode === StatusCodePayment.Completed)) {
+        } else if (payments.some(pay => !pay.paid && !!pay.notPaid)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.SentToPayment;
-        } else if (payments.some(pay => pay.StatusCode !== StatusCodePayment.Completed)) {
+        } else if (payments.some(pay => !!pay.paid && !!pay.notPaid)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.PartlyPaid;
-        } else {
+        } else if(payments.some(pay => !!pay.paid && !pay.notPaid)) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.Paid;
         }
         return payrollRun;

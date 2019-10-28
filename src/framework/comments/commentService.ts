@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../core/http/http';
 import {Comment} from '../../app/unientities';
 import {ReplaySubject} from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class CommentService {
@@ -11,13 +12,14 @@ export class CommentService {
         this.comments$.next([]);
     }
 
-    getAll(entity: string, entityID: number) {
+    getAll(entity: string, entityID: number, companyKey?: string) {
         const route = `comments?filter=entitytype eq '${entity}' and entityid eq ${entityID}`;
         return this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint(`${route}&expand=Author`)
-            .send()
-            .map(res => res.body || []);
+            .withHeader('CompanyKey', companyKey ? companyKey : '')
+            .send({}, null, companyKey ? false : true)
+            .pipe(map(res => res.body || []));
     }
 
     loadComments(entity: string, entityID: number) {
@@ -26,12 +28,13 @@ export class CommentService {
         });
     }
 
-    post(entity: string, entityID: number, message: string) {
+    post(entity: string, entityID: number, message: string, companyKey?: string) {
         return this.http.asPOST()
             .usingBusinessDomain()
             .withEndPoint(`${Comment.RelativeUrl}/${entity}/${entityID}`)
-            .withBody({Text: message})
-            .send()
+            .withHeader('CompanyKey', companyKey ? companyKey : '')
+            .withBody({ Text: message })
+            .send({}, null, companyKey ? false : true)
             .map(res => res.body);
     }
 
