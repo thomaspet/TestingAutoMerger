@@ -33,6 +33,7 @@ export class OverdueInvoicesWidget implements AfterViewInit {
     missingData: boolean;
     dataHolder: number[] = [];
     tableData = [];
+    hasLoadedData: boolean = false;
     show = [true, true, true, true];
     colors = ['#008A00', '#E7A733', '#FF9100', '#DA3D00'];
     chartLegends = ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager'];
@@ -76,8 +77,10 @@ export class OverdueInvoicesWidget implements AfterViewInit {
 
                     return customer;
                 });
+                this.hasLoadedData = true;
             },
             err => {
+                this.hasLoadedData = true;
                 if (err && err.status === 403) {
                     this.missingData = true;
                     this.cdr.markForCheck();

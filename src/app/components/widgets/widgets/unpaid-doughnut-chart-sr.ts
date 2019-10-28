@@ -38,7 +38,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
                             Ikke forfalt
                         </section>
 
-                        <section class="result-legend" id="due1" (click)="addhiddenClass('due1', 2)">
+                        <section class="result-legend" id="due1" (click)="addhiddenClass('due1', 1)">
                             <span class="indicator" [style.background]="colors[1]"></span>
                             31 - 60 dager
                         </section>
@@ -47,7 +47,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 
                     <section class="legend-top">
 
-                        <section class="result-legend" id="due2" (click)="addhiddenClass('due2', 1)">
+                        <section class="result-legend" id="due2" (click)="addhiddenClass('due2', 2)">
                             <span class="indicator" [style.background]="colors[2]"></span>
                             1 - 30 dager
                         </section>
@@ -72,7 +72,7 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
     // colors: string[] = ['#008A00', '#FFF000', '#FF9100', '#DA3D00'];
-    colors = ['#008A00', '#FF9100', '#FFF001', '#DA3D00'];
+    colors = ['#008A00', '#FF9100', '#E7A733', '#DA3D00'];
     show = [true, true, true, true];
 
     chartRef: Chart; //  = new Chart(null, null);

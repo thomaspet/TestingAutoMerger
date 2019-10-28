@@ -30,7 +30,7 @@
         </section>
 
         <section class="table-section">
-            <table>
+            <table *ngIf="tableData?.length">
                 <thead>
                     <tr>
                         <th>Kunde</th>
@@ -59,7 +59,7 @@
                 </tbody>
             </table>
 
-            <section *ngIf="!tableData?.length" class="no-overdue-invoices">
+            <section *ngIf="!tableData?.length && hasLoadedData" class="no-overdue-invoices">
                 Ingen forfalte fakturaer
             </section>
         </section>
