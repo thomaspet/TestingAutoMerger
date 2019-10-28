@@ -46,7 +46,8 @@ export class TofDistributionForm implements OnInit {
 
     private setUpFields() {
         const canClearPlan = this.companySettings && (
-            !this.companySettings.Distributions.CustomerInvoiceDistributionPlanID
+            !this.companySettings.Distributions
+            || !this.companySettings.Distributions.CustomerInvoiceDistributionPlanID
             || !this.companySettings.AutoDistributeInvoice
         );
 
