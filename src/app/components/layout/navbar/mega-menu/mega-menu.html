@@ -3,20 +3,20 @@
     matTooltip="Du kan også lukke menyen med escape knappen på tastaturet"
     matTooltipPosition="left"
     matTooltipClass="megamenu-close-tooltip">
-
     close
 </i>
 
 <header>
-    <section class="logo-wrapper" routerLink="/">
-        <img [src]="logoUrl" alt="logo">
-    </section>
-    <span class="span-info-space" name="infomessage"> Marker avkrysningsbokser og lagre får å sette opp menystruktur til venstre i applikasjonen. <br /> Trykk på linknavn for å gå direkte til et skjermbilde. </span>
-    <input #searchInput type="search" [formControl]="searchControl" [(ngModel)]="searchString" placeholder="Søk etter skjermbilde">
+    <img [src]="logoUrl" alt="logo">
+
+    <input #searchInput type="search"
+        [formControl]="searchControl"
+        [(ngModel)]="searchString"
+        placeholder="Søk etter menyelement"
+    />
 </header>
 
-<section class="link-groups">
-
+<section class="link-groups" [class.bottom-padding]="isDirty">
     <section class="link-group" *ngFor="let section of filteredLinkSections; let i = index;">
         <ng-container *ngFor="let sub of section">
             <span>
@@ -33,10 +33,14 @@
             </ul>
         </ng-container>
     </section>
-    <button (click)="resetMenu()" class="reset-button" title="Sett tilbake til standard menyvalg"> Tilbakestill meny </button>
+
+    <button (click)="resetMenu()" class="secondary reset-button">
+        Tilbakestill meny
+    </button>
 </section>
+
 <section class="bottom-save-section" *ngIf="isDirty">
-    <span> Du har ulagrede endringer </span>
-    <button (click)="resetChanges()"> Forkast endringer </button>
-    <button class="c2a" (click)="saveMenuStructure()"> Lagre endringer </button>
+    <span>Du har ulagrede endringer</span>
+    <button class="secondary" (click)="resetChanges()">Forkast endringer</button>
+    <button class="c2a" (click)="saveMenuStructure()">Lagre endringer</button>
 </section>

@@ -29,8 +29,6 @@ export class UniSidebar {
         this.navbarService.sidebarState$.subscribe(state => this.state = state);
 
         this.navbarService.linkSections$.subscribe(sections => {
-
-            // this.navbarLinkSections = ;
             this.navbarLinkSections = _.cloneDeep(sections).filter(section => {
                 section.linkGroups = section.linkGroups.filter(group => {
                     group.links = group.links.filter(link => {
