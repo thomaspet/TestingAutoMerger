@@ -99,8 +99,10 @@ export class PaycheckSending implements OnInit {
                 { name: 'Uten e-post', onClick: () => this.filterEmpsWithoutEmail(), count: this.empsWithoutEmail.length }
             ];
 
-            const empIDs = employees.map(emp => emp.ID);
-            const filter = 'model=employeeCategoryLink&select=EmployeeID as EmployeeID,EmployeeCategory.Name as Name,EmployeeCategory.ID as Number&expand=EmployeeCategory&filter=' + this.salaryHelper.odataFilter(empIDs, 'EmployeeID');
+            const filter = `model=EmployeeCategoryLink&select=EmployeeCategoryID as Number,EmployeeCategoryLink.EmployeeID as EmployeeID,category.Name as Name` +
+                `&filter=trans.PayrollRunID eq ${this.runID}` +
+                `&distinct=true` +
+                `&join=EmployeeCategoryLink.EmployeeID eq SalaryTransaction.EmployeeID as trans and EmployeeCategoryLink.EmployeeCategoryID eq EmployeeCategory.ID as category`;
 
             this.statisticsService.GetAll(filter).subscribe(res => {
                 if (res.Data && res.Data.length) {
