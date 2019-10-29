@@ -1,10 +1,9 @@
 .uni-modal
     width: 45rem
-    
+
 .sending-dropdown
     display: flex
     align-items: center
-    justify-content: space-between
     padding: 0 10px
     height: 2.5rem
     background: #fff
@@ -12,10 +11,20 @@
     border: 1px solid var(--border-color)
     border-radius: var(--section-radius)
     cursor: pointer
+    span
+        white-space: nowrap
+    small
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+
+    .toggle
+        margin-left: auto
+        padding-left: 2rem
 
 .previous-sharings
     margin-bottom: 2rem
-        
+
     .sharing
         display: flex
         .date
@@ -28,4 +37,5 @@
             text-overflow: ellipsis
         .status
             flex: 0 0 8rem
-        
+
+

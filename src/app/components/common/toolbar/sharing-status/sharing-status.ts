@@ -54,6 +54,14 @@ export class ToolbarSharingStatus {
             };
         }
 
+        if (sharing.SharingType === SharingType.Email && sharing.SharingStatusCode === StatusCodeSharing.Completed) {
+            return {
+                label: 'Sendt på epost',
+                icon: 'email',
+                class: 'good'
+            };
+        }
+
         switch (sharing.SharingStatusCode) {
             case StatusCodeSharing.Pending:
             case StatusCodeSharing.InProgress:

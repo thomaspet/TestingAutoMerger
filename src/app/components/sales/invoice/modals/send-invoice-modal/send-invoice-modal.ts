@@ -9,15 +9,22 @@ import {Router} from '@angular/router';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {
     ErrorService,
-    // DistributionPlanService,
     CompanySettingsService,
     EHFService,
     ReportService,
     CustomerInvoiceService,
-    StatisticsService
+    StatisticsService,
+    DistributionPlanService
 } from '@app/services/services';
 import {TofReportModal} from '@app/components/sales/common/tof-report-modal/tof-report-modal';
 import * as moment from 'moment';
+
+interface SendingOption {
+    label: string;
+    tooltip?: string;
+    small?: string;
+    action: () => void;
+}
 
 @Component({
     selector: 'send-invoice-modal',
@@ -33,7 +40,7 @@ export class SendInvoiceModal implements IUniModal {
     previousSharings: any[];
     companySettings: CompanySettings;
 
-    sendingOptions: {label: string; action: () => void}[] = [
+    sendingOptions: SendingOption[] = [
         { label: 'Send på epost', action: () => this.sendEmail() },
         { label: 'Skriv ut', action: () => this.print() },
     ];
@@ -41,6 +48,7 @@ export class SendInvoiceModal implements IUniModal {
     selectedOption = this.sendingOptions[0];
 
     constructor(
+        private distributionPlanService: DistributionPlanService,
         private router: Router,
         private modalService: UniModalService,
         private errorService: ErrorService,
@@ -62,10 +70,38 @@ export class SendInvoiceModal implements IUniModal {
         ];
 
         if (this.invoice.DistributionPlanID) {
-            this.sendingOptions.unshift({
-                label: 'Send via utsendelsesplan',
-                action: () => this.runDistributionPlan()
-            });
+            this.distributionPlanService.Get(
+                this.invoice.DistributionPlanID, ['Elements.ElementType']
+            ).subscribe(
+                (plan: DistributionPlan) => {
+                    let planDetails = '';
+
+                    if (plan && plan.Elements) {
+                        if (plan.Elements.length === 1) {
+                            planDetails = `(${plan.Elements[0].ElementType.Name})`;
+                        } else {
+                            const steps = plan.Elements.map(el => `${el.Priority}. ${el.ElementType.Name}`);
+                            planDetails = `(${steps.join(' ')})`;
+                        }
+                    }
+
+                    this.sendingOptions.unshift({
+                        label: 'Valgt utsendingsplan',
+                        small: planDetails,
+                        action: () => this.runDistributionPlan()
+                    });
+
+                    this.selectedOption = this.sendingOptions[0];
+                },
+                err => {
+                    console.error(err);
+                    this.sendingOptions.unshift({
+                        label: 'Valgt utsendingsplan',
+                        action: () => this.runDistributionPlan()
+                    });
+                }
+
+            );
         }
 
         this.selectedOption = this.sendingOptions[0];

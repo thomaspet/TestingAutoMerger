@@ -1355,17 +1355,26 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             }
                         }).onClose.subscribe(selectedAction => {
                             if (selectedAction) {
+                                let printStatus;
+
                                 if (selectedAction === 'print') {
-                                    this.customerInvoiceService.setPrintStatus(this.invoice.ID, '200').subscribe();
+                                    printStatus = '200';
                                 } else if (selectedAction === 'email') {
-                                    this.customerInvoiceService.setPrintStatus(this.invoice.ID, '100').subscribe();
+                                    printStatus = '100';
                                 }
 
-                                setTimeout(() => {
-                                    if (this.toolbar) {
-                                        this.toolbar.refreshSharingStatuses();
-                                    }
-                                }, 500);
+                                if (printStatus) {
+                                    this.customerInvoiceService.setPrintStatus(this.invoice.ID, printStatus).subscribe(
+                                        () => {
+                                            setTimeout(() => {
+                                                if (this.toolbar) {
+                                                    this.toolbar.refreshSharingStatuses();
+                                                }
+                                            }, 500);
+                                        },
+                                        err => console.error(err)
+                                    );
+                                }
                             }
 
                             done();
