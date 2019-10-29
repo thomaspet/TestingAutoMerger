@@ -51,15 +51,15 @@
             <section *ngIf="isLineChart" class="button-and-labels-top">
 
                 <section class="legend" id="sales" (click)="addhiddenClass('sales', 1)">
-                    <span class="indicator" [ngStyle]="{ 'background-color': lineColors[0] }"></span> Salg
+                    <span class="indicator" [style.background]="lineColors[0]"></span> Salg
                 </section>
 
                 <section class="legend" id="costs" (click)="addhiddenClass('costs', 2)">
-                    <span class="indicator" [ngStyle]="{ 'background-color': lineColors[1] }"></span> Driftskostnader
+                    <span class="indicator" [style.background]="lineColors[1]"></span> Driftskostnader
                 </section>
 
                 <section class="legend" id="result" (click)="addhiddenClass('result', 0)">
-                    <span class="indicator" [ngStyle]="{ 'background-color': lineColors[2] }"></span> Resultat
+                    <span class="indicator" [style.background]="lineColors[2]"></span> Resultat
                 </section>
             </section>
 

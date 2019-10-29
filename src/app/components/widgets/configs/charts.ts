@@ -169,6 +169,7 @@ export const CHARTS = [
         width: 3,
         height: 3,
         widgetType: 'unpaidsr',
+        srOnly: true,
         config: {
             model: 'SupplierInvoice',
             function: 'unpaid',
@@ -181,6 +182,7 @@ export const CHARTS = [
         permissions: ['ui_accounting'],
         width: 7,
         height: 3,
+        srOnly: true,
         widgetType: 'overdue_invoices',
     },
     {
@@ -190,17 +192,19 @@ export const CHARTS = [
         width: 3,
         height: 3,
         widgetType: 'reminderList',
+        srOnly: true,
         config: {
 
         }
     },
     {
         id: 'operatingprofit_line',
-        description: 'Driftsresultat',
+        description: 'Driftsresultat (linje)',
         permissions: ['ui_accounting'],
         width: 6,
         height: 3,
         widgetType: 'operatingprofit',
+        srOnly: true,
         config: {
             type: 'line',
             costMultiplier: -1
@@ -212,6 +216,7 @@ export const CHARTS = [
         width: 5,
         height: 3,
         widgetType: 'public_duedates',
-        config: { }
+        srOnly: true,
+        config: {}
     },
 ];

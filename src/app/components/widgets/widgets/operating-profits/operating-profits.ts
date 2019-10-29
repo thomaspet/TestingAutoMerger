@@ -214,25 +214,14 @@ export class OperatingProfitWidget {
         const element = document.getElementById(id);
 
         if (this.show[index]) {
-            element.classList.remove('hidden-class');
+            element.classList.remove('line-through');
         } else {
-            element.classList.add('hidden-class');
+            element.classList.add('line-through');
         }
         this.reDrawAfterLegendClick();
     }
 
     reDrawAfterLegendClick() {
-        // this.chartRef.config.data.labels = this.widget.config.labels.map((l, i) =>  {
-        //     if (this.show[i]) {
-        //         return l;
-        //     }
-        // });
-
-        // this.chartRef.config.data.datasets = this.lineColors.map((l, i) => {
-        //     if (this.show[i]) {
-        //         return l;
-        //     }
-        // });
         this.chartRef.config.data.datasets = this.dataHolder.map((l, i) =>  {
             if (this.show[i]) {
                 return l;
@@ -240,8 +229,6 @@ export class OperatingProfitWidget {
                 return [];
             }
         });
-
-        console.log(this.chartRef.config.data);
 
         this.chartRef.update();
     }

@@ -520,20 +520,28 @@ export class UniWidgetCanvas {
     }
 
     private initWidgetSelector() {
+        const filter = widgets => {
+            if (environment.isSrEnvironment) {
+                return widgets;
+            } else {
+                return widgets.filter(w => !w.srOnly);
+            }
+        };
+
         this.widgetSelectorItems = [
             {
                 label: 'Tellere',
-                items: COUNTERS
+                items: filter(COUNTERS)
             },
             {
                 label: 'Snarveier',
-                items: SHORTCUT_LISTS
+                items: filter(SHORTCUT_LISTS)
             },
             {
                 label: 'Diagram',
-                items: CHARTS
+                items: filter(CHARTS)
             },
-            ...MISC_WIDGETS,
+            ...filter(MISC_WIDGETS),
         ];
     }
 

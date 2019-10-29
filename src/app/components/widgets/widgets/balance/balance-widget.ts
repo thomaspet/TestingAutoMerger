@@ -10,6 +10,7 @@ import {Chart, ChartConfiguration} from 'chart.js';
 
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
+import {BLUE_SCALES} from '../../widget-colors';
 
 @Component({
     selector: 'balance-widget',
@@ -39,10 +40,6 @@ export class BalanceWidget {
 
     data;
     absoluteSum;
-    colors = [
-        '#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF', '#CEEEFF', '#DFF1F9',
-        /* end of sketched colors */ '#f6dc8d', '#4DB6AC'
-    ];
 
     constructor(
         private dataService: WidgetDataService,
@@ -95,9 +92,11 @@ export class BalanceWidget {
                 labels: this.data.map(i => i.SubGroupName),
                 datasets: [{
                     data: this.data.map(i => Math.abs(i.Sum)),
-                    backgroundColor: this.colors,
+                    backgroundColor: BLUE_SCALES,
                     label: '',
-                    borderColor: 'white',
+                    borderColor: '#fff',
+                    hoverBorderColor: '#fff',
+
                 }]
             },
             options: {
@@ -111,6 +110,9 @@ export class BalanceWidget {
                     labels: {
                         usePointStyle: true
                     }
+                },
+                elements: {
+                    arc: { borderWidth: 3 }
                 },
                 plugins: {
                     datalabels: {

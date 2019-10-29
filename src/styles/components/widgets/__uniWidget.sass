@@ -576,46 +576,24 @@ header.dashboard-header
             flex: 1 !important
             max-width: none
 
-.hidden-class
+.line-through
     text-decoration: line-through
-
 
 // SR
 sr-unpaid-doughnut-widget
-    .chart-legend-sr
-        display: flex
-        flex-direction: row
+    .chart-legend
+        display: grid
+        grid-template-columns: 1fr 1fr
+        grid-column-gap: 1rem
+        grid-row-gap: .5rem
         margin-top: 1rem
 
-        .legend-top
-            flex: 1
+        .legend
+            cursor: pointer
+            text-align: center
 
-            .result-legend
-                text-align: center
-                margin-bottom: 0.7rem
-                cursor: pointer
-                font-size: 13px
-                font-weight: 600
-                color: $uni-color-scale4
-
-                &.hidden-class
-                    text-decoration: line-through
-                .indicator
-                    display: inline-block
-                    width: 10px
-                    height: 10px
-                    border-radius: 50%
-                    margin-right: 2px
-                    background: #738293
-
-                .notdue
-                    background: var(--color-good)
-                .due1
-                    background: #FFF000
-                .due2
-                    background: #FF9100
-                .due3
-                    background: #DA3D00
+            & + .legend
+                margin-left: 0
 
 .legend-vertical-class
     margin-top: .75rem

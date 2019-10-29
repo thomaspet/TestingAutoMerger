@@ -13,6 +13,7 @@ import {IUniWidget} from '../uniWidget';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
+import {DUE_DATE_COLORS} from '../widget-colors';
 
 @Component({
     selector: 'uni-unpaid-doughnut-widget',
@@ -47,7 +48,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     totalAmount: number = 0;
     missingData: boolean;
     missingDataMsg: string = 'Mangler data';
-    colors = ['#008A00', '#FF9100', '#FFF001', '#DA3D00', '#A20076'];
+    colors = DUE_DATE_COLORS; // ['#008A00', '#E7A733', '#FF9100', '#DA3D00', '#A20076'];
 
     constructor(
         private statisticsService: StatisticsService,
@@ -168,9 +169,10 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
             data: {
                 datasets: [{
                     data: [],
-                    backgroundColor: this.colors, // ['#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF'],
+                    backgroundColor: this.colors,
                     label: '',
-                    borderColor: 'white'
+                    borderColor: '#fff',
+                    hoverBorderColor: '#fff'
                 }],
                 labels: []
             },
@@ -186,6 +188,9 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
                     labels: {
                         usePointStyle: true
                     }
+                },
+                elements: {
+                    arc: { borderWidth: 4 }
                 },
                 plugins: {
                     doughnutlabel: {
