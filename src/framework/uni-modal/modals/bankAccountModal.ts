@@ -288,7 +288,7 @@ export class UniBankAccountModal implements IUniModal {
     }
 
     private accountAndIBANSearch(searchValue: string) {
-        searchValue = searchValue.replace(/ /g, '');
+        searchValue = searchValue.replace(/[\W]+/g, '');
         const request = (isNaN(Number(searchValue)))
             ? this.bankService.validateIBANUpsertBank(searchValue)
             : this.bankService.getIBANUpsertBank(searchValue);
