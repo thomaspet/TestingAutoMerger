@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
-import {ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {ICommentsConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
     roundTo,
@@ -138,6 +138,7 @@ export class BillView implements OnInit {
 
     public busy: boolean = true;
     public toolbarConfig: any;
+    paymentStatus: StatusIndicator;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
@@ -3913,6 +3914,21 @@ export class BillView implements OnInit {
             entityType: 'SupplierInvoice',
             contextmenu: this.contextMenuItems
         };
+
+        this.setPaymentStatus();
+    }
+
+    private setPaymentStatus() {
+        // Jorge takes over implementation here
+
+        // this.paymentStatus = {
+        //     label: 'Delbetalt',
+        //     class: 'warn',
+        //     subStatuses: [
+        //         { label: 'Beløp: 10 000', timestamp: new Date(), status: 'Overført bank' },
+        //         { label: 'Beløp: 1 500', timestamp: new Date(), status: 'Opprettet' },
+        //     ]
+        // };
     }
 
     private navigateTo(direction = 'next') {

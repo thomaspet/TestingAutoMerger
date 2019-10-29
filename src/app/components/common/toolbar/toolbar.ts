@@ -36,8 +36,9 @@ export interface IToolbarCreateNewAction {
 
 export interface StatusIndicator {
     label: string;
-    class: string;
-    tooltip: string;
+    class?: string;
+    icon?: string;
+    subStatuses?: {label: string, timestamp?: Date, status?: string}[];
 }
 
 export interface IToolbarConfig {
@@ -99,6 +100,7 @@ export class UniToolbar {
     @Input() saveactions: IUniSaveAction[];
     @Input() contextmenu: IContextMenuItem[];
     @Input() statustrack: IStatus[];
+    @Input() customStatus: StatusIndicator;
     @Input() commentsConfig: ICommentsConfig;
     @Input() searchConfig: IToolbarSearchConfig;
     @Input() selectConfig: any;

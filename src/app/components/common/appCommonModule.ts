@@ -15,6 +15,7 @@ import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
 import {ToolbarSharingStatus} from './toolbar/sharing-status/sharing-status';
+import {ToolbarCustomStatus} from './toolbar/custom-status/custom-status';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
@@ -104,6 +105,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         UniToolbarSearch,
         UniToolbarValidation,
         ToolbarSharingStatus,
+        ToolbarCustomStatus,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,

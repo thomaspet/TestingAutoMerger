@@ -25,6 +25,7 @@
 
 <!-- TOOLBAR CENTER -->
 <section class="toolbar-center">
+    <!-- Statuses needs refactoring, but I don't have time before SR deadline.. -->
     <uni-statustrack
         *ngIf="statustrack || config?.statustrack"
         [config]="statustrack || config.statustrack"
@@ -38,6 +39,11 @@
         [entityType]="config?.entityType"
         [entityID]="config?.entityID">
     </toolbar-sharing-status>
+
+    <toolbar-custom-status
+        *ngIf="customStatus"
+        [status]="customStatus">
+    </toolbar-custom-status>
 
     <uni-toolbar-validation
         *ngIf="validationMessages?.length"
