@@ -188,8 +188,10 @@ export class SupplierEditModal implements IUniModal {
             return email.ID || email._createguid !== supplier.Info.DefaultEmail._createguid;
         });
 
+        const query = supplier.ID ? this.supplierService.Put(supplier.ID, supplier) : this.supplierService.Post(supplier);
+
         this.busy = true;
-        this.supplierService.Post(supplier).subscribe(
+        query.subscribe(
             res => this.onClose.emit(res),
             err => {
                 this.errorService.handle(err);

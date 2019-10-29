@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal new-reciever-modal" style="width: 35vw">
-    <header>Opprett ny mottaker</header>
+    <header>{{ options?.header || 'Opprett ny mottaker'}}</header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
@@ -27,6 +27,6 @@
 
     <footer>
         <button class="secondary" (click)="close()">Avbryt</button>
-        <button class="c2a" (click)="save()">Opprett mottaker</button>
+        <button class="c2a" (click)="save()">{{ isEdit ? 'Lagre mottaker' : 'Opprett mottaker'}}</button>
     </footer>
 </section>

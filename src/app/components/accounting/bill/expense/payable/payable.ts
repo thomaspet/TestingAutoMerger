@@ -4,6 +4,7 @@ import { AutocompleteOptions } from '@uni-framework/ui/autocomplete/autocomplete
 import { Observable } from 'rxjs';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { RecieverModal } from '../reciever-modal/reciever-modal';
+import {SupplierEditModal} from '../../edit-supplier-modal/edit-supplier-modal';
 import { tap } from 'rxjs/operators';
 
 interface IEmpSupplier {
@@ -33,6 +34,13 @@ export class ExpensePayable implements OnInit {
         createLabel: 'Opprett ny mottaker',
         createHandler: () => {
             return this.modalService.open(RecieverModal, { closeOnClickOutside: false }).onClose;
+        },
+        editHandler: (item) => {
+            return this.modalService.open(RecieverModal, {
+                closeOnClickOutside: false,
+                header: 'Rediger mottaker',
+                data: item
+            }).onClose;
         }
     };
 
@@ -75,7 +83,7 @@ export class ExpensePayable implements OnInit {
         const query = `model=account`
             + `&select=ID as AccountID,supplier.suppliernumber as AccountNumber,info.Name as AccountName`
             + ',DefaultBankAccount.ID as BankAccountID,DefaultBankAccount.AccountNumber as BankAccountNumber'
-            + ',info.ID as BusinessRelationID'
+            + ',info.ID as BusinessRelationID,SupplierID as SupplierID'
             + `&filter=supplierid gt 0 and startswith(ref.accountnumber,'29')`
             + ` and ${filter}`
             + `&join=account.accountid eq account.id as ref&expand=supplier.info.defaultbankaccount`;

@@ -16,6 +16,12 @@ export class ExpenseEntries {
         lookup: x => this.lookupAccountByQuery(x),
         openSearchOnFocus: true,
         displayFunction: item => `${item.AccountNumber} - ${item.AccountName}`,
+        resultTableColumns: [
+            { header: 'Kontonr', field: 'AccountNumber' },
+            { header: 'Konto', field: 'AccountName' },
+            { header: 'Stikkord', field: 'Keywords' },
+            { header: 'Beskrivelse', field: 'Description' },
+        ],
         placeholder: 'Søk etter kontonummer, kontonavn eller stikkord'
     };
 
@@ -29,17 +35,19 @@ export class ExpenseEntries {
         }
 
         let filter = '';
+        let sorting = 'AccountNumber';
         if (isNumeric > 0) {
             filter = `startswith(accountnumber,'${lcaseText}')`;
         } else {
             filter = `contains(accountname,'${lcaseText}') or contains(keywords,'${lcaseText}')`;
+            sorting = `casewhen(contains(keywords,'${lcaseText}'),0,1),${sorting}`;
         }
 
         filter = (lcaseText === '' ? '' : ('( ' + filter + ' ) and ')) + 'accountnumber ge 4000 and accountnumber le 9000';
 
         return this.session
-            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description'
-                , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
+            .squery('model=account', 'select', 'Account.*'
+                , 'filter', filter, 'orderby', sorting, 'top', 50, 'distinct', false)
                 .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
     }
 

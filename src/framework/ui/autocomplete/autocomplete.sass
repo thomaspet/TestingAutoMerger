@@ -39,6 +39,13 @@
             font-size: 14px
             color: #666
 
+    .item-edit-icon
+        margin-left: auto
+        visibility: hidden
+        &:hover
+            color: var(--color-c2a)
+            cursor: pointer
+
     .footer
         flex: 0 0 auto
         padding: .75rem 1rem
@@ -67,8 +74,7 @@ table
         border-bottom: 1px solid var(--border-color)
 
     tr
-        height: 2.5rem
-        line-height: 2.5rem
+        height: 3rem
         & + tr
             border-top: 1px solid var(--border-color)
 
@@ -84,9 +90,9 @@ table
 
     th, td
         &:first-of-type
-            padding-left: 1rem
+            padding-left: 1.5rem
         &:last-of-type
-            padding-right: 1rem
+            padding-right: 1.5rem
 
     th + th, td + td
         padding-left: 1rem

@@ -36,6 +36,8 @@
                     class="dropdown-menu-item"
                     [class.selected]="idx === focusIndex">
                     {{getDisplayValue(item)}}
+
+                    <i class="material-icons item-edit-icon" *ngIf="options.editHandler" (click)="edit(item)" title="Rediger">edit</i>
                 </section>
 
                 <section class="no-results" *ngIf="!lookupResults?.length">

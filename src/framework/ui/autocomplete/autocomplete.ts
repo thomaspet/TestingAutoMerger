@@ -178,6 +178,18 @@ export class Autocomplete {
         }
     }
 
+    edit(item) {
+        if (this.options && this.options.editHandler) {
+            this.options.editHandler(item).subscribe(newEntity => {
+                if (newEntity) {
+                    this.select(newEntity);
+                }
+            });
+
+            this.isExpanded$.next(false);
+        }
+    }
+
     onFocus() {
         try {
             this.inputElement.nativeElement.select();

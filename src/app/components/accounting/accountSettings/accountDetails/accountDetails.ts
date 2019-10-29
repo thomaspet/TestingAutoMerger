@@ -589,6 +589,7 @@ export class AccountDetails implements OnInit {
                     EntityType: 'Account',
                     Property: 'Description',
                     FieldType: FieldType.TEXTAREA,
+                    MaxLength: 255,
                     Label: 'Beskrivelse',
                 },
             ]

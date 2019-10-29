@@ -449,6 +449,14 @@ export class BankJournalSession {
         return this.statisticsService.GetAll(query);
     }
 
+    public squery(route: string, ...args: any[]) {
+        let params = '';
+        for (let i = 0; i < args.length; i += 2) {
+            params += `&${args[i]}=${args[i + 1]}`;
+        }
+        return this.statisticsService.GetAllUnwrapped(route + params);
+    }
+
     private HttpGet(route: string) {
         return this.statisticsService.GetHttp()
             .usingBusinessDomain()

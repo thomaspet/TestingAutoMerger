@@ -10,7 +10,7 @@ import {
     EntityForFileUpload,
     UniFileUploadModal,
     ConfirmActions,
-    UniConfirmModalV2,
+    UniConfirmModalWithList,
     IModalOptions
 } from '@uni-framework/uni-modal';
 import { File } from '@uni-entities';
@@ -32,10 +32,15 @@ export class UniInbox {
     dataLoaded: boolean = false;
     sortValue: string = '';
     sortOrder: number = 1;
-    saveActions = [{
-        label: 'Last opp',
-        action: (done) => this.uploadFile(done), main: true, disabled: false
-    }];
+    toolbarConfig = {
+        title: 'NAVBAR.INBOX',
+        buttons: [{
+            label: 'Last opp',
+            class: 'inbox-upload-button',
+            icon: 'cloud_upload',
+            action: () => this.uploadFile()
+        }]
+    };
 
     constructor (
         private supplierInvoiceService: SupplierInvoiceService,
@@ -120,14 +125,14 @@ export class UniInbox {
                 header: 'Slette fil',
                 message: modalMessage,
                 buttonLabels: {
-                    reject: 'Slett',
-                    accept: 'Avbryt'
+                    cancel: 'Avbryt',
+                    reject: 'Slett'
                 },
-                footerCls: 'delete-button-outline'
+                footerCls: 'delete-button-bad'
             };
 
-            this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
-                if (res === ConfirmActions.REJECT) {
+            this.modalService.open(UniConfirmModalWithList, options).onClose.subscribe(res => {
+                if (res && res.action === ConfirmActions.REJECT) {
                     if (item.ID === this.currentFileID) {
                         this.closePreview();
                     }

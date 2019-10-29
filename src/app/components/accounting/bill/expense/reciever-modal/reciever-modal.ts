@@ -35,6 +35,7 @@ export class RecieverModal implements IUniModal {
     errorMsg: string = '';
     dataLoaded: boolean = false;
     isDirty = false;
+    isEdit: boolean = false;
 
     supplier$ = new BehaviorSubject<Supplier>(null);
     fields$ = new BehaviorSubject([]);
@@ -50,28 +51,43 @@ export class RecieverModal implements IUniModal {
     ) { }
 
     public ngOnInit() {
-        Observable.forkJoin(
-            this.supplierService.GetNewEntity(['Info']),
-            this.statisticsService.GetAllUnwrapped(
-                `model=numberseries&select=ID as ID,Name as Name,Comment as Comment` +
-                `&filter=numberseriestype.entitytype eq 'supplier' and startswith(mainaccount.accountnumber,'29')` +
-                // ` and Name ne 'Ansatte'` +  ||||  Uncomment this to keep testing automatic new numberseries
-                `&expand=NumberseriesType,MainAccount`)
-        ).subscribe(([supplier, numberseries]) => {
-            this.types = numberseries || [];
-            this.dataLoaded = true;
+        // If edit
+        if (this.options && this.options.data && this.options.data.SupplierID) {
+            this.isEdit = true;
+            this.supplierService.Get(this.options.data.SupplierID,
+                ['Info', 'Info.Phones', 'Info.Addresses', 'Info.Emails', 'Info.InvoiceAddress', 'Info.DefaultBankAccount',
+                'Info.BankAccounts', 'Info.DefaultEmail', 'Info.DefaultPhone', 'SubAccountNumberSeries']
+            ).subscribe(supplier => {
+                this.supplier$.next(supplier);
+                this.types = [supplier.SubAccountNumberSeries];
+                this.fields$.next(this.getFormFields());
+                this.busy = false;
+                this.dataLoaded = true;
+            });
+        } else {
+            Observable.forkJoin(
+                this.supplierService.GetNewEntity(['Info']),
+                this.statisticsService.GetAllUnwrapped(
+                    `model=numberseries&select=ID as ID,Name as Name,Comment as Comment` +
+                    `&filter=numberseriestype.entitytype eq 'supplier' and startswith(mainaccount.accountnumber,'29')` +
+                    // ` and Name ne 'Ansatte'` +  ||||  Uncomment this to keep testing automatic new numberseries
+                    `&expand=NumberseriesType,MainAccount`)
+            ).subscribe(([supplier, numberseries]) => {
+                this.types = numberseries || [];
+                this.dataLoaded = true;
 
-            // If only one type, fill it in
-            if (this.types.length === 1) {
-                supplier.SubAccountNumberSeriesID = this.types[0].ID;
-            }
+                // If only one type, fill it in
+                if (this.types.length === 1) {
+                    supplier.SubAccountNumberSeriesID = this.types[0].ID;
+                }
 
-            this.supplier$.next(supplier);
-            this.fields$.next(this.getFormFields());
-            this.busy = false;
-        }, err => {
-            this.close();
-        });
+                this.supplier$.next(supplier);
+                this.fields$.next(this.getFormFields());
+                this.busy = false;
+            }, err => {
+                this.close();
+            });
+        }
     }
 
     close() {
@@ -92,7 +108,8 @@ export class RecieverModal implements IUniModal {
         this.busy = true;
 
         const postSupplier = () => {
-            this.supplierService.Post(supplier).subscribe(response => {
+            const action = supplier.ID ? this.supplierService.Put(supplier.ID, supplier) : this.supplierService.Post(supplier);
+            action.subscribe(response => {
                 // Get account
                 if (response && response.SupplierNumber) {
                     this.statisticsService.GetAllUnwrapped(`model=account&select=ID as AccountID,supplier.suppliernumber as ` +
@@ -111,7 +128,7 @@ export class RecieverModal implements IUniModal {
         };
 
 
-        if (!this.types.length) {
+        if (!this.types.length && !this.isEdit) {
             this.statisticsService.GetAllUnwrapped(
                 `model=numberseries&select=fromnumber,tonumber,mainaccount.accountname,mainaccount.accountnumber,` +
                 `NumberSeriesTypeID as NumberSeriesTypeID,Name as Name` +
@@ -290,7 +307,7 @@ export class RecieverModal implements IUniModal {
                 Property: 'SubAccountNumberSeriesID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Type',
-                ReadOnly: !this.types.length,
+                ReadOnly: !this.types.length || this.isEdit,
                 Options: {
                     source: this.types,
                     valueProperty: 'ID',
