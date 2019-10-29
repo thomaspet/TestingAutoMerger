@@ -56,7 +56,8 @@
         <article style="text-align: center" [innerHTML]="htmlContent"></article>
     </section>
 
-    <footer class="center" *ngIf="action">
+    <!-- has valid clientID is a temp fix -->
+    <footer class="center" *ngIf="action && hasValidClientId"> 
         <div [matTooltip]="missingPermissionText">
             <button class="c2a rounded"
                 (click)="onPurchaseClick()"
