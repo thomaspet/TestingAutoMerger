@@ -5,7 +5,7 @@ import {AuthService} from '@app/authService';
 import {ApprovalService} from '@app/services/services';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {WidgetDataService} from '../../widgetDataService';
-import {NewTaskModal} from '../../../common/new-task-list/new-task-list';
+import {NewTaskModal} from '../../../common/modals/new-task-modal/new-task-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {ApprovalStatus } from '@uni-entities';
 import {Observable} from 'rxjs';

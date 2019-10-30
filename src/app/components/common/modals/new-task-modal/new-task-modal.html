@@ -3,7 +3,7 @@
     <article class="new-task-form">
         <label>
             <span>Oppgave</span>
-            <input type="text" [(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
+            <input #textInput type="text"[(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
         </label>
 
         <label>

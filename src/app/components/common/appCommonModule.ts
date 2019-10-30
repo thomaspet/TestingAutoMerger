@@ -67,7 +67,7 @@ import {
     MatTooltipModule,
 } from '@angular/material';
 
-import {NewTaskModal} from '../common/new-task-list/new-task-list';
+import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';

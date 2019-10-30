@@ -2,7 +2,7 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {NewTaskModal} from '../../common/new-task-list/new-task-list';
+import {NewTaskModal} from '../../common/modals/new-task-modal/new-task-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {Task, TaskType, TaskStatus, User} from '../../../unientities';
 import {TaskService, UserService, ErrorService} from '../../../services/services';

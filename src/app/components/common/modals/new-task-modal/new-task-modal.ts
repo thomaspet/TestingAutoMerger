@@ -1,22 +1,19 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import { Task, User, TaskStatus } from '@uni-entities';
+import {Task, User, TaskStatus} from '@uni-entities';
 import {UserService, ErrorService, TaskService} from '@app/services/services';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Observable} from 'rxjs';
 
 @Component({
     selector: 'new-task-modal',
-    templateUrl: './new-task-list.html',
-    styleUrls: ['./new-task-list.sass']
+    templateUrl: './new-task-modal.html',
+    styleUrls: ['./new-task-modal.sass']
 })
-
 export class NewTaskModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    @ViewChild('textInput') input: ElementRef;
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     newTask: Task = new Task();
     currentUser: User;
@@ -34,7 +31,7 @@ export class NewTaskModal implements IUniModal {
         private toast: ToastService
     ) { }
 
-    public ngOnInit() {
+    ngOnInit() {
         Observable.forkJoin(
             this.userService.getCurrentUser(),
             this.userService.GetAll(null)
@@ -47,6 +44,12 @@ export class NewTaskModal implements IUniModal {
             },
             err => this.errorService.handle(err)
         );
+    }
+
+    ngAfterViewInit() {
+        if (this.input && this.input.nativeElement) {
+            this.input.nativeElement.focus();
+        }
     }
 
     initNewTask() {
