@@ -18,12 +18,10 @@ export class DebitCreditEntry {
     public Amount: number;
     public InvoiceNumber: string;
     public active = false;
-    public vatControlledBy = 0;
 
     constructor(date?: Date) {
         if (date) { this.FinancialDate = date; }
     }
-
 }
 
 export interface IAccount {

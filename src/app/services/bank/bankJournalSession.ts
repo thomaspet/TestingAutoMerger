@@ -6,7 +6,7 @@ import { BankUtil } from './bankStatmentModels';
 import { safeDec, toIso } from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { FinancialYearService } from '../accounting/financialYearService';
-import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode, IBankAccount } from './bankjournalmodels';
+import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode } from './bankjournalmodels';
 export * from './bankjournalmodels';
 
 @Injectable()
@@ -407,27 +407,30 @@ export class BankJournalSession {
                 item.CreditAccountID = acc.ID;
                 item.Credit = acc;
             }
-            if (acc.VatTypeID) {
-                this.setVatType(item, acc.VatTypeID);
-            }
+            this.setVatType(item, acc.VatTypeID, isDebet);
         }
     }
 
     private setVatType(item: DebitCreditEntry, vatTypeID: number, isDebet = true) {
-        if (vatTypeID <= 0) {
-            return;
+        let setVatType;
+        if (!vatTypeID) {
+            if ((item['_setbydebet'] !== isDebet)) {
+                return;
+            }
+        } else if (vatTypeID) {
+            setVatType = this.vatTypes.find( x => x.ID === vatTypeID);
+            if (!setVatType) { return; }
         }
-        const vi = this.vatTypes.find( x => x.ID === vatTypeID);
-        if (!vi) { return; }
         if (isDebet) {
             item.CreditVatTypeID = undefined;
             item.DebetVatTypeID = vatTypeID;
+            item['_setbydebet'] = true;
         } else {
             item.DebetVatTypeID = undefined;
             item.CreditVatTypeID = vatTypeID;
+            item['_setbydebet'] = false;
         }
-        item.VatType = vi;
-        // item.vatControlledByDebet = isDebet;
+        item.VatType = setVatType;
     }
 
 
