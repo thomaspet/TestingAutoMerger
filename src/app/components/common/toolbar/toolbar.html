@@ -117,7 +117,7 @@
         [matTooltip]="button.tooltip">
 
         <i class="material-icons" *ngIf="button.icon">{{button.icon}}</i>
-        {{button.label}}
+        {{button.label | translate}}
     </button>
 
     <button *ngIf="config?.navigation?.add"

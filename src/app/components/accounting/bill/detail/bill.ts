@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
-import {ICommentsConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
+import {ICommentsConfig, StatusIndicator, IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
     roundTo,
@@ -137,7 +137,7 @@ export class BillView implements OnInit {
     uploadStepActive: boolean;
 
     public busy: boolean = true;
-    public toolbarConfig: any;
+    public toolbarConfig: IToolbarConfig;
     paymentStatus: StatusIndicator;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<UniFieldLayout[]>;
@@ -3900,20 +3900,23 @@ export class BillView implements OnInit {
             navigation: {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
-                add: () => {
-                    this.checkSave().then((res: boolean) => {
-                        if (res) {
-                            this.newInvoice(false);
-                            this.router.navigateByUrl('/accounting/bills/0');
-                        }
-                    });
-
-                }
             },
             entityID: doc && doc.ID ? doc.ID : null,
             entityType: 'SupplierInvoice',
             contextmenu: this.contextMenuItems
         };
+
+        // Only set add-function when current supplier invoice is saved
+        if (this.currentID) {
+            this.toolbarConfig.navigation.add = () => {
+                this.checkSave().then((res: boolean) => {
+                    if (res) {
+                        this.newInvoice(false);
+                        this.router.navigateByUrl('/accounting/bills/0');
+                    }
+                });
+            };
+        }
 
         this.setPaymentStatus();
     }

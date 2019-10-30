@@ -48,6 +48,7 @@ interface IFilter {
     onDataReady?: (data) => void;
     passiveCounter?: boolean;
     hotCounter?: boolean;
+    statusCode?: number;
 }
 
 interface ISearchParams {
@@ -119,7 +120,8 @@ export class BillsView implements OnInit {
                 + StatusCodeSupplierInvoice.Draft
                 + ') eq '
                 + StatusCodeSupplierInvoice.Draft,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.Draft
         },
         {
             label: 'Avvist',
@@ -127,34 +129,39 @@ export class BillsView implements OnInit {
             filter: 'isnull(statuscode,' +
             StatusCodeSupplierInvoice.Rejected + ') eq ' +
             StatusCodeSupplierInvoice.Rejected,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.Rejected
         },
         {
             label: 'Tildelt',
             name: 'ForApproval',
             filter: 'statuscode eq ' +
             StatusCodeSupplierInvoice.ForApproval,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.ForApproval
         },
         {
             label: 'Godkjent',
             name: 'Approved',
             filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.Approved
         },
         {
             label: 'Bokført',
             name: 'Journaled',
             filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled,
             showJournalID: true,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.Journaled
         },
         {
             label: 'Betalingsliste',
             name: 'ToPayment',
             filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ToPayment,
             showJournalID: true,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.ToPayment
         },
         {
             label: 'Betalt',
@@ -165,7 +172,8 @@ export class BillsView implements OnInit {
                 + StatusCodeSupplierInvoice.PartlyPayed,
             showStatus: true,
             showJournalID: true,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: StatusCodeSupplierInvoice.Payed
         },
         {
             label: 'Alle',
@@ -173,20 +181,22 @@ export class BillsView implements OnInit {
             filter: '',
             showStatus: true,
             showJournalID: true,
-            passiveCounter: true
+            passiveCounter: true,
+            statusCode: 0
         }
     ];
 
-    public saveActions: IUniSaveAction[] = [{
-        label: 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
-        action: () => setTimeout(() => this.onAddNew()),
-        main: true,
-        disabled: false
-    }];
+    public saveActions: IUniSaveAction[] = [];
 
     public toolbarConfig: IToolbarConfig = {
         title: 'NAVBAR.SUPPLIER_INVOICE',
-        omitFinalCrumb: true
+        omitFinalCrumb: true,
+        buttons: [
+            {
+                label: 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
+                action: () => setTimeout(() => this.onAddNew())
+            }
+        ]
     };
 
     isSrEnvironment = environment.isSrEnvironment;
@@ -221,7 +231,7 @@ export class BillsView implements OnInit {
 
         this.checkPath();
         this.refreshList(this.currentFilter, true);
-        this.updateSaveActions(0);
+        this.updateSaveActions();
     }
 
     public onFormFilterChange(event) {
@@ -249,20 +259,7 @@ export class BillsView implements OnInit {
 
     public onRowSelectionChange(selectedItems) {
         this.selectedItems = selectedItems;
-
-        if (this.selectedItems && this.selectedItems.length > 0) {
-            const status = this.selectedItems[0].StatusCode;
-            const singleStatusCode = this.selectedItems.every(item => item.StatusCode === status);
-
-            if (singleStatusCode) {
-                this.updateSaveActions(status);
-            } else {
-                this.toast.addToast('Du kan bare massebehandle fakturaer med lik status', ToastType.warn, 4);
-                this.updateSaveActions(0);
-            }
-        } else {
-            this.updateSaveActions(0);
-        }
+        this.updateSaveActions();
     }
 
     public onRowDelete(row) {
@@ -314,74 +311,75 @@ export class BillsView implements OnInit {
         }
     }
 
-    private updateSaveActions(supplierInvoiceStatusCode: number) {
-        this.saveActions = [];
+    private updateSaveActions() {
         const selectedRowCount = this.selectedItems && this.selectedItems.length || 0;
-
-        this.saveActions.push ({
-            label: 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
-            action: (completeEvent) => setTimeout(() => this.onAddNew()),
-            main: false,
-            disabled: false
-        });
+        this.saveActions = [];
 
         if (
-            supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft
-            || supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected
+            this.currentFilter.statusCode === StatusCodeSupplierInvoice.Draft
+            || this.currentFilter.statusCode === StatusCodeSupplierInvoice.Rejected
         ) {
+            this.saveActions.push({
+                label: `Bokfør (${selectedRowCount} stk.)`,
+                action: (done) => this.massTransition(BillMassTransition.Journal, done),
+                main: true,
+                disabled: selectedRowCount === 0
+            });
+
             this.saveActions.push({
                 label: 'Tildel',
                 action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
-                main: true,
-                disabled: false
+                main: false,
+                disabled: selectedRowCount === 0
             });
         }
 
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.ForApproval) {
+        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.ForApproval) {
             this.saveActions.push({
                 label: 'Godkjenn',
                 action: (done) => setTimeout(() => this.approveSupplierInvoices(done)),
                 main: true,
-                disabled: false
+                disabled: selectedRowCount === 0
             });
 
             this.saveActions.push({
                 label: 'Avvis',
                 action: (done) => setTimeout(() => this.rejectSupplierInvoices(done)),
                 main: false,
-                disabled: false
+                disabled: selectedRowCount === 0
             });
         }
 
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Approved) {
+        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Approved) {
             this.saveActions.push({
                 label: `Bokfør (${selectedRowCount} stk.)`,
                 action: (done) => this.massTransition(BillMassTransition.Journal, done),
                 main: true,
-                disabled: false
+                disabled: selectedRowCount === 0
             });
 
             this.saveActions.push({
                 label: `Bokfør og til betaling (${selectedRowCount} stk.)`,
-                action: (done) => this.massTransition(BillMassTransition.JournalAndToPayment, done)
+                action: (done) => this.massTransition(BillMassTransition.JournalAndToPayment, done),
+                disabled: selectedRowCount === 0
             });
         }
 
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
+        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {
             this.saveActions.push({
                 label: `Til betalingsliste (${selectedRowCount} stk)`,
                 action: (done) => this.massTransition(BillMassTransition.ToPayment, done),
                 main: true,
-                disabled: false
+                disabled: selectedRowCount === 0
             });
         }
 
-        if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
+        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {
             this.saveActions.push({
                 label: 'Krediter',
                 action: (done) => setTimeout(() => this.creditSupplierInvoice(done)),
                 main: false,
-                disabled: false
+                disabled: selectedRowCount === 0
             });
         }
     }
@@ -398,7 +396,7 @@ export class BillsView implements OnInit {
         }).onClose.subscribe(() => {
             this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
             this.selectedItems = null;
-            this.updateSaveActions(0);
+            this.updateSaveActions();
             doneCallback();
         });
     }
@@ -446,11 +444,11 @@ export class BillsView implements OnInit {
                         this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt', ToastType.good, 3
                     );
                 }
-                this.updateSaveActions(0);
+                this.updateSaveActions();
             },
             err => {
                 this.errorService.handle(err);
-                this.updateSaveActions(0);
+                this.updateSaveActions();
             }
         );
     }
@@ -503,11 +501,11 @@ export class BillsView implements OnInit {
                                         3
                                     );
                                 }
-                                this.updateSaveActions(0);
+                                this.updateSaveActions();
                             },
                             err => {
                                 this.errorService.handle(err);
-                                this.updateSaveActions(0);
+                                this.updateSaveActions();
                             }
                         );
                     });
@@ -569,11 +567,11 @@ export class BillsView implements OnInit {
                                                 3
                                             );
                                         }
-                                        this.updateSaveActions(0);
+                                        this.updateSaveActions();
                                     },
                                     err => {
                                         this.errorService.handle(err);
-                                        this.updateSaveActions(0);
+                                        this.updateSaveActions();
                                     }
                                 );
                             });
@@ -619,12 +617,12 @@ export class BillsView implements OnInit {
                             );
                         }
                         this.selectedItems = null;
-                        this.updateSaveActions(0);
+                        this.updateSaveActions();
                         done();
                     },
                     err => {
                         this.errorService.handle(err);
-                        this.updateSaveActions(0);
+                        this.updateSaveActions();
                         done();
                     }
                 );
@@ -670,6 +668,9 @@ export class BillsView implements OnInit {
                 this.tableConfig = this.createTableConfig(filter);
                 this.totals.grandTotal = filter.total || this.totals.grandTotal;
             }
+            this.tableConfig.setMultiRowSelect(!(this.currentFilter.name === 'Paid'
+                || this.currentFilter.name === 'ToPayment'
+                || this.currentFilter.name === 'All'));
 
             this.loading$.next(false);
 
@@ -894,22 +895,22 @@ export class BillsView implements OnInit {
         }
     }
 
-    public onFilterClick(filter: IFilter, searchFilter?: string) {
+    public onFilterClick(filter: IFilter) {
         if (filter.name !== 'Inbox') {
             this.previewVisible = false;
             this.fileID = null;
         }
 
-        this.refreshList(filter, !this.hasQueriedTotals, searchFilter);
-        if (searchFilter) {
-        } else {
-            this.pageStateService.setPageState('filter', filter.name);
-            const index = this.filters.findIndex(f => f.name === filter.name);
-            if (index >= 0) {
-                this.activeFilterIndex = index;
-            }
-            this.tabService.currentActiveTab.url = this.pageStateService.getUrl();
+        this.currentFilter = filter;
+
+        this.refreshList(filter, !this.hasQueriedTotals);
+        this.pageStateService.setPageState('filter', filter.name);
+        const index = this.filters.findIndex(f => f.name === filter.name);
+        if (index >= 0) {
+            this.activeFilterIndex = index;
         }
+        this.tabService.currentActiveTab.url = this.pageStateService.getUrl();
+        this.updateSaveActions();
     }
 
 

@@ -32,6 +32,9 @@ export class UniSave {
                 : this.actions;
 
             this.main = this.getMainAction();
+        } else {
+            this.filteredActions = [];
+            this.main = undefined;
         }
     }
 

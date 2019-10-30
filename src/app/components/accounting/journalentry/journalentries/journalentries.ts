@@ -35,7 +35,6 @@ export class JournalEntries {
         navigation: {
             prev: () => this.showPrevious(),
             next: () => this.showNext(),
-            add:  () => this.add()
         },
         contextmenu: this.contextMenuItems
     };
@@ -179,8 +178,7 @@ export class JournalEntries {
             omitFinalCrumb: true,
             navigation: {
                 prev: () => this.showPrevious(),
-                next: () => this.showNext(),
-                add:  () => this.add()
+                next: () => this.showNext()
             },
             contextmenu: this.contextMenuItems
         };
@@ -350,22 +348,6 @@ export class JournalEntries {
                 },
                 err => this.errorService.handle(err)
             );
-        });
-    }
-
-    private add() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (!canDeactivate) {
-                return;
-            }
-
-            this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
-            this.journalEntryManual.setJournalEntryData([]);
-            this.journalEntryManual.clearJournalEntryInfo();
-            this.journalEntryManual.currentJournalEntryID = '';
-            this.currentJournalEntryID = 0;
-
-            this.router.navigateByUrl(`/accounting/journalentry/manual`);
         });
     }
 
