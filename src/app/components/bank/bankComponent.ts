@@ -56,18 +56,6 @@ import { AuthService } from '@app/authService';
     template: `
         <uni-toolbar [config]="toolbarconfig" [saveactions]="actions"></uni-toolbar>
         <section class="ticker-overview">
-            <ul class="ticker-list">
-                <li *ngFor="let group of tickerGroups">
-                    {{group.Name}}
-                    <ul>
-                        <li *ngFor="let ticker of group.Tickers"
-                            (click)="navigateToTicker(ticker)"
-                            [attr.aria-selected]="ticker.Code === selectedTicker?.Code">
-                            {{ticker.Name}}
-                        </li>
-                    </ul>
-                </li>
-            </ul>
 
             <section class="overview-ticker-section">
                 <uni-ticker-container
