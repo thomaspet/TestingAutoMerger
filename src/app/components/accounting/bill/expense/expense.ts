@@ -166,8 +166,9 @@ export class Expense implements OnInit {
             this.session.recalc();
             const validation = this.session.validate(createPayment);
             if (validation.success === false) {
-                this.toast.addToast(validation.messages[0], ToastType.bad, 4);
-                this.focusErrorElement(validation.errField);
+                if (!this.focusErrorElement(validation.errField)) {
+                    this.toast.addToast(validation.messages[0], ToastType.warn, 5);
+                }
                 resolve(false);
                 return;
             }
@@ -333,13 +334,34 @@ export class Expense implements OnInit {
         }
     }
 
-
     focusErrorElement(fieldName: string) {
         const fx = this.getChildInputField(fieldName);
         if (fx) {
             fx.focus();
             fx.select();
+            fx.style.cssText = 'border: 2px solid var(--color-bad)';
+            // Cleanup (setup eventhandlers on keydown and blur)
+            const cleanUpHandlers = [];
+            const unHook = (x: any) => {
+                x = x.target || x;
+                x.style.cssText = '';
+                cleanUpHandlers.forEach( h => {
+                    if (h.name === 'timeout') {
+                        clearTimeout(h.handler);
+                    } else {
+                        fx.removeEventListener(h.name, h.handler);
+                    }
+                });
+                cleanUpHandlers.length = 0;
+            };
+            fx.addEventListener('keydown', unHook);
+            fx.addEventListener('blur', unHook);
+            cleanUpHandlers.push({ name: 'keydown', handler: unHook });
+            cleanUpHandlers.push({ name: 'blur', handler: unHook });
+            cleanUpHandlers.push({ name: 'timeout', handler: setTimeout( () => unHook(fx), 5 * 1000) });
+            return true;
         }
+        return false;
     }
 
     getChildInputField(fieldName: string): HTMLInputElement {

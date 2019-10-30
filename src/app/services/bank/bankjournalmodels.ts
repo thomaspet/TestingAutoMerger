@@ -18,6 +18,7 @@ export class DebitCreditEntry {
     public Amount: number;
     public InvoiceNumber: string;
     public active = false;
+    public vatControlledBy = 0;
 
     constructor(date?: Date) {
         if (date) { this.FinancialDate = date; }
@@ -88,4 +89,13 @@ export class PaymentInfo {
     public SystemBankAccount: IBankAccount;
     public Amount: number;
     public Description: string;
+    public clear() {
+        this.PaidWith = undefined;
+        this.PaymentDate = new Date();
+        this.PaymentTo = undefined;
+        this.PaymentAccount = undefined;
+        this.Amount = 0;
+        this.Description = '';
+        // allow mode and systembankaccount to remain unchanged
+    }
 }

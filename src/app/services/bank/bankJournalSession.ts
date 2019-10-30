@@ -32,6 +32,7 @@ export class BankJournalSession {
     }
 
     clear() {
+        this.payment.clear();
         this.items = [];
         this.busy = false;
     }
@@ -179,23 +180,34 @@ export class BankJournalSession {
             return { success: false, messages: ['Ingen posteringer'], errField: 'item.Debet' };
         }
 
-        if (this.balance === 0 && this.payment.Mode !== PaymentMode.None) {
-            return { success: false, messages: ['Beløp mangler'], errField: 'item.Amount' };
-        }
-
         if (this.balance !== 0 && this.payment.Mode === PaymentMode.None) {
             return { success: false, messages: ['Det er differanse i bilaget'], errField: 'item.Amount' };
         }
 
-        let validItems = 0;
+        let validAccounts = 0;
+        let validAmounts = 0;
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
-            if (item.Amount && (item.Debet || item.Credit)) {
-                validItems++;
+            if (item.Debet || item.Credit) {
+                validAccounts++;
+            }
+            if (item.Amount) {
+                validAmounts++;
             }
         }
-        if (validItems === 0) {
+        if (validAccounts === 0) {
             return { success: false, messages: ['Utgiftskonto mangler'], errField: 'item.Debet' };
+        }
+        if (validAmounts === 0) {
+            return { success: false, messages: ['Beløp mangler'], errField: 'item.Amount' };
+        }
+
+        if (this.balance === 0 && this.payment.Mode !== PaymentMode.None) {
+            return { success: false, messages: ['Beløp mangler'], errField: 'item.Amount' };
+        }
+
+        if (validAmounts < this.items.length || validAccounts < this.items.length) {
+            return { success: false, messages: ['Du må fylle ut alle konteringslinjene'], errField: '' };
         }
 
         return { success: true };
@@ -402,7 +414,9 @@ export class BankJournalSession {
     }
 
     private setVatType(item: DebitCreditEntry, vatTypeID: number, isDebet = true) {
-        if (vatTypeID <= 0) { return; }
+        if (vatTypeID <= 0) {
+            return;
+        }
         const vi = this.vatTypes.find( x => x.ID === vatTypeID);
         if (!vi) { return; }
         if (isDebet) {
@@ -413,6 +427,7 @@ export class BankJournalSession {
             item.CreditVatTypeID = vatTypeID;
         }
         item.VatType = vi;
+        // item.vatControlledByDebet = isDebet;
     }
 
 
