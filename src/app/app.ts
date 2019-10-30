@@ -108,11 +108,6 @@ export class App {
                 this.checkForInitRoute();
             }
         });
-
-        // TODO: remove before SR goes live
-        if (this.isSrEnvironment) {
-            document.body.classList.add('sr-theme');
-        }
     }
 
     private checkForInitRoute() {
@@ -158,24 +153,6 @@ export class App {
             } else {
                 this.authService.clearAuthAndGotoLogin();
             }
-        });
-    }
-
-    applyUeTheme() {
-        document.body.classList.remove('sr-theme');
-        this.translationService.setLocale('NO');
-        const route = this.router.url;
-        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(() => {
-            this.router.navigateByUrl(route);
-        });
-    }
-
-    applySrTheme() {
-        document.body.classList.add('sr-theme');
-        this.translationService.setLocale('NO');
-        const route = this.router.url;
-        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(() => {
-            this.router.navigateByUrl(route);
         });
     }
 }

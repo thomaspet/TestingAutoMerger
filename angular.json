@@ -32,7 +32,12 @@
               "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@ng-select/ng-select/themes/default.theme.css"
-            ]
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/themes/ue"
+              ]
+            }
           },
           "configurations": {
             "dev": {
@@ -194,7 +199,12 @@
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
-              ]
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext01"
+                ]
+              }
             },
             "ext01-serve": {
               "aot": false,
@@ -222,7 +232,12 @@
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
-              ]
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext01"
+                ]
+              }
             },
             "local": {
               "outputHashing": "all",

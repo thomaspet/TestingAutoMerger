@@ -15,15 +15,4 @@
 
 <section class="theme-selector">
     <boost-chat *ngIf="isSrEnvironment"></boost-chat>
-
-    <span #toggle>
-        <i class="material-icons" style="vertical-align: middle; margin: 0 2px 2px 0">aspect_ratio</i>
-        Demo
-    </span>
-    <dropdown-menu [trigger]="toggle">
-        <ng-template>
-            <section class="dropdown-menu-item" (click)="applyUeTheme()">Uni Economy</section>
-            <section class="dropdown-menu-item" (click)="applySrTheme()">SR Regnskap</section>
-        </ng-template>
-    </dropdown-menu>
 </section>
