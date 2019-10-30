@@ -192,7 +192,11 @@ export class CustomerEditModal implements IUniModal {
         });
 
         this.busy = true;
-        this.customerService.Post(customer).subscribe(
+        const saveRequest = !!customer.ID
+            ? this.customerService.Put(customer.ID, customer)
+            : this.customerService.Post(customer);
+
+        saveRequest.subscribe(
             res => this.onClose.emit(res),
             err => {
                 this.errorService.handle(err);
