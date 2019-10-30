@@ -3,7 +3,7 @@ import {UniModalService} from '../../modalService';
 import {IUniModal, IModalOptions, ConfirmActions} from '../../interfaces';
 import {Observable} from 'rxjs';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
-import {ReportDefinition, ReportParameter} from '@uni-entities';
+import {ReportDefinition, ReportParameter, StatusCodeCustomerInvoice, StatusCodeCustomerQuote, StatusCodeCustomerOrder} from '@uni-entities';
 
 import {
     ReportTypeService,
@@ -45,14 +45,19 @@ export class UniChooseReportModal implements IUniModal {
     ) {}
 
     ngOnInit() {
+        const entity = this.options.data.entity;
+        const isdraft: boolean =
+            entity.StatusCode == StatusCodeCustomerInvoice.Draft ||
+            entity.StatusCode == StatusCodeCustomerOrder.Draft || 
+            entity.StatusCode == StatusCodeCustomerQuote.Draft;
+
         Observable.forkJoin(
-            this.reportTypeService.getFormType(this.options.data.type),
+            this.reportTypeService.getFormType(this.options.data.type, isdraft),
             this.companySettingsService.Get(1)
         ).subscribe(
             data => {
                 this.reports = data[0];
                 const company = data[1];
-                const entity = this.options.data.entity;
                 const defaultReportID = (entity && entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`])
                     ? entity.Customer[`DefaultCustomer${this.options.data.typeName}ReportID`]
                     : company[`DefaultCustomer${this.options.data.typeName}ReportID`];

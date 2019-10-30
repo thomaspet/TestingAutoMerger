@@ -17,10 +17,13 @@ export class ReportTypeService extends BizHttp<string> {
         this.DefaultOrderBy = null;
     }
 
-    public getFormType(type: ReportTypeEnum): Observable<ReportDefinition[]> {
+    public getFormType(type: ReportTypeEnum, withdraft: boolean = false): Observable<ReportDefinition[]> {
         return this.http.asGET()
             .usingRootDomain()
-            .withEndPoint(`${this.relativeURL}/type/${type}`)
+            .withEndPoint(!withdraft
+                ? `${this.relativeURL}/type/${type}`
+                : `${this.relativeURL}/type-with-draft/${type}`
+            )
             .send()
             .map(response => response.body);
     }
