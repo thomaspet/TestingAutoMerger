@@ -10,8 +10,10 @@ import {
     SupplierInvoiceService,
     CompanySettingsService,
     UniFilesService,
-    JournalEntryService
+    JournalEntryService,
+    ValidationService
 } from '@app/services/services';
+import {autocompleteDate} from '@app/date-adapter';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import {IOcrServiceResult, OcrValuables} from '../../bill/detail/ocr';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
@@ -27,6 +29,7 @@ import { UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import {DoneRedirectModal} from './done-redirect-modal/done-redirect-modal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import {CompanySettings} from '@app/unientities';
+import * as moment from 'moment';
 
 @Component({
     selector: 'expense',
@@ -57,7 +60,8 @@ export class Expense implements OnInit {
         private companySettingsService: CompanySettingsService,
         private uniFilesService: UniFilesService,
         private journalEntryService: JournalEntryService,
-        private self: ElementRef
+        private validationService: ValidationService,
+        private self: ElementRef,
     ) {
 
         this.companySettingsService.Get(1, null).subscribe((companySettings) => {
@@ -318,12 +322,38 @@ export class Expense implements OnInit {
                         this.toast.addToast('OCR-resultater lagt til. Fant ingen orgnr, så kan ikke kjøre smart bokføring',
                         ToastType.good, 5);
                     }
+                    this.uniImage.setOcrValues([
+                        {label: 'Dato', value: 1},
+                        {label: 'Beløp', value: 2},
+                        {label: 'Beskrivelse', value: 3},
+                    ]);
+                    this.uniImage.setOcrData(result);
                     resolve(true);
             }, (err) => {
                 this.errorService.handle(err);
                 resolve(false);
             });
         });
+    }
+
+    useWord(event) {
+        if (event) {
+            const value = event.word.text;
+            switch (event.propertyType) {
+                case 1: // Date
+                    this.session.payment.PaymentDate = autocompleteDate(value);
+                    break;
+                case 2: // Beløp
+                    const sum = value.replace(',', '.');
+                    if (!isNaN(parseFloat(sum))) {
+                        this.session.items[0].Amount = sum;
+                    }
+                    break;
+                case 3: // Description
+                    this.session.items[0].Description = value;
+                    break;
+            }
+        }
     }
 
     private highLightInput(fieldName: string, seconds = 10) {

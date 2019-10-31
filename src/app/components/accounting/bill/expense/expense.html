@@ -40,7 +40,8 @@
                 [uploadWithoutEntity]="true"
                 [readonly]="false"
                 [fileIDs]="fileIds"
-                (fileListReady)="onFileListReady($event)">
+                (fileListReady)="onFileListReady($event)"
+                (useWord)="useWord($event)">
             </uni-image>
 
         </section>

@@ -100,7 +100,8 @@
 
             <span *ngIf="ocrWords?.length">
                 <span *ngFor="let word of ocrWords"
-                    class="image-word"
+                    @flashAnimation
+                    class="image-word iw"
                     title="{{word.text}}"
                     [ngStyle]="word._style"
                     (click)="onOCRWordClick(word, $event)"
@@ -111,13 +112,7 @@
                     <section class="ocr-value-picker" (click)="$event.stopPropagation()">
                         <p>Valgt verdi: <strong>{{currentClickedWord?.text}}</strong></p>
                         <strong>Bruk verdi som</strong>
-                        <button mat-menu-item (click)="selectOCRWord(1, $event)">Organisasjonsnr</button>
-                        <button mat-menu-item (click)="selectOCRWord(7, $event)">Fakturadato</button>
-                        <button mat-menu-item (click)="selectOCRWord(8, $event)">Forfallsdato</button>
-                        <button mat-menu-item (click)="selectOCRWord(5, $event)">Fakturanummer</button>
-                        <button mat-menu-item (click)="selectOCRWord(3, $event)">Bankkonto</button>
-                        <button mat-menu-item (click)="selectOCRWord(4, $event)">KID</button>
-                        <button mat-menu-item (click)="selectOCRWord(6, $event)">Fakturabeløp</button>
+                        <button *ngFor="let value of ocrValues" mat-menu-item (click)="selectOCRWord(value.value, $event)">{{ value.label }}</button>
                     </section>
                 </mat-menu>
 

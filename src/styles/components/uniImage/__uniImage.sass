@@ -11,6 +11,7 @@ uni-image
 
     picture
         position: relative
+        display: inline-block
 
     picture img
         width: auto
@@ -28,9 +29,11 @@ uni-image
         display: block
         cursor: pointer
         position: absolute
+        padding: .35rem .7rem
+        opacity: .5
 
     .image-word:hover
-        border: 1px solid gray
+        border: 1px solid var(--border-color)
 
     .uniImage
         display: flex
