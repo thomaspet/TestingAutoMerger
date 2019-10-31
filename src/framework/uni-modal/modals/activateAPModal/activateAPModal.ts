@@ -95,7 +95,6 @@ export class UniActivateAPModal implements IUniModal {
 
                 model.incommingInvoice = settings.APIncomming.find(f => f.Name === 'EHF INVOICE 2.0') != null;
                 model.outgoingInvoice = settings.APOutgoing.find(f => f.Name === 'EHF INVOICE 2.0') != null;
-                model.outgoingInvoicePrint = settings.APOutgoing.find(f => f.Name === 'NETSPRINT') != null;
 
                 model.settings = settings;
 
@@ -130,16 +129,16 @@ export class UniActivateAPModal implements IUniModal {
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
             // Activate EHF
-            this.ehfService.activate(model).subscribe(
+            this.ehfService.activate('billing', model).subscribe(
                 status => {
                     if (status === ActivationEnum.ACTIVATED) {
                         this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
                         this.ehfService.updateActivated();
-                    } else if (status === ActivationEnum.CONFIRMATION) {
+                    } else if (status === ActivationEnum.EXISTING) {
                         this.toastService.addToast(
                             'Aktivering på vent',
                             ToastType.good, 10,
-                            'Varsel om venting på godkjenning sendt til kontakt-e-post'
+                            'Org.nr. er allerede aktivert, deaktiver nåværende løsning eller kontakt support.'
                         );
                     } else {
                         this.toastService.addToast(
@@ -233,16 +232,6 @@ export class UniActivateAPModal implements IUniModal {
                 Property: 'orgname',
                 FieldType: FieldType.TEXT,
                 Label: 'Firmanavn',
-            },
-            <any> {
-                Property: 'orgphone',
-                FieldType: FieldType.TEXT,
-                Label: 'Telefon'
-            },
-            <any> {
-                Property: 'orgemail',
-                FieldType: FieldType.EMAIL,
-                Label: 'E-post'
             },
             <any> {
                 Property: 'contactname',

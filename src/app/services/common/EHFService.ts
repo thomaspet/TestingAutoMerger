@@ -30,9 +30,24 @@ export class EHFService extends BizHttp<EHFLog> {
         });
     }
 
-    public activate(activate) {
+    public activate(service, activate) {
+        let direction;
+        if (service === 'invoiceprint') { direction = 'out'; }
+        else if (service === 'billing')
+        {
+            if (activate.incommingInvoice && activate.outgoingInvoice) { direction = 'both'; }
+            if (activate.incommingInvoice && !activate.outgoingInvoice) { direction = 'in'; }
+            if (!activate.incommingInvoice && activate.outgoingInvoice) { direction = 'out'; }
+        }
+
         super.invalidateCache();
-        return this.ActionWithBody(null, activate, 'activate', RequestMethod.Post);
+        return this.ActionWithBody(null, {
+            orgno: activate.orgnumber,
+            orgname: activate.orgname,
+            contactname: activate.contactname,
+            contactphone: activate.contactphone,
+            contactemail: activate.contactemail
+        }, 'activate', RequestMethod.Post, "service=${service}&direction=${direction}");
     }
 
     public updateActivated() {

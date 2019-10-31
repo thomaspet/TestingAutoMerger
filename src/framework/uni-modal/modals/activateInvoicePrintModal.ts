@@ -29,7 +29,6 @@ import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountMo
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
-                <span>Aktivering av fakturaprint for Uni Economy vil erstatte samme funksjon i V3 om du har aktivert fra V3 tidligere.</span>
             </article>
 
             <footer>
@@ -90,8 +89,6 @@ export class UniActivateInvoicePrintModal implements IUniModal {
                 'DefaultEmail',
                 'APContact.Info.DefaultPhone',
                 'APContact.Info.DefaultEmail',
-                'APIncomming',
-                'APOutgoing',
                 'BankAccounts',
                 'CompanyBankAccount'
         ])).subscribe(
@@ -116,8 +113,6 @@ export class UniActivateInvoicePrintModal implements IUniModal {
                     ? settings.APContact.Info.DefaultPhone.Number
                     : user.PhoneNumber;
 
-                model.incommingInvoice = settings.APIncomming.find(f => f.Name == 'EHF INVOICE 2.0') != null;
-                model.outgoingInvoice = settings.APOutgoing.find(f => f.Name == 'EHF INVOICE 2.0') != null;
                 model.outgoingInvoicePrint = true;
 
                 model.settings = settings;
@@ -153,16 +148,16 @@ export class UniActivateInvoicePrintModal implements IUniModal {
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
             // Activate InvoicePrint
-            this.ehfService.activate(model).subscribe(
+            this.ehfService.activate('invoiceprint', model).subscribe(
                 status => {
                     if (status === ActivationEnum.ACTIVATED) {
                         this.toastService.addToast('Aktivering', ToastType.good, 3, 'Fakturaprint aktivert');
                         this.ehfService.updateActivated();
-                    } else if (status === ActivationEnum.CONFIRMATION) {
+                    } else if (status === ActivationEnum.EXISTING) {
                         this.toastService.addToast(
                             'Aktivering på vent',
                             ToastType.good, 10,
-                            'Varsel om venting på godkjenning sendt til kontakt-e-post'
+                            'Org.nr. er allerede aktivert, deaktiver nåværende løsning eller kontakt support.'
                         );
                     } else {
                         this.toastService.addToast(
