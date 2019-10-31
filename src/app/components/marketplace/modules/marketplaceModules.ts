@@ -26,6 +26,8 @@ import {
     MissingPurchasePermissionModal
 } from '@uni-framework/uni-modal';
 
+import {environment} from 'src/environments/environment';
+
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
 import {IUniTab} from '@app/components/layout/uni-tabs';
@@ -41,6 +43,7 @@ export class MarketplaceModules implements AfterViewInit {
     extensions: ElsaProduct[];
     filteredExtensions: ElsaProduct[];
     tabs: IUniTab[];
+    isSrEnvironment = environment.isSrEnvironment;
 
     private canPurchaseProducts: boolean;
     private companySettings: CompanySettings;
@@ -214,7 +217,12 @@ export class MarketplaceModules implements AfterViewInit {
         }
     }
 
-    openLinkInNewTab(url: string){
-        window.open(url, '_blank');
+    openLinkInNewTab(url: string) {
+        if (this.isSrEnvironment) {
+            window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
+        } else {
+            window.open('https://www.unimicro.no/vaare-losninger/uni-economy/priser', '_blank');
+        }
+
     }
 }

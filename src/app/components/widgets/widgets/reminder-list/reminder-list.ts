@@ -35,7 +35,7 @@ import {Observable} from 'rxjs';
                 </ul>
                 <span class="no-items-message">
                     <i class="material-icons"> mood </i>
-                    Arbeidslisten er tom, godt jobbet
+                    Huskelisten er tom, godt jobbet
                 </span>
             </div>
         </section>

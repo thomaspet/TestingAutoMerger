@@ -67,6 +67,7 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
+import {environment} from 'src/environments/environment';
 
 import * as _ from 'lodash';
 
@@ -103,6 +104,7 @@ export class CompanySettingsComponent implements OnInit {
     public config$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public reportSetupFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    isSrEnvironment: boolean = environment.isSrEnvironment;
 
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
@@ -1407,7 +1409,8 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Betaling fra Nordea',
                 FieldSet: 6,
                 Section: 1,
-                Sectionheader: 'Bankkontoer'
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1417,7 +1420,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideBankValues
+                Hidden: this.hideBankValues || this.isSrEnvironment,
             },
             {
                 EntityType: 'CompanySettings',
@@ -1427,7 +1430,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideBankValues
+                Hidden: this.hideBankValues || this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1436,7 +1439,8 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Betaling fra DnB konto',
                 FieldSet: 6,
                 Section: 1,
-                Sectionheader: 'Bankkontoer'
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1446,7 +1450,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideXtraPaymentOrgXmlTagValue
+                Hidden: this.hideXtraPaymentOrgXmlTagValue || this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
