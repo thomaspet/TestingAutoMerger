@@ -89,7 +89,7 @@ export class RegisterCompany {
             }),
             orgNumber: new FormControl({
                 value: this.companyInfo.companySettings.OrganizationNumber,
-                disabled: true,
+                disabled: false,
             }),
             address: new FormControl({
                 value: this.companyInfo.companySettings.DefaultAddress.AddressLine1,
