@@ -142,16 +142,16 @@ uni-toolbar
     text-align: right
     margin-left: auto
 
-    button.toolbar-button,
+    .toolbar-button,
     uni-context-menu .toggle-button,
     uni-comments .toggle-button
         background-color: #fff
-        border: 1px solid var(--border-color)
+        border: var(--toolbar-button-border)
         margin-right: .5rem
-        color: var(--color-c2a-dark)
+        color: var(--toolbar-button-color)
         font-weight: 500
         &:hover
-            border-color: var(--color-c2a-dark)
+            border-color: var(--toolbar-button-color)
 
     .new-button i.material-icons
         font-size: 20px

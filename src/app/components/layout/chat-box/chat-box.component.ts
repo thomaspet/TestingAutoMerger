@@ -96,13 +96,16 @@ export class ChatBoxComponent implements OnInit {
 
     closeChatBox(event: any) {
         event.stopPropagation();
-        this.signalRService.hubConnection
-            .invoke('UnRegisterListener', <PushMessage>{
-                entityType: this.businessObject.EntityType,
-                entityID: this.businessObject.EntityID,
-                companyKey: this.businessObject.CompanyKey,
-            })
-            .catch(err => console.error(err));
+        if (this.signalRService.hubConnection) {
+            this.signalRService.hubConnection
+                .invoke('UnRegisterListener', <PushMessage>{
+                    entityType: this.businessObject.EntityType,
+                    entityID: this.businessObject.EntityID,
+                    companyKey: this.businessObject.CompanyKey,
+                })
+                .catch(err => console.error(err));
+        }
+
         let businessObjects = this.chatBoxService.businessObjects.getValue();
         businessObjects = businessObjects.filter(businessObject => {
             return !(
