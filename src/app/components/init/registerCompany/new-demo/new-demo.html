@@ -12,14 +12,14 @@
 
     <label class="uni-label">
         <span>Navn på testselskap</span>
-        <input type="text" [(ngModel)]="companyName">
+        <input autofocus type="text" [(ngModel)]="companyName">
     </label>
 
     <label class="uni-label">
         <span>Selskapsmal</span>
         <select [(ngModel)]="selectedTemplate">
             <option *ngFor="let template of templates" [ngValue]="template">
-                {{template.name}}
+                {{template.Name}}
             </option>
         </select>
     </label>

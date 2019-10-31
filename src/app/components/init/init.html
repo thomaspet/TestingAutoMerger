@@ -1,5 +1,8 @@
 <section class="init-header">
     <img class="logo" [src]="logoUrl">
+    <a *ngIf="isAuthenticated" (click)="authService.signoutRedirect()">
+        Logg ut
+    </a>
 </section>
 
 <section *ngIf="useBackground1" class="init-bg init-bg1"><img [src]="background1"></section>

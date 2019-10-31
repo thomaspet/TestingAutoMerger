@@ -16,15 +16,22 @@ uni-init
 
     .init-header
         flex: 0 0 $init-header-height
+        position: relative
+        a
+            position: absolute
+            right: 3rem
+            margin: auto 0
+
 
     .init-bg
         position: absolute
         top: $init-header-height
         left: 0
-        width: 100vw
+        width: 100%
         max-height: calc(100% - #{$init-header-height} - #{$init-footer-height})
         overflow: hidden
         z-index: -1
+
         &.init-bg1
             img
                 width: 100%
@@ -32,6 +39,9 @@ uni-init
         &.init-bg2
             padding: 4rem
             background-color: #ebf6fb
+            @media screen and (max-width: 1100px)
+                img
+                    display: none
 
 
     .init-footer
@@ -86,6 +96,7 @@ uni-init
 
 .authentication-component
     width: 30rem
+    max-width: 92vw
     min-height: 10rem
     background: #fff
     border-radius: 4px

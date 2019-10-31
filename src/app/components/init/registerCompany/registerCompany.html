@@ -4,37 +4,65 @@
     <ng-container *ngIf="!selectedCompanyType">
         <section class="select-type-of-company" *ngIf="contractID">
             <section class="authentication-component">
-                <h1>Opprett et testfirma</h1>
+                <h1>Opprett en demobedrift</h1>
 
-                <p>Velg dette alternativet hvis du bare vil teste systemet uten forpliktelser</p>
-                <p>Fakturaer og innbetalinger som registreres på testfirmaer er ikke reelle</p>
+                <p>
+                    En demobedrift er en fiktiv bedrift som inneholder demodata slik at du kan
+                    prøve ut systemet med en gang.
+                </p>
+
+                <p>
+                    Om du ønsker å teste systemet litt før du setter i gang med {{appName}}
+                    er dette et lurt valg. Denne bedriften inneholder ingen reelle data,
+                    så fakturaer eller regninger du lager vil ikke bli sendt ut eller registrert
+                    noe sted.
+                </p>
 
                 <button class="secondary" (click)="onCompanyTypeSelected('demo')">
-                    Opprett testselskap
+                    Opprett demobedrift
                 </button>
             </section>
 
             <section class="authentication-component">
-                <h1>Registrer selskapet ditt</h1>
+                <h1>Registrer din egen bedrift</h1>
 
-                <p>Registrer selskapet ditt her for å ta i bruk {{appName}}</p>
-                <p>Du kan sende ut din første faktura om bare noen få minutter</p>
+                <p>Registrer din egen bedrift her for å starte opp med {{appName}} i dag.</p>
+
+                <p>
+                    Velger du å registrere din bedrift nå, kan du være i gang med fakturering og
+                    regnskapsføring på noen få minutter.
+                </p>
+
+                <p>Ønsker du å prøve ut systemet før du begynner velger du demobedrift.</p>
 
                 <button class="c2a" (click)="onCompanyTypeSelected('company')">
-                    Registrer selskap
+                    Registrer bedrift
                 </button>
             </section>
         </section>
 
+        <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
+            <small class="alert warn">
+                Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
+            </small>
+            <a routerLink="/init/sign-up">Gå til registrering</a>
+        </section>
+
         <!-- CHOOSE CONTRACT -->
-        <div *ngIf="!contractID" style="text-align: center;">
+        <!-- <section class="authentication-component" *ngIf="!contractID && contracts?.length">
             <h1>Velg kontrakt</h1>
+
+            <select [(ngModel)]="contractID">
+                <option *ngFor="let contract of contracts" [ngValue]="contract.ID">
+                    {{contract.}}
+                </option>
+            </select>
 
             <div *ngFor="let contract of contracts">
                 <button (click)="contractID = contract.ID">{{contract.ID}}</button>
             </div>
             <button (click)="newCompany = false; testCompany = false;" style="margin-top: 1rem">Tilbake</button>
-        </div>
+        </section> -->
     </ng-container>
 
     <init-new-demo
@@ -46,7 +74,4 @@
         *ngIf="selectedCompanyType === 'company'"
         [contractID]="contractID">
     </init-new-company>
-
-
-    <!-- <a (click)="logout()">Tilbake til innlogging</a> -->
 </section>

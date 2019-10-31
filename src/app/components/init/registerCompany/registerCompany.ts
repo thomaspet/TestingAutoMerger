@@ -5,6 +5,7 @@ import {CompanySettings, Contract} from '@uni-entities';
 import {SignalRService} from '@app/services/common/signal-r.service';
 import {environment} from 'src/environments/environment';
 import {Router, ActivatedRoute} from '@angular/router';
+import {take} from 'rxjs/operators';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
@@ -23,7 +24,7 @@ export class RegisterCompany {
     selectedCompanyType: string;
 
     missingContract = false;
-    contractID: number = 1234;
+    contractID: number;
     contracts: Contract[];
 
     constructor(
@@ -37,26 +38,24 @@ export class RegisterCompany {
             this.selectedCompanyType = params.get('type') || undefined;
         });
 
-        this.uniHttp
-            .asGET()
-            .usingInitDomain()
-            .withEndPoint('contracts')
-            .send()
-            .map(res => res.body)
-            .subscribe(
-                (res: Contract[]) => {
-                    if (!res) {
-                        this.missingContract = true;
-                    }
-
-                    if (res.length > 1) {
-                        this.contracts = res;
-                    } else {
-                        this.contractID = res[0].ID;
-                    }
-                },
-                err => console.error(err)
-        );
+        this.authService.token$.pipe(take(1)).subscribe(() => {
+            this.uniHttp
+                .asGET()
+                .usingInitDomain()
+                .withEndPoint('contracts')
+                .send()
+                .map(res => res.body)
+                .subscribe(
+                    contracts => {
+                        if (contracts && contracts[0]) {
+                            this.contractID = contracts[0].ID;
+                        } else {
+                            this.missingContract = true;
+                        }
+                    },
+                    err => console.error(err)
+            );
+        });
     }
 
     onCompanyTypeSelected(type: string) {

@@ -366,6 +366,12 @@ export class AuthService {
         });
     }
 
+    signoutRedirect() {
+        if (this.userManager) {
+            this.userManager.signoutRedirect();
+        }
+    }
+
     /**
      * Removes web token from localStorage and memory, then redirects to /login
      */

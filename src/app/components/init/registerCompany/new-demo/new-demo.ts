@@ -37,6 +37,38 @@ export class NewDemo {
             );
     }
 
+    createTestCompany() {
+        this.busy = true;
+        this.uniHttp
+            .asPOST()
+            .usingInitDomain()
+            .withEndPoint('create-company')
+            .withBody({
+                CompanyName: this.companyName,
+                ContractID: this.contractID,
+                TemplateCompanyKey: this.selectedTemplate.Key,
+            })
+            .send()
+            .map(res => res.body)
+            .subscribe(
+                () => {
+                    this.checkIfCompanyIsCreated();
+                    /* this.signalRservice.pushMessage$.subscribe(companyDone => {
+                        console.log(companyDone);
+                        if (companyDone) {
+                            console.log(companyDone);
+                            this.creatingCompany = false;
+                            this.checkIfCompanyIsCreated();
+                        }
+                    }); */
+                },
+                err => {
+                    console.error(err);
+                    this.busy = false;
+                }
+            );
+    }
+
     checkIfCompanyIsCreated() {
         this.uniHttp
             .asGET()
@@ -59,38 +91,6 @@ export class NewDemo {
                     setTimeout(() => {
                         this.checkIfCompanyIsCreated();
                     }, 3000);
-                }
-            );
-    }
-
-    createTestCompany() {
-        this.busy = true;
-        this.uniHttp
-            .asPOST()
-            .usingInitDomain()
-            .withEndPoint('create-company')
-            .withBody({
-                CompanyName: this.companyName,
-                ContractID: this.contractID,
-                TemplateCompanyKey: this.selectedTemplate.Key,
-            })
-            .send()
-            .map(res => res.body)
-            .subscribe(
-                (company: Company) => {
-                    this.checkIfCompanyIsCreated();
-                    /* this.signalRservice.pushMessage$.subscribe(companyDone => {
-                        console.log(companyDone);
-                        if (companyDone) {
-                            console.log(companyDone);
-                            this.creatingCompany = false;
-                            this.checkIfCompanyIsCreated();
-                        }
-                    }); */
-                },
-                err => {
-                    console.error(err);
-                    this.busy = false;
                 }
             );
     }
