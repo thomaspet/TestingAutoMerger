@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {BankAccount} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {ToastService, ToastTime, ToastType} from "../../../framework/uniToast/toastService";
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class BankAccountService extends BizHttp<BankAccount> {
@@ -41,6 +42,21 @@ export class BankAccountService extends BizHttp<BankAccount> {
             }
         });
     }
+
+
+
+    public getConnectedBankAccounts(accountID: number, skipBankAccountID: number): Observable<BankAccount[]> {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + `?action=get-connected-bankaccounts-to-account`
+        + `&accountID=${accountID}`
+        + `&skipBankAccountID=${skipBankAccountID}`)
+        .send()
+        .map(response => response.body);
+    }
+
+
 
     public deleteBankAccount(ID: number) {
         return this.http

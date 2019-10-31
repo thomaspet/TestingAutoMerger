@@ -1,11 +1,11 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Observable} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {AccountService, BankService, ErrorService, BankAccountService, StatisticsService} from '../../../app/services/services';
 import { UniModalService } from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
-import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankModal} from '@uni-framework/uni-modal/modals/bankModal';
@@ -24,6 +24,7 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
                     (readyEvent)="onReady()"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
+                <label class="error message">{{bankAccountsConnectedToAccount}}</label>
             </article>
             <footer>
                 <button
@@ -57,6 +58,7 @@ export class UniBankAccountModal implements IUniModal {
     public validAccount: boolean = true;
     public busy: boolean = false;
     private saveBankAccountInModal: boolean = false;
+    public bankAccountsConnectedToAccount: string = '';
     public bankAccounts: Array<BankAccount> = [];
     public accountInfo: any;
 
@@ -80,6 +82,7 @@ export class UniBankAccountModal implements IUniModal {
         if (this.accountInfo._saveBankAccountInModal) {
             this.saveBankAccountInModal = true;
         }
+        this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
             this.accountInfo['BankList'] = banks;
             if (this.accountInfo.BankID && !this.accountInfo.Bank) {
@@ -150,6 +153,22 @@ export class UniBankAccountModal implements IUniModal {
         }
     }
 
+    public GetBankAccountsConnectedToAccount(accountID: number) {
+
+        let accountMsg: string = '';
+        this.bankAccountService.getConnectedBankAccounts(accountID, this.accountInfo.ID)
+        .subscribe((res) => {
+            res.forEach(ba => {
+                accountMsg = accountMsg + ba.AccountNumber + ',';
+            });
+            if (accountMsg !== '') {
+                this.bankAccountsConnectedToAccount = 'Valgt hovedboksonto er tilknyttet bankkonto ' + accountMsg;
+            } else {
+                this.bankAccountsConnectedToAccount =  accountMsg;
+            }
+        });
+    }
+
     public SaveBankAccount(account: BankAccount) {
         if (!account.Bank || !account.Bank.BIC) {
             this.toastService.addToast('Mangler Bank eller BIC!', ToastType.bad, 5, 'Du må velge en bank og oppgi en BIC for Banken.') ;
@@ -214,6 +233,11 @@ export class UniBankAccountModal implements IUniModal {
             const account = this.formModel$.getValue();
             account.Account = null;
             this.formModel$.next(account);
+            this.bankAccountsConnectedToAccount = '';
+
+        }
+        if (changes['AccountID'] && changes['AccountID'].currentValue !== null) {
+            this.GetBankAccountsConnectedToAccount(changes['AccountID'].currentValue);
         }
     }
 
