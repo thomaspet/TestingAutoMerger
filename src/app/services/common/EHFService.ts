@@ -47,7 +47,7 @@ export class EHFService extends BizHttp<EHFLog> {
             contactname: activate.contactname,
             contactphone: activate.contactphone,
             contactemail: activate.contactemail
-        }, 'activate', RequestMethod.Post, "service=${service}&direction=${direction}");
+        }, 'activate', RequestMethod.Post, `service=${service}&direction=${direction}`);
     }
 
     public updateActivated() {
