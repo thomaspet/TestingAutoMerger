@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'uni-signup',
@@ -25,6 +26,7 @@ export class Signup {
     userExists: boolean;
 
     constructor(
+        public authService: AuthService,
         private http: UniHttp,
         private route: ActivatedRoute,
         formBuilder: FormBuilder
@@ -51,6 +53,7 @@ export class Signup {
                 this.confirmationCode = params['code'];
                 this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
+                this.step2Form.enable();
             } else {
                 this.step1Form.enable();
                 this.step2Form.disable();

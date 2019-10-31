@@ -1,0 +1,17 @@
+<section class="authentication-component">
+    <h1>Opprett testfirma</h1>
+
+    <label class="uni-label">
+        <span>Navn på testselskap</span>
+        <input type="text" [(ngModel)]="companyName">
+    </label>
+
+    <label class="uni-label">
+        <span>Selskapsmal</span>
+        <mat-radio-group [(ngModel)]="selectedTemplate">
+            <mat-radio-button *ngFor="let template of templates" [value]="template">
+                {{template.Name}}
+            </mat-radio-button>
+        </mat-radio-group>
+    </label>
+</section>

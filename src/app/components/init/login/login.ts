@@ -3,6 +3,7 @@ import {AuthService} from '@app/authService';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'uni-login',
@@ -13,7 +14,6 @@ export class Login {
     @ViewChild(UniSelect) select: UniSelect;
 
     isAuthenticated: boolean;
-    missingCompanies: boolean;
     availableCompanies: any[];
 
     selectConfig: ISelectConfig = {
@@ -22,6 +22,7 @@ export class Login {
     };
 
     constructor(
+        private router: Router,
         public authService: AuthService,
         private http: UniHttp,
         private browserStorage: BrowserStorageService
@@ -44,7 +45,11 @@ export class Login {
                 res => {
                     this.availableCompanies = res.body;
                     if (!this.availableCompanies || !this.availableCompanies.length) {
-                        this.missingCompanies = true;
+                        this.router.navigateByUrl('/init/register-company');
+                    }
+
+                    if (this.availableCompanies.length === 1) {
+                        this.onCompanySelected(this.availableCompanies[0]);
                     }
 
                     setTimeout(() => {
@@ -53,7 +58,10 @@ export class Login {
                         }
                     }, 100);
                 },
-                () => this.missingCompanies = true
+                (err) =>  {
+                    console.error(err);
+                    // TODO: add something saying the get failed and they might need to log in again
+                }
             );
     }
 

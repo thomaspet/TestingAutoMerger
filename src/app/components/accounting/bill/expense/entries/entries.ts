@@ -14,7 +14,7 @@ export class ExpenseEntries {
     cachedQuery = {};
     accountOptions: AutocompleteOptions = {
         lookup: x => this.lookupAccountByQuery(x),
-        openSearchOnFocus: true,
+        openSearchOnClick: true,
         displayFunction: item => `${item.AccountNumber} - ${item.AccountName}`,
         resultTableColumns: [
             { header: 'Kontonr', field: 'AccountNumber' },

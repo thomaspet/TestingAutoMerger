@@ -49,15 +49,15 @@
             Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
         </small>
 
-        <ng-container *ngIf="step2Successful && !errorMessage">
+        <section style="text-align: center" *ngIf="step2Successful && !errorMessage">
             <small class="alert good center">
                 Registrering fullført!<br>Prøveperioden på 30 dager er nå aktiv.
             </small>
 
-            <a class="init-link" [routerLink]="['/init/login']">
-                Gå til innlogging
-            </a>
-        </ng-container>
+            <button class="c2a" style="width: 12rem" (click)="authService.authenticate()">
+                Logg inn
+            </button>
+        </section>
 
         <form #step2="ngForm" *ngIf="!step2Successful && !invalidConfirmationCode && !userExists" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
             <label class="uni-label">

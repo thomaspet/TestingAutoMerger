@@ -1,88 +1,58 @@
-<!-- VELKOMMEN -->
-<div *ngIf="!newCompany && !creatingCompany && !chooseTemplate" style="text-align: center;">
-    <h1>Velkommen!</h1>
-    
-    <p style="margin-bottom: 5px;">Prøv systemet med et testselskap</p>
-    <button class="create-company test" (click)="chooseTemplate = true; testCompany = true">Opprett testselskap</button>
-    
-    <p style="margin-bottom: 5px;">Registrer selskapet ditt</p>
-    <button class="create-company new" (click)="registerNewCompany()">Registrer selskap</button>
+<section class="content">
+    <!-- <section class="alert warn" *ngIf="missingContract">
+        Vi kan ikke se at du har noen aktiv kontrakt
+    </section> -->
 
-    <p style="margin-bottom: 5px;">Bytt bruker</p>
-    <button (click)="logout()">Logg ut</button>
-</div>
+    <!-- *ngIf="!missingContract" -->
 
-<!-- NEW COMPANY -->
-<div *ngIf="newCompany && contractID && !creatingCompany && !chooseTemplate" style="text-align: center;">
-    <h1>Registrer selskapet ditt</h1>
-    <label>
-        <span>Jeg ønsker testdata</span>
-        <button (click)="chooseTemplate = true">Velg testdata</button>
-    </label>
-    <form [formGroup]="formGroup" (keydown.esc)="$event.stopPropagation()">
-        <label>
-            <span>Organisasjonsnummer</span>
-            <input
-                type="search"
-                formControlName="orgNumber"
-            />
-            <input type="hidden" formControlName="orgNumber">
-        </label>
+    <ng-container *ngIf="!selectedCompanyType">
+        <section class="select-type-of-company" *ngIf="contractID">
+            <section class="authentication-component">
+                <h1>Opprett et testfirma</h1>
 
-        <label>
-            <span>Selskapsnavn</span>
-            <input type="text" formControlName="companyName"/>
-        </label>
+                <p>Velg dette alternativet hvis du bare vil teste systemet uten forpliktelser</p>
+                <p>Fakturaer og innbetalinger som registreres på testfirmaer er ikke reelle</p>
 
-        <label>
-            <span>Adresse</span>
-            <input type="text" formControlName="address">
-        </label>
+                <button class="secondary" (click)="onCompanyTypeSelected('demo')">
+                    Opprett testselskap
+                </button>
+            </section>
 
-        <label>
-            <span>Postnummer</span>
-            <input type="text" formControlName="postalCode">
-        </label>
+            <section class="authentication-component">
+                <h1>Registrer selskapet ditt</h1>
 
-        <label>
-            <span>Poststed</span>
-            <input type="text" formControlName="city">
-        </label>
-    </form>
-    <button class="new" (click)="createCompany()" style="margin-top: 1rem">Opprett selskap</button>
-    <button (click)="newCompany = false;" style="margin-top: 1rem">Tilbake</button>
-</div>
+                <p>Registrer selskapet ditt her for å ta i bruk {{appName}}</p>
+                <p>Du kan sende ut din første faktura om bare noen få minutter</p>
 
-<!-- CHOOSE CONTRACT -->
-<div *ngIf="(newCompany || testCompany) && !contractID && !creatingCompany" style="text-align: center;">
-    <h1>Velg kontrakt</h1>
+                <button class="c2a" (click)="onCompanyTypeSelected('company')">
+                    Registrer selskap
+                </button>
+            </section>
+        </section>
 
-    <div *ngFor="let contract of contracts">
-        <button (click)="contractID = contract.ID">{{contract.ID}}</button>
-    </div>
-    <button (click)="newCompany = false; testCompany = false;" style="margin-top: 1rem">Tilbake</button>
-</div>
+        <!-- CHOOSE CONTRACT -->
+        <div *ngIf="!contractID" style="text-align: center;">
+            <h1>Velg kontrakt</h1>
 
-<!-- CHOOSE TEMPLATE -->
-<div *ngIf="chooseTemplate && contractID && !creatingCompany">
-    <h1>Velg hvilke testdata du vil populere selskapet med</h1>
-    <label *ngIf="testCompany">
-        <span>Navn på testselskap</span>
-        <input type="text" [(ngModel)]="testCompanyName">
-    </label>
-    <div *ngFor="let template of templates">
-        <button class="create-company new" (click)="templateCompanyKey = template.Key; testCompany ? createTestCompany() : chooseTemplate = !chooseTemplate">
-            Bruk {{template.Name}}
-        </button>
-        <span>{{template.Description}}</span>
-    </div>
-    <button (click)="templateCompanyKey = ''; chooseTemplate = !chooseTemplate; testCompany = false">
-        {{ testCompany ? 'Tilbake' : 'Ikke bruk template' }}
-    </button>
-</div>
+            <div *ngFor="let contract of contracts">
+                <button (click)="contractID = contract.ID">{{contract.ID}}</button>
+            </div>
+            <button (click)="newCompany = false; testCompany = false;" style="margin-top: 1rem">Tilbake</button>
+        </div>
+    </ng-container>
 
-<!-- CREATING COMPANY -->
-<div *ngIf="creatingCompany" style="text-align: center;">
-    <h1>Oppretter selskap...</h1>
-    <mat-spinner style="margin: auto"></mat-spinner>
-</div>
+    <init-new-demo
+        *ngIf="selectedCompanyType === 'demo'"
+        [contractID]="contractID">
+    </init-new-demo>
+
+    <init-new-company
+        *ngIf="selectedCompanyType === 'company'"
+        [contractID]="contractID">
+    </init-new-company>
+
+
+    <!-- <a (click)="logout()">Tilbake til innlogging</a> -->
+</section>
+
+<footer>Levert av Uni Micro</footer>

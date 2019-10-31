@@ -7,7 +7,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {UniInit} from './init';
-import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {RegisterCompany} from './registerCompany/registerCompany';
@@ -16,7 +15,9 @@ import {UniPasswordGuide} from './password-guide';
 import {RECAPTCHA_SETTINGS, RecaptchaSettings, RecaptchaLoaderService, RecaptchaModule, } from 'ng-recaptcha';
 import {RecaptchaFormsModule} from 'ng-recaptcha/forms';
 import {environment} from 'src/environments/environment';
-import { MatTooltipModule } from '@angular/material';
+import { MatTooltipModule, MatRadioModule } from '@angular/material';
+import {NewCompany} from './registerCompany/new-company/new-company';
+import {NewDemo} from './registerCompany/new-demo/new-demo';
 
 @NgModule({
     imports: [
@@ -31,21 +32,21 @@ import { MatTooltipModule } from '@angular/material';
         LayoutModule,
         AppCommonModule,
         RecaptchaModule.forRoot(),
-        RecaptchaFormsModule
-
+        RecaptchaFormsModule,
+        MatRadioModule
     ],
     declarations: [
         UniPasswordGuide,
         UniInit,
-        ResetPassword,
         Login,
         ConfirmInvite,
         RegisterCompany,
-        Signup
+        Signup,
+        NewCompany,
+        NewDemo
     ],
     exports: [
         UniInit,
-        ResetPassword,
         Login,
         RegisterCompany,
         ConfirmInvite

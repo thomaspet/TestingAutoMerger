@@ -10,7 +10,7 @@ import {ErrorService} from '@app/services/services';
 export interface AutocompleteOptions {
     canClearValue?: boolean;
     autofocus?: boolean;
-    openSearchOnFocus?: boolean;
+    openSearchOnClick?: boolean;
     lookup: (query: string, filterCheckboxValues?: boolean[]) => any[] | Observable<any[]>;
     placeholder?: string;
     displayField?: string;
@@ -38,7 +38,7 @@ export class Autocomplete {
     @Input() readonly: boolean;
     @Input() options: AutocompleteOptions;
     @Input() value: any;
-    @Output() valueChanges = new EventEmitter<Customer>();
+    @Output() valueChanges = new EventEmitter();
 
     searchControl = new FormControl('');
     controlSubscription: Subscription;
@@ -102,6 +102,12 @@ export class Autocomplete {
     focus() {
         if (this.inputElement && this.inputElement.nativeElement) {
             this.inputElement.nativeElement.focus();
+        }
+    }
+
+    onClick() {
+        if (this.options.openSearchOnClick) {
+            this.toggle();
         }
     }
 

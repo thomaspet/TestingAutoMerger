@@ -1,0 +1,62 @@
+<div class="authentication-component">
+    <section *ngIf="busy" class="spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+
+    <h1>
+        <i routerLink="/init/register-company" class="material-icons">
+            arrow_back_ios
+        </i>
+        Registrer selskapet ditt
+    </h1>
+
+    <label class="uni-label">
+        <span>Firmanavn</span>
+        <autocomplete
+            [options]="autocompleteOptions"
+            (valueChanges)="onCompanySelected($event)">
+        </autocomplete>
+    </label>
+
+    <section *ngIf="company">
+        <label class="uni-label">
+            <span>Organisasjonsnummer</span>
+            <input type="text" readonly [value]="company.OrganizationNumber">
+        </label>
+
+        <label class="uni-label">
+            <span>Adresse</span>
+            <input type="text" [(ngModel)]="company.Address">
+        </label>
+
+        <section class="input-row">
+            <label class="uni-label postal-code">
+                <span>Postnummer</span>
+                <input type="text" [(ngModel)]="company.PostalCode">
+            </label>
+
+            <label class="uni-label">
+                <span>Poststed</span>
+                <input type="text" [(ngModel)]="company.City">
+            </label>
+        </section>
+
+        <label class="uni-label">
+            <span>Selskapsmal</span>
+            <select [(ngModel)]="selectedTemplate">
+                <option [ngValue]="undefined">Ingen mal</option>
+                <option *ngFor="let template of templates" [ngValue]="template">
+                    {{template.Name}}
+                </option>
+            </select>
+        </label>
+    </section>
+
+    <section class="footer">
+        <button *ngIf="company" class="c2a" (click)="createCompany()">
+            Opprett selskap
+        </button>
+
+        <!-- <a routerLink="/init/register-company">Tilbake</a> -->
+    </section>
+</div>

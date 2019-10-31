@@ -2,12 +2,9 @@
     Logg inn
 </button>
 
-<section *ngIf="isAuthenticated" class="authentication-component">
-    <uni-register-company *ngIf="missingCompanies"></uni-register-company>
-    
-    <h1 *ngIf="!missingCompanies">Velg selskap</h1>
+<section *ngIf="isAuthenticated && availableCompanies?.length" class="authentication-component">
+    <h1>Velg selskap</h1>
     <uni-select
-        *ngIf="availableCompanies?.length"
         [config]="selectConfig"
         [items]="availableCompanies"
         (valueChange)="onCompanySelected($event)">

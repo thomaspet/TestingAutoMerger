@@ -30,7 +30,7 @@ export class ExpensePayable implements OnInit {
     accountOptions: AutocompleteOptions = {
         lookup: x => this.lookupAccountByQuery(x),
         displayFunction: item => `${item.AccountNumber} - ${item.AccountName}`,
-        openSearchOnFocus: true,
+        openSearchOnClick: true,
         createLabel: 'Opprett ny mottaker',
         createHandler: () => {
             return this.modalService.open(RecieverModal, { closeOnClickOutside: false }).onClose;
