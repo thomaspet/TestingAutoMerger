@@ -36,6 +36,8 @@ export class SubscribeModal implements IUniModal, OnInit {
         click: () => void
     };
 
+    hasValidClientId: boolean;
+
     constructor(
         private errorService: ErrorService,
         private modalService: UniModalService,
@@ -56,6 +58,9 @@ export class SubscribeModal implements IUniModal, OnInit {
         const data = this.options.data || {};
         this.product = data.product;
         this.canPurchaseProducts = data.canPurchaseProducts;
+
+        // client id placeholder should be higher than 4 chars
+        this.hasValidClientId =  data.product.ClientID && data.product.ClientID.length > 4;
 
         this.isIntegration = this.product.ProductType === ElsaProductType.Integration;
 

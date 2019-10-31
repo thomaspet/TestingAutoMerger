@@ -161,7 +161,7 @@ export class BankStatementSession {
     }
 
     tryCheck(item: IMatchEntry): boolean {
-        if (item.Closed || item.StageGroupKey) { return false; }
+        if (item.Closed || item.StageGroupKey || item.Checked) { return false; }
         this.stageTotal = this.stageAdd(item);
         return true;
     }
