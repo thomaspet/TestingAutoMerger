@@ -62,17 +62,6 @@ export class NewCompany {
             }
         };
 
-        // this.productService.GetAll().subscribe(
-        //     res => {
-        //         this.products = (res || []).filter(product => {
-        //             return product.ProductTypeName === 'Module' && product.IsPerUser;
-        //         });
-
-        //         console.log(this.products);
-        //     },
-        //     err => console.error(err)
-        // );
-
         this.uniHttp
             .asGET()
             .usingInitDomain()
@@ -137,7 +126,7 @@ export class NewCompany {
             CompanyName: this.company.CompanyName,
             ContractID: this.contractID,
             CompanySettings: this.company,
-            ProductNames: ['Sales'],
+            ProductNames: ['SrBundle'],
             TemplateCompanyKey: this.selectedTemplate ? this.selectedTemplate.Key : null,
         };
 

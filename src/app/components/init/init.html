@@ -2,10 +2,11 @@
     <img class="logo" [src]="logoUrl">
 </section>
 
-<section class="init-main" [style.background-image]="background">
-    <section class="view-container">
-        <router-outlet></router-outlet>
-    </section>
+<section *ngIf="useBackground1" class="init-bg init-bg1"><img [src]="background1"></section>
+<section *ngIf="!useBackground1" class="init-bg init-bg2"><img [src]="background2"></section>
+
+<section class="init-main">
+    <router-outlet></router-outlet>
 </section>
 
 <section class="init-footer">

@@ -1,45 +1,23 @@
 \:host
-    position: fixed
-    top: 8rem
-    left: 0
-    width: 100vw
-    height: calc(100vh - 8rem)
-    overflow-y: auto
-    background: #fff
-
     display: flex
-    flex-direction: column
+    justify-content: flex-end
+    width: 100%
+
     .content
-        flex: 1
-        background: #ebf6fb
         display: flex
         justify-content: flex-end
-        padding: 2rem
-
-    footer
-        flex: 0 0 4rem
-        display: flex
-        align-items: center
-        justify-content: center
+        padding: 4rem 2rem 0
+        init-new-company, init-new-demo
+            margin: 0 2rem
 
 .select-type-of-company
     display: flex
     .authentication-component
         display: flex
         flex-direction: column
-        margin: auto 1rem
+        margin: 0 0 auto
+        & + .authentication-component
+            margin-left: 2rem
+
         button
             margin: 1rem auto
-
-.create-company
-    min-width: 15rem
-    margin-bottom: 1rem
-
-.test
-    background-color: #ffffff
-    color: #0071CD
-    border: 1px solid #0071CD
-
-.new
-    background-color: #0071CD
-    color: #ffffff

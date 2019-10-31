@@ -1,27 +1,32 @@
 import {Component} from '@angular/core';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {theme} from 'src/themes/theme';
+import {Router, NavigationEnd} from '@angular/router';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'uni-init',
     templateUrl: './init.html',
 })
 export class UniInit {
-    theme = theme;
     logoUrl = theme.login_logo;
-    background = `url(${theme.login_background})`;
 
-    marketingContentHidden: boolean;
+    useBackground1 = true;
+    background1 = theme.login_background;
+    background2 = 'assets/onboarding-background.svg';
 
-    constructor(private browserStorage: BrowserStorageService) {
-        // Try/catch to avoid crashing the app when localstorage has no entry
-        try {
-            this.marketingContentHidden = browserStorage.getItem('marketingContent_hidden');
-        } catch (e) {}
+    private routerSubscription: Subscription;
+
+    constructor(private router: Router) {
+        this.routerSubscription = this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd) {
+                this.useBackground1 = !event.url.includes('register-company');
+            }
+        });
     }
 
-    public toggleMarketingContent() {
-        this.marketingContentHidden = !this.marketingContentHidden;
-        this.browserStorage.setItem('marketingContent_hidden', this.marketingContentHidden);
+    ngOnDestroy() {
+        if (this.routerSubscription) {
+            this.routerSubscription.unsubscribe();
+        }
     }
 }

@@ -13,7 +13,7 @@ import {Router} from '@angular/router';
 export class Login {
     @ViewChild(UniSelect) select: UniSelect;
 
-    isAuthenticated: boolean;
+    isAuthenticated: boolean = true;
     availableCompanies: any[];
 
     selectConfig: ISelectConfig = {

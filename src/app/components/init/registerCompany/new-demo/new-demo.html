@@ -1,5 +1,14 @@
 <section class="authentication-component">
-    <h1>Opprett testfirma</h1>
+    <section *ngIf="busy" class="spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+
+    <h1>
+        <i routerLink="/init/register-company" class="material-icons">
+            arrow_back_ios
+        </i>
+        Registrer selskapet ditt
+    </h1>
 
     <label class="uni-label">
         <span>Navn på testselskap</span>
@@ -8,10 +17,10 @@
 
     <label class="uni-label">
         <span>Selskapsmal</span>
-        <mat-radio-group [(ngModel)]="selectedTemplate">
-            <mat-radio-button *ngFor="let template of templates" [value]="template">
-                {{template.Name}}
-            </mat-radio-button>
-        </mat-radio-group>
+        <select [(ngModel)]="selectedTemplate">
+            <option *ngFor="let template of templates" [ngValue]="template">
+                {{template.name}}
+            </option>
+        </select>
     </label>
 </section>
