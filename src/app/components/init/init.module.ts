@@ -10,6 +10,7 @@ import {UniInit} from './init';
 import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
+import {RegisterCompany} from './registerCompany/registerCompany';
 import {Signup} from './signup/signup';
 import {UniPasswordGuide} from './password-guide';
 import {RECAPTCHA_SETTINGS, RecaptchaSettings, RecaptchaLoaderService, RecaptchaModule, } from 'ng-recaptcha';
@@ -39,12 +40,14 @@ import { MatTooltipModule } from '@angular/material';
         ResetPassword,
         Login,
         ConfirmInvite,
+        RegisterCompany,
         Signup
     ],
     exports: [
         UniInit,
         ResetPassword,
         Login,
+        RegisterCompany,
         ConfirmInvite
     ],
     providers: [

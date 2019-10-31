@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
+import {passwordValidator, passwordMatchValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-signup',
@@ -32,11 +32,11 @@ export class Signup {
         this.step1Form = formBuilder.group({
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
+            SignUpReferrer: new FormControl(document.referrer),
             RecaptchaResponse: new FormControl('', Validators.required)
         });
 
         this.step2Form = formBuilder.group({
-            UserName: new FormControl('', [Validators.required, usernameValidator]),
             Password: new FormControl('', [Validators.required, passwordValidator]),
             ConfirmPassword: new FormControl('', [Validators.required, passwordValidator])
         }, {
@@ -99,7 +99,6 @@ export class Signup {
 
             this.step2Form.controls.Password.markAsTouched();
             this.step2Form.controls.ConfirmPassword.markAsTouched();
-            this.step2Form.controls.UserName.markAsTouched();
             return;
         }
 
@@ -108,14 +107,13 @@ export class Signup {
         const formValues = this.step2Form.value;
 
         const requestBody = {
-            UserName: formValues.UserName,
             Password: formValues.Password,
             ConfirmationCode: this.confirmationCode
         };
 
         this.http.asPOST()
             .usingInitDomain()
-            .withEndPoint('register')
+            .withEndPoint('register-user')
             .withBody(requestBody)
             .send()
             .subscribe(

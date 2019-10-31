@@ -101,6 +101,7 @@ export class AuthService {
 
             if (user && !user.expired) {
                 this.jwt = user.access_token;
+                this.token$.next(this.jwt);
 
                 if (this.activeCompany) {
                     this.loadCurrentSession().subscribe(
@@ -134,6 +135,7 @@ export class AuthService {
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
                 this.jwt = user.access_token;
+                this.token$.next(this.jwt);
             });
         });
 
@@ -349,6 +351,7 @@ export class AuthService {
                 .then(user => {
                     if (user && !user.expired) {
                         this.jwt = user.access_token;
+                        this.token$.next(this.jwt);
                         this.authenticateUniFiles();
 
                         const hasToken: boolean = !!this.jwt;

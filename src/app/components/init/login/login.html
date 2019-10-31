@@ -3,12 +3,9 @@
 </button>
 
 <section *ngIf="isAuthenticated" class="authentication-component">
-    <h1>Velg selskap</h1>
-
-    <small *ngIf="missingCompanies" class="alert warn">
-        Fant ingen selskaper på brukeren
-    </small>
-
+    <uni-register-company *ngIf="missingCompanies"></uni-register-company>
+    
+    <h1 *ngIf="!missingCompanies">Velg selskap</h1>
     <uni-select
         *ngIf="availableCompanies?.length"
         [config]="selectConfig"

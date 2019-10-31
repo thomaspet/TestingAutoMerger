@@ -61,15 +61,6 @@
 
         <form #step2="ngForm" *ngIf="!step2Successful && !invalidConfirmationCode && !userExists" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
             <label class="uni-label">
-                <span>Brukernavn</span>
-                <input type="text" autofocus formControlName="UserName" autocomplete="new-username" />
-
-                <small class="bad">
-                    {{step2Form?.get('UserName').errors?.usernameValidator}}
-                </small>
-            </label>
-
-            <label class="uni-label">
                 <span>Passord</span>
                 <input type="password" formControlName="Password" autocomplete="new-password" />
             </label>

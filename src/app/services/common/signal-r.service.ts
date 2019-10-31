@@ -23,15 +23,16 @@ export class SignalRService {
     public hubConnection: signalR.HubConnection;
 
     constructor(private authService: AuthService) {
+        this.authService.token$.subscribe(token => {
+            if (token && !this.connected) {
+                this.startConnection();
+            }
+        });
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
                 this.user = auth.user;
                 this.userGlobalIdentity = auth.user.GlobalIdentity;
                 this.currentCompanyKey = auth.activeCompany.Key;
-                if (!this.connected) {
-                    this.startConnection();
-                }
-
             } else if (this.hubConnection) {
                 this.hubConnection.stop();
                 delete this.hubConnection;
