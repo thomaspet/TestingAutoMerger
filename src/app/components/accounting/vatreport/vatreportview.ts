@@ -61,7 +61,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public paymentStatus: string;
     public submittedDate: Date;
     public approvedDate: Date;
-
+    public hasTooltipToShow = false;
     public activeTabIndex: number = 1;
     public tabs: IUniTab[] = [
         {name: 'Kontroll'},
@@ -69,7 +69,7 @@ export class VatReportView implements OnInit, OnDestroy {
         {name: 'Altinn, kvittering/tilbakemelding', disabled: true},
         {name: 'Oppgjørsbilag', disabled: true},
     ];
-
+    public statusCodeClassName: string;
     constructor(
         private tabService: TabService,
         private companySettingsService: CompanySettingsService,
@@ -388,6 +388,12 @@ export class VatReportView implements OnInit, OnDestroy {
                             } else {
                                 this.previousPeriodsHelpText = '';
                             }
+                            this.hasTooltipToShow = data.reduce((prev, current) => {
+                                if (prev) {
+                                    return prev;
+                                }
+                                return current.VatCodeGroupNo === 'A' && this.vatReportSummaryFromPreviousPeriods.length > 0;
+                            }, false);
                         },
                         errPrevious => this.errorService.handle(errPrevious)
                     );
@@ -475,6 +481,7 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.getPeriodStatus(this.currentVatReport.TerminPeriodID)
             .subscribe((status) => {
                 this.statusCodePeriod = status ? this.vatReportService.getStatusText(status.StatusCode) + ' (' + status.Title + ')' : 'Ikke kjørt';
+                this.statusCodeClassName = this.vatReportService.getStatusClassName(status.StatusCode);
             }, err => this.errorService.handle(err));
     }
 

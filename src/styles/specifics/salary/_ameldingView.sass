@@ -24,9 +24,6 @@
     &.two-up
         flex-grow: 2
 
-    &:not(:last-of-type)
-        border-right: pxToRem(1) solid $uni-color-negative
-
     & > *
         margin: 0
 
@@ -34,12 +31,13 @@
     text-align: center
 
     dt
-        font-weight: 300
-        font-size: 1.1rem
+        font-weight: 400
+        font-size: 1rem
 
     dd
         margin-left: 0
-        font-size: 1.5rem
+        font-size: 1.2rem
+        font-weight: 500
 
     dd:not(:last-of-type)
         margin: 0 0 1rem 0
@@ -70,6 +68,7 @@
         text-align: right
         font-size: 20px
         color: var(--color-good)
+        font-weight: 500
 
 .amelding_poster_events
     li
@@ -79,6 +78,7 @@
         list-style: none
         padding: .2rem 1rem
         font-size: 1rem
+        font-weight: 500
 
         &:not(:last-of-type)
             margin-bottom: .5rem
@@ -93,6 +93,7 @@
                 color: var(--color-good)
 
         &.warn
+            color: var(--text-color)
             i.material-icons
                 color: var(--color-warn)
 

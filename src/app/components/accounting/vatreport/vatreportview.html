@@ -7,7 +7,7 @@
 <section class="application">
     <section class="uni-container vatreport_poster">
 
-        <article class="vatreport_poster_widget">
+        <article class="vatreport_poster_widget first">
             <dl class="vatreport_poster_details">
                 <dt>Juridisk enhet</dt>
                 <dd>{{companySettings?.OrganizationNumber | uninumberformat:'orgno'}}</dd>
@@ -15,44 +15,46 @@
                 <dd *ngIf="companySettings?.CompanyBankAccount?.AccountNumber">{{companySettings?.CompanyBankAccount?.AccountNumber | uninumberformat:'bankacct'}}</dd>
 
                 <dt>Status for periode</dt>
-                <dd>{{statusCodePeriod}}</dd>
+                <dd [className]="statusCodeClassName">{{statusCodePeriod}}</dd>
                 <dt>Betalingsstatus</dt>
-                <dd [className]="paymentStatus === 'Betalt' ? 'success' : paymentStatus === 'Sendt til betaling' ? 'inprogress' : ''">{{paymentStatus}}</dd>
+                <dd [className]="paymentStatus === 'Betalt' ? 'success' : paymentStatus === 'Sendt til betaling' ? 'inprogress' : paymentStatus === 'Ikke betalt' ? 'warn': ''">{{paymentStatus}}</dd>
             </dl>
         </article>
 
         <article class="vatreport_poster_widget two-up">
-            <table class="vatreport_poster_figures" *ngIf="vatReportSummary?.length > 0">
+            <table class="vatreport_poster_figures" *ngIf="vatReportSummary?.length > 0" cellspacing="0" cellpadding="0">
                 <tr *ngIf="vatReportSummary?.length > 0">
-                    <td></td>
-
-                    <th>Grunnlag</th>
                     <th></th>
+                    <th>Grunnlag</th>
                     <th>Avgift</th>
                 </tr>
                 <tr *ngFor="let summaryItem of vatReportSummary; let i = index;">
-                    <th>{{summaryItem.VatCodeGroupName}}</th>
-
-                    <td class="currency">
-
-
-
-                        <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData" href="#/accounting/transquery?showTaxBasisAmount={{summaryItem.HasTaxBasis}}&vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}}&vatFromDate={{currentVatReport?.TerminPeriod?.FromDate}}&vatToDate={{currentVatReport?.TerminPeriod?.ToDate}}&vatReportID={{currentVatReport?.ID}}">
-                            {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
-                        </a>
-
-                        <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
-                    </td>
-                    <td style="width: 20pt;">
+                    <th [attr.colspan]="summaryItem.VatCodeGroupName === 'Sum' ? 2 : 1">{{summaryItem.VatCodeGroupName}}</th>
+                    <td class="currency" *ngIf="summaryItem.VatCodeGroupName !== 'Sum'">
                         <uni-tooltip
                             *ngIf="summaryItem.VatCodeGroupNo === 'A' && vatReportSummaryFromPreviousPeriods?.length > 0"
                             [text]="previousPeriodsHelpText">
                         </uni-tooltip>
+                        <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData"
+                           href="#/accounting/transquery?showTaxBasisAmount={{summaryItem.HasTaxBasis}}&vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}}&vatFromDate={{currentVatReport?.TerminPeriod?.FromDate}}&vatToDate={{currentVatReport?.TerminPeriod?.ToDate}}&vatReportID={{currentVatReport?.ID}}"
+                           [className]="summaryItem.SumTaxBasisAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'"
+                        >
+                            {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
+                        </a>
+                        <span *ngIf="summaryItem.HasTaxBasis && isHistoricData"
+                              [className]="summaryItem.SumTaxBasisAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'">
+                            {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
+                        </span>
+                    </td>
                     <td class="currency">
-                        <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery?showTaxBasisAmount={{summaryItem.HasTaxBasis}}&vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}}&vatFromDate={{currentVatReport?.TerminPeriod?.FromDate}}&vatToDate={{currentVatReport?.TerminPeriod?.ToDate}}&vatReportID={{currentVatReport?.ID}}">
+                        <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery?showTaxBasisAmount={{summaryItem.HasTaxBasis}}&vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}}&vatFromDate={{currentVatReport?.TerminPeriod?.FromDate}}&vatToDate={{currentVatReport?.TerminPeriod?.ToDate}}&vatReportID={{currentVatReport?.ID}}"
+                           [className]="summaryItem.SumVatAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'">
                             {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
                         </a>
-                        <span *ngIf="summaryItem.HasTaxAmount && isHistoricData">{{summaryItem.SumVatAmount * -1 | unicurrency:2}}</span>
+                        <span *ngIf="summaryItem.HasTaxAmount && isHistoricData"
+                              [className]="summaryItem.SumVatAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'">
+                            {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
+                        </span>
                     </td>
                 </tr>
 
@@ -62,20 +64,26 @@
 
         <article class="vatreport_poster_widget">
             <ul class="vatreport_poster_events">
-                <li [className]="isExecuted() ? 'success' : 'incomplete'">
+                <li [className]="isExecuted() ? 'success' : 'warn'">
                     <i class="material-icons">{{isExecuted ? 'check_circle' : 'error'}}</i>
-                    {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
-                    <time *ngIf="currentVatReport.ExecutedDate">{{currentVatReport.ExecutedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
+                    <span>
+                        {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
+                        <time *ngIf="currentVatReport.ExecutedDate">{{currentVatReport.ExecutedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
+                    </span>
                 </li>
-                <li [className]="isSent() ? 'success' : 'incomplete'">
-                    <i class="material-icons">{{isSent ? 'check_circle' : 'error'}}</i>
-                    {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
-                    <time *ngIf="submittedDate">{{submittedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
+                <li [className]="isSent() ? 'success' : 'warn'">
+                    <i class="material-icons">{{isSent() ? 'check_circle' : 'error'}}</i>
+                    <span>
+                        {{ isSent() ? 'Sendt inn' : 'Ikke sendt inn' }}
+                        <time *ngIf="submittedDate">({{submittedDate | date: 'dd.MM.yyyy HH:mm'}})</time>
+                    </span>
                 </li>
-                <li [className]="isApproved() ? 'success' : 'incomplete'">
-                    <i class="material-icons">{{isApproved ? 'check_circle' : 'error'}}</i>
-                    {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
-                    <time *ngIf="approvedDate">{{approvedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
+                <li [className]="isApproved() ? 'success' : 'warn'">
+                    <i class="material-icons">{{isApproved() ? 'check_circle' : 'error'}}</i>
+                    <span>
+                        {{ isSent() ? 'Godkjent' : 'Ikke godkjent' }}
+                        <time *ngIf="approvedDate">({{approvedDate | date: 'dd.MM.yyyy HH:mm'}})</time>
+                    </span>
                 </li>
             </ul>
         </article>
