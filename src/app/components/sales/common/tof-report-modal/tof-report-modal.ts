@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
-import {ReportDefinition, ReportParameter} from '@uni-entities';
+import {ReportDefinition, ReportParameter, StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '@uni-entities';
 import {SendEmail} from '@app/models/sendEmail';
 import {IUniModal, IModalOptions, UniModalService, UniSendEmailModal} from '@uni-framework/uni-modal';
 import {
@@ -60,9 +60,14 @@ export class TofReportModal implements IUniModal {
         this.entity = modalData.entity;
         this.reportType = modalData.reportType;
 
+        const isdraft: boolean =
+            this.entity.StatusCode == StatusCodeCustomerInvoice.Draft ||
+            this.entity.StatusCode == StatusCodeCustomerOrder.Draft ||
+            this.entity.StatusCode == StatusCodeCustomerQuote.Draft;
+
         this.busy = true;
         Observable.forkJoin(
-            this.reportTypeService.getFormType(this.reportType),
+            this.reportTypeService.getFormType(this.reportType, isdraft),
             this.companySettingsService.Get(1)
         ).subscribe(
             data => {
