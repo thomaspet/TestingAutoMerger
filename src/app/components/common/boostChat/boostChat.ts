@@ -8,17 +8,17 @@ type ExtendedWindow = typeof window & {
     selector: 'boost-chat',
     template: `
     <span *ngIf="chatPanelReady" (click)="openBoostAIChat()">
-        <i class="material-icons-outlined" style="vertical-align: middle; margin: 0 2px 2px 0">chat</i>
-        Boost.ai
+        <img style="box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.2); border-radius: 50%" [src]="chatbotIcon">
     </span>
-    <span *ngIf="chatPanelReady" style="padding: 0 8px; cursor: default">|</span>
     `,
+    styleUrls: ['./boostChat.sass']
 })
 export class BoostChat {
     private chatPanel: any = null;
     public chatPanelReady = false;
     private chatScriptUrl = 'https://435984srpoc.boost.ai/chatPanel/chatPanel.js';
     private chatApiUrl = 'https://435984srpoc.boost.ai/api';
+    chatbotIcon = 'assets/chatbot_icon.png';
 
     constructor() {
         if (this.chatScriptUrl && this.chatApiUrl) {
@@ -34,7 +34,8 @@ export class BoostChat {
         this.chatPanelReady = true;
         const chatPanelConfiguration = {
             apiUrlBase: this.chatApiUrl,
-            startThumbs: true,
+            pace: 'fast',
+            hyperlinksTargetBlank: true,
         };
 
         this.chatPanel = (window as ExtendedWindow).boostChatPanel(chatPanelConfiguration);

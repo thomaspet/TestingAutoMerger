@@ -13,6 +13,6 @@
     </main>
 </section>
 
-<section class="theme-selector">
-    <boost-chat *ngIf="isSrEnvironment"></boost-chat>
+<section *ngIf="isAuthenticated && !isOnInitRoute && isSrEnvironment" class="boost-icon">
+    <boost-chat></boost-chat>
 </section>
