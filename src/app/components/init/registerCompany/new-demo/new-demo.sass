@@ -1,15 +1,21 @@
 .authentication-component
     position: relative
-    width: 45rem
-    padding: 2rem 6rem
+    width: 38rem
+    padding: 2rem 4rem
     margin: 0
 
     h1
-        margin-bottom: 2rem
-        i.material-icons
-            color: var(--link-color)
-            cursor: pointer
-            font-size: 22px
+        display: flex
+        align-items: center
+        text-align: left
+        margin-bottom: 1rem
+        mat-spinner
+            margin-right: 1rem
 
-    label > span
-        font-weight: 500
+
+    .creation-error
+        display: flex
+        flex-direction: column
+        button
+            width: 12rem
+            margin: 1rem auto

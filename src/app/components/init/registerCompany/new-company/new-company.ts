@@ -1,5 +1,4 @@
 import {Component, Input, ViewChild, ElementRef} from '@angular/core';
-import {UniHttp} from '@uni-framework/core/http';
 import {ModulusService, ErrorService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {map} from 'rxjs/operators';
@@ -9,6 +8,7 @@ import {get} from 'lodash';
 import {ElsaProduct} from '@app/models';
 import {InitService} from '../../init.service';
 import {Router} from '@angular/router';
+import {SignalRService} from '@app/services/common/signal-r.service';
 
 @Component({
     selector: 'init-new-company',
@@ -19,6 +19,7 @@ export class NewCompany {
     @ViewChild('companyNameInput') companyNameInput: ElementRef;
     @Input() contractID: number;
 
+    creatingCompany: boolean;
     busy: boolean;
     company: {
         CompanyName: string;
@@ -41,6 +42,7 @@ export class NewCompany {
     includeSalary: boolean;
 
     constructor(
+        private signalRService: SignalRService,
         private router: Router,
         private errorService: ErrorService,
         private initService: InitService,
@@ -53,7 +55,7 @@ export class NewCompany {
             clearInputOnSelect: true,
             autofocus: true,
             displayField: 'navn',
-            placeholder: 'Søk i brønnøysundregistrene',
+            placeholder: 'Søk på firmanavn eller organisasjonsnummer',
             lookup: (input) => {
                 const orgNumber = input.replace(/\ /g, '');
                 const query = this.modulusService.isValidOrgNr(orgNumber)
@@ -161,11 +163,22 @@ export class NewCompany {
                 TemplateCompanyKey: filteredTemplates[0] && filteredTemplates[0].Key
             };
 
-            console.log(body);
-
-            this.busy = true;
             this.initService.createCompany(body).subscribe(
-                () => this.checkCreationStatus(),
+                () => {
+                    // this.signalRService.pushMessage$.subscribe(message => {
+                    //     console.log('==== SIGNAL R ====');
+                    //     console.log(message);
+                    //     console.log('==================');
+
+                    //     if (message && message.entityType === 'notification') {
+
+                    //     }
+                    // });
+
+                    this.busy = false;
+                    this.creatingCompany = true;
+                    this.checkCreationStatus();
+                },
                 err => {
                     this.errorService.handle(err);
                     this.busy = false;

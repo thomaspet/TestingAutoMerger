@@ -20,7 +20,7 @@ export interface CompanyInfo {
     styleUrls: ['./registerCompany.sass'],
 })
 export class RegisterCompany {
-    appName = environment.isSrEnvironment ? 'SpareBank1 SR-bank Regnskap' : 'Uni Economy';
+    appName = environment.isSrEnvironment ? 'SpareBank1 SR-Bank Regnskap' : 'Uni Economy';
 
     selectedCompanyType: string;
     busy: boolean;

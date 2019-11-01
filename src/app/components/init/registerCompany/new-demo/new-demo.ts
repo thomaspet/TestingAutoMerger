@@ -1,5 +1,4 @@
 import {Component, Input} from '@angular/core';
-import {UniHttp} from '@uni-framework/core/http';
 import {AuthService} from '@app/authService';
 import {InitService} from '../../init.service';
 import {ErrorService} from '@app/services/services';
@@ -12,7 +11,8 @@ import {ErrorService} from '@app/services/services';
 export class NewDemo {
     @Input() contractID: number;
 
-    missingTemplate: boolean;
+    creatingCompany: boolean;
+    error: boolean;
     busy: boolean;
 
     constructor(
@@ -22,26 +22,33 @@ export class NewDemo {
     ) {}
 
     ngOnInit() {
-        this.busy = true;
         this.initService.getTemplates().subscribe(templates => {
             const template = templates.find(t => t.IsTest);
             if (template) {
                 this.createTestCompany(template);
             } else {
-                // TODO: Missing template handler
+                // TODO: Missing template handler?
             }
         });
     }
 
     createTestCompany(template) {
+        this.busy = true;
+
         this.initService.createCompany({
             ContractID: this.contractID,
             TemplateCompanyKey: template.Key,
             CompanyName: 'Demobedrift'
         }).subscribe(
-            () => this.checkCreationStatus(),
+            () => {
+                this.error = false;
+                this.busy = false;
+                this.creatingCompany = true;
+                this.checkCreationStatus();
+            },
             err => {
                 this.errorService.handle(err);
+                this.error = true;
                 this.busy = false;
             }
         );
@@ -51,19 +58,12 @@ export class NewDemo {
         this.initService.getCompanies().subscribe(
             companies => {
                 if (companies && companies.length) {
-                    this.busy = false;
                     this.authService.setActiveCompany(companies[0], '/');
                 } else {
-                    setTimeout(() => {
-                        this.checkCreationStatus();
-                    }, 3000);
+                    setTimeout(() => this.checkCreationStatus(), 3000);
                 }
             },
-            () => {
-                setTimeout(() => {
-                    this.checkCreationStatus();
-                }, 3000);
-            }
+            () => setTimeout(() => this.checkCreationStatus(), 3000)
         );
     }
 }
