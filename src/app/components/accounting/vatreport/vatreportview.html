@@ -65,7 +65,7 @@
         <article class="vatreport_poster_widget">
             <ul class="vatreport_poster_events">
                 <li [className]="isExecuted() ? 'success' : 'warn'">
-                    <i class="material-icons">{{isExecuted ? 'check_circle' : 'error'}}</i>
+                    <i class="material-icons">{{isExecuted() ? 'check_circle' : 'error'}}</i>
                     <span>
                         {{ isExecuted() ? 'Kjørt' : 'Ikke kjørt' }}
                         <time *ngIf="currentVatReport.ExecutedDate">{{currentVatReport.ExecutedDate | date: 'dd.MM.yyyy HH:mm'}}</time>
