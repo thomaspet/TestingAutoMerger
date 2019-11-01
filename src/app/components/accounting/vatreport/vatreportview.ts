@@ -481,7 +481,7 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.getPeriodStatus(this.currentVatReport.TerminPeriodID)
             .subscribe((status) => {
                 this.statusCodePeriod = status ? this.vatReportService.getStatusText(status.StatusCode) + ' (' + status.Title + ')' : 'Ikke kjørt';
-                this.statusCodeClassName = this.vatReportService.getStatusClassName(status.StatusCode);
+                this.statusCodeClassName = status ? this.vatReportService.getStatusClassName(status.StatusCode) : '';
             }, err => this.errorService.handle(err));
     }
 
