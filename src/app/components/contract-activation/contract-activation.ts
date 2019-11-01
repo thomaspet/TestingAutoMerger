@@ -64,7 +64,7 @@ export class ContractActivation {
                 this.isDemoLicense = license.ContractType.TypeName === 'Demo';
 
                 if (this.canActivateContract && this.isDemoLicense) {
-                    this.checkCompanyAccess(license);
+                    this.initActivationData(license.Company.ContractID);
                 }
             } catch (e) {
                 console.error(e);
@@ -78,31 +78,6 @@ export class ContractActivation {
             return routeToActivate.includes('reload') || routeToActivate.includes('init');
         } else {
             return true;
-        }
-    }
-
-    private checkCompanyAccess(license) {
-        const activeCompany = this.authService.activeCompany;
-        const agency: Agency = license.Company.Agency || {};
-        const contractID = license.Company.ContractID;
-        // Check if the agency company is currently active
-        if (agency.CompanyKey === activeCompany.Key) {
-
-            this.initActivationData(contractID);
-        } else {
-            this.wrongCompanyMessage = `Kundeforhold må aktiveres fra hovedselskap: `;
-            this.companyService.GetAll().subscribe(
-                companies => {
-                    this.mainCompany = companies.find(c => c.Key === agency.CompanyKey);
-                    // If the user does not have access to the main company we just add
-                    // the agency name to the message, so they at least know which it is.
-                    // If they do have access we'll add a link to the company in the html.
-                    if (!this.mainCompany) {
-                        this.wrongCompanyMessage += agency.Name;
-                    }
-                },
-                err => console.error(err)
-            );
         }
     }
 
