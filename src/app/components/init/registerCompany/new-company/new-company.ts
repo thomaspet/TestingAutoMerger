@@ -157,7 +157,7 @@ export class NewCompany {
                 CompanyName: this.company.CompanyName,
                 ContractID: this.contractID,
                 CompanySettings: this.company,
-                ProductNames: ['SrBundle'],
+                ProductNames: 'SrBundle',
                 TemplateCompanyKey: filteredTemplates[0] && filteredTemplates[0].Key
             };
 
