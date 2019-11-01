@@ -4,6 +4,7 @@ import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-signup',
@@ -11,8 +12,11 @@ import {AuthService} from '@app/authService';
     styleUrls: ['./signup.sass']
 })
 export class Signup {
+    appName = environment.isSrEnvironment ? 'SpareBank1 SR-Bank Regnskap' : 'Uni Economy';
     confirmationCode: string;
     busy: boolean;
+
+    headerText = 'Prøv gratis i 30 dager';
 
     errorMessage: string;
     step1Success: boolean;
@@ -50,6 +54,7 @@ export class Signup {
             this.errorMessage = undefined;
 
             if (params['code']) {
+                this.headerText = 'Velg passord';
                 this.confirmationCode = params['code'];
                 this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
@@ -79,6 +84,7 @@ export class Signup {
                 () => {
                     this.busy = false;
                     this.step1Successful = true;
+                    this.headerText = 'Epost sendt';
                 },
                 err => {
                     this.step1Success = false;
@@ -120,8 +126,9 @@ export class Signup {
             .withBody(requestBody)
             .send()
             .subscribe(
-                res => {
+                () => {
                     this.step2Successful = true;
+                    this.headerText = 'Brukerregistrering fullført';
                 },
                 err => {
                     this.busy = false;

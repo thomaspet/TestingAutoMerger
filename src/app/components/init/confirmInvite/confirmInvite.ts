@@ -2,7 +2,7 @@
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl, Validators, FormGroup, FormBuilder} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
+import {passwordValidator, passwordMatchValidator} from '../authValidators';
 
 @Component({
     selector: 'uni-confirm-invite',
@@ -27,7 +27,6 @@ export class ConfirmInvite {
 
             this.confirmInviteForm = formBuilder.group({
                 Name: new FormControl('', Validators.required),
-                UserName: new FormControl('', [Validators.required, usernameValidator]),
                 Password: new FormControl('', [Validators.required, passwordValidator]),
                 ConfirmPassword: new FormControl('', [Validators.required, passwordValidator])
             }, {
@@ -79,26 +78,15 @@ export class ConfirmInvite {
             .send({action: 'confirm-invite'})
             .map(response => response.body)
             .subscribe(
-                (data) => {
+                () => {
                     this.busy = false;
                     this.router.navigateByUrl('/login');
                     this.confirmInviteForm.enable();
                 },
-                (error) => {
+                () => {
                     this.busy = false;
                     this.confirmInviteForm.enable();
                     this.errorMessage = 'Noe gikk galt ved oppretting av bruker, vennligst prøv igjen.';
-                    try {
-                        const messages = error.error.Messages;
-                        if (messages.length) {
-                            messages.forEach(element => {
-                                if ( element.PropertyName === 'UserName'
-                                && (element.Message === 'Username must be unique')) {
-                                    this.errorMessage = 'Brukernavnet finnes allerede. Vennligst prøv igjen.';
-                                }
-                            });
-                        }
-                    } catch (e) {}
                 }
             );
     }

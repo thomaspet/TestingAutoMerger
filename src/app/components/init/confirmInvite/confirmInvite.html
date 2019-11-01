@@ -4,13 +4,8 @@
 
     <form #f="ngForm" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()">
         <label class="uni-label">
-            <span>Navn</span>
+            <span>Fullt navn</span>
             <input type="text" autofocus formControlName="Name" [disabled]="!validInvite" />
-        </label>
-
-        <label class="uni-label">
-            <span>Brukernavn</span>
-            <input type="text" formControlName="UserName" [disabled]="!validInvite" autocomplete="new-username" />
         </label>
 
         <label class="uni-label">
@@ -32,7 +27,7 @@
             class="c2a init-submit-button"
             [attr.aria-busy]="busy"
             [disabled]="busy || !f.form.valid || !validInvite">
-            Opprett bruker
+            Registrer bruker
         </button>
     </form>
 

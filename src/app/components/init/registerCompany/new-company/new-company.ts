@@ -165,15 +165,11 @@ export class NewCompany {
 
             this.initService.createCompany(body).subscribe(
                 () => {
-                    // this.signalRService.pushMessage$.subscribe(message => {
-                    //     console.log('==== SIGNAL R ====');
-                    //     console.log(message);
-                    //     console.log('==================');
-
-                    //     if (message && message.entityType === 'notification') {
-
-                    //     }
-                    // });
+                    this.signalRService.pushMessage$.subscribe(message => {
+                        console.log('==== SIGNAL R ====');
+                        console.log(message);
+                        console.log('==================');
+                    });
 
                     this.busy = false;
                     this.creatingCompany = true;
