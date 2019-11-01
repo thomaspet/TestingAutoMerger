@@ -3,7 +3,6 @@
 
   var mgr = new Oidc.UserManager({ userStore: new Oidc.WebStorageStateStore({ store: window.localStorage }) });
   mgr.signinRedirectCallback().then((res) => {
-      console.log(res)
       window.location = "/#/init/login";
 
     }, error => {
