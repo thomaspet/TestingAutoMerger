@@ -217,7 +217,7 @@ export class MarketplaceModules implements AfterViewInit {
         }
     }
 
-    openLinkInNewTab(url: string) {
+    openLinkInNewTab() {
         if (this.isSrEnvironment) {
             window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
         } else {
