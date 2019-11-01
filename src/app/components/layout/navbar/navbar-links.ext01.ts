@@ -566,10 +566,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     },
                     {
                         name: 'NAVBAR.INTEGRATION',
-                        url: '/marketplace/integrations',
+                        url: '/marketplace/integrations?products=integrations',
                         moduleID: UniModules.Marketplace,
                         activeInSidebar: true
                     },
+                    {
+                        name: 'NAVBAR.BANK_PRODUCTS',
+                        url: '/marketplace/integrations?products=bank',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
+                    }
                 ]
             },
         ]
