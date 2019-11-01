@@ -806,8 +806,8 @@ export class VatReportView implements OnInit, OnDestroy {
         if (!this.reportMessages) {
             return false;
         } else {
-            this.reportMessages
-                .every(message => message.Level !== ValidationLevel.Info);
+            return this.reportMessages
+                .every(message => message.Level === ValidationLevel.Info);
         }
     }
 
