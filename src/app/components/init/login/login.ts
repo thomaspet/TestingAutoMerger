@@ -29,7 +29,6 @@ export class Login {
     ) {
         this.authService.isAuthenticated().then(isAuthenticated => {
             this.isAuthenticated = isAuthenticated;
-
             if (isAuthenticated) {
                 this.loadCompanies();
             }

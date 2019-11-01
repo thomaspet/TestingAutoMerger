@@ -1,26 +1,13 @@
 <section class="authentication-component">
-    <section *ngIf="busy" class="spinner">
-        <mat-spinner class="c2a"></mat-spinner>
+    <!-- <section class="alert bad" *ngIf="missingTemplate">
+        Klarte ikke
     </section>
+     -->
+    <ng-container *ngIf="!missingTemplate">
+        <h1>Oppretting startet, prosessen kan ta litt tid</h1>
 
-    <h1>
-        <i routerLink="/init/register-company" class="material-icons">
-            arrow_back_ios
-        </i>
-        Registrer selskapet ditt
-    </h1>
-
-    <label class="uni-label">
-        <span>Navn på testselskap</span>
-        <input autofocus type="text" [(ngModel)]="companyName">
-    </label>
-
-    <label class="uni-label">
-        <span>Selskapsmal</span>
-        <select [(ngModel)]="selectedTemplate">
-            <option *ngFor="let template of templates" [ngValue]="template">
-                {{template.Name}}
-            </option>
-        </select>
-    </label>
+        <section *ngIf="busy" class="spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+    </ng-container>
 </section>

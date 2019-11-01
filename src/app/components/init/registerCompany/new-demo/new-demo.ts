@@ -1,7 +1,8 @@
 import {Component, Input} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http';
-import {Company} from '@uni-entities';
 import {AuthService} from '@app/authService';
+import {InitService} from '../../init.service';
+import {ErrorService} from '@app/services/services';
 
 @Component({
     selector: 'init-new-demo',
@@ -11,88 +12,58 @@ import {AuthService} from '@app/authService';
 export class NewDemo {
     @Input() contractID: number;
 
-    companyName: string;
-    templates: any[];
-    selectedTemplate: any;
+    missingTemplate: boolean;
     busy: boolean;
 
     constructor(
-        private uniHttp: UniHttp,
+        private errorService: ErrorService,
+        private initService: InitService,
         private authService: AuthService
     ) {}
 
     ngOnInit() {
-        this.uniHttp
-            .asGET()
-            .usingInitDomain()
-            .withEndPoint('template-companies')
-            .send()
-            .map(res => res.body)
-            .subscribe(
-                res => {
-                    this.templates = res || [];
-                    this.selectedTemplate = this.templates[0];
-                },
-                err => console.error(err)
-            );
-    }
-
-    createTestCompany() {
         this.busy = true;
-        this.uniHttp
-            .asPOST()
-            .usingInitDomain()
-            .withEndPoint('create-company')
-            .withBody({
-                CompanyName: this.companyName,
-                ContractID: this.contractID,
-                TemplateCompanyKey: this.selectedTemplate.Key,
-            })
-            .send()
-            .map(res => res.body)
-            .subscribe(
-                () => {
-                    this.checkIfCompanyIsCreated();
-                    /* this.signalRservice.pushMessage$.subscribe(companyDone => {
-                        console.log(companyDone);
-                        if (companyDone) {
-                            console.log(companyDone);
-                            this.creatingCompany = false;
-                            this.checkIfCompanyIsCreated();
-                        }
-                    }); */
-                },
-                err => {
-                    console.error(err);
-                    this.busy = false;
-                }
-            );
+        this.initService.getTemplates().subscribe(templates => {
+            const template = templates.find(t => t.IsTest);
+            if (template) {
+                this.createTestCompany(template);
+            } else {
+                // TODO: Missing template handler
+            }
+        });
     }
 
-    checkIfCompanyIsCreated() {
-        this.uniHttp
-            .asGET()
-            .usingInitDomain()
-            .withEndPoint('companies')
-            .send()
-            .subscribe(
-                res => {
-                    const company = res.body;
-                    if (!company || !company.length) {
-                        setTimeout(() => {
-                            this.checkIfCompanyIsCreated();
-                        }, 3000);
-                    } else {
-                        this.busy = false;
-                        this.authService.setActiveCompany(company[0], '/');
-                    }
-                },
-                () => {
+    createTestCompany(template) {
+        this.initService.createCompany({
+            ContractID: this.contractID,
+            TemplateCompanyKey: template.Key,
+            CompanyName: 'Demobedrift'
+        }).subscribe(
+            () => this.checkCreationStatus(),
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
+    }
+
+    private checkCreationStatus() {
+        this.initService.getCompanies().subscribe(
+            companies => {
+                if (companies && companies.length) {
+                    this.busy = false;
+                    this.authService.setActiveCompany(companies[0], '/');
+                } else {
                     setTimeout(() => {
-                        this.checkIfCompanyIsCreated();
+                        this.checkCreationStatus();
                     }, 3000);
                 }
-            );
+            },
+            () => {
+                setTimeout(() => {
+                    this.checkCreationStatus();
+                }, 3000);
+            }
+        );
     }
-
 }

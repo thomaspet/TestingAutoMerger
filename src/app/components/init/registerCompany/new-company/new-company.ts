@@ -1,12 +1,14 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http';
-import {ModulusService, ElsaProductService} from '@app/services/services';
+import {ModulusService, ErrorService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {map} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {get} from 'lodash';
 import {ElsaProduct} from '@app/models';
+import {InitService} from '../../init.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'init-new-company',
@@ -14,6 +16,7 @@ import {ElsaProduct} from '@app/models';
     styleUrls: ['./new-company.sass']
 })
 export class NewCompany {
+    @ViewChild('companyNameInput') companyNameInput: ElementRef;
     @Input() contractID: number;
 
     busy: boolean;
@@ -27,23 +30,30 @@ export class NewCompany {
         Country: string;
     };
 
+    step = 1;
     autocompleteOptions: AutocompleteOptions;
     products: ElsaProduct[];
     templates: any[];
     selectedTemplate: any;
 
+    isEnk: boolean;
+    includeVat: boolean;
+    includeSalary: boolean;
+
     constructor(
+        private router: Router,
+        private errorService: ErrorService,
+        private initService: InitService,
         private httpClient: HttpClient,
         private authService: AuthService,
-        private uniHttp: UniHttp,
         private modulusService: ModulusService,
-        private productService: ElsaProductService
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
+            clearInputOnSelect: true,
             autofocus: true,
             displayField: 'navn',
-            placeholder: 'Søk på navn eller organisasjonsnummer',
+            placeholder: 'Søk i brønnøysundregistrene',
             lookup: (input) => {
                 const orgNumber = input.replace(/\ /g, '');
                 const query = this.modulusService.isValidOrgNr(orgNumber)
@@ -61,17 +71,14 @@ export class NewCompany {
                 }));
             }
         };
+    }
 
-        this.uniHttp
-            .asGET()
-            .usingInitDomain()
-            .withEndPoint('template-companies')
-            .send()
-            .map(res => res.body)
-            .subscribe(
-                res => this.templates = res || [],
-                err => console.error(err)
-            );
+    goBack() {
+        if (this.step === 2) {
+            this.step = 1;
+        } else {
+            this.router.navigateByUrl('/init/register-company');
+        }
     }
 
     onCompanySelected(brRegCompany) {
@@ -79,6 +86,10 @@ export class NewCompany {
         if (!brRegCompany) {
             return;
         }
+
+        this.isEnk = get(brRegCompany, 'organisasjonsform.kode') === 'ENK';
+        this.includeSalary = undefined;
+        this.includeVat = undefined;
 
         this.company = {
             CompanyName: brRegCompany.navn,
@@ -89,32 +100,13 @@ export class NewCompany {
             CountryCode: get(brRegCompany, 'forretningsadresse.landkode'),
             OrganizationNumber: brRegCompany.organisasjonsnummer,
         };
-    }
 
-    checkIfCompanyIsCreated() {
-        this.uniHttp
-            .asGET()
-            .usingInitDomain()
-            .withEndPoint('companies')
-            .send()
-            .subscribe(
-                res => {
-                    const company = res.body;
-                    if (!company || !company.length) {
-                        setTimeout(() => {
-                            this.checkIfCompanyIsCreated();
-                        }, 3000);
-                    } else {
-                        this.busy = false;
-                        this.authService.setActiveCompany(company[0], '/');
-                    }
-                },
-                () => {
-                    setTimeout(() => {
-                        this.checkIfCompanyIsCreated();
-                    }, 3000);
-                }
-            );
+        setTimeout(() => {
+            try {
+                this.companyNameInput.nativeElement.focus();
+                this.companyNameInput.nativeElement.select();
+            } catch (e) {}
+        });
     }
 
     createCompany() {
@@ -122,38 +114,77 @@ export class NewCompany {
             return;
         }
 
-        const body = {
-            CompanyName: this.company.CompanyName,
-            ContractID: this.contractID,
-            CompanySettings: this.company,
-            ProductNames: ['SrBundle'],
-            TemplateCompanyKey: this.selectedTemplate ? this.selectedTemplate.Key : null,
-        };
-
         this.busy = true;
-        this.uniHttp
-            .asPOST()
-            .usingInitDomain()
-            .withEndPoint('create-company')
-            .withBody(body)
-            .send()
-            .map(res => res.body)
-            .subscribe(
-                () => {
-                    this.checkIfCompanyIsCreated();
-                    /* this.signalRservice.pushMessage$.subscribe(companyDone => {
-                        console.log(companyDone);
-                        if (companyDone) {
-                            console.log(companyDone);
-                            this.creatingCompany = false;
-                            this.checkIfCompanyIsCreated();
-                        }
-                    }); */
-                },
+        this.initService.getTemplates().subscribe(templates => {
+            if (!templates || !templates.length) {
+                // TODO: do we need to abort here?
+            }
+
+            const filteredTemplates = templates.filter(template => {
+                if (template.IsTest) {
+                    return false;
+                }
+
+                const name = template.Name;
+                if (this.isEnk && name.includes('MAL AS')) {
+                    return false;
+                }
+
+                if (!this.isEnk && name.includes('MAL ENK')) {
+                    return false;
+                }
+
+                if (this.includeVat && name.includes('uten mva')) {
+                    return false;
+                }
+
+                if (!this.includeVat && name.includes('med mva')) {
+                    return false;
+                }
+
+                if (this.includeSalary && name.includes('uten lønn')) {
+                    return false;
+                }
+
+                if (!this.includeSalary && name.includes('med lønn')) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            const body = {
+                CompanyName: this.company.CompanyName,
+                ContractID: this.contractID,
+                CompanySettings: this.company,
+                ProductNames: ['SrBundle'],
+                TemplateCompanyKey: filteredTemplates[0] && filteredTemplates[0].Key
+            };
+
+            console.log(body);
+
+            this.busy = true;
+            this.initService.createCompany(body).subscribe(
+                () => this.checkCreationStatus(),
                 err => {
-                    console.error(err);
+                    this.errorService.handle(err);
                     this.busy = false;
                 }
             );
+        });
+    }
+
+    private checkCreationStatus() {
+        this.initService.getCompanies().subscribe(
+            companies => {
+                if (companies && companies.length) {
+                    this.busy = false;
+                    this.authService.setActiveCompany(companies[0], '/');
+                } else {
+                    setTimeout(() => this.checkCreationStatus(), 3000);
+                }
+            },
+            () => setTimeout(() => this.checkCreationStatus(), 3000)
+        );
     }
 }

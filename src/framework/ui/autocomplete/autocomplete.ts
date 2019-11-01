@@ -9,6 +9,7 @@ import {ErrorService} from '@app/services/services';
 
 export interface AutocompleteOptions {
     canClearValue?: boolean;
+    clearInputOnSelect?: boolean;
     autofocus?: boolean;
     openSearchOnClick?: boolean;
     lookup: (query: string, filterCheckboxValues?: boolean[]) => any[] | Observable<any[]>;
@@ -138,6 +139,11 @@ export class Autocomplete {
     }
 
     private updateControlValue() {
+        if (this.options.clearInputOnSelect) {
+            this.searchControl.setValue('', {emitEvent: false});
+            return;
+        }
+
         let controlValue = '';
         if (this.value) {
             if (this.options.displayFunction) {

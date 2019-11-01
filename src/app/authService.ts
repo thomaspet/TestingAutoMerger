@@ -345,24 +345,11 @@ export class AuthService {
      * @returns {Boolean}
      */
     public isAuthenticated(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             this.userManager
                 .getUser()
-                .then(user => {
-                    if (user && !user.expired) {
-                        this.jwt = user.access_token;
-                        this.token$.next(this.jwt);
-                        this.authenticateUniFiles();
-
-                        const hasToken: boolean = !!this.jwt;
-                        resolve(hasToken);
-                    } else {
-                        resolve(false);
-                    }
-                })
-                .catch(() => {
-                    resolve(false);
-                });
+                .then(user => resolve(user && !user.expired && !!user.access_token))
+                .catch(() => resolve(false));
         });
     }
 
