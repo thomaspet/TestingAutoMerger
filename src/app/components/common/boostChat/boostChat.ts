@@ -11,7 +11,6 @@ type ExtendedWindow = typeof window & {
         <img style="box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.2); border-radius: 50%" [src]="chatbotIcon">
     </span>
     `,
-    styleUrls: ['./boostChat.sass']
 })
 export class BoostChat {
     private chatPanel: any = null;
