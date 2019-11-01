@@ -42,14 +42,17 @@ import {
     CustomerInvoiceService,
     ElsaPurchaseService,
     CompanySettingsService,
+    PageStateService
 } from '../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 import { RequestMethod } from '@uni-framework/core/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 import { JournalingRulesModal } from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
+import {BankInitModal} from '@app/components/common/modals/bank-init-modal/bank-init-modal';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
 import { AuthService } from '@app/authService';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'uni-bank-component',
@@ -78,6 +81,7 @@ export class BankComponent {
     private agreements: any[] = [];
     private companySettings: CompanySettings;
     private isAutobankAdmin: boolean;
+    isSrEnvirnment = environment.isSrEnvironment;
     hasAccessToAutobank: boolean;
     filter: string = '';
     failedFiles: any[] = [];
@@ -244,32 +248,60 @@ export class BankComponent {
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
         private authService: AuthService,
+        private pageStateService: PageStateService
     ) {
         this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
         this.updateTab();
 
-        Observable.forkJoin(
-            this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
-            this.elsaPurchasesService.getPurchaseByProductName('Autobank')
-        ).subscribe(result => {
-            this.failedFiles = result[0];
-            this.hasAccessToAutobank = !!result[1];
-            this.initiateBank();
-        }, err => this.errorService.handle(err) );
+        if (this.isSrEnvirnment) {
+            this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
+                if (!agreements || !agreements.length) {
+                    this.modalService.open(BankInitModal,
+                        { data: { user: this.authService.currentUser }, closeOnClickOutside: false}).onClose
+                    .subscribe((emitvalue: boolean) => {
+                        if (!emitvalue) {
+                            this.router.navigateByUrl('/');
+                        } else {
+                            // Redirect back to view
+                            this.router.navigateByUrl(this.pageStateService.getUrl());
+                        }
+                    });
+                } else {
+                    this.agreements = agreements;
+                    this.hasAccessToAutobank = this.isSrEnvirnment;
+                    this.initiateBank();
+                }
+            }, err => {
+                this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
+                this.router.navigateByUrl('/');
+            });
+        } else {
+            Observable.forkJoin(
+                this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
+                this.elsaPurchasesService.getPurchaseByProductName('Autobank')
+            ).subscribe(result => {
+                this.failedFiles = result[0];
+                this.hasAccessToAutobank = !!result[1];
+
+                if (this.hasAccessToAutobank) {
+                    this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
+                        this.agreements = agreements;
+                        this.initiateBank();
+                    });
+                } else {
+                    this.initiateBank();
+                }
+                this.initiateBank();
+            }, err => {
+                this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
+                this.router.navigateByUrl('/');
+            });
+        }
     }
 
     public initiateBank() {
-        const queries = [this.companySettingsService.getCompanySettings(['TaxBankAccount'])];
-
-        if (this.hasAccessToAutobank) {
-            queries.push(this.paymentBatchService.checkAutoBankAgreement());
-        }
-
-        Observable.forkJoin(queries).subscribe((result: any[]) => {
-            this.companySettings = result[0];
-            if (this.hasAccessToAutobank && result[1]) {
-                this.agreements = result[1];
-            }
+        this.companySettingsService.getCompanySettings(['TaxBankAccount']).subscribe(companySettings => {
+            this.companySettings = companySettings;
 
             this.uniTickerService.getTickers().then(tickers => {
                 this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers)
@@ -330,11 +362,14 @@ export class BankComponent {
 
         if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements.length) &&
             (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
-            items.push({
-                label: 'Ny autobankavtale',
-                action: () => this.openAutobankAgreementModal(),
-                disabled: () => false
-            });
+
+            if (!this.isSrEnvirnment) {
+                items.push({
+                    label: 'Ny autobankavtale',
+                    action: () => this.openAutobankAgreementModal(),
+                    disabled: () => false
+                });
+            }
 
             if (this.isAutobankAdmin && this.agreements.length) {
                 items.push({

@@ -56,6 +56,7 @@ import {
 } from './timetrackingCommon';
 
 import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-rules-modal';
+import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
 
 import {
     MatProgressBarModule,
@@ -145,6 +146,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         DisclaimerModal,
         ImportTemplateModal,
         ImportVoucherModal,
+        BankInitModal,
 
         WorkEditor,
         UniTimeModal,
@@ -185,7 +187,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ImportTemplateModal,
         NewTaskModal,
         ImportVoucherModal,
-        JournalingRulesModal
+        BankInitModal
     ],
     exports: [
         PredefinedDescriptionList,

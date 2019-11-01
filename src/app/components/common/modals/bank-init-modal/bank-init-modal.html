@@ -1,0 +1,132 @@
+<section role="dialog" class="uni-modal uni-autobank-agreement-modal">
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <i class="material-icons close-bankagreement-button" (click)="close()" title="Lukk veiviser. Du vil da bli navigert tilbake til startsiden"> close </i>
+    <div style="flex: 0 0 20rem" class="progressbar_container sr-agreement-bar">
+        <p style="color: var(--color-c2a)"> Veiviser for ny autobankavtale </p>
+        <ul class="autobank_progressbar">
+            <li>
+                <span [class.is-active-step]="steps === 0">  </span>
+                <div [class.is-active-step]="steps === 0"> Intro </div>
+            </li>
+            <li>
+                <span [class.is-active-step]="steps === 1">  </span>
+                <div [class.is-active-step]="steps === 1"> Driftkonto* </div>
+            </li>
+            <li>
+                <span [class.is-active-step]="steps === 2">  </span>
+                <div [class.is-active-step]="steps === 2"> Lønnskonto </div>
+            </li>
+            <li>
+                <span [class.is-active-step]="steps === 3">  </span>
+                <div [class.is-active-step]="steps === 3"> Skattetrekkskonto </div>
+            </li>
+            <li>
+                <span [class.is-active-step]="steps === 4">  </span>
+                <div [class.is-active-step]="steps === 4"> Sikkerhet* </div>
+            </li>
+            <li>
+                <span [class.is-active-step]="steps === 5">  </span>
+                <div [class.is-active-step]="steps === 5"> Ferdigstilling </div>
+            </li>
+        </ul>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative">
+
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0" style="margin: 0 auto;">
+            <h3>Velkommen til SR-Regnskap - Bank</h3>
+            <p>
+                Velkommen til vår tjeneste for autobank. Autobank gjør det mulig for systemet å automatisk føre innbetalinger og utbetalinger i regnskapet ditt. Slik slipper du manuelt å lage disse bilagene selv.
+                For å kunne komme i gang med denne tjenesten må vi ta deg meg gjennom en veiviser for oppsett av bankkontoer og opprettelse av passord.
+            </p>
+            <mat-checkbox [(ngModel)]="userDoesNotFeelReady" style="margin-top: 2rem">
+                Gjennomfør senere - jeg har ikke fått SR-Bank-kontoene mine enda
+            </mat-checkbox>
+        </article>
+
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1">
+            <h3>Driftkonto</h3>
+            <p>
+                Her kan du sette opp din SR-Bank konto som driftkonto i firmaoppsettet. Denne er <strong>påkrevd</strong> for å fortsette. <br/> Om du allerede har ordnet dette, trykk Neste.
+            </p>
+            <uni-form
+                [model]="companySettings$"
+                [fields]="fields$"
+                [config]="{autofocus: true}"
+                (changeEvent)="isDirty = true">
+            </uni-form>
+        </article>
+
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 2" id="step2">
+            <h3>Lønnskonto</h3>
+            <p> Her kan du sette opp en konto for lønnstrekk. Denne vil lagres i firmaoppsettet. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
+            <uni-form
+                [model]="companySettings$"
+                [fields]="fields$"
+                [config]="{autofocus: true}"
+                (changeEvent)="isDirty = true">
+            </uni-form>
+        </article>
+
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
+            <h3>Skattetrekkskonto</h3>
+            <p> Her kan du sette opp en konto for skattetrekk. Denne vil lagres i firmaoppsettet. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
+            <uni-form
+                [model]="companySettings$"
+                [fields]="fields$"
+                [config]="{autofocus: true}"
+                (changeEvent)="isDirty = true">
+            </uni-form>
+        </article>
+
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4">
+            <h3>Sikkerhetsinnstillinger</h3>
+            <p>
+                Husk at dette passordet kun gjelder for autobank og må ikke forveksles med passord til pålogging av regskapsprogrammet.
+                Ta godt vare på dette passordet fordi dette passordet brukes til å bekrefte utbetalinger fra din bankkonto
+            </p>
+
+            <label class="uni-label">
+                <span>Telefonnummer</span>
+                <input type="text" [(ngModel)]="payload.Phone">
+            </label>
+
+            <label class="uni-label">
+                <span>Passord</span>
+                <input type="password" [(ngModel)]="payload.Password">
+            </label>
+
+            <label class="uni-label">
+                <span>Bekreft passord</span>
+                <input type="password" [(ngModel)]="payload.Password2">
+            </label>
+            <small>Passord må være minst 10 tegn og inneholde minst 1 stor bokstav, 1 liten bokstav, et tall og et tegn</small>
+            <br/>
+            <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
+
+        </article>
+
+        <article class="uni-autobank-agreement-modal-body final-msg" *ngIf="steps === 5" id="step5">
+            <i class="material-icons">thumb_up</i>
+            <h3>Avtale opprettet </h3>
+            <p>
+                Oppsett fullført. Trykk ferdig for å begynne å bruke bankmodulen.
+            </p>
+        </article>
+        <footer style="position: absolute; bottom: 2rem; width: 100%;">
+            <button class="secondary" *ngIf="steps > 0 && steps < 5" (click)="prev()">
+                Tilbake
+            </button>
+
+            <button *ngIf="isDirty" class="c2a" (click)="saveAccount()"> Lagre </button>
+
+            <button *ngIf="steps === 4" class="c2a" (click)="postAutobankUser()"> Opprett autobank </button>
+
+            <button *ngIf="steps < 4" class="c2a" (click)="next()" [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid"> {{ userDoesNotFeelReady && steps === 0 ? 'Gå til startsiden' : 'Neste' }} </button>
+
+            <button class="c2a" *ngIf="this.steps === 5" (click)="close(true)"> Ferdig </button>
+        </footer>
+    </div>
+</section>

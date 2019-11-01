@@ -24,6 +24,7 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
                     (readyEvent)="onReady()"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
+                <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
                 <label class="error message">{{bankAccountsConnectedToAccount}}</label>
             </article>
             <footer>
@@ -50,17 +51,19 @@ export class UniBankAccountModal implements IUniModal {
     @Input() modalService: UniModalService;
     @Output() onClose = new EventEmitter();
 
-    public formConfig$ = new BehaviorSubject({autofocus: true});
-    public formModel$ = new BehaviorSubject(null);
-    public formFields$ = new BehaviorSubject([]);
-
-    public isDirty: boolean;
-    public validAccount: boolean = true;
-    public busy: boolean = false;
     private saveBankAccountInModal: boolean = false;
-    public bankAccountsConnectedToAccount: string = '';
-    public bankAccounts: Array<BankAccount> = [];
-    public accountInfo: any;
+
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$ = new BehaviorSubject(null);
+    formFields$ = new BehaviorSubject([]);
+
+    isDirty: boolean;
+    validAccount: boolean = true;
+    busy: boolean = false;
+    bankAccounts: Array<BankAccount> = [];
+    accountInfo: any;
+    errorMsg: string = '';
+    bankAccountsConnectedToAccount: string = '';
 
     constructor(
         private bankService: BankService,
@@ -119,13 +122,29 @@ export class UniBankAccountModal implements IUniModal {
         let account: BankAccount;
         if (emitValue) {
             account = this.formModel$.getValue();
+
+            // Check if user can only set up given bank account
+            if (this.options.modalConfig && this.options.modalConfig.BICLock) {
+                if (!account.Bank) {
+                    this.errorMsg = 'Kontoen må være knyttet til en bank. Velg korrekt bank i Banknavn-nedtrekkslisten';
+                    return;
+                } else {
+                    if (account.Bank.BIC !== this.options.modalConfig.BICLock.BIC) {
+                        this.errorMsg = 'Valgt konto er ikke en gyldig konto fra ' + this.options.modalConfig.BICLock.BankName +
+                        '. Om du har krysset av for manuelt, sørg for at du har skrevet kontonr korrekt, og velg ' +
+                        this.options.modalConfig.BICLock.BankName + ' i Banknavn-nedtrekkslisten';
+                        return;
+                    }
+                }
+            }
+
             if (this.options.modalConfig
                 && this.options.modalConfig.ledgerAccountVisible
                 && !account.AccountID && !(account.Account && account.Account.ID)) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
                     header: 'Manglende konto',
-                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Hovedbokskonto må velges for å registrere en bankkonto?',
+                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Hovedbokskonto må velges for å registrere en bankkonto',
                     buttonLabels: {
                         accept: 'Ok'
                     }
@@ -193,6 +212,7 @@ export class UniBankAccountModal implements IUniModal {
     }
 
     public onFormChange(changes) {
+        this.errorMsg = '';
         this.isDirty = true;
         this.validAccount = true;
 

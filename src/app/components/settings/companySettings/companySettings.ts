@@ -906,6 +906,17 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getBankAccountOptions(storeResultInProperty, bankAccountType) {
+        const modalConfig: any = {
+            ledgerAccountVisible: true
+        };
+
+        if (this.isSrEnvironment) {
+            modalConfig.BICLock = {
+                BIC:  'SPRONO22',
+                BankName: 'SpareBank 1 SR-Bank'
+            };
+        }
+
         return {
             entity: BankAccount,
             listProperty: 'BankAccounts',
@@ -938,9 +949,7 @@ export class CompanySettingsComponent implements OnInit {
 
                 const modal = this.modalService.open(UniBankAccountModal, {
                     data: bankaccount,
-                    modalConfig: {
-                        ledgerAccountVisible: true
-                    },
+                    modalConfig: modalConfig,
                     closeOnClickOutside: false
                 });
 
