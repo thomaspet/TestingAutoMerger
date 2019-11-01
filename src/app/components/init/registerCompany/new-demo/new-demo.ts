@@ -12,6 +12,7 @@ export class NewDemo {
     @Input() contractID: number;
 
     creatingCompany: boolean;
+    template;
     error: boolean;
     busy: boolean;
 
@@ -23,22 +24,17 @@ export class NewDemo {
 
     ngOnInit() {
         this.initService.getTemplates().subscribe(templates => {
-            const template = templates.find(t => t.IsTest);
-            if (template) {
-                this.createTestCompany(template);
-            } else {
-                // TODO: Missing template handler?
-            }
+            this.template = templates.find(t => t.IsTest);
+            this.createTestCompany();
         });
     }
 
-    createTestCompany(template) {
+    createTestCompany() {
         this.busy = true;
 
         this.initService.createCompany({
             ContractID: this.contractID,
-            TemplateCompanyKey: template.Key,
-            CompanyName: 'Demobedrift'
+            TemplateCompanyKey: this.template && this.template.Key,
         }).subscribe(
             () => {
                 this.error = false;
