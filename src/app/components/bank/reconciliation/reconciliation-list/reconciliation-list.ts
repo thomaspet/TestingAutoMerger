@@ -82,7 +82,7 @@ export class UniBankReconciliationList {
     private setTabAndState() {
         this.pageStateService.setPageState('tabIndex', this.activeIndex.toString());
         this.tabService.addTab({
-            name: 'Bankavstemning',
+            name: 'bankavstemming',
             url: this.pageStateService.getUrl(),
             moduleID: UniModules.BankReconciliation,
             active: true
