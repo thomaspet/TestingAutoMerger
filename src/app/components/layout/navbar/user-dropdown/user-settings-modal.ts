@@ -5,6 +5,8 @@ import {UserService, ErrorService} from '@app/services/services';
 import {User} from '@app/unientities';
 import {forkJoin} from 'rxjs';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { HttpClient } from '@angular/common/http';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'user-settings-modal',
@@ -20,11 +22,13 @@ export class UserSettingsModal implements IUniModal {
     userDetailsForm: FormGroup;
     autobankPasswordForm: FormGroup;
     epostButtonClicked: boolean;
+    changePasswordUrl =`${environment.authority}/Account/ChangePassword?id=${environment.client_id}&redirecturl=${encodeURIComponent (window.location.href)}`;
 
     constructor(
         private errorService: ErrorService,
         private userService: UserService,
-        private toast: ToastService
+        private toast: ToastService,
+        private http: HttpClient
     ) {}
 
     public ngOnInit() {

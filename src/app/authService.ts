@@ -86,49 +86,64 @@ export class AuthService {
 
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
-        this.userManager.getUser().then(user => {
 
-            const onMissingAuth = () => {
-                this.authentication$.next({
-                    activeCompany: undefined,
-                    user: undefined,
-                    hasActiveContract: false,
-                });
 
-                this.clearAuthAndGotoLogin();
-                this.setLoadIndicatorVisibility(false);
-            };
+        const onMissingAuth = () => {
+            this.authentication$.next({
+                activeCompany: undefined,
+                user: undefined,
+                hasActiveContract: false,
+            });
 
-            if (user && !user.expired) {
-                this.jwt = user.access_token;
+            this.clearAuthAndGotoLogin();
+            this.setLoadIndicatorVisibility(false);
+        };
+        Promise.all([
+            this.userManager.getUser(),
+            this.userManager.querySessionStatus(),
+        ]).then(res => {
+            const user = res[0];
+            const sessionStatus = res[1];
 
-                if (this.activeCompany) {
-                    this.loadCurrentSession().subscribe(
-                        auth => {
-                            this.filesToken$.next(this.filesToken);
+            if (sessionStatus) {
+                if (user && !user.expired) {
+                    this.jwt = user.access_token;
 
-                            if (!auth.hasActiveContract) {
-                                this.router.navigateByUrl('contract-activation');
-                            }
+                    if (this.activeCompany) {
+                        this.loadCurrentSession().subscribe(
+                            auth => {
+                                this.filesToken$.next(this.filesToken);
 
-                            // Give the app a bit of time to initialise before we remove spinner
-                            // (less visual noise on startup)
-                            setTimeout(() => {
-                                this.setLoadIndicatorVisibility(false);
-                            }, 250);
-                        },
-                        () => onMissingAuth()
-                    );
-                } else {
-                    if (!this.router.url.startsWith('/init')) {
-                        this.router.navigate(['/init/login']);
+                                if (!auth.hasActiveContract) {
+                                    this.router.navigateByUrl('contract-activation');
+                                }
+
+                                // Give the app a bit of time to initialise before we remove spinner
+                                // (less visual noise on startup)
+                                setTimeout(() => {
+                                    this.setLoadIndicatorVisibility(false);
+                                }, 250);
+                            },
+                            () => onMissingAuth()
+                        );
+                    } else {
+                        if (!this.router.url.startsWith('/init')) {
+                            this.router.navigate(['/init/login']);
+                        }
+
+                        this.setLoadIndicatorVisibility(false);
                     }
-
-                    this.setLoadIndicatorVisibility(false);
+                } else {
+                    onMissingAuth();
                 }
-            } else {
-                onMissingAuth();
             }
+        }).catch((err) => {
+            // Session has ended ! , clear stale state and redirect to login
+            this.userManager.clearStaleState()
+            this.userManager.removeUser().then((res) => {
+                onMissingAuth();
+            })
+
         });
 
         this.userManager.events.addUserLoaded(() => {

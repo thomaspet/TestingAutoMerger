@@ -23,6 +23,13 @@
                 <input disabled formControlName="Email" type="email">
             </label>
 
+            <label>
+                <span>Passord</span>
+                <a [attr.href]="changePasswordUrl">Endre passord</a>
+            </label>
+
+            <hr/>
+
             <ng-container *ngIf="user?.BankIntegrationUserName">
                 <label for="resetPassowrd">
                     <span>Endre autobankpassord</span>
