@@ -8110,6 +8110,17 @@ export class A07Response extends UniEntity {
     public Title: string;
 }
 
+export class BarnepassLeveranse extends UniEntity {
+    public inntektsaar: number;
+    public oppgave: Array<OppgaveBarnepass>;
+}
+
+export class OppgaveBarnepass extends UniEntity {
+    public foedselsnummer: string;
+    public navn: string;
+    public paaloeptBeloep: number;
+    public email: string;
+}
 
 export class SetIntegrationDataDto extends UniEntity {
     public ExternalId: string;

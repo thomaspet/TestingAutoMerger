@@ -32,6 +32,7 @@ import {UniMandatoryDimensionsModal} from './modals/mandatoryDimensionsModal/man
 import {LicenseAgreementModal} from './modals/license-agreement-modal/license-agreement-modal';
 import {InvoiceApprovalModal} from './modals/invoice-approval-modal/invoice-approval-modal';
 import {WizardSettingsModal} from './modals/wizard-settings-modal/wizard-settings-modal';
+import { BarnepassProductsModal } from '@app/components/sales/altinn/barnepass/barnepassProductsModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -104,6 +105,7 @@ export const MODALS = [
     UniMandatoryDimensionsModal,
     LicenseAgreementModal,
     InvoiceApprovalModal,
-    WizardSettingsModal
+    WizardSettingsModal,
+    BarnepassProductsModal
 ];
 

@@ -1,5 +1,5 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options} from '../../unientities';
+import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options, BarnepassLeveranse, OppgaveBarnepass} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {SubEntityService} from '../common/subEntityService';
@@ -75,6 +75,10 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         return this.ActionWithBody(null, option, 'send-a06-request', RequestMethod.Post);
     }
 
+    public sendBarnepass(leveranse: BarnepassLeveranse): Observable<AltinnReceipt> {
+        return this.ActionWithBody(null, leveranse, 'send-barnepass', RequestMethod.Post);
+    }
+    
     public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {
         return this.http
             .asGET()

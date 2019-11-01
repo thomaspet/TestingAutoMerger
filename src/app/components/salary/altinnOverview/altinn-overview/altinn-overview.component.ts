@@ -7,6 +7,8 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import {ReplaySubject} from 'rxjs';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Observable} from 'rxjs';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'uni-altinn-overview',
@@ -19,11 +21,13 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
     public config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
     public selectedReceipt$: BehaviorSubject<AltinnReceipt> = new BehaviorSubject(null);
     public busy: boolean;
+    public actions: IUniSaveAction[];
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
     constructor(
         private altinnReceiptService: AltinnReceiptService,
-        private tabService: TabService
+        private tabService: TabService,
+        private router: Router
     ) {}
 
     public ngOnInit() {
@@ -41,6 +45,8 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             url: 'salary/altinnoverview',
             name: 'Altinn oversikt'
         });
+
+        this.enableReportAction();
     }
 
     public ngAfterViewInit(): void {
@@ -118,4 +124,12 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         this.selectedReceipt$.next(row);
     }
 
+    private enableReportAction() {
+        this.actions = [{
+            label: 'Rapportere Pass og stell av barn',
+            action: () => this.router.navigateByUrl('/salary/barnepass'),
+            disabled: false,
+            main: true
+        }];
+    }    
 }

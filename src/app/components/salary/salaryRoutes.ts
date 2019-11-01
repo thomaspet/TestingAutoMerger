@@ -36,6 +36,7 @@ import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls
 import {routes as SalarybalanceTemplateRoutes} from './salarybalance/template/salarybalanceTemplateRoutes';
 import {SalarybalanceTemplateView} from './salarybalance/template/salarybalanceTemplateView';
 import {OTPExportComponent} from './otpexport/otpexport.component';
+import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
 
 export const salaryRoutes: Routes = [
     {
@@ -109,6 +110,10 @@ export const salaryRoutes: Routes = [
     {
         path: 'altinnoverview',
         component: AltinnOverviewComponent
+    },
+    {
+        path: 'barnepass',
+        component: BarnepassView
     },
     {
         path: 'traveltypes',

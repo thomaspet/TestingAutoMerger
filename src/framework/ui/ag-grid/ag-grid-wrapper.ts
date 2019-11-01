@@ -902,8 +902,14 @@ export class AgGridWrapper {
     }
 
     // Public functions for host components
-    public getTableData() {
-        return this.dataService.getTableData(true);
+    public getTableData(filtered?: boolean) {
+        if (filtered) {
+            const rows = [];
+            this.agGridApi.forEachNode(row => rows.push(row.data));
+            return rows;
+        } else {
+            return this.dataService.getTableData(true);
+        }
     }
 
     public getSelectedRows() {

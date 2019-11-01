@@ -136,6 +136,7 @@ import {
 } from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
+import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
 
 @NgModule({
     imports: [
@@ -240,6 +241,7 @@ import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
         AltinnOverviewComponent,
         AltinnOverviewDetailsComponent,
 
+        BarnepassView,
 
         // Travel
         TraveltypeComponent,
