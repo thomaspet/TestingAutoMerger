@@ -828,11 +828,10 @@ export class TransqueryDetails implements OnInit {
                 {
                     EntityType: 'JournalEntryLine',
                     Property: 'AccountNumber',
-                    FieldType: FieldType.NUMERIC,
+                    FieldType: FieldType.TEXT,
                     Label: 'Kontonr',
                     Placeholder: 'Kontonr'
-                },
-                {
+                },                {
                     EntityType: 'JournalEntryLine',
                     Property: 'Amount',
                     FieldType: FieldType.TEXT,
