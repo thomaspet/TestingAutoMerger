@@ -143,15 +143,7 @@ export class InvoiceList implements OnInit {
     private updateToolbar(filter: string) {
         this.toolbarconfig = {
             title: 'Faktura',
-            contextmenu: [
-                {
-                    label: 'Samlefaktura',
-                    action: () => {
-                        this.openBatchInvoiceModal();
-                    },
-                    disabled: () => filter !== 'my_draft_invoices'
-                },
-            ]
+            contextmenu: []
         };
     }
 }
