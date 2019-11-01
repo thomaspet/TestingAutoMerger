@@ -1,10 +1,17 @@
 import {Component, OnInit, Pipe, PipeTransform} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {environment} from 'src/environments/environment';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
-import {UserRoleService, ElsaProductService, ErrorService, ElsaPurchaseService} from '@app/services/services';
+import {
+    UserRoleService,
+    ElsaProductService,
+    ErrorService,
+    ElsaPurchaseService,
+    PageStateService
+} from '@app/services/services';
 import {forkJoin} from 'rxjs';
 import {AuthService} from '@app/authService';
 
@@ -33,48 +40,73 @@ export class MarketplaceIntegrations implements OnInit {
     upcomingIntegrations: ElsaProduct[];
     searchText: string = '';
     canPurchaseProducts: boolean;
+    toolbarHeader: string = 'NAVBAR.INTEGRATION';
 
     constructor(
-        tabService: TabService,
+        private tabService: TabService,
         private authService: AuthService,
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
         private elsaPurchaseService: ElsaPurchaseService,
         private userRoleService: UserRoleService,
         private errorService: ErrorService,
-    ) {
-        tabService.addTab({
-            name: 'Markedsplass', url: '/marketplace/integrations', moduleID: UniModules.Marketplace, active: true
-        });
-    }
+        private route: ActivatedRoute,
+        private pageStateService: PageStateService
+    ) { }
 
     ngOnInit() {
-        forkJoin(
-            this.userRoleService.hasAdminRole(this.authService.currentUser.ID),
-            this.elsaPurchaseService.getAll(),
-            this.elsaProductService.GetAll()
-        ).subscribe(
-            res => {
-                this.canPurchaseProducts = res[0];
+        this.route.queryParams.subscribe(params => {
 
-                const purchases = res[1] || [];
-                const integrations = (res[2] || [])
-                    .filter(p => p.ProductType === ElsaProductType.Integration)
-                    .map(integration => {
-                        integration['_isBought'] = purchases.some(p => p.ProductID === integration.ID);
-                        return integration;
+            let products = 'integrations';
+            let filter = '';
+            this.toolbarHeader = 'NAVBAR.INTEGRATION';
+            let filterValue = ElsaProductType.Integration;
+
+            if (params && params['products']) {
+                products = params['products'];
+            }
+
+            // Should only hit here if SR-environment, ProductType is BankProduct
+            if (products === 'bank') {
+                filter = `ProductType eq 'BankProduct'`;
+                this.toolbarHeader = 'NAVBAR.BANK_PRODUCTS';
+                filterValue = ElsaProductType.BankProduct;
+            }
+
+            this.tabService.addTab({
+                name: this.toolbarHeader,
+                url: this.pageStateService.getUrl(),
+                moduleID: UniModules.Marketplace,
+                active: true
+            });
+
+            forkJoin(
+                this.userRoleService.hasAdminRole(this.authService.currentUser.ID),
+                this.elsaPurchaseService.getAll(),
+                this.elsaProductService.GetAll(filter)
+            ).subscribe(
+                res => {
+                    this.canPurchaseProducts = res[0];
+
+                    const purchases = res[1] || [];
+                    const integrations = (res[2] || [])
+                        .filter(p => p.ProductType === filterValue)
+                        .map(integration => {
+                            integration['_isBought'] = purchases.some(p => p.ProductID === integration.ID);
+                            return integration;
+                        });
+
+                    this.activeIntegrations = integrations.filter(i => {
+                        return i.ProductStatus === ElsaProductStatusCode.Live;
                     });
 
-                this.activeIntegrations = integrations.filter(i => {
-                    return i.ProductStatus === ElsaProductStatusCode.Live;
-                });
-
-                this.upcomingIntegrations = integrations.filter(i => {
-                    return i.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
-                });
-            },
-            err => this.errorService.handle(err)
-        );
+                    this.upcomingIntegrations = integrations.filter(i => {
+                        return i.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
+                    });
+                },
+                err => this.errorService.handle(err)
+            );
+        })
     }
 
     openSubscribeModal(integrationItem: ElsaProduct) {

@@ -72,6 +72,7 @@ export const TRANSLATION_OVERRIDES = {
         'HOUR_REG': 'Registrere timer',
         'BILLING_HOURS': 'Fakturere timer',
         'PERSONS': 'Timebrukere',
-        'EXPENSE': 'Utgift'
+        'EXPENSE': 'Utgift',
+        'BANK_PRODUCTS': 'Bankprodukter'
     }
 };
