@@ -38,7 +38,7 @@ export class Signup {
         this.step1Form = formBuilder.group({
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
-            SignUpReferrer: new FormControl(document.referrer),
+            SignUpReferrer: new FormControl(document.location),
             RecaptchaResponse: new FormControl('', Validators.required)
         });
 
