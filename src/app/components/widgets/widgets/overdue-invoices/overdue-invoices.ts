@@ -109,18 +109,22 @@ export class OverdueInvoicesWidget implements AfterViewInit {
                 return l;
             }
         });
-        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
 
         this.chartRef.config.data.datasets[0].backgroundColor = this.colors.map((l, i) => {
             if (this.show[i]) {
                 return l;
             }
         });
+
+        this.totalAmount = 0;
         this.chartRef.config.data.datasets[0].data = this.dataHolder.map((l, i) =>  {
             if (this.show[i]) {
+                this.totalAmount += l;
                 return l;
             }
         });
+
+        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
 
         this.chartRef.update();
     }

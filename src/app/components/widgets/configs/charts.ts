@@ -199,7 +199,7 @@ export const CHARTS = [
     },
     {
         id: 'operatingprofit_line',
-        description: 'Driftsresultat (linje)',
+        description: 'Driftsresultat',
         permissions: ['ui_accounting'],
         width: 6,
         height: 3,

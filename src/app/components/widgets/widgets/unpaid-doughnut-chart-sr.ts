@@ -37,12 +37,12 @@ import {DUE_DATE_COLORS} from '../widget-colors';
                         Ikke forfalt
                     </section>
 
-                    <section class="legend" id="due2" (click)="addhiddenClass('due2', 2)">
+                    <section class="legend" id="due2" (click)="addhiddenClass('due2', 1)">
                         <span class="indicator" [style.background]="colors[1]"></span>
                         1 - 30 dager
                     </section>
 
-                    <section class="legend" id="due1" (click)="addhiddenClass('due1', 1)">
+                    <section class="legend" id="due1" (click)="addhiddenClass('due1', 2)">
                         <span class="indicator" [style.background]="colors[2]"></span>
                         31 - 60 dager
                     </section>
@@ -141,18 +141,22 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
                 return l;
             }
         });
-        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
 
         this.chartRef.config.data.datasets[0].backgroundColor = this.colors.map((l, i) => {
             if (this.show[i]) {
                 return l;
             }
         });
+
+        this.totalAmount = 0;
         this.chartRef.config.data.datasets[0].data = this.dataHolder.map((l, i) =>  {
             if (this.show[i]) {
+                this.totalAmount += l;
                 return l;
             }
         });
+
+        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
 
         this.chartRef.update();
     }

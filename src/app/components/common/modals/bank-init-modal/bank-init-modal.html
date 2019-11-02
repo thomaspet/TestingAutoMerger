@@ -59,7 +59,7 @@
 
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 2" id="step2">
             <h3>Lønnskonto</h3>
-            <p> Her kan du sette opp en konto for lønnstrekk. Denne vil lagres i firmaoppsettet. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
+            <p> Her kan du velge å sette opp egen konto for lønnstrekk i systemet. Hvis ikke du setter opp en konto her, vil systemet bruke konto satt som Driftskonto ved eventuelle lønnsutbetalinger. Trykk neste for å fortsette. </p>
             <uni-form
                 [model]="companySettings$"
                 [fields]="fields$"
