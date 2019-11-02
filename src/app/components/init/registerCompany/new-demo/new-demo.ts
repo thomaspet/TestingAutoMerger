@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {AuthService} from '@app/authService';
-import {InitService} from '../../init.service';
-import {ErrorService} from '@app/services/services';
+import {ErrorService, InitService} from '@app/services/services';
 
 @Component({
     selector: 'init-new-demo',

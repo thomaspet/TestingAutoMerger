@@ -6,19 +6,19 @@
 
     <header>
         Lisensavtale
-        <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" target="_blank">
+        <a [href]="agreementUrl" target="_blank">
             Åpne i ny fane
         </a>
     </header>
 
-    <object data="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" type="application/pdf">
-        alt : <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf">License.pdf</a>
+    <object [data]="agreementUrl" type="application/pdf">
+        alt : <a [href]="agreementUrl">License.pdf</a>
     </object>
 
     <footer>
-        <mat-checkbox [(ngModel)]="hasAgreed">Godta lisensavtale</mat-checkbox>
+        <mat-checkbox class="pull-left" [(ngModel)]="hasAgreed">Godta lisensavtale</mat-checkbox>
 
-        <button class="logout" (click)="logout()">Logg ut og bytt selskap</button>
+        <button class="secondary" (click)="logout()">Logg ut og bytt selskap</button>
         <button class="c2a" (click)="confirmAgreement()" [disabled]="!hasAgreed">Bekreft</button>
     </footer>
 </section>
@@ -46,7 +46,7 @@
         </ul>
     </article>
 
-    <footer class="center">
-        <button (click)="onClose.emit()" class="c2a rounded">Lukk</button>
+    <footer>
+        <button (click)="onClose.emit()" class="secondary">Lukk</button>
     </footer>
 </section>

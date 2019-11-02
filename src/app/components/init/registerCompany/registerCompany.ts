@@ -1,12 +1,12 @@
 import {Component} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+
 import {UniHttp} from '@uni-framework/core/http/http';
 import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
 import {SignalRService} from '@app/services/common/signal-r.service';
 import {environment} from 'src/environments/environment';
-import {Router, ActivatedRoute} from '@angular/router';
-import {take} from 'rxjs/operators';
-import {InitService} from '../init.service';
+import {InitService} from '@app/services/services';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;

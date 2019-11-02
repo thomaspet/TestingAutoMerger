@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {get} from 'lodash';
 import {ElsaProduct} from '@app/models';
-import {InitService} from '../../init.service';
+import {InitService} from '@app/services/services';
 import {Router} from '@angular/router';
 import {SignalRService} from '@app/services/common/signal-r.service';
 

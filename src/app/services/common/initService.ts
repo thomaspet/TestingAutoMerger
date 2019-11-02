@@ -50,7 +50,7 @@ export class InitService {
             .usingInitDomain()
             .withEndPoint('create-company')
             .withBody(body)
-            .send()
+            .send({}, null, false)
             .pipe(map(res => res.body));
     }
 

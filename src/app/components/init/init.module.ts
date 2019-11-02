@@ -7,7 +7,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {UniInit} from './init';
-import {InitService} from './init.service';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {RegisterCompany} from './registerCompany/registerCompany';
@@ -53,7 +52,6 @@ import {NewDemo} from './registerCompany/new-demo/new-demo';
         ConfirmInvite
     ],
     providers: [
-        InitService,
         {
             provide: RECAPTCHA_SETTINGS,
             useValue: { siteKey: environment.SITE_KEY },

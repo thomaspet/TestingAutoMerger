@@ -242,6 +242,8 @@ export class UniHttp {
 
         if (companyKey && useCompanyKeyHeader) {
             this.headers = this.headers.set('CompanyKey', companyKey);
+        } else {
+            this.headers = this.headers.delete('CompanyKey');
         }
 
         if (year && year.Year) {

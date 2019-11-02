@@ -12,6 +12,8 @@
     background: #edeeef
     position: absolute
     top: 0
+    overflow-y: auto
+    flex-direction: column
 
     // Overlay mode when the trial is expired
     &.overlay
@@ -23,80 +25,49 @@
         z-index: #{map-get($zindex, sidebar) + 1}
 
     .activation-section
-        flex: 1
-        display: flex
-        flex-direction: column
-        justify-content: center
-        overflow: hidden
-        box-sizing: border-box
+        flex: 0 0 auto
+        width: 40rem
+        max-width: 90%
+        margin: 2rem auto
+        border-radius: var(--section-radius)
+        border: 1px solid var(--border-color)
+        padding: 2rem 4rem
+        background: #fff
 
-        .info-message
-            margin-bottom: 5rem
-            text-align: center
-            font-size: 15px
-            i.material-icons
-                vertical-align: middle
-                margin-bottom: 3px
-                margin-right: 3px
-                &.good
-                    color: #01A901
-                &.bad
-                    color: #F53B57
-
-        .form-container
-            overflow-y: auto
-            padding: 2rem
-
-            h1
-                font: 400 22px var(--font-family)
-                width: 40rem
-                margin: 0 auto 1.75rem
-                padding-left: 180px
-
-            form
-                width: 40rem
-                padding-right: 4rem
-                margin: 0 auto
-                label span
-                    width: 160px
-                    margin-right: 1rem
-                    text-align: right
-
-            @media (max-width: 650px)
-                h1
-                    width: 32rem
-                    padding-left: 0
-                form
-                    width: 32rem
-                    padding-right: 0
+        h1
+            margin: 0 0 1rem
+            font-weight: 500
+            font-size: 22px
+            color: var(--color-c2a-dark)
 
 
-fieldset legend
-    padding-left: 180px
-    font-size: 18px
-    font-weight: 400
+        ::ng-deep .uni-label span
+            font-weight: 500
+            color: var(--color-c2a-dark)
 
-form label
-    font-size: 14px
-
-small.form-error
-    display: block
-    color: #F53B57
-    margin: -10px 0 16px 170px
+        .contact-form
+            margin-top: 1rem
 
 .submit-section
-    margin-left: 180px
-
+    margin-top: 2rem
     mat-checkbox
         display: block
         margin-top: 10px
 
     .checkbox-label
-        font-size: 14px
+        font-size: 15px
 
     button.good
-        height: 2.5rem
-        color: #fff
-        min-width: 10rem
-        border-radius: 20px
+        min-width: 12rem
         margin: 2rem 0 0
+
+.company-creation
+    h1
+        display: flex
+        align-items: center
+        mat-spinner
+            margin-right: 1rem
+
+    button.c2a
+        min-width: 12rem
+        margin: 1rem 0

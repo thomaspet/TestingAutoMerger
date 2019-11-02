@@ -15,11 +15,11 @@ import {
             <article [innerHtml]="terms" class="scrollable"></article>
 
             <footer>
-                <button class="good" (click)="activate()" [disabled]="busy || !terms?.length">
-                    Aksepter
-                </button>
-                <button class="warning" (click)="onClose.emit(false)" [disabled]="busy">
+                <button class="secondary" (click)="onClose.emit(false)" [disabled]="busy">
                     Avbryt
+                </button>
+                <button class="c2a" (click)="activate()" [disabled]="busy || !terms?.length">
+                    Aksepter
                 </button>
             </footer>
         </section>

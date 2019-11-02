@@ -53,5 +53,7 @@ export const environment = {
         MAIN_LEDGER: 'https://ext01-public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://ext01-public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
         VOUCHER: '<<voucher-template-url>>'
-    }
+    },
+
+    LICENSE_AGREEMENT_URL: 'https://public-files.regnskap.sr-bank.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };
