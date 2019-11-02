@@ -141,6 +141,12 @@ export class ContractActivation {
             return;
         }
 
+        if (!this.elsaCustomer.ContactPerson || this.elsaCustomer.ContactPerson.length < 5) {
+            this.toastService.toast({
+                title: 'Navn på kontaktperson må være mer enn 5 bokstaver'
+            });
+        }
+
         this.busy = true;
         this.elsaCustomer.Name = this.elsaCustomer.ContactPerson;
         forkJoin(
