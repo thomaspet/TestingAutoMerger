@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, UniBankAccountModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {CompanySettingsService, BankService} from '@app/services/services';
+import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductService} from '@app/services/services';
 import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
@@ -30,44 +30,77 @@ export class BankInitModal implements IUniModal, OnInit {
          IsBankStatement: true
     };
     currentUser: UserDto;
+    agreement: any;
     busy: boolean = false;
     isDirty: boolean = false;
     dataLoaded: boolean = false;
     isNextStepValid: boolean = true;
-    userDoesNotFeelReady: boolean = false;
     accounts = [
         {
             label: 'Driftskonto',
             field: 'CompanyBankAccount',
-            type: 'company'
+            type: 'company',
+            defaultAccount: 1920
         },
         {
             label: 'Lønnskonto',
             field: 'SalaryBankAccount',
-            type: 'salarybank'
+            type: 'salarybank',
+            defaultAccount: null
         },
         {
             label: 'Skattetrekkskonto',
             field: 'TaxBankAccount',
-            type: 'bankaccount'
+            type: 'bankaccount',
+            defaultAccount: 1950
         }
     ];
 
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
+    hasBoughtAutobank: boolean = false;
     fields$ = new BehaviorSubject([]);
 
     constructor(
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
         private toastService: ToastService,
-        private bankService: BankService
+        private bankService: BankService,
+        private elsaPurchasesService: ElsaPurchaseService,
+        private elsaProductService: ElsaProductService
     ) {}
 
     ngOnInit() {
         this.currentUser = this.options.data.user;
         this.payload.Phone = this.currentUser.PhoneNumber;
-        this.busy = false;
-        this.reloadCompanySettings();
+        this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
+            this.hasBoughtAutobank = !!response;
+            this.initiateRegistrationModal();
+        }, err => {
+            this.hasBoughtAutobank = false;
+            this.initiateRegistrationModal();
+        });
+    }
+
+    initiateRegistrationModal() {
+        if (this.hasBoughtAutobank) {
+            this.reloadCompanySettings();
+        } else {
+            this.elsaProductService.GetAll(`Name eq 'Autobank'`).subscribe((products) => {
+                if (products && products.length) {
+                    const payload = [ { ID: null, ProductID: products[0].ID } ];
+                    this.elsaPurchasesService.massUpdate(payload).subscribe(() => {
+                        this.reloadCompanySettings();
+                    });
+                } else {
+                    // This could be a big error ?? Autobank not present in Elsa
+                    this.toastService.addToast('Klarte ikke hente nødvendig informasjon. Prøv igjen');
+                    this.close();
+                }
+            }, err => {
+                this.toastService.addToast('Klarte ikke hente nødvendig informasjon. Prøv igjen');
+                this.close();
+            });
+        }
     }
 
     reloadCompanySettings() {
@@ -87,11 +120,6 @@ export class BankInitModal implements IUniModal, OnInit {
     }
 
     next() {
-        if (this.userDoesNotFeelReady) {
-            this.onClose.emit(false);
-            return;
-        }
-
         this.steps++;
 
         if (this.steps >= 1 && this.steps <= 3) {
@@ -148,7 +176,8 @@ export class BankInitModal implements IUniModal, OnInit {
     postAutobankUser() {
         this.busy = true;
         if (this.validatePassword() && this.isValidPhoneNumber(this.payload.Phone)) {
-            this.bankService.createInitialAgreement(this.payload).subscribe(() => {
+            this.bankService.createInitialAgreement(this.payload).subscribe((agreement) => {
+                this.agreement = agreement;
                 this.busy = false;
                 this.next();
             }, err => {
@@ -207,8 +236,8 @@ export class BankInitModal implements IUniModal, OnInit {
         }
     }
 
-    close(value: boolean = false) {
-        this.onClose.emit(value);
+    close() {
+        this.onClose.emit(this.agreement);
     }
 
     setUpUniForm() {
@@ -241,6 +270,7 @@ export class BankInitModal implements IUniModal, OnInit {
                             },
                             modalConfig: {
                                 ledgerAccountVisible: true,
+                                defaultAccountNumber: accountType.defaultAccount,
                                 BICLock: {
                                     BIC:  'SPRONO22',
                                     BankName: 'SpareBank 1 SR-Bank'

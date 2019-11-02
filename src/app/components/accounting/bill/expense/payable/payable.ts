@@ -14,6 +14,7 @@ interface IEmpSupplier {
     BankAccountID?: number;
     BankAccountNumber?: string;
     BusinessRelationID?: number;
+    SupplierID?: number;
 }
 
 @Component({
@@ -97,12 +98,25 @@ export class ExpensePayable implements OnInit {
         return v.replace(/[`~!@#$^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
     }
 
+    editSelectedAccount(item) {
+        this.modalService.open(RecieverModal, {
+            closeOnClickOutside: false,
+            header: 'Rediger mottaker',
+            data: item
+        }).onClose.subscribe((reciever: IEmpSupplier) => {
+            if (reciever) {
+                this.setAccount(reciever);
+            }
+        });
+    }
+
     setAccount( value: IEmpSupplier ) {
         // Clear cache when new added
         const isNew = !!value['_isNew'];
         if (isNew) {
             this.cachedQuery = {};
         }
+
         // Set supplier/employee
         this.session.payment.PaymentTo = {
             ID: value.AccountID,
@@ -110,7 +124,8 @@ export class ExpensePayable implements OnInit {
             AccountName: value.AccountName,
             BusinessRelationID: value.BusinessRelationID,
             VatTypeID: 0,
-            superLabel: `${value.AccountNumber} - ${value.AccountName}`
+            superLabel: `${value.AccountNumber} - ${value.AccountName}`,
+            SupplierID: value.SupplierID || 0
         };
         this.setBankAccount(value, isNew);
     }

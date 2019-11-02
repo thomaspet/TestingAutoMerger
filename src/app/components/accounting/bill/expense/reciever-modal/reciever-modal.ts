@@ -118,6 +118,7 @@ export class RecieverModal implements IUniModal {
                         this.busy = false;
                         if (account && account.length) {
                             account[0]._isNew = true;
+                            account[0].SupplierID = response.ID;
                             this.onClose.emit(account[0]);
                         }
                     });

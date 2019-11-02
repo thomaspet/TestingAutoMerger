@@ -5,6 +5,13 @@
         <h2>Hva vil du gjøre nå?</h2>
 
         <ul>
+            <li (click)="navigate('/bank/ticker?code=bank_list')" *ngIf="isSrEnvironment">
+                <i class="material-icons">account_balance</i>
+                <section class="link-info">
+                    <strong>Sett opp autobank</strong>
+                    <span>Legg til standardkontoer i firmaoppsettet og aktiver autobank</span>
+                </section>
+            </li>
             <li (click)="navigate('/settings/users')">
                 <i class="material-icons">supervised_user_circle</i>
                 <section class="link-info">

@@ -66,4 +66,13 @@ export class BankAccountService extends BizHttp<BankAccount> {
             .send()
             .map(res => res.body);
     }
+
+    getAccountFromAccountNumber(accountNumber: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`/accounts?filter=AccountNumber eq '${accountNumber}'`)
+            .send()
+            .map(res => res.body);
+    }
 }

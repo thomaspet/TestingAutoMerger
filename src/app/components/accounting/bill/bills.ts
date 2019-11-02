@@ -315,10 +315,7 @@ export class BillsView implements OnInit {
         const selectedRowCount = this.selectedItems && this.selectedItems.length || 0;
         this.saveActions = [];
 
-        if (
-            this.currentFilter.statusCode === StatusCodeSupplierInvoice.Draft
-            || this.currentFilter.statusCode === StatusCodeSupplierInvoice.Rejected
-        ) {
+        if ( this.currentFilter.statusCode === StatusCodeSupplierInvoice.Draft ) {
             this.saveActions.push({
                 label: `Bokfør (${selectedRowCount} stk.)`,
                 action: (done) => this.massTransition(BillMassTransition.Journal, done),
@@ -326,6 +323,15 @@ export class BillsView implements OnInit {
                 disabled: selectedRowCount === 0
             });
 
+            this.saveActions.push({
+                label: 'Tildel',
+                action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
+                main: false,
+                disabled: selectedRowCount === 0
+            });
+        }
+
+        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Rejected) {
             this.saveActions.push({
                 label: 'Tildel',
                 action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),

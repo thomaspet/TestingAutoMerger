@@ -14,9 +14,12 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
 @Component({
     selector: 'uni-bankaccount-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal uni-redesign">
             <header>{{options.header || 'Bankkonto'}}</header>
-            <article [attr.aria-busy]="busy">
+            <article>
+                <section *ngIf="busy" class="modal-spinner">
+                    <mat-spinner class="c2a"></mat-spinner>
+                </section>
                 <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -59,7 +62,7 @@ export class UniBankAccountModal implements IUniModal {
 
     isDirty: boolean;
     validAccount: boolean = true;
-    busy: boolean = false;
+    busy: boolean = true;
     bankAccounts: Array<BankAccount> = [];
     accountInfo: any;
     errorMsg: string = '';
@@ -85,15 +88,36 @@ export class UniBankAccountModal implements IUniModal {
         if (this.accountInfo._saveBankAccountInModal) {
             this.saveBankAccountInModal = true;
         }
+
         this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
             this.accountInfo['BankList'] = banks;
             if (this.accountInfo.BankID && !this.accountInfo.Bank) {
                 this.accountInfo.Bank = banks.find(x => x.ID === this.accountInfo.BankID);
             }
+
             this.formModel$.next(this.accountInfo);
             this.formFields$.next(this.getFormFields());
+            if (this.options && this.options.modalConfig && this.options.modalConfig.defaultAccountNumber) {
+                this.busy = true;
+                this.getDefaultAccountFromAccountNumber(this.options.modalConfig.defaultAccountNumber);
+            } else {
+                this.busy = false;
+            }
         });
+    }
+
+    getDefaultAccountFromAccountNumber(accountNumber: number) {
+        this.bankAccountService.getAccountFromAccountNumber(accountNumber).subscribe((accounts) => {
+            if (accounts && accounts.length) {
+                const account = accounts[0];
+                const value = this.formModel$.getValue();
+                value.Account = account;
+                value.AccountID = account.ID;
+                this.formModel$.next(value);
+            }
+            this.busy = false;
+        }, err => this.busy = false);
     }
 
     ngOnDestroy() {

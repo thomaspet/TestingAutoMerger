@@ -39,11 +39,9 @@
             <h3>Velkommen til SR-Regnskap - Bank</h3>
             <p>
                 Velkommen til vår tjeneste for autobank. Autobank gjør det mulig for systemet å automatisk føre innbetalinger og utbetalinger i regnskapet ditt. Slik slipper du manuelt å lage disse bilagene selv.
-                For å kunne komme i gang med denne tjenesten må vi ta deg meg gjennom en veiviser for oppsett av bankkontoer og opprettelse av passord.
+                For å kunne komme i gang med denne tjenesten må vi ta deg meg gjennom en veiviser for oppsett av bankkontoer og opprettelse av passord. <br/> <br/>
+                Om du ikke har fått SR-Bank-kontoene dine, kan du gjennomføre dette senere.
             </p>
-            <mat-checkbox [(ngModel)]="userDoesNotFeelReady" style="margin-top: 2rem">
-                Gjennomfør senere - jeg har ikke fått SR-Bank-kontoene mine enda
-            </mat-checkbox>
         </article>
 
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1">
@@ -116,7 +114,8 @@
             </p>
         </article>
         <footer style="position: absolute; bottom: 2rem; width: 100%;">
-            <button class="secondary" *ngIf="steps > 0 && steps < 5" (click)="prev()">
+            <button *ngIf="steps === 0" class="secondary pull-left" (click)="close()"> Gjennomfør senere </button>
+            <button class="secondary" *ngIf="steps > 0 && steps < 5" (click)="prev()" [disabled]="isDirty">
                 Tilbake
             </button>
 
@@ -124,9 +123,9 @@
 
             <button *ngIf="steps === 4" class="c2a" (click)="postAutobankUser()"> Opprett autobank </button>
 
-            <button *ngIf="steps < 4" class="c2a" (click)="next()" [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid"> {{ userDoesNotFeelReady && steps === 0 ? 'Gå til startsiden' : 'Neste' }} </button>
+            <button *ngIf="steps < 4" class="c2a" (click)="next()" [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid"> Neste </button>
 
-            <button class="c2a" *ngIf="this.steps === 5" (click)="close(true)"> Ferdig </button>
+            <button class="c2a" *ngIf="this.steps === 5" (click)="close()"> Ferdig </button>
         </footer>
     </div>
 </section>

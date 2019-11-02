@@ -31,6 +31,7 @@ export interface IAccount {
     VatTypeID: number;
     BusinessRelationID?: number;
     superLabel?: string;
+    SupplierID?: number;
 }
 
 export interface IVatType {
