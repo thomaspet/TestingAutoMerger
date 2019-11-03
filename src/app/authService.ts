@@ -378,7 +378,7 @@ export class AuthService {
             this.storage.removeOnUser('activeCompany');
             this.storage.removeOnUser('activeFinancialYear');
             this.storage.removeOnUser('filesToken');
-            this.storage.removeOnUser('lastActiveCompanyKey');
+            // this.storage.removeOnUser('lastActiveCompanyKey');
             this.jwt = undefined;
             this.activeCompany = undefined;
             this.setLoadIndicatorVisibility(false);

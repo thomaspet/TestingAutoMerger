@@ -4,6 +4,7 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Router} from '@angular/router';
+import {Company} from '@uni-entities';
 
 @Component({
     selector: 'uni-login',
@@ -50,6 +51,16 @@ export class Login {
                     if (this.availableCompanies.length === 1) {
                         this.onCompanySelected(this.availableCompanies[0]);
                     }
+
+                    try {
+                        const lastActiveKey = JSON.parse(localStorage.getItem('lastActiveCompanyKey'));
+                        if (lastActiveKey) {
+                            const lastActive: Company = this.availableCompanies.find(c => c.Key === lastActiveKey);
+                            if (lastActive && !lastActive.Deleted) {
+                                this.onCompanySelected(lastActive);
+                            }
+                        }
+                    } catch (e) {}
 
                     setTimeout(() => {
                         if (this.select) {
