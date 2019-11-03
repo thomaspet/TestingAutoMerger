@@ -4,7 +4,7 @@
     </section>
     <i class="material-icons close-bankagreement-button" (click)="close()" title="Lukk veiviser. Du vil da bli navigert tilbake til startsiden"> close </i>
     <div style="flex: 0 0 20rem" class="progressbar_container sr-agreement-bar">
-        <p style="color: var(--color-c2a)"> Veiviser for ny autobankavtale </p>
+        <p style="color: var(--color-c2a)"> Veiviser for autobank </p>
         <ul class="autobank_progressbar">
             <li>
                 <span [class.is-active-step]="steps === 0">  </span>
@@ -36,11 +36,12 @@
     <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative">
 
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0" style="margin: 0 auto;">
-            <h3>Velkommen til SR-Regnskap - Bank</h3>
+            <h3>Koble sammen bank og regnskap</h3>
             <p>
-                Velkommen til vår tjeneste for autobank. Autobank gjør det mulig for systemet å automatisk føre innbetalinger og utbetalinger i regnskapet ditt. Slik slipper du manuelt å lage disse bilagene selv.
-                For å kunne komme i gang med denne tjenesten må vi ta deg meg gjennom en veiviser for oppsett av bankkontoer og opprettelse av passord. <br/> <br/>
-                Om du ikke har fått SR-Bank-kontoene dine, kan du gjennomføre dette senere.
+                Autobank gjør det mulig for SR-Bank Regnskap å snakke sammen med nettbanken. Bankkontoer, saldo og transaksjoner er synlige i regnskapssystemet,
+                og du kan godkjenne utbetalinger direkte fra SR-Bank Regnskap. Sammenkoblingen gjør også selve regnskapsførselen enklere for deg.
+                For å komme i gang med denne tjenesten må du gjennom denne veiviseren for oppsett av bankkontoer og opprettelse av passord. <br/> <br/>
+                Dersom du ikke har fått SR-Bank-kontoene dine enda, trykker du Gjennomfør senere under. Veiviseren finner du igjen ved å trykke deg inn på Bank i menyen til venstre.
             </p>
         </article>
 

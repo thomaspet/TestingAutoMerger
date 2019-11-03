@@ -19,7 +19,11 @@ uni-approvals, uni-tasks
     .assignment-filters
         height: 4rem
         padding-top: 1rem
-        display: block
+        display: flex
+        align-items: center
+
+        .task-checkbox
+            margin-left: 2rem
 
         button
             height: 2rem
@@ -27,15 +31,15 @@ uni-approvals, uni-tasks
             margin: 0
             border-radius: 0
             background-color: $uni-color-negative
-            color: var(--color-c2a)
-            border: 1px solid var(--color-c2a)
+            color: var(--color-c2a-dark)
+            border: 1px solid var(--color-c2a-dark)
             text-shadow: none
             box-shadow: none
             margin-right: -4px
             width: 10rem
 
             &.active-filter
-                background-color: var(--color-c2a)
+                background-color: var(--color-c2a-dark)
                 color: $uni-color-negative
 
             &:first-of-type

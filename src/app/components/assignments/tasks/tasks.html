@@ -9,13 +9,12 @@
             Alle oppgaver
         </button>
 
-        <mat-slide-toggle
-            style="margin-top: .25rem; margin-left: 1rem;"
-            [(ngModel)]="showCompleted"
+        <mat-checkbox
+            class="task-checkbox"
             (change)="loadTasks()"
-            [labelPosition]="'before'">
+            [(ngModel)]="showCompleted">
             Vis fullførte
-        </mat-slide-toggle>
+        </mat-checkbox>
     </section>
 
     <ul class="task-list" #taskList>
@@ -43,7 +42,7 @@
     </ul>
 
     <section class="addTask">
-        <button class="good" (click)="addTask()">
+        <button class="secondary" (click)="addTask()">
             Legg til oppgave
         </button>
     </section>
