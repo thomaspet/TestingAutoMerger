@@ -54,13 +54,13 @@ export class BankStatement {
 
     getActions(statement: any) {
         const actions = [
-            { label: 'Slett avstemning', value: 'delete' }
+            { label: 'Slett avstemming', value: 'delete' }
         ];
 
         if (statement.StatusCode === 48002) {
-             actions.unshift({ label: 'Gjenåpne avstemning', value: 'open' });
+             actions.unshift({ label: 'Gjenåpne avstemming', value: 'open' });
         } else {
-            actions.unshift({ label: 'Ferdigstill avstemning', value: 'close' });
+            actions.unshift({ label: 'Ferdigstill avstemming', value: 'close' });
         }
 
         return actions;

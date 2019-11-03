@@ -150,6 +150,7 @@ export class OverdueInvoicesWidget implements AfterViewInit {
             this.drawChart();
         } else {
             this.missingData = true;
+            this.cdr.markForCheck();
         }
     }
 

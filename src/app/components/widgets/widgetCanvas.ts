@@ -255,7 +255,6 @@ export class UniWidgetCanvas {
         // Position widgets on the canvas
         const unpositioned = [];
         this.layout[size].forEach((w: IUniWidget) => {
-            console.log(w);
             if (w.x >= 0 && w.y >= 0) {
                 this.setWidgetPosition(w);
             } else {

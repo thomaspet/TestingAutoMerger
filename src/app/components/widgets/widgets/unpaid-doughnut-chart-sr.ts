@@ -23,7 +23,7 @@ import {DUE_DATE_COLORS} from '../widget-colors';
             </section>
 
             <section *ngIf="missingData" class="no-content">
-                Mangler tilgang
+                Ingen ubetalte regninger
             </section>
 
             <div *ngIf="!missingData" class="content">
@@ -114,6 +114,9 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
                 this.chartConfig.data.datasets[0].data = data;
                 this.chartConfig.data.datasets[0].backgroundColor = this.colors;
                 this.drawChart();
+            } else {
+                this.missingData = true;
+                this.cdr.markForCheck();
             }
 
         }, err => {

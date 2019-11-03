@@ -370,7 +370,7 @@ export const SHORTCUT_LISTS = [
                     link: '/bank/ticker?code=payment_list'
                 },
                 {
-                    label: 'bankavstemming',
+                    label: 'Bankavstemming',
                     link: '/bank/reconciliation',
                 },
                 {
