@@ -12,7 +12,7 @@ import {environment} from 'src/environments/environment';
     styleUrls: ['./signup.sass']
 })
 export class Signup {
-    appName = environment.isSrEnvironment ? 'SpareBank1 SR-Bank Regnskap' : 'Uni Economy';
+    appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
     confirmationCode: string;
     busy: boolean;
 
