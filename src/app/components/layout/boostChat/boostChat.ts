@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 
 type ExtendedWindow = typeof window & {
     boostChatPanel: any;
@@ -19,7 +19,7 @@ export class BoostChat {
     private chatApiUrl = 'https://435984srpoc.boost.ai/api';
     chatbotIcon = 'assets/chatbot_icon.png';
 
-    constructor() {
+    constructor(private cdr: ChangeDetectorRef) {
         if (this.chatScriptUrl && this.chatApiUrl) {
             const script = document.createElement('script');
             script.type = 'application/javascript';
@@ -38,9 +38,15 @@ export class BoostChat {
         };
 
         this.chatPanel = (window as ExtendedWindow).boostChatPanel(chatPanelConfiguration);
+        this.cdr.markForCheck();
     }
 
     openBoostAIChat() {
         this.chatPanel.show();
+    }
+
+    public openChatWithTriggerAction(actionID: number) {
+        this.chatPanel.show();
+        this.chatPanel.triggerAction(actionID);
     }
 }

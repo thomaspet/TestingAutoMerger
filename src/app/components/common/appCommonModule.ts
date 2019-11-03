@@ -43,7 +43,6 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
-import {BoostChat} from './boostChat/boostChat';
 import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {
     WorkEditor,
@@ -140,8 +139,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ApikeyLine,
         ApikeyLineModal,
 
-        BoostChat,
-
         ImportCentralTemplateModal,
         DisclaimerModal,
         ImportTemplateModal,
@@ -228,8 +225,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ApiKeyComponent,
         ApikeyLine,
         ApikeyLineModal,
-
-        BoostChat,
 
         WorkEditor,
         UniTimeModal,

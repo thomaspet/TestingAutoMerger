@@ -30,6 +30,8 @@ import {OverlayModule} from '@angular/cdk/overlay';
 
 import {NotificationsModule} from './notifications/notifications.module';
 
+import {BoostChat} from './boostChat/boostChat';
+
 import {
     MatTooltipModule,
     MatMenuModule,
@@ -74,7 +76,8 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         UniCompanySearch,
         UniSmartSearch,
         UniSmartSearchItem,
-        ChatBoxComponent
+        ChatBoxComponent,
+        BoostChat,
     ],
     providers: [
         UniNumberFormatPipe,
@@ -95,6 +98,7 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         UniCompanyDropdown,
         YearModal,
         ChatBoxComponent,
+        BoostChat,
     ]
 })
 export class LayoutModule {
