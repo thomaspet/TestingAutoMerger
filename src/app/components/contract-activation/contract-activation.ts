@@ -145,6 +145,8 @@ export class ContractActivation {
             this.toastService.toast({
                 title: 'Navn på kontaktperson må være mer enn 5 bokstaver'
             });
+
+            return;
         }
 
         this.busy = true;
