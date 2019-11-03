@@ -16,6 +16,12 @@
         </section>
 
         <uni-company-dropdown></uni-company-dropdown>
+
+        <section *ngIf="isTestCompany"
+            class="template-company-warning"
+            matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
+            Kun for testing
+        </section>
     </section>
 
     <section class="navbar-right">
@@ -26,12 +32,6 @@
 
         <section *ngIf="isDemo && demoExpired" class="demo-company-notifier expired">
             Prøveperiode utløpt
-        </section>
-
-        <section *ngIf="isTestCompany"
-            class="template-company-warning"
-            matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
-            Kun for testing
         </section>
 
         <section *ngIf="isTemplateCompany"
