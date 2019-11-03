@@ -77,7 +77,13 @@ export class App {
             if (this.isAuthenticated) {
                 this.toastService.clear();
                 const contractType = authDetails.user.License.ContractType.TypeName;
-                if (!this.hasAcceptedCustomerLicense(authDetails.user) && contractType !== 'Demo' && !this.licenseAgreementModalOpen) {
+
+                const shouldShowLicenseDialog = !this.isSrEnvironment
+                    && !this.hasAcceptedCustomerLicense(authDetails.user)
+                    && contractType !== 'Demo'
+                    && !this.licenseAgreementModalOpen;
+
+                if (shouldShowLicenseDialog) {
                     this.licenseAgreementModalOpen = true;
                     this.modalService.open(LicenseAgreementModal, {
                         hideCloseButton: true,
