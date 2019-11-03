@@ -16,15 +16,30 @@ import {environment} from 'src/environments/environment';
                     </a>
                 </h3>
 
-                <p>Ny personlovgivning, med utg.pkt. i EU sin nye personvernforordning innføres nå i Norge. Prinsippet er at alle «eier» sine egne personopplysninger, og nå har fått utvidede rettigheter knyttet til egne personopplysninger. På samme måte har alle som behandler (herunder lagrer) slike opplysninger fått utvidede plikter.</p>
-                <p>{{companyName}} leverer m.a. løsninger for å føre regnskap, fakturere og utbetale lønn - som er underlagt ulike lover/regler knyttet til dette - men som samtidig vil inneholde personopplysninger.</p>
-                <p>Når {{companyName}} da etter nytt lovverk kan sies å «behandle» personopplysninger, f.eks. gjennom at vi tilbyr løsninger hvor vi tar ansvar for å lagre data, eller får tilgang til kunders data for å utføre feilsøking, eller på annen måte bistå våre brukere (Skjermdeling o.l.) - så vil {{companyName}} pr. definisjon være en «Databehandler» etter personlovgivningen. Den behandlingsansvarlige vil være den virksomheten som «eier» dataene.</p>
-                <p>Personlovgivningen krever da at det skal finnes en avtale mellom «Databehandler» og «Behandlingsansvarlig», som regulerer behandlingen av personopplysninger. En slik «Databehandleravtale» er nå utformet, og innføres for alle som benytter systemet.</p>
-
                 <ng-container *ngIf="!isSrEnvironment">
+                    <p>Ny personlovgivning, med utg.pkt. i EU sin nye personvernforordning innføres nå i Norge. Prinsippet er at alle «eier» sine egne personopplysninger, og nå har fått utvidede rettigheter knyttet til egne personopplysninger. På samme måte har alle som behandler (herunder lagrer) slike opplysninger fått utvidede plikter.</p>
+                    <p>Uni Micro leverer m.a. løsninger for å føre regnskap, fakturere og utbetale lønn - som er underlagt ulike lover/regler knyttet til dette - men som samtidig vil inneholde personopplysninger.</p>
+                    <p>Når Uni Micro da etter nytt lovverk kan sies å «behandle» personopplysninger, f.eks. gjennom at vi tilbyr løsninger hvor vi tar ansvar for å lagre data, eller får tilgang til kunders data for å utføre feilsøking, eller på annen måte bistå våre brukere (Skjermdeling o.l.) - så vil Uni Micro pr. definisjon være en «Databehandler» etter personlovgivningen. Den behandlingsansvarlige vil være den virksomheten som «eier» dataene.</p>
+                    <p>Personlovgivningen krever da at det skal finnes en avtale mellom «Databehandler» og «Behandlingsansvarlig», som regulerer behandlingen av personopplysninger. En slik «Databehandleravtale» er nå utformet, og innføres for alle som benytter systemet.</p>
+
                     <h3>For Regnskapsbyråer</h3>
                     <p>Når byrået har egne lisenser i systemet så er denne avtalen å se på som en underleverandøravtale overfor byrået sine klienter som man har oppdragsavtale med. Byrået må da ha en egen databehandleravtale med sine klienter, hvor denne avtalen må refereres til som en underleverandøravtale.</p>
-                    <p>Når byrået bistår kunde som har egne lisenser i systemet, så er denne avtalen å se på som en databehandleravtale mellom {{companyName}} og byråets klient. Byrået og klienten kan da velge å benytte denne samme avtalen som sin egen databehandleravtale mellom byrået og klienter.</p>
+                    <p>Når byrået bistår kunde som har egne lisenser i systemet, så er denne avtalen å se på som en databehandleravtale mellom Uni Micro og byråets klient. Byrået og klienten kan da velge å benytte denne samme avtalen som sin egen databehandleravtale mellom byrået og klienter.</p>
+                </ng-container>
+
+                <ng-container *ngIf="isSrEnvironment">
+                    Ny personlovgivning, med utg.pkt. i EU sin nye personvernforordning er nå innført i Norge. Prinsippet er at alle «eier» sine egne personopplysninger, og nå har fått utvidede rettigheter knyttet til egne personopplysninger. På samme måte har alle som behandler (herunder lagrer) slike opplysninger fått utvidede plikter.
+                    <br><br>
+                    SpareBank 1 SR-Bank ASA leverer m.a. løsninger for å føre regnskap, fakturere og utbetale lønn – som er underlagt ulike lover/regler knyttet til dette – men som samtidig vil inneholde personopplysninger.
+                    <br><br>
+                    Når SpareBank 1 SR-Bank ASA da etter nytt lovverk kan sies å «behandle» personopplysninger, f.eks. gjennom at vi tilbyr løsninger hvor vi tar ansvar for å lagre data (SR Regnskap), eller får tilgang til kunders data for å utføre feilsøking, eller på annen måte bistår våre brukere (skjemdeling o.l) – så vil SpareBank 1 SR-Bank ASA pr. definisjon være en «databehandler» etter personlovgivningen. Den behandlingsansvarlige vil være den virksomheten som «eier» dataene.
+                    <br><br>
+                    Personlovgivningen krever da at det skal finnes en avtale mellom «Databehandler» og «Behandlingsansvarlig», som regulerer behandlingen av personopplysninger. En slik «Databehandleravtale» er nå utformet, og innføres for alle som benytter SR Regnskap.
+                    <br><br>
+                    Du kan lese mer om dette på
+                    <a href="https://www.sparebank1.no/nb/sr-bank/om-oss/personvern.html" target="_blank">
+                        SpareBank 1 SR-Bank sine nettsider.
+                    </a>
                 </ng-container>
             </article>
 
@@ -44,7 +59,6 @@ export class UserLicenseAgreementModal implements IUniModal {
 
     licenseAgreement: boolean = false;
     isSrEnvironment = environment.isSrEnvironment;
-    companyName = environment.isSrEnvironment ? 'Sparebank 1 SR-Bank' : 'Uni Micro';
 
     public confirm() {
         if (this.licenseAgreement) {
