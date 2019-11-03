@@ -26,6 +26,7 @@ import {OverdueInvoicesWidget} from './overdue-invoices/overdue-invoices';
 import {ReminderListWidget} from './reminder-list/reminder-list';
 import {PaymentWidget} from './payment/payment-chart';
 import {PublicDueDatesWidget} from './public-duedates-widget/public-duedates';
+import {BankBalanceWidget} from './bank-balance-widget';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -54,7 +55,8 @@ export const UNI_WIDGETS = [
     OverdueInvoicesWidget,
     ReminderListWidget,
     PaymentWidget,
-    PublicDueDatesWidget
+    PublicDueDatesWidget,
+    BankBalanceWidget
 ];
 
 export * from './shortcuts';
@@ -84,3 +86,4 @@ export * from './overdue-invoices/overdue-invoices';
 export * from './reminder-list/reminder-list';
 export * from './payment/payment-chart';
 export * from './public-duedates-widget/public-duedates';
+export * from './bank-balance-widget';

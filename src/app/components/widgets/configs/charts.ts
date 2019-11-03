@@ -166,7 +166,7 @@ export const CHARTS = [
         id: 'unpaid_supplierinvoice_sr',
         description: 'Leverandørgjeld',
         permissions: ['ui_accounting'],
-        width: 3,
+        width: 4,
         height: 3,
         widgetType: 'unpaidsr',
         srOnly: true,
@@ -189,7 +189,7 @@ export const CHARTS = [
         id: 'reminder_list',
         description: 'Huskeliste',
         permissions: ['ui_accounting'],
-        width: 3,
+        width: 4,
         height: 3,
         widgetType: 'reminderList',
         srOnly: true,
@@ -201,7 +201,7 @@ export const CHARTS = [
         id: 'operatingprofit_line',
         description: 'Driftsresultat',
         permissions: ['ui_accounting'],
-        width: 6,
+        width: 12,
         height: 3,
         widgetType: 'operatingprofit',
         srOnly: true,
@@ -218,5 +218,16 @@ export const CHARTS = [
         widgetType: 'public_duedates',
         srOnly: true,
         config: {}
+    },
+    {
+        id: 'bank_balance',
+        description: 'Banksaldo',
+        permissions: ['ui_bank'],
+        width: 4,
+        height: 3,
+        widgetType: 'bank_balance',
+        config: {
+
+        }
     },
 ];

@@ -124,7 +124,7 @@ export class UniBudgetEditModal implements OnInit, IUniModal {
     }
 
     public onYearSelect(year) {
-        console.log(year);
+
         if (this.budgetName === 'Budsjett for ' + this.currentYear) {
             this.budgetName = 'Budsjett for ' + year;
         }

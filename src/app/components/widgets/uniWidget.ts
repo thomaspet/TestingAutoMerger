@@ -39,7 +39,8 @@ import {
     OverdueInvoicesWidget,
     ReminderListWidget,
     PaymentWidget,
-    PublicDueDatesWidget
+    PublicDueDatesWidget,
+    BankBalanceWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -90,7 +91,8 @@ export const WIDGET_MAP = {
     overdue_invoices: OverdueInvoicesWidget,
     reminderList: ReminderListWidget,
     payment_chart: PaymentWidget,
-    public_duedates: PublicDueDatesWidget
+    public_duedates: PublicDueDatesWidget,
+    bank_balance: BankBalanceWidget
 };
 
 @Directive({

@@ -67,6 +67,19 @@ export class BankAccountService extends BizHttp<BankAccount> {
             .map(res => res.body);
     }
 
+    public getBankBalance(ID: number) {
+        if (ID) {
+            return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${ID}?action=bank-balance`)
+            .send()
+            .map(res => res.body);
+        } else {
+            return Observable.of(0);
+        }
+    }
+
     getAccountFromAccountNumber(accountNumber: number) {
         return this.http
             .asGET()
