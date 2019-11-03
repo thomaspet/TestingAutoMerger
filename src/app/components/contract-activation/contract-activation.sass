@@ -19,8 +19,8 @@
     &.overlay
         position: fixed
         width: 100%
-        height: calc(100vh - 2.75rem)
-        top: 2.75rem
+        height: calc(100vh - #{var(--navbar-height)})
+        top: var(--navbar-height)
         left: 0
         z-index: #{map-get($zindex, sidebar) + 1}
 

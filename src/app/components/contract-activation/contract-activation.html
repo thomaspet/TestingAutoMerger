@@ -2,72 +2,73 @@
     <h1>Aktivering av kundeforhold</h1>
 
     <section *ngIf="!isDemoLicense" class="alert info">
-        <i class="material-icons good">check_circle</i>
-        Kontrakt er allerede aktivert for dette selskapet
+        Kundeforhold er allerede aktivert for dette selskapet
     </section>
 
     <section *ngIf="isDemoLicense && !canActivateContract" class="alert warn">
-        <i class="material-icons bad">error</i>
         Du har ikke tilgang til å aktivere kundeforhold.
-        Dette må gjøres av lisensadministrator.
+        <br>Dette må gjøres av lisensadministrator.
     </section>
 
-    <section class="company-form" *ngIf="companySettings">
-        <company-details-form [(details)]="companyDetails"></company-details-form>
+    <ng-container *ngIf="isDemoLicense && canActivateContract">
+        <section class="company-form" *ngIf="companySettings">
+            <company-details-form [(details)]="companyDetails"></company-details-form>
 
-        <label *ngIf="!isSrEnvironment" class="uni-label">
-            <span>Regnskapsbyrå</span>
-            <select [(ngModel)]="isBureau">
-                <option [ngValue]="false">Nei</option>
-                <option [ngValue]="true">Ja</option>
-            </select>
-        </label>
-    </section>
+            <label *ngIf="!isSrEnvironment" class="uni-label">
+                <span>Regnskapsbyrå</span>
+                <select [(ngModel)]="isBureau">
+                    <option [ngValue]="false">Nei</option>
+                    <option [ngValue]="true">Ja</option>
+                </select>
+            </label>
+        </section>
 
-    <section class="contact-form" *ngIf="elsaCustomer">
-        <h1>Kontaktinformasjon</h1>
+        <section class="contact-form" *ngIf="elsaCustomer">
+            <h1>Kontaktinformasjon</h1>
 
-        <label class="uni-label">
-            <span>Navn</span>
-            <input type="text" [(ngModel)]="elsaCustomer.ContactPerson">
-        </label>
+            <label class="uni-label">
+                <span>Navn</span>
+                <input type="text" [(ngModel)]="elsaCustomer.ContactPerson">
+            </label>
 
-        <label class="uni-label">
-            <span>Telefon</span>
-            <input type="text" [(ngModel)]="elsaCustomer.ContactPhone">
-        </label>
+            <label class="uni-label">
+                <span>Telefon</span>
+                <input type="text" [(ngModel)]="elsaCustomer.ContactPhone">
+            </label>
 
-        <label class="uni-label">
-            <span>Epost</span>
-            <input type="text" [(ngModel)]="elsaCustomer.ContactEmail">
-        </label>
-    </section>
+            <label class="uni-label">
+                <span>Epost</span>
+                <input type="text" [(ngModel)]="elsaCustomer.ContactEmail">
+            </label>
+        </section>
 
-    <section class="submit-section">
-        <mat-checkbox *ngIf="isSrEnvironment" [(ngModel)]="isSrCustomer">
-            <span class="checkbox-label">
-                Jeg er allerede SR-Bank bedriftskunde (ikke påkrevd)
-            </span>
-        </mat-checkbox>
+        <section class="submit-section">
+            <mat-checkbox *ngIf="isSrEnvironment" [(ngModel)]="isSrCustomer">
+                <span class="checkbox-label">
+                    Jeg er allerede SR-Bank bedriftskunde (ikke påkrevd)
+                </span>
+            </mat-checkbox>
 
-        <mat-checkbox [(ngModel)]="hasAcceptedTerms">
-            <span class="checkbox-label">
-                Jeg har lest og godtar
-                <a [href]="lisenceAgreementUrl" target="_blank" rel="noopener noreferrer">
-                    lisensavtalen.
-                </a>
-            </span>
-        </mat-checkbox>
+            <mat-checkbox [(ngModel)]="hasAcceptedTerms">
+                <span class="checkbox-label">
+                    Jeg har lest og godtar
+                    <a [href]="lisenceAgreementUrl" target="_blank" rel="noopener noreferrer">
+                        lisensavtalen.
+                    </a>
+                </span>
+            </mat-checkbox>
 
-        <button
-            type="button"
-            class="good"
-            [attr.aria-busy]="busy"
-            [disabled]="!hasAcceptedTerms"
-            (click)="activate()">
-            Aktiver kontrakt
-        </button>
-    </section>
+            <button
+                type="button"
+                class="good"
+                [attr.aria-busy]="busy"
+                [disabled]="!hasAcceptedTerms"
+                (click)="activate()">
+                Aktiver kontrakt
+            </button>
+        </section>
+    </ng-container>
+
 </section>
 
 <!-- Creating company (when customer started demo with testdata) -->
@@ -101,7 +102,7 @@
         </label>
 
         <label class="uni-label">
-            <span>Skal du ha lønnsmodulen?</span>
+            <span>Skal selskapet ha ansatte?</span>
             <mat-radio-group class="horizontal" [(ngModel)]="includeSalary">
                 <mat-radio-button [value]="true">Ja</mat-radio-button>
                 <mat-radio-button [value]="false">Nei</mat-radio-button>
