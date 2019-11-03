@@ -10,6 +10,7 @@ import {CompanySettingsService} from '@app/services/common/companySettingsServic
 import {ErrorService} from '@app/services/common/errorService';
 import {ReportTypeService} from '@app/services/reports/reportTypeService';
 import {ReportDefinitionParameterService} from '@app/services/reports/reportDefinitionParameterService';
+import { AuthService } from '@app/authService';
 
 @Component({
     selector: 'uni-send-email-modal',
@@ -17,6 +18,11 @@ import {ReportDefinitionParameterService} from '@app/services/reports/reportDefi
         <section role="dialog" class="uni-modal">
             <header>{{options.header || 'Send e-post'}}</header>
             <article>
+                <small *ngIf="isTestCompany" class="alert warn">
+                    Siden du er logget inn på et demoselskap vil alle eposter
+                    bli sendt til deg istedenfor til mottakeradresse.
+                </small>
+
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -40,9 +46,10 @@ export class UniSendEmailModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 
-    public formConfig$ = new BehaviorSubject({autofocus: true});
-    public formModel$ = new BehaviorSubject<{sendEmail: SendEmail, selectedForm: any}>(null);
-    public formFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
+    isTestCompany: boolean;
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$ = new BehaviorSubject<{sendEmail: SendEmail, selectedForm: any}>(null);
+    formFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     private formList: ReportDefinition[];
     private selectedReport: ReportDefinition;
     private parameterName: string;
@@ -50,6 +57,7 @@ export class UniSendEmailModal implements IUniModal {
     public invalidEmail: boolean;
 
     constructor(
+        private authService: AuthService,
         private customerService: CustomerService,
         private userService: UserService,
         private companySettingsService: CompanySettingsService,
@@ -60,6 +68,8 @@ export class UniSendEmailModal implements IUniModal {
 
     ngOnInit() {
         this.initFormModel();
+
+        this.isTestCompany = this.authService.activeCompany && this.authService.activeCompany.IsTest;
     }
 
     ngOnDestroy() {
