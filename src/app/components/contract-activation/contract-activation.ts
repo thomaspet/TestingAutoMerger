@@ -13,6 +13,7 @@ import {
     ElsaContractService,
     ElsaCustomersService,
     InitService,
+    CompanyService,
 } from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {CompanyDetails} from './company-details-form/company-details-form';
@@ -60,6 +61,7 @@ export class ContractActivation {
         private companySettingsService: CompanySettingsService,
         private elsaCustomerService: ElsaCustomersService,
         private elsaContractService: ElsaContractService,
+        private companyService: CompanyService
     ) {
         this.authService.authentication$.pipe(take(1)).subscribe(auth => {
             this.trialExpired = auth && !auth.hasActiveContract;
@@ -129,6 +131,7 @@ export class ContractActivation {
         this.companySettings.DefaultAddress.PostalCode = this.companyDetails.PostalCode;
         this.companySettings.DefaultAddress.City = this.companyDetails.City;
         this.companySettings.DefaultAddress.Country = this.companyDetails.Country;
+        this.companySettings.DefaultAddress.CountryCode = this.companyDetails.CountryCode;
 
         if (!this.companySettings.CompanyName || !this.companySettings.OrganizationNumber) {
             this.toastService.toast({
@@ -235,6 +238,7 @@ export class ContractActivation {
 
                 if (company) {
                     this.busy = false;
+                    this.companyService.invalidateCache();
                     this.authService.setActiveCompany(company, '/contract-activation');
                 } else {
                     setTimeout(() => this.checkCreationStatus(companyName), 3000);

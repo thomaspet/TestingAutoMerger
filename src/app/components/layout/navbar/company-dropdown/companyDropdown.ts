@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs';
-import {CompanySettings, FinancialYear, User, Company} from '@app/unientities';
+import {Observable, Subject} from 'rxjs';
+import {CompanySettings, FinancialYear, Company} from '@app/unientities';
 import {UniSelect, ISelectConfig} from '@uni-framework/ui/uniform';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '@uni-framework/uni-modal';
 import {AuthService} from '@app/authService';
@@ -17,6 +17,7 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {YearModal, IChangeYear} from './yearModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -35,13 +36,14 @@ export class UniCompanyDropdown {
     public selectYear: string[];
     public activeYear: number;
 
-    public availableCompanies: Observable<any>;
+    public availableCompanies;
     public selectCompanyConfig: ISelectConfig;
     public selectYearConfig: ISelectConfig;
 
     private financialYears: Array<FinancialYear> = [];
-
     public isCreatingNewYear: boolean = false;
+
+    onDestroy$ = new Subject();
 
     constructor(
         private altInnService: AltinnAuthenticationService,
@@ -57,10 +59,14 @@ export class UniCompanyDropdown {
         private toastService: ToastService,
         private browserStorage: BrowserStorageService,
     ) {
-        this.companyService.GetAll(null).subscribe(
-            res => this.availableCompanies = res,
-            err => this.errorService.handle(err)
-        );
+        this.authService.authentication$.subscribe(() => {
+            this.companyService.GetAll(null).pipe(
+                takeUntil(this.onDestroy$)
+            ).subscribe(
+                res => this.availableCompanies = res,
+                err => console.error(err)
+            );
+        });
 
         this.activeCompany = this.browserStorage.getItem('activeCompany');
         this.companyDropdownActive = false;
@@ -124,6 +130,11 @@ export class UniCompanyDropdown {
             err => {
                 this.errorService.handle(err);
             });
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     public promptToCreateNewYear(newSelectedYear: number, previousSelectedYear: number) {
