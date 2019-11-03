@@ -162,12 +162,15 @@ export class ContractActivation {
         ).subscribe(
             () => {
                 if (this.contractID) {
-                    this.elsaContractService.activateContract(this.contractID, this.isBureau).subscribe(
-                        () => {
+                    this.elsaContractService.activateContract(
+                        this.contractID, this.isBureau, (this.isSrEnvironment && !this.isSrCustomer) ? 3 : null)
+                        .subscribe( () => {
                             setTimeout(() => {
-                                this.authService.loadCurrentSession().subscribe(() => {
+                                this.authService.loadCurrentSession().subscribe((user) => {
                                     this.trialExpired = false;
-                                    this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
+                                    if (!(this.isSrEnvironment && !this.isSrCustomer)) {
+                                        this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
+                                    }
                                     this.router.navigateByUrl('/');
                                 });
 

@@ -5,7 +5,7 @@ import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {ErrorService, UniTranslationService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
-import {UserDto} from '@app/unientities';
+import {UserDto, Company} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -38,6 +38,8 @@ export class App {
     isSrEnvironment = environment.isSrEnvironment;
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
+    isPendingApproval: boolean;
+    company: Company;
 
     constructor(
         private titleService: Title,
@@ -76,8 +78,13 @@ export class App {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
+                this.company = authDetails.activeCompany;
                 const contractType = authDetails.user.License.ContractType.TypeName;
 
+                if (authDetails.user.License.Company['StatusCode'] === 3) {
+                    this.isPendingApproval = true;
+                    return;
+                }
                 const shouldShowLicenseDialog = !this.isSrEnvironment
                     && !this.hasAcceptedCustomerLicense(authDetails.user)
                     && contractType !== 'Demo'
@@ -130,6 +137,16 @@ export class App {
     private hasAcceptedUserLicense(user: UserDto): boolean {
         return (user && user.License && user.License.UserLicenseAgreement) ?
             (!!user.License.UserLicenseAgreement.HasAgreedToLicense || user.License.UserLicenseAgreement.AgreementId === 0) : true;
+    }
+
+    goToExternalSignup() {
+        if (this.isSrEnvironment) {
+            let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde.html';
+            if (this.company && this.company.OrganizationNumber) {
+                url += `?bm-orgNumber=${this.company.OrganizationNumber}`;
+            }
+            window.open(url, '_blank');
+        }
     }
 
     private showUserLicenseModal() {

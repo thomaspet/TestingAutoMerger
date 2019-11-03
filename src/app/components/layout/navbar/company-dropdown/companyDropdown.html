@@ -18,7 +18,7 @@
             (valueChange)="companySelected($event)">
         </uni-select>
 
-        <label class="navbar_company_taxyearselect">
+        <label class="navbar_company_taxyearselect" *ngIf="!lockYearSelector">
             <span>Regnskapsår</span>
             <uni-select
                 [config]="selectYearConfig"

@@ -1,4 +1,4 @@
-﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef} from '@angular/core';
+﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable, Subject} from 'rxjs';
 import {CompanySettings, FinancialYear, Company} from '@app/unientities';
@@ -28,6 +28,9 @@ export class UniCompanyDropdown {
 
     @ViewChildren(UniSelect)
     private dropdowns: QueryList<UniSelect>;
+
+    @Input()
+    lockYearSelector: boolean = false;
 
     public activeCompany: any;
     public companyDropdownActive: Boolean;
@@ -81,6 +84,7 @@ export class UniCompanyDropdown {
         this.selectYearConfig = {
             template: (item) => typeof item === 'number' ? item.toString() : item,
             searchable: false,
+
             hideDeleteButton: true
         };
 

@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, Input} from '@angular/core';
 import {NavbarLinkService} from './navbar-link-service';
 import {AuthService} from '@app/authService';
 import {TabService} from './tabstrip/tabService';
@@ -17,6 +17,10 @@ import * as moment from 'moment';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNavbar {
+
+    @Input()
+    deativateFunctions: boolean = false;
+
     sidebarState: string;
     logoUrl = theme.navbar_logo;
 

@@ -7,7 +7,7 @@
                 <img [src]="logoUrl" alt="logo">
             </section>
 
-            <i *ngIf="hasActiveContract"
+            <i *ngIf="hasActiveContract && !deativateFunctions"
                 class="material-icons hamburger-toggle"
                 role="button"
                 (click)="toggleSidebarState()">
@@ -15,7 +15,7 @@
             </i>
         </section>
 
-        <uni-company-dropdown></uni-company-dropdown>
+        <uni-company-dropdown [lockYearSelector]="deativateFunctions"></uni-company-dropdown>
 
         <section *ngIf="isTestCompany"
             class="template-company-warning"
@@ -40,22 +40,22 @@
             MALKLIENT
         </section>
 
-        <i *ngIf="hasActiveContract"
+        <i *ngIf="hasActiveContract && !deativateFunctions"
             (click)="openSearch()"
             role="button"
             class="material-icons navbar-search">
             search
         </i>
 
-        <i *ngIf="hasActiveContract" role="link" class="material-icons bureau-link" routerLink="bureau">
+        <i *ngIf="hasActiveContract && !deativateFunctions" role="link" class="material-icons bureau-link" routerLink="bureau">
             business
         </i>
 
-        <navbar-create-new *ngIf="hasActiveContract"></navbar-create-new>
+        <navbar-create-new *ngIf="hasActiveContract && !deativateFunctions"></navbar-create-new>
 
-        <notifications></notifications>
+        <notifications *ngIf="!deativateFunctions"></notifications>
 
-        <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length)">
+        <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length) && !deativateFunctions">
             <i class="material-icons" #settingsToggle role="button">settings</i>
 
             <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
@@ -83,12 +83,12 @@
 
         <navbar-user-dropdown></navbar-user-dropdown>
 
-        <uni-tabstrip-help></uni-tabstrip-help>
+        <uni-tabstrip-help *ngIf="!deativateFunctions"></uni-tabstrip-help>
     </section>
 
 </section>
 
-<section *ngIf="hasActiveContract" class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
+<section *ngIf="hasActiveContract && !deativateFunctions" class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
     <uni-tabstrip></uni-tabstrip>
 
 </section>
