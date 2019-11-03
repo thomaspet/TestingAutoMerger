@@ -151,6 +151,8 @@ export class ContractActivation {
 
         this.busy = true;
         this.elsaCustomer.Name = this.elsaCustomer.ContactPerson;
+        this.elsaCustomer.OrgNumber = this.companySettings.OrganizationNumber;
+
         forkJoin(
             this.companySettingsService.Put(1, this.companySettings),
             this.elsaCustomerService.put(<any> this.elsaCustomer)
