@@ -27,7 +27,8 @@ export class BankInitModal implements IUniModal, OnInit {
          IsInbound: true,
          IsOutgoing: true,
          IsBankBalance: true,
-         IsBankStatement: true
+         IsBankStatement: true,
+         BankApproval: true
     };
     currentUser: UserDto;
     agreement: any;
