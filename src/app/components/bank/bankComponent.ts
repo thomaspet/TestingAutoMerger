@@ -251,52 +251,62 @@ export class BankComponent {
         private pageStateService: PageStateService
     ) {
         this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
-        this.updateTab();
-        this.companySettingsService.getCompanySettings(['TaxBankAccount']).subscribe(companySettings => {
-            this.companySettings = companySettings;
-            if (this.isSrEnvirnment && this.companySettings.OrganizationNumber !== '-') {
-                this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
-                    if (!agreements || !agreements.length) {
-                        this.modalService.open(BankInitModal,
-                            { data: { user: this.authService.currentUser }, closeOnClickOutside: false}).onClose
-                        .subscribe((agreement: any) => {
-                            if (!agreement) {
-                                this.router.navigateByUrl('/');
+
+        // Route all test clients to contract activation, Bank is not for demo use
+        this.authService.authentication$.take(1).subscribe(auth => {
+            if (auth.isDemo) {
+                this.toastService.addToast('Du må aktivere lisens før du kan koble sammen Bank + Regnskap', ToastType.good, 7);
+                this.router.navigateByUrl('/contract-activation');
+                return;
+            } else {
+                this.updateTab();
+                this.companySettingsService.getCompanySettings(['TaxBankAccount']).subscribe(companySettings => {
+                    this.companySettings = companySettings;
+                    if (this.isSrEnvirnment) {
+                        this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
+                            if (!agreements || !agreements.length) {
+                                this.modalService.open(BankInitModal,
+                                    { data: { user: this.authService.currentUser }, closeOnClickOutside: false}).onClose
+                                .subscribe((agreement: any) => {
+                                    if (!agreement) {
+                                        this.router.navigateByUrl('/');
+                                    } else {
+                                        this.agreements = [agreement];
+                                        this.hasAccessToAutobank = true;
+                                        this.initiateBank();
+                                    }
+                                });
                             } else {
-                                this.agreements = [agreement];
-                                this.hasAccessToAutobank = true;
+                                this.agreements = agreements;
+                                this.hasAccessToAutobank = this.isSrEnvirnment;
                                 this.initiateBank();
                             }
+                        }, err => {
+                            this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
+                            this.router.navigateByUrl('/');
                         });
                     } else {
-                        this.agreements = agreements;
-                        this.hasAccessToAutobank = this.isSrEnvirnment;
-                        this.initiateBank();
-                    }
-                }, err => {
-                    this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
-                    this.router.navigateByUrl('/');
-                });
-            } else {
-                Observable.forkJoin(
-                    this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
-                    this.elsaPurchasesService.getPurchaseByProductName('Autobank')
-                ).subscribe(result => {
-                    this.failedFiles = result[0];
-                    this.hasAccessToAutobank = !!result[1];
+                        Observable.forkJoin(
+                            this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
+                            this.elsaPurchasesService.getPurchaseByProductName('Autobank')
+                        ).subscribe(result => {
+                            this.failedFiles = result[0];
+                            this.hasAccessToAutobank = !!result[1];
 
-                    if (this.hasAccessToAutobank) {
-                        this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
-                            this.agreements = agreements;
+                            if (this.hasAccessToAutobank) {
+                                this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
+                                    this.agreements = agreements;
+                                    this.initiateBank();
+                                });
+                            } else {
+                                this.initiateBank();
+                            }
                             this.initiateBank();
+                        }, err => {
+                            this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
+                            this.router.navigateByUrl('/');
                         });
-                    } else {
-                        this.initiateBank();
                     }
-                    this.initiateBank();
-                }, err => {
-                    this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
-                    this.router.navigateByUrl('/');
                 });
             }
         });
