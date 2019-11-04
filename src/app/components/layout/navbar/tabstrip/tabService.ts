@@ -176,11 +176,9 @@ export class TabService {
 
         this.currentActiveTab = newTab;
 
-        /* DUMMY CHECK TO MAKE SURE THERE IS NEVER MORE THEN 7 TABS WHILE WAITING FOR ARNOR'S FINAL FIX */
         if (this.tabs.length > 6) {
-            this.tabs.splice(0, 1); // dont remove home tab
+            this.tabs.splice(0, 1);
         }
-        /***********************************************************************************************/
 
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
