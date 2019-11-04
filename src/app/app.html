@@ -10,10 +10,11 @@
 
     <section class="locked-company-container" *ngIf="isPendingApproval">
         <section>
-            <h3>Bli kunde i SR-Bank</h3>
+            <h3>Avventer etablering av kundeforhold</h3>
             <span>
-                Vennligst fyll ut skjemaet og bli kunde i SR-Bank. <br/>
-                Når kundeforholdet er aktivt, kan du ta i bruk Bank + Regnskap
+                For å bruke fullverdig versjon av SR-Bank Regnskap må du være bedriftskunde i SR-Bank.
+                Dersom du allerede har fylt ut bli-kunde-skjemaet er saken din under behandling. Du vil få beskjed når kundeforholdet er etablert. <br/> <br/>
+                Dersom du ikke allerede har fylt ut skjemaet, trykk på Bli kunde under.
             </span>
             <button class="c2a" (click)="goToExternalSignup()"> Bli kunde </button>
         </section>

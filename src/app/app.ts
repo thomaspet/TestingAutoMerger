@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {ErrorService, UniTranslationService} from './services/services';
+import {ErrorService, UniTranslationService, StatisticsService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
 import {UserDto, Company} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
@@ -52,6 +52,7 @@ export class App {
         private browserStorage: BrowserStorageService,
         private router: Router,
         private translationService: UniTranslationService,
+        private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
     ) {
         if (!this.titleService.getTitle()) {
@@ -77,8 +78,13 @@ export class App {
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
+                this.statisticsService.GetAllUnwrapped('model=CompanySettings&select=OrganizationNumber as OrganizationNumber')
+                .subscribe(companySettings => {
+                    if (companySettings && companySettings.length) {
+                        this.company = companySettings[0];
+                    }
+                });
                 this.toastService.clear();
-                this.company = authDetails.activeCompany;
                 const contractType = authDetails.user.License.ContractType.TypeName;
 
                 if (authDetails.user.License.Company['StatusCode'] === 3) {
@@ -141,7 +147,7 @@ export class App {
 
     goToExternalSignup() {
         if (this.isSrEnvironment) {
-            let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde.html';
+            let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
             if (this.company && this.company.OrganizationNumber) {
                 url += `?bm-orgNumber=${this.company.OrganizationNumber}`;
             }
