@@ -183,7 +183,7 @@ export class ContractActivation {
                                 });
 
                                 if (this.isSrEnvironment && !this.isSrCustomer) {
-                                    let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde.html';
+                                    let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
                                     if (this.companySettings.OrganizationNumber) {
                                         url += `?bm-orgNumber=${this.companySettings.OrganizationNumber}`;
                                     }
