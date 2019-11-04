@@ -42,12 +42,7 @@ export class OrderList implements OnInit {
 
      public toolbarconfig: IToolbarConfig = {
         title: 'Ordre',
-         contextmenu: [
-             {
-                 label: 'Samlefaktura',
-                 action: () => this.openBatchInvoiceModal()
-             }
-         ]
+         contextmenu: []
     };
 
     public tickercode: string = 'order_list';

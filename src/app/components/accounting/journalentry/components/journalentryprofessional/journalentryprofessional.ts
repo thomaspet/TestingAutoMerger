@@ -324,7 +324,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private setupJournalEntryTable() {
-
         Observable.forkJoin(
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.Get(1),
@@ -333,6 +332,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions()
         ).subscribe(
             (data) => {
+                this.companySettings = data[1];
+
                 if (this.companySettings
                     && this.companySettings.CompanyBankAccount
                     && this.companySettings.CompanyBankAccount.Account) {
@@ -343,7 +344,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     }
                 }
 
-                this.companySettings = data[1];
                 this.predefinedDescriptions = data[2] || [];
                 this.dimensionTypes = data[3];
                 this.numberOfAccountsWithMandatoryDimensions = data[4];
