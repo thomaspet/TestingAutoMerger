@@ -230,7 +230,7 @@ export class UnitableAutocomplete implements OnInit {
                             // Loop the cells to see if there are matches
                             for (let i = 0; i < cells.length; i++) {
                                 // Check to see if cell contains query, set both to lowercase to ignore casing
-                                if (cells[i].innerHTML.toLowerCase().match(query.toLowerCase())) {
+                                if (cells[i].innerHTML.toLowerCase().includes(query.toLowerCase())) {
                                     // Find the text to replace, no matter the casing!
                                     const index = cells[i].innerHTML.toLowerCase().indexOf(query.toLowerCase());
                                     const textToReplace = cells[i].innerHTML.substr(index, query.length);
