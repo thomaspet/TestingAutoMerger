@@ -17,7 +17,6 @@ import {
 } from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {CompanyDetails} from './company-details-form/company-details-form';
-import {Title} from '@angular/platform-browser';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 
 @Component({
@@ -30,6 +29,9 @@ export class ContractActivation {
 
     isSrEnvironment = environment.isSrEnvironment;
     lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
+
+    headerText = this.isSrEnvironment ? 'Bestill Bank+Regnskap' : 'Aktivering av kundeforhold';
+    buttonText = this.isSrEnvironment ? 'Bestill' : 'Aktiver kontrakt';
 
     busy: boolean;
     isTestCompany = false;

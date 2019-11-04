@@ -1,5 +1,5 @@
 <section *ngIf="!isTestCompany" class="activation-section">
-    <h1>Aktivering av kundeforhold</h1>
+    <h1>{{headerText}}</h1>
 
     <section *ngIf="!isDemoLicense" class="alert info">
         Kundeforhold er allerede aktivert for dette selskapet
@@ -11,6 +11,27 @@
     </section>
 
     <ng-container *ngIf="isDemoLicense && canActivateContract">
+        <section *ngIf="isSrEnvironment" style="margin-bottom: 2rem;">
+            <p>
+                SR-Bank Regnskap er en del av kundekonseptet Bank+Regnskap. Informasjon om konseptet
+                <a href="https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap.html" target="_blank">
+                    finner du her.
+                </a>
+            </p>
+
+            <p>
+                Ved å sende inn skjemaet bestiller du Bank+Regnskap.
+                Du får full versjon av SR-Bank Regnskap og banktjenestene som vil gjøre
+                bruken av systemet så enkel som mulig.
+                Du vil få tilsendt avtaledokumenter for elektronisk signatur.
+            </p>
+
+            <p>
+                Dersom du ikke allerede er bedriftskunde i SR-Bank vil du automatisk bli
+                sendt videre til løypen for opprettelse av kundeforhold. Spørsmål? Chat med oss!
+            </p>
+        </section>
+
         <section class="company-form" *ngIf="companySettings">
             <company-details-form [(details)]="companyDetails"></company-details-form>
 
@@ -45,7 +66,7 @@
         <section class="submit-section">
             <mat-checkbox *ngIf="isSrEnvironment" [(ngModel)]="isSrCustomer">
                 <span class="checkbox-label">
-                    Jeg er allerede SR-Bank bedriftskunde (ikke påkrevd)
+                    Jeg er allerede SR-Bank bedriftskunde
                 </span>
             </mat-checkbox>
 
@@ -64,7 +85,7 @@
                 [attr.aria-busy]="busy"
                 [disabled]="!hasAcceptedTerms"
                 (click)="activate()">
-                Aktiver kontrakt
+                {{buttonText}}
             </button>
         </section>
     </ng-container>
