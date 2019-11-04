@@ -19,7 +19,6 @@ export class Signup {
     headerText = 'Prøv gratis i 30 dager';
 
     errorMessage: string;
-    step1Success: boolean;
 
     step1Form: FormGroup;
     step2Form: FormGroup;
@@ -50,7 +49,6 @@ export class Signup {
         });
 
         this.route.queryParams.subscribe(params => {
-            this.step1Success = false;
             this.errorMessage = undefined;
 
             if (params['code']) {
@@ -72,9 +70,6 @@ export class Signup {
         this.busy = true;
         this.errorMessage = '';
 
-        this.step1Success = true;
-        this.busy = false;
-
         this.http.asPOST()
             .usingInitDomain()
             .withEndPoint('sign-up')
@@ -87,7 +82,6 @@ export class Signup {
                     this.headerText = 'Epost sendt';
                 },
                 err => {
-                    this.step1Success = false;
                     this.step1Form.enable();
                     this.busy = false;
                     this.step1Successful = false;
