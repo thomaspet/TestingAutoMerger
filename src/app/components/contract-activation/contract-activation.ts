@@ -17,6 +17,8 @@ import {
 } from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {CompanyDetails} from './company-details-form/company-details-form';
+import {Title} from '@angular/platform-browser';
+import {TabService} from '../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'contract-activation',
@@ -61,8 +63,14 @@ export class ContractActivation {
         private companySettingsService: CompanySettingsService,
         private elsaCustomerService: ElsaCustomersService,
         private elsaContractService: ElsaContractService,
-        private companyService: CompanyService
+        private companyService: CompanyService,
+        private tabService: TabService,
     ) {
+        this.tabService.addTab({
+            name: 'Aktivering av kundeforhold',
+            url: '/contract-activation',
+        });
+
         this.authService.authentication$.pipe(take(1)).subscribe(auth => {
             this.trialExpired = auth && !auth.hasActiveContract;
             try {
