@@ -86,8 +86,8 @@ export class AuthService {
 
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
-        this.userManager.getUser().then(user => {
 
+        this.userManager.getUser().then(user => {
             const onMissingAuth = () => {
                 this.authentication$.next({
                     activeCompany: undefined,
@@ -102,15 +102,14 @@ export class AuthService {
             if (user && !user.expired) {
                 this.jwt = user.access_token;
                 this.token$.next(this.jwt);
+                this.filesToken$.next(this.filesToken);
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
+                }
 
                 if (this.activeCompany) {
                     this.loadCurrentSession().subscribe(
                         auth => {
-                            this.filesToken$.next(this.filesToken);
-                            if (!this.filesToken) {
-                                this.authenticateUniFiles();
-                            }
-
                             if (!auth.hasActiveContract) {
                                 this.router.navigateByUrl('contract-activation');
                             }
@@ -139,6 +138,9 @@ export class AuthService {
             this.userManager.getUser().then(user => {
                 this.jwt = user.access_token;
                 this.token$.next(this.jwt);
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
+                }
             });
         });
 
