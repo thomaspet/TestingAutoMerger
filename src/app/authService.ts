@@ -101,15 +101,14 @@ export class AuthService {
 
             if (user && !user.expired) {
                 this.jwt = user.access_token;
+                this.filesToken$.next(this.filesToken);
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
+                }
 
                 if (this.activeCompany) {
                     this.loadCurrentSession().subscribe(
                         auth => {
-                            this.filesToken$.next(this.filesToken);
-                            if (!this.filesToken) {
-                                this.authenticateUniFiles();
-                            }
-
                             if (!auth.hasActiveContract) {
                                 this.router.navigateByUrl('contract-activation');
                             }
@@ -136,6 +135,9 @@ export class AuthService {
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
                 this.jwt = user.access_token;
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
+                }
             });
         });
 
