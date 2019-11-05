@@ -113,6 +113,9 @@ export class AuthService {
                         this.loadCurrentSession().subscribe(
                             auth => {
                                 this.filesToken$.next(this.filesToken);
+                                if (!this.filesToken) {
+                                    this.authenticateUniFiles();
+                                }
 
                                 if (!auth.hasActiveContract) {
                                     this.router.navigateByUrl('contract-activation');
