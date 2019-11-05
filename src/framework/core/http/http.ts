@@ -188,14 +188,14 @@ export class UniHttp {
     }
 
     public sendToUrl(url: any): Observable<any> {
+        if (this.authService.jwt) {
+            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
+        }
+
         const options: any = {
             observe: 'body',
             headers: this.headers
         };
-
-        if (this.authService.jwt) {
-            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
-        }
 
         if (this.body) {
             options.body = this.body instanceof FormData ? this.body : JSON.stringify(this.body);
