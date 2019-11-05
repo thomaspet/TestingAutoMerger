@@ -140,6 +140,7 @@ export class UniTicker {
     ) {
         this.lookupFunction = (urlParams: HttpParams) => {
             this.publicParams = urlParams;
+            this.groupFilter = urlParams.get('filter');
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 this.lastFilterParams = params;
@@ -229,6 +230,7 @@ export class UniTicker {
 
         searchParams = searchParams.set('top', TOP.toString());
         searchParams = searchParams.delete('hateoas');
+
         if (this.groupFilter) {
             searchParams = searchParams.set('filter', this.groupFilter);
         } else {
@@ -586,7 +588,8 @@ export class UniTicker {
             }
 
             let filter = null;
-            if (uniTableFilter) {
+
+            if (uniTableFilter && typeof uniTableFilter === 'string') {
                 if (tickerFilter && !uniTableFilter.includes(tickerFilter)) {
                     filter = `(${uniTableFilter} ) and (${tickerFilter} )`;
                 } else {
@@ -683,12 +686,8 @@ export class UniTicker {
         }
     }
 
-    public onFilterChange(filterChangeEvent) {
-        this.unitableFilter = filterChangeEvent.filter;
-    }
-
     public filtersChangeWhileGroup(event) {
-        this.groupFilter = event;
+        this.groupFilter = event ? event.filter : '';
         this.getGroupingData();
     }
 

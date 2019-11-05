@@ -491,7 +491,9 @@ export class AgGridWrapper {
         }
 
         if (this.config.isGroupingTicker) {
-            this.filtersChangeWhileGroup.emit(this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters, false));
+            this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters, false);
+            this.filtersChangeWhileGroup.emit({filter: this.dataService.filterString});
+            return;
         } else {
             this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
         }
