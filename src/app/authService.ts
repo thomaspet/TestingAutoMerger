@@ -123,7 +123,9 @@ export class AuthService {
                         () => onMissingAuth()
                     );
                 } else {
-                    this.router.navigateByUrl('/init/login');
+                    if (!this.router.url.startsWith('/init')) {
+                        this.router.navigate(['/init/login']);
+                    }
                     this.setLoadIndicatorVisibility(false);
                 }
             } else {
