@@ -5,7 +5,8 @@
 
     <article class="scrollable" [attr.aria-busy]="busy">
         <uni-paycheck-mail-options
-            (mailOptions)="onEmailOptions($event)">
+            (mailOptions)="onEmailOptions($event)"
+            (printReport)="onPrintReport($event)">
         </uni-paycheck-mail-options>
         <paycheck-sending
             [runID]="options.data"
