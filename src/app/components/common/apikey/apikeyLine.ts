@@ -6,7 +6,8 @@ import {ApiKeyService, ErrorService} from '@app/services/services';
 
 enum ExternalType {
     none = 0,
-    Traveltext = 1
+    Traveltext = 1,
+    SRReise = 2,
 }
 @Component({
     selector: 'apikeyline',
@@ -52,7 +53,11 @@ export class ApikeyLine implements OnInit {
         templateField.Label = 'Eksternt system';
         templateField.FieldType = FieldType.DROPDOWN;
         templateField.Options = {
-            source: [{ID: 0, Name: ''}, {ID: 1, Name: 'Traveltext'}],
+            source: [
+                {ID: ExternalType.none, Name: ''},
+                {ID: ExternalType.Traveltext, Name: 'Traveltext'},
+                {ID: ExternalType.SRReise, Name: 'SR-Reise'},
+            ],
             displayProperty: 'Name',
             valueProperty: 'ID',
         };
@@ -112,6 +117,14 @@ export class ApikeyLine implements OnInit {
                 return <any>{
                     Description: 'TravelText reiseregning',
                     Url: 'https://traveltext.no/api/v1',
+                    IntegrationKey: model.IntegrationKey,
+                    IntegrationType: TypeOfIntegration.TravelAndExpenses,
+                    FilterDate: new LocalDate(),
+                };
+            case ExternalType.SRReise:
+                return <any> {
+                    Description: 'Reiseregning SR-Reise',
+                    Url: 'https://sb1-backend.traveltext.no/api/v1',
                     IntegrationKey: model.IntegrationKey,
                     IntegrationType: TypeOfIntegration.TravelAndExpenses,
                     FilterDate: new LocalDate(),
