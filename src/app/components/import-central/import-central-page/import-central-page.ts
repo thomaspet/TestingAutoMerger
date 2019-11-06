@@ -125,19 +125,6 @@ export class ImportCentralPage {
         importText: 'Importer SAF-T',
         downloadText: 'Eksport SAF-T',
         type: TemplateType.Saft
-      },
-      {
-        //TODO:: set UI permissions
-        uiPermission: {
-          hasComponentAccess: true,
-          hasImportAccess: true,
-          hasTemplateAccess: true
-        },
-        iconName: 'card_giftcard',
-        title: 'Voucher',
-        importText: 'Importer Voucher',
-        downloadText: 'Last ned mal',
-        type: TemplateType.Voucher
       }
     );
     this.importCardsList = this.importCardsList.filter(x => x.uiPermission.hasComponentAccess);
