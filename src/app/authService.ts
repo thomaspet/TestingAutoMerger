@@ -108,6 +108,10 @@ export class AuthService {
             if (sessionStatus) {
                 if (user && !user.expired) {
                     this.jwt = user.access_token;
+                    this.filesToken$.next(this.filesToken);
+                    if (!this.filesToken) {
+                        this.authenticateUniFiles();
+                    }
 
                     if (this.activeCompany) {
                         this.loadCurrentSession().subscribe(
@@ -145,13 +149,16 @@ export class AuthService {
             this.userManager.clearStaleState()
             this.userManager.removeUser().then((res) => {
                 onMissingAuth();
-            })
+            });
 
         });
 
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
                 this.jwt = user.access_token;
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
+                }
             });
         });
 
