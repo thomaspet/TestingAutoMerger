@@ -19,9 +19,8 @@
             </div>
             <div class="legend-vertical-class">
                 <section class="legend-row"
-                    *ngFor="let legend of chartLegends; let  i = index;"
-                    id="{{ 'legend' + i }}"
-                    (click)="addhiddenClass('legend' + i, i)">
+                    *ngFor="let legend of chartLegends; let  i = index;" id="{{ 'overduelegend' + i }}"
+                    (click)="addhiddenClass('overduelegend' + i, i)">
 
                     <span class="indicator cost" [ngStyle]="{ 'background-color': colors[i] }"></span>
                     {{ legend }}

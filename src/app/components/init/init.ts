@@ -14,6 +14,7 @@ export class UniInit {
 
     isAuthenticated: boolean;
     useBackground1 = true;
+    showTryForFree: boolean = true;
     background1 = theme.login_background;
     background2 = 'assets/onboarding-background.svg';
 
@@ -26,6 +27,7 @@ export class UniInit {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
                 this.useBackground1 = !event.url.includes('register-company');
+                this.showTryForFree = !event.url.includes('sign-up');
             }
         });
 

@@ -4,7 +4,7 @@
         Logg ut
     </a>
 
-    <a *ngIf="!isAuthenticated" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
+    <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
 </section>
 
 <section *ngIf="useBackground1" class="init-bg init-bg1"><img [src]="background1"></section>

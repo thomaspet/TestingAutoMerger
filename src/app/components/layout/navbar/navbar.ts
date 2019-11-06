@@ -51,7 +51,6 @@ export class UniNavbar {
             takeUntil(this.onDestroy$)
         ).subscribe(auth => {
             if (auth && auth.activeCompany) {
-                console.log(auth.activeCompany);
                 this.hasActiveContract = auth.hasActiveContract;
                 this.isTemplateCompany = auth.activeCompany.IsTemplate;
                 this.isTestCompany = auth.activeCompany.IsTest;

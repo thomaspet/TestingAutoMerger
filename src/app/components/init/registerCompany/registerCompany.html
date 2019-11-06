@@ -2,18 +2,16 @@
     <ng-container *ngIf="!selectedCompanyType">
         <section class="select-type-of-company" *ngIf="contractID">
             <section class="authentication-component">
-                <h1>Prøv en demobedrift</h1>
+                <h1>Prøv SR-Bank Regnskap</h1>
 
                 <p>
-                    En demobedrift er en fiktiv bedrift som inneholder demodata slik at du kan
-                    prøve ut systemet med en gang.
+                    For at du skal få best mulig inntrykk av systemet gir vi deg mulighet til å prøve en demo inntil 30 dager.
+                    Demobedriften er en fiktiv bedrift og inneholder ingen reelle data.
+                    Fakturaer vil ikke bli sendt noe sted, og du kan naturligvis ikke betale regninger eller lønn heller.
                 </p>
 
                 <p>
-                    Om du ønsker å teste systemet litt før du setter i gang med {{appName}}
-                    er dette et lurt valg. Denne bedriften inneholder ingen reelle data,
-                    så fakturaer eller regninger du lager vil ikke bli sendt ut eller registrert
-                    noe sted.
+                    Når du er klar for å bestille Bank+Regnskap og ta i bruk SR-Bank Regnskap for fullt trykker du "Aktiver nå" øverst til høyre i skjermbildet.
                 </p>
 
                 <button class="secondary" (click)="onCompanyTypeSelected('demo')">
@@ -21,6 +19,7 @@
                 </button>
             </section>
 
+            <!--  HIDE FOR NOW IN SR!!
             <section class="authentication-component">
                 <h1>Prøv med din egen bedrift</h1>
 
@@ -36,7 +35,7 @@
                 <button class="c2a" (click)="onCompanyTypeSelected('company')">
                     Start demoperiode
                 </button>
-            </section>
+            </section> -->
         </section>
 
         <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">

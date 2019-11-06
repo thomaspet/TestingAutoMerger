@@ -18,6 +18,20 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Two+Tone|Material+Icons+Outlined">
     <link rel="stylesheet" href="assets/uni-spinner.css">
     <link rel="stylesheet" href="assets/ehf-viewer.css">
+    <script>
+        // Code to let user know that IE is not supported by this application!
+        const userIsUsingBrowser = window.navigator.userAgent;
+        let msg = ' støtter ikke Internet Explorer. Vennligst last ned Chrome, Firefox eller oppdater til Edge.';
+        if (window.location.toString().toLowerCase().indexOf('sr') > -1) {
+            msg = 'SR Regnskap ' + msg;
+        } else {
+            msg = 'UniEconomy ' + msg;
+        }
+        var isOldOrNewVersionOfIE = userIsUsingBrowser.indexOf('MSIE ') > -1 || userIsUsingBrowser.indexOf('Trident/') > -1;
+        if (isOldOrNewVersionOfIE) {
+           window.alert(msg)
+        }
+    </script>
 </head>
 
 <body>

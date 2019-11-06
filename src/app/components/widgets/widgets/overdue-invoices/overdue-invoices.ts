@@ -256,12 +256,12 @@ export class OverdueInvoicesWidget implements AfterViewInit {
             {
                 text: 'Sum',
                 color: '#262626',
-                font: { size: '14' }
+                font: { size: '16' }
             },
             {
                 text: this.numberFormatService.asMoney(this.totalAmount),
                 color: '#262626',
-                font: { size: '16', weight: '500' }
+                font: { size: '17', weight: '500' }
             }
         ];
     }

@@ -52,7 +52,7 @@ import {Observable} from 'rxjs';
 
                     <section class="data-row">
                         <span>Oppdatert:</span>
-                        <span>{{tooltip.date | unidateformat}}</span>
+                        <span>{{tooltip.date}}</span>
                     </section>
                 </section>
 
@@ -80,7 +80,7 @@ export class BankBalanceWidget implements AfterViewInit {
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
-    colors = ['#002776', '#0071CD'];
+    colors = ['#005AA4', '#0071CD'];
     show = [true, true];
 
     chartRef: Chart;
@@ -192,8 +192,11 @@ export class BankBalanceWidget implements AfterViewInit {
                 return l;
             }
         });
+
+        this.totalAmount = 0;
         this.chartRef.config.data.datasets[0].data = this.dataHolder.map((l, i) =>  {
             if (this.show[i]) {
+                this.totalAmount += l.BalanceBooked;
                 return l.BalanceBooked;
             }
         });
@@ -300,7 +303,7 @@ export class BankBalanceWidget implements AfterViewInit {
                             this.tooltip = {
                                 accountName: this.chartRef.config.data.labels[index],
                                 balance: this.dataHolder[index].BalanceBooked,
-                                date: moment(this.dataHolder[index].Date).format('DD.MM.YYYY HH:mm'),
+                                date: moment(new Date(this.dataHolder[index].Date)).format('DD.MMM YYYY HH:mm'),
                                 accountNumber: this.getFormattedAccountNumber(this.dataHolder[index].AccountNumber.toString()),
                                 style: {
                                     top: tooltip.y + 'px',

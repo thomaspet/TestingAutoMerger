@@ -60,22 +60,27 @@
 
             <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
                 <ng-template>
-                    <ng-container *ngIf="settingsLinks?.length">
-                        <span class="dropdown-menu-header">Innstillinger</span>
-                        <a class="dropdown-menu-item"
-                            *ngFor="let link of settingsLinks"
-                            [routerLink]="link.url">
-                            {{link.name | translate}}
-                        </a>
-                    </ng-container>
+                    <ng-container>
+                        <section class="settings-dropdown-container">
+                            <section *ngIf="settingsLinks?.length" class="settings-links">
+                                <span class="dropdown-menu-header settings-header">Innstillinger</span>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let link of settingsLinks"
+                                    [routerLink]="link.url">
+                                    {{link.name | translate}}
+                                </a>
+                            </section>
 
-                    <ng-container *ngIf="adminLinks?.length">
-                        <span class="dropdown-menu-header">Admin</span>
-                        <a class="dropdown-menu-item"
-                            *ngFor="let link of adminLinks"
-                            [routerLink]="link.url">
-                            {{link.name | translate}}
-                        </a>
+                            <section *ngIf="adminLinks?.length" class="admin-links">
+                                <span class="dropdown-menu-header settings-header">Admin</span>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let link of adminLinks"
+                                    [routerLink]="link.url">
+                                    {{link.name | translate}}
+                                </a>
+                            </section>
+                        </section>
+
                     </ng-container>
                 </ng-template>
             </dropdown-menu>
