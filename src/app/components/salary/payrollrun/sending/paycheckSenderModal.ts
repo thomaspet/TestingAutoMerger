@@ -6,7 +6,7 @@ import {of, Observable} from 'rxjs';
 import {ErrorService, ReportNames, PayrollrunService, ReportDefinitionService, IPaycheckEmailInfo} from '@app/services/services';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ToastTime, ToastType, ToastService} from '@uni-framework/uniToast/toastService';
-import {Employee} from '@uni-entities';
+import {Employee, ReportDefinition} from '@uni-entities';
 import {filter, tap, switchMap, catchError, finalize, map} from 'rxjs/operators';
 
 @Component({
@@ -22,6 +22,7 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
     public checkedEmps: Employee[];
     public busy: boolean;
     public mailOptions: IPaycheckEmailInfo;
+    report: ReportDefinition;
 
     constructor(
         private errorService: ErrorService,
@@ -39,7 +40,7 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
         const selectedPrints = this.checkedEmps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
         const selectedEmails = this.checkedEmps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
 
-        this.printPaychecks(printAll ? this.checkedEmps : selectedPrints);
+        this.printPaychecks(printAll ? this.checkedEmps : selectedPrints, this.report);
 
         if (printAll) {
             this.paycheckSending.resetRows();
@@ -97,31 +98,22 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
             );
     }
 
-    private printPaychecks(employees: Employee[]) {
-        if (!employees.length) {
+    private printPaychecks(employees: Employee[], report: any) {
+        if (!employees.length || !report) {
             return;
         }
-        this.reportdefinitionService
-            .getReportByName(ReportNames.PAYCHECK_EMP_FILTER)
-            .pipe(
-                catchError((err, obs) => this.errorService.handleRxCatch(err, obs))
-            )
-            .subscribe((report) => {
-                if (!report) {
-                    return;
-                }
-                const employeeFilter = employees
-                    .map(emp => emp.EmployeeNumber)
-                    .join(',');
 
-                report.parameters = [
-                    {Name: 'EmployeeFilter', value: employeeFilter},
-                    {Name: 'RunID', value: this.options.data},
-                    {Name: 'Grouped', value: this.mailOptions.GroupByWageType},
-                ];
+        const employeeFilter = employees
+            .map(emp => emp.EmployeeNumber)
+            .join(',');
 
-                this.modalService.open(UniPreviewModal, {data: report});
-            });
+        report.parameters = [
+            {Name: 'EmployeeFilter', value: employeeFilter},
+            {Name: 'RunID', value: this.options.data},
+            {Name: 'Grouped', value: this.mailOptions.GroupByWageType},
+        ];
+
+        this.modalService.open(UniPreviewModal, {data: report});
     }
 
     private updateSaveActions() {
@@ -154,6 +146,10 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
 
     public onEmailOptions(event: IPaycheckEmailInfo) {
         this.mailOptions = event;
+    }
+
+    public onPrintReport(event: ReportDefinition) {
+        this.report = event;
     }
 
     public setBusy(event: boolean) {
