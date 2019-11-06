@@ -419,7 +419,9 @@ export class AuthService {
             this.jwt = undefined;
             this.activeCompany = undefined;
             this.setLoadIndicatorVisibility(false);
-            this.router.navigate(['/init/login']);
+            if (!this.router.url.startsWith('/init')) {
+                this.router.navigate(['/init/login']);
+            }
         });
     }
 
