@@ -14,7 +14,7 @@ import {
 } from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {JournalEntry, FinancialYear} from '../../../unientities';
+import {JournalEntry, JournalEntryLine, FinancialYear} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
@@ -249,7 +249,7 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,StatusCode as StatusCode,JournalEntryNumber as JournalEntryNumber,'
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,StatusCode as StatusCode,JournalEntryNumber as JournalEntryNumber,ReferenceCreditPostID as ReferenceCreditPostID,'
             + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
         let expandString = '';
 
@@ -263,8 +263,6 @@ export class TransqueryDetails implements OnInit {
                 selectString += ',Department.DepartmentNumber';
             } else if (col.field.indexOf('Project') !== -1 && col.visible) {
                 selectString += ',Project.ProjectNumber';
-            } else if (col.field.indexOf('CreditJournalEntryReference') !== -1 && col.visible) {
-                expandString += ',ReferenceCreditPost,OriginalReferencePost';
             }
         });
 
@@ -667,15 +665,6 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('User.DisplayName', 'Utført av', UniTableColumnType.Text, false)
                 .setTemplate(line => line.UserDisplayName || null)
                 .setVisible(false),
-            new UniTableColumn(
-                'casewhen(isnull(OriginalReferencePost.JournalEntryNumber,0) ne ' +
-                '0,OriginalReferencePost.JournalEntryNumber,ReferenceCreditPost.JournalEntryNumber) as CreditJournalEntryReference',
-                'Kreditert',
-                UniTableColumnType.Link)
-                .setTemplate(line => line.CreditJournalEntryReference || null)
-                .setFilterable(false)
-                .setVisible(false)
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.CreditJournalEntryReference}`),
             new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Link)
                 .setWidth('60px')
                 .setFilterable(false)
@@ -759,6 +748,11 @@ export class TransqueryDetails implements OnInit {
                     action: (item) => this.editJournalEntryLine(item),
                     disabled: (item) => false,
                     label: 'Rediger bilagslinje uten kreditering'
+                },
+                {
+                    action: (item) => this.openCreditedJournalEntryLines(item),
+                    disabled: (item) => item.StatusCode !== 31004,
+                    label: 'Vis kreditert bilag'
                 }
             ])
             .setColumns(columns);
@@ -777,6 +771,14 @@ export class TransqueryDetails implements OnInit {
         }
     }
 
+    private openCreditedJournalEntryLines(cs: any) {
+        if (cs.ReferenceCreditPostID) {
+            this.journalEntryLineService.Get(cs.ReferenceCreditPostID).subscribe((jl) => {
+                const jnr = jl.JournalEntryNumber;
+                this.router.navigateByUrl(`/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`)
+            });
+        }
+    }
     private getCssClasses(data, field) {
         let cssClasses = '';
 
