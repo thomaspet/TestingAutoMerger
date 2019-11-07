@@ -131,12 +131,8 @@ export class PaycheckMailOptionsComponent implements OnInit {
                     name = report && report.Name;
                 }),
                 map((reports: ReportDefinition[]) => reports.filter(r => r.Name.endsWith('emp_filter'))),
-                map((reports) => reports.map(r => {
-                    r.Name = r.Name.replace('emp_filter', '').trim();
-                    return r;
-                })),
                 map((reports: ReportDefinition[]) => {
-                    return reports.find(r => r.Name === name)
+                    return reports.find(r => r.Name.replace('emp_filter', '').trim() === name)
                         || reports.find(r => r.Name === ReportNames.PAYCHECK_EMP_FILTER);
                 }),
             );
