@@ -12,7 +12,7 @@ declare var _;
 @Component({
     selector: 'uni-barnepassproducts-modal',
     templateUrl: './barnepassProductsModal.html',
-    styleUrls: ['./barnepassview.sass']
+    styleUrls: ['./barnepassModals.sass']
 })
 export class BarnepassProductsModal implements OnInit, IUniModal {
 

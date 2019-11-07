@@ -8111,6 +8111,7 @@ export class A07Response extends UniEntity {
 }
 
 export class BarnepassLeveranse extends UniEntity {
+    public ID: number;
     public inntektsaar: number;
     public oppgave: Array<OppgaveBarnepass>;
 }

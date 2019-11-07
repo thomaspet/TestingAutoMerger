@@ -1,0 +1,50 @@
+<section role="dialog" class="uni-modal barnepassSenderModal">
+    <header>
+        <h1>Send opplysninger om innrapporterte data til kunder</h1>
+    </header>
+
+    <article>
+        <section><p>Rapport: <b>{{reportName}}</b></p></section>
+
+        <uni-barnepass-tabs [tabs]="tabs"></uni-barnepass-tabs>
+        
+        <ag-grid-wrapper
+            [resource]="rows"
+            [config]="tableConfig"
+            (rowSelectionChange)="rowSelectionChange($event)">
+        </ag-grid-wrapper>
+
+        <section class="counters">
+            <p>Antall til e-post: {{emailCount}}</p>
+            <p>Antall til utskrift: {{printCount}}</p>
+        </section>
+    </article>
+
+    <footer>
+        <section role="group" class="comboButton" *ngIf="saveActions.length">
+            <button
+                class="comboButton_btn good"
+                type="button"
+                (click)="saveActions[0].action()"
+                [attr.aria-busy]="busy"
+                [disabled]="saveActions[0].disabled">{{saveActions[0].label}}</button>
+            <button
+                class="comboButton_more good"
+                type="button"
+                (click)="open = !open"
+                (clickOutside)="open = false"
+                aria-owns="saveActionMenu"
+                [attr.aria-expanded]="open"
+                [disabled]="saveActions[0].disabled">More options</button>
+
+            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" (click)="open = false">
+                <li *ngFor="let action of saveActions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
+            </ul>
+        </section>
+        <section>
+            <button (click)="close()" class="bad">
+                Lukk
+            </button>
+        </section>
+    </footer>
+</section>

@@ -1,14 +1,17 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { IUniSaveAction } from '@uni-framework/save/save';
-import { Product, BarnepassLeveranse, OppgaveBarnepass, AltinnReceipt } from '@uni-entities';
+import { Product, BarnepassLeveranse, OppgaveBarnepass, AltinnReceipt, ReportDefinition } from '@uni-entities';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { AltinnIntegrationService, ErrorService, CustomerInvoiceService, FinancialYearService, ProductService, ModulusService } from '@app/services/services';
+import { AltinnIntegrationService, ErrorService, CustomerInvoiceService, FinancialYearService, ProductService, ModulusService, ReportDefinitionService, ReportNames } from '@app/services/services';
 import { RequestMethod } from '@uni-framework/core/http';
 import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
-import { BarnepassProductsModal } from './barnepassProductsModal';
+import { BarnepassProductsModal } from '../../../../../framework/uni-modal/modals/barnepassModals/barnepassProductsModal';
+import { BarnepassSenderModal } from '../../../../../framework/uni-modal/modals/barnepassModals/barnepassSenderModal';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { Observable } from 'rxjs';
 
 declare var _;
 
@@ -31,6 +34,9 @@ export class BarnepassView implements OnInit {
     public invoices: OppgaveBarnepass[];
     public year: number;
 
+    private sendReportDisabled = true;
+    private report: ReportDefinition;
+
     public infoConfig: IUniInfoConfig = {
         headline: ''
       };
@@ -42,7 +48,9 @@ export class BarnepassView implements OnInit {
         private productService: ProductService,
         private financialYearService: FinancialYearService,
         private modalService: UniModalService,
-        private modulusService: ModulusService
+        private modulusService: ModulusService,
+        private toastService: ToastService,
+        private reportDefinitionService: ReportDefinitionService
     ) {}
     
     ngOnInit(): void {
@@ -50,16 +58,24 @@ export class BarnepassView implements OnInit {
             title: `RF-1301 Pass og stell av barn`
         };
         this.year = this.financialYearService.getActiveYear();
-        this.updateSaveActions();
 
-        this.getProducts();
-        this.getInvoices();
+        Observable.forkJoin(
+            this.getProducts(),
+            this.getInvoices(),
+            this.altinnService.isBarnepassSendt(this.year),
+            this.reportDefinitionService.getReportByName(ReportNames.BARNEPASS)
+        ).subscribe((res) => {
+            this.products = res[0];
+            this.invoices = res[1];
+            this.sendReportDisabled = !res[2];
+            this.report = res[3];
+            this.updateSaveActions();        
+        });
 
         this.setTableConfig();
     }
 
-    private setTableConfig()
-    {
+    private setTableConfig() {
         const orgNumberCol = new UniTableColumn('foedselsnummer', 'Fødselsnummer', UniTableColumnType.Text);
         const nameCol = new UniTableColumn('navn', 'Kundenavn', UniTableColumnType.Text);
         const amountCol = new UniTableColumn('paaloeptBeloep', `Beløp`, UniTableColumnType.Money);
@@ -76,32 +92,34 @@ export class BarnepassView implements OnInit {
     private updateSaveActions() {
         this.actions = [];
 
+        let actionLabel = 'Send til Altinn';
+        if (this.report) {
+            actionLabel += ' og rapporter til kunder';
+        }
         this.actions.push(
         {
-            label: 'Send til Altinn',//TODO TC-919 - og rapporter til kunder
+            label: actionLabel,
             action: (done) => this.sendBarnepass(done),
             disabled: false,
             main: true
-        } /* TODO TC-919,
-        {
-            label: 'Rapporter til kunder',
-            action: () => {}
-        }*/
-        );
+        });
+        if (this.report) {
+            this.actions.push(
+            {
+                label: 'Rapporter til kunder',
+                action: (done) => this.sendReportToCustomers(done),
+                disabled: this.sendReportDisabled
+            }
+            );
+        }
     }
 
-    private getProducts()
-    {
-        this.productService.Action(null, 'get-barnepass-products', null, RequestMethod.Get).subscribe((result) => {
-            this.products = result;
-        });
+    private getProducts() : Observable<any> {
+        return this.productService.Action(null, 'get-barnepass-products', null, RequestMethod.Get);
     }
 
-    private getInvoices()
-    {
-        this.customerInvoiceService.Action(null, 'get-barnepass-data', 'year=' + this.year, RequestMethod.Get).subscribe((result) => {
-            this.invoices = result;
-        });
+    private getInvoices() : Observable<any> {
+        return this.customerInvoiceService.Action(null, 'get-barnepass-data', 'year=' + this.year, RequestMethod.Get);
     }
     
     private sendBarnepass(done) {
@@ -113,7 +131,12 @@ export class BarnepassView implements OnInit {
         {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Fødselsnummer ' + invalidSSN + ' er ugyldig!',
-                message: 'Vil du sende oppgave for kun fakturaer med gyldige fødselsnummer?'
+                message: 'Ugyldig fødselsnummer vil bli avvist av Altinn. <br><br>' +
+                    'Vil du sende oppgave for kun kunder med gyldige fødselsnummer?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Nei'
+                }
             });
             modal.onClose.subscribe(response => {
                 if (response !== ConfirmActions.ACCEPT) {
@@ -121,16 +144,19 @@ export class BarnepassView implements OnInit {
                     return;
                 }
                 request = this.removeInvalidFromRequest(request, invalidSSN);
-                this.sendBarnepassToAltinn(request, done);
+                this.sendToAltinnAndReportToCustomers(request, done);
             });
         }
         else {
-            this.sendBarnepassToAltinn(request, done);
+            this.sendToAltinnAndReportToCustomers(request, done);
         }
     }
 
-    private removeInvalidFromRequest(request: BarnepassLeveranse, invalidSSN: string): BarnepassLeveranse
-    {
+    private sendReportToCustomers(done) {
+        this.openSenderModal(done);
+    }
+
+    private removeInvalidFromRequest(request: BarnepassLeveranse, invalidSSN: string): BarnepassLeveranse {
         let invalidList = invalidSSN.split(', ');
         invalidList.forEach((invalid) => {
             const remove = request.oppgave.find(x => x.foedselsnummer === invalid);
@@ -140,16 +166,18 @@ export class BarnepassView implements OnInit {
         return request;
     }
 
-    private sendBarnepassToAltinn(request: BarnepassLeveranse, done)
-    {
+    private sendToAltinnAndReportToCustomers(request: BarnepassLeveranse, done) {
         this.altinnService.sendBarnepass(request).subscribe(
             (response: AltinnReceipt) => {
                 if (response) {
                     if (response.ErrorText) {
                         this.errorService.handle(response.ErrorText);
                     } else {
-                        done('Oppgave for Pass og stell av barn er sendt');
-                        //TODO TC-919 Rapporter til kunder
+                        this.sendReportDisabled = false;
+                        this.updateSaveActions();
+                        this.toastService.addToast('Oppgave for Pass og stell av barn er sendt', ToastType.good, 3);
+                        this.sendReportToCustomers(done);
+                        done();
                     }
                 }
             }, err => {
@@ -160,8 +188,7 @@ export class BarnepassView implements OnInit {
         );
     }
 
-    private isValidSSN(): string
-    {
+    private isValidSSN(): string {
         let invalidSSN = '';
         this.table.getTableData(true).forEach((person) => {
             if (!this.modulusService.validSSN(person.foedselsnummer))
@@ -188,5 +215,15 @@ export class BarnepassView implements OnInit {
             }
         });
     }    
+
+    openSenderModal(done) {
+        this.modalService.open(BarnepassSenderModal, { 
+            data: { 
+                year: this.year,
+                report: this.report
+            }
+        }).onClose.subscribe(() => { done(); })
+        ;
+    }
 
 }

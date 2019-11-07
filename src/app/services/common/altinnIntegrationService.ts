@@ -78,6 +78,21 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     public sendBarnepass(leveranse: BarnepassLeveranse): Observable<AltinnReceipt> {
         return this.ActionWithBody(null, leveranse, 'send-barnepass', RequestMethod.Post);
     }
+
+    public isBarnepassSendt(year: number): Observable<boolean> {
+        return super.GetAction(null, 'is-barnepass-sendt&year='+year);
+    }
+
+    public getBarnepass(year: number): Observable<BarnepassLeveranse> {
+        return super.GetAction(null, 'get-barnepass&year='+year);
+    }
+
+    public emailBarnepassToCustomers(barnepassID: number, customers: any[]) {
+        /*
+        hvis alle - customers = tom
+        */
+        return super.ActionWithBody(barnepassID, customers, 'email-barnepass-to-customers', RequestMethod.Put);
+    }
     
     public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {
         return this.http

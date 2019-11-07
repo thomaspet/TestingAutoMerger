@@ -47,7 +47,8 @@ import {
     MatListModule,
     MatDatepickerModule,
     MatSlideToggleModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTabsModule
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -81,7 +82,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniFormModule,
         UniTableModule,
         AgGridWrapperModule,
-        NgSelectModule
+        NgSelectModule,
+        MatTabsModule
     ],
     declarations: [
         UniComponentLoader,
