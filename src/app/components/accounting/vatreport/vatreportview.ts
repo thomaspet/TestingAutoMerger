@@ -27,7 +27,7 @@ import {
     CompanySettingsService,
     StatisticsService
 } from '../../../services/services';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'vat-report-view',

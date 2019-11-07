@@ -54,6 +54,7 @@ import {
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
+import {UniTabs} from './uni-tabs/uni-tabs';
 
 @NgModule({
     imports: [
@@ -104,6 +105,7 @@ import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
         UniAvatar,
         UniInfo,
         UniShowReinvoiceStatus,
+        UniTabs,
         ...MODALS
     ],
     entryComponents: [
@@ -149,6 +151,7 @@ import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
         UniInfo,
         UniShowReinvoiceStatus,
         UniComponentLoader,
+        UniTabs,
 
         // Material
         MatCheckboxModule,

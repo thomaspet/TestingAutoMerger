@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '../layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'approval-flow',

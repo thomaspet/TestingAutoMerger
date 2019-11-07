@@ -54,7 +54,7 @@ import {
 } from '../../../../../framework/uni-modal';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 

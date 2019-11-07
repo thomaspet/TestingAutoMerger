@@ -27,7 +27,7 @@ import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
-import { IUniTab } from '@app/components/layout/uni-tabs';
+import { IUniTab } from '@uni-framework/uni-tabs';
 import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 
 @Component({

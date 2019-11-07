@@ -1,7 +1,7 @@
 import {Component, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {Travel, PayrollRun, state, costtype} from '@uni-entities';
 import {PayrollrunService} from '@app/services/services';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {BehaviorSubject} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {ISelectConfig} from '@uni-framework/ui/uniform';

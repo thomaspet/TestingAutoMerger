@@ -28,7 +28,7 @@ import {
     PageStateService
 } from '../../../../services/services';
 import {YearModal, IChangeYear} from '../../../layout/navbar/company-dropdown/yearModal';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import * as moment from 'moment';
 import { ProjectService } from '@app/services/common/projectService';
 import { DepartmentService } from '@app/services/common/departmentService';

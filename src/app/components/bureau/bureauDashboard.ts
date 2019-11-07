@@ -15,7 +15,7 @@ import {takeUntil} from 'rxjs/operators';
 import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
 import {environment} from 'src/environments/environment';

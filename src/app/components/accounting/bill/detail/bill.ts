@@ -84,7 +84,7 @@ import {
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';

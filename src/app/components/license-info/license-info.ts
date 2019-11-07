@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {environment} from 'src/environments/environment';
 

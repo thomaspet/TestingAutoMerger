@@ -6,7 +6,7 @@ import { OppgaveBarnepass, ReportDefinition, FieldType, BarnepassLeveranse } fro
 import { AltinnIntegrationService, ReportDefinitionService, ReportNames } from "@app/services/services";
 import { Observable, BehaviorSubject } from "rxjs";
 import { UniFieldLayout } from "@uni-framework/ui/uniform";
-import { IUniTab } from '@app/components/layout/uni-tabs/uni-tabs';
+import { IUniTab } from '@uni-framework/uni-tabs/uni-tabs';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
 import { isNullOrUndefined } from "util";

@@ -3,7 +3,7 @@ import {Employee} from '@uni-entities';
 import {PayrollrunService, StatisticsService, ErrorService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {SalaryHelperMethods} from '../../helperMethods/salaryHelperMethods';
 
 export enum PaycheckFormat {

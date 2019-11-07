@@ -12,7 +12,7 @@ import {Observable} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
 import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
 import {StatisticsService, NumberFormat, PageStateService} from '../../../services/services';
-import { IUniTab } from '@app/components/layout/uni-tabs';
+import { IUniTab } from '@uni-framework/uni-tabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({

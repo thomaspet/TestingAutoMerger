@@ -68,7 +68,7 @@ import {AuthService} from '@app/authService';
 import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
 import { ReportTypeEnum } from '@uni-models/reportTypeEnum';

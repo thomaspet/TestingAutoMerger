@@ -19,7 +19,7 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {WorkerService, IFilter, IFilterInterval} from '@app/services/timetracking/workerService';
 import {TimesheetService, TimeSheet, ValueItem} from '@app/services/timetracking/timesheetService';
 import {ProjectService, ErrorService, PageStateService} from '@app/services/services';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 import * as moment from 'moment';
 

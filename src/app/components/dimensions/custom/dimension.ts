@@ -23,7 +23,7 @@ import {
     UniTableColumnType,
     UniTableColumn,
 } from '@uni-framework/ui/unitable';
-import { IUniTab } from '@app/components/layout/uni-tabs';
+import { IUniTab } from '@uni-framework/uni-tabs';
 import { UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 import { combineLatest } from 'rxjs';

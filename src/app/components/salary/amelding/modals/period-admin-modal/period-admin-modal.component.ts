@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
-import { IUniTab } from '@app/components/layout/uni-tabs';
+import { IUniTab } from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'uni-period-admin-modal',

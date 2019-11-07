@@ -30,7 +30,7 @@ import {environment} from 'src/environments/environment';
 
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Component({

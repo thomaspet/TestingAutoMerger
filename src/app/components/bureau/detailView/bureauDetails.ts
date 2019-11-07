@@ -5,7 +5,7 @@ import {BureauSalesTab} from './bureauSalesTab';
 import {BureauHoursTab} from './bureauHoursTab';
 import {BureauCompanyTab} from './bureauCompanyTab';
 import {BureauTaskTab} from './bureauTasksTab';
-import { IUniTab } from '@app/components/layout/uni-tabs';
+import { IUniTab } from '@uni-framework/uni-tabs';
 
 export const TABS = [
     BureauTaskTab,

@@ -11,7 +11,6 @@ import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTabs} from './uni-tabs/uni-tabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
 import {NavbarLinkService} from './navbar/navbar-link-service';
@@ -62,7 +61,6 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         NotificationsModule
     ],
     declarations: [
-        UniTabs,
         UniNavbar,
         UniSidebar,
         UniMegaMenu,
@@ -91,7 +89,6 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         UniSmartSearch
     ],
     exports: [
-        UniTabs,
         UniNavbar,
         UniSidebar,
         NavbarCreateNew,

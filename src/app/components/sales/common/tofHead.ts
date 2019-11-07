@@ -11,7 +11,7 @@ import {
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
-import {IUniTab} from '@app/components/layout/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {ValidationMessage} from '@app/models/validationResult';
 import {AccountMandatoryDimensionService} from '@app/services/services';
 
