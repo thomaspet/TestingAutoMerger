@@ -61,8 +61,8 @@ import {Observable} from 'rxjs';
                 </div>
                 <div class="legend-vertical-class" style="text-align: center;" *ngIf="dataHolder.length">
                     <section class="legend-row"
-                        *ngFor="let legend of chartLegends; let  i = index;" id="{{ 'legend' + i }}"
-                        (click)="addhiddenClass('legend' + i, i)">
+                        *ngFor="let legend of chartLegends; let  i = index;" id="{{ 'bank_balance_legend' + i }}"
+                        (click)="addhiddenClass('bank_balance_legend' + i, i)">
 
                         <span class="indicator cost" [ngStyle]="{ 'background-color': colors[i] }"></span>
                         {{ legend }}
@@ -172,9 +172,9 @@ export class BankBalanceWidget implements AfterViewInit {
         const element = document.getElementById(id);
 
         if (this.show[index]) {
-            element.classList.remove('hidden-class');
+            element.classList.remove('line-through');
         } else {
-            element.classList.add('hidden-class');
+            element.classList.add('line-through');
         }
         this.reDrawAfterLegendClick();
     }
@@ -185,7 +185,6 @@ export class BankBalanceWidget implements AfterViewInit {
                 return l;
             }
         });
-        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getChartLabel();
 
         this.chartRef.config.data.datasets[0].backgroundColor = this.colors.map((l, i) => {
             if (this.show[i]) {
@@ -201,6 +200,7 @@ export class BankBalanceWidget implements AfterViewInit {
             }
         });
 
+        this.chartRef.config.options.plugins.doughnutlabel.labels = this.getChartLabel();
         this.chartRef.update();
     }
 
