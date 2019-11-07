@@ -1,31 +1,21 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Component, ViewChild } from '@angular/core';
 import { AuthService } from '../../../authService';
 import { UniHttp } from '../../../../framework/core/http/http';
 import {
     UniSelect,
     ISelectConfig
 } from '../../../../framework/ui/uniform/index';
-import { Logger } from '../../../../framework/core/logger';
-import * as $ from 'jquery';
 import { BrowserStorageService } from '@uni-framework/core/browserStorageService';
-import { UserManager } from 'oidc-client';
 
 @Component({
     selector: 'uni-login',
     templateUrl: './login.html',
-    styleUrls:['./login.sass']
+    styleUrls: ['./login.sass']
 })
 export class Login {
-    @ViewChild('loginForm')
-    private loginForm: ElementRef;
-    @ViewChild(UniSelect)
-    private select: UniSelect;
-    @ViewChild('companySelector')
-    private companySelector: ElementRef;
+    @ViewChild(UniSelect) select: UniSelect;
 
-    public working: boolean;
+    isAuthenticated: boolean;
     public errorMessage: string = '';
     public missingCompanies: boolean;
 
@@ -34,19 +24,18 @@ export class Login {
 
     constructor(
         private _authService: AuthService,
-        private _router: Router,
         private http: UniHttp,
-        private logger: Logger,
         private browserStorage: BrowserStorageService
     ) {
         this.selectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg selskap'
         };
-        // If user Authenticated
+
         this._authService.isAuthenticated().then(isAuthenticated => {
+            this.isAuthenticated = isAuthenticated;
             if (isAuthenticated) {
-                this.selectCompany();
+                this.getCompanies();
             }
         });
 
@@ -56,19 +45,13 @@ export class Login {
         this._authService.authenticate();
     }
 
-    private selectCompany() {
+    private getCompanies() {
         this.http
             .asGET()
             .usingInitDomain()
             .withEndPoint('companies')
             .send()
             .subscribe(response => {
-                this.working = false;
-
-                $(this.loginForm.nativeElement).fadeOut(300, () => {
-                    $(this.companySelector.nativeElement).fadeIn(300);
-                });
-
                 if (response.status !== 200) {
                     this.missingCompanies = true;
                     return;

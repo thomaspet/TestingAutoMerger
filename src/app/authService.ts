@@ -125,7 +125,7 @@ export class AuthService {
                     if (!this.router.url.startsWith('/init')) {
                         this.router.navigate(['/init/login']);
                     }
-                    this.setLoadIndicatorVisibility(false);
+                    setTimeout(() => this.setLoadIndicatorVisibility(false), 250);
                 }
             } else {
                 onMissingAuth();
@@ -144,41 +144,6 @@ export class AuthService {
         this.userManager.events.addSilentRenewError(function(res) {
             console.log(res);
         });
-
-        // if (this.jwt && this.activeCompany) {
-        //     this.setLoadIndicatorVisibility(true);
-        //     this.loadCurrentSession().subscribe(
-        //         auth => {
-        //             this.filesToken$.next(this.filesToken);
-
-        //             if (!auth.hasActiveContract) {
-        //                 this.router.navigateByUrl('contract-activation');
-        //             }
-
-        //             // Give the app a bit of time to initialise before we remove spinner
-        //             // (less visual noise on startup)
-        //             setTimeout(() => {
-        //                 this.setLoadIndicatorVisibility(false);
-        //             }, 250);
-        //         },
-        //         () => {
-        //             this.setLoadIndicatorVisibility(false);
-        //             this.authentication$.next({
-        //                 activeCompany: undefined,
-        //                 user: undefined,
-        //                 hasActiveContract: false,
-        //             });
-
-        //             this.clearAuthAndGotoLogin();
-        //         }
-        //     );
-        // } else {
-        //     this.authentication$.next({
-        //         activeCompany: undefined,
-        //         user: undefined,
-        //         hasActiveContract: false,
-        //     });
-        // }
 
         // Also check if we have a files token, and re-authenticate with uni-files if not.
         setInterval(() => {
@@ -371,28 +336,17 @@ export class AuthService {
         return this.activeCompany && this.activeCompany.Key;
     }
 
-    /**
-     * Returns a boolean indicating whether the user is authenticated or not
-     * @returns {Boolean}
-     */
-    public isAuthenticated(): Promise<Boolean> {
-        return new Promise((resolve, reject) => {
-            this.userManager
-                .getUser()
-                .then(user => {
-                    if (user && !user.expired) {
-                        this.jwt = user.access_token;
-                        this.authenticateUniFiles();
-
-                        const hasToken: boolean = !!this.jwt;
-                        resolve(hasToken);
-                    } else {
-                        resolve(false);
-                    }
-                })
-                .catch(() => {
+    public isAuthenticated(): Promise<boolean> {
+        return new Promise(resolve => {
+            this.userManager.getUser().then(user => {
+                if (user && !user.expired) {
+                    this.jwt = user.access_token;
+                    const hasToken = !!this.jwt;
+                    resolve(hasToken);
+                } else {
                     resolve(false);
-                });
+                }
+            }).catch(() => resolve(false));
         });
     }
 
@@ -415,7 +369,6 @@ export class AuthService {
             this.storage.removeOnUser('activeCompany');
             this.storage.removeOnUser('activeFinancialYear');
             this.storage.removeOnUser('filesToken');
-            this.storage.removeOnUser('lastActiveCompanyKey');
             this.jwt = undefined;
             this.activeCompany = undefined;
             this.setLoadIndicatorVisibility(false);

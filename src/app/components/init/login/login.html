@@ -1,9 +1,9 @@
 <article class="authentication-component">
-    <section class="login-section" #loginForm>
+    <section *ngIf="!isAuthenticated" class="login-section">
         <button class="c2a" (click)="login()">Logg inn</button>
     </section>
 
-    <section #companySelector style="display: none">
+    <section *ngIf="isAuthenticated">
         <ng-template [ngIf]="missingCompanies">
             <p class='validation info'>Fant ingen selskaper på brukeren. Dersom problemet vedvarer vennligst kontakt din
                 systemadministrator eller vårt kundesenter.</p>
