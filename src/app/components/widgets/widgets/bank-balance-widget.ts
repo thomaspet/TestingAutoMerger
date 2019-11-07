@@ -299,7 +299,7 @@ export class BankBalanceWidget implements AfterViewInit {
                     position: 'nearest',
                     custom: tooltip => {
                         if (tooltip.dataPoints && tooltip.dataPoints.length) {
-                            const index = tooltip.dataPoints[0].datasetIndex;
+                            const index = tooltip.dataPoints[0].index;
                             this.tooltip = {
                                 accountName: this.chartRef.config.data.labels[index],
                                 balance: this.dataHolder[index].BalanceBooked,
