@@ -6,8 +6,9 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {ContractActivation} from './contract-activation';
 
-import {MatCheckboxModule} from '@angular/material';
+import {MatCheckboxModule, MatRadioModule, MatProgressSpinnerModule} from '@angular/material';
 import {CanDeactivateGuard} from '@app/canDeactivateGuard';
+import { CompanyDetailsForm } from './company-details-form/company-details-form';
 
 const routes = [{
     path: '',
@@ -26,7 +27,9 @@ const routes = [{
         RouterModule.forChild(routes),
         UniFrameworkModule,
         MatCheckboxModule,
+        MatRadioModule,
+        MatProgressSpinnerModule,
     ],
-    declarations: [ContractActivation],
+    declarations: [ContractActivation, CompanyDetailsForm],
 })
 export class ContractActivationModule {}

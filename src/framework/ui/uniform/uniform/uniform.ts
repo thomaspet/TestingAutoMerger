@@ -192,6 +192,16 @@ export class UniForm implements OnChanges, OnInit {
         this.focusEvent.emit(event);
     }
 
+    focus() {
+        try {
+            const field = this.findFirstNotHiddenComponent();
+            if (field) {
+                this.currentComponent = field;
+                field.focus();
+            }
+        } catch (e) {}
+    }
+
     public focusFirstElement() {
         if (this._config && !this._config.autofocus) {
             return;

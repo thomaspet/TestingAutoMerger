@@ -1,12 +1,17 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>Bokføre bankdata
-        <span class="nrserie-label">Nummerserie:</span>
-        <select class="nrserie" [(ngModel)]="session.selectedSerie">
-            <option *ngFor="let serie of session.series" [ngValue]="serie">{{serie.DisplayName}}</option>
-        </select>
+<section role="dialog" class="uni-modal">
+    <header>
+        Bokføre bankdata
+        <label>
+            <span>Nummerserie</span>
+            <select class="nrserie" [(ngModel)]="session.selectedSerie">
+                <option *ngFor="let serie of session.series" [ngValue]="serie">
+                    {{serie.DisplayName}}
+                </option>
+            </select>
+        </label>
     </header>
 
-    <article class="scrollable">
+    <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
@@ -21,24 +26,18 @@
     </article>
 
     <footer>
-
-        <span class="leftspan" *ngIf="session?.balance" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
-            <i class="material-icons vert-bottom">error</i>
-            Differanse:  {{ session?.balance | uninumberformat: 'money'}}
+        <span class="pull-left" *ngIf="session?.balance" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
+            <i class="material-icons">error</i>
+            Differanse: {{ session?.balance | uninumberformat: 'money'}}
         </span>
 
-        <span class="checkbox">
-            <input [(ngModel)]="settings.journalAsDraft" type="checkbox"/>Lagre som kladd
-        </span>
+        <mat-checkbox [(ngModel)]="settings.journalAsDraft">Lagre som kladd</mat-checkbox>
 
-        <button [disabled]="session?.balance && (!settings.journalAsDraft)" class="good"
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+
+        <button [disabled]="session?.balance && !settings.journalAsDraft" class="c2a"
             (click)="import()">
             {{(settings.journalAsDraft ? 'Opprett kladd' : 'Bokfør')}}
         </button>
-
-        <button class="outline" (click)="onClose.emit()">
-            Avbryt
-        </button>
-
     </footer>
 </section>

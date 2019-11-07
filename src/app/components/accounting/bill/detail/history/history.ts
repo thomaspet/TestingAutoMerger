@@ -111,7 +111,7 @@ export class BillHistoryView {
                     }
                 }),
 
-            new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
+            new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6rem')
                 .setConditionalCls(item =>
                     item.TaxInclusiveAmount >= 0 ? 'supplier-invoice-table-plus' : 'supplier-invoice-table-minus'
                 ),

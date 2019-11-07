@@ -1,28 +1,22 @@
-<section class="uni-datepicker" (clickOutside)="close()">
+<section class="input-with-button">
     <input #input
-           [attr.aria-describedby]="asideGuid"
-           type="text"
-           (change)="inputChange()"
-           (focus)="onFocus()"
-           [formControl]="control"
-           [readonly]="readOnly$ | async"
-           [placeholder]="field?.Placeholder || ''"
-           class="uni-datepicker-input"
-           [title]="control?.value || ''"
-           tabindex="-1"
+        type="text"
+        (blur)="onBlur()"
+        (focus)="onFocus()"
+        [formControl]="control"
+        [readonly]="readOnly$ | async"
+        [placeholder]="field?.Placeholder || ''"
+        [matDatepicker]="picker"
+        tabindex="-1"
     />
+
     <button type="button"
-            tabindex="-1"
-            class="uni-datepicker-calendarBtn"
-            (click)="calendarOpen = !calendarOpen"
-            [disabled]="readOnly$ | async"
-            (focus)="focus()"
-    >Kalender</button>
+        tabindex="-1"
+        [disabled]="readOnly$ | async"
+        (click)="picker.open()">
 
-    <ng-content></ng-content>
+        <i class="material-icons">date_range</i>
+    </button>
 
-    <uni-calendar [attr.aria-expanded]="calendarOpen"
-                  [date]="selectedDate"
-                  (dateChange)="selectAndMove($event)">
-    </uni-calendar>
+    <mat-datepicker #picker (closed)="focus()"></mat-datepicker>
 </section>

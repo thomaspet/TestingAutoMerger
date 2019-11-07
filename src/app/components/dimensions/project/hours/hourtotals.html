@@ -1,18 +1,17 @@
 <section class="project-router-outlet">
     <section class="project-subview">
 
-        <table class="toolbar">
-            <tr>
-                <td class="right">
-                    <header class="filter-nav">
-                        <ul>
-                            <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
-                        </ul>
-                    </header>   
-                </td>
-                <td><button (click)="onAddHoursClick()" class="good">Registrere timer</button></td>
-            </tr>
-        </table>
+        <section class="hourtotals-toolbar">
+            <mat-form-field>
+                <mat-select [value]="activeFilter" (valueChange)="onActiveFilterChange($event)" placeholder="Visning">
+                    <mat-option *ngFor="let filter of filters" [value]="filter">
+                        {{ filter.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button (click)="onAddHoursClick()" class="good">Registrere timer</button>
+        </section>
 
         <div [attr.aria-busy]="busy">
 
@@ -38,7 +37,7 @@
                         <td>Sum {{group.title}}</td>
                         <td class="left" colspan="14">{{group.sum|min2hours}}</td>
                     </tr>
-                </table>        
+                </table>
                 <br/>
             </div>
 

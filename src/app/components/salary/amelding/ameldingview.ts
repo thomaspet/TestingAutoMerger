@@ -27,7 +27,7 @@ import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { IUniTab } from '@app/components/layout/uni-tabs';
 import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 
 @Component({
@@ -422,7 +422,8 @@ export class AMeldingView implements OnInit {
             navigation: {
                 prev: this.prevPeriod.bind(this),
                 next: this.nextPeriod.bind(this)
-            }
+            },
+            statustrack: this.getStatusTrackConfig()
         };
 
         this.toolbarSearchConfig = {
@@ -468,7 +469,8 @@ export class AMeldingView implements OnInit {
                         timestamp: amelding.UpdatedAt
                             ? new Date(<any> amelding.UpdatedAt)
                             : new Date(<any> amelding.CreatedAt),
-                        data: amelding
+                        data: amelding,
+                        selectable: true
                     });
                 });
 
@@ -477,8 +479,6 @@ export class AMeldingView implements OnInit {
             statustrack[indx] = {
                 title: amldStatus.Text,
                 state: _state,
-                badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
-                    && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
                 substatusList: _substatuses
             };
         });

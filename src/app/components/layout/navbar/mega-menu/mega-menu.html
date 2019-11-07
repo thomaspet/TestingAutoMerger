@@ -3,29 +3,44 @@
     matTooltip="Du kan også lukke menyen med escape knappen på tastaturet"
     matTooltipPosition="left"
     matTooltipClass="megamenu-close-tooltip">
-
     close
 </i>
 
 <header>
-    <img src="../../../../../assets/economy-logo.png" alt="Uni Economy logo" />
-    <input #searchInput type="search" [formControl]="searchControl" placeholder="Søk etter skjermbilde">
+    <img [src]="logoUrl" alt="logo">
+
+    <input #searchInput type="search"
+        [formControl]="searchControl"
+        [(ngModel)]="searchString"
+        placeholder="Søk etter menyelement"
+    />
 </header>
 
-<section class="link-groups">
-
-    <section class="link-group" *ngFor="let section of filteredLinkSections">
-        <span [ngClass]="{'hamburger-link-header': section.url}" (click)="navigate(section.url)">
-            {{section.name}}
-        </span>
-        <ul class="link-list">
-            <ng-template ngFor let-group [ngForOf]="section.linkGroups">
-                <li *ngFor="let link of group.links" (click)="isExpanded = false">
-                    <a (click)="navigate(link.url)">{{link.name}}</a>
-                </li>
-                <br>
-            </ng-template>
-        </ul>
+<section class="link-groups" [class.bottom-padding]="isDirty">
+    <section class="link-group" *ngFor="let section of filteredLinkSections; let i = index;">
+        <ng-container *ngFor="let sub of section">
+            <span>
+                {{ sub.name | translate }}
+            </span>
+            <ul class="link-list">
+                <ng-template ngFor let-group [ngForOf]="sub.linkGroups">
+                    <li *ngFor="let link of group.links" (click)="isExpanded = false" [ngClass]="getClass(link)">
+                        <mat-checkbox (click)="linkSelect(link)" [(ngModel)]="link.activeInSidebar" class="check-box" [ngModelOptions]="{standalone: true}">
+                        </mat-checkbox>
+                        <a (click)="linkSelect(link)">{{ link.name | translate}}</a>
+                    </li>
+                </ng-template>
+            </ul>
+        </ng-container>
     </section>
 
+    <button (click)="resetMenu()" class="secondary reset-button">
+        Tilbakestill meny
+    </button>
+</section>
+
+<section class="bottom-save-section" *ngIf="isDirty">
+    <span>Du har ulagrede endringer</span>
+    <button class="secondary" (click)="resetChanges()">Forkast endringer</button>
+    <button class="c2a" (click)="saveMenuStructure()">Lagre endringer</button>
 </section>

@@ -2,30 +2,14 @@
     width: 100%
 
 .uni-autobank-agreement-modal
-    width: 60vw
+    width: 75rem
     display: flex
     flex-direction: row !important
     padding: 0 !important
 
-    uni-field
-        label
-            span
-                width: 9rem
-                font-weight: 500
-                &:first-of-type
-                    text-align: right
-                    padding-right: 1rem
-
-            uni-text-input, uni-select-input, uni-password-input
-                width: calc(100% - 9rem)
-
-    .bank-agreement-password-form
-        label
-            span
-                flex: 0 0 9.5rem !important
-                text-align: right
-                padding-right: 1rem
-                font-weight: 500
+    uni-field label span
+        width: 9rem
+        font-weight: 500
 
     .bank-agreement-button
         width: 150px !important
@@ -78,13 +62,16 @@
                 content: ''
                 position: absolute
                 width: 2px
-                height: 100%
+                height: calc(100% - 15px)
+                margin-top: 15px
                 top: 0
                 left: 0
                 background: #ddd
 
             li
                 padding: 40px
+                display: flex
+                align-items: center
                 &:first-of-type
                     padding-top: 0
                 &:last-of-type
@@ -101,13 +88,13 @@
                     left: -7px
                     background-color: #8c93a7
                     &.is-active-step
-                        border: 2px solid #4b90fa
+                        border: 2px solid var(--color-c2a)
                         background-color: #f2f2f2
 
                 div
                     color: #9ba2b3
                     &.is-active-step
-                        color: #4b90fa
+                        color: var(--color-c2a)
 
     .uni-autobank-agreement-modal-body
         width: 100%
@@ -116,9 +103,9 @@
             font-weight: 600
             font-size: 1.2rem
             margin-bottom: 0
+            color: var(--color-c2a)
 
             strong
-                letter-spacing: 0px
                 margin-right: 10px
 
     footer
@@ -145,6 +132,7 @@
         right: 1rem
         font-size: 1.3rem
         cursor: pointer
+        z-index: 9999
 
 .agreement-table
     width: 95%

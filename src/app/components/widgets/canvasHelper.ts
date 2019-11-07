@@ -3,7 +3,7 @@ import {IResponsiveWidgetLayout, IWidgetReference} from './widgetCanvas';
 import {IUniWidget, WIDGET_MAP} from './uniWidget';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {AuthService} from '@app/authService';
-
+import {cloneDeep} from 'lodash';
 import {WIDGET_CONFIGS} from './configs';
 import {UserDto} from '@uni-entities';
 
@@ -35,10 +35,15 @@ export class CanvasHelper {
         const widgetConfigs: IUniWidget[] = WIDGET_CONFIGS || [];
         const widgets = [];
         layout.forEach(item => {
-            const config = widgetConfigs.find(w => w.id === item.widgetID);
+            const config = cloneDeep(widgetConfigs.find(w => w.id === item.widgetID));
             if (config) {
                 config.x = item.x;
                 config.y = item.y;
+
+                if (item.widthOverride) {
+                    config.width = item.widthOverride;
+                }
+
                 widgets.push(config);
             }
         });

@@ -66,6 +66,8 @@ import {UserRoleService} from './common/userRoleService';
 import {EventplanService} from './common/eventplan.service';
 import {ApprovalRuleService} from './common/approvalRuleService';
 import {ApprovalSubstituteService} from './common/approvalSubstituteService';
+import {UniTranslationService} from './common/translationService';
+import {InitService} from './common/initService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -133,6 +135,8 @@ export * from './common/eventplan.service';
 export * from './common/accrualService';
 export * from './common/approvalRuleService';
 export * from './common/approvalSubstituteService';
+export * from './common/translationService';
+export * from './common/initService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -207,6 +211,8 @@ export class CommonServicesModule {
                 AccrualService,
                 UserRoleService,
                 EventplanService,
+                UniTranslationService,
+                InitService
             ]
         };
     }

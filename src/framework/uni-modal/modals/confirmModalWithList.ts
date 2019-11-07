@@ -10,9 +10,7 @@ export interface IConfirmModalWithListReturnValue {
     selector: 'uni-confirm-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
 
             <article>
                 <section [innerHtml]="options.message"></section>
@@ -23,7 +21,7 @@ export interface IConfirmModalWithListReturnValue {
                 <p>
                     {{options.listMessage}}
                 </p>
-                <ul class="confirm_modal_list">
+                <ul class="confirm_modal_list" *ngIf="list.length">
                     <li *ngFor="let item of list; let i = index;"
                     (click)="checkUncheckListItem($event, i)">
                         <label class="" for="{{ 'confirmlistitem' + i }}">
@@ -35,16 +33,15 @@ export interface IConfirmModalWithListReturnValue {
             </article>
 
             <footer>
+                <button *ngIf="options.buttonLabels.cancel" class="secondary pull-left" (click)="cancel()">
+                    {{options.buttonLabels.cancel}}
+                </button>
                 <button *ngIf="options.buttonLabels.accept" class="good" (click)="accept()">
                     {{options.buttonLabels.accept}}
                 </button>
 
                 <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
                     {{options.buttonLabels.reject}}
-                </button>
-
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                    {{options.buttonLabels.cancel}}
                 </button>
             </footer>
         </section>
@@ -66,10 +63,10 @@ export class UniConfirmModalWithList implements IUniModal {
                 cancel: 'Avbryt'
             };
         }
-
-        // Push a boolean on the list
-        this.options.list.forEach(item => this.list.push(true));
-
+        if (this.options && this.options.list) {
+            // Push a boolean on the list
+            this.options.list.forEach(item => this.list.push(true));
+        }
     }
 
     public checkUncheckListItem(event: Event, index: number) {

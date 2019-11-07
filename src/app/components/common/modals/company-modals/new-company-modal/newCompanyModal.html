@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-redesign uni-modal">
+<section role="dialog" class="uni-modal">
     <header>Opprett nytt selskap</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
@@ -45,26 +45,23 @@
     </article>
 
     <footer>
-        <button class="back"
-            (click)="stepper.previous()"
-            [disabled]="currentStep === 0">
-                Tilbake
+        <button class="secondary pull-left" (click)="close()">
+            Avbryt
+        </button>
+
+        <button class="secondary" (click)="stepper.previous()" [disabled]="currentStep === 0">
+            Tilbake
         </button>
 
         <button class="c2a"
             *ngIf="currentStep < lastStep"
             (click)="stepper.next()"
             [disabled]="!stepper.selected?.completed">
-                Neste
+            Neste
         </button>
 
-        <button class="good"
-            *ngIf="currentStep === lastStep"
-            (click)="createCompany()">
-                Opprett selskap
+        <button class="good" *ngIf="currentStep === lastStep" (click)="createCompany()">
+            Opprett selskap
         </button>
-
-
-        <button class="cancel" (click)="close()">Avbryt</button>
     </footer>
 </section>

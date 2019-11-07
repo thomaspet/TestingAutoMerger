@@ -1,21 +1,17 @@
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import { IUniModal, IModalOptions } from "@uni-framework/uni-modal";
-import { JobService } from "@app/services/services";
-import { Router } from "@angular/router";
-import { ImportJobName } from "@app/models/import-central/ImportDialogModel";
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { JobService } from '@app/services/services';
+import { Router } from '@angular/router';
+import { ImportJobName } from '@app/models/import-central/ImportDialogModel';
 
 @Component({
     selector: 'import-details',
     templateUrl: './import-details-modal.html',
     styleUrls: ['./import-details-modal.sass']
 })
-
 export class ImportDetailsModal implements OnInit, IUniModal {
     @Input() options: IModalOptions = {};
-
-    @Output() onClose: EventEmitter<any> = new EventEmitter();
-
-    constructor(private jobService: JobService, private router: Router) { }
+    @Output() onClose = new EventEmitter();
 
     jobRun: any;
     log: any = [];
@@ -23,6 +19,8 @@ export class ImportDetailsModal implements OnInit, IUniModal {
     status: boolean = true;
     header: string;
     isFetching: boolean = true;
+
+    constructor(private jobService: JobService, private router: Router) { }
 
     ngOnInit() {
         this.initDetailModal(this.options.data.jobName, this.options.data.hangfireJobId);
@@ -45,13 +43,12 @@ export class ImportDetailsModal implements OnInit, IUniModal {
     private setJobStatus() {
         if (this.options.data.jobName === ImportJobName.Saft) {
             if (this.log.length) {
-                if (this.log[0].Msg === "Import completed") {
+                if (this.log[0].Msg === 'Import completed') {
                     this.status = true;
                 } else {
                     this.status = false;
                 }
-            }
-            else {
+            } else {
                 this.status = false;
             }
         } else {
@@ -73,5 +70,4 @@ export class ImportDetailsModal implements OnInit, IUniModal {
         this.router.navigate([`${this.options.data.url}`]);
         this.onClose.emit();
     }
-
 }

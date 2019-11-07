@@ -26,16 +26,14 @@
                 <td class="center"> <a class="good" (click)="statementClick(statement)" title="Vis alle poster"> {{ statement.count }} </a> </td>
                 <td class="right" [ngClass]="statement.Amount  >= 0 ? 'good' : 'bad'"> {{ (statement.Amount | uninumberformat: 'money') || '0,00' }} </td>
                 <td>
-                    <i class="material-icons" [matMenuTriggerFor]="contextMenu">
-                        more_vert
-                    </i>
-                    <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                        <ul class="menu-list">
-                            <li *ngFor="let action of getActions(statement)" (click)="onActionClick(action, statement)">
-                                {{ action.label }}
-                            </li>
-                        </ul>
-                    </mat-menu>
+                    <i #toggle class="material-icons">more_vert</i>
+                    <dropdown-menu [trigger]="toggle">
+                        <ng-template>
+                            <section class="dropdown-menu-item" *ngFor="let action of getActions(statement)" (click)="onActionClick(action, statement)">
+                                {{action.label}}
+                            </section>
+                        </ng-template>
+                    </dropdown-menu>
                 </td>
             </tr>
             <tr *ngIf="statement._open">
@@ -63,8 +61,8 @@
     </table>
 
     <span *ngIf="!bankStatements.length && dataLoaded" class="empty-statement-msg">
-        Ingen avstemninger å vise. Gå til <strong (click)="goToReconciliationView()" title="Link til bankavstemning"> avstemningsbilde </strong> for å starte.
+        Ingen avstemminger å vise. Gå til <strong (click)="goToReconciliationView()" title="Link til bankavstemming"> avstemmingsbilde </strong> for å starte.
     </span>
 
-    <small *ngIf="busy"> Sletter avstemning... </small>
+    <small *ngIf="busy"> Sletter avstemming... </small>
 </section>

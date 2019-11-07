@@ -10,26 +10,21 @@
             [ngClass]="{'collapsed': state === 'collapsed'}">
 
             <li *ngFor="let section of navbarLinkSections; let idx = index"
-                [attr.aria-expanded]="expandedSectionIndex === idx">
+                [attr.aria-expanded]="expandedSectionIndex === idx && !section.isOnlyLinkSection">
 
-                <section class="sidebar-section-header" (click)="toggleSection(idx)">
-                    <i class="material-icons"
-                        *ngIf="section.mdIcon"
-                        [matTooltip]="section.name"
+                <section class="sidebar-section-header" (click)="toggleSection(idx, section)">
+                    <i class="material-icons-outlined"
+                        *ngIf="section.icon"
+                        [matTooltip]="section.name | translate"
                         [matTooltipDisabled]="popover || state === 'expanded'"
                         matTooltipPosition="right"
                         matTooltipClass="sidebar-tooltip"
                         [ngClass]="{'sidebar-link-icon': section.url}"
-                        (click)="navigateToSectionUrl(section.url, $event)">
-                        {{section.mdIcon}}
+                        (click)="navigateToSectionUrl(section, $event)">
+                        {{section.icon}}
                     </i>
-                    <span>{{section.name}}</span>
-
-                    <i class="material-icons expanded-section-icon">
-                        {{expandedSectionIndex === idx ? 'expand_more' : 'keyboard_arrow_right'}}
-                    </i>
+                    <span>{{ section.name | translate }}</span>
                 </section>
-
 
                 <section *ngFor="let group of section.linkGroups" class="sidebar-link-group">
                     <!-- <span *ngIf="group.name">{{group.name}}</span> -->
@@ -41,7 +36,7 @@
                                 routerLinkActive="active-sidebar-link"
                                 [routerLinkActiveOptions]="{exact: link.routerLinkActiveExact}">
 
-                                {{link.name}}
+                                {{ link.name | translate }}
                             </a>
                         </li>
                     </ul>
@@ -49,17 +44,16 @@
 
             </li>
         </ul>
-
     </section>
 
     <section class="mega-menu-toggle"
         (click)="showMegaMenu()"
-        matTooltip="Vis alle menyvalg"
+        matTooltip="Rediger menyvalg"
         matTooltipPosition="right"
         matTooltipClass="sidebar-tooltip"
         [matTooltipDisabled]="popover || state === 'expanded'">
 
-        <i class="material-icons" title="Vis alle menyvalg">apps</i>
-        <span *ngIf="popover || state === 'expanded'">Vis alle menyvalg</span>
+        <i class="material-icons">apps</i>
+        <span *ngIf="popover || state === 'expanded'">Rediger menyvalg</span>
     </section>
 </section>

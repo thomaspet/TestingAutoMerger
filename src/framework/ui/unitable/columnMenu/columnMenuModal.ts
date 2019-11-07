@@ -7,9 +7,7 @@ import * as Immutable from 'immutable';
     selector: 'column-menu-modal',
     template: `
         <section role="dialog" class="uni-modal" [ngClass]="{'advanced': tableConfig?.advancedColumnMenu}">
-            <header>
-                <h1>{{'Kolonneoppsett'}}</h1>
-            </header>
+            <header>{{'Kolonneoppsett'}}</header>
             <article>
                 <p>Her kan du bestemme synlighet, tittel, rekkefølge og posisjon på kolonnene.</p>
                 <p>"Hopp til kolonne" definere hvilken kolonne man skal gå til ved tab/enter klikk.</p>
@@ -102,9 +100,9 @@ import * as Immutable from 'immutable';
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Lagre</button>
+                <button class="secondary pull-left" (click)="close(false)">Avbryt</button>
                 <button class="bad" (click)="resetAll()">Nullstill</button>
-                <button class="cancel" (click)="close(false)">Avbryt</button>
+                <button class="good" (click)="close(true)">Lagre</button>
             </footer>
         </section>
     `,

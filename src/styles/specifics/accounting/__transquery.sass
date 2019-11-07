@@ -7,30 +7,22 @@
 
 transquery-details
     .transquery-filter-form
-        margin-left: 2rem
         uni-field
-            width: 8.8rem
+            width: 9rem
             padding: 0
-            padding-right: 1.5rem
+            margin-right: .5rem
 
-            &:not(:last-child)
-                label span
-                    @extend %visuallyHidden
-
-                label span+*
-                    width: auto
-
-                .uniSelect
-                    width: 9.375rem
+            &:not(:last-child) label span
+                width: 0
+                height: 0
 
             &:last-child
                 width: auto
-                label
-                    span
-                        width: 6rem
+                label span
+                    width: 6rem
 
     ag-grid-wrapper
-        height: calc(100vh - 14rem)
+        height: calc(100vh - 15rem)
         font-size: 14px
 
 .transquery-grid-font-size
@@ -42,6 +34,6 @@ transquery-details
     margin: 1rem
     cursor: default
     strong
-        color: $uni-color-good
+        color: var(--color-good)
         text-decoration: underline
         cursor: pointer

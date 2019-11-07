@@ -1,7 +1,6 @@
 <uni-toolbar
     [config]="toolbarconfig"
     [saveactions]="saveActions"
-    [shareActions]="shareActions"
     [commentsConfig]="commentsConfig"
     [selectConfig]="selectConfig"
     (selectValueChanged)="numberSeriesChange($event)">
@@ -42,21 +41,29 @@
             (itemsChange)="onTradeItemsChange($event)">
         </uni-tradeitem-table>
 
-        <section class="tof-summary">
-            <span class="currency-info">
-                {{currencyInfo}}
-            </span>
+        <section class="freetext-and-summary">
+            <section *ngIf="quote" class="freetext">
+                <span>Fritekst</span>
+                <textarea
+                    [(ngModel)]="quote.FreeTxt"
+                    (change)="onFreetextChange()"
+                    [readonly]="readonly">
+                </textarea>
+            </section>
 
-            <section class="vertical-summary" *ngIf="summaryLines?.length">
-                <section class="summary-line"
-                    *ngFor="let summaryLine of summaryLines"
-                    [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+            <section class="tof-summary">
+                <span class="currency-info">{{currencyInfo}}</span>
 
-                    <label>{{summaryLine.label}}</label>
-                    <span>{{summaryLine.value}}</span>
+                <section class="vertical-summary" *ngIf="summaryLines?.length">
+                    <section class="summary-line"
+                        *ngFor="let summaryLine of summaryLines"
+                        [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+
+                        <label>{{summaryLine.label}}</label>
+                        <span>{{summaryLine.value}}</span>
+                    </section>
                 </section>
             </section>
         </section>
-
     </section>
 </section>

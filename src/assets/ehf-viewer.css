@@ -8,17 +8,21 @@
     padding: 1rem 2rem;
 	font-size: 14px;
 	line-height: 24px;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Roboto', Arial, Helvetica, sans-serif
 }
 
 .uni-ehf h1 {
-	font: 500 22px 'Roboto', sans-serif;
+	font-weight: 500;
+	font-size: 22px;
+	/* font: 500 22px var(--font-family); */
 	color: #0f4880;
 	margin: 5px 0;
 }
 
 .uni-ehf h4 {
-	font: 700 13px 'Roboto', sans-serif;
+	font-weight: 700;
+	font-size: 13px;
+	/* font: 700 13px var(--font-family); */
 	color: #0f4880;
 	margin: 5px 0;
 }

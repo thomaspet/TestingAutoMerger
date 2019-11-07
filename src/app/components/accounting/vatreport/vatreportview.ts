@@ -27,7 +27,7 @@ import {
     CompanySettingsService,
     StatisticsService
 } from '../../../services/services';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 
 @Component({
     selector: 'vat-report-view',
@@ -61,15 +61,15 @@ export class VatReportView implements OnInit, OnDestroy {
     public paymentStatus: string;
     public submittedDate: Date;
     public approvedDate: Date;
-
+    public hasTooltipToShow = false;
     public activeTabIndex: number = 1;
     public tabs: IUniTab[] = [
         {name: 'Kontroll'},
         {name: 'MVA-melding'},
-        {name: 'Altinn, kvittering/tilbakemelding', hidden: true},
-        {name: 'Oppgjørsbilag', hidden: true},
+        {name: 'Altinn, kvittering/tilbakemelding', disabled: true},
+        {name: 'Oppgjørsbilag', disabled: true},
     ];
-
+    public statusCodeClassName: string;
     constructor(
         private tabService: TabService,
         private companySettingsService: CompanySettingsService,
@@ -183,12 +183,13 @@ export class VatReportView implements OnInit, OnDestroy {
                     subStatusList.push({
                         title: report.Title,
                         state:  report.ID === this.currentVatReport.ID
-                        ? STATUSTRACK_STATES.Active
-                        : STATUSTRACK_STATES.Obsolete,
+                            ? STATUSTRACK_STATES.Active
+                            : STATUSTRACK_STATES.Obsolete,
                         timestamp: report.ExecutedDate
                             ? new Date(<any> report.ExecutedDate)
                             : null,
-                        data: report
+                        data: report,
+                        selectable: true
                     });
                 });
             }
@@ -200,8 +201,6 @@ export class VatReportView implements OnInit, OnDestroy {
                     state: _state,
                     code: status.Code,
                     substatusList: subStatusList,
-                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
-                            && (this.vatReportsInPeriod && this.vatReportsInPeriod.length > 1) ? this.vatReportsInPeriod.length + '' : null
                 });
             }
         });
@@ -370,9 +369,8 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.refreshVatReport(this.currentVatReport);
         this.getStatusDates(vatReport.ID);
 
-        this.tabs[2].hidden = !this.currentVatReport.ExternalRefNo || !this.isSent();
-
-        this.tabs[3].hidden = !this.currentVatReport.JournalEntryID;
+        this.tabs[2].disabled = !this.currentVatReport.ExternalRefNo || !this.isSent();
+        this.tabs[3].disabled = !this.currentVatReport.JournalEntryID;
         this.tabs = [...this.tabs];
 
         this.vatReportSummary = null;
@@ -390,6 +388,12 @@ export class VatReportView implements OnInit, OnDestroy {
                             } else {
                                 this.previousPeriodsHelpText = '';
                             }
+                            this.hasTooltipToShow = data.reduce((prev, current) => {
+                                if (prev) {
+                                    return prev;
+                                }
+                                return current.VatCodeGroupNo === 'A' && this.vatReportSummaryFromPreviousPeriods.length > 0;
+                            }, false);
                         },
                         errPrevious => this.errorService.handle(errPrevious)
                     );
@@ -468,7 +472,7 @@ export class VatReportView implements OnInit, OnDestroy {
             const submits: Array<any> = responses[0].Data ? responses[0].Data : [];
             const approvals: Array<any> = responses[1].Data ? responses[1].Data : [];
             this.submittedDate = submits.length > 0 ? submits[0].Date : null;
-            this.approvedDate = approvals.length > 0 ? approvals[0].Date : null; 
+            this.approvedDate = approvals.length > 0 ? approvals[0].Date : null;
         });
     }
 
@@ -477,6 +481,7 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.getPeriodStatus(this.currentVatReport.TerminPeriodID)
             .subscribe((status) => {
                 this.statusCodePeriod = status ? this.vatReportService.getStatusText(status.StatusCode) + ' (' + status.Title + ')' : 'Ikke kjørt';
+                this.statusCodeClassName = status ? this.vatReportService.getStatusClassName(status.StatusCode) : '';
             }, err => this.errorService.handle(err));
     }
 
@@ -671,7 +676,7 @@ export class VatReportView implements OnInit, OnDestroy {
     public UndoExecution(done) {
        if (this.currentVatReport.StatusCode !== StatusCodeVatReport.Executed) {
             if (confirm(
-                'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i Uni Economy på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
+                'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i systemet på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
             )) {
                 this.UndoExecutionPeriod(done);
             } else {

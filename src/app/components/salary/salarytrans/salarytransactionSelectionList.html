@@ -1,5 +1,5 @@
 <section class="salarytrans-splitview">
-    <section class="uni-container salarytrans-list small-split-view-list"  [attr.aria-busy]="busy">
+    <section class="uni-container salarytrans-list small-split-view-list" style="margin-right: 1rem" [attr.aria-busy]="busy">
         <section class="emp-header">
 
             <mat-form-field class="emp-sort">
@@ -9,7 +9,11 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <button class="button-clean" (click)="getEmployee()"><i class="material-icons" style="color:green; vertical-align: middle"> person_add </i> Hent ansatt</button>
+
+            <button class="tertiary c2a" (click)="getEmployee()">
+                <i class="material-icons">person_add</i>
+                Hent ansatt
+            </button>
 
             <input type="search" [(ngModel)]="employeeFilterString" [formControl]="searchControl" class="emp-search"/>
             <i class="material-icons info" matTooltip="Kun ansatte med lønnsposter i lønnsavregningen vises i listen. Dersom du ønsker å registrere lønnsposter på ansatte som ikke er i listen, klikk på knappen &quot;hent ansatt&quot; for å hente den ansatte inn i listen. Det er ikke nødvendig å hente inn ansatte i listen før man importerer data eller registrerer i bildet for variable lønnsposter. Listen oppdateres automatisk når ansatt har lønnsposter på lønnsavregningen">
@@ -23,12 +27,11 @@
                 [class.selected]="employee.ID === selectedEmp?.ID"
                 class="emp-item"
                 (click)="rowSelected(employee)" style="display: flex; flex-direction: row;">
-                <div> {{ employee.EmployeeNumber }} </div>
-                <span> {{ employee.Name }} </span>
+                <span>{{ employee.EmployeeNumber }} - {{ employee.Name }}</span>
                 <i class="material-icons bad" *ngIf="errors[employee.ID]" title="{{ errors[employee.ID] }}"> warning </i>
             </li>
             <li *ngIf="hasInitialized && !(filteredEmployees).length" style="padding: 0; line-height: 34px;">
-                <span (click)="getEmployee()" style="font-weight: 600;"> Ingen ansatte å vise. Legg til ny </span>
+                <span (click)="getEmployee()"> Ingen ansatte å vise. Legg til ny </span>
             </li>
         </cdk-virtual-scroll-viewport>
     </section>

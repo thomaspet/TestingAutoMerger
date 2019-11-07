@@ -1294,7 +1294,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 salarybalances[index].Deleted = false;
                                 const toastHeader =
                                     `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
-                                const toastBody = (err && err.body && err.body.Messages) ? err.body.Messages[0].Message : '';
+                                const toastBody = (err && err.error && err.error.Messages) ? err.error.Messages[0].Message : '';
                                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                                 return this.errorService.handleRxCatch(err, obs);
                             })
@@ -1414,7 +1414,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 recurringPosts[index].Deleted = false;
                                 const toastHeader =
                                     `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                                const toastBody = (err && err.body && err.body.Messages) ? err.body.Messages[0].Message : '';
+                                const toastBody = (err && err.error && err.error.Messages) ? err.error.Messages[0].Message : '';
                                 this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
                                 return this.errorService.handleRxCatch(err, obs);
                             })
@@ -1463,7 +1463,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         post.Deleted = false;
         const toastHeader =
             `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-        const toastBody = (err.body.Messages) ? err.body.Messages[0].Message : '';
+        const toastBody = (err.error.Messages) ? err.error.Messages[0].Message : '';
         this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
         this.errorService.handle(err);
         return Observable.empty();

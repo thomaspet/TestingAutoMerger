@@ -21,20 +21,22 @@ enum PayrollRunPaymentStatus {
     template: `
     <section class="widget-wrapper">
         <section class="header">
-            <span>{{ current?.header }}</span>
+            <span>{{ current?.header | translate }}</span>
 
-            <section class="filters uni-redesign">
-                <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
-                    {{ current?.label }}
+            <section class="filters">
+                <button #toggle class="tertiary toggle-button">
+                    {{ current?.label | translate }}
                     <i class="material-icons">expand_more</i>
                 </button>
-                <mat-menu #contextMenu="matMenu">
-                    <ul class="widget-filter-menu">
-                        <li role="button" *ngFor="let item of items; let itemIndex = index;" (click)="changeModel(itemIndex)">
-                            {{ item.label }}
-                        </li>
-                    </ul>
-                </mat-menu>
+                <dropdown-menu [trigger]="toggle" minWidth="8rem">
+                    <ng-template>
+                        <a class="dropdown-menu-item"
+                            *ngFor="let item of items; let itemIndex = index;"
+                            (click)="changeModel(itemIndex)">
+                            {{ item.label | translate }}
+                        </a>
+                    </ng-template>
+                </dropdown-menu>
             </section>
         </section>
 
@@ -47,9 +49,6 @@ enum PayrollRunPaymentStatus {
                                 [ngClass]="col.class">
                                 {{ col.label }}
                             </th>
-
-                            <th *ngIf="current?.contextMenu">
-                            </th>
                         <tr>
                     </thead>
 
@@ -58,21 +57,6 @@ enum PayrollRunPaymentStatus {
                             <td *ngFor="let col of current?.columns"
                                 [ngClass]="col.class" (click)="rowSelected(row, col)">
                                 {{ col.displayFunction ? col.displayFunction(row[col.key]) : row[col.key] }}
-                            </td>
-
-                            <td *ngIf="current?.contextMenu" class="center hovereffect" [matMenuTriggerFor]="contextMenu">
-                                <ng-container>
-                                    <i class="material-icons">
-                                        more_horiz
-                                    </i>
-                                    <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                        <ul class="menu-list">
-                                            <li *ngFor="let item of current.contextMenu" (click)="contextMenuLinkClick(item, row)">
-                                                    {{item.label}}
-                                                </li>
-                                        </ul>
-                                    </mat-menu>
-                                </ng-container>
                             </td>
                         </tr>
                     </tbody>
@@ -118,10 +102,6 @@ export class UniTransactionsWidget implements AfterViewInit {
                 }
             });
         }
-    }
-
-    contextMenuLinkClick(item, row) {
-        this.router.navigateByUrl(item.link + row.ID);
     }
 
     public changeModel(index: number) {
@@ -547,8 +527,8 @@ export class UniTransactionsWidget implements AfterViewInit {
     private getSalaryTransactionItems(year: number) {
         return [
             {
-                label: 'Lønnsavregning',
-                header: 'Siste lønnsavregninger',
+                label: 'NAVBAR.PAYROLL',
+                header: 'SALARY.PAYROLL.LATEST',
                 dataEndPoint: `/api/biz/payrollrun?orderby=ID desc&filter=${year ? 'year(PayDate) eq ' + year : ''}`,
                 columns: [
                     {
@@ -598,12 +578,6 @@ export class UniTransactionsWidget implements AfterViewInit {
                             return moment(value).format('DD MMM YYYY');
                         },
                         key: 'PayDate'
-                    }
-                ],
-                contextMenu: [
-                    {
-                        label: 'Gå til variable lønnsposter',
-                        link: '/salary/variablepayrolls/',
                     }
                 ],
                 urlToNew: '/salary/payrollrun/0',
@@ -676,8 +650,8 @@ export class UniTransactionsWidget implements AfterViewInit {
     private getAccountingTransactionItems() {
         return [
             {
-                label: 'Leverandørfaktura',
-                header: 'Siste leverandørfaktura',
+                label: 'NAVBAR.SUPPLIER_INVOICE',
+                header: 'ACCOUNTING.SUPPLIER_INVOICE.LATEST',
                 dataEndPoint: '/api/statistics/?model=SupplierInvoice&select=id as ID,statuscode as StatusCode,'
                 + 'Supplier.SupplierNumber,Supplier.ID,Info.Name,paymentduedate as PaymentDueDate,invoicedate as InvoiceDate,'
                 + 'invoicenumber as InvoiceNumber,stuff(user.displayname) as Assignees,BankAccount.AccountNumber,'

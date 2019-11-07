@@ -20,6 +20,7 @@ export class FieldLayoutDto {
     public Hidden: boolean;
     public ID: number;
     public Label: string;
+    public LabelWidth: string;
     public Legend: string;
     public LineBreak: boolean;
     public LookupEntityType: string;

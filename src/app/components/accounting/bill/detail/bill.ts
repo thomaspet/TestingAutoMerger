@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
-import {ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {ICommentsConfig, StatusIndicator, IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
     roundTo,
@@ -79,17 +79,20 @@ import {
     BrowserStorageService,
     ReInvoicingService,
     AssignmentDetails,
+    StatisticsService
 } from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
-import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
-import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-import { AccountMandatoryDimensionService } from '@app/services/accounting/accountMandatoryDimensionService';
-import { ValidationMessage } from '@app/models/validationResult';
+import {FileFromInboxModal} from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
+import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
+import {ValidationMessage} from '@app/models/validationResult';
+import {BillInitModal} from '../bill-init-modal/bill-init-modal';
+import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 
 interface ITab {
     name: string;
@@ -131,8 +134,11 @@ export class BillView implements OnInit {
     @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
+    uploadStepActive: boolean;
+
     public busy: boolean = true;
-    public toolbarConfig: any;
+    public toolbarConfig: IToolbarConfig;
+    paymentStatus: StatusIndicator;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
@@ -162,7 +168,6 @@ export class BillView implements OnInit {
 
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
-    public uniSearchConfig: IUniSearchConfig;
 
     private hasSuggestions: boolean = false;
     private suggestions: Array<IJournalHistoryItem> = [];
@@ -174,6 +179,7 @@ export class BillView implements OnInit {
     public hasLoadedCustomDimensions: boolean = false;
     public isBlockedSupplier: boolean = false;
     public orgNumber: string;
+    autocompleteOptions: any;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -283,9 +289,43 @@ export class BillView implements OnInit {
         private paymentService: PaymentService,
         private browserStorageService: BrowserStorageService,
         private reinvoicingService: ReInvoicingService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private statisticsService: StatisticsService
     ) {
         this.actions = this.rootActions;
+
+        this.autocompleteOptions = {
+            placeholder: 'Velg leverandør',
+            autofocus: true,
+            canClearValue: false,
+            lookup: query => this.supplierLookup(query),
+            displayFunction: item => {
+                if (item) {
+                    const name = item.Info ? item.Info.Name : item.Name;
+                    return item.SupplierNumber ? `${item.SupplierNumber} - ${name}` : name;
+                }
+
+                return '';
+            },
+            resultTableColumns: [
+                { header: 'Leverandørnr', field: 'SupplierNumber' },
+                { header: 'Navn', field: 'Name' },
+                { header: 'Adresse', field: 'AddressLine1' },
+                {
+                    header: 'Poststed',
+                    template: item => {
+                        if (item.PostalCode || item.City) {
+                            return `${item.PostalCode} - ${item.City}`;
+                        }
+                    }
+                },
+                { header: 'Orgnummer', field: 'OrgNumber' },
+            ],
+            createLabel: 'Opprett ny leverandør',
+            createHandler: () => {
+                return this.modalService.open(SupplierEditModal, {header: 'Ny leverandør'}).onClose;
+            }
+        };
 
         // Get settings from localstorage or use default
         const settings = this.browserStorageService.getSpecificViewSettings('SUPPLIERINVOICE');
@@ -301,6 +341,38 @@ export class BillView implements OnInit {
         this.current.subscribe((invoice) => {
             this.tryUpdateCostAllocationData(invoice);
         });
+    }
+
+    supplierLookup(query: string) {
+        const expand = 'Info.DefaultPhone,Info.InvoiceAddress';
+        const select = [
+            'Supplier.ID as ID',
+            'Info.Name as Name',
+            'Supplier.OrgNumber as OrgNumber',
+            'InvoiceAddress.AddressLine1 as AddressLine1',
+            'InvoiceAddress.PostalCode as PostalCode',
+            'InvoiceAddress.City as City',
+            'Supplier.SupplierNumber as SupplierNumber',
+            'Supplier.StatusCode as StatusCode',
+        ].join(',');
+
+        let filter = `(Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 70001)`;
+
+        if (query && query.length) {
+            const queryFilter = ['Supplier.OrgNumber', 'Supplier.SupplierNumber', 'Info.Name']
+                .map(field => `contains(${field},'${query}')`)
+                .join(' or ');
+
+            filter += ` and ( ${queryFilter} )`;
+        }
+
+        const odata = `model=Supplier`
+            + `&expand=${expand}`
+            + `&select=${select}`
+            + `&filter=${filter}`
+            + `&orderby=Info.Name&top=50&distinct=true`;
+
+        return this.statisticsService.GetAllUnwrapped(odata);
     }
 
     public ngOnInit() {
@@ -353,11 +425,9 @@ export class BillView implements OnInit {
 
                 if (links.length > 0) {
                     if (links.length > 1) {
-                        this.toast.addToast('Flere leverandørfaktura knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                        this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG1', ToastType.warn, ToastTime.medium);
                     } else  {
-                        this.toast.addToast('Filen du vil bruke er knyttet til en leverandørfaktura. ' +
-                            'Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen ' +
-                            'og gå tilbake til innboksen og starte på nytt med riktig fil.', ToastType.warn, ToastTime.medium);
+                        this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG2', ToastType.warn, ToastTime.medium);
                     }
                     this.currentID = links[0].entityID;
                     this.router.navigateByUrl('/accounting/bills/' + this.currentID);
@@ -467,7 +537,7 @@ export class BillView implements OnInit {
 
     private addTab(id: number = 0) {
         this.tabService.addTab({
-            name: 'Leverandørfaktura',
+            name: 'NAVBAR.SUPPLIER_INVOICE',
             url : '/accounting/bills/' + id,
             moduleID: UniModules.Bills,
             active: true
@@ -477,10 +547,10 @@ export class BillView implements OnInit {
     private initForm() {
         const fields = [
             <any> {
-                Property: 'Supplier',
-                FieldType: FieldType.UNI_SEARCH,
-                Label: 'Leverandør',
-                Legend: 'Kjøpsfaktura',
+                Property: 'BankAccountID',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Betal til bankkonto',
+                Classes: 'bill-small-field right',
                 Section: 0
             },
             <any> {
@@ -489,9 +559,6 @@ export class BillView implements OnInit {
                 Label: 'Fakturadato',
                 Classes: 'bill-small-field',
                 Section: 0,
-                Options: {
-                    useLastMonthsPreviousYearUntilMonth: 4
-                }
             },
             <any> {
                 Property: 'PaymentDueDate',
@@ -499,18 +566,13 @@ export class BillView implements OnInit {
                 Label: 'Forfallsdato',
                 Classes: 'bill-small-field right',
                 Section: 0,
-                Options: {
-                    useLastMonthsPreviousYearUntilMonth: 4
-                }
             },
             <any> {
                 Property: 'DeliveryDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Leveringsdato',
+                Classes: 'bill-small-field',
                 Section: 0,
-                Options: {
-                    useLastMonthsPreviousYearUntilMonth: 4
-                }
             },
             <any> {
                 Property: 'InvoiceNumber',
@@ -520,16 +582,10 @@ export class BillView implements OnInit {
                 Section: 0
             },
             <any> {
-                Property: 'BankAccountID',
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Bankkonto',
-                Classes: 'bill-small-field right',
-                Section: 0
-            },
-            <any> {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
                 Label: 'KID',
+                Classes: 'bill-small-field right',
                 Section: 0
             },
             <any> {
@@ -569,26 +625,6 @@ export class BillView implements OnInit {
                 }
             }
         ];
-
-        this.uniSearchConfig = this.uniSearchSupplierConfig.generateDoNotCreateNew(
-            this.supplierExpandOptions,
-            (currentInputValue) => {
-                return this.modalService.open(UniNewSupplierModal, {
-                    data: currentInputValue
-                }).onClose.asObservable().map((returnValue) => {
-                    if (returnValue && returnValue.Info) {
-                        returnValue.Info.BankAccounts = returnValue.Info.BankAccounts || [];
-                    }
-                    this.uniForm.field('Supplier').focus();
-                    return returnValue;
-                });
-            });
-
-        // Extend config with stuff that can't come from layout system
-        const supplierField = fields.find(f => f.Property === 'Supplier');
-        supplierField.Options = {
-            uniSearchConfig: this.uniSearchConfig
-        };
 
         const sumField = fields.find(f => f.Property === 'TaxInclusiveAmountCurrency');
         sumField.Options = {
@@ -1880,6 +1916,12 @@ export class BillView implements OnInit {
         }
     }
 
+    public newSupplierSelected(supplier) {
+        if (supplier) {
+            this.fetchNewSupplier(supplier.ID);
+        }
+    }
+
     private fetchNewSupplier(id: number, updateCombo = false) {
         if (id) {
             this.supplierService.clearCache();
@@ -1942,13 +1984,20 @@ export class BillView implements OnInit {
 
         if (!this.current.getValue().TaxInclusiveAmountCurrency || (!this.smartBookingSettings.turnOnSmartBooking && !showToastIfNotRan)) {
             if (this.smartBookingSettings.showNotification && showToastIfNotRan) {
-                this.toast.addToast('Smart bokføring', ToastType.warn, 15,
-                    'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten total eller leverandør med orgnr.');
+                this.toast.toast({
+                    title: 'Smart bokføring',
+                    type: ToastType.warn,
+                    duration: 10,
+                    message: 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_ERROR_MSG'
+                });
             } else {
-                const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? this.current.getValue().DeliveryDate : this.current.getValue().InvoiceDate;
-                const vd = this.current.getValue().InvoiceDate;
+                const financialDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate
+                    ? this.current.getValue().DeliveryDate
+                    : this.current.getValue().InvoiceDate;
 
-                this.updateJournalEntryManualDates(fd, vd);
+                const vatDate = this.current.getValue().InvoiceDate;
+
+                this.updateJournalEntryManualDates(financialDate, vatDate);
             }
             return;
         }
@@ -1956,7 +2005,7 @@ export class BillView implements OnInit {
         this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan).then((value: any) => {
             if (value.msg) {
                 if (this.smartBookingSettings.showNotification) {
-                    this.toast.addToast('Smart bokføring', value.type, 15, value.msg);
+                    this.toast.addToast('Smart bokføring', value.type, 10, value.msg);
                 }
 
                 if (this.smartBookingSettings.addNotifcationAsComment) {
@@ -2042,20 +2091,13 @@ export class BillView implements OnInit {
         if (supplier) {
             current.SupplierID = supplier.ID;
             current.Supplier = supplier;
-            this.uniSearchConfig.initialItem$.next(current.Supplier);
+            if (supplier.Info.DefaultBankAccountID) {
+                current.BankAccountID = supplier.Info.DefaultBankAccountID;
+                current.BankAccount = supplier.Info.DefaultBankAccount;
+            }
         }
 
         this.current.next(current);
-
-        if (this.uniSearchConfig) {
-            this.uniSearchConfig.initialItem$.next(null);
-        } else {
-            setTimeout(() => {
-                if (this.uniSearchConfig) {
-                    this.uniSearchConfig.initialItem$.next(null);
-                }
-            });
-        }
 
         this.currentSupplierID = 0;
         this.sumRemainder = 0;
@@ -2130,7 +2172,7 @@ export class BillView implements OnInit {
             if (hasJournalEntry) {
                 filter.push('journal');
             }
-            this.addActions(it._links.transitions, list, mainFirst, ['assign', 'approve', 'journal', 'sendForPayment'], filter);
+            this.addActions(it._links.transitions, list, mainFirst, ['journal', 'assign', 'approve', 'sendForPayment'], filter);
 
             // Reassign as admin
             if (!it._links.transitions.hasOwnProperty('reAssign')
@@ -2662,8 +2704,8 @@ export class BillView implements OnInit {
 
         const obs = ask
             ? this.modalService.open(UniConfirmModalV2, {
-                header: 'Bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
-                message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+                header: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_SUPPLIER_NAME~' + current.Supplier.Info.Name,
+                message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
                 buttonLabels: {
                     accept: 'Bokfør',
                     cancel: 'Avbryt'
@@ -2695,8 +2737,8 @@ export class BillView implements OnInit {
     private askApproveAndJournal(): Observable<any> {
         const current = this.current.getValue();
         return this.modalService.open(UniConfirmModalV2, {
-            header: 'Godkjenne og bokføre leverandørfaktura fra ' + current.Supplier.Info.Name,
-            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            header: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_AND_APPROVE_WITH_SUPPLIER_NAME~' + current.Supplier.Info.Name,
+            message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
             warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: 'Godkjenn og bokfør',
@@ -2708,8 +2750,8 @@ export class BillView implements OnInit {
     private askApproveAndJournalAndToPayment(): Observable<any> {
         const current = this.current.getValue();
         return this.modalService.open(UniConfirmModalV2, {
-            header: 'Godkjenne, bokføre og til betaling av leverandørfaktura fra ' + current.Supplier.Info.Name,
-            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            header: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME~' + current.Supplier.Info.Name,
+            message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
             warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: 'Godkjenn, bokfør og til betaling',
@@ -2719,14 +2761,14 @@ export class BillView implements OnInit {
     }
 
     private askJournalAndToPayment(): Observable<any> {
-        return this.askWithLabel('Bokføre og til betaling av leverandørfaktura fra ', 'Bokfør og til betaling');
+        return this.askWithLabel('ACCOUNTING.SUPPLIER_INVOICE.BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME~', 'Bokfør og til betaling');
     }
 
     private askWithLabel(header: string, accept: string): Observable<any> {
         const current = this.current.value;
         return this.modalService.open(UniConfirmModalV2, {
             header: header + current.Supplier.Info.Name,
-            message: 'Bokføre leverandørfaktura med beløp ' + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
+            message: 'ACCOUNTING.SUPPLIER_INVOICE.BOOK_WITH_AMOUNT~' + current.TaxInclusiveAmountCurrency.toFixed(2),
             warning: 'Merk! Dette steget er det ikke mulig å reversere.',
             buttonLabels: {
                 accept: accept,
@@ -2863,9 +2905,6 @@ export class BillView implements OnInit {
                     this.loadActionsFromEntity();
                     this.lookupHistory();
                     this.checkLockStatus();
-
-
-                    this.uniSearchConfig.initialItem$.next(invoice.Supplier);
 
                     // set diff to null until the journalentry is loaded, the data is calculated correctly
                     // through the onJournalEntryManualDataLoaded event
@@ -3295,41 +3334,50 @@ export class BillView implements OnInit {
                 });
             };
 
-            const isValidKID: boolean = this.modulusService.isValidKID(current.PaymentID);
-            // Query to see if invoiceID/supplierID combo has been used before
-            this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID, current.ID)
-                .subscribe((data: any) => {
-                    if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
-                        let message: string = '';
-                        if (!isValidKID) {
-                            message += `<li>KID-nr. er ikke gyldig.</li>`;
-                        }
-                        if (data && data.Data && data.Data[0].countid > 0) {
-                            message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
-                        }
-                        message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
-                        this.modalService.open(UniConfirmModalV2,
-                            {
-                                buttonLabels: {
-                                    accept: 'Lagre',
-                                    cancel: 'Avbryt'
-                                },
-                                header: 'Vil du lagre?',
-                                message: message
-                            }).onClose.subscribe((res) => {
-                            if (res === ConfirmActions.ACCEPT) {
-                                saveFunc();
-                            } else {
-                                resolve({ success: false });
-                                if (done) {
-                                    done('Lagring avbrutt');
-                                }
-                            }
-                        });
-                    } else {
-                        saveFunc();
-                    }
+            if (!this.modulusService.isValidKID(current.PaymentID)) {
+                this.toast.toast({
+                    title: 'KID er ikke gyldig',
+                    type: ToastType.bad,
+                    duration: 5
                 });
+
+                resolve({ success: false });
+                if (done) {
+                    done();
+                }
+
+                return;
+            }
+
+            // Query to see if invoiceID/supplierID combo has been used before
+            this.supplierInvoiceService.checkInvoiceData(
+                current.InvoiceNumber, current.SupplierID, current.ID
+            ).subscribe((data: any) => {
+                if ((data && data.Data && data.Data[0].countid > 0)) {
+                    const message = 'Faktura med samme fakturanr. og leverandør er allerede lagret.'
+                        + '<br> Du kan ignorere dette og lagre om ønskelig.';
+
+                    this.modalService.open(UniConfirmModalV2, {
+                        buttonLabels: {
+                            accept: 'Lagre',
+                            cancel: 'Avbryt'
+                        },
+                        header: 'Vil du lagre?',
+                        message: message
+                    }).onClose.subscribe(res => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            saveFunc();
+                        } else {
+                            resolve({ success: false });
+                            if (done) {
+                                done('Lagring avbrutt');
+                            }
+                        }
+                    });
+                } else {
+                    saveFunc();
+                }
+            });
         });
     }
 
@@ -3789,10 +3837,7 @@ export class BillView implements OnInit {
                     title: status.Text,
                     state: _state,
                     code: status.Code,
-                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
-                    && this.invoicePayments.length > 0 ? this.invoicePayments.length + '' : null,
                     substatusList: _substatuses,
-                    forceSubstatus: _state === STATUSTRACK_STATES.Active && this.invoicePayments.length > 0
                 });
             }
         });
@@ -3838,13 +3883,12 @@ export class BillView implements OnInit {
         ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
-                ? `${trimLength(doc.Supplier.Info.Name, 20)}`
-                : 'Ny leverandørfaktura',
+                ? doc.Supplier.Info.Name
+                : 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
             subheads: [
                 { title: doc && doc.InvoiceNumber ? `Fakturanr. ${doc.InvoiceNumber}` : '' },
-                { title: doc && doc.Supplier ? `Lev.nr. ${doc.Supplier.SupplierNumber}` : '' },
                 {
-                    title: jnr ? `(Bilagsnr. ${jnr})` : `(ikke bokført)`,
+                    title: jnr ? `Bilagsnr. ${jnr}` : '',
                     link: jnr
                         ? jnr.split('-').length > 1
                             ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
@@ -3856,20 +3900,38 @@ export class BillView implements OnInit {
             navigation: {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
-                add: () => {
-                    this.checkSave().then((res: boolean) => {
-                        if (res) {
-                            this.newInvoice(false);
-                            this.router.navigateByUrl('/accounting/bills/0');
-                        }
-                    });
-
-                }
             },
             entityID: doc && doc.ID ? doc.ID : null,
             entityType: 'SupplierInvoice',
             contextmenu: this.contextMenuItems
         };
+
+        // Only set add-function when current supplier invoice is saved
+        if (this.currentID) {
+            this.toolbarConfig.navigation.add = () => {
+                this.checkSave().then((res: boolean) => {
+                    if (res) {
+                        this.newInvoice(false);
+                        this.router.navigateByUrl('/accounting/bills/0');
+                    }
+                });
+            };
+        }
+
+        this.setPaymentStatus();
+    }
+
+    private setPaymentStatus() {
+        // Jorge takes over implementation here
+
+        // this.paymentStatus = {
+        //     label: 'Delbetalt',
+        //     class: 'warn',
+        //     subStatuses: [
+        //         { label: 'Beløp: 10 000', timestamp: new Date(), status: 'Overført bank' },
+        //         { label: 'Beløp: 1 500', timestamp: new Date(), status: 'Opprettet' },
+        //     ]
+        // };
     }
 
     private navigateTo(direction = 'next') {
@@ -3932,6 +3994,12 @@ export class BillView implements OnInit {
         const pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
             this.loadFromFileID(pageParams.fileid);
+        } else {
+            this.modalService.open(BillInitModal).onClose.subscribe(fileID => {
+                if (fileID) {
+                    this.loadFromFileID(fileID);
+                }
+            });
         }
     }
 
@@ -3959,7 +4027,7 @@ export class BillView implements OnInit {
         return txt;
     }
 
-    private userMsg(msg: string, title?: string, delay = 3, isGood = false) {
+    private userMsg(msg: string, title?: string, delay = 6, isGood = false) {
         this.toast.addToast(
             title || (isGood ? 'Til informasjon' : 'Advarsel'),
             isGood ? ToastType.good : ToastType.bad, delay,
@@ -4025,10 +4093,13 @@ export class BillView implements OnInit {
     }
 
     public getValidationMessage(supplierID: number, dimensionsID: number = null, dimensions: Dimensions = null) {
-        if (!this.accountsWithMandatoryDimensionsIsUsed) {
+        if (!this.accountsWithMandatoryDimensionsIsUsed || !dimensionsID) {
             return;
         }
-        this.accountMandatoryDimensionService.getSupplierMandatoryDimensionsReport(supplierID, dimensionsID, dimensions).subscribe((report) => {
+
+        this.accountMandatoryDimensionService.getSupplierMandatoryDimensionsReport(
+            supplierID, dimensionsID, dimensions
+        ).subscribe((report) => {
             this.validationMessage = new ValidationMessage();
             if (report && report.MissingRequiredDimensionsMessage) {
                 this.validationMessage.Level = ValidationLevel.Error;

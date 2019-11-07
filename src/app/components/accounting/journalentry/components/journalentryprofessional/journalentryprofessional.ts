@@ -19,7 +19,7 @@ import {
     IContextMenuItem,
     IColumnTooltip
 } from '../../../../../../framework/ui/unitable/index';
-import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
+import {IGroupConfig} from '@uni-framework/ui/unitable/controls/table-autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
@@ -1180,19 +1180,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
-            .setWidth('110px')
-            .setOptions({
-                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
-                useLastMonthsPreviousYearUntilMonth: 4
-            });
+            .setWidth('110px');
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setVisible(false)
-            .setOptions({
-                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
-                useLastMonthsPreviousYearUntilMonth: 4
-            });
+            .setVisible(false);
 
         const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
 
@@ -1250,11 +1242,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Opprett ny reskontro',
-                addNewButtonCallback: (text) => {
-                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
-                }
+                addNewButton: {
+                    label: 'Opprett ny reskontro',
+                    action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
+                },
             });
 
         const manDimReportCol = new UniTableColumn('', 'Påkrevde dimensjoner', UniTableColumnType.Text)
@@ -1373,11 +1364,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Opprett ny reskontro',
-                addNewButtonCallback: (text) => {
-                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
-                }
+                addNewButton: {
+                    label: 'Opprett ny reskontro',
+                    action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
+                },
             });
 
         const creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)
@@ -1713,6 +1703,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             netAmountCol.setVisible(false);
             costAllocationCol.setVisible(false);
             debitAccountCol.setWidth('20%');
+            debitAccountCol.setPlaceholder('Velg konto');
 
             columns = [
                 debitAccountCol,

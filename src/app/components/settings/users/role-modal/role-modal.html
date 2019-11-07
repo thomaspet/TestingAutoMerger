@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal">
-    <header>
-        <h1>{{user?.DisplayName || user?.Email}}</h1>
-    </header>
+    <header>{{user?.DisplayName || user?.Email}}</header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
@@ -29,7 +27,7 @@
 
                     <section class="panel-right" *ngIf="group.product && !userStatusInvited">
                         <button
-                            [ngClass]="group.productPurchased ? 'outline-bad' : 'outline-c2a'"
+                            [ngClass]="group.productPurchased ? 'tertiary bad' : 'tertiary c2a'"
                             (click)="togglePurchase(group, $event)">
                             {{group.productPurchased ? 'Deaktiver' : 'Kjøp produkt'}}
                         </button>
@@ -51,8 +49,8 @@
         </mat-accordion>
     </article>
 
-    <footer class="center">
-        <button class="c2a rounded" (click)="saveRoles()">Lagre endringer</button>
-        <button (click)="onClose.emit(false)">Avbryt</button>
+    <footer>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="saveRoles()">Lagre endringer</button>
     </footer>
 </section>

@@ -57,7 +57,7 @@ export class BankStatementJournalModal implements IUniModal {
         const input: IMatchEntry[] = data.entries || [];
 
         this.busy = true;
-        this.session.initialize(this.selectedAccountID).subscribe(
+        this.session.initialize(0, this.selectedAccountID, 'bank').subscribe(
             res => {
                 for (let i = 0; i < input.length; i++) {
                     this.session.addRow(this.selectedAccountID, input[i].Amount, input[i].Date, input[i].Description);

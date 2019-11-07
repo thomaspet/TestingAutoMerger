@@ -11,15 +11,13 @@ import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTabs} from './uniTabs/uniTabs';
+import {UniTabs} from './uni-tabs/uni-tabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
 import {NavbarLinkService} from './navbar/navbar-link-service';
 
 import {NavbarUserDropdown} from './navbar/user-dropdown/user-dropdown';
 import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
-
-import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
 import {UniCompanySearch} from './smart-search/company-search/company-search';
 import {UniSmartSearch} from './smart-search/smart-search';
@@ -32,17 +30,17 @@ import {OverlayModule} from '@angular/cdk/overlay';
 
 import {NotificationsModule} from './notifications/notifications.module';
 
+import {BoostChat} from './boostChat/boostChat';
+
 import {
-    MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
     MatExpansionModule,
-    MatIconModule,
-    MatButtonModule,
     MatProgressBarModule,
-    MatCardModule
 } from '@angular/material';
-import { ChatBoxComponent } from './chat-box/chat-box.component';
+
+import {ChatBoxComponent} from './chat-box/chat-box.component';
+import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
 @NgModule({
     imports: [
@@ -54,14 +52,10 @@ import { ChatBoxComponent } from './chat-box/chat-box.component';
 
         A11yModule,
         OverlayModule,
-        MatTabsModule,
         MatTooltipModule,
         MatMenuModule,
         MatExpansionModule,
-        MatIconModule,
-        MatButtonModule,
         MatProgressBarModule,
-        MatCardModule,
 
         UniFrameworkModule,
         AppPipesModule,
@@ -82,7 +76,8 @@ import { ChatBoxComponent } from './chat-box/chat-box.component';
         UniCompanySearch,
         UniSmartSearch,
         UniSmartSearchItem,
-        ChatBoxComponent
+        ChatBoxComponent,
+        BoostChat,
     ],
     providers: [
         UniNumberFormatPipe,
@@ -103,6 +98,7 @@ import { ChatBoxComponent } from './chat-box/chat-box.component';
         UniCompanyDropdown,
         YearModal,
         ChatBoxComponent,
+        BoostChat,
     ]
 })
 export class LayoutModule {

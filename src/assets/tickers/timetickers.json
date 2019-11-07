@@ -55,7 +55,7 @@
         ]
     },
     {
-        "Name": "Personer",
+        "Name": "NAVBAR.PERSONS",
         "Code": "worker_main_list",
         "RequiredUIPermissions": ["ui_timetracking_workers"],
         "Type": "Table",

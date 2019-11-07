@@ -32,11 +32,11 @@
 
             <!-- no access -->
             <div class="col-lg-4 card-container"
-                *ngIf="!uiPermission.product.hasComponentAccess && 
-                !uiPermission.customer.hasComponentAccess && 
-                !uiPermission.supplier.hasComponentAccess && 
-                !uiPermission.ledger.hasComponentAccess  && 
-                !uiPermission.payroll.hasComponentAccess && 
+                *ngIf="!uiPermission.product.hasComponentAccess &&
+                !uiPermission.customer.hasComponentAccess &&
+                !uiPermission.supplier.hasComponentAccess &&
+                !uiPermission.ledger.hasComponentAccess  &&
+                !uiPermission.payroll.hasComponentAccess &&
                 !uiPermission.saft.hasComponentAccess">
                 <div class="import-card no-access">
                     <div class="card-content">
@@ -48,7 +48,7 @@
                 </div>
             </div>
 
-            <button class="disclaimer-btn" (click)="onDisclaimerClick()">
+            <button class="disclaimer-btn secondary" (click)="onDisclaimerClick()">
                 <i class="material-icons">info</i>
                 Betingelser for Import
             </button>

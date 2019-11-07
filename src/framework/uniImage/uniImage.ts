@@ -9,6 +9,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import {MatMenuTrigger} from '@angular/material';
+import {trigger, transition, style, keyframes, animate} from '@angular/animations';
 import {HttpClient} from '@angular/common/http';
 import printJS from 'print-js';
 
@@ -47,7 +48,18 @@ export interface FileExtended extends File {
 @Component({
     selector: 'uni-image',
     templateUrl: './uniImage.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    animations: [
+        trigger('flashAnimation', [
+          transition(':enter', [
+            style({ backgroundColor: 'unset' }),
+            animate('1s', keyframes([
+                style({ backgroundColor: 'var(--color-c2a)', offset: 0.6 }),
+                style({ backgroundColor: 'unset', offset: 1 })
+            ]))
+          ]),
+        ]),
+      ]
 })
 export class UniImage {
     @ViewChild(MatMenuTrigger) ocrMenu: MatMenuTrigger;
@@ -66,7 +78,6 @@ export class UniImage {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileID: number;
     @Input() fileIDs: number[] = [];
-    @Input() useEhfReader: boolean;
 
     @Output() fileListReady: EventEmitter<FileExtended[]> = new EventEmitter();
     @Output() imageDeleted: EventEmitter<FileExtended> = new EventEmitter();
@@ -82,6 +93,7 @@ export class UniImage {
 
     public uploading: boolean;
     private keyListener: any;
+    public state = 'initial';
 
     public files: FileExtended[] = [];
     public currentFile: FileExtended;
@@ -92,6 +104,16 @@ export class UniImage {
     public highlightStyle: any;
     public currentClickedWord: any;
     public ocrWords: any[] = [];
+    public ocrValues = [
+        {label: 'Organisasjonsnr', value: 1},
+        {label: 'Fakturadato', value: 7},
+        {label: 'Forfallsdato', value: 8},
+        {label: 'Fakturanummer', value: 5},
+        {label: 'Bankkonto', value: 3},
+        {label: 'KID', value: 4},
+        {label: 'Fakturabeløp', value: 6},
+
+    ]
 
     public processingPercentage: number = null;
 
@@ -162,6 +184,10 @@ export class UniImage {
         );
     }
 
+    public setOcrValues(values: any[]) {
+        this.ocrValues = values;
+    }
+
     public setOcrData(ocrResult) {
         if (ocrResult.OcrRawData) {
             const rawData = JSON.parse(ocrResult.OcrRawData);
@@ -181,6 +207,12 @@ export class UniImage {
             }
 
             this.ocrWords = words;
+            setTimeout(() => {
+                this.state = 'initial';
+                setTimeout(() => {
+                    this.state = 'final';
+                }, 2000);
+            });
         } else {
             this.ocrWords = [];
         }
@@ -250,7 +282,7 @@ export class UniImage {
                         const filename = (file.Name || '').toLowerCase();
                         const type = (file.ContentType || '').toLowerCase();
 
-                        if (this.useEhfReader && (type.includes('bis/billing') || filename.includes('.ehf'))) {
+                        if (type.includes('bis/billing') || filename.includes('.ehf')) {
                             const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference).pipe(
                                 catchError(err => {
                                     console.error('Error loading EHF data', err);

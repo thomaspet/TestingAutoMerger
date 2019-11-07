@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '../layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'license-info',
@@ -10,18 +11,20 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 })
 export class LicenseInfo {
     activeTabIndex = 0;
+    isSrEnvironment: boolean = environment.isSrEnvironment;
 
     tabs: IUniTab[] = [
         {name: 'Detaljer', path: 'details'},
         {name: 'Selskaper', path: 'companies'},
-        {name: 'Brukere', path: 'users'},
-        {name: 'Estimert forbruk', path: 'billing'},
+        {name: 'Brukere', path: 'users'}
     ];
 
-    constructor(
-        private tabService: TabService
-    ) {
-        this.tabService.addTab({
+    constructor(tabService: TabService) {
+        if (!this.isSrEnvironment) {
+            this.tabs.push({name: 'Estimert forbruk', path: 'billing'});
+        }
+
+        tabService.addTab({
             name: 'Lisensinformasjon',
             url: '/license-info',
             moduleID: UniModules.LicenseInfo

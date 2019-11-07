@@ -15,10 +15,10 @@ import {takeUntil} from 'rxjs/operators';
 import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
 import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
-import {WizardSettingsModal} from '@uni-framework/uni-modal/modals/wizard-settings-modal/wizard-settings-modal';
+import {environment} from 'src/environments/environment';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -83,6 +83,7 @@ export class BureauDashboard {
     ];
 
     onDestroy$ = new Subject();
+    isSrEnvironment = environment.isSrEnvironment;
 
     constructor(
         private errorService: ErrorService,
@@ -391,7 +392,7 @@ export class BureauDashboard {
     }
 
     public onCompanyInboxClick(company: KpiCompany) {
-        const redirectUrl = '/accounting/bills?filter=Inbox';
+        const redirectUrl = this.isSrEnvironment ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
         this.redirectToCompanyUrl(company, redirectUrl);
         this.busy = true;
     }

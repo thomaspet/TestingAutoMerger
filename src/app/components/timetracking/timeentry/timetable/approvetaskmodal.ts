@@ -20,9 +20,7 @@ const approvalStatusLabels = {
     selector: 'uni-approvetask-modal',
     template: `
     <section role="dialog" class="uni-modal">
-        <header>
-            <h1>{{rejectMode ? 'Avvis' : 'Godkjenning'}}</h1>
-        </header>
+        <header>{{rejectMode ? 'Avvis' : 'Godkjenning'}}</header>
 
         <article>
             <strong>{{labels.status}}</strong>

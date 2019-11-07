@@ -34,7 +34,7 @@ import { PaymentCodeService } from '@app/services/accounting/paymentCodeService'
     selector: 'add-payment-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>{{options?.header||'Legg til betaling'}}</h1></header>
+            <header>{{options?.header||'Legg til betaling'}}</header>
 
             <article>
                 <uni-form
@@ -42,12 +42,16 @@ import { PaymentCodeService } from '@app/services/accounting/paymentCodeService'
                     [fields]="fields$"
                     [model]="model$">
                 </uni-form>
-
-                <footer>
-                    <button (click)="close('ok')" class="good">{{options?.buttonLabels?.accept||'Legg til betaling'}}</button>
-                    <button (click)="close('cancel')" class="bad">Avbryt</button>
-                </footer>
             </article>
+
+            <footer>
+                <button (click)="close('cancel')" class="secondary">
+                    Avbryt
+                </button>
+                <button (click)="close('ok')" class="c2a">
+                    {{options?.buttonLabels?.accept||'Legg til betaling'}}
+                </button>
+            </footer>
         </section>
     `
 })

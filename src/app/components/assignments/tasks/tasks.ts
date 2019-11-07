@@ -2,7 +2,8 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {ISelectConfig} from '../../../../framework/ui/uniform/index';
+import {NewTaskModal} from '../../common/modals/new-task-modal/new-task-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 import {Task, TaskType, TaskStatus, User} from '../../../unientities';
 import {TaskService, UserService, ErrorService} from '../../../services/services';
 import {CommentService} from '../../../../framework/comments/commentService';
@@ -21,10 +22,8 @@ export class UniTasks {
     public tasks: any[];
     public selectedTask: any = new Task();
 
-    public newTask: any = new Task();
     public currentUser: User;
     public users: User[];
-    public userSelectConfig: ISelectConfig;
 
     public showCompleted: boolean;
     public showOnlyMine: boolean = true;
@@ -37,7 +36,8 @@ export class UniTasks {
         private userService: UserService,
         private errorService: ErrorService,
         private route: ActivatedRoute,
-        private commentService: CommentService
+        private commentService: CommentService,
+        private modalService: UniModalService
     ) {
         this.route.params.subscribe((params) => {
             this.routeParam = +params['id'];
@@ -65,16 +65,9 @@ export class UniTasks {
                 this.users = res[1];
 
                 this.loadTasks();
-                this.initNewTask();
             },
             err => this.errorService.handle(err)
         );
-
-        this.userSelectConfig = {
-            displayProperty: 'DisplayName',
-            searchable: true,
-            hideDeleteButton: true
-        };
      }
 
      private addTaskMetadata(task: Task): Task {
@@ -145,13 +138,6 @@ export class UniTasks {
         });
     }
 
-    private initNewTask() {
-        this.newTask = new Task();
-        this.newTask.StatusCode = TaskStatus.Pending;
-        this.newTask.Title = '';
-        this.newTask.UserID = this.currentUser.ID;
-    }
-
     public setShowOnlyMine(onlyMine: boolean) {
         this.showOnlyMine = onlyMine;
         this.loadTasks();
@@ -165,15 +151,11 @@ export class UniTasks {
     }
 
     public addTask() {
-        this.newTask.CreatedAt = new Date;
-        this.newTask.StatusCode = TaskStatus.Pending;
-        this.taskService.Post(this.newTask).subscribe(
-            res => {
-                this.newTask.Title = '';
+        this.modalService.open(NewTaskModal).onClose.subscribe((taskAdded: boolean) => {
+            if (taskAdded) {
                 this.loadTasks();
-            },
-            err => this.errorService.handle(err)
-        );
+            }
+        });
     }
 
     private getComments() {
@@ -191,14 +173,4 @@ export class UniTasks {
                 err => this.errorService.handle(err)
             );
     }
-
-    public onUserSelected(event) {
-        this.newTask.UserID = event.ID;
-    }
-
-    public isValidInput() {
-        return /\S/.test(this.newTask.Title);
-    }
-
-
 }

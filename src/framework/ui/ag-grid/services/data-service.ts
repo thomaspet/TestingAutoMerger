@@ -144,6 +144,10 @@ export class TableDataService {
         this.loadedRowCount = 0;
         return {
             getRows: (params: IGetRowsParams) => {
+                if (this.gridApi) {
+                    this.gridApi.hideOverlay();
+                }
+
                 let urlParams = new HttpParams();
                 urlParams = urlParams.set('skip', params.startRow.toString());
                 urlParams = urlParams.set('top', (params.endRow - params.startRow).toString());
@@ -215,9 +219,8 @@ export class TableDataService {
                             .subscribe((sums: {[field: string]: number | boolean}) => {
                                 if (sums) {
                                     sums['_isSumRow'] = true;
+                                    this.sumRow$.next(Array.isArray(sums) ? sums : [sums]);
                                 }
-
-                                this.sumRow$.next(Array.isArray(sums) ? sums : [sums]);
                             });
                     } else {
                         const sumColumns = this.config.columns.filter(col => col.isSumColumn);

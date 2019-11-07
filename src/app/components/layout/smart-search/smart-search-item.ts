@@ -3,7 +3,7 @@ import {Highlightable} from '@angular/cdk/a11y';
 
 @Component({
     selector: 'smart-search-item',
-    template: `{{item?.value || item?.name}}`,
+    template: `{{item?.value || item?.name | translate}}`,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSmartSearchItem implements Highlightable {

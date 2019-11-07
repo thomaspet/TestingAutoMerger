@@ -1,22 +1,16 @@
 .account_query_table_rows
     td
+        cursor: pointer
         text-align: right
-
-        &:hover
-            background-color: $uni-color-scale8
-
         &:first-of-type
             text-align: left
-
-    &:hover
-        cursor: pointer
 
     &:last-of-type
         cursor: default
         margin-top: 1rem
-        border-bottom: .1875rem solid $uni-color-scale1
+        border-bottom: 1px solid var(--border-color)
         border-bottom-style: double
 
     &:nth-last-child(2)
-        border-bottom: .0625rem solid $uni-color-scale1
+        border-bottom: 1px solid var(--border-color)
 

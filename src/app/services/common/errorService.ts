@@ -42,7 +42,15 @@ export class ErrorService {
             return;
         }
 
+        if (typeof err === 'string') {
+            return err;
+        }
+
         const errorBody = this.getErrorBody(err);
+        if (typeof errorBody === 'string') {
+            return errorBody;
+        }
+
         if (errorBody) {
             if (errorBody.message || errorBody.Message) {
                 return errorBody.message || errorBody.Message;

@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: true,
+    isSrEnvironment: false,
 
     // Identity Server Settings
     authority: 'https://login.unieconomy.no',
@@ -53,5 +54,7 @@ export const environment = {
         MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
         VOUCHER: '<<voucher-template-url>>'
-    }
+    },
+
+    LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };

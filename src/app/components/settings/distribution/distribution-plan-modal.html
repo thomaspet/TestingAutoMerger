@@ -1,50 +1,45 @@
-<section role="dialog" class="uni-modal uni-redesign distribution-plan-modal-container" style="width: 30vw">
-    <header>
-        <h1> {{ options.header }} </h1>
-    </header>
-    <article style="overflow: visible;">
+<section role="dialog" class="uni-modal" style="width: 35rem">
+    <header>{{ options.header }}</header>
+
+    <article class="distribution-plan-modal-container">
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
-        <section style="padding: 1rem 2.5rem">
-            <span style="font-size: 14px; display: block; margin-bottom: .5rem;">Navn</span>
-            <label>
-                <input type="text" [(ngModel)]="currentPlan.Name" name="Name" />
-                <span class="standard-span-box" *ngIf="currentType.defaultPlan && currentPlan && currentType.defaultPlan.ID === currentPlan.ID"> Standard </span>
-            </label>
 
-            <hr/>
-
-            <label class="small" *ngFor="let elem of currentPlan.Elements; let i = index;">
-                <span>Prioritet {{ i + 1 }}</span>
-                <select [(ngModel)]="currentPlan.Elements[i].DistributionPlanElementTypeID">
-                    <option *ngFor="let type of types" [value]="type.ID">
-                        {{ type.Name }}
-                    </option>
-                </select>
-                <i class="material-icons" title="Slett prioritet" (click)="deletePriority(i)"> delete_outline </i>
-            </label>
-
-            <span *ngIf="!currentPlan.Elements.length" class="empty-priority-messages">
-                En plan for utsendelse av {{ currentType.label.toLowerCase() }} uten prioriterte utsendelsesmetoder,
-                vil forhindre utsendelse om satt til aktiv på firmainnstilliger eller kunde.
+        <label class="uni-label name-input-label">
+            <span>Navn</span>
+            <input type="text" [(ngModel)]="currentPlan.Name" name="Name" />
+            <span class="standard-span-box" *ngIf="currentType.defaultPlan && currentPlan && currentType.defaultPlan.ID === currentPlan.ID">
+                Standard
             </span>
+        </label>
 
-            <hr/>
+        <label class="uni-label label-left step" *ngFor="let elem of currentPlan.Elements; let i = index;">
+            <span>Prioritet {{ i + 1 }}</span>
+            <select [(ngModel)]="currentPlan.Elements[i].DistributionPlanElementTypeID">
+                <option *ngFor="let type of types" [value]="type.ID">
+                    {{ type.Name }}
+                </option>
+            </select>
+            <i class="material-icons" title="Slett prioritet" (click)="deletePriority(i)"> delete_outline </i>
+        </label>
 
-            <a (click)="addPriority()"> + Ny prioritet </a>
+        <span *ngIf="!currentPlan.Elements.length" class="empty-priority-messages">
+            En plan for utsendelse av {{ currentType.label.toLowerCase() }} uten prioriterte utsendelsesmetoder,
+            vil forhindre utsendelse om satt til aktiv på firmainnstilliger eller kunde.
+        </span>
 
-            <span style="display: flex;" class="company-standard-checkbox">
-                <i class="material-icons" (click)="setAsCompanyDefault = !setAsCompanyDefault">
-                    {{ setAsCompanyDefault ? 'check_box' : 'check_box_outline_blank' }}
-                </i>
-                <span> Firmastandard </span>
-            </span>
-        </section>
+        <button class="add-priority tertiary c2a" (click)="addPriority()">
+            + Ny prioritet
+        </button>
+
+        <mat-checkbox [(ngModel)]="setAsCompanyDefault">
+            Firmastandard
+        </mat-checkbox>
     </article>
 
-    <footer class="center">
+    <footer>
+        <button class="secondary" (click)="close()">Lukk</button>
         <button class="c2a" (click)="saveOrCreate()">Lagre</button>
-        <button (click)="close()">Lukk</button>
     </footer>
 </section>

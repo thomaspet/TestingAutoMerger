@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '../../layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 
 @Component({
     selector: 'journal-entry',
@@ -12,7 +12,7 @@ export class JournalEntry {
         this.childRoutes = [
             {name: 'Bilagsføring', path: 'manual'},
             {name: 'Innbetalinger', path: 'payments'},
-            {name: 'Leverandørfaktura', path: 'bills'}
+            // {name: 'Leverandørfaktura', path: 'bills'}
         ];
     }
 }

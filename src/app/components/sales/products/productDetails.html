@@ -17,7 +17,7 @@
     <article class="collapsable" [ngClass]="{'-is-open': showExtendedProductInfo}">
         <h4 (click)="showExtendedProductInfo = !showExtendedProductInfo">Utvidet produktinformasjon</h4>
         <div class="collapsable-content">
-            <fieldset>
+            <fieldset class="uni-fieldset">
                 <legend>Produktbeskrivelse</legend>
                 <label>
                     <span>Beskrivelse</span>
@@ -29,7 +29,7 @@
                 </label>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="uni-fieldset">
                 <legend>Produktbilde</legend>
                 <small *ngIf="!(product$ | async)?.ID">Produktet må lagres før bilde kan lastes opp</small>
                 <uni-image

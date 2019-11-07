@@ -267,7 +267,6 @@
         "RequiredUIPermissions": ["ui_bank"],
         "Type": "Table",
         "IsTopLevelTicker": true,
-        "EditToggle": false,
         "MultiRowSelect": true,
         "Group": "Bank",
         "Model": "Payment",
@@ -618,7 +617,7 @@
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
-                "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken med vi har ikke funnet en matchende post i Uni Economy. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
+                "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken, men vi har ikke funnet en matchende post i systemet. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -765,7 +764,6 @@
         "RequiredUIPermissions": ["ui_bank"],
         "Type": "Table",
         "IsTopLevelTicker": true,
-        "EditToggle": false,
         "MultiRowSelect": false,
         "OrderBy":"ID desc",
         "Group": "Bank",
@@ -1101,7 +1099,6 @@
         "RequiredUIPermissions": ["ui_bank"],
         "Type": "Table",
         "IsTopLevelTicker": true,
-        "EditToggle": false,
         "MultiRowSelect": false,
         "OrderBy":"ID desc",
         "Group": "Bank",

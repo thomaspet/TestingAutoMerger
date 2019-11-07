@@ -3,7 +3,6 @@ import {Router} from '@angular/router';
 import {BankService} from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
-import { state } from '@angular/animations';
 
 @Component({
     selector: 'uni-bank-statement-list',
@@ -12,8 +11,7 @@ import { state } from '@angular/animations';
 })
 
 export class BankStatement {
-    @Output()
-    statementChanged: EventEmitter<any> = new EventEmitter<any>();
+    @Output() statementChanged = new EventEmitter<any>();
 
     bankStatements: any[] = [];
     busy: boolean = false;
@@ -23,7 +21,7 @@ export class BankStatement {
         private bankService: BankService,
         private toast: ToastService,
         private router: Router
-    ) { }
+    ) {}
 
     ngOnInit() {
         this.getDataAndLoadList();
@@ -56,13 +54,13 @@ export class BankStatement {
 
     getActions(statement: any) {
         const actions = [
-            { label: 'Slett avstemning', value: 'delete' }
+            { label: 'Slett avstemming', value: 'delete' }
         ];
 
         if (statement.StatusCode === 48002) {
-             actions.unshift({ label: 'Gjenåpne avstemning', value: 'open' });
+             actions.unshift({ label: 'Gjenåpne avstemming', value: 'open' });
         } else {
-            actions.unshift({ label: 'Ferdigstill avstemning', value: 'close' });
+            actions.unshift({ label: 'Ferdigstill avstemming', value: 'close' });
         }
 
         return actions;

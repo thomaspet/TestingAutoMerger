@@ -1,11 +1,11 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '../layout/uniTabs/uniTabs';
+import {IUniTab} from '../layout/uni-tabs';
 
 @Component({
     selector: 'approval-flow',
     template: `
         <uni-toolbar [config]="{title: 'Importsentral'}"></uni-toolbar>
-        <section style="width: calc(100% - 4rem);" class="application uni-redesign">
+        <section class="application uni-redesign">
             <uni-tabs [tabs]="tabs" [useRouterLinkTabs]="true"></uni-tabs>
             <router-outlet></router-outlet>
         </section>

@@ -1,0 +1,60 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Bokfør - oppsummering</header>
+
+    <article class="scrollable">
+
+        <section class="title" *ngIf="session.payment.Mode == 1">
+            Bokføre utlegg betalt med {{session.payment?.PaidWith?.superLabel}}
+        </section>
+
+        <section class="title" *ngIf="session.payment.Mode == 2 && withPayment">
+            Bokføre utlegg og lage utbetaling til {{session.payment?.PaymentTo?.AccountName}}
+        </section>
+
+        <section class="title" *ngIf="session.payment.Mode == 2 && !withPayment">
+            Bokføre utlegg som gjeld til {{session.payment?.PaymentTo?.AccountName}}
+        </section>
+
+        <section class="warning" *ngIf="session.payment.Mode == 2 && withPayment">
+            <strong>Utbetaling:</strong>
+            <table width="100%">
+                <tr><td>- fra selskapets bankkonto</td><td class="right">{{session.payment?.SystemBankAccount?.AccountNumber}}</td></tr>
+                <tr><td>- til {{session.payment?.PaymentTo?.AccountName}}'s' bankkonto:</td><td class="right">{{session.payment?.PaymentAccount?.AccountNumber}}</td><tr>
+            </table>
+        </section>
+
+        <table class="summary">
+            <tr>
+                <td>Dato</td>
+                <td class="right">{{session.payment.PaymentDate | date: 'dd.MM.yyyy'}}</td>
+            </tr>
+            <tr>
+                <td>Totalsum</td>
+                <td class="right">{{session.balance | uninumberformat: 'money'}}</td>
+            </tr>
+            <tr *ngFor="let sum of vatSummary.details" >
+                <td>{{sum.vatPercent}}% Mva</td>
+                <td class="right">{{sum.sum | uninumberformat: 'money'}}</td>
+            </tr>
+        </table>
+
+        <section class="subtitle">Kostnadsføring:</section>
+        <table class="accounts">
+            <tr *ngFor="let acc of accList">
+                <td>{{acc.name}}</td>
+                <td class="right">{{acc.sum | uninumberformat: 'money'}}</td>
+            </tr>
+        </table>
+
+        <label class="uni-label">
+            <span>Bilagstekst</span>
+            <input type="text" [(ngModel)]="session.payment.Description" >
+        </label>
+
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit()"> Avbryt </button>
+        <button style="margin-left: auto" class="c2a" (click)="complete()"> Bokfør </button>
+    </footer>
+</section>

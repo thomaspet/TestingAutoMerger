@@ -31,17 +31,17 @@
         </section>
 
         <section class="pull-right">
-            <button class="tight" (click)="startAutoMatch()">
+            <button class="tertiary" (click)="startAutoMatch()">
                 <i class="material-icons">compare_arrows</i>
                 Automatisk kobling
             </button>
 
-            <button class="tight" (click)="openJournalModal()">
+            <button class="tertiary" (click)="openJournalModal()">
                 <i class="material-icons">edit</i>
                 Bilagsføring
             </button>
 
-            <button class="tight" (click)="openImportModal()">
+            <button class="tertiary" (click)="openImportModal()">
                 <i class="material-icons">cloud_upload</i>
                 Import
             </button>
@@ -100,7 +100,9 @@
                     <section *ngIf="session.status == 2" class="info-box">
                         <article>Du har ingen bankposter.</article>
                         <article>Velg "Importer" for å lese inn en bankfil manuelt.</article>
-                        <button (click)="openImportModal()" class="outline-c2a"><i style="font-size: 20pt" class="material-icons">cloud_upload</i></button>
+                        <button (click)="openImportModal()" class="tertiary c2a">
+                            <i style="font-size: 20pt" class="material-icons">cloud_upload</i>
+                        </button>
                     </section>
 
                     <section *ngIf="session.status == 3 && !session.stage?.length" class="no-match-drafts c2a">
@@ -144,7 +146,11 @@
                         </li>
                     </ul>
 
-                    <button (click)="closeStage()" *ngIf="session.canCloseStage || session.status == 3" class="c2a" [disabled]="!session.canCloseStage">
+                    <button class="c2a link-posts-button"
+                        *ngIf="session.canCloseStage || session.status == 3"
+                        (click)="closeStage()"
+                        [disabled]="!session.canCloseStage">
+
                         <i class="material-icons">link</i>
                         Koble sammen
                     </button>

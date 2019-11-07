@@ -24,7 +24,7 @@ import { of } from 'rxjs/observable/of';
     selector: 'accrual-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 60vw">
-            <header><h1>{{options?.data.title}}</h1></header>
+            <header>{{options?.data.title}}</header>
             <article class="accrual-split-view">
                 <section class="accrual-form">
                     <uni-form #form
@@ -256,8 +256,11 @@ export class AccrualModal implements IUniModal {
         const journalEntryLineDraft = this.options.data.journalEntryLineDraft;
 
         if ((!journalEntryLineDraft && !accrual) && (!accrualStartDate || !accrualAmount)) {
-            this.toastService.addToast('Periodisering', ToastType.bad, 10, 'Mangler informasjon om beløp og dato!');
-            this.onClose.emit(false);
+            setTimeout(() => {
+                this.toastService.addToast('Periodisering', ToastType.bad, 10, 'Mangler informasjon om beløp og dato!');
+                this.onClose.emit(false);
+            });
+            return;
         }
 
         if (!accrual) {

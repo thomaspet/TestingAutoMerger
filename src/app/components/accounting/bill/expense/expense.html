@@ -1,0 +1,49 @@
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="application" [attr.aria-busy]="busy" >
+
+    <section class="expense-split-view">
+        <section class="input-section">
+            <section class="details uni-container">
+                <header>Detaljer</header>
+
+                <section>
+                    <expense-prepaid *ngIf="session.payment.Mode === 1" [session]="session"></expense-prepaid>
+                    <expense-payable *ngIf="session.payment.Mode === 2" [session]="session"></expense-payable>
+                </section>
+            </section>
+
+            <section class="journaling uni-container">
+                <header>Utgiftskonto</header>
+                <expense-entries [session]="session"></expense-entries>
+                <footer>
+                    <span>Totalsum</span>
+                    <span>{{(session.balance | uninumberformat: 'money') || '0,00'}}</span>
+                </footer>
+            </section>
+        </section>
+
+        <section class="attachments uni-container" style="position: relative;">
+            <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+                <i class="material-icons">get_app</i>
+                Hent fra innboks
+            </span>
+
+            <span class="document-counter"> Dokumenter ({{ fileIds?.length }})</span>
+
+            <uni-image
+                [splitFileDialogAllowed]="true"
+                [rotateAllowed]="true"
+                [uploadWithoutEntity]="true"
+                [readonly]="false"
+                [fileIDs]="fileIds"
+                (fileListReady)="onFileListReady($event)"
+                (useWord)="useWord($event)">
+            </uni-image>
+
+        </section>
+    </section>
+</section>

@@ -1,0 +1,17 @@
+<ng-container *ngIf="status">
+    <section class="status-indicator" [ngClass]="status.class">
+        <i class="material-icons-outlined">{{status.icon || 'info'}}</i>
+        {{status.label}}
+    </section>
+
+    <section *ngIf="status.subStatuses?.length" class="sub-statuses">
+        <section *ngFor="let subStatus of status.subStatuses" class="sub-status">
+            <span *ngIf="subStatus.timestamp" class="timestamp">
+                {{subStatus.timestamp | date: 'dd.MM.yyyy'}}
+            </span>
+
+            <span class="text">{{subStatus.label}}</span>
+            <span class="status">{{subStatus.status}}</span>
+        </section>
+    </section>
+</ng-container>

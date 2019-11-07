@@ -187,14 +187,6 @@ export class UniTable implements OnChanges {
         }
     }
 
-    @HostListener('document:click', ['$event'])
-    private checkForClickOutside(event: MouseEvent) {
-        if (!this.el.nativeElement.contains(event.target)) {
-
-            this.lastFocusPosition = undefined;
-        }
-    }
-
     // Event hooks
     private openEditor(cell: HTMLTableElement, column, rowModel) {
         this.currentRowModel = rowModel;
@@ -407,11 +399,6 @@ export class UniTable implements OnChanges {
         // Save and reset handled in unitable-header.ts
         this.tableColumns = columns;
         this.columnsChange.emit(this.tableColumns.toJS());
-    }
-
-    public toggleEditmode() {
-        this.config.editable = !this.config.editable;
-        this.editModeChange.emit(this.config.editable);
     }
 
     public onFiltersChange(event) {

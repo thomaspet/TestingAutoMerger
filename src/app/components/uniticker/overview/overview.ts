@@ -43,7 +43,7 @@ export class UniTickerOverview {
         private modalService: UniModalService
     ) {
         this.tabService.addTab({
-            name: 'Oversikt',
+            name: 'NAVBAR.OVERVIEW',
             url: '/overview',
             moduleID: UniModules.UniTicker,
             active: true
@@ -117,7 +117,7 @@ export class UniTickerOverview {
     private updateTab() {
         const urlWithParams = this.location.path(false);
         this.tabService.addTab({
-            name: 'Oversikt',
+            name: 'NAVBAR.OVERVIEW',
             url: urlWithParams,
             moduleID: UniModules.UniTicker,
             active: true

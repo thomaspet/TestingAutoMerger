@@ -14,7 +14,7 @@
 
         <ng-template #textHeader>
             <h1 class="toolbar-title" (click)="toggleSearch()">
-                {{config?.title || searchConfig?.initValue}}
+                {{config?.title || searchConfig?.initValue | translate}}
                 <i class="material-icons" *ngIf="searchConfig">
                     search
                 </i>
@@ -25,6 +25,7 @@
 
 <!-- TOOLBAR CENTER -->
 <section class="toolbar-center">
+    <!-- Statuses needs refactoring, but I don't have time before SR deadline.. -->
     <uni-statustrack
         *ngIf="statustrack || config?.statustrack"
         [config]="statustrack || config.statustrack"
@@ -32,6 +33,17 @@
         [entityID]="config?.entityID"
         (statusSelectEvent)="selectStatus($event)">
     </uni-statustrack>
+
+    <toolbar-sharing-status
+        *ngIf="config?.showSharingStatus && config?.entityType && config?.entityID"
+        [entityType]="config?.entityType"
+        [entityID]="config?.entityID">
+    </toolbar-sharing-status>
+
+    <toolbar-custom-status
+        *ngIf="customStatus"
+        [status]="customStatus">
+    </toolbar-custom-status>
 
     <uni-toolbar-validation
         *ngIf="validationMessages?.length"
@@ -56,10 +68,10 @@
                 [ngClass]="subhead.classname || ''"
                 (click)="triggerSubheadEvent(subhead)">
 
-                <span *ngIf="subhead.label" class="subhead-label">{{subhead.label}}: </span>
+                <span *ngIf="subhead.label" class="subhead-label">{{subhead.label | translate}}: </span>
 
-                <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title}}</a>
-                {{subhead.link ? '' : subhead.title}}
+                <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title | translate}}</a>
+                {{subhead.link ? '' : subhead.title | translate}}
             </small>
         </ng-template>
 
@@ -75,49 +87,59 @@
 
 <!-- TOOLBAR RIGHT -->
 <section #toolbarRight class="toolbar-right">
-    <nav id="toolbar-tools" class="toolbar_tools">
-        <uni-comments *ngIf="commentsConfig?.entityID > 0"
-            [entity]="commentsConfig.entityType"
-            [entityID]="commentsConfig.entityID"
-            [toggleMode]="true">
-        </uni-comments>
+    <button *ngIf="config?.navigation?.prev"
+        title="Forrige"
+        class="toolbar-button icon-button prev"
+        type="button"
+        (click)="navigate('prev')">
+        <i class="material-icons">navigate_before</i>
+    </button>
 
-        <button *ngIf="config?.navigation?.prev"
-            title="Forrige"
-            class="previous"
-            type="button"
-            (click)="navigate('prev')">
-            Forrige
-        </button>
+    <button *ngIf="config?.navigation?.next"
+        title="Neste"
+        class="toolbar-button icon-button next"
+        type="button"
+        (click)="navigate('next')">
+        <i class="material-icons">navigate_next</i>
+    </button>
 
-        <button *ngIf="config?.navigation?.next"
-            title="Neste"
-            class="next"
-            type="button"
-            (click)="navigate('next')">
-            Neste
-        </button>
+    <uni-comments *ngIf="commentsConfig?.entityID > 0"
+        [entity]="commentsConfig.entityType"
+        [entityID]="commentsConfig.entityID"
+        [toggleMode]="true">
+    </uni-comments>
 
-        <button *ngIf="config?.navigation?.add"
-            [title]="config.navigation.add.label || 'Opprett ny'"
-            class="new"
-            type="button"
-            (click)="onCreateNewClick()">
+    <button *ngFor="let button of config?.buttons"
+        class="toolbar-button"
+        [ngClass]="button.class"
+        (click)="customButtonClick(button)"
+        [attr.aria-busy]="button['_busy']"
+        [matTooltip]="button.tooltip">
 
-            <i class="material-icons">add</i>
-            {{config.navigation.add.label || 'Opprett ny'}}
-        </button>
+        <i class="material-icons" *ngIf="button.icon">{{button.icon}}</i>
+        {{button.label | translate}}
+    </button>
 
-        <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
-            [actions]="contextmenu || config.contextmenu">
-        </uni-context-menu>
+    <button *ngIf="config?.navigation?.add"
+        [title]="config.navigation.add.label || 'Opprett ny'"
+        class="toolbar-button new-button"
+        type="button"
+        (click)="onCreateNewClick()">
 
-        <uni-toolbar-share [shareActions]="shareActions"></uni-toolbar-share>
-    </nav>
+        <i class="material-icons">add</i>
+        <span>{{config.navigation.add.label || 'Opprett ny'}}</span>
+    </button>
+
+    <uni-context-menu
+        *ngIf="contextmenu || config?.contextmenu"
+        [actions]="contextmenu || config.contextmenu"
+        [hideDisabled]="config?.hideDisabledActions">
+    </uni-context-menu>
 
     <uni-save id="toolbar-save"
         *ngIf="saveactions || config?.saveactions"
-        [actions]="saveactions || config.saveactions">
+        [actions]="saveactions || config?.saveactions"
+        [hideDisabled]="config?.hideDisabledActions">
     </uni-save>
 
 </section>

@@ -9,13 +9,12 @@
             Alle oppgaver
         </button>
 
-        <mat-slide-toggle
-            style="margin-top: .25rem; margin-left: 1rem;"
-            [(ngModel)]="showCompleted"
+        <mat-checkbox
+            class="task-checkbox"
             (change)="loadTasks()"
-            [labelPosition]="'before'">
+            [(ngModel)]="showCompleted">
             Vis fullførte
-        </mat-slide-toggle>
+        </mat-checkbox>
     </section>
 
     <ul class="task-list" #taskList>
@@ -23,7 +22,7 @@
             <section class="assignment-info">
                 <p>{{task.Title}}</p>
                 <small class="assigned-to">
-                    Tiltelt til {{task._assignedTo}}
+                    Tildelt til {{task._assignedTo}}
                 </small>
                 <small class="created-by">
                     Opprettet {{task._createdDate}} av {{task._assignedBy}}
@@ -43,23 +42,8 @@
     </ul>
 
     <section class="addTask">
-        <label class="task-text">
+        <button class="secondary" (click)="addTask()">
             Legg til oppgave
-            <input type="text" [(ngModel)]="newTask.Title" placeholder="Oppgavetekst">
-        </label>
-
-        <label>
-            Tilordne til
-            <uni-select class="drop-up"
-                [config]="userSelectConfig"
-                [items]="users"
-                [value]="currentUser"
-                (valueChange)="onUserSelected($event)">
-            </uni-select>
-        </label>
-
-        <button class="good" (click)="addTask()" [disabled]="!isValidInput()">
-            Bekreft
         </button>
     </section>
 </section>

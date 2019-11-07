@@ -2,7 +2,11 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {
-    MatMenuModule, MatDatepickerModule, MatNativeDateModule, DateAdapter, MatAutocompleteModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    DateAdapter,
+    MatAutocompleteModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule
 } from '@angular/material';
 
@@ -20,18 +24,22 @@ import {AdvancedFilters} from './filters/advanced-filters/advanced-filters';
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 import {TABLE_CONTROLS} from '../unitable/controls';
 import {UniDateAdapter} from '@app/date-adapter';
+import {DropdownMenuModule} from '../dropdown-menu/dropdown-menu';
+import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        MatMenuModule,
         MatDatepickerModule,
         MatNativeDateModule,
         MatAutocompleteModule,
+        MatCheckboxModule,
         MatProgressSpinnerModule,
         AppPipesModule,
+        DropdownMenuModule,
+        InputDropdownModule,
         AgGridModule.withComponents([
             RowMenuRenderer
         ])

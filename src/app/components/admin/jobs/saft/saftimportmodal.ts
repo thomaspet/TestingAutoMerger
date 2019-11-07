@@ -8,9 +8,7 @@ import {BehaviorSubject} from 'rxjs';
     selector: 'saft-import-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Innstillinger'}}</h1>
-            </header>
+            <header>{{options.header || 'Innstillinger'}}</header>
             <article>
                 <p>Starte import av '{{options.data?.file?.FileName}}' ?</p>
                 <uni-form

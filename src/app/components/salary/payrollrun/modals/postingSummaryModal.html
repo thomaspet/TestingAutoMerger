@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal medium" style="text-align: left;">
-    <header>
-        <h1>{{headerString}}</h1>
-    </header>
+    <header>{{headerString}}</header>
     <article class="scrollable">
         <section *ngIf="!showReceipt" class="unitableWidthAuto">
             <uni-form
@@ -10,7 +8,12 @@
                 [model]="formModel$"
                 (changeEvent)="change($event)">
             </uni-form>
-            <p *ngIf="!busy && !valid" role="alert" class="error"> Mangler systemkontoer. Sjekk hovedbokskontoene på <a (click)="routeToSalarySettings()">lønnsinnstillinger</a>.</p>
+
+            <p *ngIf="!busy && !valid" class="alert bad">
+                Mangler systemkontoer. Sjekk hovedbokskontoene på
+                <a (click)="routeToSalarySettings()">lønnsinnstillinger</a>.
+            </p>
+
             <p *ngIf="state === 0">Jobber med å generere nytt bokføringsbilag. Dette kan ta litt tid</p>
             <p *ngIf="!jobBusy && ((formModel$ | async).bookingType !== draftType || !getDraft(draft))">Trykk generer for å generere et nytt bokføringsbilag</p>
             <section *ngIf="draftType === (formModel$ | async).bookingType || state === 0" [attr.aria-busy]="busy">

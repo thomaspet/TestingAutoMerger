@@ -68,7 +68,7 @@ import {AuthService} from '@app/authService';
 import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
 import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
@@ -1156,16 +1156,21 @@ export class CustomerDetails implements OnInit {
 
         this.isDirty = true;
         if (changes['OrgNumber'] && customer.OrgNumber) {
-            this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
-                if (res.Data.length > 0) {
-                    let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
-                    res.Data.forEach(function (ba) {
-                        orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
-                    });
-                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
-                }
+            customer.OrgNumber = customer.OrgNumber.replace(/ /g, '');
+            this.customerService.getCustomers(customer.OrgNumber).subscribe(
+                res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
 
-            }, err => this.errorService.handle(err));
+                },
+                // Don't toast this error to the user, they dont care
+                err => console.error(err)
+            );
         }
 
         if (changes['Info.InvoiceAddress']

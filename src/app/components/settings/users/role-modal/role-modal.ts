@@ -238,10 +238,11 @@ export class UniRoleModal implements IUniModal {
             roles: []
         };
 
+        roles = roles.filter(role => role.Label !== 'Webhook.Admin');
+
         // Fill the groups with roles
         roles.forEach(role => {
             const roleNameLowerCase = (role.Name || '').toLowerCase();
-
             const groupsThatShouldHaveRole = groups.filter(group => {
                 const listOfRoles = group.product && group.product.ListOfRoles;
                 if (listOfRoles) {

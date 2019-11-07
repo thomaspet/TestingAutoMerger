@@ -1,0 +1,36 @@
+<section class="uni-modal">
+    <header>{{isNewCustomer ? 'Rediger kunde' : 'Ny kunde'}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section *ngIf="externalLookupOptions" class="external-search">
+            <autocomplete
+                [options]="externalLookupOptions"
+                (valueChanges)="onExternalSearchSelected($event)"
+                (keydown.shift.tab)="$event.preventDefault()"
+                (keydown.tab)="onSearchShiftTab($event)">
+            </autocomplete>
+        </section>
+
+        <uni-form
+            [model]="customer$"
+            [fields]="fields$"
+            [config]="config$"
+            (changeEvent)="isDirty = true"
+            (moveOutEvent)="onFormMoveOutEvent($event)">
+        </uni-form>
+    </article>
+
+    <footer>
+        <button (click)="onClose.emit()" class="secondary" (keydown.shift.tab)="onCancelShiftTab($event)">
+            Avbryt
+        </button>
+
+        <button (click)="save()" class="c2a" (keydown.tab)="$event.preventDefault()">
+            Lagre
+        </button>
+    </footer>
+</section>

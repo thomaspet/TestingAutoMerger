@@ -1,41 +1,43 @@
-<article (clickOutside)="close()" class="navbar_company">
 
-        <span class="navbar-company-info" (click)="companyDropdownActive = !companyDropdownActive">
-            <span class="company-name">{{activeCompany.Name}}</span>
-            <span class="active-year" >{{isCreatingNewYear ? 'Oppretter nytt år...' : activeYear}}</span>
-            <i class="material-icons">keyboard_arrow_down</i>
-        </span>
+<section class="company-dropdown" (clickOutside)="close()" (click)="companyDropdownActive = !companyDropdownActive">
+    <!-- <span class="navbar-company-info" > -->
+        <span class="company-name">{{activeCompany.Name}}</span>
+        <span class="active-year" >{{isCreatingNewYear ? 'Oppretter nytt år...' : activeYear}}</span>
+        <i class="material-icons">keyboard_arrow_down</i>
+    <!-- </span> -->
+</section>
 
-        <section class="navbar_company_dropdown" [attr.aria-expanded]="companyDropdownActive">
+<section class="navbar_company_dropdown" (click)="$event.stopPropagation()" [attr.aria-expanded]="companyDropdownActive">
 
-            <section class="company-info">
-                <uni-select *ngIf="availableCompanies"
-                    class="navbar_company_select"
-                    [config]="selectCompanyConfig"
-                    [items]="availableCompanies"
-                    [value]="activeCompany"
-                    (valueChange)="companySelected($event)">
-                </uni-select>
+    <section class="company-info" *ngIf="companyDropdownActive">
+        <uni-select *ngIf="availableCompanies"
+            class="navbar_company_select"
+            [config]="selectCompanyConfig"
+            [items]="availableCompanies"
+            [value]="activeCompany"
+            (valueChange)="companySelected($event)">
+        </uni-select>
 
-                <label>Regnskapsår</label>
-                <uni-select class="navbar_company_taxyearselect"
-                    [config]="selectYearConfig"
-                    [items]="selectYear"
-                    [value]="activeYear"
-                    (valueChange)="onYearDropdownChange($event)">
-                </uni-select>
+        <label class="navbar_company_taxyearselect" *ngIf="!lockYearSelector">
+            <span>Regnskapsår</span>
+            <uni-select
+                [config]="selectYearConfig"
+                [items]="selectYear"
+                [value]="activeYear"
+                (valueChange)="onYearDropdownChange($event)">
+            </uni-select>
+        </label>
 
-                <dl>
-                    <dt *ngIf="companySettings?.OrganizationNumber">Org.nr</dt>
-                    <dd *ngIf="companySettings?.OrganizationNumber" itemprop="taxID">
-                        {{companySettings.OrganizationNumber | uninumberformat:'orgno'}}
-                    </dd>
+        <dl>
+            <dt *ngIf="companySettings?.OrganizationNumber">Org.nr</dt>
+            <dd *ngIf="companySettings?.OrganizationNumber" itemprop="taxID">
+                {{companySettings.OrganizationNumber | uninumberformat:'orgno'}}
+            </dd>
 
-                    <dt *ngIf="companySettings?.DefaultPhone?.Number">Telefon</dt>
-                    <dd itemprop="phone" *ngIf="companySettings?.DefaultPhone?.Number">
-                        {{companySettings.DefaultPhone.Number}}
-                    </dd>
-                </dl>
-            </section>
-        </section>
-    </article>
+            <dt *ngIf="companySettings?.DefaultPhone?.Number">Telefon</dt>
+            <dd itemprop="phone" *ngIf="companySettings?.DefaultPhone?.Number">
+                {{companySettings.DefaultPhone.Number}}
+            </dd>
+        </dl>
+    </section>
+</section>

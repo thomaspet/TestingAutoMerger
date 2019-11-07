@@ -7,8 +7,6 @@
     (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
 </unitable-search>
 
-<a *ngIf="config?.allowEditToggle" class="unitable_edit_toggle_button" (click)="toggleEditmode()">T</a>
-
 <table *ngIf="tableData && config?.columns" class="unitable-main-table"
    [ngClass]="{'editable-table': config.editable}"
    (keydown)="onKeyDown($event)">

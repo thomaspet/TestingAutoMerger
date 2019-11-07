@@ -31,9 +31,7 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
     selector: 'uni-register-payment-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Registrer betaling'}}</h1>
-            </header>
+            <header>{{options.header || 'Registrer betaling'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"
@@ -46,8 +44,8 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
                 </FONT>
             </article>
             <footer>
-                <button class="good" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button class="secondary" (click)="close(false)">Avbryt</button>
+                <button class="c2a" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
             </footer>
         </section>
     `

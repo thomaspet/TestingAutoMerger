@@ -1,77 +1,109 @@
-<section role="dialog" class="uni-modal uni-redesign aprila-modal">
+<section role="dialog" class="uni-modal aprila-modal">
     <header>
-        <div class="title">
-            <h1>{{headerTitle}}</h1>
-            <div class="settings-wrapper" *ngIf="hasPermission">
-                <button (click)="toggleShowSetting()"><i class="material-icons">settings</i>Innstillinger</button>
-                <div class="offer-settings" *ngIf='showOfferSettings'>
-                    <span class="tip-arrow"></span>
-                    <label>Alltid vis tilbud fra Aprila Fakturasalg <mat-slide-toggle [(ngModel)]="isShowOffer"
-                            class="modal-switch"></mat-slide-toggle></label>
-                </div>
+        {{headerTitle}}
+
+        <div class="settings-wrapper" *ngIf="hasPermission">
+            <i class="material-icons" (click)="toggleShowSetting()">settings</i>
+
+            <div class="offer-settings" *ngIf="showOfferSettings">
+                <span class="tip-arrow"></span>
+                <label>
+                    Alltid vis tilbud fra Aprila Fakturasalg
+                    <mat-slide-toggle [(ngModel)]="isShowOffer" class="modal-switch"></mat-slide-toggle>
+                </label>
             </div>
         </div>
     </header>
 
     <article [attr.aria-busy]="gettingOfferProgress">
-        <div class="uni-html-form">
-            <div class="details" *ngIf="isOffered && !isError">
-                <div class="row">
-                    <label class="title">Fakturabeløp</label><label> {{offer.InvoiceAmount.Amount}}
-                        {{offer.InvoiceAmount.Currency}}</label>
-                </div>
-                <div class="row">
-                    <label class="title">Avgift {{offer.CostPercentage}} %</label><label> {{offer.TotalCost.Amount}}
-                        {{offer.TotalCost.Currency}}</label>
-                </div>
-                <div class="row">
-                    <label class="title">Utbetaling i dag</label><label> {{offer.DisbursementAmount.Amount}}
-                        {{offer.DisbursementAmount.Currency}}</label>
-                </div>
-                <label class="check-box-container">
-                    <mat-checkbox class="check-box" [(ngModel)]="isOfferAccept" [disabled]="offerFeedbackProgress">
-                        Jeg ønsker å selge faktura
-                    </mat-checkbox>
-                </label>
+        <div class="details" *ngIf="isOffered && !isError">
+            <div class="item">
+                <span class="title">Fakturabeløp</span>
+                <span>
+                    {{offer.InvoiceAmount.Amount}}
+                    {{offer.InvoiceAmount.Currency}}
+                </span>
             </div>
 
-            <div *ngIf="!isOffered && offer && offer.Reasons">
-                <div class="error" *ngFor="let error of offer.Reasons">
-                    <label class="error-title">{{error.ReasonCode}}</label>
-                    <label class="error-message">{{error.ReasonDescription}}</label>                    
-                </div>
-                <div class="error">
-                    <label class="error-reason"> <i class="material-icons">error</i> {{offerLimitMessage}} </label>                    
-                </div>
-               
+            <div class="item">
+                <span class="title">Avgift {{offer.CostPercentage}} %</span>
+                <span>
+                    {{offer.TotalCost.Amount}}
+                    {{offer.TotalCost.Currency}}
+                </span>
             </div>
 
-            <div class="error" *ngIf="isError">
-                <label class="error-title">Kan ikke selge denne fakturaen. Aprila svarer ikke for øyeblikket</label>
-                <label class="error-message">Du kan prøve igjen eller sende faktura på vanlig måte.</label>          
+            <div class="item">
+                <span class="title">Utbetaling i dag</span>
+                <span>
+                    {{offer.DisbursementAmount.Amount}}
+                    {{offer.DisbursementAmount.Currency}}
+                </span>
             </div>
+
+            <mat-checkbox [(ngModel)]="isOfferAccept" [disabled]="offerFeedbackProgress">
+                Jeg ønsker å selge faktura
+            </mat-checkbox>
+        </div>
+
+        <div *ngIf="!isOffered && offer && offer.Reasons">
+            <div class="error" *ngFor="let error of offer.Reasons">
+                <label class="error-title">{{error.ReasonCode}}</label>
+                <label class="error-message">{{error.ReasonDescription}}</label>
+            </div>
+
+            <div *ngIf="offerLimitMessage" class="offer-limit-info">
+                <i class="material-icons">error</i>
+                {{offerLimitMessage}}
+            </div>
+        </div>
+
+        <div class="error" *ngIf="isError">
+            <label class="error-title">Kan ikke selge denne fakturaen. Aprila svarer ikke for øyeblikket</label>
+            <label class="error-message">Du kan prøve igjen eller sende faktura på vanlig måte.</label>
         </div>
     </article>
 
     <footer class="modal-footer">
         <div class="note">
             <label>Tjensten leveres av Aprila Bank.</label>
-            <label>Lær mer om <a href="https://aprila.no/fakturasalg-priser/" target="_blank"> salg av fakturaer og prisberegning</a></label>
+            <label>
+                Lær mer om
+                <a href="https://aprila.no/fakturasalg-priser/" target="_blank">
+                    salg av fakturaer og prisberegning
+                </a>
+            </label>
         </div>
+
         <div class="actions" *ngIf="!gettingOfferProgress && !isError">
-           
-            <button class="okay" (click)="declineOffer()" *ngIf="!isOfferAccept" [disabled]="offerFeedbackProgress"
-                [attr.aria-busy]="offerFeedbackProgress">Fakturer vanlig</button>
-            <button class="okay" (click)="acceptOffer()" *ngIf="isOfferAccept" [disabled]="offerFeedbackProgress"
-                [attr.aria-busy]="offerFeedbackProgress">Selg og fakturaer</button>
+            <button class="c2a"
+                *ngIf="!isOfferAccept"
+                (click)="declineOffer()"
+                [disabled]="offerFeedbackProgress"
+                [attr.aria-busy]="offerFeedbackProgress">
+                Fakturer vanlig
+            </button>
+
+            <button class="c2a"
+                *ngIf="isOfferAccept"
+                (click)="acceptOffer()"
+                [disabled]="offerFeedbackProgress"
+                [attr.aria-busy]="offerFeedbackProgress">
+                Selg og fakturaer
+            </button>
         </div>
 
         <div class="actions" *ngIf="isError">
-            <button class="okay" (click)="declineOffer()" [disabled]="offerFeedbackProgress"
-            [attr.aria-busy]="offerFeedbackProgress">Fakturer vanlig</button>
-            <button class="okay" (click)="tryAgain()" [disabled]="offerFeedbackProgress"> Prøv igjen</button>
+            <button class="secondary"
+                (click)="declineOffer()"
+                [disabled]="offerFeedbackProgress"
+                [attr.aria-busy]="offerFeedbackProgress">
+                Fakturer vanlig
+            </button>
+
+            <button class="c2a" (click)="tryAgain()" [disabled]="offerFeedbackProgress">
+                Prøv igjen
+            </button>
         </div>
-
     </footer>
-
 </section>

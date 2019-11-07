@@ -18,7 +18,7 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
-              "src/favicon.png",
+              "src/themes",
               "src/robots.txt",
               "src/security.txt",
               "src/fileviewer.html",
@@ -32,7 +32,12 @@
               "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@ng-select/ng-select/themes/default.theme.css"
-            ]
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/themes/ue"
+              ]
+            }
           },
           "configurations": {
             "dev": {
@@ -40,7 +45,7 @@
               "optimization": true,
               "buildOptimizer": false,
               "outputHashing": "all",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": false,
               "extractLicenses": true,
@@ -51,7 +56,19 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
+              "extractCss": false,
+              "namedChunks": true,
+              "vendorChunk": true
+            },
+            "dev-serve-faster": {
+              "aot": false,
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "sourceMap": false,
+              "showCircularDependencies": false,
+              "extractLicenses": false,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true
@@ -90,29 +107,12 @@
                 }
               ]
             },
-            "ext01": {
-              "aot": true,
-              "optimization": true,
-              "buildOptimizer": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": false,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.ext01.ts"
-                }
-              ]
-            },
             "test-serve": {
               "aot": false,
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -128,7 +128,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -161,7 +161,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -172,12 +172,46 @@
                 }
               ]
             },
+            "ext01": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "extractCss": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext01.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext01.ico"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext01.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext01"
+                ]
+              }
+            },
             "ext01-serve": {
               "aot": false,
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "sourceMap": true,
+              "evalSourceMap": true,
               "extractCss": false,
               "namedChunks": true,
               "vendorChunk": true,
@@ -185,8 +219,25 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.ext01.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext01.ico"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext01.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
-              ]
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext01"
+                ]
+              }
             },
             "local": {
               "outputHashing": "all",
@@ -217,6 +268,9 @@
           "configurations": {
             "dev-serve": {
               "browserTarget": "economy-frontend:build:dev-serve"
+            },
+            "dev-serve-faster": {
+              "browserTarget": "economy-frontend:build:dev-serve-faster"
             },
             "test-serve": {
               "browserTarget": "economy-frontend:build:test-serve"

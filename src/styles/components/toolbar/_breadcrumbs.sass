@@ -18,13 +18,15 @@ uni-breadcrumbs
             padding: 0 .3rem
             color: $toolbar-grey
 
-        a:link,
-        a:visited
+        a
             text-transform: uppercase
             text-decoration: none
             color: $toolbar-grey
-            font-size: 13px
+            font-size: 12px
 
-        a:hover,
-        a:focus
-            color: lighten($toolbar-grey, 10%)
+        a:hover
+            color: var(--link-color)
+
+        @media screen and (max-width: 1300px)
+            a
+                font-size: 11px

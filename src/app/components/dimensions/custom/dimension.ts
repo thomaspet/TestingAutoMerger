@@ -23,7 +23,7 @@ import {
     UniTableColumnType,
     UniTableColumn,
 } from '@uni-framework/ui/unitable';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { IUniTab } from '@app/components/layout/uni-tabs';
 import { UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 import { combineLatest } from 'rxjs';
@@ -523,7 +523,7 @@ export class UniDimensionView implements OnInit {
                         Property: 'Description',
                     },
                     <any>{
-                        FieldType: FieldType.DATE_TIME_PICKER,
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Opprettet',
                         Property: 'CreatedAt',
                         ReadOnly: true

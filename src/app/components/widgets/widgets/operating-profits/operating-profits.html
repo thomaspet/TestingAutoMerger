@@ -2,34 +2,34 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section *ngIf="!unauthorized" class="filters uni-redesign">
+        <section *ngIf="!unauthorized" class="filters">
             <button *ngFor="let year of years"
-                class
-                [ngClass]="{'outline-c2a': year === currentYear}"
+                class="pill"
+                [ngClass]="{'active': year === currentYear}"
                 (click)="yearChange(year)">
                 {{year}}
             </button>
 
-            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+            <button #toggle class="tertiary toggle-button">
                 {{showAccumulatedResult ? 'Akkumulert resultat' : 'Månedlig resultat'}}
                 <i class="material-icons">expand_more</i>
             </button>
-            <mat-menu #contextMenu="matMenu">
-                <ul class="widget-filter-menu">
-                    <li role="button" (click)="changeResultLine(false)">
+            <dropdown-menu [trigger]="toggle">
+                <ng-template>
+                    <a class="dropdown-menu-item" (click)="changeResultLine(false)">
                         Vis månedlig resultat
-                    </li>
+                    </a>
 
-                    <li role="button" (click)="changeResultLine(true)">
+                    <a class="dropdown-menu-item" (click)="changeResultLine(true)">
                         Vis akkumulert resultat
-                    </li>
-                </ul>
-            </mat-menu>
+                    </a>
+                </ng-template>
+            </dropdown-menu>
         </section>
     </section>
 
     <section class="content" [attr.aria-busy]="busy">
-        <div class="canvas-container">
+        <div class="canvas-container" [ngClass]="isLineChart ? 'linechart' : ''">
             <section class="custom-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
                 <span>{{tooltip.month}}</span>
                 <section class="data-row">
@@ -48,23 +48,38 @@
                 </section>
             </section>
 
-            <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>
+            <section *ngIf="isLineChart" class="button-and-labels-top">
+
+                <section class="legend" id="sales" (click)="addhiddenClass('sales', 1)">
+                    <span class="indicator" [style.background]="lineColors[0]"></span> Salg
+                </section>
+
+                <section class="legend" id="costs" (click)="addhiddenClass('costs', 2)">
+                    <span class="indicator" [style.background]="lineColors[1]"></span> Driftskostnader
+                </section>
+
+                <section class="legend" id="result" (click)="addhiddenClass('result', 0)">
+                    <span class="indicator" [style.background]="lineColors[2]"></span> Resultat
+                </section>
+            </section>
+
+            <section *ngIf="unauthorized" class="no-content">Mangler tilgang</section>
             <canvas #operatingProfit></canvas>
         </div>
 
-        <section *ngIf="!unauthorized" class="chart-legend">
+        <section *ngIf="!unauthorized && !isLineChart" class="chart-legend">
             <section class="legend">
-                <span class="indicator income"></span>
+                <span class="indicator" [style.background]="barColors[0]"></span>
                 Inntekter: <strong>{{ (income | uninumberformat:'money') || 0}}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator cost"></span>
+                <span class="indicator" [style.background]="barColors[1]"></span>
                 Kostnader: <strong>{{ (cost * -1 | uninumberformat:'money') || 0}}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator result"></span>
+                <span class="indicator" [style.background]="barColors[2]"></span>
                 Resultat: <strong>{{ (sum | uninumberformat:'money') || 0 }}</strong>
             </section>
         </section>

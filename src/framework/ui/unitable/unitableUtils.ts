@@ -137,15 +137,8 @@ export class UniTableUtils {
             initValue = rowModel.getIn(field.split('.')) || '';
         }
 
-        if (columnType === UniTableColumnType.DateTime) {
-            const parsedDate = moment(initValue);
-            initValue = parsedDate.isValid() ? parsedDate.format('DD.MM.YYYY') : '';
-        }
-
         if (columnType === UniTableColumnType.LocalDate && initValue) {
-            const date = initValue.toDate ? initValue.toDate() : initValue;
-            const parsedDate = moment(date);
-            initValue = parsedDate.isValid() ? parsedDate.format('DD.MM.YYYY') : '';
+            initValue = initValue.toDate ? initValue.toDate() : initValue;
         }
 
         if (columnType === UniTableColumnType.Number

@@ -15,6 +15,12 @@ export class TopTenCustomersWidget {
     currentYear = new Date().getFullYear();
     unauthorized: boolean = false;
 
+    contextMenuItems = [
+        { label: 'Ny faktura', entity: 'invoices' },
+        { label: 'Ny ordre', entity: 'orders' },
+        { label: 'Nytt tilbud', entity: 'quotes' },
+    ];
+
     constructor(
         private dataService: WidgetDataService,
         private router: Router,

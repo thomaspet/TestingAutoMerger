@@ -1,69 +1,74 @@
-<section (clickOutside)="close()"
-         class="uni-multivalue-ng"
-         (keyup.esc)="close()"
-         (keydown)="keyDownHandler($event)"
-         [class.-has-values]="rows?.length">
+<section
+    (clickOutside)="close()"
+    class="uni-multivalue-ng"
+    (keyup.esc)="close()"
+    (keydown)="keyDownHandler($event)"
+    [class.-has-values]="rows?.length">
 
-    <input type="text"
-           #mainInput
-           [attr.aria-describedby]="asideGuid"
-           [ngModel]="getDisplayValue(selectedRow)"
-           [class.-has-editor]="field?.Options?.editor"
-           [placeholder]="field?.Placeholder || ''"
-           (focus)="focusHandler()"
-           [title]="control?.value || ''"
-           (keypress)="keyPressHandler($event)"
-           [attr.aria-readonly]="readOnly$ | async"
-           tabindex="-1"
-           readonly
-    />
-
-    <button type="button"
-            #openbtn
-            class="uni-multivalue-moreBtn"
-            (click)="toggle()"
+    <section class="input-with-button" (click)="toggle()">
+        <input #mainInput type="text"
+            [ngModel]="getDisplayValue(selectedRow)"
+            [placeholder]="field?.Placeholder || ''"
+            (focus)="focusHandler()"
+            [title]="control?.value || ''"
+            (keypress)="keyPressHandler($event)"
+            [attr.aria-readonly]="readOnly$ | async"
             tabindex="-1"
-            [disabled]="readOnly$ | async">Ny</button>
+            readonly
+        />
 
-    <section *ngIf="isOpen" class="multivalue-section-container">
-
-        <input type="search"
-            [formControl]="filterFormControl"
-            placeholder="Filter"
-            [(ngModel)]="filter"
-            [attr.aria-expanded]="rows?.length > 1"
-            #filterElement>
-
-        <ul>
-            <li [attr.aria-selected]="focusedRow === emptyRow" (mouseover)="focusedRow = emptyRow" (click)="clearSelection()" *ngIf="rows.length">
-                <div>
-                    <span>
-                        Ikke valgt
-                    </span>
-                </div>
-            </li>
-            <li *ngFor="let row of filteredRows" [attr.aria-selected]="focusedRow === row" (mouseover)="focusedRow = row" (click)="selectRow(row)">
-                <div style="display: flex;" *ngIf="!row.Deleted">
-                    <span> {{ getDisplayValue(row) ? getDisplayValue(row) : '' }} <small style="margin-left: 1rem !important; font-size: .75rem !important;"> {{ getDisplayValue(row) ? '' : 'Trykk F2 for å redigere' }} </small> </span>
-                    <i class="material-icons" (click)="edit(row, $event)">edit</i>
-                    <i class="material-icons" (click)="delete(row, $event)"*ngIf="field?.Options?.allowAddValue !== false">delete_outline</i>
-                </div>
-                <div *ngIf="row.Deleted" class="mutlivalue-deleted-undo">
-                    <span>SLETTET:  {{getDisplayValue(row)}} </span>
-                    <i class="material-icons" (click)="regretDelete(row, $event)">undo</i>
-                </div>
-            </li>
-            <li [attr.aria-selected]="focusedRow === row" (mouseover)="focusedRow = row" (click)="addNew(filter)" *ngIf="field?.Options?.allowAddValue !== false">
-                <div>
-                    <i class="material-icons multivalue-add-new-icon">add</i>
-                    <span>
-                        Opprett {{ filter ? '"' + filter + '"' : 'ny' }}
-                    </span>
-                    <i class="material-icons tab-tooltip" matTooltipClass="multivalue-shortcut-tooltip" matTooltip="{{ shortCutMessage }}">
-                        info
-                    </i>
-                </div>
-            </li>
-        </ul>
+        <button type="button"
+            tabindex="-1"
+            style="pointer-events: none"
+            [disabled]="readOnly$ | async">
+            <i class="material-icons">{{rows?.length ? 'expand_more' : 'add'}}</i>
+        </button>
     </section>
+
+    <input-dropdown-menu [input]="mainInput" [visible]="isOpen">
+        <ng-template>
+            <section class="multivalue-section-container">
+                <input type="search"
+                    [formControl]="filterFormControl"
+                    placeholder="Filter"
+                    [(ngModel)]="filter"
+                    (keydown)="keyDownHandler($event)"
+                    [attr.aria-expanded]="rows?.length > 1"
+                    #filterElement>
+
+                <ul>
+                    <li [attr.aria-selected]="focusedRow === emptyRow" (mouseover)="focusedRow = emptyRow" (click)="clearSelection()" *ngIf="rows.length">
+                        <div>
+                            <span>
+                                Ikke valgt
+                            </span>
+                        </div>
+                    </li>
+                    <li *ngFor="let row of filteredRows" [attr.aria-selected]="focusedRow === row" (mouseover)="focusedRow = row" (click)="selectRow(row)">
+                        <div style="display: flex;" *ngIf="!row.Deleted">
+                            <span> {{ getDisplayValue(row) ? getDisplayValue(row) : '' }} <small style="margin-left: 1rem !important; font-size: .75rem !important;"> {{ getDisplayValue(row) ? '' : 'Trykk F2 for å redigere' }} </small> </span>
+                            <i class="material-icons" (click)="edit(row, $event)">edit</i>
+                            <i class="material-icons" (click)="delete(row, $event)"*ngIf="field?.Options?.allowAddValue !== false">delete_outline</i>
+                        </div>
+                        <div *ngIf="row.Deleted" class="mutlivalue-deleted-undo">
+                            <span>SLETTET:  {{getDisplayValue(row)}} </span>
+                            <i class="material-icons" (click)="regretDelete(row, $event)">undo</i>
+                        </div>
+                    </li>
+                    <li [attr.aria-selected]="focusedRow === row" (mouseover)="focusedRow = row" (click)="addNew(filter)" *ngIf="field?.Options?.allowAddValue !== false">
+                        <div>
+                            <i class="material-icons multivalue-add-new-icon">add</i>
+                            <span>
+                                Opprett {{ filter ? '"' + filter + '"' : 'ny' }}
+                            </span>
+                            <i class="material-icons tab-tooltip" matTooltipClass="multivalue-shortcut-tooltip" matTooltip="{{ shortCutMessage }}">
+                                info
+                            </i>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </ng-template>
+    </input-dropdown-menu>
+
 </section>

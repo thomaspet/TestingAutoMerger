@@ -2,15 +2,10 @@ import {
     Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewEncapsulation,
     AfterViewInit, ChangeDetectionStrategy
 } from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
-import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
-import {ReportFormat} from '../../../../models/reportFormat';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
+import {ReportFormat} from '@app/models/reportFormat';
 import {ReportService, Report, ErrorService} from '@app/services/services';
-
-interface IDownloadAction {
-    label: string;
-    format: ReportFormat;
-}
+import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
 
 @Component({
     encapsulation: ViewEncapsulation.None,
@@ -18,9 +13,7 @@ interface IDownloadAction {
     selector: 'uni-preview-modal',
     template: `
         <section class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Forhåndsvisning'}}</h1>
-            </header>
+            <header>{{options.header || 'Forhåndsvisning'}}</header>
 
             <article>
                 <section *ngIf="busy" class="report-loading">
@@ -35,33 +28,18 @@ interface IDownloadAction {
                 <section id="reportContainer"></section>
             </article>
             <footer *ngIf="!busy">
-                <button class="main-action-button good" (click)="download(actions[0].format)" [disabled]="actionButtonDisabled">
-                    {{actions[0].label}}
-                </button>
-                <button class="action-list-toggle good" (click)="showActionList = !showActionList" [disabled]="actionButtonDisabled">
-                    Flere valg
-                </button>
-                <ul class="download-action-list" [attr.aria-expanded]="showActionList">
-                    <li *ngFor="let action of actions" (click)="download(action.format)">
-                        {{action.label}}
-                    </li>
-                </ul>
+                <combo-button [actions]="actions"></combo-button>
             </footer>
         </section>
     `
 })
 export class UniPreviewModal implements IUniModal, AfterViewInit {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter<boolean>();
 
-    @Output()
-    public onClose: EventEmitter<boolean> = new EventEmitter();
-
-    public showActionList: boolean;
-    public actions: IDownloadAction[];
-    public modalConfig: any;
-    public busy: boolean = true;
-    public actionButtonDisabled = true;
+    actions: ComboButtonAction[];
+    modalConfig: any;
+    busy: boolean = true;
 
     constructor(
         public reportService: ReportService,
@@ -69,30 +47,15 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
         private errorService: ErrorService
     ) {
         this.actions = [
-            {
-                label: 'Last ned PDF',
-                format: ReportFormat.PDF
-            },
-            {
-                label: 'Last ned CSV',
-                format: ReportFormat.CSV
-            },
-            {
-                label: 'Last ned HTML',
-                format: ReportFormat.HTML
-            },
-            {
-                label: 'Last ned Excel',
-                format: ReportFormat.Excel
-            },
-            {
-                label: 'Last ned Word',
-                format: ReportFormat.Word
-            }
+            { label: 'Last ned PDF', action: () => this.download(ReportFormat.PDF) },
+            { label: 'Last ned CSV', action: () => this.download(ReportFormat.CSV) },
+            { label: 'Last ned HTML', action: () => this.download(ReportFormat.HTML) },
+            { label: 'Last ned Excel', action: () => this.download(ReportFormat.Excel) },
+            { label: 'Last ned Word', action: () => this.download(ReportFormat.Word) }
         ];
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
         if (this.options.data) {
             const reportDefinition: Report = this.options.data;
 
@@ -108,24 +71,22 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
                 this.onClose
             ).subscribe(
                 () => {
-                    console.log(this.modalConfig);
-                    this.actionButtonDisabled = false;
                     this.busy = false;
                     this.cdr.markForCheck();
                 },
                 (err) => {
                     this.errorService.handle(err);
-                    this.close(true);
+                    this.close();
                 }
             );
         }
     }
 
-    public download(format) {
+    download(format) {
         this.reportService.generateReportFormat(format, this.modalConfig.reportDefinition);
     }
 
-    public close(bool: boolean) {
+    close() {
         this.onClose.emit();
     }
 }

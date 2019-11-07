@@ -1,13 +1,5 @@
-@import '~src/styles/unibase/colors/__colors.sass'
-
-$lightblue: #2699fb
-$darkblue: #1565c0
-$red: #f53b57
-$green: #0be881
-$yellow: #ffdd59
-
 \:host
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
 
 .users-container
     display: flex
@@ -31,18 +23,11 @@ $yellow: #ffdd59
             margin: 1rem 1rem 0
 
             button
-                background-color: #fff
-                border: 1px solid rgba(0, 0, 0, 0.12)
-                height: 2.5rem
-                margin-bottom: 1rem
-
+                margin: 0  0 1rem 0
                 &:first-of-type
-                    margin-right: 10px
-                & + button
-                    margin-left: 0
-
+                    margin-right: 2px
                 i.material-icons
-                    color: $darkblue
+                    color: var(--color-c2a)
                     font-size: 18px
                     margin: 0 2px 2px 0
 
@@ -62,7 +47,7 @@ $yellow: #ffdd59
 
             li
                 display: flex
-                border-bottom: 1px solid $uni-color-scale9
+                border-bottom: 1px solid var(--border-color)
                 padding: 1rem
                 cursor: pointer
 
@@ -73,7 +58,7 @@ $yellow: #ffdd59
                     background-color: #f3f3f3
 
                 &.selected
-                    background-color: #D5EEF6
+                    background-color: var(--dropdown-select-background)
 
                 .user-info
                     flex: 1

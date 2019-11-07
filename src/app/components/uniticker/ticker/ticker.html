@@ -21,16 +21,20 @@
             <button
                 *ngIf="openAction"
                 type="button"
-                class="sub-ticker-open-button"
+                class="tertiary"
+                style="margin-left: auto"
                 (click)="onExecuteAction(openAction)">
+                <i class="material-icons">edit</i>
                 Åpne
             </button>
 
             <button
                 *ngIf="newWithEntityAction"
                 type="button"
-                class="sub-ticker-open-button"
+                class="tertiary"
+                style="margin-left: auto"
                 (click)="openNewWithEntity(newWithEntityAction)">
+                <i class="material-icons">add</i>
                 Ny
             </button>
         </header>
@@ -46,6 +50,7 @@
                 {{ this.ticker.DefaultTableFilter.label }}
             </mat-checkbox>
             <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
+                class="borders"
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"

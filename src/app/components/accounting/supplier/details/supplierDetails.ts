@@ -54,7 +54,7 @@ import {
 } from '../../../../../framework/uni-modal';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -80,7 +80,7 @@ export class SupplierDetails implements OnInit {
     public supplierID: number;
     public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true, labelWidth: '15rem'});
     public addressChanged: any;
     public phoneChanged: any;
     public emailChanged: any;

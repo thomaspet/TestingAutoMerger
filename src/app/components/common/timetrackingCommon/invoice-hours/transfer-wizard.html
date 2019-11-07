@@ -1,11 +1,9 @@
 <section role="dialog" class="uni-modal">
-    <header>
-        <h1 class="new">Overføring av timer</h1>
-    </header>
+    <header>Overføring av timer</header>
 
-    <article [attr.aria-busy]="busy" [class.wait-cursor]="fetching" >
+    <article [attr.aria-busy]="busy">
         <div class="stepheader">{{steps[step].label}}:</div>
-        
+
         <section class="wizard-step-container" [hidden]="step !== 0">
             <uni-form [fields]="fields$"
                 [model]="model$"
@@ -21,10 +19,10 @@
         <section class="wizard-step-container" [hidden]="step !== 2">
             <workitem-transfer-wizard-products [options]="wizardOptions"></workitem-transfer-wizard-products>
         </section>
-        
+
         <section class="wizard-step-container" [hidden]="step !== 3">
             <workitem-transfer-wizard-preview [options]="wizardOptions"></workitem-transfer-wizard-preview>
-        </section>        
+        </section>
 
         <section class="wizard-step-container" [hidden]="step !== 4 || workInProgress">
             Trykk "Fullfør" for å starte generering av {{wizardOptions?.orders.length}} ordre(r).
@@ -33,14 +31,31 @@
         <section class="wizard-step-container" *ngIf="workInProgress">
             {{workIndex}} / {{wizardOptions?.orders?.length}}
             <div [attr.aria-busy]="transferBusy">...</div>
-        </section>        
+        </section>
 
     </article>
 
     <footer>
-        <p style="float: left">Steg {{step+1}} av {{steps.length}}</p>
-        <button [disabled]="workInProgress" *ngIf="step>0" class="bad" (click)="goBack()">Tilbake</button>
-        <button [disabled]="workInProgress" class="good" id="good_button_ok" (click)="accept()" [innerHtml]="step<steps.length-1 ? 'Videre': 'Fullfør'"></button>
-        <button [disabled]="workInProgress" class="cancel" (click)="cancel()">Avbryt</button>
+        <button class="secondary pull-left"
+            [disabled]="workInProgress" 
+            (click)="cancel()">
+            Avbryt
+        </button>
+
+        <span style="margin-right: 2rem">Steg {{step+1}} av {{steps.length}}</span>
+
+        <button *ngIf="step > 0" class="secondary" 
+            [disabled]="workInProgress" 
+            (click)="goBack()">
+            Tilbake
+        </button>
+        
+        <button 
+            [ngClass]="step < steps.length - 1 ? 'c2a': 'good'"  
+            [disabled]="workInProgress" 
+            id="good_button_ok"
+            (click)="accept()">
+            {{step < steps.length - 1 ? 'Videre': 'Fullfør'}}
+        </button>
     </footer>
 </section>

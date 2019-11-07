@@ -1,25 +1,41 @@
 import {Component} from '@angular/core';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {theme} from 'src/themes/theme';
+import {Router, NavigationEnd} from '@angular/router';
+import {Subscription, Subject} from 'rxjs';
+import {AuthService} from '@app/authService';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-init',
     templateUrl: './init.html',
 })
 export class UniInit {
-    public marketingContentHidden: boolean;
-    public currentYear: number; // used in copyright footer
+    logoUrl = theme.login_logo;
 
-    constructor(private browserStorage: BrowserStorageService) {
-        this.currentYear = new Date().getFullYear();
+    isAuthenticated: boolean;
+    useBackground1 = true;
+    showTryForFree: boolean = true;
+    background1 = theme.login_background;
+    background2 = 'assets/onboarding-background.svg';
 
-        // Try/catch to avoid crashing the app when localstorage has no entry
-        try {
-            this.marketingContentHidden = browserStorage.getItem('marketingContent_hidden');
-        } catch (e) {}
+    private onDestroy$ = new Subject();
+
+    constructor(
+        private router: Router,
+        public authService: AuthService
+    ) {
+        this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
+            if (event instanceof NavigationEnd) {
+                this.useBackground1 = !event.url.includes('register-company');
+                this.showTryForFree = !event.url.includes('sign-up');
+            }
+        });
+
+        this.authService.token$.subscribe(token => this.isAuthenticated = !!token);
     }
 
-    public toggleMarketingContent() {
-        this.marketingContentHidden = !this.marketingContentHidden;
-        this.browserStorage.setItem('marketingContent_hidden', this.marketingContentHidden);
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 }

@@ -4,7 +4,7 @@ import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {IToolbarConfig, IAutoCompleteConfig, IShareAction} from './../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation, LedgerTableEmitValues} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
@@ -12,7 +12,7 @@ import {Observable} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
 import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
 import {StatisticsService, NumberFormat, PageStateService} from '../../../services/services';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { IUniTab } from '@app/components/layout/uni-tabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({
@@ -27,7 +27,6 @@ export class PostPost {
     @ViewChild(LedgerAccountReconciliation)
     public postpost: LedgerAccountReconciliation;
 
-    shareActions: IShareAction[];
     saveActions: IUniSaveAction[];
     registers: any[] = [
         {Register: 'customer', _DisplayName: 'Kunde'},
@@ -53,12 +52,12 @@ export class PostPost {
     ];
 
     mainTabs: IUniTab[] = [
-        {name: 'Alle', value: 'EVERY', hidden: false},
-        {name: 'Alle med åpne poster', value: 'ALL', hidden: false},
+        {name: 'Alle', value: 'EVERY', disabled: false},
+        {name: 'ACCOUNTING.POSTPOST.ALL_WITH_OPEN', value: 'ALL', disabled: false},
         {
             name: `Differanser`,
             value: 'DIFF',
-            hidden: true,
+            disabled: true,
             tooltip: 'Differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
         }
     ];
@@ -125,14 +124,13 @@ export class PostPost {
             this.checkForDiff().then((hideDiff: boolean) => {
 
                 // Hide/show correct tabs
-                this.mainTabs[2].hidden = hideDiff;
-                this.mainTabs[1].hidden = this.register === 'account';
+                this.mainTabs[2].disabled = hideDiff;
+                this.mainTabs[1].disabled = this.register === 'account';
                 this.mainTabs = [...this.mainTabs];
 
                 // Wait for the tab update before settings mainTabIndex. Check that the number is not corrupt (to big)
                 this.mainActiveIndex = (params['maintabindex'] < this.mainTabs.length) ? params['maintabindex'] || 0 : 0;
 
-                this.setupShareActions();
                 this.setupToolbarConfig();
                 this.setupRegisterConfig();
                 this.reloadRegister();
@@ -146,6 +144,13 @@ export class PostPost {
         });
     }
 
+    ngOnDestroy() {
+        this.customer$.complete();
+        this.supplier$.complete();
+        this.account$.complete();
+        this.current$.complete();
+    }
+
     public addTab() {
         this.pageStateService.setPageState('register', this.register);
         this.pageStateService.setPageState('name', this.nameFromParams);
@@ -156,7 +161,7 @@ export class PostPost {
 
         this.tabService.addTab({
             url: this.pageStateService.getUrl(),
-            name: 'Åpne poster',
+            name: 'NAVBAR.OPEN_POST',
             active: true,
             moduleID: UniModules.PostPost
         });
@@ -234,25 +239,6 @@ export class PostPost {
         this.currentListFilter = filter;
         this.filteredAccounts = this.filteredAccounts.sort(this.compare(filter.value, filter.multiplier * filter.initialMulitplier));
         filter.initialMulitplier *= -1;
-    }
-
-    // Share actions
-    private setupShareActions() {
-        this.shareActions = [
-            {
-                action: () => this.exportAccounts(),
-                disabled: () => false,
-                label: 'Eksport kontoliste'
-            }, {
-                action: () => this.exportOpenPosts(),
-                disabled: () => false,
-                label: 'Eksport åpne poster'
-            }, {
-                action: () => this.exportAllOpenPosts(),
-                disabled: () => false,
-                label: 'Eksport alle åpne poster'
-            }
-        ];
     }
 
     // Save actions
@@ -459,13 +445,18 @@ export class PostPost {
 
     private setupToolbarConfig() {
         const reg = this.registers.find(r => r.Register === this.register);
-        let title = 'Åpne poster';
+        let title = 'ACCOUNTING.POSTPOST.TITLE~';
         if (reg) {
             title += ` - ${reg._DisplayName}`;
         }
+
         this.toolbarconfig = {
             title: title,
-            contextmenu: [],
+            contextmenu: [
+                { label: 'Eksport kontoliste' , action: () => this.exportAccounts() },
+                { label: 'ACCOUNTING.POSTPOST.EXPORT', action: () => this.exportOpenPosts() },
+                { label: 'ACCOUNTING.POSTPOST.EXPORT_ALL', action: () => this.exportAllOpenPosts() }
+            ],
         };
     }
 
@@ -669,14 +660,14 @@ export class PostPost {
     public changeRegister(register) {
         this.register = register;
         this.mainActiveIndex = 0;
-        this.mainTabs[1].hidden = this.register === 'account';
+        this.mainTabs[1].disabled = this.register === 'account';
         this.addTab();
         this.setupToolbarConfig();
 
         switch (this.register) {
             case 'customer':
                 this.checkForDiff().then((res: boolean) => {
-                    this.mainTabs[2].hidden = res;
+                    this.mainTabs[2].disabled = res;
                     this.mainTabs = [...this.mainTabs];
                     this.supplier$.next(null);
                     this.account$.next(null);
@@ -685,7 +676,7 @@ export class PostPost {
                 break;
             case 'supplier':
                 this.checkForDiff().then((res: boolean) => {
-                    this.mainTabs[2].hidden = res;
+                    this.mainTabs[2].disabled = res;
                     this.mainTabs = [...this.mainTabs];
                     this.customer$.next(null);
                     this.account$.next(null);
@@ -693,8 +684,8 @@ export class PostPost {
                 });
                 break;
             case 'account':
-                this.mainTabs[1].hidden = true;
-                this.mainTabs[2].hidden = true;
+                this.mainTabs[1].disabled = true;
+                this.mainTabs[2].disabled = true;
                 this.mainTabs = [...this.mainTabs];
                 this.customer$.next(null);
                 this.supplier$.next(null);

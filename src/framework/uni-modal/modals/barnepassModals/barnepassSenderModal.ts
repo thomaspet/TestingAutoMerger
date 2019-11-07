@@ -6,7 +6,7 @@ import { OppgaveBarnepass, ReportDefinition, FieldType, BarnepassLeveranse } fro
 import { AltinnIntegrationService, ReportDefinitionService, ReportNames } from "@app/services/services";
 import { Observable, BehaviorSubject } from "rxjs";
 import { UniFieldLayout } from "@uni-framework/ui/uniform";
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { IUniTab } from '@app/components/layout/uni-tabs/uni-tabs';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
 import { isNullOrUndefined } from "util";
@@ -21,7 +21,7 @@ import { AgGridWrapper } from "@uni-framework/ui/ag-grid/ag-grid-wrapper";
 })
 
 export class BarnepassSenderModal implements OnInit, IUniModal {
-    @ViewChild(AgGridWrapper) 
+    @ViewChild(AgGridWrapper)
     public table: AgGridWrapper;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
@@ -94,7 +94,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
         this.setupTable();
         this.updateSaveActions();
     }
-    
+
     getReport() : Observable<boolean> {
         if (this.options.data.report) {
             this.report = this.options.data.report;
@@ -131,7 +131,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
     public handleSending(printAll: boolean = false) {
         const selectedPrints = this.checkedRows.filter(x => x['_type'] === this.sendTypePrint);
         const selectedEmails = this.checkedRows.filter(x => x['_type'] === this.sendTypeEmail);
-        
+
         this.sendPrint(printAll ? this.checkedRows : selectedPrints);
 
         if (printAll || selectedEmails.length === 0) {
@@ -223,7 +223,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
                 this.printCount++;
             }
         });
-        
+
        this.updateSaveActions();
     }
 
@@ -235,7 +235,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
         this.onClose.next(true);
     }
 
-/* dropdown 
+/* dropdown
     private getReportsFields(reports: ReportDefinition[]): UniFieldLayout[] {
         return <any[]>[
             {
@@ -272,6 +272,6 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
         ];
 
         this.fields$.next(fields);
-    }    
-*/    
+    }
+*/
 }

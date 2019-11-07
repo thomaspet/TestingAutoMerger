@@ -1,7 +1,9 @@
-<label *ngIf="field?.FieldType !== 1">
-    <span [hidden]="!isInput(field?.FieldType)">
-
-        <span [title]="field?.Label">{{field?.Label | isRequired:field}}</span>
+<label class="uni-label label-left" *ngIf="field?.FieldType !== 1">
+    <span
+        [hidden]="!isInput(field?.FieldType)"
+        [title]="field?.Label"
+        [style.width]="labelWidth">
+        {{field?.Label | isRequired:field}}
 
         <uni-tooltip *ngIf="field?.Tooltip"
             [type]="field.Tooltip.Type"
@@ -9,198 +11,218 @@
             [text]="field.Tooltip.Text">
         </uni-tooltip>
     </span>
-    <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0"
-                            [field]="field"
-                            [model]="model"
-                            [asideGuid]="asideGuid"
-                            (readyEvent)="onReadyHandler($event)"
-                            (changeEvent)="onChangeHandler($event)"
-                            (inputEvent)="onInputHandler($event)"
-                            (focusEvent)="onFocusHandler($event)"
-    ></uni-autocomplete-input>
-    <uni-date-input #selectedComponent *ngIf="field?.FieldType === 2"
-                    [field]="field"
-                    [model]="model"
-                    [asideGuid]="asideGuid"
-                    (readyEvent)="onReadyHandler($event)"
-                    (changeEvent)="onChangeHandler($event)"
-                    (inputEvent)="onInputHandler($event)"
-                    (focusEvent)="onFocusHandler($event)"
-    ></uni-date-input>
-    <uni-select-input #selectedComponent *ngIf="field?.FieldType === 3"
-                      [field]="field"
-                      [model]="model"
-                      [asideGuid]="asideGuid"
-                      (readyEvent)="onReadyHandler($event)"
-                      (changeEvent)="onChangeHandler($event)"
-                      (inputEvent)="onInputHandler($event)"
-                      (focusEvent)="onFocusHandler($event)"
-    ></uni-select-input>
 
-    <uni-checkbox-input #selectedComponent
-        *ngIf="field?.FieldType === 5"
-        [field]="field"
-        [model]="model"
-        (readyEvent)="onReadyHandler($event)"
-        (changeEvent)="onChangeHandler($event)">
-    </uni-checkbox-input>
+    <ng-container [ngSwitch]="field?.FieldType">
+        <uniform-autocomplete #selectedComponent
+            *ngSwitchCase="0"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uniform-autocomplete>
 
-    <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6"
-                       [field]="field"
-                       [model]="model"
-                       [asideGuid]="asideGuid"
-                       (readyEvent)="onReadyHandler($event)"
-                       (changeEvent)="onChangeHandler($event)"
-                       (inputEvent)="onInputHandler($event)"
-                       (focusEvent)="onFocusHandler($event)"
-    ></uni-numeric-input>
+        <uni-select-input #selectedComponent
+            *ngSwitchCase="3"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-select-input>
 
-    <uni-checkboxgroup-input #selectedComponent
-        *ngIf="field?.FieldType === 8"
-        [field]="field"
-        [model]="model"
-        (readyEvent)="onReadyHandler($event)"
-        (changeEvent)="onChangeHandler($event)">
-    </uni-checkboxgroup-input>
+        <uni-checkbox-input #selectedComponent
+            *ngSwitchCase="5"
+            [field]="field"
+            [model]="model"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)">
+        </uni-checkbox-input>
 
-    <uni-radiogroup-input #selectedComponent
-        *ngIf="field?.FieldType === 9"
-        [field]="field"
-        [model]="model"
-        [asideGuid]="asideGuid"
-        (readyEvent)="onReadyHandler($event)"
-        (changeEvent)="onChangeHandler($event)"
-        (inputEvent)="onInputHandler($event)"
-        (focusEvent)="onFocusHandler($event)">
-    </uni-radiogroup-input>
+        <uni-numeric-input #selectedComponent
+            *ngSwitchCase="6"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-numeric-input>
 
-    <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10"
-                    [field]="field"
-                    [model]="model"
-                    [asideGuid]="asideGuid"
-                    (readyEvent)="onReadyHandler($event)"
-                    (changeEvent)="onChangeHandler($event)"
-                    (inputEvent)="onInputHandler($event)"
-                    (focusEvent)="onFocusHandler($event)"
-    ></uni-text-input>
+        <uni-checkboxgroup-input #selectedComponent
+            *ngSwitchCase="8"
+            [field]="field"
+            [model]="model"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)">
+        </uni-checkboxgroup-input>
 
-    <uni-email-input #selectedComponent *ngIf="field?.FieldType === 11"
-                     [field]="field"
-                     [model]="model"
-                     [asideGuid]="asideGuid"
-                     (readyEvent)="onReadyHandler($event)"
-                     (changeEvent)="onChangeHandler($event)"
-                     (inputEvent)="onInputHandler($event)"
-                     (focusEvent)="onFocusHandler($event)"
-    ></uni-email-input>
-    <uni-password-input #selectedComponent *ngIf="field?.FieldType === 12"
-                        [field]="field"
-                        [model]="model"
-                        [asideGuid]="asideGuid"
-                        (readyEvent)="onReadyHandler($event)"
-                        (changeEvent)="onChangeHandler($event)"
-                        (inputEvent)="onInputHandler($event)"
-                        (focusEvent)="onFocusHandler($event)"
-    ></uni-password-input>
+        <uni-radiogroup-input #selectedComponent
+            *ngSwitchCase="9"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-radiogroup-input>
 
-    <uni-hyperlink-input #selectedComponent *ngIf="field?.FieldType === 13"
-                         [field]="field"
-                         [model]="model"
-                         [asideGuid]="asideGuid"
-                         (readyEvent)="onReadyHandler($event)"
-                         (changeEvent)="onChangeHandler($event)"
-                         (inputEvent)="onInputHandler($event)"
-                         (focusEvent)="onFocusHandler($event)"
-    ></uni-hyperlink-input>
-    <uni-multivalue-input #selectedComponent *ngIf="field?.FieldType === 14"
-                          [field]="field"
-                          [model]="model"
-                          [asideGuid]="asideGuid"
-                          (readyEvent)="onReadyHandler($event)"
-                          (changeEvent)="onChangeHandler($event)"
-                          (inputEvent)="onInputHandler($event)"
-                          (focusEvent)="onFocusHandler($event)"
-                          (moveForwardEvent)="onMultivalueMoveForward($event)"
-    ></uni-multivalue-input>
+        <uni-text-input #selectedComponent
+            *ngSwitchCase="10"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-text-input>
 
-    <uni-url-input #selectedComponent *ngIf="field?.FieldType === 15"
-                   [field]="field"
-                   [model]="model"
-                   [asideGuid]="asideGuid"
-                   (readyEvent)="onReadyHandler($event)"
-                   (changeEvent)="onChangeHandler($event)"
-                   (inputEvent)="onInputHandler($event)"
-                   (focusEvent)="onFocusHandler($event)"
-    ></uni-url-input>
+        <uni-email-input #selectedComponent
+            *ngSwitchCase="11"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-email-input>
 
-    <uni-textarea-input #selectedComponent *ngIf="field?.FieldType === 16"
-                        [field]="field"
-                        [model]="model"
-                        [asideGuid]="asideGuid"
-                        (readyEvent)="onReadyHandler($event)"
-                        (changeEvent)="onChangeHandler($event)"
-                        (inputEvent)="onInputHandler($event)"
-                        (focusEvent)="onFocusHandler($event)"
-    ></uni-textarea-input>
-    <localdate-picker-input #selectedComponent *ngIf="field?.FieldType === 17"
-                            [field]="field"
-                            [model]="model"
-                            [asideGuid]="asideGuid"
-                            (readyEvent)="onReadyHandler($event)"
-                            (changeEvent)="onChangeHandler($event)"
-                            (inputEvent)="onInputHandler($event)"
-                            (focusEvent)="onFocusHandler($event)"
-    ></localdate-picker-input>
-    <uni-search-wrapper #selectedComponent *ngIf="field?.FieldType === 18"
-                        [field]="field"
-                        [model]="model"
-                        [asideGuid]="asideGuid"
-                        (readyEvent)="onReadyHandler($event)"
-                        (changeEvent)="onChangeHandler($event)"
-                        (inputEvent)="onInputHandler($event)"
-                        (focusEvent)="onFocusHandler($event)"
-    ></uni-search-wrapper>
-    <uni-multi-select-input #selectedComponent *ngIf="field?.FieldType === 19"
-                        [field]="field"
-                        [model]="model"
-                        [asideGuid]="asideGuid"
-                        (readyEvent)="onReadyHandler($event)"
-                        (changeEvent)="onChangeHandler($event)"
-                        (inputEvent)="onInputHandler($event)"
-                        (focusEvent)="onFocusHandler($event)"
-                        (moveForwardEvent)="onMultivalueMoveForward($event)"
-    ></uni-multi-select-input>
-    <uni-static-text-input #selectedComponent *ngIf="field?.FieldType === 20"
-                        [field]="field"
-                        [model]="model"
-                        [asideGuid]="asideGuid"
-                        (readyEvent)="onReadyHandler($event)"
-                        (changeEvent)="onChangeHandler($event)"
-                        (inputEvent)="onInputHandler($event)"
-                        (focusEvent)="onFocusHandler($event)"
-    ></uni-static-text-input>
-    <uni-typeahead-input #selectedComponent *ngIf="field?.FieldType === 21"
-                           [field]="field"
-                           [model]="model"
-                           [asideGuid]="asideGuid"
-                           (readyEvent)="onReadyHandler($event)"
-                           (changeEvent)="onChangeHandler($event)"
-                           (inputEvent)="onInputHandler($event)"
-                           (focusEvent)="onFocusHandler($event)"
-    ></uni-typeahead-input>
-    <ng-template ngFor let-error [ngForOf]="errorMessages" let-k="index">
-        <small role="alert" [class.bad]="!error?.isWarning" [class.warn]="error?.isWarning">
-            {{error | uniformErrorTemplate}}
-        </small>
-    </ng-template>
+        <uni-password-input #selectedComponent
+            *ngSwitchCase="12"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-password-input>
+
+        <uni-hyperlink-input #selectedComponent
+            *ngSwitchCase="13"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-hyperlink-input>
+
+        <uni-multivalue-input #selectedComponent
+            *ngSwitchCase="14"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)"
+            (moveForwardEvent)="onMultivalueMoveForward($event)">
+        </uni-multivalue-input>
+
+        <uni-url-input #selectedComponent
+            *ngSwitchCase="15"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-url-input>
+
+        <uni-textarea-input #selectedComponent
+            *ngSwitchCase="16"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-textarea-input>
+
+        <localdate-picker-input #selectedComponent
+            *ngSwitchCase="17"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </localdate-picker-input>
+
+        <uni-search-wrapper #selectedComponent
+            *ngSwitchCase="18"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-search-wrapper>
+
+        <uni-multi-select-input #selectedComponent
+            *ngSwitchCase="19"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)"
+            (moveForwardEvent)="onMultivalueMoveForward($event)">
+        </uni-multi-select-input>
+
+        <uni-static-text-input #selectedComponent
+            *ngSwitchCase="20"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-static-text-input>
+
+        <uni-typeahead-input #selectedComponent
+            *ngSwitchCase="21"
+            [field]="field"
+            [model]="model"
+            [asideGuid]="asideGuid"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (focusEvent)="onFocusHandler($event)">
+        </uni-typeahead-input>
+    </ng-container>
 </label>
 
-<uni-button-input #selectedComponent *ngIf="field?.FieldType === 1"
-                  [field]="field"
-                  [model]="model"
-                  [asideGuid]="asideGuid"
-                  (readyEvent)="onReadyHandler($event)"
-                  (changeEvent)="onChangeHandler($event)"
-                  (inputEvent)="onInputHandler($event)"
-                  (focusEvent)="onFocusHandler($event)"
-></uni-button-input>
+<section *ngIf="errorMessages?.length" [style.margin-left]="labelWidth" class="validation-results">
+    <small *ngFor="let error of errorMessages" [ngClass]="error.isWarning ? 'warn' : 'bad'">
+        {{error | uniformErrorTemplate}}
+    </small>
+</section>
+
+<uni-button-input #selectedComponent
+    *ngIf="field?.FieldType === 1"
+    [style.margin-left]="labelWidth"
+    [field]="field"
+    [model]="model"
+    [asideGuid]="asideGuid"
+    (readyEvent)="onReadyHandler($event)"
+    (changeEvent)="onChangeHandler($event)"
+    (inputEvent)="onInputHandler($event)"
+    (focusEvent)="onFocusHandler($event)">
+</uni-button-input>

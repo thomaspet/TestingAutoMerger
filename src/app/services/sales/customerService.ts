@@ -54,11 +54,11 @@ export class CustomerService extends BizHttp<Customer> {
     }
 
     public getCustomers(organizationNumber: string): Observable<StatisticsResponse> {
-        const qry = '' +
-        'model=Customer&select=Customer.CustomerNumber as CustomerNumber,Info.Name as Name' +
-        '&filter=Customer.OrgNumber eq ' + organizationNumber +
-        '&expand=Info';
-        return this.statisticsService.GetAll(qry);
+        const query = 'model=Customer&select=Customer.CustomerNumber as CustomerNumber,Info.Name as Name'
+        + '&filter=Customer.OrgNumber eq ' + organizationNumber.replace(/ /g, '')
+        + '&expand=Info';
+
+        return this.statisticsService.GetAll(query);
     }
 
     public getCustomerOrderStatistics(customerID: number): Observable<CustomerStatisticsData> {

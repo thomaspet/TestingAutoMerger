@@ -16,7 +16,7 @@ import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uni-modal';
             class="uni-modal large"
             (keyup)="onKey($event)">
 
-            <header><h1>Del opp fil</h1></header>
+            <header>Del opp fil</header>
             <article class="image-split-modal-body" [attr.aria-busy]="isSplitting">
                 <div class="parts">
                     <div *ngIf="processingPercentage" class="images_loading">

@@ -26,7 +26,7 @@
         [agGridApi]="agGridApi"
         [config]="config"
         [columns]="columns"
-        [rowHeight]="35"
+        [rowHeight]="50"
         (valueChange)="onEditorChange($event)">
     </table-editor>
 
@@ -34,7 +34,8 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.isGroupingTicker
+            'ag-theme-balham': config?.isGroupingTicker,
+            'has-sum-row': !!(dataService?.sumRow$ | async)
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -49,10 +50,10 @@
         [enableSorting]="!config?.editable && !config?.rowDraggable"
         [enableServerSideSorting]="rowModelType === 'infinite'"
 
-        [suppressNoRowsOverlay]="true"
+        [suppressNoRowsOverlay]="false"
         [suppressDragLeaveHidesColumns]="true"
-        [headerHeight]="35"
-        [rowHeight]="35"
+        [headerHeight]="rowHeight"
+        [rowHeight]="rowHeight"
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"
@@ -88,30 +89,41 @@
 
         [context]="context"
         [frameworkComponents]="cellRendererComponents"
-        [groupRowAggNodes]="aggregator">
+        [groupRowAggNodes]="aggregator"
+        [localeText]="agTranslations">
     </ag-grid-angular>
+</section>
 
-    <section class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
+<!-- Note that row-count appears twice in this file, make changes in both -->
+<section *ngIf="!usePagination" class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
+    <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
+    <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
+    <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
+</section>
+
+<section *ngIf="usePagination" class="bottom-bar">
+    <!-- Note that row-count appears twice in this file, make changes in both -->
+    <section class="row-count">
         <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
         <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
         <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
     </section>
-</section>
 
-<section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.isGroupingTicker">
-    <i class="material-icons" (click)="paginate('first')">first_page</i>
-    <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
+    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.isGroupingTicker">
+        <i class="material-icons" (click)="paginate('first')">first_page</i>
+        <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 
-    <span class="pagination-info" *ngIf="paginationInfo">
-        Side
-        <input type="text" #pageInput
-            [value]="paginationInfo.currentPage"
-            (change)="paginationInputChange(pageInput.value)"
-            (keydown.enter)="$event.stopPropagation()"
-        />
-        av {{paginationInfo.pageCount}}
-    </span>
+        <span class="pagination-info" *ngIf="paginationInfo">
+            Side
+            <input type="text" #pageInput
+                [value]="paginationInfo.currentPage"
+                (change)="paginationInputChange(pageInput.value)"
+                (keydown.enter)="$event.stopPropagation()"
+            />
+            av {{paginationInfo.pageCount}}
+        </span>
 
-    <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
-    <i class="material-icons" (click)="paginate('last')">last_page</i>
+        <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
+        <i class="material-icons" (click)="paginate('last')">last_page</i>
+    </section>
 </section>

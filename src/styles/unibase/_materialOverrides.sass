@@ -10,7 +10,7 @@
         background: none
 
 .mat-step-header .mat-step-icon
-    background-color: $uni-color-c2a !important
+    background-color: var(--color-c2a) !important
 
 .uni-progress-bar
     .mat-progress-bar-buffer
@@ -136,17 +136,45 @@ mat-expansion-panel
     mat-panel-title
         margin: auto 0
 
-.mat-tab-label .mat-tab-label-content
-    font-size: 14px
-    user-select: none
+.mat-calendar, .mat-button
+    font-family: var(--font-family) !important
 
 mat-calendar
+    height: unset !important
     .mat-button:hover,
     .mat-button:focus
         background-color: #ddd
+
+    .mat-calendar-body-label
+        display: none
+
+    .mat-calendar-previous-button, .mat-calendar-next-button
+        color: var(--link-color) !important
+
+    .mat-calendar-body-cell-content
+        color: var(--text-color) !important
+        border-radius: var(--button-radius) !important
+
+    .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected)
+        border: 2px solid var(--color-c2a)
+        background-color: unset
+
+    .mat-calendar-body-today.mat-calendar-body-selected
+        box-shadow: none !important
+
+    .mat-calendar-body-selected
+        background-color: var(--color-c2a-dark)
+        color: #fff !important
+        border: none
 
     &.month-picker
         .mat-calendar-period-button
             pointer-events: none
         .mat-calendar-arrow
             display: none
+
+mat-spinner circle
+    stroke: var(--color-c2a) !important
+
+i.material-icons
+    vertical-align: middle

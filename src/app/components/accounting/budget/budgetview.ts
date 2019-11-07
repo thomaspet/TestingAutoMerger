@@ -122,7 +122,7 @@ export class UniBudgetView {
 
     private updateToolbar() {
         this.toolbarConfig = {
-            title: 'Budsjett',
+            title: this.currentBudget ? this.currentBudget.Name : 'Budsjett',
             statustrack: this.currentBudget ? this.getStatustrackConfig() : null,
         };
     }
@@ -353,9 +353,7 @@ export class UniBudgetView {
         }
     }
 
-    public onActionClick(event: any, action: any, item: Budget) {
-        event.stopPropagation();
-
+    public onActionClick(action: any, item: Budget) {
         switch (action.name) {
             case 'edit':
                 this.openEditModal(item, null);

@@ -18,26 +18,28 @@ enum LoginState {
     selector: 'altinn-authentication-modal',
     template: `
         <section role="dialog" class="uni-modal" (keydown)="onKeyDown($event)">
-            <header>
-                <h1>Resultat</h1>
-            </header>
+            <header>Resultat</header>
+
             <p [innerHTML]="userMessage" class="altinn-user-message"></p>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
-                <article>
+
+            <ng-container *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType">
+                <article [attr.aria-busy]="busy">
                     <uni-form
                         [config]="emptyConfig$"
                         [fields]="usernameAndPasswordFormFields$"
                         [model]="userLoginData$"
                     ></uni-form>
                 </article>
-                <footer>
-                    <a style="float: left; margin-top: 1.5rem; margin-left: 1rem;" href="https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn" target="_blank">Hjelp til innlogging</a>
-                    <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
+
+                <footer [attr.aria-busy]="busy">
+                    <a class="pull-left" href="https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn" target="_blank">Hjelp til innlogging</a>
                     <button (click)="close()">Avbryt</button>
+                    <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                 </footer>
-            </div>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.Pin" [attr.aria-busy]="busy">
-                <article *ngIf="!messageStatusIsError">
+            </ng-container>
+
+            <ng-container *ngIf="formState === LOGIN_STATE_ENUM.Pin">
+                <article *ngIf="!messageStatusIsError" [attr.aria-busy]="busy">
                     <uni-form
                         [config]="emptyConfig$"
                         [fields]="pinFormFields$"
@@ -45,17 +47,19 @@ enum LoginState {
                         (inputEvent)="onInputEvent($event)"
                     ></uni-form>
                 </article>
-                <footer>
+                <footer [attr.aria-busy]="busy">
                     <button *ngIf="!messageStatusIsError" (click)="submitPin()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
-            </div>
-            <div *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn" [attr.aria-busy]="busy">
-                <footer>
+            </ng-container>
+
+            <ng-container *ngIf="formState === LOGIN_STATE_ENUM.LoggedIn">
+                <footer [attr.aria-busy]="busy">
                     <button (click)="close()">OK</button>
                 </footer>
-            </div>
-        </section>`
+            </ng-container>
+        </section>
+    `
 })
 
 export class AltinnAuthenticationModal implements OnInit, IUniModal {

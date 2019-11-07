@@ -8,14 +8,17 @@
                     Veiviser for oppretelse av samlefaktura. Alle ordre/fakturakladder du har i listen
                     vil bli samlefaktureret
                 </p>
-                <dl>
-                    <dt>Ordre/Fakturakladder samlefaktureres:</dt>
-                    <dd>{{numberOfItems}}</dd>
-                </dl>
-                <dl>
-                    <dt>Total sum:</dt>
-                    <dd>{{totalAmount | uninumberformat: 'money'}}</dd>
-                </dl>
+
+                <section class="summary-field">
+                    <span>Ordre/Fakturakladder samlefaktureres:</span>
+                    <span>{{numberOfItems}}</span>
+                </section>
+
+                <section class="summary-field">
+                    <span>Total sum:</span>
+                    <span>{{totalAmount | uninumberformat: 'money'}}</span>
+                </section>
+
             </mat-step>
             <mat-step label="Valg for samlefaktura" [completed]="currentStep > 1">
                 <uni-form

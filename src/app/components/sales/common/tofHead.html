@@ -1,34 +1,37 @@
 <article class="tof-head">
     <section class="uni-container customer-card">
-        <header>
-            Kunde
-        </header>
+        <header>Kunde</header>
+
         <tof-customer-card
             [readonly]="readonly"
             [entity]="data"
             [entityType]="entityName"
-            (entityChange)="onDataChange($event)">
+            (entityChange)="onDataChange($event)"
+            (keydown.tab)="focusDetailsForm($event)">
         </tof-customer-card>
-        <label>
-            <span *ngIf="validationMessage?.Level === 30"><!--MissingRequiredDimensionsMessage - vises ikke-->
-                <i class="material-icons bad">error</i>
-                {{validationMessage.Message}}
-            </span>
-        </label>
+
+        <div class="required-dimension" *ngIf="validationMessage?.Level === 30">
+            <i class="material-icons bad">error</i>
+            {{validationMessage.Message}}
+        </div>
     </section>
 
     <section class="uni-container tof-forms">
-        <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+        <uni-tabs class="scoped"
+            [activeIndex]="0"
+            [tabs]="tabs"
+            (tabClick)="activeTab = $event.value">
+        </uni-tabs>
 
         <uni-recurring-invoice-settings-view
-            *ngIf="activeTabIndex === 0 && entityName === 'RecurringInvoice'"
+            *ngIf="activeTab === 'settings'"
             [entity]="data"
             (entityChange)="onDataChange($event)"
             [entityType]="entityName">
         </uni-recurring-invoice-settings-view>
 
         <tof-details-form
-            *ngIf="activeTabIndex === indexes[0]"
+            *ngIf="activeTab === 'details'"
             [entity]="data"
             (entityChange)="onDataChange($event)"
             [entityType]="entityName"
@@ -41,7 +44,7 @@
         </tof-details-form>
 
         <tof-delivery-form
-            *ngIf="activeTabIndex === indexes[1]"
+            *ngIf="activeTab === 'delivery'"
             [entity]="data"
             (entityChange)="onDataChange($event)"
             [entityType]="entityName"
@@ -49,29 +52,7 @@
             [paymentInfoTypes]="paymentInfoTypes">
         </tof-delivery-form>
 
-        <section *ngIf="activeTabIndex === indexes[2]" class="tof-freetext">
-            <label>
-                <span>Kommentar</span>
-                <input type="text"
-                    [formControl]="commentControl"
-                    [readonly]="isReadOnly()"
-                    (change)="onDataChange()"
-                    [attr.maxLength]="500"
-                />
-            </label>
-            <label>
-                <span>Fritekst</span>
-                <textarea
-                    [formControl]="freeTextControl"
-                    [readonly]="isReadOnly()"
-                    (change)="onDataChange()"
-                    [attr.maxLength]="500"
-                >
-                </textarea>
-            </label>
-        </section>
-
-        <section class="tof-sellers" *ngIf="activeTabIndex === indexes[3]">
+        <section class="tof-sellers" *ngIf="activeTab === 'sellers'">
             <seller-links
                 [readonly]="isReadOnly()"
                 [(entity)]="data"
@@ -79,7 +60,7 @@
             </seller-links>
         </section>
 
-        <section class="tof-attachments" *ngIf="activeTabIndex === indexes[4]">
+        <section class="tof-attachments" *ngIf="activeTab === 'attachments'">
             <p *ngIf="!data?.ID">
                 <span *ngIf="entityName == 'CustomerInvoice' || entityName === 'RecurringInvoice'">
                     Du må lagre faktura som kladd før du kan legge til dokumenter.
@@ -100,23 +81,24 @@
         </section>
 
         <uni-dimension-view
-            *ngIf="activeTabIndex === indexes[5]"
+            *ngIf="activeTab === 'dimensions'"
             (entityChange)="onDataChange($event)"
             [dimensionTypes]="dimensionTypes"
             [entity]="data"
             [entityType]="entityName">
         </uni-dimension-view>
 
-        <uni-distribute
-            *ngIf="activeTabIndex === indexes[6]"
+        <tof-distribution-form
+            *ngIf="activeTab === 'distribution'"
             [distributionPlans]="distributionPlans"
             [reports]="reports"
             [entity]="data"
             [entityType]="entityName"
+            [companySettings]="companySettings"
             (entityChange)="onDataChange($event)">
-        </uni-distribute>
+        </tof-distribution-form>
 
-        <section class="tof-reminders" *ngIf="activeTabIndex === indexes[7] && entityName === 'CustomerInvoice'">
+        <section class="tof-reminders" *ngIf="activeTab === 'reminders'">
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>
         </section>
 

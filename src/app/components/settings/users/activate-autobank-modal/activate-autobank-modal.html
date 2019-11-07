@@ -1,17 +1,17 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header><h1>Aktiver autobank for {{user?.DisplayName}}</h1></header>
+<section role="dialog" class="uni-modal">
+    <header>Aktiver autobank for {{user?.DisplayName}}</header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <p *ngFor="let message of errorMessages" role="alert" class="bad">
+        <section *ngFor="let message of errorMessages" class="alert bad">
             {{message}}
-        </p>
+        </section>
 
-        <form class="uni-html-form" [formGroup]="autobankData">
-            <label>
+        <form [formGroup]="autobankData">
+            <label class="uni-label label-left">
                 <span>Ditt autobank passord</span>
                 <input formControlName="AdminPassword" type="password" autocomplete="new-password" autofocus>
             </label>
@@ -27,31 +27,31 @@
                     Dette vil være tilgjengelig om kort tid.
                 </small>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Passord</span>
                     <input formControlName="Password" type="password" autocomplete="new-password">
                 </label>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Bekreft passord</span>
                     <input formControlName="ConfirmPassword" type="password" autocomplete="new-password">
                 </label>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Telefon</span>
                     <input formControlName="Phone" type="tel">
                 </label>
 
-                <label>
+                <label class="uni-label label-left">
                     <span>Autobank administrator</span>
                     <mat-checkbox formControlName="IsAdmin"></mat-checkbox>
                 </label>
             </fieldset>
         </form>
-
-        <footer class="center">
-            <button (click)="submit()" class="c2a rounded">Registrer bankbruker</button>
-            <button (click)="close()">Avbryt</button>
-        </footer>
     </article>
+
+    <footer>
+        <button (click)="close()" class="secondary">Avbryt</button>
+        <button (click)="submit()" class="c2a">Registrer bankbruker</button>
+    </footer>
 </section>

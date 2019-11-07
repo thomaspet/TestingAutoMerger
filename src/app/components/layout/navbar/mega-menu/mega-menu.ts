@@ -2,18 +2,16 @@ import {
     Component,
     ViewChild,
     ElementRef,
-    Output,
     ChangeDetectionStrategy,
-    EventEmitter,
     ChangeDetectorRef,
     HostListener
 } from '@angular/core';
-
-import {Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
+import {UniTranslationService} from '@app/services/services';
+import {NavbarLinkService, } from '../navbar-link-service';
+import {INavbarLinkSection, INavbarLink } from '../navbar-links-common';
+import {theme} from 'src/themes/theme';
 import * as _ from 'lodash';
-
-import {NavbarLinkService, INavbarLinkSection} from '../navbar-link-service';
 
 @Component({
     selector: 'uni-mega-menu',
@@ -21,76 +19,121 @@ import {NavbarLinkService, INavbarLinkSection} from '../navbar-link-service';
     styleUrls: ['./mega-menu.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 export class UniMegaMenu {
-    @ViewChild('searchInput') public searchInput: ElementRef;
+    @ViewChild('searchInput')
+    searchInput: ElementRef;
 
-    public linkSections: INavbarLinkSection[];
-    public filteredLinkSections: INavbarLinkSection[];
-    public searchControl: FormControl = new FormControl('');
+    defaultLinkSection: INavbarLinkSection[];
+    linkSections: INavbarLinkSection[];
+    defaultSetup: INavbarLinkSection[];
+    filteredLinkSections: INavbarLinkSection[][];
+    searchControl: FormControl = new FormControl('');
+    searchString: string = '';
+    logoUrl = theme.login_logo;
+    isDirty: boolean = false;
 
-    constructor(
+    constructor (
         private navbarService: NavbarLinkService,
         private cdr: ChangeDetectorRef,
-        private router: Router
+        private translate: UniTranslationService,
     ) {
         this.navbarService.linkSections$.subscribe(sections => {
-            this.linkSections = sections.filter(section => !section.hidden);
-            this.filteredLinkSections = this.linkSections;
-            this.cdr.markForCheck();
-        });
-
-        this.searchControl.valueChanges.subscribe(searchText => {
-            if (!searchText || !searchText.length) {
-                this.filteredLinkSections = this.linkSections;
-                return;
-            }
-
-            let sections: INavbarLinkSection[] = _.cloneDeep(this.linkSections);
-            sections = sections.map(section => {
-                section.linkGroups = section.linkGroups.map(group => {
-                    group.links = group.links.filter(link => {
-                        return link.name && link.name.toLowerCase().includes(searchText.toLowerCase());
-                    });
-
-                    return group;
-                });
-
-                return section;
-            });
-
-            this.filteredLinkSections = sections.filter(section => {
-                return section.linkGroups.some(group => group.links.length > 0);
-            });
+            this.defaultLinkSection = sections;
+            this.initValues();
         });
     }
 
-    public ngAfterViewInit() {
+    initValues() {
+        this.linkSections = _.cloneDeep(this.defaultLinkSection.filter(section => !section.hidden && !section.isOnlyLinkSection));
+        this.defaultSetup = _.cloneDeep(this.linkSections);
+        this.sortAfterMegaMenuIndex();
+        this.cdr.markForCheck();
+    }
+
+    sortAfterMegaMenuIndex() {
+        this.filteredLinkSections = [];
+
+        this.defaultSetup.forEach((section) => {
+            // section.linkGroups.forEach((lg) => {
+            //     lg.links = lg.links.sort((a, b) => {
+            //         return a.activeInSidebar ? -1 : b.activeInSidebar ? 1 : 0;
+            //     });
+            // });
+
+            if (section.megaMenuGroupIndex || section.megaMenuGroupIndex === 0) {
+                if (this.filteredLinkSections.length > section.megaMenuGroupIndex
+                    && this.filteredLinkSections[section.megaMenuGroupIndex].length) {
+
+                    this.filteredLinkSections[section.megaMenuGroupIndex].push(section);
+                } else {
+                    this.filteredLinkSections.push([section]);
+                }
+            } else {
+                this.filteredLinkSections.push([section]);
+            }
+        });
+    }
+
+    getClass(link: any) {
+        return this.searchString !== '' && link.name &&
+        this.translate.translate(link.name).toLowerCase().includes(this.searchString.toLowerCase())
+            ? 'isSearchMatch'
+            : '';
+    }
+
+    ngAfterViewInit() {
         if (this.searchInput) {
             this.searchInput.nativeElement.focus();
         }
     }
 
+    linkSelect(link: INavbarLink) {
+        link.activeInSidebar = !link.activeInSidebar;
+        this.isDirty = JSON.stringify(this.linkSections) !== JSON.stringify(this.defaultSetup);
+
+
+    }
+
+    saveMenuStructure() {
+        if (this.linkSections.length !== this.defaultSetup.length) {
+            const elements = this.linkSections.filter(l => l.isOnlyLinkSection);
+            elements.forEach((elem) => {
+                this.defaultSetup.unshift(elem);
+            });
+        }
+
+        // Readd the homebutton on
+        if (this.defaultLinkSection.filter(l => l.isOnlyLinkSection).length) {
+            this.defaultSetup.unshift(this.defaultLinkSection.filter(l => l.isOnlyLinkSection)[0]);
+        }
+
+        this.navbarService.saveSidebarLinks(this.defaultSetup);
+        this.isDirty = false;
+        this.close();
+    }
+
+    resetChanges() {
+        this.defaultSetup = JSON.parse(JSON.stringify(this.linkSections));
+        this.sortAfterMegaMenuIndex();
+        this.isDirty = false;
+    }
+
+    resetMenu() {
+        this.navbarService.resetToDefaultMenuStructure();
+        this.isDirty = false;
+        this.close();
+    }
+
+    close() {
+        this.navbarService.megaMenuVisible$.next(false);
+    }
+
     @HostListener('document:keydown', ['$event'])
-    public onKeydown(event: KeyboardEvent) {
+    onKeydown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
         if (key === 27) {
             this.close();
         }
     }
-
-    public navigate(url: string) {
-        if (url) {
-            this.router.navigateByUrl(url);
-        }
-
-        this.close();
-    }
-
-    public close() {
-        this.navbarService.megaMenuVisible$.next(false);
-    }
-
-    // TODO: autofocus search input
-    // TODO: escape key handling
-
 }

@@ -1,9 +1,9 @@
 <section class="marketplace-modules" [attr.aria-busy]="false">
     <section class="header">
         <h1>Produkter</h1>
-        <button class="pricesBtn"
-            (click)="openLinkInNewTab('https://www.unimicro.no/vaare-losninger/uni-economy/priser')">
-            <i class="material-icons launch-prices">launch</i>
+        <button class="tertiary c2a"
+            (click)="openLinkInNewTab()">
+            <i class="material-icons">launch</i>
             Se priser
         </button>
     </section>
@@ -20,7 +20,7 @@
 
             <section class="subscribe">
                 <button
-                    class="subscribe-button"
+                    class="c2a subscribe-button"
                     (click)="manageUserPurchases(module)">
                     {{module._isBought ? 'Velg brukere' : 'Abonner'}}
                 </button>
@@ -50,7 +50,7 @@
             <section class="subscribe">
                 <!-- Buy -->
                 <button
-                    class="subscribe-button"
+                    class="c2a subscribe-button"
                     *ngIf="!extension._isBought"
                     (click)="purchaseExtension(extension)">
                     Kjøp
@@ -58,7 +58,7 @@
 
                 <!-- Activate -->
                 <button
-                    class="subscribe-button"
+                    class="c2a subscribe-button"
                     *ngIf="extension._isBought && extension?._activationFunction"
                     (click)="extension._activationFunction.click()">
                     {{extension?._activationFunction?.label}}

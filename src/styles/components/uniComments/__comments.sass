@@ -3,21 +3,19 @@ uni-comments
     display: inline-block
     text-align: left
 
-.comments_toggle
-    @extend %toolbarButton
-    background-image: unicon-chat($uni-color-negative) !important
-    background-size: 1rem auto
-    position: relative
+    .toggle-button i.material-icons
+        font-size: 22px
 
-.comments_count
-    color: #fff
-    background: $uni-color-bad
-    position: absolute
-    top: -7px
-    right: -5px
-    text-align: center
-    font-size: .8rem
-    width: 1rem
-    height: 1rem
-    line-height: .9rem
-    border-radius: 50%
+    .comments_count
+        position: absolute
+        top: -5px
+        right: -5px
+        display: flex
+        justify-content: center
+        align-items: center
+        width: 16px
+        height: 16px
+        border-radius: 50%
+        background: var(--color-bad)
+        color: #fff
+        font-size: 10px

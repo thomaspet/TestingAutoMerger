@@ -17,7 +17,7 @@ export class SharingsList implements OnInit {
     public ngOnInit() {
         this.tabService.addTab({
             url: this.pageStateService.getUrl(),
-            name: 'Utsendinger - liste',
+            name: 'Utsendingsliste',
             active: true,
             moduleID: UniModules.Sharings
         });

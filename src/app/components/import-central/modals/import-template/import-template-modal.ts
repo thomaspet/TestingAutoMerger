@@ -15,10 +15,9 @@ import { DisclaimerModal } from '../disclaimer/disclaimer-modal';
     styleUrls: ['./import-template-modal.sass']
 })
 export class ImportTemplateModal implements OnInit, IUniModal {
+    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
-
-    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
 
     // view related variables
     isValidFileFormat: boolean = true;

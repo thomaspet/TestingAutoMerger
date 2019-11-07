@@ -1,30 +1,40 @@
-.autocomplete
-    position: relative
+.search-result-table-container
+    .result-item[aria-selected=true],
+    .result-item:hover
+        background: #d9efff
+        color: var(--color-c2a)
 
-    *
-        box-sizing: border-box
+    .action-button
+        display: inline-block
+        margin: .5rem
+        font-size: 14px
 
-    .uniAutocomplete_input, .autocomplete_input
-        @extend %inputButtonParent
+    table
+        border-collapse: separate
+        border-spacing: 0
+        min-width: 100%
+        font-size: 15px
 
-    .uni-autocomplete-searchBtn
-        @extend %inputButton
-        background-image: unicon-search($uni-color-scale4)
-    .uni-typeahead-searchBtn
-        @extend %inputButton
-        background-image: unicon-more($uni-color-scale4)
+        th, td
+            text-align: left
+            padding: 0 15px
+            height: 2.5rem
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+            max-width: 10rem
 
-.autocomplete_result
-    padding: .2rem 1rem
+        th
+            background: #F5F6F9
+            color: #8B96AC
+            font-size: 14px
+            font-weight: 500
 
-    &[aria-selected=true]
-        font-weight: 400
-        background: $uni-color-c2a
-        color: $uni-color-negative
+        td
+            cursor: pointer
 
-.group_list_header
-    font-size: 1rem
-    font-weight: 600
-    &:hover
-        cursor: default !important
-        background-color: transparent !important
+    .result-footer
+        color: #8C97AB
+        text-align: end
+        font-size: .9rem
+        margin: .5rem

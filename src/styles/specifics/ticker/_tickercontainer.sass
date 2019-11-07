@@ -12,7 +12,7 @@
         max-width: 100%
         overflow: visible
 
-$subticker-top: $reserved-height-for-navbar
+$subticker-top: var(--navbar-height)
 uni-sub-ticker-container
     position: fixed
     top: $subticker-top
@@ -28,9 +28,6 @@ uni-sub-ticker-container
 uni-ticker-container
     width: 100%
     position: relative
-
-    uni-tabs
-        margin-bottom: 0
 
     .ticker-container
         display: flex

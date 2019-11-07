@@ -1,71 +1,78 @@
-import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Customer, SellerLink, SharingType, StatusCodeSharing, Address} from '../../../unientities';
-import {UniAddressModal} from '../../../../framework/uni-modal/modals/addressModal';
+import {Customer, SharingType, StatusCodeSharing} from '@uni-entities';
 import {
-    AddressService,
     EHFService,
     UniSearchCustomerConfig,
     CustomerService,
     ErrorService,
-    SellerLinkService,
     StatisticsService,
     StatusService
-} from '../../../services/services';
+} from '@app/services/services';
 import {TofHelper} from '../salesHelper/tofHelper';
-import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
+import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
+import {CustomerEditModal} from './customer-edit-modal/customer-edit-modal';
+import {cloneDeep} from 'lodash';
 import * as moment from 'moment';
-import * as _ from 'lodash';
 
 @Component({
     selector: 'tof-customer-card',
     template: `
-        <label class="customer-input">
-            <!--<span>Kunde</span>-->
-            <uni-search
-                [config]="uniSearchConfig"
-                (changeEvent)="customerSelected($event)"
-                [disabled]="readonly">
-            </uni-search>
+        <autocomplete class="customer-select"
+            [options]="autocompleteOptions"
+            [readonly]="readonly"
+            [value]="entity?.Customer"
+            (valueChanges)="onCustomerSelected($event)">
+        </autocomplete>
 
-            <section class="addressCard" [attr.aria-readonly]="readonly">
-                <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
-                <section class="sharing-badges">
-                    <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I SENDINGSKØ</span>
-                    <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">FAKTURAPRINT</span>
-                    <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
-                    <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
-                    <span [attr.title]="emailTitle" [ngClass]="emailClass">E-POST</span>
-                    <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
-                    <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">EFAKTURA</span>
-                </section>
-                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.CustomerName}}</strong></a>
-                <br><span *ngIf="entity?.InvoiceAddressLine1">
-                    {{entity?.InvoiceAddressLine1}}
-                </span>
-                <br><span *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
-                    {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
-                </span>
-                <br><span *ngIf="entity?.InvoiceCountry">
-                    {{entity?.InvoiceCountry}}
-                </span>
-                <span class="emailInfo" *ngIf="entity?.Customer?.Info?.Emails">
-                    {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
-                </span>
-                <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                    <a href="#/sales/customer/{{entity?.Customer?.ID}}">
-                        Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
-                        forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
-                        faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
-                    </a>
-                </div>
-            </section>
-        </label>
+        <section *ngIf="entity" class="addressCard" [attr.aria-readonly]="readonly">
+            <i *ngIf="!readonly && !!entity?.Customer" class="edit-btn material-icons" (click)="editCustomer()">edit</i>
+
+            <a href="#/sales/customer/{{entity?.Customer?.ID}}">
+                <strong>{{entity?.CustomerName}}</strong>
+            </a>
+
+            <div *ngIf="entity?.InvoiceAddressLine1">
+                {{entity?.InvoiceAddressLine1}}
+            </div>
+
+            <div *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
+                {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
+            </div>
+
+            <div *ngIf="entity?.InvoiceCountry">
+                {{entity?.InvoiceCountry}}
+            </div>
+
+            <div *ngIf="entity?.Customer?.Info?.Emails">
+                {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
+            </div>
+
+            <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
+                <a href="#/sales/customer/{{entity?.Customer?.ID}}">
+                    Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
+                    forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
+                    faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
+                </a>
+            </div>
+
+            <!--<section class="sharing-badges">
+                <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I sendingskø</span>
+                <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">Fakturaprint</span>
+                <span [attr.title]="printTitle" [ngClass]="printClass">Utskrift</span>
+                <span [attr.title]="vippsTitle" [ngClass]="vippsClass">Vipps</span>
+                <span [attr.title]="emailTitle" [ngClass]="emailClass">E-post</span>
+                <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
+                <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">eFaktura</span>
+            </section>-->
+
+        </section>
     `
 })
-export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
-    private searchInput: HTMLElement;
+export class TofCustomerCard {
+    @ViewChild(Autocomplete) autocomplete: Autocomplete;
 
     @Input() readonly: boolean;
     @Input() entity: any;
@@ -95,12 +102,17 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
     private emailControl: FormControl = new FormControl('');
     private yourRefControl: FormControl = new FormControl('');
 
+    autocompleteOptions: AutocompleteOptions;
+
     private customerExpands: string[] = [
         'Info.Addresses',
+        'Info.Emails',
+        'Info.Phones',
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
-        'Info.DefaultContact.Info',
         'Info.DefaultEmail',
+        'Info.DefaultPhone',
+        'Info.DefaultContact.Info',
         'Info.Contacts.Info',
         'DefaultSeller',
         'DefaultSeller.Seller',
@@ -120,18 +132,15 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
     ];
 
     constructor(
-        private addressService: AddressService,
         private ehfService: EHFService,
-        private elementRef: ElementRef,
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
-        private sellerLinkService: SellerLinkService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
         private statusService: StatusService,
         private tofHelper: TofHelper,
-    ) { }
+    ) {}
 
     ngOnInit() {
         // Recurring invoice does not have functionality for creating customers when saving
@@ -141,28 +150,39 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         } else {
             this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
         }
-    }
 
-    ngAfterViewInit() {
-        this.searchInput = this.elementRef.nativeElement.querySelector('input');
-        this.focus();
-    }
+        this.autocompleteOptions = {
+            placeholder: 'Velg kunde',
+            autofocus: true,
+            canClearValue: false,
+            lookup: query => this.customerLookup(query),
+            displayFunction: item => {
+                if (item) {
+                    const name = item.Info ? item.Info.Name : item.Name;
+                    return item.CustomerNumber ? `${item.CustomerNumber} - ${name}` : name;
+                }
 
-    private toBadgeClass(code: number): string {
-        switch (code) {
-            case StatusCodeSharing.Pending:
-                return 'badge-pending';
-            case StatusCodeSharing.InProgress:
-                return 'badge-in-progress';
-            case StatusCodeSharing.Failed:
-                return 'badge-failed';
-            case StatusCodeSharing.Completed:
-                return 'badge-completed';
-            case StatusCodeSharing.Cancelled:
-                return 'badge-cancelled';
-            default:
-                return 'badge-unavailable';
-        }
+                return '';
+            },
+            resultTableColumns: [
+                { header: 'Kundenr', field: 'CustomerNumber' },
+                { header: 'Navn', field: 'Name' },
+                { header: 'Adresse', field: 'AddressLine1' },
+                {
+                    header: 'Poststed',
+                    template: item => {
+                        if (item.PostalCode || item.City) {
+                            return `${item.PostalCode} - ${item.City}`;
+                        }
+                    }
+                },
+                { header: 'Orgnummer', field: 'OrgNumber' },
+            ],
+            createLabel: 'Opprett ny kunde',
+            createHandler: () => {
+                return this.modalService.open(CustomerEditModal).onClose;
+            }
+        };
     }
 
     ngOnChanges(changes) {
@@ -196,6 +216,92 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         }
     }
 
+    focus() {
+        if (this.autocomplete) {
+            this.autocomplete.focus();
+        }
+    }
+
+    onCustomerSelected(customer: Customer) {
+        const setCustomer = c => {
+            this.entity = this.tofHelper.mapCustomerToEntity(c, this.entity);
+            this.showDefaultBadgeForCustomer(c);
+            this.entity = cloneDeep(this.entity);
+            this.entityChange.emit(this.entity);
+        };
+
+        if (customer && customer.ID) {
+            this.customerService.Get(customer.ID, this.customerExpands).subscribe(
+                res => setCustomer(res),
+                err => {
+                    this.errorService.handle(err);
+                    setCustomer(null);
+                }
+            );
+        } else {
+            setCustomer(null);
+        }
+    }
+
+    editCustomer() {
+        this.modalService.open(CustomerEditModal, {
+            data: this.entity.Customer
+        }).onClose.subscribe(editedCustomer => {
+            if (editedCustomer) {
+                this.onCustomerSelected(editedCustomer);
+            }
+        });
+    }
+
+    customerLookup(query: string) {
+        const expand = 'Info.DefaultPhone,Info.InvoiceAddress';
+        const select = [
+            'Customer.ID as ID',
+            'Info.Name as Name',
+            'Customer.OrgNumber as OrgNumber',
+            'InvoiceAddress.AddressLine1 as AddressLine1',
+            'InvoiceAddress.PostalCode as PostalCode',
+            'InvoiceAddress.City as City',
+            'Customer.CustomerNumber as CustomerNumber',
+            'Customer.StatusCode as StatusCode',
+        ].join(',');
+
+        let filter = `(Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001)`;
+
+        if (query && query.length) {
+            const queryFilter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Info.Name']
+                .map(field => `contains(${field},'${query}')`)
+                .join(' or ');
+
+            filter += ` and ( ${queryFilter} )`;
+        }
+
+        const odata = `model=Customer`
+            + `&expand=${expand}`
+            + `&select=${select}`
+            + `&filter=${filter}`
+            + `&orderby=Info.Name&top=50&distinct=true`;
+
+        return this.statisticsService.GetAllUnwrapped(odata);
+    }
+
+    private toBadgeClass(code: number): string {
+        switch (code) {
+            case StatusCodeSharing.Pending:
+                return 'badge-pending';
+            case StatusCodeSharing.InProgress:
+                return 'badge-in-progress';
+            case StatusCodeSharing.Failed:
+                return 'badge-failed';
+            case StatusCodeSharing.Completed:
+                return 'badge-completed';
+            case StatusCodeSharing.Cancelled:
+                return 'badge-cancelled';
+            default:
+                return 'badge-unavailable';
+        }
+    }
+
     private showDefaultBadgeForCustomer(customer: Customer) {
         if (customer && this.entityType === 'CustomerInvoice') {
             // Can customer receive EHF?
@@ -226,7 +332,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
         }
 
         // Can customer receive email?
-        if (customer && customer.Info && customer.Info.DefaultEmail) {
+        if (customer && customer.Info && customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress) {
             this.emailClass = 'badge-available';
             this.emailTitle = 'Kan sende på e-post til ' + customer.Info.DefaultEmail.EmailAddress;
         }
@@ -323,80 +429,5 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
                 }
             });
         });
-    }
-
-    focus() {
-        if (this.searchInput) {
-            this.searchInput.focus();
-        }
-    }
-
-    openAddressModal() {
-        const invoiceAddress = <Address>{
-            AddressLine1: this.entity.InvoiceAddressLine1,
-            AddressLine2: this.entity.InvoiceAddressLine2,
-            AddressLine3: this.entity.InvoiceAddressLine3,
-            PostalCode: this.entity.InvoicePostalCode,
-            City: this.entity.InvoiceCity,
-            Country: this.entity.InvoiceCountry
-        };
-
-        this.modalService.open(UniAddressModal, {data: invoiceAddress}).onClose.subscribe(updatedInvoiceAddress => {
-            if (updatedInvoiceAddress) {
-                this.entity.InvoiceAddressLine1 = updatedInvoiceAddress.AddressLine1;
-                this.entity.InvoiceAddressLine2 = updatedInvoiceAddress.AddressLine2;
-                this.entity.InvoiceAddressLine3 = updatedInvoiceAddress.AddressLine3;
-                this.entity.InvoicePostalCode = updatedInvoiceAddress.PostalCode;
-                this.entity.InvoiceCity = updatedInvoiceAddress.City;
-                this.entity.InvoiceCountry = updatedInvoiceAddress.Country;
-
-                this.modalService.open(UniConfirmModalV2, {
-                    header: 'Endre kunde?',
-                    message: 'Endre framtidig fakturaadresse for denne kunden?',
-                    buttonLabels: {
-                        accept: 'Ja',
-                        cancel: 'Nei, kun på denne blanketten'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        const newaddress = {
-                            AddressLine1: updatedInvoiceAddress.AddressLine1,
-                            AddressLine2: updatedInvoiceAddress.AddressLine2,
-                            AddressLine3: updatedInvoiceAddress.AddressLine3,
-                            PostalCode: updatedInvoiceAddress.PostalCode,
-                            City: updatedInvoiceAddress.City,
-                            Country: updatedInvoiceAddress.Country
-                        };
-
-                        if (this.entity.Customer.Info.InvoiceAddressID) {
-                            newaddress['ID'] = this.entity.Customer.Info.InvoiceAddressID;
-                        } else {
-                            newaddress['_createguid'] = this.addressService.getNewGuid();
-                        }
-
-                        const customer = <Customer>{
-                            ID: this.entity.CustomerID,
-                            Info: {
-                                ID: this.entity.Customer.BusinessRelationID,
-                                InvoiceAddress: newaddress
-                            }
-                        };
-                        this.customerService.Put(this.entity.CustomerID, customer).subscribe(updatedcustomer => {
-                            this.entity.Customer = updatedcustomer;
-                            this.entityChange.emit(this.entity);
-                        });
-                    }
-                });
-                this.entityChange.emit(this.entity);
-            }
-        });
-    }
-
-    customerSelected(customer: Customer) {
-        this.entity = this.tofHelper.mapCustomerToEntity(customer, this.entity);
-
-        this.showDefaultBadgeForCustomer(customer);
-        this.entity = _.cloneDeep(this.entity);
-        this.entityChange.emit(this.entity);
     }
 }

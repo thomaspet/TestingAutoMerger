@@ -1,41 +1,42 @@
-.warn
-    color: $uni-color-warn
+teamwork-report
+    .warn
+        color: var(--color-warn)
 
-.bad
-    color: $uni-color-bad
+    .bad
+        color: var(--color-bad)
 
-.teamreport
-    width: 100%
-    border-collapse: collapse
+    .teamreport
+        width: 100%
+        border-collapse: collapse
 
-    tr.clickable:hover
-        background-color: $uni-color-scale9
-        cursor: pointer
+        tr.clickable:hover
+            background-color: $uni-color-scale9
+            cursor: pointer
 
-    td
-        border-top: pxToRem(1) solid $uni-color-scale8
-        border-left: pxToRem(1) solid $uni-color-scale8
-        padding: pxToRem(5)
+        td
+            border-top: pxToRem(1) solid $uni-color-scale8
+            border-left: pxToRem(1) solid $uni-color-scale8
+            padding: pxToRem(5)
 
-    tr td:first-of-type
-        border-left: 0
+        tr td:first-of-type
+            border-left: 0
 
-    tr:last-of-type td
-        border-bottom: pxToRem(1) solid $uni-color-scale8
+        tr:last-of-type td
+            border-bottom: pxToRem(1) solid $uni-color-scale8
 
-    th
-        border: 0
-        font-weight: 600
+        th
+            border: 0
+            font-weight: 600
 
-        &.groupheader
-            border-bottom: 1px solid $uni-color-scale7
+            &.groupheader
+                border-bottom: 1px solid $uni-color-scale7
 
-        &.left-border
-            border-left: 1px solid $uni-color-scale7
+            &.left-border
+                border-left: 1px solid $uni-color-scale7
 
-    th.center, td.center
-        text-align: center
+        th.center, td.center
+            text-align: center
 
-    th.left, td.left
-        text-align: left
+        th.left, td.left
+            text-align: left
 

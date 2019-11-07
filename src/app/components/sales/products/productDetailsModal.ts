@@ -6,7 +6,7 @@ import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
     selector: 'uni-product-details-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 80vw">
-            <header><h1>Produkt</h1></header>
+            <header>Produkt</header>
 
             <article [attr.aria-busy]="busy">
                 <product-details [modalMode]="true" (productSavedInModalMode)="close($event)"></product-details>

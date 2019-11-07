@@ -6,16 +6,16 @@
     vertical-align: bottom
 
     .flexplus
-        border-bottom: 2px solid $uni-color-good
+        border-bottom: 2px solid var(--color-good)
 
     .flexminus
-        border-bottom: 2px solid $uni-color-bad
+        border-bottom: 2px solid var(--color-bad)
 
     .timesick
-        color: $uni-color-warn
+        color: var(--color-warn)
 
     .timeoff
-        color: $uni-color-good
+        color: var(--color-good)
 
 .hasOvertime
     background-color: rgba(255,255,0,0.15)
@@ -52,9 +52,6 @@
     text-overflow: ellipsis
     overflow-x: hidden
     white-space: nowrap
-    // border-width: 0 0 pxToRem(1) 0
-    // border-color: $uni-color-scale8
-    // border-style: solid
     padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
 
 .timesheet th.s1
@@ -78,12 +75,6 @@
 .timesheet th.right
     text-align: right
 
-// .timesheet th:first-of-type
-//     border-width: 0 0 0 0
-
-// .timesheet th:last-of-type
-//     border-right: 0
-
 .timesheet .hovereffect:hover
     background-color: lighten($uni-color-scale6, 32%)
     cursor: pointer
@@ -93,32 +84,14 @@
         height: 2.4rem
     td
         padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
-        // border-bottom: pxToRem(1) solid $uni-color-scale9
         white-space: nowrap
         text-overflow: ellipsis
         overflow-x: hidden
 
-// .timesheet td.sum
-//     height: 2rem
-//     border-top: 1px solid #000 !important
-//     font-weight: 600
-
 tr.sum td
-    // border-bottom: 1px solid lighten($uni-color-scale6, 20%) !important
     font-weight: 600
     padding-bottom: 0.2em
     padding-top: 0.4em
-
-.timesheet td.sumright
-    font-weight: 600
-    // border-left: 1px solid $uni-color-scale6
-
-.timesheet th.sum
-    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 24%)
-
-.timesheet td.left
-    text-align: left
-    padding-left: 1em
 
 .timesheet td.center
     text-align: center
@@ -127,26 +100,17 @@ tr.sum td
     text-align: right
     padding-right: 2rem
 
-// .timesheet td:first-of-type
-//     border-width: 0 0 0 0
-
-// .timesheet td:last-of-type
-//     border-right: 0
-
 .timesheet td.good
-    color: $uni-color-good
+    color: var(--color-good)
 
 .timesheet td.warn
-    color: $uni-color-warn
+    color: var(--color-warn)
 
 .timesheet td.c2a
-    color: $uni-color-c2a
+    color: var(--color-c2a)
 
 .timetable-context-menu
     color: $uni-color-scale5
-
-.timesheet td.actions
-    vertical-align: middle
 
 .border
     border-left: pxToRem(1) solid $uni-color-scale9
@@ -162,10 +126,6 @@ tr.sum td
     margin: 0
     padding: 0 1rem
     line-height: 0
-    // background-color: $uni-color-good
-
-    &:hover,&:focus,&:active
-        background-color: darken($uni-color-good, 5%)
 
 .time-off-section
     .timesheet-list
@@ -196,7 +156,7 @@ tr.sum td
                     cursor: pointer
 
                 &.selected
-                    background-color: #D5EEF6 !important
+                    background-color: var(--dropdown-select-background) !important
 
                 &.timeofftoday
                     background-color: #f3f4f9
@@ -210,7 +170,7 @@ tr.sum td
                 i
                     vertical-align: middle
                     font-size: .8rem
-                    color: $uni-color-good
+                    color: var(--color-good)
 
         .timeoff-month-header
             height: 35px
@@ -289,7 +249,7 @@ tr.sum td
                         background-color: rgba(123, 203, 69, .7)
                     &.isToday
                         font-weight: bold
-                        color: $uni-color-good
+                        color: var(--color-good)
                     &.selected
                         background-color: #E2E6F0
                         border-radius: 2%

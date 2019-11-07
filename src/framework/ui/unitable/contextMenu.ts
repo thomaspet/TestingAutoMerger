@@ -4,11 +4,13 @@ import {IContextMenuItem} from './unitable';
 @Component({
     selector: 'unitable-contextmenu',
     template: `
-        <ul [ngClass]="{hidden: !isOpen}" [ngStyle]="{'top': offsetTop, 'right': 0}">
-            <li *ngFor="let item of activeItems" (click)="item.action(rowModel.toJS())">
+        <section class="dropdown-menu" *ngIf="isOpen" [ngStyle]="{'top': offsetTop, 'right': 0}">
+            <a class="dropdown-menu-item"
+                *ngFor="let item of activeItems"
+                (click)="item.action(rowModel.toJS())">
                 {{item.label}}
-            </li>
-        </ul>
+            </a>
+        </section>
     `,
     host: {
         '(click)': 'onClick($event)',

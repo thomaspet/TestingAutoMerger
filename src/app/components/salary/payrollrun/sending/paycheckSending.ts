@@ -3,8 +3,8 @@ import {Employee} from '@uni-entities';
 import {PayrollrunService, StatisticsService, ErrorService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import { SalaryHelperMethods } from '../../helperMethods/salaryHelperMethods';
+import {IUniTab} from '@app/components/layout/uni-tabs';
+import {SalaryHelperMethods} from '../../helperMethods/salaryHelperMethods';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -109,11 +109,11 @@ export class PaycheckSending implements OnInit {
                     employees.map(emp => {
                         let string = '';
                         res.Data.filter(x => x.EmployeeID === emp.ID).map((x, i) => i === 0 ? string += `${x.Number} - ${x.Name}` : string += `, ${x.Number} - ${x.Name}`);
-                        
+
                         return emp['_categories'] = string;
                     });
                 }
-                
+
                 this.employees = employees;
                 this.busy.next(false);
                 return this.setupPaycheckTable();

@@ -2,7 +2,6 @@
     display: block
     padding: 0 !important
     margin-right: 1rem
-    border-right: 1px solid $uni-color-scale9
 
     width: 305px
     &.minimized
@@ -17,7 +16,7 @@
         i.material-icons
             display: block
             font-size: 30px
-            color: $uni-color-toolbar
+            color: var(--color-c2a)
             cursor: pointer
             text-align: center
             padding-top: 1rem
@@ -99,7 +98,7 @@
         font-size: 1.3rem
         margin: 1.25rem 10px .25rem
         i.material-icons
-            color: $uni-color-good
+            color: var(--color-good)
             vertical-align: middle
             margin-top: -3px
             margin-left: .25rem
@@ -175,11 +174,11 @@
         border-radius: pxToRem(2)
 
 .calendar_flexplus:after
-    background-color: mix($uni-color-good, $uni-color-negative, 75%)
+    background-color: var(--color-good)
 .calendar_flexminus:after
-    background-color: mix($uni-color-bad, $uni-color-negative, 75%)
+    background-color: var(--color-bad)
 .calendar_flexminus_light:after
-    background-color: #fbc531
+    background-color: var(--color-warn)
 
 uni-template-modal
     label

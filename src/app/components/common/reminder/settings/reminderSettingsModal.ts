@@ -7,13 +7,8 @@ import { CustomerInvoiceReminderSettings, CompanySettings } from '@uni-entities'
 @Component({
     selector: 'uni-reminder-settings-modal',
     template: `
-        <section class="uni-modal medium"
-            (clickOutside)="close(false)"
-            (keydown.esc)="close(false)">
-
-            <header>
-                <h1>Instillinger for purring</h1>
-            </header>
+        <section class="uni-modal" style="width: 85rem">
+            <header>Instillinger for purring</header>
 
             <article>
                 <reminder-settings [reminderSettings]="reminderSettings"></reminder-settings>

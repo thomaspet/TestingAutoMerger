@@ -15,6 +15,7 @@ import {StatisticsService} from '../../common/statisticsService';
 import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {UniTranslationService} from '@app/services/common/translationService';
 import { map, tap, filter, switchMap } from 'rxjs/operators';
 
 enum StatusCodePayment {
@@ -77,6 +78,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private salaryBalanceService: SalarybalanceService,
         private salaryBalanceLineService: SalaryBalanceLineService,
         private browserStorage: BrowserStorageService,
+        private translate: UniTranslationService
     ) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
@@ -389,7 +391,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         queryList.push(filter);
         if (includePayments) {
             return this.GetAll(queryList.join('&'))
-            .switchMap(runs => 
+            .switchMap(runs =>
                 runs.length ? forkJoin(
                     of(runs),
                     this.getPaymentsOnRun(runs, year)
@@ -491,7 +493,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     FieldType: FieldType.TEXT,
                     ReadOnly: true,
                     Label: 'Nummer',
-                    Legend: 'Lønnsavregning',
+                    Legend: this.translate.translate('NAVBAR.PAYROLL'),
                     FieldSet: 1,
                     Section: 0,
                     Classes: 'payrollDetails_ID'

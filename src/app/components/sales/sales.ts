@@ -27,9 +27,9 @@ export class UniSales {
         return {
             large: [
                 { x: 0, y: 0, widgetID: 'invoiced' },
-                { x: 5, y: 0, widgetID: 'unpaid_customerinvoice' },
+                { x: 5, y: 0, widgetID: 'chart_restamount_per_customer' },
+                { x: 5, y: 3, widgetID: 'unpaid_customerinvoice' },
                 { x: 0, y: 3, widgetID: 'topten_customers' },
-                { x: 5, y: 3, widgetID: 'chart_restamount_per_customer' },
 
                 { x: 9, y: 0, widgetID: 'sum_order_reserves' },
                 { x: 9, y: 1, widgetID: 'sum_overdue_invoices' },

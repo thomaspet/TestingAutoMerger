@@ -35,7 +35,7 @@
     top: 18rem;
     width: 100%;
     height: 150px;
-    font: 200 1.777rem/3rem 'Source Sans Pro', -apple-system, 'Segoe UI', 'Droid Sans', 'Roboto', 'Ubuntu', 'Fira Sans Light', sans
+    font: 200 1.777rem/3rem 'Source Sans Pro', -apple-system, 'Segoe UI', 'Droid Sans', var(--font-family), 'Ubuntu', 'Fira Sans Light', sans
 }
 .app-spinner-wrapper #spinner {
     display: block;

@@ -17,7 +17,7 @@ import {HttpParams} from '@angular/common/http';
     selector: 'uni-avtalegiro-modal',
     template: `
         <section role="dialog" class="uni-modal medium">
-            <header><h1>Avtalegiro påmeldinger/avmeldinger</h1></header>
+            <header>Avtalegiro påmeldinger/avmeldinger</header>
             <article class="image-modal-body">
                 <ag-grid-wrapper
                     [resource]="lookupFunction"

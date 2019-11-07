@@ -2,25 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Uni Economy</title>
+    <title></title>
     <base href="/">
 
-    <meta name="application-name" content="Uni Economy">
-    <meta name="keywords" content="Uni Economy, Uni Micro, Faktura, Lønn, Regnskap">
-    <meta name="description" content="Uni Economy fra Uni Micro AS">
+    <meta name="keywords" content="Uni Micro, Faktura, Lønn, Regnskap">
     <meta name="language" content="nb">
     <meta name="copyright" content="Uni Micro AS">
     <meta name="owner" content="Uni Micro AS">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="favicon.png?v=1">
+    <link rel="icon" type="image/x-icon" href="themes/favicon.ico?v=1">
 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Two+Tone|Material+Icons+Outlined">
     <link rel="stylesheet" href="assets/uni-spinner.css">
     <link rel="stylesheet" href="assets/ehf-viewer.css">
+    <script>
+        // Code to let user know that IE is not supported by this application!
+        const userIsUsingBrowser = window.navigator.userAgent;
+        let msg = ' støtter ikke Internet Explorer. Vennligst last ned Chrome, Firefox eller oppdater til Edge.';
+        if (window.location.toString().toLowerCase().indexOf('sr') > -1) {
+            msg = 'SR Regnskap ' + msg;
+        } else {
+            msg = 'UniEconomy ' + msg;
+        }
+        var isOldOrNewVersionOfIE = userIsUsingBrowser.indexOf('MSIE ') > -1 || userIsUsingBrowser.indexOf('Trident/') > -1;
+        if (isOldOrNewVersionOfIE) {
+           window.alert(msg)
+        }
+    </script>
 </head>
+
 <body>
     <uni-app>
         <div id="app-loading-spinner">

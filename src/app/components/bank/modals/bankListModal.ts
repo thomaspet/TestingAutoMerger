@@ -18,7 +18,7 @@ import {saveAs} from 'file-saver';
     styles: [`.material-icons { line-height: 2; cursor: pointer}`],
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>{{ options?.header }}</h1></header>
+            <header>{{ options?.header }}</header>
 
             <article>
                 <ag-grid-wrapper
@@ -134,7 +134,7 @@ export class UniBankListModal implements IUniModal, OnInit {
             saveAs(blob, file.Name);
         }, err => {
             this.toastService.addToast('Noe gikk galt', ToastType.bad, ToastTime.medium,
-            'Kunne ikke laste ned fil. Prøv å last ned på nytt. Om feilen vedvarer, ta kontakt med Uni Micro kundeservice');
+            'Kunne ikke laste ned fil. Prøv å last ned på nytt. Om feilen vedvarer, ta kontakt med kundesenter');
             console.log(err);
         });
     }

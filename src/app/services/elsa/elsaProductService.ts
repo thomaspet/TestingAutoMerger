@@ -35,8 +35,9 @@ export class ElsaProductService {
         return this.requestData(`/api/products/${id}`);
     }
 
-    public GetAll(): Observable<ElsaProduct[]> {
-        return this.requestData('/api/products');
+    public GetAll(filter?: string): Observable<ElsaProduct[]> {
+        const url = '/api/products' + (filter ? ('?$filter=' + filter) : '');
+        return this.requestData(url);
     }
 
     public FindProductByName(name: string): Observable<ElsaProduct> {

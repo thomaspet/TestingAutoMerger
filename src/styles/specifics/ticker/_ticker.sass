@@ -2,12 +2,12 @@ uni-ticker-wrapper uni-ticker
     .ticker-horizontal-menu
         display: inline-block
         position: absolute
-        top: 5px
-        right: 0
+        top: .5rem
+        right: .5rem
         z-index: map-get($zindex, toolbar)
 
         a
-            font-family: 'Roboto'
+            font-family: var(--font-family)
             font-weight: 500
             font-size: 14px
             margin-right: 1rem
@@ -22,23 +22,17 @@ uni-ticker
     position: relative
 
     ag-grid-wrapper
-        height: calc(100vh - 15rem)
+        height: calc(100vh - 16rem)
 
     // Only visible when inside uni-ticker-wrapper
     // Important actions should be in toolbar in overview.ts
     .ticker-horizontal-menu
         display: none
 
-    .uni-ag-wrapper
-        font-size: 14px
-
     .ticker-default-filter
-        display: flex
-        align-items: center
-        label
-            position: absolute
-            top: 6px
-            right: 2px
+        position: absolute
+        top: .5rem
+        right: 1.5rem
 
 uni-ticker-detail-view
     margin-bottom: 1rem
@@ -71,11 +65,8 @@ uni-ticker-detail-view
                 border: 1px solid $uni-color-scale9
                 border-radius: pxToRem(3)
                 white-space: pre-wrap
-
-                &.date-good
-                    background: mix($uni-color-negative, $uni-color-good, 60%)
                 &.date-bad
-                    background: mix($uni-color-negative, $uni-color-bad, 60%)
+                    color: var(--color-bad)
 
 uni-sub-ticker-container
     overflow: auto
@@ -110,21 +101,6 @@ uni-sub-ticker-container
 
                 span.ticker-title
                     font-size: 1.25rem
-
-                .contextmenu_button
-                    border: none
-                .toolbar-dropdown-list
-                    left: 0
-                    right: unset
-
-                .sub-ticker-open-button
-                    padding: 0 .5rem 0 1.5rem
-                    background: transparent
-                    color: $uni-color-positive
-                    text-shadow: none
-
-                    background: unicon-edit($uni-color-positive) left no-repeat
-                    background-size: 1rem
 
         .ticker-data
             padding: 1rem 0 0

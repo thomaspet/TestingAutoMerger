@@ -4,7 +4,6 @@
             [searchFn]="field?.Options?.search"
             [value]="selectedItem"
             [readonly]="readOnly$ | async"
-            [newButtonAction]="field?.Options?.newButtonAction"
             (valueChange)="onChange($event)"
             (readyEvent)="createFocusListener($event)">
 </uni-select>

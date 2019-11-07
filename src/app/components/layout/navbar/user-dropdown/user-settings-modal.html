@@ -1,46 +1,42 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        <h1>Brukerinnstillinger</h1>
-    </header>
+    <header>Brukerinnstillinger</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <form class="uni-html-form" *ngIf="userDetailsForm" [formGroup]="userDetailsForm">
-            <label>
+        <form *ngIf="userDetailsForm" [formGroup]="userDetailsForm">
+            <label class="uni-label label-left">
                 <span>Visningsnavn</span>
                 <input formControlName="DisplayName" type="text">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Telefonnummer</span>
                 <input formControlName="PhoneNumber" type="tel">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>E-post</span>
                 <input disabled formControlName="Email" type="email">
             </label>
 
-            <label>
+            <label class="uni-label label-left">
                 <span>Passord</span>
                 <a [attr.href]="changePasswordUrl">Endre passord</a>
             </label>
 
-            <hr/>
-
-            <ng-container *ngIf="user?.BankIntegrationUserName">
-                <label for="resetPassowrd">
-                    <span>Endre autobankpassord</span>
-                    <button name="resetPassowrd" [disabled]="epostButtonClicked" (click)="resetAutobankPassword(); epostButtonClicked=true;">Send E-post</button>
-                </label>
-            </ng-container>
+            <label *ngIf="user?.BankIntegrationUserName" class="uni-label label-left">
+                <span>Endre autobankpassord</span>
+                <button [disabled]="epostButtonClicked" (click)="resetAutobankPassword(); epostButtonClicked=true;">
+                    Send E-post
+                </button>
+            </label>
         </form>
     </article>
 
-    <footer class="center">
-        <button class="c2a rounded" (click)="save()">Lagre</button>
-        <button (click)="onClose.emit()">Avbryt</button>
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="save()">Lagre</button>
     </footer>
 </section>

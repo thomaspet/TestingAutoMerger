@@ -5,14 +5,6 @@
 </uni-toolbar>
 
 <section class="application">
-    <!--
-        Anders 13.04
-
-        This is a pretty weird way to do tabs..
-        Should be refactored to use mat-tabs directly once
-        lazy loading tab content is available
-        (coming in version 6, currently in release candidate)
-    -->
     <uni-tabs [tabs]="tabs" [activeIndex]="activeTabIndex" (tabClick)="activeTab = $event"></uni-tabs>
 
     <uni-form

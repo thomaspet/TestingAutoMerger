@@ -16,7 +16,7 @@ interface IIntegrationConfig {
 @Component({
     selector: 'uni-integration-counter-widget',
     template: `
-        <div class="sum_widget" (click)="onClickNavigate()">
+        <div class="sum_widget" [ngClass]="widget.config.class" (click)="onClickNavigate()">
             <div class="numbers-section">
                 <div class="header">{{(config$ | async)?.label}}</div>
                 <div>{{count$ | async}}</div>

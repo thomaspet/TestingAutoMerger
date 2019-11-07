@@ -11,7 +11,7 @@
     "prebuild": "node ./scripts/prebuild.js",
     "zip-dist": "node ./scripts/zip.js",
     "high-memory-build": "node --max_old_space_size=6144 node_modules/@angular/cli/bin/ng",
-    "high-memory-serve": "node --max_old_space_size=4096 node_modules/@angular/cli/bin/ng",
+    "high-memory-serve": "node --max_old_space_size=6144 node_modules/@angular/cli/bin/ng",
     "build.dev": "npm run prebuild && npm run high-memory-build -- build --configuration=dev",
     "build.test": "npm run prebuild && npm run high-memory-build -- build --configuration=test",
     "build.rc": "npm run prebuild && npm run high-memory-build -- build --configuration=rc",
@@ -24,13 +24,7 @@
     "start.prod": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=prod-serve --proxy-config proxy/prod.proxy.json",
     "start.ext01": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=ext01-serve --proxy-config proxy/ext01.proxy.json",
     "start.local": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=local --proxy-config proxy/local.proxy.json",
-    "start.cheap": "npm run start.dev.cheap",
-    "start.dev.cheap": "npm run prebuild && npm run high-memory-serve -- serve --poll 1000 --port=3000 --configuration=dev-serve --eval-source-map=true --proxy-config proxy/dev.proxy.json",
-    "start.test.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=test-serve --eval-source-map=true --proxy-config proxy/test.proxy.json",
-    "start.rc.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=rc-serve --eval-source-map=true --proxy-config proxy/rc.proxy.json",
-    "start.prod.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=prod-serve --eval-source-map=true --proxy-config proxy/prod.proxy.json",
-    "start.ext01.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=ext01-serve --eval-source-map=true --proxy-config proxy/ext01.proxy.json",
-    "start.local.cheap": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=local --eval-source-map=true --proxy-config proxy/local.proxy.json",
+    "start.faster": "npm run prebuild && npm run high-memory-serve -- serve --port=3000 --configuration=dev-serve-faster --sourceMap=false --proxy-config proxy/dev.proxy.json",
     "check-aot": "npm run high-memory-build -- build --configuration=aot-error-check"
   },
   "dependencies": {
@@ -71,7 +65,7 @@
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "0.10.2",
+    "@angular-devkit/build-angular": "0.13.9",
     "@angular/cli": "^7.0.2",
     "@angular/compiler-cli": "^7.0.0",
     "@angular/language-service": "^7.0.0",

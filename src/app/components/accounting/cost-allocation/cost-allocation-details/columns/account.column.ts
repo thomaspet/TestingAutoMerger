@@ -26,11 +26,10 @@ export const accountColumn = (table: AgGridWrapper, accountService: AccountServi
             lookupFunction: (searchValue) => {
                 return accountSearch(accountService, searchValue);
             },
-            addNewButtonVisible: true,
-            addNewButtonText: 'Opprett ny konto',
-            addNewButtonCallback: (text) => {
-                return openNewAccountModal(modalService, table.getCurrentRow(), text);
-            }
+            addNewButton: {
+                label: 'Opprett ny konto',
+                action: text => openNewAccountModal(modalService, table.getCurrentRow(), text)
+            },
         });
 };
 

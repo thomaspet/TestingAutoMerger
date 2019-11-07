@@ -32,7 +32,8 @@ const PUBLIC_ROOT_ROUTES = [
     'gdpr',
     'contract-activation',
     'license-info',
-    'bank-reconciliation' // TODO: ADD PERMISSION AND REMOVE
+    'bank-reconciliation', // TODO: ADD PERMISSION AND REMOVE
+    'accounting' // TODO: ADD PERMISSION AND REMOVE
 ];
 
 const PUBLIC_ROUTES = [];
@@ -41,7 +42,6 @@ const PUBLIC_ROUTES = [];
 export class AuthService {
     userManager: UserManager;
 
-    public requestAuthentication$: EventEmitter<any> = new EventEmitter();
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$ = new ReplaySubject<IAuthDetails>(1);
@@ -117,9 +117,6 @@ export class AuthService {
                         this.loadCurrentSession().subscribe(
                             auth => {
                                 this.filesToken$.next(this.filesToken);
-                                if (!this.filesToken) {
-                                    this.authenticateUniFiles();
-                                }
 
                                 if (!auth.hasActiveContract) {
                                     this.router.navigateByUrl('contract-activation');
@@ -156,6 +153,7 @@ export class AuthService {
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
                 this.jwt = user.access_token;
+                this.token$.next(this.jwt);
                 if (!this.filesToken) {
                     this.authenticateUniFiles();
                 }
@@ -174,11 +172,16 @@ export class AuthService {
         }, 60000);
     }
 
-    setLoadIndicatorVisibility(visible: boolean) {
-        if (visible) {
+    setLoadIndicatorVisibility(spinnerVisible: boolean) {
+        if (spinnerVisible) {
             $('#data-loading-spinner').fadeIn(250);
         } else {
             $('#data-loading-spinner').fadeOut(250);
+        }
+
+        const boostChat = document.getElementById('chat-container');
+        if (boostChat) {
+            boostChat.style.visibility = spinnerVisible ? 'hidden' : 'visible';
         }
     }
 
@@ -358,18 +361,30 @@ export class AuthService {
         return this.activeCompany && this.activeCompany.Key;
     }
 
+    /**
+     * Returns a boolean indicating whether the user is authenticated or not
+     * @returns {Boolean}
+     */
     public isAuthenticated(): Promise<boolean> {
         return new Promise(resolve => {
-            this.userManager.getUser().then(user => {
-                if (user && !user.expired) {
-                    this.jwt = user.access_token;
-                    const hasToken = !!this.jwt;
-                    resolve(hasToken);
-                } else {
-                    resolve(false);
-                }
-            }).catch(() => resolve(false));
+            this.userManager
+                .getUser()
+                .then(user => {
+                    if (user && !user.expired && !!user.access_token) {
+                        this.jwt = user.access_token;
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                })
+                .catch(() => resolve(false));
         });
+    }
+
+    signoutRedirect() {
+        if (this.userManager) {
+            this.userManager.signoutRedirect();
+        }
     }
 
     /**
@@ -391,6 +406,7 @@ export class AuthService {
             this.storage.removeOnUser('activeCompany');
             this.storage.removeOnUser('activeFinancialYear');
             this.storage.removeOnUser('filesToken');
+            this.storage.removeOnUser('navbarTabs');
             this.jwt = undefined;
             this.activeCompany = undefined;
             this.setLoadIndicatorVisibility(false);

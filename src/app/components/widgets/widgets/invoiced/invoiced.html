@@ -2,27 +2,27 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section class="filters uni-redesign" *ngIf="!unauthorized">
-            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+        <section class="filters" *ngIf="!unauthorized">
+            <button #toggle class="tertiary toggle-button">
                 {{ currentPeriod.label }}
                 <i class="material-icons">expand_more</i>
             </button>
 
-            <mat-menu #contextMenu="matMenu">
-                <ul class="widget-filter-menu">
-                    <li role="button" (click)="updateData(0)">
+            <dropdown-menu [trigger]="toggle">
+                <ng-template>
+                    <a class="dropdown-menu-item" (click)="updateData(0)">
                         Vis siste 12 måneder
-                    </li>
+                    </a>
 
-                    <li role="button" (click)="updateData(1)">
+                    <a class="dropdown-menu-item" (click)="updateData(1)">
                         Vis siste 10 uker
-                    </li>
+                    </a>
 
-                    <li role="button" (click)="updateData(2)">
+                    <a class="dropdown-menu-item" (click)="updateData(2)">
                         Vis siste 10 dager
-                    </li>
-                </ul>
-            </mat-menu>
+                    </a>
+                </ng-template>
+            </dropdown-menu>
         </section>
     </section>
 
@@ -51,12 +51,12 @@
 
         <section class="chart-legend" *ngIf="!unauthorized">
             <section class="legend">
-                <span class="indicator invoiceinvoiced"></span>
+                <span class="indicator" [style.background]="COLORS[0]"></span>
                 Fakturert: <strong>{{ totalInvoiceInPeriod }}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator invoicepaid"></span>
+                <span class="indicator" [style.background]="COLORS[1]"></span>
                 Innbetalt: <strong>{{ totalPaidInPeriod }}</strong>
             </section>
         </section>

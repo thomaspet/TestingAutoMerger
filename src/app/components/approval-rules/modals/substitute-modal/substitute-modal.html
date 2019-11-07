@@ -26,13 +26,13 @@
 
         <label>
             <span>Fra dato</span>
-            <section class="date-input">
+            <section class="input-with-button">
                 <input #fromDateInput
                     [(ngModel)]="substitute.FromDate"
                     [matDatepicker]="fromDate"
                     (keydown.enter)="fromDateInput.blur();fromDateInput.focus();"
                 />
-                <button class="icon-button calendar-toggle" (click)="fromDate.open()">
+                <button (click)="fromDate.open()">
                     <i class="material-icons">date_range</i>
                 </button>
                 <mat-datepicker #fromDate></mat-datepicker>
@@ -41,13 +41,13 @@
 
         <label>
             <span>Til dato</span>
-            <section class="date-input">
+            <section class="input-with-button">
                 <input #toDateInput
                     [(ngModel)]="substitute.ToDate"
                     [matDatepicker]="toDate"
                     (keydown.enter)="toDateInput.blur();toDateInput.focus();"
                 />
-                <button class="icon-button calendar-toggle" (click)="toDate.open()">
+                <button (click)="toDate.open()">
                     <i class="material-icons">date_range</i>
                 </button>
                 <mat-datepicker #toDate></mat-datepicker>

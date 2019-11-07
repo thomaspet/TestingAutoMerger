@@ -10,6 +10,7 @@ import * as Chart from 'chart.js';
 
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
+import {BLUE_SCALES} from '../../widget-colors';
 
 @Component({
     selector: 'expenses-widget',
@@ -26,7 +27,7 @@ import {WidgetDataService} from '../../widgetDataService';
             <div *ngIf="!missingData" class="content">
                 <section class="chart-legend">
                     <section *ngFor="let item of items; let idx = index" class="legend">
-                        <span class="indicator" [ngStyle]="{'background': colors[idx]}"></span>
+                        <span class="indicator" [style.background]="colors[idx]"></span>
                         {{item.label}}: <strong>{{ (item.sum | uninumberformat:'money') || 0}}</strong>
                     </section>
                 </section>
@@ -50,7 +51,7 @@ export class ExpensesWidget {
     missingData: boolean;
     totalAmount = 0;
     items: {label: string, sum: number}[] = [];
-    colors = ['#94E4FF', '#7BCBFF', '#62B2FF'];
+    colors = BLUE_SCALES; // ['#005AA4', '#008ED2', '#7FC6E8'];
 
     constructor(
         private dataService: WidgetDataService,

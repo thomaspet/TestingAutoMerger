@@ -5,17 +5,15 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
     selector: 'uni-unsaved-changes-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>Ulagrede endringer</h1>
-            </header>
+            <header>Ulagrede endringer</header>
 
             <article>
                 <p>Du har ulagrede endringer. Ønsker du å forkaste disse?</p>
             </article>
 
             <footer>
+                <button (click)="close(false)" class="secondary">Avbryt</button>
                 <button (click)="close(true)" class="bad">Forkast endringer</button>
-                <button (click)="close(false)" class="warning">Avbryt</button>
             </footer>
         </section>
     `

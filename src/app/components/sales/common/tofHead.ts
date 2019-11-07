@@ -4,20 +4,16 @@ import {
     CompanySettings,
     CurrencyCode,
     Project,
-    Terms,
     Seller,
-    SellerLink,
     User,
     ValidationLevel,
-    CustomerInvoice,
-    AccountDimension,
     Dimensions,
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import { ValidationMessage } from '@app/models/validationResult';
-import { AccountMandatoryDimensionService } from '@app/services/services';
+import {IUniTab} from '@app/components/layout/uni-tabs';
+import {ValidationMessage} from '@app/models/validationResult';
+import {AccountMandatoryDimensionService} from '@app/services/services';
 
 @Component({
     selector: 'uni-tof-head',
@@ -44,43 +40,35 @@ export class TofHead implements OnChanges {
     @Output() dataChange: EventEmitter<any> = new EventEmitter();
 
     tabs: IUniTab[];
-    activeTabIndex: number = 0;
-    indexes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    activeTab = 'details';
 
-    freeTextControl: FormControl = new FormControl('');
-    commentControl: FormControl = new FormControl('');
     validationMessage: ValidationMessage;
     accountsWithMandatoryDimensionsIsUsed = true;
 
-    constructor (private accountMandatoryDimensionService: AccountMandatoryDimensionService) {
-    }
+    constructor (private accountMandatoryDimensionService: AccountMandatoryDimensionService) {}
 
     ngOnInit() {
         this.tabs = [
-            {name: 'Detaljer'},
-            {name: 'Betingelser og levering'},
-            {name: 'Fritekst'},
-            {name: 'Selgere'},
-            {name: 'Dokumenter'},
-            {name: 'Dimensjoner'},
-            {name: 'Utsendelse'}
+            {name: 'Detaljer', value: 'details'},
+            {name: 'Betingelser og levering', value: 'delivery'},
+            {name: 'Selgere', value: 'sellers'},
+            {name: 'Dokumenter', value: 'attachments'},
+            {name: 'Dimensjoner', value: 'dimensions'},
+            {name: 'Utsendelse', value: 'distribution'}
         ];
 
         if (this.entityName === 'CustomerInvoice') {
-            this.tabs.push({name: 'Purringer'});
+            this.tabs.push({name: 'Purringer', value: 'reminders'});
         }
 
         if (this.entityName === 'RecurringInvoice') {
-            this.tabs.unshift({name: 'Innstillinger'});
-            this.indexes = this.indexes.map(i => ++i);
+            this.activeTab = 'settings';
+            this.tabs.unshift({name: 'Innstillinger', value: 'settings'});
         }
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (this.data) {
-            this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
-            this.commentControl.setValue(this.data.Comment, {emitEvent: false});
-
             if (this.sellers && this.data.ID === 0 && this.currentUser) {
                 const userSeller = this.sellers.find(seller => seller.UserID === this.currentUser.ID);
                 if (userSeller) {
@@ -102,9 +90,6 @@ export class TofHead implements OnChanges {
 
     onDataChange(data?: any) {
         const updatedEntity = data || this.data;
-
-        updatedEntity.FreeTxt = this.freeTextControl.value;
-        updatedEntity.Comment = this.commentControl.value;
         this.data = updatedEntity;
         this.dataChange.emit(this.data);
     }
@@ -112,6 +97,13 @@ export class TofHead implements OnChanges {
     focus() {
         if (this.customerCard) {
             this.customerCard.focus();
+        }
+    }
+
+    focusDetailsForm(event?: KeyboardEvent) {
+        event.preventDefault();
+        if (this.detailsForm && this.detailsForm.form) {
+            this.detailsForm.form.focus();
         }
     }
 

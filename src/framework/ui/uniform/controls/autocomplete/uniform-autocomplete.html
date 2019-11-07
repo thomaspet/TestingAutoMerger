@@ -1,0 +1,40 @@
+<div (clickOutside)="onClickOutside()">
+    <section class="input-with-button">
+        <input #inputElement
+            [formControl]="control"
+            [readonly]="readOnly$ | async"
+            [placeholder]="field?.Placeholder || ''"
+            (focus)="focusHandler()"
+            autocomplete="false"
+            [title]="control?.value || ''"
+            type="text"
+            tabindex="-1"
+        />
+        <button type="button"
+                tabIndex="-1"
+                [disabled]="readOnly$ | async"
+                (click)="onSearchButtonClick()">
+            <i class="material-icons">search</i>
+        </button>
+    </section>
+
+    <input-dropdown-menu [input]="inputElement" [visible]="isExpanded$ | async">
+        <ng-template>
+            <section #list>
+                <ng-container *ngFor="let item of lookupResults; let idx = index">
+                    <section class="dropdown-menu-header" *ngIf="item.isHeader">
+                        {{item.header}}
+                    </section>
+
+                    <section class="dropdown-menu-item" *ngIf="!item.isHeader"
+                        (mouseover)="onMouseOver(item.isHeader, item, idx)"
+                        (click)="confirmSelection(item)"
+                        [attr.aria-selected]="selectedIndex === idx">
+                        {{template(item)}}
+                    </section>
+                </ng-container>
+            </section>
+
+        </ng-template>
+    </input-dropdown-menu>
+</div>

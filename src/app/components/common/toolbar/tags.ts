@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnChanges, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
-import {UniFieldLayout, FieldType, UniAutocompleteInput} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout, FieldType, UniFormAutocomplete} from '../../../../framework/ui/uniform';
 import {ErrorService} from '../../../services/services';
 import * as _ from 'lodash';
 
@@ -56,12 +56,12 @@ export interface ITagAutoComplete {
                 <section class="tags_lookup" *ngIf="config && !config.readOnly">
                     <label>
                         {{config?.lookupLabel || 'Legg til'}}
-                        <uni-autocomplete-input *ngIf="autoCompleteField"
+                        <uniform-autocomplete *ngIf="autoCompleteField"
                             [attr.aria-busy]="searchBusy"
                             [field]="autoCompleteField"
                             [model]="autoCompleteModel"
                             (readyEvent)="searchReady()">
-                        </uni-autocomplete-input>
+                        </uniform-autocomplete>
                     </label>
                 </section>
             </section>
@@ -73,7 +73,7 @@ export class UniTags implements OnChanges {
     @Input() public tags: ITag[];
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();
     @Output() public tagsBusy: EventEmitter<boolean> = new EventEmitter();
-    @ViewChild(UniAutocompleteInput) public autoComplete: UniAutocompleteInput;
+    @ViewChild(UniFormAutocomplete) public autoComplete: UniFormAutocomplete;
 
     public isOpen: boolean = false;
     public helpText: string;

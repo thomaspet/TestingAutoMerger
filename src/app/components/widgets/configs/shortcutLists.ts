@@ -55,7 +55,7 @@ export const SHORTCUT_LISTS = [
                     icon: 'chrome_reader_mode'
                 },
                 {
-                    label: 'Leverandørfaktura',
+                    label: 'NAVBAR.SUPPLIER_INVOICE',
                     url: '/accounting/bills',
                     icon: 'description'
                 },
@@ -137,7 +137,7 @@ export const SHORTCUT_LISTS = [
                     icon: 'dns'
                 },
                 {
-                    label: 'Lønnsavregning',
+                    label: 'NAVBAR.PAYROLL',
                     url: '/salary/payrollrun',
                     icon: 'account_balance_wallet'
                 },
@@ -206,7 +206,7 @@ export const SHORTCUT_LISTS = [
                     urlToNew: ''
                 },
                 {
-                    label: 'Leverandørfaktura',
+                    label: 'NAVBAR.SUPPLIER_INVOICE',
                     link: '/accounting/bills',
                     urlToNew: '/accounting/bills/0'
                 },
@@ -325,7 +325,7 @@ export const SHORTCUT_LISTS = [
                     urlToNew: '/salary/employeecategories/0/details'
                 },
                 {
-                    label: 'Lønnsavregning',
+                    label: 'NAVBAR.PAYROLL',
                     link: '/salary/payrollrun',
                     urlToNew: '/salary/payrollrun/0'
                 },
@@ -370,7 +370,7 @@ export const SHORTCUT_LISTS = [
                     link: '/bank/ticker?code=payment_list'
                 },
                 // {
-                //     label: 'Bankavstemning',
+                //     label: 'Bankavstemming',
                 //     link: '/bank/reconciliation',
                 // },
                 {

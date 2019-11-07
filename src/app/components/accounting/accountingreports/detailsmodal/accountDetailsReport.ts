@@ -28,7 +28,7 @@ import {
     PageStateService
 } from '../../../../services/services';
 import {YearModal, IChangeYear} from '../../../layout/navbar/company-dropdown/yearModal';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@app/components/layout/uni-tabs';
 import * as moment from 'moment';
 import { ProjectService } from '@app/services/common/projectService';
 import { DepartmentService } from '@app/services/common/departmentService';
@@ -60,7 +60,7 @@ export class AccountDetailsReport {
 
     toolbarconfig: IToolbarConfig;
     searchConfig = this.uniSearchAccountConfig.generateAllAccountsConfig();
-    uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
+    tableConfig: UniTableConfig;
 
     accountIDs: Array<number> = [];
     subAccountIDs: Array<number> = [];
@@ -520,19 +520,8 @@ export class AccountDetailsReport {
             x.conditionalCls = (data) => this.getCssClasses(data, x.field);
         });
 
-        let pageSize = window.innerHeight // Window size
-            - 80 // Header/Navbar
-            - 90 // Toolbar
-            - 70 // Search container
-            - 50 // UniTabs
-            - 70 // Header
-            - 40 // Filters
-            - 200; // Paddings + margins
-
-        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
-
         const tableName = 'accounting.accountingreports.detailsmodal';
-        this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false, pageSize)
+        this.tableConfig = new UniTableConfig(tableName, false, false, 8)
             .setPageable(true)
             .setSearchable(true)
             .setConditionalRowCls(row => {
@@ -543,7 +532,7 @@ export class AccountDetailsReport {
                     return 'journal-entry-credited';
                 }
             })
-            .setColumns(columns));
+            .setColumns(columns);
     }
 
     private getCssClasses(data, field) {

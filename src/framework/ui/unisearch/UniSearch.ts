@@ -8,8 +8,9 @@ import {IUniSearchConfig} from './IUniSearchConfig';
 @Component({
     selector: 'uni-search',
     template: `
-        <section class="uni_search" (clickOutside)="onClickOutside()">
-            <input class="input"
+        <section class="input-with-button" style="width: 100%" (clickOutside)="onClickOutside()">
+            <input type="text"
+                style="width: 100%"
                 role="combobox"
                 autocomplete="false"
                 aria-autocomplete="inline"
@@ -24,16 +25,13 @@ import {IUniSearchConfig} from './IUniSearchConfig';
                 (blur)="onBlur()"
             />
 
-            <button *ngIf="!config?.disableSearchButton" class="searchBtn"
-                    [disabled]="disabled"
-                    (click)="onBtnClick()"
-                    [attr.aria-busy]="uniSearchAttr.busy"
-                    type="button"
-                    tabindex="-1">
-                Search
+            <button [disabled]="disabled"
+                (click)="onBtnClick()"
+                type="button"
+                tabindex="-1">
+                <i class="material-icons">search</i>
             </button>
         </section>`,
-    styleUrls: ['./uniSearch.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearch {
@@ -82,7 +80,7 @@ export class UniSearch {
     }
 
     getTitle() {
-        return (this.uniSearchAttr as any).componentElement.nativeElement.value || '';
+        return (this.uniSearchAttr as any).inputElement.nativeElement.value || '';
     }
 
     focus() {

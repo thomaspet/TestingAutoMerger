@@ -11,8 +11,8 @@ import {
 @Component({
     selector: 'uni-budget-download-template-modal',
     template: `
-    <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw; font-size: .9rem">
-        <header><h1>Budsjettspost </h1></header>
+    <section role="dialog" class="uni-modal" style="width: 80vw; font-size: .9rem">
+        <header>Budsjettpost</header>
 
         <article class="budget-entry-modal-container">
             <div *ngIf="currentDepartment">
@@ -45,8 +45,8 @@ import {
         </article>
 
         <footer>
-            <button (click)="save()" class="good" [disabled]="lockSave">Lagre</button>
-            <button (click)="close()" class="bad">Avbryt</button>
+            <button (click)="close()" class="secondary">Avbryt</button>
+            <button (click)="save()" class="c2a" [disabled]="lockSave">Lagre</button>
         </footer>
     </section>
     `

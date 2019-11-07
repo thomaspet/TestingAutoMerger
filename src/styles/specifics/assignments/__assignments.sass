@@ -3,9 +3,6 @@
 
 uni-assignments *
     box-sizing: border-box
-    button
-        height: 2rem
-        line-height: 1rem
 
 uni-approvals, uni-tasks
     display: flex
@@ -22,21 +19,27 @@ uni-approvals, uni-tasks
     .assignment-filters
         height: 4rem
         padding-top: 1rem
-        display: block
+        display: flex
+        align-items: center
+
+        .task-checkbox
+            margin-left: 2rem
 
         button
+            height: 2rem
+            line-height: 1rem
             margin: 0
             border-radius: 0
             background-color: $uni-color-negative
-            color: $uni-color-c2a
-            border: 1px solid $uni-color-c2a
+            color: var(--color-c2a-dark)
+            border: 1px solid var(--color-c2a-dark)
             text-shadow: none
             box-shadow: none
             margin-right: -4px
             width: 10rem
 
             &.active-filter
-                background-color: $uni-color-c2a
+                background-color: var(--color-c2a-dark)
                 color: $uni-color-negative
 
             &:first-of-type
@@ -96,22 +99,23 @@ uni-approvals, uni-tasks
                 &.complete-task
                     color: $uni-color-scale6
                     &:hover
-                        color: $uni-color-c2a
+                        color: var(--color-c2a)
 
                 &.approve-approval
-                    color: $uni-color-good
+                    color: var(--color-good)
                     &:hover
-                        color: darken($uni-color-good, 10%)
+                        color: var(--color-good-hover)
 
                 &.reject-approval
-                    color: $uni-color-bad
+                    color: var(--color-bad)
                     transform: rotate(45deg)
                     &:hover
-                        color: darken($uni-color-bad, 10%)
+                        color: var(--color-bad-hover)
 
 
 .assignment-details
     flex: 1
+    margin-left: 1rem
     box-sizing: border-box
     display: flex
     flex-direction: column

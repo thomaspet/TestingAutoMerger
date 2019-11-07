@@ -1,7 +1,6 @@
 export enum FieldType {
     AUTOCOMPLETE = 0,
     BUTTON = 1,
-    DATE_TIME_PICKER = 2,
     MASKED = 4,
     DROPDOWN = 3,
     CHECKBOX = 5,

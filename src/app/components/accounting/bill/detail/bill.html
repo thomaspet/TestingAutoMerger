@@ -2,15 +2,28 @@
     [config]="toolbarConfig"
     [saveactions]="actions"
     [commentsConfig]="commentsConfig"
+    [customStatus]="paymentStatus"
     class="no-print">
 </uni-toolbar>
 
 <section class="application">
-
     <section class="bill-left-side">
-
         <section class="uni-container">
-            <uni-tabs [tabs]="detailsTabs" [(activeIndex)]="detailsTabIndex" (activeIndexChange)="onDetailsTabClick($event)"></uni-tabs>
+            <uni-tabs class="scoped"
+                [tabs]="detailsTabs"
+                [(activeIndex)]="detailsTabIndex"
+                (activeIndexChange)="onDetailsTabClick($event)">
+            </uni-tabs>
+            <label class="supplier-expense-label" *ngIf="detailsTabIndex === 0">
+                <span>Leverandør</span>
+                <autocomplete
+                    class="customer-select"
+                    [options]="autocompleteOptions"
+                    [readonly]="supplierIsReadOnly"
+                    [value]="(current | async).Supplier"
+                    (valueChanges)="newSupplierSelected($event)">
+                </autocomplete>
+            </label>
             <uni-form
                 *ngIf="detailsTabIndex === 0"
                 [config]="formConfig$"
@@ -34,7 +47,7 @@
         </section>
 
         <section class="uni-container" style="margin-bottom: 0">
-            <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+            <uni-tabs class="scoped" [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
             <ng-template [ngIf]="activeTabIndex === 0">
                 <journal-entry-manual
@@ -50,6 +63,7 @@
                     (dataChanged)="onJournalEntryManualChange($event)"
                     (dataLoaded)="onJournalEntryManualDataLoaded($event)">
                 </journal-entry-manual>
+
                 <table *ngIf="!(current | async)?.JournalEntry?.JournalEntryNumber" class="compact-summary">
                     <tr>
                         <td>Differanse</td>
@@ -90,7 +104,6 @@
         </span>
 
         <uni-image
-            [useEhfReader]="true"
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"
