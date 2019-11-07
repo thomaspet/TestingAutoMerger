@@ -1465,7 +1465,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setSkipOnEnterKeyNavigation(true)
             .setWidth('90px');
 
-/* hotfiks frontend til journalentrytype er flyttet til company base i backend
+
         const journalEntryTypeCol = new UniTableColumn('JournalEntryType', 'Bilagstype', UniTableColumnType.Lookup)
             .setDisplayField('JournalEntryType.DisplayName')
             .setVisible(false)
@@ -1479,7 +1479,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         .map(x => x.Data ? x.Data : []);
                     }
                 });
-*/
+
         const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setDisplayField('Project.ProjectNumber')
             .setVisible(false)
@@ -1671,8 +1671,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 manDimReportCol,
                 addedPaymentCol,
-                fileCol
-                /* ,journalEntryTypeCol */
+                fileCol,
+                journalEntryTypeCol
             ].map(col => {
                 col = _.cloneDeep(col);
                 if (col.field === invoiceNoCol.field ||
@@ -1727,8 +1727,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCurrencyCol,
                 currencyExchangeRate,
                 costAllocationCol,
-                manDimReportCol
-                /*,journalEntryTypeCol */
+                manDimReportCol,
+                journalEntryTypeCol
             ];
 
             if (dimensionCols.length) {
@@ -1787,8 +1787,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 costAllocationCol,
                 addedPaymentCol,
                 fileCol,
-                manDimReportCol
-                /*,journalEntryTypeCol*/
+                manDimReportCol,
+                journalEntryTypeCol
             ];
 
             if (dimensionCols.length) {
