@@ -40,7 +40,7 @@ export class PaymentService extends BizHttp<Payment> {
             case 44004:
                 return 'Fullført';
             case 44005:
-                return 'Fil generert - ikke overført';
+                return 'Fil overført - avventer bankstatus';
             case 44006:
                 return 'Betalt';
             case 44007:

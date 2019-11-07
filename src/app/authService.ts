@@ -358,28 +358,17 @@ export class AuthService {
         return this.activeCompany && this.activeCompany.Key;
     }
 
-    /**
-     * Returns a boolean indicating whether the user is authenticated or not
-     * @returns {Boolean}
-     */
-    public isAuthenticated(): Promise<Boolean> {
-        return new Promise((resolve, reject) => {
-            this.userManager
-                .getUser()
-                .then(user => {
-                    if (user && !user.expired) {
-                        this.jwt = user.access_token;
-                        this.authenticateUniFiles();
-
-                        const hasToken: boolean = !!this.jwt;
-                        resolve(hasToken);
-                    } else {
-                        resolve(false);
-                    }
-                })
-                .catch(() => {
+    public isAuthenticated(): Promise<boolean> {
+        return new Promise(resolve => {
+            this.userManager.getUser().then(user => {
+                if (user && !user.expired) {
+                    this.jwt = user.access_token;
+                    const hasToken = !!this.jwt;
+                    resolve(hasToken);
+                } else {
                     resolve(false);
-                });
+                }
+            }).catch(() => resolve(false));
         });
     }
 
@@ -402,11 +391,9 @@ export class AuthService {
             this.storage.removeOnUser('activeCompany');
             this.storage.removeOnUser('activeFinancialYear');
             this.storage.removeOnUser('filesToken');
-            this.storage.removeOnUser('lastActiveCompanyKey');
             this.jwt = undefined;
             this.activeCompany = undefined;
             this.setLoadIndicatorVisibility(false);
-
             if (!this.router.url.startsWith('/init')) {
                 this.router.navigate(['/init/login']);
             }
