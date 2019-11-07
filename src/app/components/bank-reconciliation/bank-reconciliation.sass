@@ -5,7 +5,11 @@
     .view-wrapper
         display: flex
         flex-direction: column
-        height: calc(100vh - 7rem)
+        height: calc(100vh - 13rem)
+        margin: 6.5rem 1.5rem 0 1.5rem
+        padding: 1rem
+        background-color: #FFF
+        width: calc(100% - 3rem)
 
     .reconciliation-toolbar
         flex: 0 0 auto
@@ -13,22 +17,11 @@
         min-height: 3rem
         margin-bottom: .5rem
         flex-wrap: no-wrap
+        align-items: center
 
         .left-side
             display: flex
             flex-wrap: wrap
-
-        h1
-            font: 400 22px 'Roboto'
-            margin: 5px 2rem 1rem 0
-
-        label
-            display: inline-flex
-            align-items: center
-            margin: 0 1rem 1rem 0
-            span
-                visibility: hidden
-                width: 0px
 
         select
             border: 1px solid rgba(112, 112, 112, 0.33)
@@ -38,15 +31,18 @@
             padding: 0 5px
             font-size: 14px
             width: 14rem
+            height: 34px
+            cursor: pointer
 
         .period-picker
             display: inline-flex
             align-items: center
             month-picker
-                height: 2.5rem
-                width: 10rem
+                height: 34px
+                width: 14rem
             button.icon-button
                 margin: 0 1px
+                height: 34px
 
         .pull-right
             margin-left: auto
@@ -58,14 +54,34 @@
                 min-width: 8rem
 
             button i.material-icons
+                margin-bottom: 1px
+                margin-right: 4px
+            button.tight
+                margin-left: 0.2rem
+                margin-right: 0.2rem
+                padding-left: 0.4rem
+                padding-right: 0.4rem
+
+.select-wrapper
+    display: flex
+    .flex-sections-container
+        display: flex
+        flex-direction: column
+        align-items: flex-start
+        margin: 0 1rem 1rem 0
+        span
+            font-size: 14px
+            &.account-legend
+                margin-left: .15rem
+            &.date-legend
+                margin-left: 2.4rem
                 margin-right: 2px
 
 .reconciliation-view
     flex: 1
     overflow: auto
     display: flex
-    padding: 1.5rem
-    background: #fff
+    padding: 1rem 0
     border-radius: 3px
 
     .list-section
@@ -80,7 +96,7 @@
                 margin-right: 1rem
 
             span
-                font: 400 18px 'Roboto'
+                font: 500 17px 'Roboto'
             small
                 font: 400 15px 'Roboto'
                 margin-left: auto
@@ -172,19 +188,6 @@
         padding: 10px 1.5rem
         font-size: 15px
         background: #F5F6F9
-
-        .save-actions
-            display: flex
-            margin: .75rem 0 .25rem
-            justify-content: center
-            button
-                padding-left: 5px
-                &.good
-                    flex: 1
-                    border-radius: 25px
-
-            i.material-icons
-                margin-bottom: 2px
 
     button.link-posts-button
         width: 100%

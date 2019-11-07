@@ -10,6 +10,7 @@ export interface IMatchEntry {
     IsBankEntry: boolean;
     Checked: boolean;
     Closed: boolean;
+    JournalEntryNumber?: string;
     StageGroupKey?: string;
     Tagged?: boolean;
     TagSum?: number;

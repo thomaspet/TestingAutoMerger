@@ -1,25 +1,22 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>Innstillinger for automatisk kobling</header>
+<section role="dialog" class="uni-modal uni-redesign" style="width: 40rem">
+    <header>Kjør automatisk kobling av poster</header>
 
-    <article class="scrollable">
+    <article>
+        <p> Sett verdi mellom 0 og 100. Systemet vil koble postene automatisk etter disse innstillingere </p>
+        <label class="settings-label">
+            <span>Maks antall dager mellom transaksjoner:</span>
+            <input type="text" [(ngModel)]="settings.MaxDayOffset" min="0" max="100">
+        </label>
 
-        <table>
-            <tr><td>Maks antall dager</td></tr>
-            <tr><td><input type="number" [(ngModel)]="settings.MaxDayOffset" min="0" max="100"></td></tr>
-            <tr><td>Maks avvik</td></tr>
-            <tr><td><input type="text" [(ngModel)]="settings.MaxDelta"></td></tr>
-        </table>
-
+        <label class="settings-label">
+            <span>Maks avvik i NOK:</span>
+            <input type="text" [(ngModel)]="settings.MaxDelta" min="0" max="100">
+        </label>
+        <small> {{errorMsg}} </small>
     </article>
 
-    <footer>
-
-        <button style="margin-left: auto" class="good" (click)="complete()">
-            OK
-        </button>
-
-        <button class="outline" (click)="onClose.emit()">
-            Avbryt
-        </button>
+    <footer class="center">
+        <button class="secondary" (click)="onClose.emit()"> Avbryt </button>
+        <button class="c2a" (click)="complete()"> Kjør automatisk kobling </button>
     </footer>
 </section>

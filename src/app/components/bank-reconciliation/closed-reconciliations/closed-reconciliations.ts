@@ -2,14 +2,28 @@ import {Component, EventEmitter, Output} from '@angular/core';
 import {BankStatementSession} from '@app/services/services';
 import {StageGroup} from '@app/services/bank/bankStatmentModels';
 import * as moment from 'moment';
+import {trigger, style, transition, animate} from '@angular/animations';
 
 @Component({
     selector: 'closed-reconciliations',
     templateUrl: './closed-reconciliations.html',
-    styleUrls: ['./closed-reconciliations.sass']
+    styleUrls: ['./closed-reconciliations.sass'],
+    animations: [
+        trigger('container', [
+          transition(':enter', [
+            style({transform: 'translateX(100%)'}),
+            animate('400ms ease-in-out', style({transform: 'translateX(0%)'}))
+          ]),
+          transition(':leave', [
+            style({transform: 'translateX(0%)'}),
+            animate('400ms ease-out', style({transform: 'translateX(100%)'}))
+          ])
+        ])
+      ]
 })
 export class ClosedReconciliations {
     @Output() close = new EventEmitter();
+    @Output() saveEmit = new EventEmitter();
 
     constructor(public session: BankStatementSession) {}
 
@@ -29,12 +43,10 @@ export class ClosedReconciliations {
 
     reset() {
         this.session.reset();
-        this.close.emit();
+        this.close.emit(true);
     }
 
     save() {
-        this.session.saveChanges()
-            .subscribe( () => { this.close.emit(); this.session.reset(); } );
-
+        this.saveEmit.emit();
     }
 }

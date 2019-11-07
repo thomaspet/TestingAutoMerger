@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesign">
+<section role="dialog" class="uni-modal uni-redesign" style="width: 40rem;">
     <header>Importer bankdata</header>
 
     <article class="scrollable">
@@ -19,13 +19,15 @@
             </label>
 
             <section class="file-select">
-                <span>Velg fil</span>
+                <section class="button-section">
+                    <span class="select-file-label">Velg fil</span>
 
-                <label class="bank-statement-upload">
-                    <i class="material-icons">cloud_upload</i>
-                    <span>Last opp</span>
-                    <input type="file" accept=".bck,.csv,.xml,.txt" (change)="uploadFile($event)" />
-                </label>
+                    <label class="bank-statement-upload">
+                        <i class="material-icons">cloud_upload</i>
+                        <span>Last opp</span>
+                        <input type="file" accept=".bck,.csv,.xml,.txt" (change)="uploadFile($event)" />
+                    </label>
+                </section>
 
                 <ul *ngIf="files?.length" class="selectable file-selection-list">
                     <li *ngFor="let file of files"
@@ -97,7 +99,7 @@
             Neste
         </button>
 
-        <button class="good"
+        <button class="c2a"
             *ngIf="currentStep=='preview'"
             [disabled]="!previewLines?.length"
             (click)="import()">

@@ -1,15 +1,18 @@
 import {Component, ErrorHandler} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {StatisticsService, BankAccountService, PageStateService} from '@app/services/services';
 import {BankAccount, BankStatementMatch} from '@uni-entities';
-import * as moment from 'moment';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
+import { IToolbarConfig } from '../common/toolbar/toolbar';
 import { BankStatementSession, IMatchEntry } from '@app/services/bank/bankstatementsession';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
 import { BankStatementSettings } from './bank-statement-settings/bank-statement-settings';
+import * as moment from 'moment';
+import {of} from 'rxjs';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -24,11 +27,26 @@ export class BankReconciliation {
     confirmedMatches: BankStatementMatch[] = [];
     bankPeriod: Date;
     journalEntryPeriod: Date;
-    autoSuggest = false;
+    autoSuggest = true;
     cleanUp = false;
     loaded = false;
     closedGroupDetailsVisible = false;
     settings = { MaxDayOffset: 5, MaxDelta: 0.0 };
+    saveactions: IUniSaveAction[] = [];
+    contextMenuItems: IContextMenuItem[] = [];
+    toolbarconfig: IToolbarConfig = {
+        title: 'Bankavstemming',
+        contextmenu: [
+            {
+                label: 'Last opp ny kontoutskrift',
+                action: () => { this.openImportModal(); }
+            },
+            {
+                label: 'Se alle åpne poster i bilagsføring',
+                action: () => { this.openJournalModal(); }
+            }
+        ]
+    };
 
     constructor(
         tabService: TabService,
@@ -49,26 +67,45 @@ export class BankReconciliation {
         this.initData();
     }
 
-    save() {
+    updateSaveActions() {
+        this.saveactions = [
+            {
+                label: 'Lagre',
+                action: done => this.save(done),
+                main: true,
+                disabled: !(this.session && this.session.closedGroups && this.session.closedGroups.length > 0)
+            }
+        ];
+    }
+
+    save(done?) {
         if (this.saveBusy) {
             return;
         }
 
+        this.closedGroupDetailsVisible = false;
         this.saveBusy = true;
         this.session.saveChanges().subscribe(
             () => {
                 this.session.reload().subscribe(() => this.checkSuggest());
                 this.saveBusy = false;
+                if (done) {
+                    done();
+                }
             },
             err => {
                 this.errorHandler.handleError(err);
                 this.saveBusy = false;
+                if (done) {
+                    done();
+                }
             }
         );
     }
 
     initData() {
         this.session.clear();
+        this.updateSaveActions();
         this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0').subscribe(
             accounts => {
                 this.bankAccounts = accounts || [];
@@ -101,7 +138,7 @@ export class BankReconciliation {
             data: {
                 bankAccounts: this.bankAccounts,
                 selectedAccountID: this.selectedBankAccount.AccountID,
-                entries: this.getJournalCandidates()
+                entries: this.getJournalCandidates(true)
             }
         }).onClose.subscribe(importResult => {
             if (!importResult) { return; }
@@ -112,8 +149,9 @@ export class BankReconciliation {
         });
     }
 
-    getJournalCandidates(): IMatchEntry[] {
-        if (this.session.stage.length === 0) {
+    // TAGED FOR REMOVAL?
+    getJournalCandidates(all: boolean = false): IMatchEntry[] {
+        if (this.session.stage.length === 0 || all) {
             return this.session.bankEntries.filter( x => ((!x.StageGroupKey) && (!x.Closed)) );
         }
         const bankEntries = this.session.stage.filter( x => x.IsBankEntry);
@@ -172,6 +210,7 @@ export class BankReconciliation {
 
     onBankPeriodChange(offset = 0) {
         if (this.selectedBankAccount) {
+            this.loaded = false;
             this.cleanUp = this.session.totalTransactions > 100;
             if (offset) { this.bankPeriod = moment(this.bankPeriod).add(offset, 'months').toDate(); }
             const fromDate = moment(this.bankPeriod).startOf('month').toDate();
@@ -184,29 +223,33 @@ export class BankReconciliation {
     }
 
     openSettings() {
-        this.modalService.open(BankStatementSettings, {
-            data: {
-                settings: this.settings
-            }
-        }).onClose.subscribe(settings => {
+        this.modalService.open(BankStatementSettings, { data: { settings: this.settings }}).onClose.subscribe(settings => {
             if (settings) {
                 this.settings = settings;
-                this.session.clearSuggestions();
-                if (this.autoSuggest) {
-                    this.checkSuggest();
-                }
+                this.startAutoMatch();
             }
         });
     }
 
     closeStage() {
         this.session.closeStage();
+        this.updateSaveActions();
         this.checkSuggest();
     }
 
     reset() {
         this.session.reset();
-        this.autoSuggest = false;
+        setTimeout(() => {
+            this.checkSuggest();
+        });
+    }
+
+    sideMenuClose(event) {
+        this.closedGroupDetailsVisible = false;
+        setTimeout(() => {
+            this.checkSuggest();
+        });
+        this.updateSaveActions();
     }
 
     checkSuggest(setFromUI = false) {
@@ -225,6 +268,7 @@ export class BankReconciliation {
                 if (this.session.tryNextSuggestion(x)) {
                     this.session.closeStage();
                 } else {
+                    this.updateSaveActions();
                     break;
                 }
             }

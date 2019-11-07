@@ -380,6 +380,7 @@ export class BankStatementSession {
                 Description: x.Description,
                 Amount: x.Amount,
                 OpenAmount: calcOpen,
+                JournalEntryNumber: x.JournalEntryNumber || '',
                 IsBankEntry: false,
                 Checked: false,
                 Closed: isClosed

@@ -1,55 +1,49 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
+</uni-toolbar>
+
 <section class="application view-wrapper uni-redesign">
     <section class="reconciliation-toolbar">
         <section class="left-side">
-            <h1 class="toolbar-title">Bankavstemming</h1>
             <section class="select-wrapper">
-                <label>
-                    <span>Konto</span>
+                <section class="flex-sections-container">
+                    <span class="account-legend">Konto</span>
                     <select [(ngModel)]="selectedBankAccount" (change)="onBankPeriodChange()">
                         <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount">
                             {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
                             ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
                         </option>
                     </select>
-                </label>
+                </section>
 
-                <section class="period-picker">
-                    <button class="icon-button" (click)="onBankPeriodChange(-1)">
-                        <i class="material-icons">arrow_left</i>
-                    </button>
+                <section class="flex-sections-container">
+                    <span class="date-legend">
+                        Til dato
+                    </span>
+                    <section class="period-picker">
+                        <button class="icon-button" (click)="onBankPeriodChange(-1)">
+                            <i class="material-icons">arrow_left</i>
+                        </button>
 
-                    <month-picker
-                        [(value)]="bankPeriod"
-                        (valueChange)="onBankPeriodChange()">
-                    </month-picker>
+                        <month-picker
+                            [(value)]="bankPeriod"
+                            (valueChange)="onBankPeriodChange()">
+                        </month-picker>
 
-                    <button class="icon-button" (click)="onBankPeriodChange(1)">
-                        <i class="material-icons">arrow_right</i>
-                    </button>
+                        <button class="icon-button" (click)="onBankPeriodChange(1)">
+                            <i class="material-icons">arrow_right</i>
+                        </button>
+                    </section>
                 </section>
             </section>
         </section>
 
         <section class="pull-right">
-            <button class="tertiary" (click)="startAutoMatch()">
+            <button class="secondary" (click)="openSettings()" title="Finner poster å koble sammen automatisk">
                 <i class="material-icons">compare_arrows</i>
-                Automatisk kobling
+                Koble poster automatisk
             </button>
-
-            <button class="tertiary" (click)="openJournalModal()">
-                <i class="material-icons">edit</i>
-                Bilagsføring
-            </button>
-
-            <button class="tertiary" (click)="openImportModal()">
-                <i class="material-icons">cloud_upload</i>
-                Import
-            </button>
-
-            <button class="icon-button" (click)="openSettings()">
-                <i class="material-icons">settings</i>
-            </button>
-
         </section>
     </section>
 
@@ -64,14 +58,17 @@
                 </section>
 
                 <small>Saldo</small>
-                <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'">{{session.bankBalance | uninumberformat: 'money'}}</span>
+                <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.bankBalance | uninumberformat: 'money'}}</span>
             </section>
 
             <bank-statement-entries *ngIf="!cleanUp"
+                [showJournalEntryLink]="false"
+                [(loaded)]="loaded"
                 [items]="session.bankEntries"
                 [stageInfo]="session.stageInfo.bank"
                 (itemSelected)="session.checkOrUncheck($event)"
-                (showClosedGroups)="closedGroupDetailsVisible = true">
+                (showClosedGroups)="closedGroupDetailsVisible = true"
+                (uploadSelected)="openImportModal()">
             </bank-statement-entries>
         </section>
 
@@ -87,22 +84,10 @@
             </section>
 
             <section class="reconciliation-summary" [attr.aria-busy]="session.preparing" >
-                <section class="header">
-                    <mat-slide-toggle *ngIf="session.status == 3" (change)="checkSuggest(true)" [(ngModel)]="autoSuggest" class="max-width" [labelPosition]="'before'">
-                        Foreslå koblinger
-                    </mat-slide-toggle>
-                    <span *ngIf="session.status != 3">
-                        Avstemming
-                    </span>
-                </section>
-
                 <section class="content">
                     <section *ngIf="session.status == 2" class="info-box">
                         <article>Du har ingen bankposter.</article>
-                        <article>Velg "Importer" for å lese inn en bankfil manuelt.</article>
-                        <button (click)="openImportModal()" class="tertiary c2a">
-                            <i style="font-size: 20pt" class="material-icons">cloud_upload</i>
-                        </button>
+                        <article>Trykk på "Last opp kontoutskrift" for å lese inn en bankfil manuelt.</article>
                     </section>
 
                     <section *ngIf="session.status == 3 && !session.stage?.length" class="no-match-drafts c2a">
@@ -162,18 +147,6 @@
                         {{session.closedGroups?.length === 1 ? 'kobling' : 'koblinger'}}
                             klar for lagring
                     </a>
-
-                    <section class="save-actions">
-                        <button (click)="save()" [ngClass]="{'good': session.status == 6}">
-                            <i class="material-icons">check</i>
-                            Lagre
-                        </button>
-
-                        <button (click)="reset()" class="reset-button tertiary">
-                            <i class="material-icons">settings_backup_restore</i>
-                            Nullstill
-                        </button>
-                    </section>
                 </section>
             </section>
         </section>
@@ -182,10 +155,11 @@
             <section class="list-header" [attr.aria-busy]="session.busy">
                 <span>Regnskap - {{selectedBankAccount?.Account?.AccountNumber}}</span>
                 <small>Saldo</small>
-                <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'">{{session.journalEntryBalance | uninumberformat: 'money'}}</span>
+                <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.journalEntryBalance | uninumberformat: 'money'}}</span>
             </section>
 
             <bank-statement-entries *ngIf="!cleanUp"
+                [showJournalEntryLink]="true"
                 [items]="session.journalEntries"
                 [stageInfo]="session.stageInfo.journal"
                 (itemSelected)="session.checkOrUncheck($event)"
@@ -198,5 +172,6 @@
 <closed-reconciliations
     class="ontop"
     *ngIf="closedGroupDetailsVisible"
-    (close)="closedGroupDetailsVisible = false">
+    (saveEmit)="save()"
+    (close)="sideMenuClose($event)">
 </closed-reconciliations>

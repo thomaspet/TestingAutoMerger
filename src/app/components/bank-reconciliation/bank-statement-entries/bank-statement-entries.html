@@ -8,14 +8,6 @@
     </section>
 
     <ul id="bank-statement-entry-list">
-
-        <li *ngIf="stageInfo?.count" class="saveable" (click)="showClosedGroups.emit()">
-            <span class="description">{{stageInfo?.count}} lukkede poster klar for lagring</span>
-            <span class="amount" [ngClass]="stageInfo?.balance >= 0 ? 'positive' : 'negative'">
-                {{stageInfo?.balance | uninumberformat: 'money'}}
-            </span>
-        </li>
-
         <ng-container *ngFor="let entry of items | reconciliationItemFilter: searchText">
             <li *ngIf="(!entry.StageGroupKey) && (showClosed || !entry.Closed)"
                 [@itemAnim]="items.length"
@@ -26,6 +18,12 @@
                 <span class="description">{{entry.Description}}</span>
                 <span class="amount" [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
                     {{(entry.OpenAmount || entry.Amount) | uninumberformat: 'money'}}
+
+                    <i class="material-icons go-to-journal-icon"
+                        *ngIf="showJournalEntryLink && entry?.JournalEntryNumber"
+                        (click)="$event.stopPropagation(); goToJournalEntryView(entry)"
+                        title="Gå til bilag {{ entry.JournalEntryNumber }}"> open_in_new
+                    </i>
                 </span>
             </li>
         </ng-container>
@@ -36,6 +34,10 @@
                 {{closedSum | uninumberformat: 'money'}}
             </span>
         </li>
-
     </ul>
+
+    <section *ngIf="loaded && !items?.length && !((!showClosed) && closedEntries)" class="upload-bank-section" (click)="uploadSelected.emit()">
+        <i class="material-icons">cloud_upload_outline</i>
+        <span>Last opp kontoutskrift</span>
+    </section>
 </section>
