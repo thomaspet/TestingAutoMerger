@@ -72,7 +72,6 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
-import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
@@ -135,7 +134,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
 
         SupplierList,
         SupplierDetails,
-        UniNewSupplierModal,
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
@@ -219,7 +217,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         EditSupplierInvoicePayments,
         NewAccountModal,
         BillAssignmentModal,
-        UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
         DraftLineDescriptionModal,

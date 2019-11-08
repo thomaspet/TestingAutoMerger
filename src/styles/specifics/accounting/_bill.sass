@@ -76,6 +76,7 @@ uni-bill
 
 	uni-field
 		max-width: 100%
+		@include labelLength(10rem)
 
 	uni-image picture
 		display: inline-block
@@ -87,16 +88,6 @@ uni-bill
 	.bill-small-field
 		display: inline-block
 		width: 50%
-
-.bill-amount-field
-	display: inline-block
-	width: calc(100% - 10.0rem)
-
-.bill-currency-field
-	width: 10rem
-	span
-		width: 0
-		height: 0
 
 article.collapsable h4
 	box-sizing: border-box
@@ -213,3 +204,9 @@ smart-booking-settings-modal
 		width: 12.5rem
 	autocomplete
 		flex: 1
+
+label.uni-label.supplier-label
+	padding: 1rem 1.5rem 0
+	margin: 0
+	> span
+		width: 10rem
