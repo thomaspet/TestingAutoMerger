@@ -14,16 +14,19 @@
                 [(activeIndex)]="detailsTabIndex"
                 (activeIndexChange)="onDetailsTabClick($event)">
             </uni-tabs>
-            <label class="supplier-expense-label" *ngIf="detailsTabIndex === 0">
+
+            <label class="supplier-label uni-label label-left" *ngIf="detailsTabIndex === 0">
                 <span>Leverandør</span>
                 <autocomplete
                     class="customer-select"
+                    (keydown.tab)="onAutocompleteTab()"
                     [options]="autocompleteOptions"
                     [readonly]="supplierIsReadOnly"
                     [value]="(current | async).Supplier"
                     (valueChanges)="newSupplierSelected($event)">
                 </autocomplete>
             </label>
+
             <uni-form
                 *ngIf="detailsTabIndex === 0"
                 [config]="formConfig$"
@@ -32,7 +35,8 @@
                 (readyEvent)="onFormReady()"
                 (changeEvent)="onFormChange($event)"
                 (inputEvent)="onFormInput($event)"
-                (focusEvent)="onFocusEvent($event)">
+                (focusEvent)="onFocusEvent($event)"
+                (moveOutEvent)="onFormMoveOutEvent($event)">
             </uni-form>
             <section *ngIf="detailsTabIndex === 1" class="freetext-tab-view">
                 <span>Fritekst</span>

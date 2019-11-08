@@ -27,11 +27,9 @@ import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 import {UniForm, FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
 import {billStatusflowLabels as workflowLabels} from './lang';
 import {UniImage} from '@uni-framework/uniImage/uniImage';
-import {IUniSearchConfig} from '@uni-framework/ui/unisearch/index';
 import {BillAssignmentModal} from '../assignment-modal/assignment-modal';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {CommentService} from '@uni-framework/comments/commentService';
@@ -61,12 +59,10 @@ import {
     PageStateService,
     checkGuid,
     EHFService,
-    UniSearchSupplierConfig,
     UniSearchDimensionConfig,
     ModulusService,
     ProjectService,
     DepartmentService,
-    Lookupservice,
     JournalEntryService,
     UserService,
     ValidationService,
@@ -83,7 +79,6 @@ import {
 } from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
-import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
@@ -93,6 +88,7 @@ import {AccountMandatoryDimensionService} from '@app/services/accounting/account
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
+import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 
 interface ITab {
     name: string;
@@ -115,31 +111,22 @@ interface ILocalValidation {
     errorMessage?: string;
 }
 
-interface IJournalHistoryItem {
-    AccountID: number;
-    AccountNumber: number;
-    Amount: number;
-    AccountName: string;
-    Counter: number;
-    Label: string;
-    LastDate: Date;
-}
-
 @Component({
     selector: 'uni-bill',
     templateUrl: './bill.html'
 })
 export class BillView implements OnInit {
-    @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
+    @ViewChild(Autocomplete) autocomplete: Autocomplete;
+    @ViewChild(UniForm) uniForm: UniForm;
+    @ViewChild(UniImage) uniImage: UniImage;
+    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
 
     uploadStepActive: boolean;
 
     public busy: boolean = true;
     public toolbarConfig: IToolbarConfig;
     paymentStatus: StatusIndicator;
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
+    public formConfig$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
     public costAllocationData$: BehaviorSubject<CostAllocationData> = new BehaviorSubject(new CostAllocationData());
@@ -161,7 +148,7 @@ export class BillView implements OnInit {
     private invoicePayments: Array<Payment> = [];
     // Sum of amount and amount currency
     private sumOfPayments: any;
-    private supplierIsReadOnly: boolean = false;
+    public supplierIsReadOnly: boolean = false;
     public commentsConfig: ICommentsConfig;
     private formReady: boolean;
     private vatDeductions: Array<VatDeduction>;
@@ -169,9 +156,6 @@ export class BillView implements OnInit {
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
 
-    private hasSuggestions: boolean = false;
-    private suggestions: Array<IJournalHistoryItem> = [];
-    private editmode: boolean = true;
     private sumRemainder: number = null;
     private sumVat: number = null;
     private customDimensions: any;
@@ -262,7 +246,6 @@ export class BillView implements OnInit {
         private route: ActivatedRoute,
         private supplierService: SupplierService,
         private router: Router,
-        private location: Location,
         private errorService: ErrorService,
         private pageStateService: PageStateService,
         private bankAccountService: BankAccountService,
@@ -270,13 +253,11 @@ export class BillView implements OnInit {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private ehfService: EHFService,
-        private uniSearchSupplierConfig: UniSearchSupplierConfig,
         private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private modalService: UniModalService,
-        private lookup: Lookupservice,
         private userService: UserService,
         private commentService: CommentService,
         private journalEntryService: JournalEntryService,
@@ -341,6 +322,13 @@ export class BillView implements OnInit {
         this.current.subscribe((invoice) => {
             this.tryUpdateCostAllocationData(invoice);
         });
+    }
+
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.fields$.complete();
+        this.costAllocationData$.complete();
+        this.current.complete();
     }
 
     supplierLookup(query: string) {
@@ -544,6 +532,18 @@ export class BillView implements OnInit {
         });
     }
 
+    onAutocompleteTab() {
+        if (this.uniForm) {
+            setTimeout(() => this.uniForm.focus());
+        }
+    }
+
+    onFormMoveOutEvent(event) {
+        if (event && event.movingBackward && this.autocomplete) {
+            this.autocomplete.focus();
+        }
+    }
+
     private initForm() {
         const fields = [
             <any> {
@@ -592,14 +592,14 @@ export class BillView implements OnInit {
                 Property: 'TaxInclusiveAmountCurrency',
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fakturabeløp',
-                Classes: 'bill-amount-field',
+                Classes: 'bill-small-field',
                 Section: 0
             },
             <any> {
                 Property: 'CurrencyCodeID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
-                Classes: 'bill-currency-field right',
+                Classes: 'bill-small-field right',
                 Section: 0
             },
             <any> {
@@ -2903,7 +2903,6 @@ export class BillView implements OnInit {
                     this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
                     this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled)
                     this.loadActionsFromEntity();
-                    this.lookupHistory();
                     this.checkLockStatus();
 
                     // set diff to null until the journalentry is loaded, the data is calculated correctly
@@ -4033,23 +4032,6 @@ export class BillView implements OnInit {
             isGood ? ToastType.good : ToastType.bad, delay,
             msg
         );
-    }
-
-    private lookupHistory() {
-        const observable = this.lookup.statQuery('supplierinvoice', 'select=lines.accountid as AccountID'
-            + ',account.accountnumber as AccountNumber,max(invoicedate) as LastDate'
-            + ',account.AccountName as AccountName,count(id) as Counter'
-            + `&filter=supplierid eq ${this.currentSupplierID} and accountgroup.groupnumber ge 300`
-            + (this.currentID ? ` and id ne ${this.currentID}` : '')
-            + '&join=&expand=journalentry,journalentry.lines,journalentry.lines.account,ReInvoice'
-            + ',journalentry.lines.account.accountgroup&top=10&orderby=count(id) desc');
-        observable.subscribe((items: Array<IJournalHistoryItem>) => {
-            if (items) {
-                this.hasSuggestions = items.length > 0;
-                items.forEach( item => item.Label = `${item.AccountNumber} - ${item.AccountName}` );
-            }
-            this.suggestions = items;
-        });
     }
 
     private tryUpdateCostAllocationData(invoice) {
