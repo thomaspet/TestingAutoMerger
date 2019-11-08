@@ -5,6 +5,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeList} from './wagetype/wagetypeList';
+import {WagetypeSyncGuard} from './wagetype/wagetypesync.guard';
 import {EmployeeList} from './employee/employeeList';
 import {EmployeeDetails} from './employee/employeeDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
@@ -48,7 +49,8 @@ export const salaryRoutes: Routes = [
         path: 'wagetypes/:id',
         component: WageTypeView,
         children: WageTypeRoutes,
-        canDeactivate: [CanDeactivateGuard]
+        canDeactivate: [CanDeactivateGuard],
+        canActivate: [WagetypeSyncGuard],
     },
     {
         path: 'wagetypes',
@@ -72,7 +74,8 @@ export const salaryRoutes: Routes = [
     {
         path: 'payrollrun/:id',
         component: PayrollrunDetails,
-        canDeactivate: [CanDeactivateGuard]
+        canDeactivate: [CanDeactivateGuard],
+        canActivate: [WagetypeSyncGuard],
     },
     {
         path: 'amelding',
