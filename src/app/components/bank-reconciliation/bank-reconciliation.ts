@@ -3,16 +3,16 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {catchError} from 'rxjs/operators';
 import {StatisticsService, BankAccountService, PageStateService} from '@app/services/services';
 import {BankAccount, BankStatementMatch} from '@uni-entities';
-import { IUniSaveAction } from '@uni-framework/save/save';
-import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
-import { IToolbarConfig } from '../common/toolbar/toolbar';
-import { BankStatementSession, IMatchEntry } from '@app/services/bank/bankstatementsession';
-import {UniModalService} from '@uni-framework/uni-modal';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {IToolbarConfig} from '../common/toolbar/toolbar';
+import {BankStatementSession, IMatchEntry} from '@app/services/bank/bankstatementsession';
+import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
 import { BankStatementSettings } from './bank-statement-settings/bank-statement-settings';
 import * as moment from 'moment';
-import {of} from 'rxjs';
+import {Observable, of} from 'rxjs';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -43,7 +43,7 @@ export class BankReconciliation {
             },
             {
                 label: 'Se alle åpne poster i bilagsføring',
-                action: () => { this.openJournalModal(); }
+                action: () => { this.openJournalModal(true); }
             }
         ]
     };
@@ -58,7 +58,7 @@ export class BankReconciliation {
         private pageStateService: PageStateService
     ) {
         tabService.addTab({
-            url: '/bank-reconciliation',
+            url: '/bank/bank-reconciliation',
             name: 'Bankavstemming',
             active: true,
             moduleID: UniModules.BankReconciliation
@@ -132,13 +132,13 @@ export class BankReconciliation {
         );
     }
 
-    openJournalModal() {
+    openJournalModal(all: boolean = false) {
         if (!this.loaded) { return; }
         this.modalService.open(BankStatementJournalModal, {
             data: {
                 bankAccounts: this.bankAccounts,
                 selectedAccountID: this.selectedBankAccount.AccountID,
-                entries: this.getJournalCandidates(true)
+                entries: this.getJournalCandidates(all)
             }
         }).onClose.subscribe(importResult => {
             if (!importResult) { return; }
@@ -272,6 +272,34 @@ export class BankReconciliation {
                     break;
                 }
             }
+        });
+    }
+
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (!this.session.closedGroups.length) {
+            return true;
+        }
+
+        const msg = `Du har ${this.session.closedGroups.length} kobling${this.session.closedGroups.length > 1 ? 'er ' : ' '}` +
+        `som ikke er lagret. Ønsker du å lagre disse før du fortsetter?`;
+
+        const modalOptions = {
+            header: 'Ulagrede endringer',
+            message: msg,
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast',
+                cancel: 'Avbryt'
+            }
+        };
+
+        return this.modalService.confirm(modalOptions).onClose.switchMap(confirm => {
+            if (confirm === ConfirmActions.ACCEPT) {
+                return this.session.saveChanges()
+                    .catch(err => Observable.of(false))
+                    .map(res => true);
+            }
+            return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
     }
 

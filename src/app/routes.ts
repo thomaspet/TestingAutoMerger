@@ -65,11 +65,6 @@ const routes = [
 
     // Lazy modules
     {
-        // TODO: move to bank module
-        path: 'bank-reconciliation',
-        loadChildren: './components/bank-reconciliation/bank-reconciliation.module#BankReconciliationModule'
-    },
-    {
         path: 'accounting',
         loadChildren: './components/accounting/accountingModule#AccountingModule',
     },

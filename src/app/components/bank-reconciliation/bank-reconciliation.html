@@ -96,7 +96,7 @@
 
                     <section *ngIf="session.status == 4" class="warn" style="text-align: left;">
                         Du har bankposter som ikke finnes i regnskapet.
-                        <br> Du kan bruke "Bilagsføring" oppe til høyre for å bokføre disse.
+                        <br> Du kan bruke "Se alle poster i bilagsføring" under ...meny oppe til høyre for å bokføre disse.
                     </section>
 
                     <section *ngIf="session.status == 5" class="info-box warn">
@@ -148,6 +148,11 @@
                             klar for lagring
                     </a>
                 </section>
+
+                <button class="secondary" *ngIf="session.stageHasOnlyBankEntries" style="margin: 0rem 2rem 1rem 2rem;" (click)="openJournalModal(false)">
+                    Bokfør transaksjon
+                </button>
+
             </section>
         </section>
 

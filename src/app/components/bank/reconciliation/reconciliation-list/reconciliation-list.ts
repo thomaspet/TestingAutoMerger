@@ -74,7 +74,7 @@ export class UniBankReconciliationList {
     onActionClick(action: any, account: any) {
         switch (action.name) {
             case 'reconciliate':
-                this.router.navigateByUrl(`/bank-reconciliation?accountid=${account.AccountID}`);
+                this.router.navigateByUrl(`/bank/bank-reconciliation?accountid=${account.AccountID}`);
                 break;
 
             case 'month':

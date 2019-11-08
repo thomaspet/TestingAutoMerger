@@ -38,7 +38,7 @@
         <section class="details-top-section">
             <strong> Innkommende balanse:  </strong>
             <span style="flex: 1;" [ngClass]="incommingBalance >= 0 ? 'good' : 'bad'"> {{ (incommingBalance | uninumberformat: 'money') || '0,00' }}  </span>
-            <a href="/#/bank-reconciliation?accountid={{currentAccount.AccountID}}" *ngIf="currentAccount.count"> Avstem {{ currentAccount.count }} ventende poster </a>
+            <a href="/#/bank/bank-reconciliation?accountid={{currentAccount.AccountID}}" *ngIf="currentAccount.count"> Avstem {{ currentAccount.count }} ventende poster </a>
             <button class="c2a" (click)="openReport()"> <i class="material-icons">cloud_download</i> Eksporter rapport </button>
         </section>
 

@@ -67,7 +67,7 @@ export class BankStatement {
     }
 
     goToReconciliationView() {
-        this.router.navigateByUrl('/bank-reconciliation');
+        this.router.navigateByUrl('/bank/bank-reconciliation');
     }
 
     onActionClick(action: any, statement: any, index: number) {

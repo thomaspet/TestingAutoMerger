@@ -28,7 +28,7 @@
                             {{ account.AccountName }}
                         </td>
                         <td>
-                            <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank-reconciliation?accountid={{account.AccountID}}">
+                            <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank/bank-reconciliation?accountid={{account.AccountID}}">
                                 <i class="material-icons"> {{ account.count ? 'cached' : ( account.total ? 'done_all' : 'no_sim') }}  </i>
                                 {{ account.count ?  account.count + ' post' + (account.count > 1 ? 'er ' : ' ') + 'å avstemme' : ( account.total ? 'Avstemming ferdig' : 'Mangler kontoutskrift' ) }}
                             </a>

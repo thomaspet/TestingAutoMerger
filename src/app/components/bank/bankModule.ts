@@ -18,6 +18,7 @@ import {bankRoutes} from './bankRoutes';
 import {UniBankReconciliationList} from './reconciliation/reconciliation-list/reconciliation-list';
 import {UniReconciliationReportView} from './reconciliation/reconciliation-report/reconciliation-report';
 import {BankStatement} from './reconciliation/bank-statement/bank-statement';
+import {BankReconciliationModule} from '../bank-reconciliation/bank-reconciliation.module';
 
 import {
     UniPaymentEditModal,
@@ -48,7 +49,8 @@ import {
         AppCommonModule,
         AppPipesModule,
         UniTickerModule,
-        WidgetModule
+        WidgetModule,
+        BankReconciliationModule
     ],
     declarations: [
         UniBank,

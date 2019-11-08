@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesign" style="width: 40rem;">
+<section role="dialog" class="uni-modal uni-redesign uni-statement-upload-modal" [ngClass]="currentStep === 'custom' ? 'large-mode' : ''">
     <header>Importer bankdata</header>
 
     <article class="scrollable">
@@ -57,7 +57,7 @@
 
             <section *ngIf="!previewLines?.length && !busy" class="invalid-format warn" style="font-size: 15px;">
                 Klarte ikke tolke filen. Sjekk at du har valgt rett filformat.<br>
-                <button class="tertiary c2a" (click)="currentStep='custom'">
+                <button class="tertiary c2a" (click)="currentStep = 'custom'">
                     <i class="material-icons">edit</i>
                     Tilpass filformat
                 </button>
