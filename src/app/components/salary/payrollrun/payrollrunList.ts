@@ -42,8 +42,15 @@ export class PayrollrunList implements OnInit {
         });
     }
 
-    newPayrollrun() {
-        this.router.navigateByUrl('/salary/payrollrun/' + 0);
+    newPayrollrun(done) {
+        this.router
+            .navigateByUrl('/salary/payrollrun/' + 0)
+            .then(succeeded => {
+                if (succeeded) {
+                    return;
+                }
+                done('Avbrutt');
+            });
     }
 
     rowSelected(row) {

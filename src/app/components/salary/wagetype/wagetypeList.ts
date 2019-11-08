@@ -90,8 +90,13 @@ export class WagetypeList implements OnInit {
         this._router.navigateByUrl('/salary/wagetypes/' + event.ID);
     }
 
-    public createWageType() {
-        this._router.navigateByUrl('/salary/wagetypes/0');
+    public createWageType(done) {
+        this._router.navigateByUrl('/salary/wagetypes/0').then(succeeded => {
+            if (succeeded) {
+                return;
+            }
+            done('Avbrutt');
+        });
     }
 
     public syncWagetypes() {
