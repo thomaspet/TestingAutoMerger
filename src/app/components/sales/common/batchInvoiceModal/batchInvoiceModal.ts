@@ -104,7 +104,7 @@ export class BatchInvoiceModal implements IUniModal {
             if (batchInvoice) {
                 this.batchInvoice.ID = batchInvoice.ID;
                 this.batchInvoiceService.invoiceAction(this.batchInvoice.ID).subscribe(() => {
-                    this.goNext();
+                    this.close('ok');
                 });
             }
         });
@@ -121,10 +121,5 @@ export class BatchInvoiceModal implements IUniModal {
             this.currentStep++;
             this.stepper.next();
         }
-    }
-
-    public goToBatchInvoicesList() {
-        this.close('ok');
-        this.router.navigateByUrl('admin/jobs?tab=batchinvoices');
     }
 }

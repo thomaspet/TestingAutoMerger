@@ -1,11 +1,11 @@
-import { OnInit, Component, Output, EventEmitter, Input } from "@angular/core";
-import { IUniModal, IModalOptions } from "@uni-framework/uni-modal";
-import { Product } from "@uni-entities";
+import { OnInit, Component, Output, EventEmitter, Input } from '@angular/core';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { Product } from '@uni-entities';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable/config/unitableColumn';
-import { IUniSearchConfig } from "@uni-framework/ui/unisearch";
-import { UniSearchProductConfig, ProductService } from "@app/services/services";
-import { RequestMethod } from "@uni-framework/core/http";
+import { IUniSearchConfig } from '@uni-framework/ui/unisearch';
+import { UniSearchProductConfig, ProductService } from '@app/services/services';
+import { RequestMethod } from '@uni-framework/core/http';
 
 declare var _;
 
@@ -26,8 +26,7 @@ export class BarnepassProductsModal implements OnInit, IUniModal {
     constructor(
         private uniSearchProductConfig: UniSearchProductConfig,
         private productService: ProductService
-    )
-    {
+    ) {
         this.searchConfig = this.uniSearchProductConfig.generateProductsConfig();
     }
 
@@ -41,15 +40,14 @@ export class BarnepassProductsModal implements OnInit, IUniModal {
         const productNumberCol = new UniTableColumn('PartName', 'Produktnr', UniTableColumnType.Text);
         const productNameCol = new UniTableColumn('Name', 'Produktnavn', UniTableColumnType.Text);
         const productColumns = [productNumberCol, productNameCol];
-        this.tableConfig = new UniTableConfig('products.barnepassModal', false) 
+        this.tableConfig = new UniTableConfig('products.barnepassModal', false)
             .setEntityType('Product')
             .setColumns(productColumns)
-            .setDeleteButton(true)
-            ; 
+            .setDeleteButton(true);
     }
 
     public productSelected(event: Product) {
-        if (!this.products.find(x => x.ID == event.ID)) {
+        if (!this.products.find(x => x.ID === event.ID)) {
             this.products.push(event);
             this.products = _.cloneDeep(this.products);
         }
@@ -67,13 +65,13 @@ export class BarnepassProductsModal implements OnInit, IUniModal {
         const productIDs = [];
         this.products.forEach((product) => {
             productIDs.push(product.ID);
-        })
+        });
         this.productService.ActionWithBody(null, productIDs, 'save-barnepass-products', RequestMethod.Put).subscribe(() => {
             this.onClose.emit(this.products);
-        });        
-    }    
-    
+        });
+    }
+
     public close() {
         this.onClose.emit();
-    }    
+    }
 }

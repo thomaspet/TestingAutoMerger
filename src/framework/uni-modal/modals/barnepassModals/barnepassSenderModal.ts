@@ -1,18 +1,18 @@
-import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from "@angular/core";
-import { IUniModal, IModalOptions } from "@uni-framework/uni-modal";
-import { UniModalService } from "@uni-framework/uni-modal/modalService";
-import { IUniSaveAction } from "@uni-framework/save/save";
-import { OppgaveBarnepass, ReportDefinition, FieldType, BarnepassLeveranse } from "@uni-entities";
-import { AltinnIntegrationService, ReportDefinitionService, ReportNames } from "@app/services/services";
-import { Observable, BehaviorSubject } from "rxjs";
-import { UniFieldLayout } from "@uni-framework/ui/uniform";
+import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { UniModalService } from '@uni-framework/uni-modal/modalService';
+import { OppgaveBarnepass, ReportDefinition, FieldType, BarnepassLeveranse } from '@uni-entities';
+import { AltinnIntegrationService, ReportDefinitionService, ReportNames } from '@app/services/services';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { UniFieldLayout } from '@uni-framework/ui/uniform';
 import { IUniTab } from '@uni-framework/uni-tabs/uni-tabs';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
-import { isNullOrUndefined } from "util";
-import { UniPreviewModal } from "@app/components/reports/modals/preview/previewModal";
-import { ToastService, ToastType } from "@uni-framework/uniToast/toastService";
-import { AgGridWrapper } from "@uni-framework/ui/ag-grid/ag-grid-wrapper";
+import { isNullOrUndefined } from 'util';
+import { UniPreviewModal } from '@app/components/reports/modals/preview/previewModal';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { ComboButtonAction } from '@uni-framework/ui/combo-button/combo-button';
 
 @Component({
     selector: 'barnepass-sender-modal',
@@ -25,14 +25,14 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
     public table: AgGridWrapper;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-    public saveActions: IUniSaveAction[] = [];
+    public saveActions: ComboButtonAction[];
     public checkedRows: OppgaveBarnepass[];
     public busy: boolean;
     public year: number;
-    public report: any;//ReportDefinition; parameters does not exist on ReportDefinition
+    public report: any; // ReportDefinition; parameters does not exist on ReportDefinition
     public reportName: string;
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-//dropdown Blir aktuelt hvis det kommer flere rapporter   public reports: any[] = [];
+// dropdown Blir aktuelt hvis det kommer flere rapporter   public reports: any[] = [];
 
     public tabs: IUniTab[];
     public rows: OppgaveBarnepass[];
@@ -56,20 +56,18 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
 
     ngOnInit(): void {
         this.year = this.options.data.year;
-
         this.report = this.options.data.report;
-        if (this.report)
-        {
+        if (this.report) {
             this.reportName = this.report.Name;
         }
         Observable.forkJoin(
             this.altinnService.getBarnepass(this.year)
-            //dropdown, this.reportDefinitionService.GetAll('filter=...')
-            //håndtering av manglende report input - ikke ferdig, this.getReport()
+            // dropdown, this.reportDefinitionService.GetAll('filter=...')
+            // håndtering av manglende report input - ikke ferdig, this.getReport()
         ).subscribe((res) => {
             this.barnepass = res[0];
             const rows = this.barnepass.oppgave;
-            //dropdown this.reports = res[1];
+            // dropdown this.reports = res[1];
             /*if (!res[1])
             {
                 this.close();
@@ -89,26 +87,25 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
                 { name: 'Med e-post', onClick: () => this.filterRowsWithEmail(), count: this.rowsWithEmail.length },
                 { name: 'Uten e-post', onClick: () => this.filterRowsWithoutEmail(), count: this.rowsWithoutEmail.length }
             ];
-            })
-        //dropdown this.setUpFields();
+            this.setAllRows();
+        });
+        // dropdown this.setUpFields();
         this.setupTable();
         this.updateSaveActions();
     }
 
-    getReport() : Observable<boolean> {
+    getReport(): Observable<boolean> {
         if (this.options.data.report) {
             this.report = this.options.data.report;
             this.reportName = this.report.Name;
             return Observable.of(true);
-        }
-        else {
+        } else {
             this.reportDefinitionService.getReportByName(ReportNames.BARNEPASS).subscribe((res) => {
                 if (res) {
                     this.report = res;
                     this.reportName = this.report.Name;
                     return Observable.of(true);
-                }
-                else {
+                } else {
                     this.toastService.addToast('Report ' + ReportNames.BARNEPASS + ' does not exist!');
                     return Observable.of(false);
                 }
@@ -145,7 +142,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
                     return;
                 }
                 this.table.clearSelection();
-                this.toastService.addToast("E-post sendt", ToastType.good, 3);
+                this.toastService.addToast('E-post sendt', ToastType.good, 3);
             });
     }
 
@@ -157,25 +154,11 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
         if (!rows.length || !this.report) {
             return;
         }
-        //Dersom det skal være flere kunder i samme rapport (utskrift)
         const customerFilter = rows.map(x => x.foedselsnummer).join(',');
         this.report.parameters = [
             {Name: 'Year', value: this.year},
             {Name: 'CustomerFilter', value: customerFilter}
         ];
-        /* Ellers (foreach)
-        this.report.parameters = [
-            {Name: 'Year', value: this.year},
-            {Name: 'CustomerOrgNumber', value: this.rows[0].foedselsnummer },
-            {Name: 'Amount', value: this.rows[0].paaloeptBeloep },
-            {Name: 'CustomerName', value: this.rows[0].navn}
-        ];
-        const customerID = null;//TODO finn kunde fra api
-        if (customerID)
-        {
-            this.report.parameters.push({Name: 'CustomerID', value: customerID})
-        }
-        */
         this.modalService.open(UniPreviewModal, {data: this.report});
     }
 
@@ -184,7 +167,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
         this.saveActions = this.getSaveActions(this.checkedRows && !!this.checkedRows.length);
     }
 
-    private getSaveActions(isActive: boolean): IUniSaveAction[] {
+    private getSaveActions(isActive: boolean): ComboButtonAction[] {
         return [
             {
                 label: 'Send e-post/Skriv ut',
@@ -235,7 +218,7 @@ export class BarnepassSenderModal implements OnInit, IUniModal {
         this.onClose.next(true);
     }
 
-/* dropdown
+    /* dropdown
     private getReportsFields(reports: ReportDefinition[]): UniFieldLayout[] {
         return <any[]>[
             {

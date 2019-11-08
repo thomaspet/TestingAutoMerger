@@ -6,7 +6,7 @@
     <article>
         <section><p>Rapport: <b>{{reportName}}</b></p></section>
 
-        <uni-barnepass-tabs [tabs]="tabs"></uni-barnepass-tabs>
+        <uni-tabs [tabs]="tabs"></uni-tabs>
         
         <ag-grid-wrapper
             [resource]="rows"
@@ -22,24 +22,7 @@
 
     <footer>
         <section role="group" class="comboButton" *ngIf="saveActions.length">
-            <button
-                class="comboButton_btn good"
-                type="button"
-                (click)="saveActions[0].action()"
-                [attr.aria-busy]="busy"
-                [disabled]="saveActions[0].disabled">{{saveActions[0].label}}</button>
-            <button
-                class="comboButton_more good"
-                type="button"
-                (click)="open = !open"
-                (clickOutside)="open = false"
-                aria-owns="saveActionMenu"
-                [attr.aria-expanded]="open"
-                [disabled]="saveActions[0].disabled">More options</button>
-
-            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" (click)="open = false">
-                <li *ngFor="let action of saveActions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
-            </ul>
+            <combo-button [actions]="saveActions"></combo-button>
         </section>
         <section>
             <button (click)="close()" class="bad">
