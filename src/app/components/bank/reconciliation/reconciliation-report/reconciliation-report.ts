@@ -1,8 +1,9 @@
 import {Component, Input} from '@angular/core';
 import {BankService, ReportDefinitionService} from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {UniReportParamsModal} from '../../../reports/modals/parameter/reportParamModal';
 import {Observable} from 'rxjs';
 
 import * as moment from 'moment';
@@ -66,15 +67,18 @@ export class UniReconciliationReportView {
             .subscribe( (reports: Array<any>) => {
                 if (reports.length) {
                     const report = reports[0];
-                    report.parameters = [
-                        { value: this.currentAccount.AccountID, Name: 'accountid' },
-                        { value: this.reportData[0].FromDate, Name: 'fromdate' },
-                        { value: this.reportData[this.reportData.length - 1].Todate, Name: 'todate' }
-                    ];
 
-                    this.modalService.open(UniPreviewModal, {
-                        data: report
-                    });
+                    this.modalService.open(UniReportParamsModal,
+                        {   data: report,
+                            header: report.Name,
+                            message: report.Description
+                        }).onClose.subscribe(modalResult => {
+                            if (modalResult === ConfirmActions.ACCEPT) {
+                                this.modalService.open(UniPreviewModal, {
+                                    data: report
+                                });
+                            }
+                        });
                 }
             });
         return;

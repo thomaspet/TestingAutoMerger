@@ -161,7 +161,7 @@ export class SmartSearchDataService {
 
                 // This can be expanded to fit more actions.. For now we are adding the reports
                 // and opening them where you are when clicked!
-                if (this.modelsInSearch[ind].name === 'Rapporter') {
+                if (this.modelsInSearch[ind].name === 'NAVBAR.REPORTS') {
                     type = 'report';
                 }
 
