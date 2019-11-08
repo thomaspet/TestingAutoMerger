@@ -269,7 +269,6 @@ export class AgGridWrapper {
             if (loaded) {
                 this.onDataLoaded();
                 this.dataLoaded.emit();
-
                 if (this.isInitialLoad) {
                     if (this.config.autofocus) {
                         this.focusRow(0);
@@ -346,10 +345,10 @@ export class AgGridWrapper {
 
             if (tableHeight !== this.tableHeight) {
                 this.tableHeight = tableHeight;
-                if (this.agGridApi) {
-                    this.agGridApi.doLayout();
-                    this.agGridApi.sizeColumnsToFit();
-                }
+            }
+
+            if (this.agGridApi) {
+                this.agGridApi.sizeColumnsToFit();
             }
         }
     }
