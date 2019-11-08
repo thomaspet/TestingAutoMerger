@@ -66,6 +66,7 @@ import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WagetypeList} from './wagetype/wagetypeList';
 import {WageTypeViewService} from './wagetype/services/wageTypeViewService';
+import {WagetypeSyncGuard} from './wagetype/wagetypesync.guard';
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
@@ -136,6 +137,7 @@ import {
 } from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
+import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
 
 @NgModule({
     imports: [
@@ -215,6 +217,7 @@ import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
         WagetypeDetail,
         WagetypeList,
         WageTypeSettings,
+        SyncWagetypesModalComponent,
 
         // Category
         CategoryList,
@@ -282,7 +285,8 @@ import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
         PeriodAdminModalComponent,
         OtpPeriodWagetypeModalComponent,
         UniFindEmployeeModal,
-        UniSupplementEditModal
+        UniSupplementEditModal,
+        SyncWagetypesModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -295,7 +299,8 @@ import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
         AltinnErrorHandlerService,
         EmpCanActivateGuard,
         AltinnOverviewParser,
-        SalaryHelperMethods
+        SalaryHelperMethods,
+        WagetypeSyncGuard,
     ],
     exports: [
         UniSalary,
