@@ -58,7 +58,7 @@ export class BankReconciliation {
         private pageStateService: PageStateService
     ) {
         tabService.addTab({
-            url: '/bank/bank-reconciliation',
+            url: '/bank/reconciliationmatch',
             name: 'Bankavstemming',
             active: true,
             moduleID: UniModules.BankReconciliation

@@ -28,11 +28,7 @@ import { MatCheckboxModule } from '@angular/material';
         UniFrameworkModule,
         AppCommonModule,
         AppPipesModule,
-        MatCheckboxModule,
-        RouterModule.forChild([{
-            path: '',
-            component: BankReconciliation
-        }]),
+        MatCheckboxModule
     ],
     declarations: [
         BankReconciliation,

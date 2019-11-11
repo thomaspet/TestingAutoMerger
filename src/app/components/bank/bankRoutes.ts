@@ -12,7 +12,7 @@ export const bankRoutes: Routes = [
         component: UniBank,
     },
     {
-        path: 'bank-reconciliation',
+        path: 'reconciliationmatch',
         component: BankReconciliation,
         canDeactivate: [CanDeactivateGuard]
     },
