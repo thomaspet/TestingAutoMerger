@@ -258,8 +258,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public header = 'Veiviser for ny autobankavtale';
     public twoFactorMsg: string = '2-faktor bekreftelse (autentisering) er et ekstra sikkerhetsnivå for betaling. ' +
     'Med 2-faktor bekreftelse logger du inn med noe du vet (ditt passord) i tillegg til noe du får en kode på SMS.';
-    public passwordCriteriaMsg = `Passordet må inneholde minst 10 tegn og ha 3 eller flere av disse kriteriene:
-     Stor bokstav, liten bokstav, tall og unikt tegn`;
+    public passwordCriteriaMsg = `Passordet må være minst 10 tegn og inneholde en stor bokstav, en liten bokstav, ett tall og ett tegn`;
 
     public agreementDetails: IAutoBankAgreementDetails = {
         Phone: '',
@@ -520,7 +519,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         numberOfMetCriterias += /[\d]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(password) ? 1 : 0;
 
-        const passwordValid = numberOfMetCriterias >= 3 && password.length >= 10;
+        const passwordValid = numberOfMetCriterias === 4 && password.length >= 10;
         let passwordConfirmed: boolean;
 
         if (passwordValid) {
