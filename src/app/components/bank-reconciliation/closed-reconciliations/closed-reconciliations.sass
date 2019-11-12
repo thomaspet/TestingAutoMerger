@@ -10,10 +10,11 @@
         display: flex
         flex-direction: column
         background: #fff
-        width: 45rem
+        width: 40rem
         height: 100%
         margin-left: auto
         padding: 0 2rem
+        overflow: auto
 
         .header
             display: flex
@@ -36,16 +37,15 @@
 
             button:first-of-type
                 margin-left: auto
-            button.c2a
+            button
                 width: 8rem
 
 .closed-groups
-    margin-bottom: 1rem
-    padding-right: 5px
-    overflow: auto
+    margin-bottom: .4rem
 
 .closed-group-panel
     border: 1px solid rgba(0, 0, 0, .15)
+    border-radius: 3px
 
     & + .closed-group-panel
         margin-top: .75rem
@@ -69,7 +69,10 @@
         span
             flex: 1
             padding: 0 1rem
-            font-size: 15px
+            font-size: 13px
+            text-overflow: ellipsis
+            overflow: hidden
+            white-space: nowrap
 
     .panel-content
         background: #fff

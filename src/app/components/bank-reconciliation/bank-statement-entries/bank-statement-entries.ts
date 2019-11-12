@@ -1,4 +1,5 @@
 import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, SimpleChanges} from '@angular/core';
+import {Router} from '@angular/router';
 import {IMatchEntry} from '@app/services/services';
 import {trigger, style, transition, animate, group} from '@angular/animations';
 
@@ -46,6 +47,9 @@ export class FilterPipe implements PipeTransform {
 export class BankStatementEntries {
     @Input() items: IMatchEntry[];
     @Input() stageInfo: { count: number, balance: number };
+    @Input() showJournalEntryLink: boolean = false;
+    @Input() loaded: boolean = false;
+    @Output() uploadSelected = new EventEmitter();
     @Output() itemSelected = new EventEmitter<IMatchEntry>();
     @Output() showClosedGroups = new EventEmitter();
 
@@ -54,17 +58,26 @@ export class BankStatementEntries {
     closedEntries = 0;
     closedSum = 0;
 
+    constructor (private router: Router) {}
+
     ngOnChanges(changes) {
         if (changes.items) {
-            if (changes.items) {
-                const items = <IMatchEntry[]>changes.items.currentValue;
-                if (Array.isArray(items)) {
-                    const closed = items.filter( x => x.Closed );
-                    this.closedSum = 0;
-                    items.forEach( x => this.closedSum += x.Amount);
-                    this.closedEntries = closed.length;
-                }
+            const items = <IMatchEntry[]>changes.items.currentValue;
+            if (Array.isArray(items)) {
+                const closed = items.filter( x => x.Closed );
+                this.closedSum = 0;
+                items.forEach( x => this.closedSum += x.Amount);
+                this.closedEntries = closed.length;
             }
         }
+    }
+
+    goToJournalEntryView(entry) {
+        const number = entry.JournalEntryNumber.split('-')[0];
+        const year = entry.JournalEntryNumber.split('-')[1];
+
+        const url = `/accounting/transquery?JournalEntryNumber=${number}&AccountYear=${year}&ShowCreditedLines=false`;
+
+        this.router.navigateByUrl(url);
     }
 }

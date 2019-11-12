@@ -31,6 +31,7 @@ export class BankStatementSession {
     stageTotal: number = 0;
     canCloseStage: boolean = false;
     suggestions: Array<BankStatmentMatchDto>;
+    stageHasOnlyBankEntries: boolean = false;
 
     bankBalance: number;
     journalEntryBalance: number;
@@ -193,6 +194,7 @@ export class BankStatementSession {
     clearStage() {
         this.bankEntries.forEach( x => x.Checked = false );
         this.journalEntries.forEach( x => x.Checked = false );
+        this.stageHasOnlyBankEntries = false;
         this.stage.length = 0;
         this.stageTotal = 0;
         this.canCloseStage = false;
@@ -205,7 +207,10 @@ export class BankStatementSession {
     saveChanges() {
         this.busy = true;
         return this.bankStatementService.matchItems(this.prepareGroups())
-            .pipe(finalize(() => this.busy = false));
+            .pipe(finalize(() => {
+                this.busy = false;
+                return true;
+            }));
     }
 
     requestSuggestions(options?: { MaxDayOffset: number, MaxDelta: number }) {
@@ -333,6 +338,7 @@ export class BankStatementSession {
         this.stage.push(item);
         item.Checked = true;
         this.stageTotal = this.sumStage();
+        this.stageHasOnlyBankEntries = !this.stage.find(entry => !entry.IsBankEntry);
         return this.stageTotal;
     }
 
@@ -350,6 +356,7 @@ export class BankStatementSession {
             this.stage.splice(index, 1);
             this.stageTotal = this.sumStage();
         }
+        this.stageHasOnlyBankEntries = this.stage.length && !this.stage.find(entry => !entry.IsBankEntry);
         return this.stageTotal;
     }
 
@@ -380,6 +387,7 @@ export class BankStatementSession {
                 Description: x.Description,
                 Amount: x.Amount,
                 OpenAmount: calcOpen,
+                JournalEntryNumber: x.JournalEntryNumber || '',
                 IsBankEntry: false,
                 Checked: false,
                 Closed: isClosed

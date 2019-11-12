@@ -13,6 +13,7 @@ export class BankStatementSettings implements IUniModal {
     defaultSettings = { MaxDayOffset: 0, MaxDelta: 0.0 };
     settings: { MaxDayOffset: number, MaxDelta: number };
     originalSettings: string;
+    errorMsg: string = '';
 
     constructor(
         private errorService: ErrorService,
@@ -29,11 +30,15 @@ export class BankStatementSettings implements IUniModal {
         }
     }
 
-    private hasChanged() {
-        return JSON.stringify(this.settings) !== this.originalSettings;
-    }
-
     complete() {
-        this.onClose.emit(this.hasChanged() ? this.settings : undefined);
+        this.settings.MaxDayOffset = this.settings.MaxDayOffset || 0;
+        this.settings.MaxDelta = this.settings.MaxDelta || 0;
+
+        if (isNaN(this.settings.MaxDayOffset) || isNaN(this.settings.MaxDelta)) {
+            this.errorMsg = 'Ugyldig input. Verdi må være tall mellom 0 og 100';
+            return;
+        }
+
+        this.onClose.emit(this.settings);
     }
 }

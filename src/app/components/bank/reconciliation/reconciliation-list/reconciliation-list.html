@@ -1,4 +1,4 @@
-<uni-toolbar [config]="{ title: 'Bankavstemning' }" [saveactions]="[]"></uni-toolbar>
+<uni-toolbar [config]="{ title: 'Bankavstemming' }" [saveactions]="[]"></uni-toolbar>
 
 <section class="uni-container" style="padding: 2rem; margin: 1rem;">
     <uni-tabs
@@ -10,7 +10,7 @@
     <section style="padding: 3rem 0;">
 
         <!-- ACCOUNT LIST VIEW -->
-        <section *ngIf="activeIndex === 0" class="reconciliation-list-container">
+        <section *ngIf="activeIndex === 0 && bankAccounts.length" class="reconciliation-list-container">
             <table [attr.aria-busy]="busy">
                 <thead>
                     <tr>
@@ -28,22 +28,24 @@
                             {{ account.AccountName }}
                         </td>
                         <td>
-                            <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank-reconciliation?accountid={{account.AccountID}}">
+                            <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank/reconciliationmatch?accountid={{account.AccountID}}">
                                 <i class="material-icons"> {{ account.count ? 'cached' : ( account.total ? 'done_all' : 'no_sim') }}  </i>
-                                {{ account.count ?  account.count + ' post' + (account.count > 1 ? 'er ' : ' ') + 'å avstemme' : ( account.total ? 'Avstemning ferdig' : 'Mangler kontoutskrift' ) }}
+                                {{ account.count ?  account.count + ' post' + (account.count > 1 ? 'er ' : ' ') + 'å avstemme' : ( account.total ? 'Avstemming ferdig' : 'Mangler kontoutskrift' ) }}
                             </a>
                         </td>
-                        <td>
-                            <i class="material-icons" [matMenuTriggerFor]="contextMenu">
-                                more_vert
-                            </i>
-                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                <ul class="menu-list">
-                                    <li *ngFor="let action of actions" (click)="onActionClick(action, account)">
-                                        {{ action.label }}
-                                    </li>
-                                </ul>
-                            </mat-menu>
+                        <td [matMenuTriggerFor]="contextMenu">
+                            <ng-container>
+                                <i class="material-icons timetable-context-menu">
+                                    more_horiz
+                                </i>
+                                <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                    <ul class="menu-list">
+                                        <li *ngFor="let item of actions" (click)="onActionClick(item, account)">
+                                            {{item.label}}
+                                        </li>
+                                    </ul>
+                                </mat-menu>
+                            </ng-container>
                         </td>
                     </tr>
                 </tbody>
@@ -51,15 +53,18 @@
         </section>
 
         <!-- REPORT VIEW -->
-        <section *ngIf="activeIndex === 1 && dataLoaded">
-
+        <section *ngIf="activeIndex === 1 && dataLoaded && bankAccounts.length">
             <uni-reconciliation-report-view [bankAccounts]="bankAccounts" [currentAccount]="currentAccount"></uni-reconciliation-report-view>
-
         </section>
 
         <!-- TRANSACTIONS VIEW -->
-        <section *ngIf="activeIndex === 2 && dataLoaded">
+        <section *ngIf="activeIndex === 2 && dataLoaded && bankAccounts.length">
             <uni-bank-statement-list (statementChanged)="getListAndLoadData()"></uni-bank-statement-list>
+        </section>
+
+        <!-- NO ACCOUNTS VIEW -->
+        <section *ngIf="dataLoaded && !bankAccounts.length" class="empty-statement-msg">
+            Ingen kontoer å vise. Gå til <strong (click)="goToSettings()" title="Link til firmaoppsett"> firmaoppsett </strong> for å sette opp kontoer.
         </section>
     </section>
 

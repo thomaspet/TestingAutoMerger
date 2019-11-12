@@ -1,3 +1,4 @@
+
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClientModule} from '@angular/common/http';
@@ -15,6 +16,7 @@ import {BankStatementJournalModal} from './bank-statement-journal/bank-statement
 import {ClosedReconciliations} from './closed-reconciliations/closed-reconciliations';
 import {BankFileEditor} from './bank-statement-upload-modal/bank-file-editor';
 import {BankStatementSettings} from './bank-statement-settings/bank-statement-settings';
+import { MatCheckboxModule } from '@angular/material';
 
 @NgModule({
     imports: [
@@ -27,11 +29,7 @@ import {BankStatementSettings} from './bank-statement-settings/bank-statement-se
         UniFrameworkModule,
         AppCommonModule,
         AppPipesModule,
-
-        RouterModule.forChild([{
-            path: '',
-            component: BankReconciliation
-        }]),
+        MatCheckboxModule
     ],
     declarations: [
         BankReconciliation,

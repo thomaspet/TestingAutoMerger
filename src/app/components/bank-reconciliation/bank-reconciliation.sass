@@ -5,7 +5,11 @@
     .view-wrapper
         display: flex
         flex-direction: column
-        height: calc(100vh - 7rem)
+        height: calc(100vh - 13rem)
+        margin: 6.5rem 1.5rem 0 1.5rem
+        padding: 1rem
+        background-color: #FFF
+        width: calc(100% - 3rem)
 
     .reconciliation-toolbar
         flex: 0 0 auto
@@ -13,40 +17,39 @@
         min-height: 3rem
         margin-bottom: .5rem
         flex-wrap: no-wrap
+        align-items: center
 
         .left-side
             display: flex
             flex-wrap: wrap
 
-        h1
-            font: 400 22px 'Roboto'
-            margin: 5px 2rem 1rem 0
-
-        label
-            display: inline-flex
-            align-items: center
-            margin: 0 1rem 1rem 0
-            span
-                visibility: hidden
-                width: 0px
-
-        select
+        select,.section-cont
             border: 1px solid rgba(112, 112, 112, 0.33)
             border-radius: 3px
             color: #1D1F25
             height: 2.5rem
-            padding: 0 5px
             font-size: 14px
             width: 14rem
+            height: 34px
+            cursor: pointer
+            display: flex
+            align-items: center
+
+            span
+                overflow: hidden
+                white-space: nowrap
+                text-overflow: ellipsis
+                margin: 0 .5rem
 
         .period-picker
             display: inline-flex
             align-items: center
             month-picker
-                height: 2.5rem
-                width: 10rem
+                height: 34px
+                width: 14rem
             button.icon-button
                 margin: 0 1px
+                height: 34px
 
         .pull-right
             margin-left: auto
@@ -66,13 +69,26 @@
                 padding-left: 0.4rem
                 padding-right: 0.4rem
 
+.select-wrapper
+    display: flex
+    .flex-sections-container
+        display: flex
+        flex-direction: column
+        align-items: flex-start
+        margin: 0 1rem 1rem 0
+        span
+            font-size: 14px
+            &.account-legend
+                margin-left: .15rem
+            &.date-legend
+                margin-left: 2.4rem
+                margin-right: 2px
 
 .reconciliation-view
     flex: 1
     overflow: auto
     display: flex
-    padding: 1.5rem
-    background: #fff
+    padding: 1rem 0
     border-radius: 3px
 
     .list-section
@@ -87,7 +103,7 @@
                 margin-right: 1rem
 
             span
-                font: 400 18px 'Roboto'
+                font: 500 17px 'Roboto'
             small
                 font: 400 15px 'Roboto'
                 margin-left: auto
@@ -126,9 +142,9 @@
     font-size: 14px
     border-radius: 3px
     min-height: 12rem
-
     background: #fff
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15)
+    border: 1px solid #cccccc
+    border-radius: 3px
 
     section.header
         padding: 10px 1.5rem
@@ -180,24 +196,10 @@
         font-size: 15px
         background: #F5F6F9
 
-        .save-actions
-            display: flex
-            margin: .75rem 0 .25rem
-            justify-content: center
-            button
-                padding-left: 5px
-                &.good
-                    flex: 1
-                    border-radius: 25px
-
-            i.material-icons
-                margin-bottom: 2px
-
-    button.c2a
+    button.link-posts-button
         width: 100%
         margin: 1rem 0
         border-radius: 25px
-        background-color: #2699FB
         &[disabled]
             background-color: #D2DAE2 !important
             color: #485460
@@ -220,6 +222,18 @@
     height: 2rem
     width: 2rem
 
+.book-button
+    margin: 0rem 2rem 1rem 2rem
+    display: flex
+    align-items: center
+    justify-content: center
+    border: 1px solid #ccc
+    border-radius: 3px
+
+    i
+        font-size: 14px
+        margin-left: .5rem
+
 .good-bullet
     background-color: green
 
@@ -237,5 +251,3 @@
 
 .ontop
     z-index: 999
-
-

@@ -2,11 +2,6 @@
     opacity: .5
     cursor: default
 
-.saveable
-    background-color: #c0efc0 !important
-    opacity: .8
-    cursor: default
-
 .reconciliation-list-view
     display: flex
     flex-direction: column
@@ -60,6 +55,10 @@
             flex: 0 0 8rem
             text-align: right
             font-weight: 500
+            .go-to-journal-icon
+                font-size: 15px
+                color: #0f4880
+                margin-left: 1rem
         & + span
             margin-left: 1rem
 
@@ -75,3 +74,24 @@
     color: rgba(22, 93, 190, 0.96)
 .negative
     color: #D12323
+
+.upload-bank-section
+    width: 90%
+    background-color: var(--sidebar-active-section-background)
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    padding: 1rem 2rem
+    margin: 0 auto
+    cursor: pointer
+    border: 1px dashed #0f4880
+    border-radius: 4px
+    &:hover
+        background-color: #cedeec
+
+    i
+        width: 4rem
+        font-size: 4rem
+    span
+        font-size: 14px

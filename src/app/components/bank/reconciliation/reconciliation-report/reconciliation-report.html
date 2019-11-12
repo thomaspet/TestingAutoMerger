@@ -2,7 +2,7 @@
 
     <section class="report-header-section">
         <section class="filter-section" style="display: flex;">
-            <label>
+            <label class="uni-label">
                 <span>Bankkonto</span>
                 <select [(ngModel)]="currentAccount" (change)="getDataAndLoadList()">
                     <option *ngFor="let account of bankAccounts" [ngValue]="account">
@@ -11,7 +11,7 @@
                 </select>
             </label>
 
-            <label>
+            <label class="uni-label">
                 <span>Visning</span>
                 <select [(ngModel)]="currentView" (change)="viewSelect()">
                     <option *ngFor="let view of viewTypes" [ngValue]="view">
@@ -38,7 +38,7 @@
         <section class="details-top-section">
             <strong> Innkommende balanse:  </strong>
             <span style="flex: 1;" [ngClass]="incommingBalance >= 0 ? 'good' : 'bad'"> {{ (incommingBalance | uninumberformat: 'money') || '0,00' }}  </span>
-            <a href="/#/bank-reconciliation?accountid={{currentAccount.AccountID}}" *ngIf="currentAccount.count"> Avstem {{ currentAccount.count }} ventende poster </a>
+            <a href="/#/bank/reconciliationmatch?accountid={{currentAccount.AccountID}}" *ngIf="currentAccount.count"> Avstem {{ currentAccount.count }} ventende poster </a>
             <button class="c2a" (click)="openReport()"> <i class="material-icons">cloud_download</i> Eksporter rapport </button>
         </section>
 

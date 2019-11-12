@@ -156,7 +156,6 @@ export class BankStatementUploadModal implements IUniModal {
                 this.busy = false;
             },
             err => {
-                this.errorService.handle(err);
                 this.busy = false;
             }
         );

@@ -1,4 +1,4 @@
-<section class="slide-panel uni-redesign" (clickOutside)="close.emit()">
+<section class="slide-panel uni-redesign active" (clickOutside)="close.emit()" @container>
     <section class="header">
         <span>Koblede transaksjoner</span>
         <i (click)="close.emit()" class="material-icons">close</i>
@@ -10,32 +10,29 @@
             {{session.closedGroups?.length || 0}} koblede transaksjoner
         </span>
 
-        <button (click)="reset()">Fjern alle</button>
-        <button [disabled]="true" (click)="save()"class="c2a">Lagre</button>
+        <button (click)="reset()" class="secondary">Fjern alle</button>
+        <button (click)="save()"class="good">Lagre</button>
     </section>
 
-    <section class="closed-groups">
-        <section *ngFor="let group of session.closedGroups" class="closed-group-panel">
-            <section class="panel-header"
-                (click)="group['_expanded'] = !group['_expanded']">
+    <section class="closed-groups closed-group-panel" *ngFor="let group of session.closedGroups">
+        <section class="panel-header"
+            (click)="group['_expanded'] = !group['_expanded']">
 
-                <i class="material-icons delete" (click)="removeGroup($event, group)">delete</i>
+            <i class="material-icons delete" (click)="removeGroup($event, group)">delete_outline</i>
 
-                <span>{{getGroupHeader(group)}}</span>
+            <span>{{getGroupHeader(group)}}</span>
 
-                <i class="material-icons">
-                    {{group['_expanded'] ? 'expand_less' : 'expand_more'}}
-                </i>
-            </section>
+            <i class="material-icons">
+                {{group['_expanded'] ? 'expand_less' : 'expand_more'}}
+            </i>
+        </section>
 
-            <section class="panel-content" *ngIf="group['_expanded']">
-                <section class="entry" *ngFor="let item of group.items">
-                    <span>{{item.Date | date: 'dd.MM.yy'}}</span>
-                    <span class="description">{{item.Description}}</span>
-                    <span class="amount">{{item.Amount | uninumberformat: 'money'}}</span>
-                </section>
+        <section class="panel-content" *ngIf="group['_expanded']">
+            <section class="entry" *ngFor="let item of group.items">
+                <span>{{item.Date | date: 'dd.MM.yy'}}</span>
+                <span class="description">{{item.Description}}</span>
+                <span class="amount">{{item.Amount | uninumberformat: 'money'}}</span>
             </section>
         </section>
     </section>
 </section>
-

@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '../../../layout/uniTabs/uniTabs';
 import {BankService, PageStateService} from '@app/services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -50,7 +50,6 @@ export class UniBankReconciliationList {
         this.bankService.getBankAccountsForReconciliation()
             .finally( () => this.busy = false )
             .subscribe(accounts => {
-
             this.bankAccounts = accounts.map(acc => {
                 acc.count = acc.total - acc.closed;
                 return acc;
@@ -58,6 +57,9 @@ export class UniBankReconciliationList {
                 return a.count === b.count ? 0 : a.count ? -1 : 1;
             });
             this.dataLoaded = true;
+        }, err => {
+            this.dataLoaded = true;
+            this.busy = false;
         });
     }
 
@@ -65,10 +67,14 @@ export class UniBankReconciliationList {
         this.pageStateService.setPageState('tabIndex', this.activeIndex.toString());
     }
 
+    goToSettings() {
+        this.router.navigateByUrl('/settings/company');
+    }
+
     onActionClick(action: any, account: any) {
         switch (action.name) {
             case 'reconciliate':
-                this.router.navigateByUrl(`/bank-reconciliation?accountid=${account.AccountID}`);
+                this.router.navigateByUrl(`/bank/reconciliationmatch?accountid=${account.AccountID}`);
                 break;
 
             case 'month':
@@ -82,7 +88,7 @@ export class UniBankReconciliationList {
     private setTabAndState() {
         this.pageStateService.setPageState('tabIndex', this.activeIndex.toString());
         this.tabService.addTab({
-            name: 'Bankavstemning',
+            name: 'Bankavstemming',
             url: this.pageStateService.getUrl(),
             moduleID: UniModules.BankReconciliation,
             active: true

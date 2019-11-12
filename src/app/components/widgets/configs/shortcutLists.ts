@@ -369,10 +369,10 @@ export const SHORTCUT_LISTS = [
                     label: 'Utbetalinger',
                     link: '/bank/ticker?code=payment_list'
                 },
-                // {
-                //     label: 'Bankavstemning',
-                //     link: '/bank/reconciliation',
-                // },
+                {
+                    label: 'Bankavstemning',
+                    link: '/bank/reconciliation',
+                },
                 {
                     label: 'Avtalegirobunter',
                     link: '/bank/ticker?code=avtalegiro_list'
