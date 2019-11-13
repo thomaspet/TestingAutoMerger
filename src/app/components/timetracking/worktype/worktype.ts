@@ -100,9 +100,9 @@ export class WorktypeDetailview {
                     getDefaultData: () => this.getWagetypesObs().map(wageTypes => {
                         const model: WorkType = this.genericDetail.current$.getValue();
                         if (!model || !model.WagetypeNumber) {
-                            return Observable.of([]);
+                            return [];
                         }
-                        return Observable.of(wageTypes.filter(wt => wt.WageTypeNumber === model.WagetypeNumber));
+                        return wageTypes.filter(wt => wt.WageTypeNumber === model.WagetypeNumber);
                     })
                 }),
             ],

@@ -106,7 +106,8 @@
             },
             {
                 "Header": "Type",
-                "Field": "SystemType",
+                "Field": "systemtype",
+                "FilterSelectConfigKey": "WorkTypeSystemType",
                 "Width": 150
             },
             {
