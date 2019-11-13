@@ -1153,6 +1153,17 @@ export class UniTickerService {
                     { ID: StdWageType.Outlay,                       Name: 'Utleggstrekk' },
                     { ID: StdWageType.SourceTaxPension,             Name: 'Forskuddstrekk kildeskatt på pensjon' }
                 ];
+            case 'WorkTypeSystemType':
+                return [
+                    { ID: 1, Name: 'Timer' },
+                    { ID: 8, Name: 'Utbetalt flex' },
+                    { ID: 9, Name: 'Fri med lønn' },
+                    { ID: 10, Name: 'Fri' },
+                    { ID: 11, Name: 'Fri (flex)' },
+                    { ID: 12, Name: 'Overtid' },
+                    { ID: 13, Name: 'Ferie' },
+                    { ID: 20, Name: 'Sykdom' }
+                ];
             default:
                 return [];
         }
