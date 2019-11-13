@@ -25,4 +25,3 @@ export const bankRoutes: Routes = [
         component: UniBankReconciliationList
     }
 ];
-

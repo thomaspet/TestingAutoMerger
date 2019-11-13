@@ -9,12 +9,25 @@
             <section class="select-wrapper">
                 <section class="flex-sections-container">
                     <span class="account-legend">Konto</span>
-                    <select [(ngModel)]="selectedBankAccount" (change)="onBankPeriodChange()">
-                        <option *ngFor="let bankAccount of bankAccounts" [ngValue]="bankAccount">
-                            {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
-                            ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
-                        </option>
-                    </select>
+                    <section class="section-cont" [matMenuTriggerFor]="contextMenu">
+                        <span>
+                            {{selectedBankAccount?.Account?.AccountNumber}} - {{selectedBankAccount?.Account?.AccountName}}
+                            {{(selectedBankAccount?.AccountNumber | uniaccountnumber) || selectedBankAccount?.IBAN}}
+                        </span>
+                    </section>
+
+                    <ng-container>
+                        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                            <ul class="menu-list">
+                                <li *ngFor="let bankAccount of bankAccounts" (click)="selectedBankAccount = bankAccount; onBankPeriodChange()">
+                                    {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
+                                    ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
+                                </li>
+                            </ul>
+                        </mat-menu>
+                    </ng-container>
+
+
                 </section>
 
                 <section class="flex-sections-container">
@@ -149,8 +162,8 @@
                     </a>
                 </section>
 
-                <button class="secondary" *ngIf="session.stageHasOnlyBankEntries" style="margin: 0rem 2rem 1rem 2rem;" (click)="openJournalModal(false)">
-                    Bokfør transaksjon
+                <button class="secondary book-button" *ngIf="session.stageHasOnlyBankEntries" (click)="openJournalModal(false)">
+                    Bokfør transaksjon <i class="material-icons">edit</i>
                 </button>
 
             </section>

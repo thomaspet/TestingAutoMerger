@@ -42,6 +42,10 @@ export class BankReconciliation {
                 action: () => { this.openImportModal(); }
             },
             {
+                label: 'Før restsum av markerte linjer',
+                action: () => { this.openJournalModal(); }
+            },
+            {
                 label: 'Se alle åpne poster i bilagsføring',
                 action: () => { this.openJournalModal(true); }
             }
@@ -209,16 +213,46 @@ export class BankReconciliation {
     }
 
     onBankPeriodChange(offset = 0) {
-        if (this.selectedBankAccount) {
-            this.loaded = false;
-            this.cleanUp = this.session.totalTransactions > 100;
-            if (offset) { this.bankPeriod = moment(this.bankPeriod).add(offset, 'months').toDate(); }
-            const fromDate = moment(this.bankPeriod).startOf('month').toDate();
-            const toDate = moment(this.bankPeriod).endOf('month').toDate();
-            this.pageStateService.setPageState('accountid', this.selectedBankAccount.AccountID.toString());
-            this.session.load(fromDate, toDate, this.selectedBankAccount.AccountID)
-                .finally( () => { this.cleanUp = false; this.loaded = true; } )
-                .subscribe(() => this.checkSuggest());
+
+        const changePeriode = () => {
+            if (this.selectedBankAccount) {
+                this.loaded = false;
+                this.cleanUp = this.session.totalTransactions > 100;
+                if (offset) { this.bankPeriod = moment(this.bankPeriod).add(offset, 'months').toDate(); }
+                const fromDate = moment(this.bankPeriod).startOf('month').toDate();
+                const toDate = moment(this.bankPeriod).endOf('month').toDate();
+                this.pageStateService.setPageState('accountid', this.selectedBankAccount.AccountID.toString());
+                this.session.load(fromDate, toDate, this.selectedBankAccount.AccountID)
+                    .finally( () => { this.cleanUp = false; this.loaded = true; } )
+                    .subscribe(() => this.checkSuggest());
+            }
+        };
+
+        if (this.session.closedGroups.length) {
+            const msg = `Du har ${this.session.closedGroups.length} kobling${this.session.closedGroups.length > 1 ? 'er ' : ' '}` +
+            `som ikke er lagret. Ønsker du å lagre disse før du fortsetter?`;
+
+            const modalOptions = {
+                header: 'Ulagrede endringer',
+                message: msg,
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            };
+
+            this.modalService.confirm(modalOptions).onClose.subscribe(confirm => {
+                if (confirm === ConfirmActions.ACCEPT) {
+                    return this.session.saveChanges().subscribe(() => {
+                        changePeriode();
+                    });
+                } else if (confirm === ConfirmActions.REJECT) {
+                    changePeriode();
+                }
+            });
+        } else {
+            changePeriode();
         }
     }
 
@@ -302,5 +336,4 @@ export class BankReconciliation {
             return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
     }
-
 }
