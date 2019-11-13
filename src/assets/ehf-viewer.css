@@ -92,8 +92,19 @@
 	display: flex;
 	margin: 2rem 0 1rem;
 	padding-top: 1rem;
-	border-top: 1px solid #ccc;
-	page-break-inside: avoid;
+    page-break-inside: avoid;
+    border-top: 1px solid #ccc;
+}
+
+.uni-ehf .note-row {
+    margin: 2rem 0 1rem;
+	padding-top: 0.2rem;
+    page-break-inside: avoid;
+}
+
+.uni-ehf .note-row p {
+    font-size: 13px;
+    font-style: italic;
 }
 
 .uni-ehf .tax-summary {
