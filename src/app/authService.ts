@@ -31,8 +31,7 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info',
-    'accounting' // TODO: ADD PERMISSION AND REMOVE
+    'license-info'
 ];
 
 const PUBLIC_ROUTES = [];
