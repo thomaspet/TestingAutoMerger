@@ -16,6 +16,15 @@ export class BankStatement {
     bankStatements: any[] = [];
     busy: boolean = false;
     dataLoaded: boolean = false;
+    actions = [
+        { label: 'Slett avstemming', value: 'delete' },
+        { label: 'Gjenåpne avstemming', value: 'open' },
+    ];
+
+    actionsDone = [
+        { label: 'Slett avstemming', value: 'delete' },
+        { label: 'Ferdigstill avstemming', value: 'close' }
+    ];
 
     constructor (
         private bankService: BankService,
@@ -67,7 +76,7 @@ export class BankStatement {
     }
 
     goToReconciliationView() {
-        this.router.navigateByUrl('/bank/bank-reconciliation');
+        this.router.navigateByUrl('/bank/reconciliationmatch');
     }
 
     onActionClick(action: any, statement: any, index: number) {

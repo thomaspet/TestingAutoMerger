@@ -1148,6 +1148,15 @@ export class UniTicker {
                         col.template = (rowModel) => this.wageTypeService.getNameForSpecialTaxAndContributionRule(rowModel[column.Alias]);
                     }
 
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('worktype.systemtype')) {
+                        col.template = (rowModel) => {
+                            const list = <Array<{ ID: number, Name: string }>>this.uniTickerService
+                                .getSelectConfigOptions('WorkTypeSystemType');
+                            const match = list.find(x => x.ID === rowModel[column.Alias]);
+                            return match ? match.Name : '';
+                        };
+                    }
+
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.standardwagetypefor')) {
                         col.template = (rowModel) => this.wageTypeService.GetNameForStandardWageTypeFor(rowModel[column.Alias]);
                     }

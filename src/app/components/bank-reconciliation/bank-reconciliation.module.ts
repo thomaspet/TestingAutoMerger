@@ -1,3 +1,4 @@
+
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClientModule} from '@angular/common/http';
@@ -28,11 +29,7 @@ import { MatCheckboxModule } from '@angular/material';
         UniFrameworkModule,
         AppCommonModule,
         AppPipesModule,
-        MatCheckboxModule,
-        RouterModule.forChild([{
-            path: '',
-            component: BankReconciliation
-        }]),
+        MatCheckboxModule
     ],
     declarations: [
         BankReconciliation,

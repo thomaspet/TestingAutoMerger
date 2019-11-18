@@ -27,9 +27,17 @@
                 <td class="right" [ngClass]="statement.Amount  >= 0 ? 'good' : 'bad'"> {{ (statement.Amount | uninumberformat: 'money') || '0,00' }} </td>
                 <td>
                     <i #toggle class="material-icons">more_vert</i>
-                    <dropdown-menu [trigger]="toggle">
+                    <dropdown-menu [trigger]="toggle" *ngIf="statement.StatusCode === 48002">
                         <ng-template>
-                            <section class="dropdown-menu-item" *ngFor="let action of getActions(statement)" (click)="onActionClick(action, statement)">
+                            <section class="dropdown-menu-item"  (click)="onActionClick(action, statement)" *ngFor="let action of actions">
+                                {{action.label}}
+                            </section>
+                        </ng-template>
+                    </dropdown-menu>
+
+                    <dropdown-menu [trigger]="toggle" *ngIf="statement.StatusCode === 48001">
+                        <ng-template>
+                            <section class="dropdown-menu-item"  (click)="onActionClick(action, statement)" *ngFor="let action of actionsDone">
                                 {{action.label}}
                             </section>
                         </ng-template>

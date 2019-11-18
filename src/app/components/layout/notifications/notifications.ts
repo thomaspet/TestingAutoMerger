@@ -19,6 +19,7 @@ export class Notifications {
 
     overlayRef: OverlayRef;
     dropdownPortal: ComponentPortal<NotificationsDropdown>;
+    _lastRoleRefresh: number;
 
     constructor(
         private overlay: Overlay,
@@ -46,26 +47,21 @@ export class Notifications {
     ngAfterViewInit() {
         this.dropdownPortal = new ComponentPortal(NotificationsDropdown);
 
-        this.signalRService.pushMessage$.subscribe(message => {
+        this.signalRService.pushMessage$.subscribe((message: any) => {
             if (message && message.entityType === 'notification') {
-                this.notificationService.getNotifications('', true).subscribe(
-                    notifications => {
-                        notifications.forEach(notification => {
-                            if (notification['_unread']) {
-                                this.notificationService.unreadCount$.next(this.notificationService.unreadCount$.value + 1);
-                                this.toastService.addToast(
-                                    notification.SenderDisplayName,
-                                    ToastType.good,
-                                    ToastTime.medium,
-                                    notification.Message,
-                                    <IToastAction>{
-                                        label: 'Åpne',
-                                        click: () => this.notificationService.onNotificationClick(notification)
-                                    }
-                                );
-                            }
-                        });
-                    });
+                if (message.cargo && message.cargo.entityType === 'UserRole') {
+                    if (this._lastRoleRefresh && (new Date().getTime() - this._lastRoleRefresh) < 3000) {
+                        // Ignoring message since we already warned about this..
+                        return;
+                    }
+                    this._lastRoleRefresh = new Date().getTime();
+                    this.toastReloadMessage('Trykk oppdater, eller last siden på nytt for oppdatere programmet'
+                        + ' slik at det gjenspeiler de nye tilgangene.',
+                        `Din brukertilgang har blitt endret av "${message.cargo.senderDisplayName}"`);
+                    this.cdr.markForCheck();
+                } else {
+                    this.loadAndShowUnread();
+                }
              }
         });
 
@@ -83,6 +79,45 @@ export class Notifications {
         });
 
         this.overlayRef.backdropClick().subscribe(() => this.toggle());
+    }
+
+    loadAndShowUnread() {
+        this.notificationService.getNotifications('', true).subscribe(
+            notifications => {
+                notifications.forEach(notification => {
+                    if (notification['_unread']) {
+                        this.notificationService.unreadCount$.next(this.notificationService.unreadCount$.value + 1);
+                        this.toastNotification(notification);
+                    }
+                });
+            });
+    }
+
+    toastNotification(notification) {
+        if (!notification.Message) { return; }
+        this.toastService.addToast(
+            notification.SenderDisplayName,
+            ToastType.good,
+            ToastTime.medium,
+            notification.Message,
+            <IToastAction>{
+                label: 'Åpne',
+                click: () => this.notificationService.onNotificationClick(notification)
+            }
+        );
+    }
+
+    toastReloadMessage(msg: string, title: string) {
+        this.toastService.addToast(
+            title,
+            ToastType.bad,
+            ToastTime.forever,
+            msg,
+            <IToastAction>{
+                label: 'Oppdater',
+                click: () => window.location.reload()
+            }
+        );
     }
 
     toggle() {

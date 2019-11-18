@@ -2,8 +2,7 @@
     display: block
     padding: 0 !important
     margin-right: 1rem
-
-    width: 305px
+    width: 20rem
     &.minimized
         width: 80px
 
@@ -41,6 +40,7 @@
             width: 100%
             tr
                 background-color: transparent !important
+                height: 2.5rem
             caption
                 background-color: transparent
                 font-size: 1.2rem
@@ -70,8 +70,9 @@
                 color: $uni-color-scale5
 
             tbody > tr > td
-                height: 2.2rem
-                line-height: 2.2rem
+                height: 2.5rem
+                line-height: 2.5rem
+                font-size: 13px
 
                 /*-n+2 selects the last two elements of each tr*/
                 &:nth-last-of-type(-n+2)
@@ -82,7 +83,8 @@
 
     button
         @extend button.c2a
-        height: 22px
+        height: 34px
+        border-radius: 17px
         width: 130px
         padding: 0
         margin-top: 1.5rem
@@ -94,54 +96,58 @@
     box-sizing: border-box
     border-top: 1px solid $uni-color-scale9
 
-    h3
-        font-size: 1.3rem
-        margin: 1.25rem 10px .25rem
-        i.material-icons
-            color: var(--color-good)
-            vertical-align: middle
-            margin-top: -3px
-            margin-left: .25rem
+    .template-header
+        display: flex
+        align-items: center
+        margin: 1rem 0
+        span
+            flex: 1
+        i
+            color: var(--color-c2a)
             cursor: pointer
 
+    .template_info_section
+        padding: .4rem 1rem
+        display: flex
+        border: 1px solid #CCC
+        border-radius: 4px
+        cursor: pointer
+        margin-bottom: .75rem
+        &:hover
+            background-color: var(--dropdown-select-background)
+        .info
+            flex: 1
+            display: flex
+            justify-content: center
+            flex-direction: column
+            font-size: 14px
+            text-align: left
 
-    .sidemenu_template
-        border-bottom: 1px solid $uni-color-scale9
+            span
+                font-size: 13px
 
-        .template_info_section
-            width: calc(100% - 3.5rem)
-            display: inline-block
-            padding: 10px
-            &:hover
-                background-color: $uni-color-scale9
+            span:first-of-type
+                font-size: 14px
+                font-weight: 600
+                margin-bottom: -5px
+
+        .edit
+            display: flex
+            align-items: center
+
+            i
+                vertical-align: middle
+                font-size: 20px
+                color: var(--text-color)
                 cursor: pointer
 
-        .sidemenu_template_time_total
-            float: right
-            &:after
-                clear: both
+                &:hover
+                    color: var(--color-c2a)
+                &:first-of-type
+                    margin-right: .6rem
+                &:last-of-type:hover
+                     color: var(--color-bad)
 
-        .sidemenu_temmplate_name
-            font-size: 0.8rem
-            color: #638bb2
-            max-width: 50%
-            overflow-x: hidden
-            white-space: nowrap
-            display: inline-block
-
-        .sidemenu_template_timeart
-            font-size: 0.9rem
-            max-width: 60%
-            display: inline-block
-            overflow-x: hidden
-            white-space: nowrap
-
-        .edit-icon
-            vertical-align: top
-            margin-top: 1rem
-            margin-left: .25rem
-            cursor: pointer
-            font-size: 21px
 
     button.good
         height: 2rem

@@ -31,8 +31,7 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info',
-    'accounting' // TODO: ADD PERMISSION AND REMOVE
+    'license-info'
 ];
 
 const PUBLIC_ROUTES = [];
@@ -48,6 +47,7 @@ export class AuthService {
     public token$ = new ReplaySubject<string>(1);
 
     public jwt: string;
+    public id_token: string;
     public filesToken: string;
     public activeCompany: Company;
     public currentUser: UserDto;
@@ -107,6 +107,7 @@ export class AuthService {
             if (sessionStatus) {
                 if (user && !user.expired) {
                     this.jwt = user.access_token;
+                    this.id_token = user.id_token;
                     this.filesToken$.next(this.filesToken);
                     if (!this.filesToken) {
                         this.authenticateUniFiles();
@@ -142,16 +143,25 @@ export class AuthService {
             }
         }).catch((err) => {
             // Session has ended ! , clear stale state and redirect to login
-            this.userManager.clearStaleState()
+            this.userManager.clearStaleState();
             this.userManager.removeUser().then((res) => {
                 onMissingAuth();
             });
 
         });
 
+        this.userManager.events.addUserSignedOut(() => {
+            this.userManager.removeUser().then((res) => {
+                this.cleanStorageAndRedirect();
+                this.setLoadIndicatorVisibility(false);
+            });
+
+        });
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
+                this.userManager.clearStaleState();
                 this.jwt = user.access_token;
+                this.id_token = user.id_token;
                 this.token$.next(this.jwt);
                 if (!this.filesToken) {
                     this.authenticateUniFiles();
@@ -171,10 +181,12 @@ export class AuthService {
         }, 60000);
     }
 
-    setLoadIndicatorVisibility(spinnerVisible: boolean) {
+    setLoadIndicatorVisibility(spinnerVisible: boolean, isLogout: boolean= false) {
         if (spinnerVisible) {
+            $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeIn(250);
         } else {
+            $('#spinnertext').text(function(i, oldText) {return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeOut(250);
         }
 
@@ -391,7 +403,9 @@ export class AuthService {
      */
     public clearAuthAndGotoLogin(): void {
         this.authentication$.pipe(take(1)).subscribe(auth => {
+            let cleanTokens: boolean = false;
             if (auth && auth.user) {
+                cleanTokens = true;
                 this.authentication$.next({
                     activeCompany: undefined,
                     user: undefined,
@@ -399,20 +413,30 @@ export class AuthService {
                 });
 
                 this.filesToken$.next(undefined);
-                this.userManager.signoutRedirect();
+                this.setLoadIndicatorVisibility(true, true);
+                this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
+                    document.getElementById('silentLogout').setAttribute('src', req.url);
+                });
+
+            }
+            if (!cleanTokens) {
+                this.cleanStorageAndRedirect();
             }
 
-            this.storage.removeOnUser('activeCompany');
-            this.storage.removeOnUser('activeFinancialYear');
-            this.storage.removeOnUser('filesToken');
-            this.storage.removeOnUser('navbarTabs');
-            this.jwt = undefined;
-            this.activeCompany = undefined;
-            this.setLoadIndicatorVisibility(false);
-            if (!this.router.url.startsWith('/init')) {
-                this.router.navigate(['/init/login']);
-            }
         });
+    }
+
+    public cleanStorageAndRedirect() {
+        this.storage.removeOnUser('activeCompany');
+        this.storage.removeOnUser('activeFinancialYear');
+        this.storage.removeOnUser('filesToken');
+        this.jwt = undefined;
+        this.activeCompany = undefined;
+        this.setLoadIndicatorVisibility(false);
+
+        if (!this.router.url.startsWith('/init')) {
+            this.router.navigate(['/init/login']);
+        }
     }
 
     public canActivateRoute(user: UserDto, url: string): boolean {

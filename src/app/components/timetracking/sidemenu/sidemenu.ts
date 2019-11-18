@@ -66,22 +66,22 @@ export class SideMenu {
         this.minimized = this.browserStorage.getItemFromCompany('timetracking_sidemenu_minimized');
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
         if (window.innerWidth < 1200) {
             this.minimized = true;
         }
     }
 
-    public toggleSidemenu() {
+    toggleSidemenu() {
         this.minimized = !this.minimized;
         this.browserStorage.setItemOnCompany('timetracking_sidemenu_minimized', this.minimized);
     }
 
-    public onTemplateSelected(template: any) {
+    onTemplateSelected(template: any) {
         this.templateSelected.emit(template);
     }
 
-    public onTemplateEdit(template: any, index: number) {
+    onTemplateEdit(template: any, index: number) {
         this.modalService.open(UniTemplateModal,
             {
                 data: {
@@ -94,7 +94,12 @@ export class SideMenu {
             });
     }
 
-    public onTemplateModalClose(item: ITemplateReturnObject) {
+    onTemplateDelete(index: number) {
+        this.timeTrackingTemplates.splice(index, 1);
+        this.browserStorage.setItem('timeTrackingTemplates', this.timeTrackingTemplates);
+    }
+
+    onTemplateModalClose(item: ITemplateReturnObject) {
         // Item is null when modal closes on backdrop click
         if (!item) {
             return;
@@ -117,7 +122,7 @@ export class SideMenu {
         }
     }
 
-    public createNewTemplate() {
+    createNewTemplate() {
         // For now, limit number of templates to 5 because of reasons, styling reasons..
         if (this.timeTrackingTemplates.length >= 5) {
             this.toast.addToast(
@@ -140,15 +145,15 @@ export class SideMenu {
             });
     }
 
-    public onCalendarMonthChange(month: any) {
+    onCalendarMonthChange(month: any) {
         this.monthChanged.emit(month);
     }
 
-    public onCalendarDateChange(date: Date) {
+    onCalendarDateChange(date: Date) {
         this.dateSelected.emit(date);
     }
 
-    public setTodayAsCurrentDay() {
+    setTodayAsCurrentDay() {
         if (this.calendar.calendarDate.month() !== new Date().getMonth()) {
             this.monthChanged.emit(moment(new Date()));
         }

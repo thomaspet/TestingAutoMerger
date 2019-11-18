@@ -21,7 +21,6 @@ export class ImportCentralPage {
   busy: boolean = true;
   importCardsList: ImportCardModel[] = [];
   templateUrls = environment.IMPORT_CENTRAL_TEMPLATE_URLS;
-
   uiPermission = {
     customer: new ImportUIPermission(),
     product: new ImportUIPermission(),
@@ -125,8 +124,20 @@ export class ImportCentralPage {
         importText: 'Importer SAF-T',
         downloadText: 'Eksport SAF-T',
         type: TemplateType.Saft
+      },
+      {
+        //TODO:: set UI permissions
+        uiPermission: {
+          hasComponentAccess: true,
+          hasImportAccess: true,
+          hasTemplateAccess: true
+        },
+        iconName: 'card_giftcard',
+        title: 'Voucher',
+        importText: 'Importer Voucher',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Voucher
       }
-      // removed voucher card as requested
     );
     this.importCardsList = this.importCardsList.filter(x => x.uiPermission.hasComponentAccess);
   }

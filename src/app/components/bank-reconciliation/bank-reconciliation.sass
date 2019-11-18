@@ -23,16 +23,23 @@
             display: flex
             flex-wrap: wrap
 
-        select
+        select,.section-cont
             border: 1px solid rgba(112, 112, 112, 0.33)
             border-radius: 3px
             color: #1D1F25
             height: 2.5rem
-            padding: 0 5px
             font-size: 14px
             width: 14rem
             height: 34px
             cursor: pointer
+            display: flex
+            align-items: center
+
+            span
+                overflow: hidden
+                white-space: nowrap
+                text-overflow: ellipsis
+                margin: 0 .5rem
 
         .period-picker
             display: inline-flex
@@ -135,9 +142,9 @@
     font-size: 14px
     border-radius: 3px
     min-height: 12rem
-
     background: #fff
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15)
+    border: 1px solid #cccccc
+    border-radius: 3px
 
     section.header
         padding: 10px 1.5rem
@@ -215,6 +222,18 @@
     height: 2rem
     width: 2rem
 
+.book-button
+    margin: 0rem 2rem 1rem 2rem
+    display: flex
+    align-items: center
+    justify-content: center
+    border: 1px solid #ccc
+    border-radius: 3px
+
+    i
+        font-size: 14px
+        margin-left: .5rem
+
 .good-bullet
     background-color: green
 
@@ -233,4 +252,17 @@
 .ontop
     z-index: 999
 
+.menu-list
+    list-style: none
+    margin: 0
+
+    li
+        height: 34px
+        padding: 0 1rem
+        cursor: pointer
+        display: flex
+        align-items: center
+        font-size: 15px
+        &:hover
+            background-color: var(--dropdown-select-background)
 
