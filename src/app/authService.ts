@@ -86,7 +86,6 @@ export class AuthService {
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
 
-
         const onMissingAuth = () => {
             this.authentication$.next({
                 activeCompany: undefined,
@@ -97,6 +96,7 @@ export class AuthService {
             this.clearAuthAndGotoLogin();
             this.setLoadIndicatorVisibility(false);
         };
+
         Promise.all([
             this.userManager.getUser(),
             this.userManager.querySessionStatus(),
@@ -104,41 +104,43 @@ export class AuthService {
             const user = res[0];
             const sessionStatus = res[1];
 
-            if (sessionStatus) {
-                if (user && !user.expired) {
-                    this.jwt = user.access_token;
-                    this.id_token = user.id_token;
-                    this.filesToken$.next(this.filesToken);
-                    if (!this.filesToken) {
-                        this.authenticateUniFiles();
-                    }
+            if (sessionStatus && user && !user.expired && user.access_token) {
+                this.jwt = user.access_token;
+                this.id_token = user.id_token;
+                this.filesToken$.next(this.filesToken);
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
+                }
 
-                    if (this.activeCompany) {
-                        this.loadCurrentSession().subscribe(
-                            auth => {
-                                this.filesToken$.next(this.filesToken);
+                if (this.activeCompany) {
+                    this.loadCurrentSession().subscribe(
+                        auth => {
+                            this.filesToken$.next(this.filesToken);
 
-                                if (!auth.hasActiveContract) {
-                                    this.router.navigateByUrl('contract-activation');
-                                }
+                            if (!auth.hasActiveContract) {
+                                this.router.navigateByUrl('contract-activation');
+                            }
 
-                                // Give the app a bit of time to initialise before we remove spinner
-                                // (less visual noise on startup)
-                                setTimeout(() => {
-                                    this.setLoadIndicatorVisibility(false);
-                                }, 250);
-                            },
-                            () => onMissingAuth()
-                        );
-                    } else {
-                        if (!this.router.url.startsWith('/init')) {
-                            this.router.navigate(['/init/login']);
+                            // Give the app a bit of time to initialise before we remove spinner
+                            // (less visual noise on startup)
+                            setTimeout(() => {
+                                this.setLoadIndicatorVisibility(false);
+                            }, 250);
+                        },
+                        () => {
+                            this.activeCompany = undefined;
+                            this.storage.removeOnUser('activeCompany');
+                            if (!this.router.url.startsWith('/init')) {
+                                this.router.navigate(['/init/login']);
+                            }
                         }
-
-                        this.setLoadIndicatorVisibility(false);
-                    }
+                    );
                 } else {
-                    onMissingAuth();
+                    if (!this.router.url.startsWith('/init')) {
+                        this.router.navigate(['/init/login']);
+                    }
+
+                    this.setLoadIndicatorVisibility(false);
                 }
             }
         }).catch((err) => {
@@ -157,14 +159,16 @@ export class AuthService {
             });
 
         });
+
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
-                this.userManager.clearStaleState();
-                this.jwt = user.access_token;
-                this.id_token = user.id_token;
-                this.token$.next(this.jwt);
-                if (!this.filesToken) {
-                    this.authenticateUniFiles();
+                if (user && !user.expired && user.access_token) {
+                    this.userManager.clearStaleState();
+                    this.jwt = user.access_token;
+                    this.id_token = user.id_token;
+                    if (!this.filesToken) {
+                        this.authenticateUniFiles();
+                    }
                 }
             });
         });
@@ -181,8 +185,8 @@ export class AuthService {
         }, 60000);
     }
 
-    setLoadIndicatorVisibility(spinnerVisible: boolean, isLogout: boolean= false) {
-        if (spinnerVisible) {
+    setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
+        if (visible) {
             $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeIn(250);
         } else {
@@ -190,9 +194,11 @@ export class AuthService {
             $('#data-loading-spinner').fadeOut(250);
         }
 
+        // #chat-container is added by boost, so it wont show up
+        // if you do a project wide search for it. Dont remove this :)
         const boostChat = document.getElementById('chat-container');
         if (boostChat) {
-            boostChat.style.visibility = spinnerVisible ? 'hidden' : 'visible';
+            boostChat.style.visibility = visible ? 'hidden' : 'visible';
         }
     }
 

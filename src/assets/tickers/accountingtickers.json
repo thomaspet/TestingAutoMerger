@@ -1435,13 +1435,7 @@
                 "IsMultiRowSelect": false,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "AccountID",
-                            "Operator": "eq",
-                            "Value": null
-                        }
-                    ]
+                    "FieldFilters": []
                 }]
             },
             {
@@ -1452,17 +1446,11 @@
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
-                        {
-                            "Field": "AccountID",
-                            "Operator": "eq",
-                            "Value": null
-                        },
-                        {
-                            "Field": "Visible",
-                            "Operator": "eq",
-                            "Value": true
-                        }
-                    ]
+                    {
+                        "Field": "Visible",
+                        "Operator": "eq",
+                        "Value": true
+                    }]
                 }]
             }
         ],
