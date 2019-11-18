@@ -49,6 +49,7 @@ export class AuthService {
     public token$ = new ReplaySubject<string>(1);
 
     public jwt: string;
+    public id_token: string;
     public filesToken: string;
     public activeCompany: Company;
     public currentUser: UserDto;
@@ -86,55 +87,79 @@ export class AuthService {
 
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
-        this.userManager.getUser().then(user => {
+        const onMissingAuth = () => {
+            this.authentication$.next({
+                activeCompany: undefined,
+                user: undefined,
+                hasActiveContract: false,
+            });
 
-            const onMissingAuth = () => {
-                this.authentication$.next({
-                    activeCompany: undefined,
-                    user: undefined,
-                    hasActiveContract: false,
-                });
+            this.clearAuthAndGotoLogin();
+            this.setLoadIndicatorVisibility(false);
+        };
+        Promise.all([
+            this.userManager.getUser(),
+            this.userManager.querySessionStatus(),
+        ]).then(res => {
+            const user = res[0];
+            const sessionStatus = res[1];
 
-                this.clearAuthAndGotoLogin();
-                this.setLoadIndicatorVisibility(false);
-            };
-
-            if (user && !user.expired) {
-                this.jwt = user.access_token;
-                this.filesToken$.next(this.filesToken);
-                if (!this.filesToken) {
-                    this.authenticateUniFiles();
-                }
-
-                if (this.activeCompany) {
-                    this.loadCurrentSession().subscribe(
-                        auth => {
-                            if (!auth.hasActiveContract) {
-                                this.router.navigateByUrl('contract-activation');
-                            }
-
-                            // Give the app a bit of time to initialise before we remove spinner
-                            // (less visual noise on startup)
-                            setTimeout(() => {
-                                this.setLoadIndicatorVisibility(false);
-                            }, 250);
-                        },
-                        () => onMissingAuth()
-                    );
-                } else {
-                    if (!this.router.url.startsWith('/init')) {
-                        this.router.navigate(['/init/login']);
+            if (sessionStatus) {
+                if (user && !user.expired) {
+                    this.jwt = user.access_token;
+                    this.id_token = user.id_token;
+                    this.filesToken$.next(this.filesToken);
+                    if (!this.filesToken) {
+                        this.authenticateUniFiles();
                     }
-                    setTimeout(() => this.setLoadIndicatorVisibility(false), 250);
-                }
-            } else {
-                onMissingAuth();
-            }
-        });
 
+                    if (this.activeCompany) {
+                        this.loadCurrentSession().subscribe(
+                            auth => {
+                                this.filesToken$.next(this.filesToken);
+
+                                if (!auth.hasActiveContract) {
+                                    this.router.navigateByUrl('contract-activation');
+                                }
+
+                                // Give the app a bit of time to initialise before we remove spinner
+                                // (less visual noise on startup)
+                                setTimeout(() => {
+                                    this.setLoadIndicatorVisibility(false);
+                                }, 250);
+                            },
+                            () => onMissingAuth()
+                        );
+                    } else {
+                        if (!this.router.url.startsWith('/init')) {
+                            this.router.navigate(['/init/login']);
+                        }
+
+                        this.setLoadIndicatorVisibility(false);
+                    }
+                } else {
+                    onMissingAuth();
+                }
+            }
+        }).catch((err) => {
+            // Session has ended ! , clear stale state and redirect to login
+            this.userManager.clearStaleState();
+            this.userManager.removeUser().then((res) => {
+                onMissingAuth();
+            });
+
+        });
+        this.userManager.events.addUserSignedOut(() => {
+            this.userManager.removeUser().then((res) => {
+                this.cleanStorageAndRedirect();
+                this.setLoadIndicatorVisibility(false);
+            });
+
+        });
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
                 this.jwt = user.access_token;
+                this.id_token = user.id_token;
                 if (!this.filesToken) {
                     this.authenticateUniFiles();
                 }
@@ -153,12 +178,15 @@ export class AuthService {
         }, 60000);
     }
 
-    setLoadIndicatorVisibility(visible: boolean) {
+    setLoadIndicatorVisibility(visible: boolean,isLogout: boolean= false) {
         if (visible) {
+            $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeIn(250);
         } else {
+            $('#spinnertext').text(function(i, oldText) {return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeOut(250);
         }
+
     }
 
     private getUserManager(): UserManager {
@@ -355,7 +383,9 @@ export class AuthService {
      */
     public clearAuthAndGotoLogin(): void {
         this.authentication$.pipe(take(1)).subscribe(auth => {
+            let cleanTokens: boolean = false;
             if (auth && auth.user) {
+                cleanTokens = true;
                 this.authentication$.next({
                     activeCompany: undefined,
                     user: undefined,
@@ -363,19 +393,30 @@ export class AuthService {
                 });
 
                 this.filesToken$.next(undefined);
-                this.userManager.signoutRedirect();
+                this.setLoadIndicatorVisibility(true, true);
+                this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
+                    document.getElementById('silentLogout').setAttribute('src', req.url);
+                });
+
+            }
+            if (!cleanTokens) {
+                this.cleanStorageAndRedirect();
             }
 
-            this.storage.removeOnUser('activeCompany');
-            this.storage.removeOnUser('activeFinancialYear');
-            this.storage.removeOnUser('filesToken');
-            this.jwt = undefined;
-            this.activeCompany = undefined;
-            this.setLoadIndicatorVisibility(false);
-            if (!this.router.url.startsWith('/init')) {
-                this.router.navigate(['/init/login']);
-            }
         });
+    }
+
+    public cleanStorageAndRedirect() {
+        this.storage.removeOnUser('activeCompany');
+        this.storage.removeOnUser('activeFinancialYear');
+        this.storage.removeOnUser('filesToken');
+        this.jwt = undefined;
+        this.activeCompany = undefined;
+        this.setLoadIndicatorVisibility(false);
+
+        if (!this.router.url.startsWith('/init')) {
+            this.router.navigate(['/init/login']);
+        }
     }
 
     public canActivateRoute(user: UserDto, url: string): boolean {
