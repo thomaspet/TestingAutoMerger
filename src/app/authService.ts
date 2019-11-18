@@ -87,6 +87,7 @@ export class AuthService {
 
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
+
         const onMissingAuth = () => {
             this.authentication$.next({
                 activeCompany: undefined,
@@ -97,6 +98,7 @@ export class AuthService {
             this.clearAuthAndGotoLogin();
             this.setLoadIndicatorVisibility(false);
         };
+
         Promise.all([
             this.userManager.getUser(),
             this.userManager.querySessionStatus(),
@@ -104,42 +106,46 @@ export class AuthService {
             const user = res[0];
             const sessionStatus = res[1];
 
-            if (sessionStatus) {
-                if (user && !user.expired) {
-                    this.jwt = user.access_token;
-                    this.id_token = user.id_token;
-                    this.filesToken$.next(this.filesToken);
-                    if (!this.filesToken) {
-                        this.authenticateUniFiles();
-                    }
-
-                    if (this.activeCompany) {
-                        this.loadCurrentSession().subscribe(
-                            auth => {
-                                this.filesToken$.next(this.filesToken);
-
-                                if (!auth.hasActiveContract) {
-                                    this.router.navigateByUrl('contract-activation');
-                                }
-
-                                // Give the app a bit of time to initialise before we remove spinner
-                                // (less visual noise on startup)
-                                setTimeout(() => {
-                                    this.setLoadIndicatorVisibility(false);
-                                }, 250);
-                            },
-                            () => onMissingAuth()
-                        );
-                    } else {
-                        if (!this.router.url.startsWith('/init')) {
-                            this.router.navigate(['/init/login']);
-                        }
-
-                        this.setLoadIndicatorVisibility(false);
-                    }
-                } else {
-                    onMissingAuth();
+            if (sessionStatus && user && !user.expired && user.access_token) {
+                this.jwt = user.access_token;
+                this.id_token = user.id_token;
+                this.filesToken$.next(this.filesToken);
+                if (!this.filesToken) {
+                    this.authenticateUniFiles();
                 }
+
+                if (this.activeCompany) {
+                    this.loadCurrentSession().subscribe(
+                        auth => {
+                            this.filesToken$.next(this.filesToken);
+
+                            if (!auth.hasActiveContract) {
+                                this.router.navigateByUrl('contract-activation');
+                            }
+
+                            // Give the app a bit of time to initialise before we remove spinner
+                            // (less visual noise on startup)
+                            setTimeout(() => {
+                                this.setLoadIndicatorVisibility(false);
+                            }, 250);
+                        },
+                        () => {
+                            this.activeCompany = undefined;
+                            this.storage.removeOnUser('activeCompany');
+                            if (!this.router.url.startsWith('/init')) {
+                                this.router.navigate(['/init/login']);
+                            }
+                        }
+                    );
+                } else {
+                    if (!this.router.url.startsWith('/init')) {
+                        this.router.navigate(['/init/login']);
+                    }
+
+                    this.setLoadIndicatorVisibility(false);
+                }
+            } else {
+                onMissingAuth();
             }
         }).catch((err) => {
             // Session has ended ! , clear stale state and redirect to login
@@ -149,6 +155,7 @@ export class AuthService {
             });
 
         });
+
         this.userManager.events.addUserSignedOut(() => {
             this.userManager.removeUser().then((res) => {
                 this.cleanStorageAndRedirect();
@@ -156,12 +163,15 @@ export class AuthService {
             });
 
         });
+
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
-                this.jwt = user.access_token;
-                this.id_token = user.id_token;
-                if (!this.filesToken) {
-                    this.authenticateUniFiles();
+                if (user && !user.expired && user.access_token) {
+                    this.jwt = user.access_token;
+                    this.id_token = user.id_token;
+                    if (!this.filesToken) {
+                        this.authenticateUniFiles();
+                    }
                 }
             });
         });
@@ -178,7 +188,7 @@ export class AuthService {
         }, 60000);
     }
 
-    setLoadIndicatorVisibility(visible: boolean,isLogout: boolean= false) {
+    setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         if (visible) {
             $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeIn(250);
