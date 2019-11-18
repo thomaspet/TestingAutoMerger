@@ -46,7 +46,7 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             name: 'Altinn oversikt'
         });
 
-        this.enableReportAction();
+        // midlertidig fjernet, skal ikke ut i 102  this.enableReportAction();
     }
 
     public ngAfterViewInit(): void {
