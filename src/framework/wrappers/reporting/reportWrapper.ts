@@ -92,7 +92,9 @@ export class StimulsoftReportWrapper {
         dataset.readJson(data);
         report.regData('Data', 'Data', dataset);
         if (localization && localization !== 'no') {
-            try { report.localizeReport(localization); } catch(e) {}
+            try { report.localizeReport(localization); } catch(e) {
+                console.log(`Stimulsoft.localizeReport error for '${localization}' ${e}`);
+            }
         }
         report.renderAsync(() => {
             resolver(report);

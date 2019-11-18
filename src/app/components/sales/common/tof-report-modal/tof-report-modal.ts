@@ -96,6 +96,7 @@ export class TofReportModal implements IUniModal {
                 const defaultReport = defaultReportID && this.reports.find(report => report.ID === defaultReportID);
                 this.selectedReport = defaultReport || this.reports[0];
                 this.selectedReport.localization = localization;
+                this.reports.map(report => report['localization'] = this.selectedReport.localization);
 
                 this.loadReportParameters();
             },
