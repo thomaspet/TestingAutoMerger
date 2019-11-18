@@ -69,6 +69,7 @@ export class UniChooseReportModal implements IUniModal {
                 } else if (company.Localization) {
                     this.selectedReport.localization = company.Localization;
                 }
+                this.reports.map(report => report['localization'] = this.selectedReport.localization);
                 this.loadReportParameters();
             },
             err => this.errorService.handle(err)
