@@ -46,6 +46,7 @@ export class Login {
                     this.availableCompanies = res.body;
                     if (!this.availableCompanies || !this.availableCompanies.length) {
                         this.router.navigateByUrl('/init/register-company');
+                        return;
                     }
 
                     if (this.availableCompanies.length === 1) {

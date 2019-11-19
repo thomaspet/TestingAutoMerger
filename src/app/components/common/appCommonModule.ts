@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
@@ -81,7 +80,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         RouterModule,
         UniFrameworkModule,
         AppPipesModule,

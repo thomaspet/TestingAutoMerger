@@ -10,18 +10,16 @@ import {
 } from '@angular/core';
 import {MatMenuTrigger} from '@angular/material';
 import {trigger, transition, style, keyframes, animate} from '@angular/animations';
-import {HttpClient} from '@angular/common/http';
 import printJS from 'print-js';
 
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
 import {Observable, Subject, of as observableOf, forkJoin} from 'rxjs';
-import {takeUntil, catchError, map} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
-import {UniModalService, ConfirmActions} from '../uni-modal';
-import {FileSplitModal} from '../fileSplit/FileSplitModal';
+import {UniModalService, ConfirmActions, FileSplitModal} from '../uni-modal';
 import {parseEHFData, generateEHFMarkup} from './ehf';
 import {DomSanitizer} from '@angular/platform-browser';
 
@@ -87,10 +85,6 @@ export class UniImage {
 
     private baseUrl: string = environment.BASE_URL_FILES;
 
-    private token: any;
-    private activeCompany: any;
-    private didTryReAuthenticate: boolean = false;
-
     public uploading: boolean;
     private keyListener: any;
     public state = 'initial';
@@ -112,15 +106,14 @@ export class UniImage {
         {label: 'Bankkonto', value: 3},
         {label: 'KID', value: 4},
         {label: 'Fakturabeløp', value: 6},
-
-    ]
+    ];
 
     public processingPercentage: number = null;
 
+    cacheBuster = performance.now(); // used for busting the image cache after changes
     onDestroy$: Subject<any> = new Subject();
 
     constructor(
-        private ngHttp: HttpClient,
         private http: UniHttp,
         private errorService: ErrorService,
         private cdr: ChangeDetectorRef,
@@ -129,43 +122,20 @@ export class UniImage {
         private authService: AuthService,
         private uniFilesService: UniFilesService,
         public sanitizer: DomSanitizer
-    ) {
-        this.authService.authentication$.pipe(
-            takeUntil(this.onDestroy$)
-        ).subscribe((authDetails) => {
-            if (authDetails && authDetails.activeCompany) {
-                this.activeCompany = authDetails.activeCompany;
-                this.refreshFiles();
-            }
-        });
-
-        this.authService.filesToken$.pipe(
-            takeUntil(this.onDestroy$)
-        ).subscribe(token => {
-            this.token = token;
-            if (this.files) {
-                this.files = this.setThumbnailUrls(this.files);
-                this.showFile(this.currentFile);
-                this.setFileViewerData(this.files);
-                this.cdr.markForCheck();
-            }
-        });
-    }
+    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         this.removeHighlight();
         this.currentPage = 1;
         this.currentFile = undefined;
 
-        if (this.activeCompany) {
-            if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
-                this.refreshFiles();
-            } else if (changes['fileIDs']) {
-                this.refreshFiles();
-            } else if (changes['showFileID'] && this.files && this.files.length) {
-                const file = this.files.find(f => f.ID === this.showFileID);
-                this.showFile(file);
-            }
+        if ((changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID)) {
+            this.refreshFiles();
+        } else if (changes['fileIDs']) {
+            this.refreshFiles();
+        } else if (changes['showFileID'] && this.files && this.files.length) {
+            const file = this.files.find(f => f.ID === this.showFileID);
+            this.showFile(file);
         }
     }
 
@@ -225,7 +195,7 @@ export class UniImage {
         this.currentClickedWord = word;
     }
 
-    selectOCRWord(useWordAs, event: MouseEvent) {
+    selectOCRWord(useWordAs) {
         this.useWord.emit({
             word: this.currentClickedWord,
             propertyType: useWordAs
@@ -253,10 +223,6 @@ export class UniImage {
     }
 
     public refreshFiles() {
-        if (!this.token || !this.activeCompany) {
-            return;
-        }
-
         let request;
         if (this.fileIDs && this.fileIDs.length && !(this.entity && this.entityID)) {
             const requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
@@ -449,6 +415,7 @@ export class UniImage {
                             splitFileResult.SecondPart.ExternalId
                         ).subscribe(
                             splitResultUE => {
+                                this.cacheBuster = performance.now();
                                 this.files[fileIndex] = splitResultUE.FirstPart;
                                 this.setFileViewerData(this.files);
 
@@ -472,7 +439,7 @@ export class UniImage {
     public rotateLeft() {
         this.uniFilesService.rotate(this.currentFile.StorageReference, this.currentPage, false)
             .subscribe(
-                () => this.showFile(this.currentFile),
+                () => this.showFile(this.currentFile, true),
                 err => this.errorService.handle(err)
             );
     }
@@ -480,27 +447,20 @@ export class UniImage {
     public rotateRight() {
         this.uniFilesService.rotate(this.currentFile.StorageReference, this.currentPage, true)
             .subscribe(
-                () => this.showFile(this.currentFile),
+                () => this.showFile(this.currentFile, true),
                 err => this.errorService.handle(err)
             );
     }
 
     public deleteImage() {
-        const oldFileID = this.currentFile.ID;
-        let endpoint = `files/${oldFileID}`;
-
+        const deleteFileID = this.currentFile.ID;
         const buttonLabels: any = {
             reject: 'Slett',
             cancel: 'Avbryt'
         };
 
-        // When endpoint is supplierInvoice, should emit change
         if (this.entity === 'SupplierInvoice') {
             buttonLabels.accept = 'Legg tilbake i innboks';
-        }
-
-        if (this.entity && this.entityID) {
-            endpoint = `files/${this.entity}/${this.entityID}/${oldFileID}`;
         }
 
         this.modalService.confirm({
@@ -509,28 +469,21 @@ export class UniImage {
             buttonLabels: buttonLabels
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.REJECT) {
-                this.http.asDELETE()
-                    .usingBusinessDomain()
-                    .withEndPoint(endpoint)
-                    .send()
-                    .subscribe(
-                        res => {
-                            this.removeImage();
-                        },
-                        err => this.errorService.handle(err)
-                    );
+                const deleteRequest = this.entity && this.entityID
+                    ? this.fileService.delete(deleteFileID)
+                    : this.fileService.deleteOnEntity(this.entity, this.entityID, deleteFileID);
+
+                deleteRequest.subscribe(
+                    () => this.removeImage(),
+                    err => this.errorService.handle(err)
+                );
             } else if (response === ConfirmActions.ACCEPT) {
                 if (this.entity && this.entityID) {
-                    endpoint = `files/${this.currentFile.ID}?action=unlink`
-                        + `&entitytype=${this.entity}&entityid=${this.entityID}`;
-                    this.http
-                        .asPOST()
-                        .usingBusinessDomain()
-                        .withEndPoint(endpoint)
-                        .send()
-                        .subscribe((res) => {
-                            this.removeImage(true);
-                        });
+                    this.fileService.unlinkFile(this.entity, this.entityID, deleteFileID).subscribe(
+                        () => this.removeImage(true),
+                        err => this.errorService.handle(err)
+                    );
+
                 } else {
                     this.removeImage(true);
                 }
@@ -555,24 +508,11 @@ export class UniImage {
         }
     }
 
-    public reauthenticate() {
-        if (!this.didTryReAuthenticate) {
-            // Set flag to avoid "authentication loop" if the new authentication also throws
-            this.didTryReAuthenticate = true;
-
-            this.authService.authenticateUniFiles()
-                .then(() => {
-                    // Reset re-auth flag after 10 seconds to avoid it stopping
-                    // re-auth the next time token times out
-                    setTimeout(() => {
-                        this.didTryReAuthenticate = false;
-                    }, 10000);
-                })
-                .catch(err => this.errorService.handle(err));
+    private showFile(fileToShow: FileExtended, invalidateCache = false) {
+        if (invalidateCache) {
+            this.cacheBuster = performance.now();
         }
-    }
 
-    private showFile(fileToShow: FileExtended) {
         this.selectedEHFAttachment = undefined;
         const file = fileToShow || this.files && this.files[0];
 
@@ -602,12 +542,11 @@ export class UniImage {
 
     private generateImageUrl(file: FileExtended, width: number, pageOverride?: number): string {
         const url = `${this.baseUrl}/api/image`
-            + `?key=${this.activeCompany.Key}`
-            + `&token=${this.token}`
+            + `?key=${this.authService.activeCompany.Key}`
             + `&id=${file.StorageReference}`
             + `&width=${width}`
             + `&page=${pageOverride || this.currentPage}`
-            + `&t=${Date.now()}`;
+            + `&t=${this.cacheBuster}`;
 
         return encodeURI(url);
     }
@@ -628,11 +567,6 @@ export class UniImage {
     }
 
     public uploadFileChange(event) {
-        // reset reauth flag it might be needed to reauthenticate if the
-        // user has not left the view containing the uniimage components
-        // for a while (and it has already authenticated)
-        this.didTryReAuthenticate = false;
-
         const source = event.srcElement || event.target;
 
         if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {
@@ -647,17 +581,14 @@ export class UniImage {
 
             if (this.singleImage && this.files.length && !this.uploadWithoutEntity) {
                 const oldFileID = this.files[0].ID;
-                this.http.asDELETE()
-                    .usingBusinessDomain()
-                    .withEndPoint(`files/${this.entity}/${this.entityID}/${oldFileID}`)
-                    .send()
-                    .subscribe((res) => {
-                        this.uploadFile(newFile);
-                    }, err => {
+                this.fileService.deleteOnEntity(this.entity, this.entityID, oldFileID).subscribe(
+                    () => this.uploadFile(newFile),
+                    err => {
                         this.errorService.handle(err);
                         this.uploading = false;
                         this.cdr.markForCheck();
-                    });
+                    }
+                );
             } else {
                 this.uploadFile(newFile);
             }
@@ -665,44 +596,20 @@ export class UniImage {
     }
 
     private uploadFile(file) {
-        const data = new FormData();
-        data.append('Token', this.authService.jwt);
-        data.append('Key', this.activeCompany.Key);
-        if (this.entity) {
-            data.append('EntityType', this.entity);
-        }
-        if (this.entityID) {
-            data.append('EntityID', this.entityID.toString());
-        }
-        data.append('CacheOnUpload', 'true');
-        data.append('Caption', ''); // where should we get this from the user?
-        data.append('File', file);
-
-        this.ngHttp.post<any>(this.baseUrl + '/api/file', data, {
-            observe: 'body'
-        }).subscribe(
+        this.uniFilesService.upload(file, this.entity, this.entityID).subscribe(
             res => {
-                // files are uploaded to unifiles, and will get an externalid that
-                // references the file in UE - get the UE file and add that to the
-                // collection
                 this.fileService.Get(res.ExternalId).subscribe(
                     newFile => {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
                         this.setFileViewerData(this.files);
 
-                        // reset reauth flag after uploading, because sometimes getting new
-                        // images will fail right after upload, and we need to retry to get
-                        // it if it fails the first time
-                        this.didTryReAuthenticate = false;
-
-                        // check filestatus and load file/image when Uni Files is done
-                        // processing it
                         this.checkFileStatusAndLoadImage(newFile);
                     },
                     err => this.errorService.handle(err)
                 );
-            }, err => {
+            },
+            err => {
                 this.uploading = false;
                 this.cdr.markForCheck();
                 this.errorService.handle(err);

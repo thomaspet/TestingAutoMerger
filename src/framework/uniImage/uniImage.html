@@ -84,19 +84,8 @@
             </span>
         </div>
 
-        <picture
-            #imageContainer
-            [ngClass]="{'clickable': currentClicked}"
-            (click)="openFileViewer()">
-
-            <source
-                [attr.srcset]="imgUrl"
-                media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-
-            <img
-                [attr.src]="imgUrl"
-                (error)="reauthenticate()"
-            />
+        <section class="image-container" (click)="openFileViewer()">
+            <auth-img [src]="imgUrl"></auth-img>
 
             <span *ngIf="ocrWords?.length">
                 <span *ngFor="let word of ocrWords"
@@ -112,25 +101,19 @@
                     <section class="ocr-value-picker" (click)="$event.stopPropagation()">
                         <p>Valgt verdi: <strong>{{currentClickedWord?.text}}</strong></p>
                         <strong>Bruk verdi som</strong>
-                        <button *ngFor="let value of ocrValues" mat-menu-item (click)="selectOCRWord(value.value, $event)">{{ value.label }}</button>
+                        <button *ngFor="let value of ocrValues" mat-menu-item (click)="selectOCRWord(value.value)">{{ value.label }}</button>
                     </section>
                 </mat-menu>
 
                 <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
             </span>
-        </picture>
+        </section>
     </section>
 
     <!-- Thumbnails -->
     <ul class="uni-thumbnail-list" *ngIf="!singleImage && files?.length > 1">
         <li *ngFor="let file of files" (click)="showFile(file)">
-
-            <img
-                *ngIf="!file._ehfMarkup"
-                [attr.src]="file._thumbnailUrl"
-                (error)="reauthenticate()"
-            />
-
+            <auth-img *ngIf="!file._ehfMarkup" [src]="file._thumbnailUrl"></auth-img>
             <section *ngIf="file._ehfMarkup" class="ehf-thumbnail">
                 EHF
             </section>

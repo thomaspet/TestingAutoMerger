@@ -3,9 +3,9 @@ import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
-import {FileSplitModal} from './fileSplit/FileSplitModal';
 import {UniSave} from './save/save';
 import {UniImage, EHFViewer} from './uniImage/uniImage';
+import {AuthImg} from './uniImage/auth-img/auth-img';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
@@ -96,8 +96,8 @@ import {UniTabs} from './uni-tabs/uni-tabs';
         UniModal,
         UniSave,
         UniImage,
+        AuthImg,
         EHFViewer,
-        FileSplitModal,
         UniToast,
         UniToastList,
         UniComments,
@@ -108,10 +108,7 @@ import {UniTabs} from './uni-tabs/uni-tabs';
         UniTabs,
         ...MODALS
     ],
-    entryComponents: [
-        FileSplitModal,
-        ...MODALS
-    ],
+    entryComponents: [...MODALS],
     providers: [
         UniModalService,
         UniHttp,
@@ -142,6 +139,7 @@ import {UniTabs} from './uni-tabs/uni-tabs';
         UniModal,
         UniSave,
         UniImage,
+        AuthImg,
         EHFViewer,
         UniToast,
         UniToastList,

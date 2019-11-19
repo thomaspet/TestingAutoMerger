@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
 import {WidgetModule} from '../widgets/widgetModule';
@@ -145,7 +144,6 @@ import { BarnepassView } from './altinnOverview/barnepass/barnepassview';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         MatTooltipModule,
         MatSlideToggleModule,
         MatSelectModule,

@@ -45,7 +45,7 @@
 
         main {
             box-sizing: border-box;
-            padding: 3.5rem 25px 10px;
+            padding: 3.5rem 25px 0;
         }
 
         #container {
@@ -61,18 +61,40 @@
             max-width: 100%;
             box-shadow: 0px 1px 4px 0 rgba(0, 0, 0, 0.14);
         }
+
+        footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 3rem;
+            margin-bottom: .75rem;
+        }
+
+        footer button {
+            background: #fff;
+            border: 1px solid #ccc;
+            width: 8rem;
+            cursor: pointer;
+            height: 2.25rem;
+            visibility: hidden; /* shown if needed */
+        }
     </style>
 </head>
+
 <body>
     <header class="zoom-control">
         <span id="zoom-level-info"></span>
-        <i id="zoom-in" class="material-icons">add_circle</i>
-        <i id="zoom-out" class="material-icons">remove_circle</i>
+        <i id="zoom-in" onclick="zoomIn()" class="material-icons">add_circle</i>
+        <i id="zoom-out" onclick="zoomOut()" class="material-icons">remove_circle</i>
     </header>
 
     <main>
         <section id="container"></section>
     </main>
+
+    <footer>
+        <button id="pagination" onclick="loadNextBlock()">Last mer</button>
+    </footer>
 </body>
 
 <script type="application/javascript">
@@ -80,9 +102,10 @@
     let zoomLevel = 100;
 
     const zoomLevelInfo = document.getElementById('zoom-level-info');
-    const zoomInBtn = document.getElementById('zoom-in');
-    const zoomOutBtn = document.getElementById('zoom-out');
     const container = document.getElementById('container');
+
+    let loadIndex = 0;
+    let loadFunctions = [];
 
     const updateImageZoom = () => {
         if (zoomLevelInfo) {
@@ -102,8 +125,6 @@
             zoomLevel += 10;
             updateImageZoom();
         }
-
-        window.innerHeight = 500;
     }
 
     const zoomOut = () => {
@@ -112,9 +133,6 @@
             updateImageZoom();
         }
     }
-
-    zoomInBtn.onclick = () => zoomIn();
-    zoomOutBtn.onclick = () => zoomOut();
 
     window.addEventListener('keydown', (event) => {
         const key = event.which || event.keyCode;
@@ -153,18 +171,27 @@
 
         const files = JSON.parse(localStorage.getItem('fileviewer-data'));
 
-        if (files && files.length) {
-            files.forEach(file => {
-                if (file._ehfMarkup) {
+        if (!files || !files.length) {
+            return;
+        }
+
+        loadFunctions = [];
+        loadIndex = 0;
+
+        files.forEach(file => {
+            if (file._ehfMarkup) {
+                loadFunctions.push(() => {
                     const ehfElement = document.createElement('section');
                     ehfElement.innerHTML = file._ehfMarkup;
 
                     ehfElement.classList.add('file');
                     ehfElement.style.maxWidth = zoomLevel + '%';
                     container.appendChild(ehfElement);
+                });
 
-                    (file._ehfAttachments || []).forEach(attachment => {
-                        if (attachment.resourceUrl && attachment.mimeType) {
+                (file._ehfAttachments || []).forEach(attachment => {
+                    if (attachment.resourceUrl && attachment.mimeType) {
+                        loadFunctions.push(() => {
                             let el;
                             if (attachment.mimeType.includes('image')) {
                                 el = document.createElement('img');
@@ -179,21 +206,64 @@
                             el.classList.add('file');
                             el.style.maxWidth = zoomLevel + '%';
                             container.appendChild(el);
-                        }
-                    });
+                        });
+                    }
+                });
 
-                } else {
-                    const imageUrls = file._imgUrls || [];
-                    imageUrls.forEach(url => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.classList.add('file');
-                        img.style.maxWidth = zoomLevel + '%';
-
-                        container.appendChild(img);
+            } else {
+                const imageUrls = file._imgUrls || [];
+                imageUrls.forEach(url => {
+                    loadFunctions.push(() => {
+                        const imgContainer = document.createElement('section');
+                        container.appendChild(imgContainer);
+                        loadImage(url, imgContainer);
                     });
+                });
+            }
+        });
+
+        loadNextBlock();
+    }
+
+    function setPaginationVisibility(visible) {
+        const pagination = document.getElementById('pagination');
+        pagination.style.visibility = visible ? 'visible' : 'hidden';
+    }
+
+    function loadNextBlock() {
+        try {
+            loadFunctions.slice(loadIndex, loadIndex + 5).forEach(loadFunction => {
+                loadFunction();
+                loadIndex++;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        setPaginationVisibility(loadIndex < loadFunctions.length);
+    }
+
+    function loadImage(url, container) {
+        try {
+            const token = JSON.parse(localStorage.getItem('jwt'))
+            fetch(url, {
+                headers: { Authorization: 'Bearer ' + token }
+            })
+            .catch(err => console.error(err))
+            .then(response => response.blob())
+            .then(blob => {
+                blob = blob.slice(0, blob.size, 'image/png');
+                const url = URL.createObjectURL(blob);
+                if (url) {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.classList.add('file');
+                    img.style.maxWidth = zoomLevel + '%';
+                    container.appendChild(img);
                 }
             });
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -212,9 +282,9 @@
 
     window.addEventListener('storage', (event) => {
         if (event.key === 'fileviewer-data' && event.newValue && event.oldValue !== event.newValue) {
+            setPaginationVisibility(false);
             loadData();
         }
     });
-
 </script>
 </html>

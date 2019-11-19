@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
@@ -20,7 +19,6 @@ const routes = [{
 @NgModule({
     imports: [
         CommonModule,
-        HttpClientModule,
         RouterModule,
         FormsModule,
         ReactiveFormsModule,

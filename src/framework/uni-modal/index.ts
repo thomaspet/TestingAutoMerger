@@ -31,8 +31,9 @@ import {UniMandatoryDimensionsModal} from './modals/mandatoryDimensionsModal/man
 import {LicenseAgreementModal} from './modals/license-agreement-modal/license-agreement-modal';
 import {InvoiceApprovalModal} from './modals/invoice-approval-modal/invoice-approval-modal';
 import {WizardSettingsModal} from './modals/wizard-settings-modal/wizard-settings-modal';
-import { BarnepassProductsModal } from './modals/barnepassModals/barnepassProductsModal';
-import { BarnepassSenderModal } from './modals/barnepassModals/barnepassSenderModal';
+import {BarnepassProductsModal} from './modals/barnepassModals/barnepassProductsModal';
+import {BarnepassSenderModal} from './modals/barnepassModals/barnepassSenderModal';
+import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -69,6 +70,7 @@ export * from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 export * from './modals/license-agreement-modal/license-agreement-modal';
 export * from './modals/invoice-approval-modal/invoice-approval-modal';
 export * from './modals/wizard-settings-modal/wizard-settings-modal';
+export * from './modals/file-split-modal/file-split-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -105,6 +107,7 @@ export const MODALS = [
     InvoiceApprovalModal,
     WizardSettingsModal,
     BarnepassProductsModal,
-    BarnepassSenderModal
+    BarnepassSenderModal,
+    FileSplitModal,
 ];
 
