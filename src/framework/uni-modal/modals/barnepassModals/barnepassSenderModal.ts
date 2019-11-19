@@ -1,8 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
-import { OppgaveBarnepass, ReportDefinition, FieldType, BarnepassLeveranse } from '@uni-entities';
-import { AltinnIntegrationService, ReportDefinitionService, ReportNames } from '@app/services/services';
+import { ReportDefinition, FieldType } from '@uni-entities';
+import { AltinnIntegrationService, ReportDefinitionService, ReportNames, OppgaveBarnepass, BarnepassLeveranse } from '@app/services/services';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UniFieldLayout } from '@uni-framework/ui/uniform';
 import { IUniTab } from '@uni-framework/uni-tabs/uni-tabs';

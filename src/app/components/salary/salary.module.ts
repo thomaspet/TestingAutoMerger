@@ -138,7 +138,7 @@ import {
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
-import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
+import { BarnepassView } from './altinnOverview/barnepass/barnepassview';
 
 @NgModule({
     imports: [
