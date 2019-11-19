@@ -1,17 +1,11 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {VacationPayLine, WageDeductionDueToHolidayType, VacationInfo} from '../../../unientities';
+import {VacationPayLine, WageDeductionDueToHolidayType} from '../../../unientities';
 import {Observable, of} from 'rxjs';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
-import {RequestMethod} from '@uni-framework/core/http';
-export interface IVacationInfo extends VacationInfo {
-    IsPayed: boolean;
-    Base: number;
-    MissingVacationPay: number;
-    Age: number;
-}
+
 @Injectable()
 export class VacationpayLineService extends BizHttp<VacationPayLine> {
     constructor(
