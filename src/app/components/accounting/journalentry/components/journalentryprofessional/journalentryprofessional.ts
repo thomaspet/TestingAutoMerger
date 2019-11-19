@@ -2117,7 +2117,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const customerInvoice = journalEntryRow.CustomerInvoice;
 
         return new Promise(resolve => {
-            const paymentData: InvoicePaymentData = {
+            const paymentData = <InvoicePaymentData> {
                 Amount: customerInvoice.RestAmount,
                 AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
                 BankChargeAmount: 0,

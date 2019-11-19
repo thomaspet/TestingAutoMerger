@@ -135,7 +135,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                     }
                 });
 
-                const paymentData: InvoicePaymentData = {
+                const paymentData = <InvoicePaymentData> {
                     Amount: amount,
                     AmountCurrency: amountCurrency,
                     BankChargeAmount: 0,
@@ -412,5 +412,5 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                 resolve();
             });*/
         });
-    }    
+    }
 }

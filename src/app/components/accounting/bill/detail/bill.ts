@@ -2621,7 +2621,7 @@ export class BillView implements OnInit {
         const today = new LocalDate(Date());
         const dueDate = this.current.getValue().PaymentDueDate;
 
-        const paymentData: InvoicePaymentData = {
+        const paymentData = <InvoicePaymentData> {
             Amount: roundTo(bill.RestAmount),
             AmountCurrency: roundTo(bill.RestAmountCurrency),
             BankChargeAmount: 0,
@@ -2652,7 +2652,7 @@ export class BillView implements OnInit {
             }
         });
 
-        modal.onClose.subscribe((payment: Payment) => {
+        modal.onClose.subscribe((payment: InvoicePaymentData) => {
             if (payment) {
                 this.supplierInvoiceService.sendForPaymentWithData(this.currentID, payment)
                     .finally(() => this.busy = false)
@@ -3635,7 +3635,7 @@ export class BillView implements OnInit {
     private registerPayment(done) {
         const bill = this.current.getValue();
 
-        const paymentData: InvoicePaymentData = {
+        const paymentData = <InvoicePaymentData> {
             Amount: roundTo(bill.RestAmount),
             AmountCurrency: roundTo(bill.RestAmountCurrency),
             BankChargeAmount: 0,

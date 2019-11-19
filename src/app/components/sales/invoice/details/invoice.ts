@@ -1992,7 +1992,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         });
 
-        const invoicePaymentData: InvoicePaymentData = {
+        const invoicePaymentData = <InvoicePaymentData> {
             Amount: amount,
             AmountCurrency: amountCurrency,
             BankChargeAmount: 0,

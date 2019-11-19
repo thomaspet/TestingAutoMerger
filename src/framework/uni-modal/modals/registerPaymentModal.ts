@@ -165,6 +165,12 @@ export class UniRegisterPaymentModal implements IUniModal {
         );
     }
 
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formFields$.complete();
+        this.formModel$.complete();
+    }
+
     public close(emitValue?: boolean) {
         setTimeout(() => {
             if (this.mandatoryDimensionMessage.length > 0 && emitValue) {

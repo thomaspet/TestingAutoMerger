@@ -1,12 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User} from '../../unientities';
+import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User, InvoicePaymentData} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs';
 import {HttpParams} from '@angular/common/http';
 import {ErrorService} from '../common/errorService';
-import {UserService} from '../common/userService';
 import {StatusCode} from '../../../app/components/sales/salesHelper/salesEnums';
 
 @Injectable()
@@ -111,18 +109,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=credit-supplierinvoice-journalentry&supplierInvoiceId=${supplierInvoiceId}`)
-            .send()
-            .map(response => response.body);
-    }
-
-
-    public payinvoice(supplierInvoiceId: number, supplierInvoiceData: InvoicePaymentData) {
-        super.invalidateCache();
-        return this.http
-            .asPUT()
-            .withBody(supplierInvoiceData)
-            .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
             .send()
             .map(response => response.body);
     }
