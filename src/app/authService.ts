@@ -143,6 +143,8 @@ export class AuthService {
 
                     this.setLoadIndicatorVisibility(false);
                 }
+            } else {
+                onMissingAuth();
             }
         }).catch((err) => {
             // Session has ended ! , clear stale state and redirect to login
