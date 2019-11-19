@@ -664,7 +664,7 @@
                 }]
             },
             {
-                "Name": "Kladd",
+                "Name": "Opprettet",
                 "Code": "draft_supplierinvoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{

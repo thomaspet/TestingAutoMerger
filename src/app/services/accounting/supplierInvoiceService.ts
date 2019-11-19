@@ -12,15 +12,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     // TODO: To be retrieved from database schema shared.Status instead?
     public statusTypes: Array<any> = [
-        { Code: StatusCodeSupplierInvoice.Draft, Text: 'Kladd', isPrimary: true},
+        { Code: StatusCodeSupplierInvoice.Draft, Text: 'Opprettet', isPrimary: true},
         { Code: StatusCodeSupplierInvoice.ForApproval, Text: 'Tildelt', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.Rejected, Text: 'Avvist', isPrimary: false},
         { Code: StatusCodeSupplierInvoice.Approved, Text: 'Godkjent', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført', isPrimary: true },
-        { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Betalingsliste', isPrimary: false },
-        { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delbetalt', isPrimary: false },
-        { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true },
-        { Code: StatusCode.Completed, Text: 'Arkivert', isPrimary: false },
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
@@ -113,6 +109,28 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.body);
     }
 
+
+    public payinvoice(supplierInvoiceId: number, supplierInvoiceData: InvoicePaymentData) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .withBody(supplierInvoiceData)
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=payInvoice`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public sendForPayment(supplierInvoiceID: number) {
+        super.invalidateCache();
+        return this.http
+        .asPUT()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + `?action=sendForPayment&id=${supplierInvoiceID}`)
+        .send()
+        .map(response => response.body);
+    }
+
     public getInvoiceSummary(odatafilter: string): Observable<any> {
         return this.http
             .asGET()
@@ -139,6 +157,21 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.body.Data);
     }
 
+    public getPaymentStatus(supplierInvoice: SupplierInvoice): string {
+
+        if(supplierInvoice.TaxExclusiveAmount > 0) {
+            if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
+            if (supplierInvoice.TaxInclusiveAmount > supplierInvoice.RestAmount && supplierInvoice.RestAmount > 0) { return 'Delvis betalt'; }
+            if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
+        }
+        else {
+            if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
+            if (supplierInvoice.TaxInclusiveAmount < supplierInvoice.RestAmount && supplierInvoice.RestAmount < 0) { return 'Delvis betalt'; }
+            if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
+        }
+        return 'Ubetalt';
+    }
+
     public getInvoiceList(httpParams: HttpParams, userIDFilter: string = ''): Observable<any> {
 
         if (userIDFilter !== '' && userIDFilter !== null) {
@@ -146,7 +179,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
 
         const flds = this.selectBuilder(
-            'ID', 'StatusCode', 'Supplier.SupplierNumber', 'Info.Name',
+            'ID', 'StatusCode', 'Supplier.SupplierNumber', 'IsSentToPayment', 'Info.Name',
             'PaymentDueDate', 'InvoiceDate', 'FreeTxt', 'InvoiceNumber',
             'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber',
             'PaymentInformation', 'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',

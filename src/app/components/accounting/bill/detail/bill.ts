@@ -209,24 +209,6 @@ export class BillView implements OnInit {
             action: (done) => this.tryDelete(done),
             main: false,
             disabled: true
-        },
-        {
-            label: 'Kjør tolk (OCR/EHF)',
-            action: (done) => { this.runConverter(this.files, true); done(); },
-            main: false,
-            disabled: false
-        },
-        {
-            label: 'Kjør smart bokføring',
-            action: (done) => { this.runSmartBooking(this.orgNumber, true); done(); },
-            main: false,
-            disabled: false
-        },
-        {
-            label: 'Innstillinger for smart bokføring',
-            action: (done) => { this.openSmartBookingSettingsModal(); done(); },
-            main: false,
-            disabled: false
         }
     ];
 
@@ -384,7 +366,8 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (current) {
             current.ID = value;
-            this.current.next(current);
+            current['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(current);
+            this.current.next(Object.assign({}, current));
         }
     }
 
@@ -410,6 +393,12 @@ export class BillView implements OnInit {
                 this.currencyCodes = res[1];
                 this.customDimensions = res[2];
                 const links = res[3];
+
+                if (this.current.getValue()) {
+                    const val = this.current.getValue();
+                    val['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(val);
+                    this.current.next(Object.assign({}, val));
+                }
 
                 if (links.length > 0) {
                     if (links.length > 1) {
@@ -578,7 +567,21 @@ export class BillView implements OnInit {
                 Property: 'InvoiceNumber',
                 FieldType: FieldType.TEXT,
                 Label: 'Fakturanummer',
+                Classes: 'bill-small-field right',
+                Section: 0
+            },
+            <any> {
+                Property: 'BankAccountID',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Bankkonto',
                 Classes: 'bill-small-field',
+                Section: 0
+            },
+            <any> {
+                Property: '_paymentStatus',
+                FieldType: FieldType.TEXT,
+                Label: 'Betalingsstatus',
+                Classes: 'bill-small-field right',
                 Section: 0
             },
             <any> {
@@ -1494,6 +1497,7 @@ export class BillView implements OnInit {
         const lines = this.journalEntryManual.getJournalEntryData() || [];
 
         if (!model) { return; }
+        model['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(model);
 
         this.customDimensions.forEach((dim) => {
             if (change['DefaultDimensions.Dimension' + dim.Dimension + 'ID']) {
@@ -2096,7 +2100,7 @@ export class BillView implements OnInit {
                 current.BankAccount = supplier.Info.DefaultBankAccount;
             }
         }
-
+        current['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(current);
         this.current.next(current);
 
         this.currentSupplierID = 0;
@@ -2164,6 +2168,7 @@ export class BillView implements OnInit {
             const hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
             const filter = [];
             let mainFirst = true;
+
             if (this.invoicePayments.length > 0) {
                 filter.push('sendForPayment');
                 mainFirst = false;
@@ -2191,7 +2196,7 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (this.CurrentTask && this.CurrentTask.StatusCode !== TaskStatus.Complete) {
+            if (this.CurrentTask) {
                 const task = this.CurrentTask;
                 const hasActiveApproval = task.Approvals && task.Approvals.findIndex( t => t.StatusCode === ApprovalStatus.Active ) >= 0;
                 if (hasActiveApproval ) {
@@ -2222,8 +2227,7 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || (it.StatusCode === StatusCodeSupplierInvoice.ToPayment
-                && hasJournalEntry)) {
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
                 list.push(
                     {
                         label: 'Krediter',
@@ -2235,15 +2239,40 @@ export class BillView implements OnInit {
             }
 
             // Legg til delbetaling
-            if (it._links.transitions.sendForPayment) {
-                list.push(
-                    {
-                        label: 'Til betalingsliste(delbetaling)',
-                        action: (done) => this.addPayment(done),
-                        main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
-                        disabled: false
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || it.StatusCode === StatusCodeSupplierInvoice.Draft || it.StatusCode === StatusCodeSupplierInvoice.Approved ) {
+                const sts = this.supplierInvoiceService.getPaymentStatus(it);
+                if (sts !== 'Betalt') {
+                    list.push(
+                        {
+                            label: 'Legg til del-betaling',
+                            action: (done) => this.addPayment(done),
+                            main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
+                            disabled: false
+                        }
+                    );
+                    if (!it.IsSentToPayment) {
+                        list.push({
+                            label: 'Legg til betaling',
+                            action: (done) => this.sendForPayment()
+                                .subscribe((done2) => {
+                                    this.fetchInvoice(this.currentID, true);
+                                    this.updateInvoicePayments().add(done());
+                            }),
+                            disabled: false
+                        });
                     }
-                );
+
+                    if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+                        list.push(
+                            {
+                                label: 'Registrer betaling',
+                                action: (done) => this.registerPayment(done),
+                                main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
+                                disabled: false
+                            }
+                        );
+                    }
+                }
             }
 
             // Vis betalinger
@@ -2291,7 +2320,7 @@ export class BillView implements OnInit {
 
         const options = {
             header: 'Kreditere faktura?',
-            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til kladd.',
+            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til opprettet.',
             closeOnClickOutside: false,
             checkboxLabel: '',
             warning: paymentsSentToBank ?
@@ -2499,21 +2528,6 @@ export class BillView implements OnInit {
                 this.registerPayment(done);
                 return true;
 
-            case 'finish':
-                this.modalService.open(UniConfirmModalV2, {
-                    header: 'Arkivere faktura',
-                    message: 'Arkivere faktura ' + current.InvoiceNumber,
-                    warning: 'Merk! Dette steget er det ikke mulig å reversere.'
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        return this.RunActionOnCurrent(key, done, undefined, true);
-                    }
-
-                    done();
-                });
-
-                return true;
-
             case 'task_approval':
             case 'task_reject':
                 this.modalService.open(InvoiceApprovalModal, {
@@ -2611,7 +2625,7 @@ export class BillView implements OnInit {
 
     private sendForPayment(): Observable<boolean> {
         const current = this.current.getValue();
-        return this.supplierInvoiceService.PostAction(current.ID, 'sendForPayment')
+        return this.supplierInvoiceService.sendForPayment(current.ID)
             .switchMap(() => Observable.of(true))
             .catch(() => Observable.of(false));
     }
@@ -2889,7 +2903,7 @@ export class BillView implements OnInit {
                 .subscribe((invoice: SupplierInvoice) => {
                     if (flagBusy) { this.busy = false; }
                     if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
-
+                    invoice['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(invoice);
                     this.current.next(invoice);
                     this.currentFreeTxt = invoice.FreeTxt;
                     this.detailsTabs[1].tooltip = this.currentFreeTxt;
@@ -2899,9 +2913,9 @@ export class BillView implements OnInit {
                     }
                     this.setupToolbar();
                     this.addTab(+id);
-                    this.flagActionBar(actionBar.delete, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                    this.flagActionBar(actionBar.delete, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
                     this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
-                    this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled)
+                    this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
                     this.loadActionsFromEntity();
                     this.checkLockStatus();
 
@@ -3054,7 +3068,6 @@ export class BillView implements OnInit {
         }
     }
 
-
     private updateJournalEntryManualDates(financialDate: LocalDate, vatDate: LocalDate) {
         if (this.journalEntryManual) {
             let lines = this.journalEntryManual.getJournalEntryData();
@@ -3066,9 +3079,6 @@ export class BillView implements OnInit {
             this.journalEntryManual.setJournalEntryData(lines);
         }
     }
-
-
-
 
     public onDetailsTabClick(index: number) {
         // Check lock status when activating the details tab to avoid
@@ -3088,19 +3098,8 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (current && current.StatusCode) {
             switch (safeInt(current.StatusCode)) {
-                case StatusCodeSupplierInvoice.Payed:
-                case StatusCodeSupplierInvoice.PartlyPayed:
                 case StatusCode.Deleted: // rejected
-                case StatusCode.Completed: // archived
                     this.uniForm.readMode();
-                    return;
-
-                case StatusCodeSupplierInvoice.ToPayment:
-                    if (this.currentJournalEntryNumber) {
-                        this.uniForm.readMode();
-                        this.uniForm.field('BankAccountID').editMode();
-                        this.uniForm.field('PaymentID').editMode();
-                    }
                     return;
 
                 case StatusCodeSupplierInvoice.Journaled:
@@ -3112,14 +3111,6 @@ export class BillView implements OnInit {
                     this.uniForm.field('BankAccountID').editMode();
                     return;
 
-                case StatusCodeSupplierInvoice.ForApproval:
-                    this.uniForm.readMode();
-                    this.supplierIsReadOnly = false;
-                    this.uniForm.field('PaymentID').editMode();
-                    this.uniForm.field('PaymentDueDate').editMode();
-                    this.uniForm.field('DefaultDimensions.ProjectID').editMode();
-                    this.uniForm.field('DefaultDimensions.DepartmentID').editMode();
-                    return;
             }
         } else {
             this.uniForm.editMode();
@@ -3663,7 +3654,7 @@ export class BillView implements OnInit {
 
         modal.onClose.subscribe((payment) => {
             if (payment) {
-                this.supplierInvoiceService.ActionWithBody(bill.ID, payment, 'payInvoice')
+                this.supplierInvoiceService.payinvoice(bill.ID, payment)
                     .finally(() => this.busy = false)
                     .subscribe(() => {
                         this.fetchInvoice(bill.ID, true);
@@ -3879,6 +3870,18 @@ export class BillView implements OnInit {
                 label: 'Viderefakturer',
                 action: () => this.openReinvoiceModal(),
             },
+            {
+                label: 'Kjør tolk (OCR/EHF)',
+                action: () => { this.runConverter(this.files, true); }
+            },
+            {
+                label: 'Kjør smart bokføring',
+                action: () => { this.runSmartBooking(this.orgNumber, true); }
+            },
+            {
+                label: 'Innstillinger for smart bokføring',
+                action: () => { this.openSmartBookingSettingsModal(); }
+            }
         ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info

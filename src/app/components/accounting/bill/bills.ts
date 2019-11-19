@@ -114,23 +114,13 @@ export class BillsView implements OnInit {
             hotCounter: true
         },
         {
-            label: 'Kladd',
-            name: 'Draft',
+            label: 'Opprettet', name: 'Draft',
             filter: 'isnull(statuscode,'
                 + StatusCodeSupplierInvoice.Draft
                 + ') eq '
                 + StatusCodeSupplierInvoice.Draft,
             passiveCounter: true,
             statusCode: StatusCodeSupplierInvoice.Draft
-        },
-        {
-            label: 'Avvist',
-            name: 'Rejected',
-            filter: 'isnull(statuscode,' +
-            StatusCodeSupplierInvoice.Rejected + ') eq ' +
-            StatusCodeSupplierInvoice.Rejected,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.Rejected
         },
         {
             label: 'Tildelt',
@@ -154,26 +144,6 @@ export class BillsView implements OnInit {
             showJournalID: true,
             passiveCounter: true,
             statusCode: StatusCodeSupplierInvoice.Journaled
-        },
-        {
-            label: 'Betalingsliste',
-            name: 'ToPayment',
-            filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ToPayment,
-            showJournalID: true,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.ToPayment
-        },
-        {
-            label: 'Betalt',
-            name: 'Paid',
-            filter: 'statuscode eq '
-                + StatusCodeSupplierInvoice.Payed
-                + ' or statuscode eq '
-                + StatusCodeSupplierInvoice.PartlyPayed,
-            showStatus: true,
-            showJournalID: true,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.Payed
         },
         {
             label: 'Alle',
@@ -820,7 +790,7 @@ export class BillsView implements OnInit {
             new UniTableColumn('PaymentDueDate', 'Forfall', UniTableColumnType.LocalDate)
                 .setFilterOperator('eq')
                 .setConditionalCls((item) => {
-                    const paid = item.StatusCode === StatusCodeSupplierInvoice.Payed;
+                    const paid = item.RestAmount === 0;
                     return (paid || moment(item.PaymentDueDate).isBefore(moment()))
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
@@ -856,6 +826,11 @@ export class BillsView implements OnInit {
             new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
+            new UniTableColumn('PaymentStatus', 'Betalingsstatus')
+                .setVisible(true)
+                .setTemplate((dataItem) => {
+                    return this.supplierInvoiceService.getPaymentStatus(dataItem);
+                }),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
                 .setVisible(!!filter.showStatus)
                 .setAlignment('center')

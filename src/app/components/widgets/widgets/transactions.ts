@@ -240,6 +240,8 @@ export class UniTransactionsWidget implements AfterViewInit {
                 break;
 
             case '30101':
+                    statusText = 'Opprettet';
+                    break;
             case '40101':
             case '41001':
             case '42001':
