@@ -41,12 +41,31 @@ export class ActivateAutobankModal implements IUniModal {
         const data = this.autobankData.value;
         this.errorMessages = [];
 
-        if (!data.Password || data.ConfirmPassword !== data.Password) {
-            this.errorMessages.push('Passord og bekreft passord må være like');
+        if (!data.Password || data.Password.length < 10 || data.ConfirmPassword !== data.Password) {
+            this.errorMessages.push('Passord og bekreft passord må være like og minst 10 tegn');
         }
 
         if (!this.isValidPhoneNumber(data.Phone)) {
             this.errorMessages.push('Telefon må være et gyldig norsk telefonnummer');
+        }
+
+        if (!/[a-zæøå]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst en liten bokstav');
+            return;
+        }
+
+        if (!/[A-ZÆØÅ]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst en stor bokstav');
+            return;
+        }
+
+        if (!/[\d]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst ett tall');
+            return;
+        }
+        if (!/[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst ett tegn');
+            return;
         }
 
         if (!this.errorMessages.length) {
