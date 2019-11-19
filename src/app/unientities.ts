@@ -520,6 +520,7 @@ export class CustomerInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public Payments: Array<Payment>;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public PaymentTerms: Terms;
@@ -631,6 +632,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public CustomerInvoice: CustomerInvoice;
     public CreatedByReminderRule: CustomerInvoiceReminderRule;
+    public Payments: Array<Payment>;
     public CustomFields: any;
 }
 
@@ -957,45 +959,6 @@ export class CustomerQuoteItem extends UniEntity {
     public CurrencyCode: CurrencyCode;
     public CustomFields: any;
 }
-
-
-
-export class BatchInvoice extends UniEntity {
-    public static RelativeUrl = 'batchinvoices';
-    public static EntityType = 'BatchInvoice';
-
-    public _createguid: string;
-    public ID: number;
-    public InvoiceDate: LocalDate;
-    public DueDate: LocalDate;
-    public MinAmount: number;
-    public Operation: BatchInvoiceOperation;
-    public SellerID: number;
-    public OurRef: string;//Hentes fra ordre
-    public Items: Array<BatchInvoiceItem>;
-    public StatusCode: number;
-    public YourRef: string;
-    public Comment: string;
-    public Processed: number;
-    public TotalToProcess: number;
-}
-
-export class BatchInvoiceItem extends UniEntity {
-    //Route ikke implementert (kommentert ut) - public static RelativeUrl = 'batchinvoices';
-    public static EntityType = 'BatchInvoiceItem';
-
-    public _createguid: string;
-    public ID: number;
-    public BatchInvoiceID: number;
-    public CustomerOrderID: number;
-    public CustomerInvoiceID: number;
-    public StatusCode: number;//import { StatusCode } from "./components/sales/salesHelper/salesEnums";
-}
-
-
-export class Supplier extends UniEntity {
-    public static RelativeUrl = 'suppliers';
-    public static EntityType = 'Supplier';
 
 
 export class DebtCollectionSettings extends UniEntity {
@@ -4456,8 +4419,8 @@ export class Approval extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Task: Task;
     public Thresholds: Array<TransitionThresholdApproval>;
+    public Task: Task;
     public User: User;
     public CustomFields: any;
 }
@@ -6191,8 +6154,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6773,6 +6736,8 @@ export class Payment extends UniEntity {
     public CreatedBy: string;
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
+    public CustomerInvoiceID: number;
+    public CustomerInvoiceReminderID: number;
     public Debtor: string;
     public Deleted: boolean;
     public Description: string;
@@ -6801,6 +6766,7 @@ export class Payment extends UniEntity {
     public SerialNumberOrAcctSvcrRef: string;
     public StatusCode: number;
     public StatusText: string;
+    public SupplierInvoiceID: number;
     public ToBankAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -6812,6 +6778,9 @@ export class Payment extends UniEntity {
     public ToBankAccount: BankAccount;
     public CurrencyCode: CurrencyCode;
     public PaymentCode: PaymentCode;
+    public CustomerInvoice: CustomerInvoice;
+    public SupplierInvoice: SupplierInvoice;
+    public CustomerInvoiceReminder: CustomerInvoiceReminder;
     public CustomFields: any;
 }
 
@@ -6962,6 +6931,7 @@ export class SupplierInvoice extends UniEntity {
     public InvoiceReceiverName: string;
     public InvoiceReferenceID: number;
     public InvoiceType: number;
+    public IsSentToPayment: boolean;
     public JournalEntryID: number;
     public OurReference: string;
     public PayableRoundingAmount: number;
@@ -6994,18 +6964,12 @@ export class SupplierInvoice extends UniEntity {
     public TaxExclusiveAmountCurrency: number;
     public TaxInclusiveAmount: number;
     public TaxInclusiveAmountCurrency: number;
-    private _IsSentToPayment: boolean;
-    public get IsSentToPayment(): boolean {
-        return this._IsSentToPayment;
-    }
-    public set IsSentToPayment(value: boolean) {
-        this._IsSentToPayment = value;
-    }
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public Payments: Array<Payment>;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
@@ -9865,9 +9829,6 @@ export enum StatusCodeSupplierInvoice{
     ForApproval = 30102,
     Approved = 30103,
     Journaled = 30104,
-    ToPayment = 30105,
-    PartlyPayed = 30106,
-    Payed = 30107,
     Rejected = 30108,
 }
 
