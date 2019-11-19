@@ -76,13 +76,13 @@
             *ngIf="(options.data.entity !== payrollType) && (options.data.entity !== saftType)">
             <mat-radio-group [(ngModel)]="importOption">
                 <mat-radio-button [value]="skip" [checked]="true">
-                    Hopp over dupliserte {{options.data.type}}
+                    Hopp over dupliserte {{options.data.entity === mainLedgerType ? 'Konto': options.data.type}}
                 </mat-radio-button>
                 <!-- <mat-radio-button [value]="duplicate">
                     Opprett dupliserte {{options.data.type}} med nye nummer
                 </mat-radio-button> -->
                 <mat-radio-button [value]="override">
-                    Overskriv eksisterende {{options.data.type}}
+                    Overskriv eksisterende {{options.data.entity === mainLedgerType ? 'Konto': options.data.type}}
                 </mat-radio-button>
             </mat-radio-group>
         </div>

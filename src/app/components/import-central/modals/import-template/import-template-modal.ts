@@ -27,6 +27,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     showCancel: boolean;
     loading$: Subject<any> = new Subject();
     payrollType: TemplateType = TemplateType.Payroll;
+    mainLedgerType: TemplateType = TemplateType.MainLedger;
 
     // saft related
     saftType: TemplateType = TemplateType.Saft;
