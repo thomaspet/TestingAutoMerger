@@ -191,7 +191,7 @@ export class AuthService {
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         if (visible) {
             $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
-            $('#data-loading-spinner').fadeIn(250);
+            $('#data-loading-spinner').fadeIn(0);
         } else {
             $('#spinnertext').text(function(i, oldText) {return isLogout ? 'Logger ut' : oldText; });
             $('#data-loading-spinner').fadeOut(250);
