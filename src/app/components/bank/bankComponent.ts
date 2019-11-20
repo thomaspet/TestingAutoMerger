@@ -1104,7 +1104,7 @@ export class BankComponent {
                                     this.paymentBatchService.waitUntilJobCompleted(startFileJob.Value.ID).subscribe(fileJobResponse => {
                                         if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
                                             && fileJobResponse.Result.ID > 0) {
-                                                return this.DownloadFile(doneHandler, fileJobResponse.Result);
+                                                return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
                                         } else {
                                             this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
                                                 fileJobResponse.Result);
@@ -1125,14 +1125,14 @@ export class BankComponent {
                             this.paymentBatchService.waitUntilJobCompleted(fileResult.Value.ID).subscribe(fileJobResponse => {
                                 if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
                                     && fileJobResponse.Result.ID > 0) {
-                                        return this.DownloadFile(doneHandler, fileJobResponse.Result);
+                                        return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
                                 } else {
                                     this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
                                         fileJobResponse.Result);
                                 }
                             });
                         } else {
-                            return this.DownloadFile(doneHandler, fileResult);
+                            return this.DownloadFile(doneHandler, fileResult.PaymentFileID);
                         }
                     });
                 }
@@ -1157,7 +1157,7 @@ export class BankComponent {
         }
     }
 
-    private DownloadFile(doneHandler: (status: string) => any, file: File) {
+    private DownloadFile(doneHandler: (status: string) => any, fileID: number) {
         this.toastService.addToast(
             'Utbetalingsfil laget, henter fil...',
             ToastType.good, 5
@@ -1165,12 +1165,12 @@ export class BankComponent {
         this.updateSaveActions(this.selectedTicker.Code);
 
         this.fileService
-            .downloadXml(file.ID)
+            .downloadXml(fileID)
             .subscribe((blob) => {
                 doneHandler('Utbetalingsfil hentet');
 
                 // Download file so the user can open it
-                saveAs(blob, `payments_${file.ID}.xml`);
+                saveAs(blob, `payments_${fileID}.xml`);
                 this.tickerContainer.getFilterCounts();
                 this.tickerContainer.mainTicker.reloadData();
             },
