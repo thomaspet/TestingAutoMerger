@@ -43,7 +43,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         invoiceNumber: get(data, 'cbc:ID', ''),
         invoiceDate: getDateText(get(data, 'cbc:IssueDate', '')),
         dueDate: getDueDate(data),
-        note: get(data, 'cbc:Note.#text', ''),
+        note: get(data, 'cbc:Note.#text') || get(data, 'cbc:Note', ''),
         customerNumber: get(data, 'cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.#text', ''),
         customer: getCompanyInfo(get(data, 'cac:AccountingCustomerParty.cac:Party', {})),
         supplier: getCompanyInfo(get(data, 'cac:AccountingSupplierParty.cac:Party', {})),
