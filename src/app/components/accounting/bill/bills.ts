@@ -644,9 +644,13 @@ export class BillsView implements OnInit {
                 this.tableConfig = this.createTableConfig(filter);
                 this.totals.grandTotal = filter.total || this.totals.grandTotal;
             }
-            this.tableConfig.setMultiRowSelect(!(this.currentFilter.name === 'Paid'
+
+            this.tableConfig.setMultiRowSelect(!(
+                this.currentFilter.name === 'Paid'
                 || this.currentFilter.name === 'ToPayment'
-                || this.currentFilter.name === 'All'));
+                || this.currentFilter.name === 'All'
+                || this.currentFilter.name === 'Inbox'
+            ));
 
             this.loading$.next(false);
 

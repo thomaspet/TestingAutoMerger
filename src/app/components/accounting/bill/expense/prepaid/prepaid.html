@@ -1,8 +1,8 @@
 <label class="uni-label">
     <span>Betalt fra</span>
-    <select (change)="onChange($event)" >
+    <select [ngModel]="selectedBankAccount" (ngModelChange)="onChange($event)" >
         <option *ngIf="busy">Henter bankkontoer...</option>
-        <option *ngFor="let acc of bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
+        <option [ngValue]="acc" *ngFor="let acc of bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
     </select>
 </label>
 

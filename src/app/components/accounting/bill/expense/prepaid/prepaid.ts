@@ -11,6 +11,7 @@ export class ExpensePrepaid implements OnInit {
 
     bankAccounts = [];
     busy = true;
+    selectedBankAccount: { AccountID: number, AccountName: string, AccountNumber: number };
 
     constructor() {
     }
@@ -34,8 +35,7 @@ export class ExpensePrepaid implements OnInit {
 
     clear() {
         if (this.bankAccounts && this.bankAccounts.length > 0) {
-            const first = this.bankAccounts[0];
-            this.onChange(first);
+            this.selectedBankAccount =  this.bankAccounts[0];
         }
     }
 
