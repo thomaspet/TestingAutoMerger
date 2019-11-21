@@ -17,6 +17,8 @@ export interface IAutoBankAgreementDetails {
     Phone: string;
     BankAccountID: number;
     BankAcceptance: boolean;
+    IsBankBalance: boolean;
+    IsBankStatement: boolean;
     IsInbound: boolean;
     IsOutgoing: boolean;
     Password: string;
@@ -137,6 +139,19 @@ export interface IAutoBankAgreementDetails {
                                 </i>
                                 <span>Utbetalinger</span>
                             </div>
+                            <div>
+                                <i class="material-icons" (click)="agreementDetails.IsBankBalance = !agreementDetails.IsBankBalance">
+                                    {{ agreementDetails.IsBankBalance ? 'check_box' : 'check_box_outline_blank' }}
+                                </i>
+                                <span style="display: flex; align-items: center;">
+                                    Banksaldo + avstemming
+                                    <i class="material-icons"
+                                        matTooltip="{{ infoTextForBalance }}"
+                                        style="margin-left: 1rem; font-size: 20px; color: #8c93a7">
+                                        info
+                                    </i>
+                                </span>
+                            </div>
                         </div>
                     </span>
                 </article>
@@ -246,21 +261,24 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     private accounts: any[] = [];
     private agreements: any[] = [];
-    public usedBanks: string[] = [];
-    public buttonLock: boolean = false;
-    public hasAgreements: boolean = false;
 
-    public steps: number = 0;
-    public useTwoFactor: boolean = false;
-    public noAccounts: boolean = false;
-    public companySettings;
-    public errorText: string;
-    public header = 'Veiviser for ny autobankavtale';
-    public twoFactorMsg: string = '2-faktor bekreftelse (autentisering) er et ekstra sikkerhetsnivå for betaling. ' +
+    usedBanks: string[] = [];
+    buttonLock: boolean = false;
+    hasAgreements: boolean = false;
+    steps: number = 0;
+    useTwoFactor: boolean = false;
+    noAccounts: boolean = false;
+    companySettings;
+    errorText: string;
+    infoTextForBalance: string = 'Ved aktivering av denne tjenesten vil dere motta transaksjoner fra deres bank ' +
+    'for automatisk avstemming og oppdatert banksaldo i systemet.';
+
+    header = 'Veiviser for ny autobankavtale';
+    twoFactorMsg: string = '2-faktor bekreftelse (autentisering) er et ekstra sikkerhetsnivå for betaling. ' +
     'Med 2-faktor bekreftelse logger du inn med noe du vet (ditt passord) i tillegg til noe du får en kode på SMS.';
-    public passwordCriteriaMsg = `Passordet må være minst 10 tegn og inneholde en stor bokstav, en liten bokstav, ett tall og ett tegn`;
+    passwordCriteriaMsg = `Passordet må være minst 10 tegn og inneholde en stor bokstav, en liten bokstav, ett tall og ett tegn`;
 
-    public agreementDetails: IAutoBankAgreementDetails = {
+    agreementDetails: IAutoBankAgreementDetails = {
         Phone: '',
         Email: '',
         Bank: '',
@@ -269,16 +287,17 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         BankAcceptance: true,
         IsInbound: true,
         IsOutgoing: true,
+        IsBankBalance: true,
+        IsBankStatement: true,
         Password: '',
         _confirmPassword: '',
         BankAccountNumber: 0
     };
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-
-    public haveReadAgreement = false;
+    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
+    formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    haveReadAgreement = false;
 
     constructor(
         private userService: UserService,
@@ -359,11 +378,6 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         };
         return [
             <any> {
-                Property: 'Orgnr',
-                FieldType: FieldType.TEXT,
-                Label: 'Orgnr.'
-            },
-            <any> {
                 Property: 'Bank',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
@@ -371,9 +385,9 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             },
             bankAccountField,
             <any> {
-                Property: 'Email',
+                Property: 'Phone',
                 FieldType: FieldType.TEXT,
-                Label: 'E-post',
+                Label: 'Telefon',
             }
         ];
     }
@@ -383,6 +397,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         if (direction < 0) {
             this.steps--;
             this.errorText = '';
+            this.buttonLock = false;
             return;
         }
 
@@ -438,6 +453,9 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     public sendStartDataToZData() {
         this.buttonLock = true;
+        this.agreementDetails.IsBankStatement = this.agreementDetails.IsBankBalance;
+        console.log(this.agreementDetails);
+        return;
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
             this.buttonLock = false;
             this.steps++;
@@ -481,6 +499,11 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             return false;
         }
 
+        if (!this.agreementDetails.Phone || !this.isValidPhoneNumber(this.agreementDetails.Phone)) {
+            this.errorText = 'Telefonnummer må være et gyldig norsk nummer';
+            return false;
+        }
+
         // trim whitespace from org.nr
         const validOrgNr = this.agreementDetails.Orgnr !== ''
             && !isNaN(parseInt(this.agreementDetails.Orgnr, 10))
@@ -507,6 +530,18 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         }
 
         return true;
+    }
+
+    private isValidPhoneNumber(phone) {
+        const test1 = /^\d{8}$/.test(phone);
+        const test2 = /^0047\d{8}$/.test(phone);
+        const test3 = /^\+47\d{8}$/.test(phone);
+
+        if (test1 || test2 || test3) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private isValidPassword(agreementDetails: IAutoBankAgreementDetails): boolean {
