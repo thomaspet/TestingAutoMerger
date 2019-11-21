@@ -73,6 +73,7 @@ export class UniImage {
     @Output() imageUnlinked: EventEmitter<FileExtended> = new EventEmitter();
     @Output() useWord = new EventEmitter();
     @Output() fileSplitCompleted = new EventEmitter();
+    @Output() imageLoaded = new EventEmitter();
 
     private baseUrl: string = environment.BASE_URL_FILES;
 

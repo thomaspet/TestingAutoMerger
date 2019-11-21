@@ -96,6 +96,7 @@
             <img
                 [attr.src]="imgUrl"
                 (error)="reauthenticate()"
+                (load)="imageLoaded.next()"
             />
 
             <span *ngIf="ocrWords?.length">

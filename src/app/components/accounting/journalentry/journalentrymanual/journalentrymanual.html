@@ -123,7 +123,8 @@
         [rotateAllowed]="true"
         [useEhfReader]="true"
         [fileIDs]="currentJournalEntryImages || []"
-        (fileListReady)="onFileListReady($event)">
+        (fileListReady)="onFileListReady($event)"
+        (imageLoaded)="onImageLoaded()">
     </uni-image>
 
     <button *ngIf="currentJournalEntryImages?.length <= 0"

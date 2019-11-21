@@ -686,7 +686,7 @@ export class UniTable implements OnChanges {
         this.cdr.markForCheck();
     }
 
-    private resetFocusedCell() {
+    resetFocusedCell() {
         setTimeout(() => {
             let doBlurInstead: boolean = false;
             if (this.lastFocusedCellColumn) {

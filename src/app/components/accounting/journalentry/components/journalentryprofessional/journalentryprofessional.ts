@@ -106,7 +106,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeries: NumberSeries;
     @Input() public orgNumber: string;
 
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(UniTable) table: UniTable;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
