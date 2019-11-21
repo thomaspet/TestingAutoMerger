@@ -47,12 +47,12 @@ export const environment = {
         'y3pV5vCj93V5FE0loqCUQKiZTgKSSS0Wz9qW',
 
     IMPORT_CENTRAL_TEMPLATE_URLS : {
-        CUSTOMER: 'https://ext01-public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
-        SUPPLIER: 'https://ext01-public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
-        PRODUCT: 'https://ext01-public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
-        MAIN_LEDGER: 'https://ext01-public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
-        PAYROLL: 'https://ext01-public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: '<<voucher-template-url>>'
+        CUSTOMER: 'https://public-files.regnskap.sr-bank.no/files/import/CustomerTemplateFinal.xlsx',
+        SUPPLIER: 'https://public-files.regnskap.sr-bank.no/files/import/SupplierTemplateFinal.xlsx',
+        PRODUCT: 'https://public-files.regnskap.sr-bank.no/files/import/ProductTemplateFinal.xlsx',
+        MAIN_LEDGER: 'https://public-files.regnskap.sr-bank.no/files/import/MainLedgerTemplate.xlsx',
+        PAYROLL: 'https://public-files.regnskap.sr-bank.no/files/import/PayrollTemplate.xlsx',
+        VOUCHER: 'https://public-files.regnskap.sr-bank.no/files/import/VoucherExcelTemplate.xlsx'
     },
 
     LICENSE_AGREEMENT_URL: 'https://public-files.regnskap.sr-bank.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
