@@ -2233,9 +2233,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData
     ): Promise<JournalEntryData> {
         const agioRow = new JournalEntryData();
-        const isCredit = (invoicePaymentData.AgioAmount < 0 && journalEntryData.DebitAccount && journalEntryData.DebitAccount.UsePostPost)
-            || (invoicePaymentData.AgioAmount > 0 && journalEntryData.CreditAccount && journalEntryData.CreditAccount.UsePostPost);
-
         agioRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
         agioRow.CustomerInvoice = journalEntryData.CustomerInvoice;
         agioRow.SameOrNew = journalEntryData.SameOrNew;
@@ -2257,7 +2254,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.accountService.Get(invoicePaymentData.AgioAccountID)
                 .subscribe(
                     agioAccount => {
-                        if (isCredit) {
+                        if (invoicePaymentData.AgioAmount < 0) {
                             agioRow.CreditAccountID = agioAccount.ID;
                             agioRow.CreditAccount = agioAccount;
                         } else {
