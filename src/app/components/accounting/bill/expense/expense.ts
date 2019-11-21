@@ -30,6 +30,7 @@ import {DoneRedirectModal} from './done-redirect-modal/done-redirect-modal';
 import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import {CompanySettings} from '@app/unientities';
 import * as moment from 'moment';
+import { safeDec } from '@app/components/common/utils/utils';
 
 @Component({
     selector: 'expense',
@@ -344,10 +345,7 @@ export class Expense implements OnInit {
                     this.session.payment.PaymentDate = autocompleteDate(value);
                     break;
                 case 2: // Beløp
-                    const sum = value.replace(',', '.');
-                    if (!isNaN(parseFloat(sum))) {
-                        this.session.items[0].Amount = sum;
-                    }
+                    this.session.items[0].Amount = safeDec(value);
                     break;
                 case 3: // Description
                     this.session.items[0].Description = value;
