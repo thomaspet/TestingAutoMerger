@@ -70,14 +70,48 @@ export class InviteUsersModal implements IUniModal {
         }
     }
 
-    onProductPurchaseChange(group) {
+    onProductPurchaseChange(group: RoleGroup) {
         if (group.productPurchased) {
-            group.roles[0]['_checked'] = true;
+            this.checkDefaultRoles(group);
         } else {
             group.roles.forEach(role => role['_checked'] = false);
         }
 
         this.setActiveRoleCount(group);
+    }
+
+    private checkDefaultRoles(group: RoleGroup) {
+        // Check if product has DefaultRoles defined first
+        if (group.product.DefaultRoles) {
+            const defaultRoles = group.product.DefaultRoles.toLowerCase();
+            let didCheckRole = false;
+
+            group.roles.forEach(role => {
+                if (role.Name && defaultRoles.includes(role.Name.toLowerCase())) {
+                    role['_checked'] = true;
+                    didCheckRole = true;
+                }
+            });
+
+            if (didCheckRole) {
+                return;
+            }
+        }
+
+        // If not, check if product has ListOfRoles and check the first one
+        if (group.product.ListOfRoles) {
+            const firstRoleName = group.product.ListOfRoles.split(',')[0];
+            const roleIndex = group.roles.findIndex(r => (r.Name || '').toLowerCase() === firstRoleName);
+            if (roleIndex >= 0) {
+                group.roles[roleIndex]['_checked'] = true;
+                return;
+            }
+        }
+
+        // If not, just select the first role in the role array
+        if (group.roles[0]) {
+            group.roles[0]['_checked'] = true;
+        }
     }
 
     onRoleClick(group, role) {

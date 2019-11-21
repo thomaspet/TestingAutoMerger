@@ -34,9 +34,19 @@ export class UserRoleService extends BizHttp<UserRole> {
                 .map(res => res.body);
         }
 
-        const deleteRequest = removeRoles && removeRoles.length
-            ? forkJoin(...removeRoles.map(userRole => super.Remove(userRole.ID)))
-            : observableOf(true);
+        let deleteRequest: Observable<any> = observableOf(true);
+        if (removeRoles && removeRoles.length) {
+            const requests = removeRoles.map(userRole => {
+                return super.Remove(userRole.ID).pipe(
+                    catchError(err => {
+                        console.error(err);
+                        return observableOf(false);
+                    })
+                );
+            });
+
+            deleteRequest = forkJoin(requests);
+        }
 
         // Run add-request first, in case one of the deletes fail and cancel the forkJoin.
         // Ideally we'd update everything in one request, but the api currently

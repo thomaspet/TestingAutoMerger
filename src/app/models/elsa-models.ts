@@ -87,6 +87,7 @@ export interface ElsaProduct {
     IsPerUser: boolean;
     Label: string;
     ListOfRoles: string;
+    DefaultRoles?: string;
     Name: string;
     ParentProducts?: string[];
     Price: number;
