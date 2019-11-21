@@ -6,6 +6,7 @@ import 'rxjs/add/operator/concatMap';
 import {UniHttp} from './http';
 import {RequestMethod} from './request-method';
 import {map} from 'rxjs/operators';
+import {cloneDeep} from 'lodash';
 
 interface IHttpCacheStore<T> {
     [hash: number]: IHttpCacheEntry<T>;
@@ -81,7 +82,7 @@ export class BizHttp<T> {
         if (entry) {
             // Verify that the entry is not timed out
             if (!entry.timeout || (performance.now() < entry.timeout)) {
-                return entry.data;
+                return entry.data.pipe(map(res => cloneDeep(res)));
             } else {
                 delete this.cacheStore[hash];
             }

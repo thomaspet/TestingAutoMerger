@@ -167,16 +167,18 @@ export class UniRoleModal implements IUniModal {
                     }
                 });
             // If purchase is removed, remove all userroles
-            } else if (hasActiveRole) {
+            } else {
                 group.roles.forEach(role => {
-                    const existsInDifferentProduct = this.roleGroups.some(g => {
-                        return g.product
-                            && g.product.ID !== group.product.ID
-                            && g.roles.some(r => r.ID === role.ID && r['_checked']);
-                    });
+                    if (role['_userRole']) {
+                        const existsInDifferentProduct = this.roleGroups.some(roleGroup => {
+                            return roleGroup.product
+                                && roleGroup.product.ID !== group.product.ID
+                                && roleGroup.roles.some(r => r.ID === role.ID && r['_checked']);
+                        });
 
-                    if (role['_userRole'] && !existsInDifferentProduct) {
-                        removeRoles.push(role['_userRole']);
+                        if (!existsInDifferentProduct) {
+                            removeRoles.push(role['_userRole']);
+                        }
                     }
                 });
             }

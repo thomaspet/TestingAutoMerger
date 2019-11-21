@@ -3,6 +3,7 @@ import {HttpResponse} from '@angular/common/http';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaPurchase} from '@app/models';
+import {cloneDeep} from 'lodash';
 
 @Injectable()
 export class ElsaPurchaseService {
@@ -51,7 +52,7 @@ export class ElsaPurchaseService {
             this.cache[cacheKey] = cachedRequest;
         }
 
-        return cachedRequest.map(res => res.body);
+        return cachedRequest.map(res => cloneDeep(res.body));
     }
 
     massUpdate(updates: ElsaPurchase[], companyKeyOverride?: string) {

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {forkJoin} from 'rxjs';
+import {forkJoin, Subscription} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
 import * as moment from 'moment';
 
@@ -45,6 +45,7 @@ export class UserDetails {
     @Output() reloadUsers: EventEmitter<any> = new EventEmitter();
     @Output() resendInvite: EventEmitter<User> = new EventEmitter<User>();
 
+    busy: boolean;
     scrollbar: PerfectScrollbar;
     roles: Role[];
     userRoles: UserRole[];
@@ -57,6 +58,8 @@ export class UserDetails {
 
     companyHasAutobank: boolean;
     userActions: {label: string, action: () => void}[];
+
+    loadSubscription: Subscription;
 
     constructor(
         private authService: AuthService,
@@ -72,17 +75,21 @@ export class UserDetails {
         this.scrollbar = new PerfectScrollbar('#role-info');
     }
 
+    ngOnDestroy() {
+        if (this.loadSubscription) {
+            this.loadSubscription.unsubscribe();
+        }
+    }
+
     ngOnChanges() {
         if (this.user && this.users) {
             this.userStatusInvited = this.user.StatusCode === UserStatus.Invited;
-            this.loadRoles();
 
-            this.elsaPurchaseService.getPurchaseByProductName('Autobank')
-                .finally(() => this.initUserActions())
-                .subscribe(
-                    res => this.companyHasAutobank = !!res,
-                    err => console.error(err)
-                );
+            if (this.loadSubscription) {
+                this.loadSubscription.unsubscribe();
+            }
+
+            this.loadSubscription = this.loadData();
         }
     }
 
@@ -91,7 +98,7 @@ export class UserDetails {
             data: { user: this.user }
         }).onClose.subscribe(rolesChanged => {
             if (rolesChanged) {
-                this.loadRoles();
+                this.loadData();
             }
         });
     }
@@ -144,22 +151,30 @@ export class UserDetails {
         this.userActions = actions;
     }
 
-    private loadRoles() {
-        forkJoin(
+    private loadData() {
+        this.busy = true;
+        return forkJoin(
             this.roleService.GetAll(),
             this.userRoleService.getRolesByUserID(this.user.ID),
             this.productService.GetAll(),
-            this.purchaseService.getAll()
+            this.purchaseService.getAll(),
+            this.elsaPurchaseService.getPurchaseByProductName('Autobank')
         ).subscribe(
             res => {
                 this.roles = res[0] || [];
                 this.userRoles = this.setAssignmentMetadata(res[1] || []);
                 this.products = res[2];
                 this.purchases = res[3];
+                this.companyHasAutobank = !!res[4];
 
                 this.userRoleGroups = this.getGroupedUserRoles(this.userRoles);
+                this.initUserActions();
+                this.busy = false;
             },
-            err => console.error(err)
+            err => {
+                console.error(err);
+                this.busy = false;
+            }
         );
     }
 
