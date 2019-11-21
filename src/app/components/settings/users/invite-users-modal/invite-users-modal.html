@@ -57,7 +57,7 @@
                                 [disabled]="group.product && !group.productPurchased"
                                 [selected]="role._checked"
                                 (click)="onRoleClick(group, role)">
-                                {{role.Label}}
+                                {{role.Name | translateRole}}
                             </mat-list-option>
                         </mat-selection-list>
                     </section>
