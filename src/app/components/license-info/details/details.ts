@@ -5,6 +5,7 @@ import {UniModalService} from '@uni-framework/uni-modal';
 import {AddAdminModal} from '../add-admin-modal/add-admin-modal';
 import {ElsaCompanyLicense} from '@app/models';
 import {cloneDeep} from 'lodash';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'license-details',
@@ -16,6 +17,7 @@ export class LicenseDetails {
     customer;
     filteredManagers: any[];
     filterValue: string;
+    lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
 
     isAdmin: boolean;
 
