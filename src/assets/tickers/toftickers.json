@@ -208,6 +208,12 @@
             "Format": "SharingStatus",
             "width": "40px",
             "FilterSelectConfigKey": "SharingStatusCode"
+        },
+        {
+            "Header": "Fakturaliste",
+            "Field": "ExternalReference",
+            "DefaultHidden": true,
+            "Width": "125px"
         }
     ],
     "ParentFilter": {

@@ -468,6 +468,7 @@ export class CustomerInvoice extends UniEntity {
     public DistributionPlanID: number;
     public DontSendReminders: boolean;
     public EmailAddress: string;
+    public ExternalReference: string;
     public FreeTxt: string;
     public ID: number;
     public InternalNote: string;
