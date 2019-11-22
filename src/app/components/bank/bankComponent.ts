@@ -1069,7 +1069,12 @@ export class BankComponent {
             list: this.agreements,
             listkey: 'AGREEMENT'
         };
-        this.modalService.open(UniBankListModal, options);
+        this.modalService.open(UniBankListModal, options).onClose.subscribe(() => {
+            this.paymentBatchService.checkAutoBankAgreement().subscribe(result => {
+                this.agreements = result;
+                this.toolbarconfig.contextmenu = this.getContextMenu();
+            });
+        });
     }
 
     public openAutobankAgreementModal() {

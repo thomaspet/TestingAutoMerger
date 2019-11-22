@@ -55,7 +55,7 @@ export class UniBankListModal implements IUniModal, OnInit {
                 break;
         }
         this.bankAgreements = this.options.list;
-        this.onBankSelected(this.bankAgreements[0]);
+        this.currentAgreement = {...this.bankAgreements[0]};
     }
 
     public onBankSelected(event: BankIntegrationAgreement) {
@@ -115,7 +115,7 @@ export class UniBankListModal implements IUniModal, OnInit {
     }
 
     private getTableConfig() {
-        const bankNameCol = new UniTableColumn('BankAccount.Bank.Name', 'Bank', UniTableColumnType.Text);
+        const bankNameCol = new UniTableColumn('Name', 'Bank', UniTableColumnType.Text);
 
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setWidth(150, false)
