@@ -16,28 +16,30 @@
                     </section>
 
                     <section style="flex: 1" class="bank-list-details">
+                        <!--
                         <label>
                             <span>E-post</span>
                             <input type="email" [(ngModel)]="currentAgreement.Email" (ngModelChange)="isDirty = true">
                         </label>
-                        <!--
-                        <label>
-                            <span>Bankavstemming og saldo</span>
-                            <mat-checkbox></mat-checkbox>
-                        </label>
                         -->
-                        <label>
+                        <label for="Inbound">
                             <span>Innbetaling</span>
-                            <mat-checkbox [(ngModel)]="currentAgreement.IsInbound" (ngModelChange)="isDirty = true"></mat-checkbox>
+                            <mat-checkbox [(ngModel)]="currentAgreement.IsInbound" (ngModelChange)="isDirty = true" name="Inbound"></mat-checkbox>
                         </label>
-                        <label>
+                        <label for="Outgoing">
                             <span>Utbetaling</span>
-                            <mat-checkbox [(ngModel)]="currentAgreement.IsOutgoing" (ngModelChange)="isDirty = true"></mat-checkbox>
+                            <mat-checkbox [(ngModel)]="currentAgreement.IsOutgoing" (ngModelChange)="isDirty = true" name="Outgoing"></mat-checkbox>
                         </label>
+                        <label for="BankBalance">
+                            <span>Bankavstemming og saldo</span>
+                            <mat-checkbox [(ngModel)]="currentAgreement.IsBankBalance" (ngModelChange)="isDirty = true" name="BankBalance"></mat-checkbox>
+                        </label>
+                        <!--
                         <label>
                             <span>Manuell godkjenning</span>
                             {{ currentAgreement.BankAcceptance ? "Ja" : " Nei"}}
                         </label>
+                        -->
                         <label>
                             <span>Service Id</span>
                             {{ currentAgreement.ServiceID }}
@@ -49,10 +51,13 @@
                         </label>
                     </section>
                 </section>
+                <section *ngIf="displayInfo" class="bank-autobank-update-info">
+                    <p><i class="material-icons" style="color: #1565c0">info</i> Av sikkerhetsmessige årsaker, må du selv godkjenne at UniEconomy får tilgang til filer fra din bank. Vi sender deg nå en epost om hvordan du går videre for å få dette i gang.</p>
+                </section>
             </article>
 
             <footer class="center">
-                <button class="c2a rounded" [disabled]="!password?.length" (click)="validatePassword()">Lagre</button>
+                <button class="c2a rounded" [disabled]="!password?.length" (click)="updateAutobankAgreement()">Lagre</button>
                 <button (click)="close()"> Lukk </button>
             </footer>
         </section>

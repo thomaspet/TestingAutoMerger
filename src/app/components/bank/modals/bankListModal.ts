@@ -35,6 +35,8 @@ export class UniBankListModal implements IUniModal, OnInit {
     isDirty: boolean;
     password: string;
     errorMessage: string;
+    initBankStatementValue: boolean;
+    displayInfo: boolean;
 
     constructor(
         private modalService: UniModalService,
@@ -53,7 +55,7 @@ export class UniBankListModal implements IUniModal, OnInit {
                 break;
         }
         this.bankAgreements = this.options.list;
-        this.currentAgreement = {...this.bankAgreements[0]};
+        this.onBankSelected(this.bankAgreements[0]);
     }
 
     public onBankSelected(event: BankIntegrationAgreement) {
@@ -61,19 +63,28 @@ export class UniBankListModal implements IUniModal, OnInit {
         this.errorMessage = '';
         this.isDirty = false;
         this.currentAgreement = {...event};
+        this.initBankStatementValue = this.currentAgreement.IsBankBalance;
+        this.displayInfo = false;
     }
 
-    public validatePassword() {
+    public updateAutobankAgreement() {
         this.errorMessage = '';
-        this.bankService.validateAutobankPassword(this.password).subscribe(isCorrectPassword => {
-            if (!isCorrectPassword) {
-                this.errorMessage = 'Feil passord';
-                this.password = '';
-                return;
-            } else {
-            }
-            return;
-        });
+        const payload =  {
+            IsInbound: this.currentAgreement.IsInbound,
+            IsOutgoing: this.currentAgreement.IsOutgoing,
+            IsBankStatement : this.currentAgreement.IsBankBalance,
+            IsBankBalance : this.currentAgreement.IsBankBalance,
+            Password : this.password,
+        };
+
+        this.bankService.updateAutobankAgreement(this.currentAgreement.ID, payload).subscribe(
+            response => {
+                this.toastService.addToast('Godkjent', ToastType.good, ToastTime.medium,
+                'Autobankavtalen er oppdatert');
+                if (this.initBankStatementValue !== this.currentAgreement.IsBankBalance && this.currentAgreement.IsBankBalance) {
+                    this.displayInfo = true;
+                }
+            });
     }
 
     public getStatusText(code: number) {
@@ -181,7 +192,7 @@ export class UniBankListModal implements IUniModal, OnInit {
             if (!password) {
                 return;
             } else {
-                this.bankService.updateAutobankAgreement(agreement.ID, password)
+                this.bankService.updateAutobankAgreementStatus(agreement.ID, password)
                     .finally(() => {
                         this.onClose.emit();
                     })

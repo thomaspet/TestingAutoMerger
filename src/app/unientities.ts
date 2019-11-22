@@ -5881,6 +5881,7 @@ export class BankIntegrationAgreement extends UniEntity {
     public ID: number;
     public IsInbound: boolean;
     public IsOutgoing: boolean;
+    public IsBankBalance: boolean;
     public Name: string;
     public Password: string;
     public PropertiesJson: string;
