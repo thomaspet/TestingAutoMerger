@@ -59,10 +59,10 @@ export class UniBankListModal implements IUniModal, OnInit {
     }
 
     public onBankSelected(event: BankIntegrationAgreement) {
+        this.currentAgreement = {...event};
         this.password = '';
         this.errorMessage = '';
         this.isDirty = false;
-        this.currentAgreement = {...event};
         this.initBankStatementValue = this.currentAgreement.IsBankBalance;
         this.displayInfo = false;
     }
@@ -76,14 +76,23 @@ export class UniBankListModal implements IUniModal, OnInit {
             IsBankBalance : this.currentAgreement.IsBankBalance,
             Password : this.password,
         };
+        this.password = '';
 
         this.bankService.updateAutobankAgreement(this.currentAgreement.ID, payload).subscribe(
-            response => {
+            (response: BankIntegrationAgreement) => {
                 this.toastService.addToast('Godkjent', ToastType.good, ToastTime.medium,
                 'Autobankavtalen er oppdatert');
+
                 if (this.initBankStatementValue !== this.currentAgreement.IsBankBalance && this.currentAgreement.IsBankBalance) {
                     this.displayInfo = true;
                 }
+
+                this.bankAgreements = this.bankAgreements.map(x => {
+                    if (x.ID === response.ID) {
+                        return response;
+                    }
+                    return x;
+                });
             });
     }
 
