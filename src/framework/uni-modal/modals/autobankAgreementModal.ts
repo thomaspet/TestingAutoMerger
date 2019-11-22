@@ -454,8 +454,6 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public sendStartDataToZData() {
         this.buttonLock = true;
         this.agreementDetails.IsBankStatement = this.agreementDetails.IsBankBalance;
-        console.log(this.agreementDetails);
-        return;
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
             this.buttonLock = false;
             this.steps++;
