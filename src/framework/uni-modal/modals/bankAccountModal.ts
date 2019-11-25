@@ -28,7 +28,6 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
                 <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
-                <label class="error message">{{bankAccountsConnectedToAccount}}</label>
             </article>
             <footer>
                 <button
@@ -198,16 +197,25 @@ export class UniBankAccountModal implements IUniModal {
 
     public GetBankAccountsConnectedToAccount(accountID: number) {
 
-        let accountMsg: string = '';
+        const accounts = [];
         this.bankAccountService.getConnectedBankAccounts(accountID, this.accountInfo.ID)
         .subscribe((res) => {
             res.forEach(ba => {
-                accountMsg = accountMsg + ba.AccountNumber + ',';
+                accounts.push(ba.AccountNumber);
             });
-            if (accountMsg !== '') {
-                this.bankAccountsConnectedToAccount = 'Valgt hovedboksonto er tilknyttet bankkonto ' + accountMsg;
+            if (accounts.length !== 0) {
+                this.bankAccountsConnectedToAccount = 'Hovedbok er allerede knyttet til konto ' + accounts.join(', ')
+                + '. Vi anbefaler ikke å knytte flere konti til samme hovedbokskonto.';
             } else {
-                this.bankAccountsConnectedToAccount =  accountMsg;
+                this.bankAccountsConnectedToAccount =  '';
+            }
+            if (this.bankAccountsConnectedToAccount !== '') {
+                this.modalService.open(UniConfirmModalV2, {
+                    message: this.bankAccountsConnectedToAccount,
+                    buttonLabels: {
+                        accept: 'Ok'
+                    }
+                });
             }
         });
     }
@@ -248,6 +256,7 @@ export class UniBankAccountModal implements IUniModal {
             if (!this.isAccountNumberDuplicate(changes['AccountNumber'].currentValue)) {
                 this.checkIsAccountNumberAlreadyRegistered(account, changes['AccountNumber'].currentValue);
             }
+            this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         }
         if (changes['_manualAccountNumber']) {
             const account = this.formModel$.getValue();
@@ -272,6 +281,7 @@ export class UniBankAccountModal implements IUniModal {
                     this.checkIsAccountNumberAlreadyRegistered(account, changes['_ibanAccountSearch'].currentValue);
                 }
             }
+            this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         }
         if (changes['AccountID'] && changes['AccountID'].currentValue === null) {
             const account = this.formModel$.getValue();
@@ -281,6 +291,7 @@ export class UniBankAccountModal implements IUniModal {
 
         }
         if (changes['AccountID'] && changes['AccountID'].currentValue !== null) {
+            const account = this.formModel$.getValue();
             this.GetBankAccountsConnectedToAccount(changes['AccountID'].currentValue);
         }
     }
