@@ -110,8 +110,9 @@ export class CompanyList {
     createCompany() {
         this.modalService.open(UniNewCompanyModal, {
             data: { contractID: this.contractID }
-        }).onClose.subscribe(result => {
-            if (result && result.ID) {
+        }).onClose.subscribe(company => {
+            if (company && company.ID) {
+                this.authService.setActiveCompany(company);
                 this.modalService.open(WizardSettingsModal).onClose.subscribe(() => {
                     this.loadData();
                 });
