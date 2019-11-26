@@ -63,8 +63,8 @@ export class ActivateAutobankModal implements IUniModal {
             this.errorMessages.push('Passord må inneholde minst ett tall');
             return;
         }
-        if (!/[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst ett tegn');
+        if (!/[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\:\,\.\?\!\`\(\)\;]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst ett tegn: ! @ # $ % ^ & * _ - = + . : ? , ( ) [ ] { }');
             return;
         }
 
