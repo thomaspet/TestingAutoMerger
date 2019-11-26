@@ -76,7 +76,8 @@
             <uni-attachments *ngIf="data?.ID"
                 id="attachments"
                 [entity]="entityName"
-                [entityID]="data?.ID">
+                [entityID]="data?.ID"
+                [canSendEHF]="canSendEHF">
             </uni-attachments>
         </section>
 

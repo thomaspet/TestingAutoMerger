@@ -145,6 +145,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private currentCustomer: Customer;
     currentUser: User;
     selectConfig: any;
+    canSendEHF: boolean = false;
 
     sellers: Seller[];
     private currentInvoiceDate: LocalDate;
@@ -155,6 +156,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     accountsWithMandatoryDimensionsIsUsed = true;
 
     isDistributable = false;
+    validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -318,6 +320,13 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }
                     this.companySettings = res[3];
+
+                    this.canSendEHF = this.companySettings.APActivated
+                        && this.companySettings.APOutgoing
+                        && this.companySettings.APOutgoing.some(format => {
+                        return format.Name === 'EHF INVOICE 2.0';
+                    });
+
                     this.currencyCodes = res[4];
                     if (res[5]) {
                         invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
@@ -379,7 +388,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 Observable.forkJoin(
                     this.getInvoice(this.invoiceID),
-                    this.companySettingsService.Get(1),
+                    this.companySettingsService.Get(1, ['APOutgoing']),
                     this.currencyCodeService.GetAll(null),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
@@ -409,6 +418,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         invoice.CurrencyExchangeRate = 1;
                     }
 
+                    this.canSendEHF = this.companySettings.APActivated
+                        && this.companySettings.APOutgoing
+                        && this.companySettings.APOutgoing.some(format => {
+                        return format.Name === 'EHF INVOICE 2.0';
+                    });
+
                     this.currencyCodeID = invoice.CurrencyCodeID;
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
@@ -435,9 +450,29 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.refreshInvoice(invoice);
                     }
                     this.tofHead.focus();
-                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
+                    if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID
+                        && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
+
+                    // If the user has activated EHF, and entering an invoice in draft state,
+                    // check if the invoice has files with unsupported formats
+                    if (this.canSendEHF && invoice.StatusCode === 42001) {
+                        this.customerInvoiceService.getFileList(invoice.ID).subscribe((files) => {
+                            let hasMisMatch = false;
+                            files.forEach(file => {
+                                hasMisMatch = !this.validEHFFileTypes.some(type => file.Name.includes(type));
+                            });
+
+                            if (hasMisMatch) {
+                                this.toastService.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
+                                'Denne fakturakladd har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
+                                'lagt til som vedlegg om du velger utsendelse via EHF. ' +
+                                'Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
+                            }
+                        });
+                    }
+
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
