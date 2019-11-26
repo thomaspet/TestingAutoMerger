@@ -41,7 +41,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     voucherOptions: VoucherOptions = VoucherOptions.Draft;
     draft: VoucherOptions = VoucherOptions.Draft;
     post: VoucherOptions = VoucherOptions.Post;
-    isVatEnabled: boolean = false;
+    isVatEnabled: boolean = true;
     draftDescription: string = '';
     config: ISelectConfig;
     operators: any[] = [];
@@ -176,7 +176,8 @@ export class ImportVoucherModal implements OnInit, IUniModal {
                             ? true
                             : false,
                         draftDescription: this.draftDescription,
-                        importWithVAT: this.isVatEnabled
+                        importWithVAT: this.isVatEnabled,
+                        user: this.user.UserName
                     }
                 };
                 dataToImport = importModel;
