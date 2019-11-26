@@ -167,14 +167,14 @@ export const COUNTERS = [
     },
     {
         id: 'reconciliation_list',
-        description: 'Bankavstemning',
+        description: 'Bankavstemming',
         permissions: ['ui_bank_reconciliation'],
         width: 3,
         height: 1,
         widgetType: 'sum',
         config: {
             dataEndpoint: `/api/statistics?model=BankStatementEntry&select=sum(casewhen(isnull(StatusCode, 0) ne 48002,1,0)) as sum`,
-            title: 'Bankavstemning',
+            title: 'Bankavstemming',
             positive: true,
             link: '/bank/reconciliation',
             icon: 'compare_arrows',

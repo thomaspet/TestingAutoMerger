@@ -360,7 +360,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     moduleID: UniModules.Payment
                 },
                 {
-                    name: 'Bankavstemning',
+                    name: 'Bankavstemming',
                     url: '/bank/reconciliation',
                     moduleID: UniModules.Payment
                 },
