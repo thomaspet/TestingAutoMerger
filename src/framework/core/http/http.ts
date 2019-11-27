@@ -6,7 +6,6 @@ import 'rxjs/add/operator/catch';
 import {environment} from 'src/environments/environment';
 import {RequestMethod} from './request-method';
 import {AuthService} from '../../../app/authService';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export interface IUniHttpRequest {
     baseUrl?: string;
@@ -33,12 +32,7 @@ export class UniHttp {
     private body: any;
     private endPoint: string;
 
-    // AuthService is used by BizHttp for caching, don't remove!
-    constructor(
-        public http: HttpClient,
-        public authService: AuthService,
-        private browserStorage: BrowserStorageService,
-    ) {
+    constructor(public http: HttpClient, public authService: AuthService) {
         this.headers = new HttpHeaders();
     }
 
@@ -181,11 +175,6 @@ export class UniHttp {
     }
 
     public sendToUrl(url: any): Observable<any> {
-
-        // if (this.authService.jwt) {
-        //     this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
-        // }
-
         const options: any = {
             observe: 'body',
             headers: this.headers
@@ -225,25 +214,6 @@ export class UniHttp {
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
-        // const token = this.authService.jwt;
-        // const companyKey = this.authService.getCompanyKey();
-        // let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
-        // year = year || this.browserStorage.getItem('ActiveYear');
-
-        // if (token) {
-        //     this.headers = this.headers.set('Authorization', 'Bearer ' + token);
-        // }
-
-        // if (companyKey && useCompanyKeyHeader) {
-        //     this.headers = this.headers.set('CompanyKey', companyKey);
-        // }
-
-        // if (year && year.Year) {
-        //     this.headers = this.headers.set('Year', year.Year);
-        // }
-
-        // this.headers = this.headers.set('Accept', 'application/json');
-
         let baseurl = request.baseUrl || this.baseUrl ;
         baseurl = baseurl !== '' ? baseurl + '/' : baseurl;
         const apidomain = request.apiDomain || this.apiDomain;
