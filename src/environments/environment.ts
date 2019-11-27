@@ -7,13 +7,14 @@ export const environment = {
     useProdMode: false,
     isSrEnvironment: false,
 
-    // Identity Server Settings
     authority: 'https://dev-login.unieconomy.no',
     client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
     post_logout_redirect_uri: '/#/login',
 
     BASE_URL_INIT: '',
     BASE_URL: '',
+
+    // If you add base urls here please also update the api check in header-interceptor.ts!
     BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
@@ -33,10 +34,6 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
-    },
-
-    DEFAULT_HEADERS: {
-        'Content-Type': 'application/json'
     },
 
     RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',

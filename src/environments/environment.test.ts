@@ -30,10 +30,6 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
-    DEFAULT_HEADERS: {
-        'Content-Type': 'application/json'
-    },
-
     RAYGUN_API_KEY: 'o/sDy5tQZkTH2vkbPj+SZA==',
     APP_INSIGHTS_KEY: '',
 

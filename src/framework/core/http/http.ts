@@ -39,9 +39,7 @@ export class UniHttp {
         public authService: AuthService,
         private browserStorage: BrowserStorageService,
     ) {
-        const headers = environment.DEFAULT_HEADERS;
         this.headers = new HttpHeaders();
-        this.appendHeaders(headers);
     }
 
     public appendHeaders(headers: any) {
@@ -54,10 +52,6 @@ export class UniHttp {
         return this;
     }
 
-    public getBaseUrl() {
-        return this.baseUrl;
-    }
-
     public withNewHeaders() {
         this.headers = new HttpHeaders();
         return this;
@@ -65,7 +59,6 @@ export class UniHttp {
 
     public withDefaultHeaders() {
         this.headers = new HttpHeaders();
-        this.appendHeaders(environment.DEFAULT_HEADERS);
         return this;
     }
 
@@ -189,9 +182,9 @@ export class UniHttp {
 
     public sendToUrl(url: any): Observable<any> {
 
-        if (this.authService.jwt) {
-            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
-        }
+        // if (this.authService.jwt) {
+        //     this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
+        // }
 
         const options: any = {
             observe: 'body',
@@ -232,24 +225,24 @@ export class UniHttp {
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
-        const token = this.authService.jwt;
-        const companyKey = this.authService.getCompanyKey();
-        let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
-        year = year || this.browserStorage.getItem('ActiveYear');
+        // const token = this.authService.jwt;
+        // const companyKey = this.authService.getCompanyKey();
+        // let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
+        // year = year || this.browserStorage.getItem('ActiveYear');
 
-        if (token) {
-            this.headers = this.headers.set('Authorization', 'Bearer ' + token);
-        }
+        // if (token) {
+        //     this.headers = this.headers.set('Authorization', 'Bearer ' + token);
+        // }
 
-        if (companyKey && useCompanyKeyHeader) {
-            this.headers = this.headers.set('CompanyKey', companyKey);
-        }
+        // if (companyKey && useCompanyKeyHeader) {
+        //     this.headers = this.headers.set('CompanyKey', companyKey);
+        // }
 
-        if (year && year.Year) {
-            this.headers = this.headers.set('Year', year.Year);
-        }
+        // if (year && year.Year) {
+        //     this.headers = this.headers.set('Year', year.Year);
+        // }
 
-        this.headers = this.headers.set('Accept', 'application/json');
+        // this.headers = this.headers.set('Accept', 'application/json');
 
         let baseurl = request.baseUrl || this.baseUrl ;
         baseurl = baseurl !== '' ? baseurl + '/' : baseurl;
