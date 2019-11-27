@@ -45,8 +45,7 @@ export class BoostChat {
         this.chatPanel.show();
     }
 
-    public openChatWithTriggerAction(actionID: number) {
-        this.chatPanel.show();
-        this.chatPanel.triggerAction(actionID);
+    public openChatWithSupportCase() {
+        this.chatPanel.sendMessage('Opprett supportsak');
     }
 }
