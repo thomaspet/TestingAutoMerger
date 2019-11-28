@@ -215,6 +215,11 @@ export class UniBankAccountModal implements IUniModal {
                     buttonLabels: {
                         accept: 'Ok'
                     }
+                }).onClose.subscribe(() => {
+                    const model = this.formModel$.getValue();
+                    model.AccountID = null;
+                    model.Account = null;
+                    this.formModel$.next(Object.assign({}, model));
                 });
             }
         });

@@ -87,6 +87,10 @@ export class UniFormAutocomplete extends BaseControl {
             this.readOnly$.next(this.field && this.field.ReadOnly);
         }
         if (changes['model']) {
+            const modelValue = _.get(changes['model'].currentValue, this.field.Property);
+            if (!modelValue) {
+                this.currentValue = modelValue;
+            }
             this.currentValue = this.currentValue || null;
             this.options = this.field.Options || {};
             this.source = this.options.source || [];
