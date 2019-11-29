@@ -24,6 +24,7 @@ export class HeaderInterceptor implements HttpInterceptor {
         const url = request.url;
         const isUniApi = url.startsWith('/api')
             || url.startsWith('api/')
+            || url.startsWith('http://localhost')
             || url.startsWith(environment.BASE_URL_INTEGRATION)
             || url.startsWith(environment.BASE_URL_FILES)
             || url.startsWith(environment.UNI_PUSH_ADAPTER_URL)
