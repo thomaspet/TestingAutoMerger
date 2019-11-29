@@ -10,8 +10,7 @@ import {FormControl} from '@angular/forms';
 import {UniTranslationService} from '@app/services/services';
 import {NavbarLinkService, } from '../navbar-link-service';
 import {INavbarLinkSection, INavbarLink } from '../navbar-links-common';
-import {theme} from 'src/themes/theme';
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'uni-mega-menu',
@@ -30,7 +29,6 @@ export class UniMegaMenu {
     filteredLinkSections: INavbarLinkSection[][];
     searchControl: FormControl = new FormControl('');
     searchString: string = '';
-    logoUrl = theme.login_logo;
     isDirty: boolean = false;
 
     constructor (
@@ -45,8 +43,8 @@ export class UniMegaMenu {
     }
 
     initValues() {
-        this.linkSections = _.cloneDeep(this.defaultLinkSection.filter(section => !section.hidden && !section.isOnlyLinkSection));
-        this.defaultSetup = _.cloneDeep(this.linkSections);
+        this.linkSections = cloneDeep(this.defaultLinkSection.filter(section => !section.hidden && !section.isOnlyLinkSection));
+        this.defaultSetup = cloneDeep(this.linkSections);
         this.sortAfterMegaMenuIndex();
         this.cdr.markForCheck();
     }

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {theme} from 'src/themes/theme';
 import {Router, NavigationEnd} from '@angular/router';
-import {Subscription, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {takeUntil} from 'rxjs/operators';
 
@@ -10,8 +10,6 @@ import {takeUntil} from 'rxjs/operators';
     templateUrl: './init.html',
 })
 export class UniInit {
-    logoUrl = theme.login_logo;
-
     isAuthenticated: boolean;
     useBackground1 = true;
     showTryForFree: boolean = true;
@@ -31,7 +29,7 @@ export class UniInit {
             }
         });
 
-        this.authService.token$.subscribe(token => this.isAuthenticated = !!token);
+        this.authService.token$.pipe(takeUntil(this.onDestroy$)).subscribe(token => this.isAuthenticated = !!token);
     }
 
     ngOnDestroy() {

@@ -192,6 +192,14 @@
                   "with": "src/themes/favicon.ext01.ico"
                 },
                 {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext01/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext01/logo.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
@@ -223,6 +231,14 @@
                 {
                   "replace": "src/themes/favicon.ico",
                   "with": "src/themes/favicon.ext01.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext01/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext01/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",

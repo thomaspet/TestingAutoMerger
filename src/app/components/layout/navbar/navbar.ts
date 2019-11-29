@@ -8,7 +8,6 @@ import {User, ContractLicenseType} from '@uni-entities';
 import {SmartSearchService} from '../smart-search/smart-search.service';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {theme} from 'src/themes/theme';
 import * as moment from 'moment';
 
 @Component({
@@ -22,7 +21,6 @@ export class UniNavbar {
     deativateFunctions: boolean = false;
 
     sidebarState: string;
-    logoUrl = theme.navbar_logo;
 
     user: User;
     licenseRole: string;
