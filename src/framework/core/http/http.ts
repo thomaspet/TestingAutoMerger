@@ -23,6 +23,10 @@ export interface IUniHttpRequest {
     responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
 }
 
+const DEFAULT_HEADERS = {
+    'Content-Type': 'application/json'
+};
+
 @Injectable()
 export class UniHttp {
     private baseUrl: string = environment.BASE_URL;
@@ -34,6 +38,7 @@ export class UniHttp {
 
     constructor(public http: HttpClient, public authService: AuthService) {
         this.headers = new HttpHeaders();
+        this.appendHeaders(DEFAULT_HEADERS);
     }
 
     public appendHeaders(headers: any) {
@@ -53,6 +58,7 @@ export class UniHttp {
 
     public withDefaultHeaders() {
         this.headers = new HttpHeaders();
+        this.appendHeaders(DEFAULT_HEADERS);
         return this;
     }
 

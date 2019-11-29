@@ -16,10 +16,6 @@ export class HeaderInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         let headers = request.headers;
 
-        if (!headers.get('Content-Type')) {
-            headers = headers.set('Content-Type', 'application/json');
-        }
-
         if (!headers.get('Accept')) {
             headers = headers.set('Accept', 'application/json');
         }
