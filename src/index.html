@@ -2,24 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title></title>
     <base href="/">
 
-    <meta name="keywords" content="Uni Micro, Faktura, Lønn, Regnskap">
-    <meta name="language" content="nb">
-    <meta name="copyright" content="Uni Micro AS">
-    <meta name="owner" content="Uni Micro AS">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="themes/favicon.ico?v=1">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Two+Tone|Material+Icons+Outlined">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined">
     <link rel="stylesheet" href="assets/uni-spinner.css">
     <link rel="stylesheet" href="assets/ehf-viewer.css">
 
-    <iframe id="silentLogout" hidden></iframe>
     <script>
         // Code to let user know that IE is not supported by this application!
         const userAgent = window.navigator.userAgent;
@@ -36,20 +30,15 @@
 <body>
     <iframe id="silentLogout" hidden></iframe>
 
-    <uni-app>
-        <div id="app-loading-spinner">
-            <section class="app-spinner-wrapper">
-                <span id="spinner"></span>
-                <h1>Laster applikasjon</h1>
-            </section>
+    <section id="app-spinner">
+        <img src="themes/logo.svg">
+        <div class="app-load-indicator">
+            <div></div>
         </div>
-    </uni-app>
-
-    <section id="data-loading-spinner">
-        <section class="app-spinner-wrapper">
-            <span id="spinner"></span>
-            <h1 id="spinnertext">Laster selskapsdata</h1>
-        </section>
+        <section id="app-spinner-text">Laster applikasjon</section>
     </section>
+
+    <uni-app></uni-app>
+
 </body>
 </html>

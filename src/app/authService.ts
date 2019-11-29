@@ -168,11 +168,10 @@ export class AuthService {
 
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         if (visible) {
-            $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
-            $('#data-loading-spinner').fadeIn(0);
+            $('#app-spinner').fadeIn(0);
+            $('#app-spinner-text').text(() => isLogout ? 'Logger ut' : 'Laster selskapsdata');
         } else {
-            $('#spinnertext').text(function(i, oldText) {return isLogout ? 'Logger ut' : oldText; });
-            $('#data-loading-spinner').fadeOut(250);
+            $('#app-spinner').fadeOut(250);
         }
 
         // #chat-container is added by boost, so it wont show up

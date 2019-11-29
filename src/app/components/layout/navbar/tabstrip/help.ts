@@ -51,7 +51,7 @@ export class UniTabstripHelp {
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {
-            this.boost.openChatWithTriggerAction(4215);
+            this.boost.openChatWithSupportCase();
         }
     }
 }
