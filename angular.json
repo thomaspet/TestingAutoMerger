@@ -31,7 +31,10 @@
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
               "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
-              "node_modules/@ng-select/ng-select/themes/default.theme.css"
+              "node_modules/@ng-select/ng-select/themes/default.theme.css",
+              {"input": "src/assets/ehf-viewer.css", "bundleName": "ehf-viewer"},
+              {"input": "src/assets/uni-spinner.css", "bundleName": "uni-spinner"}
+
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -46,7 +49,7 @@
               "buildOptimizer": false,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false
@@ -57,7 +60,7 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true
             },
@@ -69,7 +72,7 @@
               "sourceMap": false,
               "showCircularDependencies": false,
               "extractLicenses": false,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true
             },
@@ -79,7 +82,7 @@
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -96,7 +99,7 @@
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -113,7 +116,7 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -129,7 +132,7 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -145,7 +148,7 @@
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -162,7 +165,7 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -178,7 +181,7 @@
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -220,7 +223,7 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -270,7 +273,7 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "sourceMap": false,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "vendorChunk": true
             }
