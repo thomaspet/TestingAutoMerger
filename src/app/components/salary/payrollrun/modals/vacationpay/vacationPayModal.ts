@@ -594,6 +594,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private isEarlierPayline(row: VacationPayLine) {
+        if (!row) return false;
         return this.isEarlierPay(this.currentYear, row.Year);
     }
 

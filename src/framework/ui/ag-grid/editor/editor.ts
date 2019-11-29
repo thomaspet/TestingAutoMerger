@@ -448,8 +448,12 @@ export class TableEditor {
                 cellIndex = this.getNextEditableCellIndex(cellIndex + 1, data[rowIndex]);
                 if (cellIndex === undefined) {
                     rowIndex = this.getNextEditableRowIndex(rowIndex + 1, data);
+                    if (!rowIndex && !this.config.autoAddNewRow) {
+                        return this.emitAndClose();
+                    }
+                    
                     const updatedData = this.dataService.getViewData();
-                    cellIndex = this.getNextEditableCellIndex(0, updatedData[rowIndex]);
+                    cellIndex = this.getNextEditableCellIndex(0, updatedData ? updatedData[rowIndex] : data[rowIndex]);
                 }
             break;
         }
