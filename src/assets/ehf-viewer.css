@@ -1,6 +1,13 @@
 /*
 	Not included in main css bundle because it's also used by
 	the popout-fileviewer and when printing EHF files
+
+    Important:
+
+	If you make changes to this file you'll need to update the number in
+	<link href="./assets/ehf-viewer.css?v=<number>"> in fileviewer.html.
+	Since this it's a static html file we don't get the cache busting angular cli usually gives us.
+
 */
 .uni-ehf {
     display: block;
