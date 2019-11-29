@@ -52,7 +52,8 @@ import {
     PageStateService,
     CustomDimensionService,
     UniSearchDimensionConfig,
-    CompanySettingsService
+    CompanySettingsService,
+    UniTranslationService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -290,7 +291,8 @@ export class CustomerDetails implements OnInit {
         private pageStateService: PageStateService,
         private customDimensionService: CustomDimensionService,
         private uniSearchDimensionConfig: UniSearchDimensionConfig,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private translationService: UniTranslationService
     ) {}
 
     public ngOnInit() {
@@ -326,7 +328,7 @@ export class CustomerDetails implements OnInit {
                 if (!!this.customerID) {
                     // Add check to see if user has access to the TOF-modules before adding the tabs
                     this.navbarLinkService.linkSections$.subscribe(linkSections => {
-                        const mySections = linkSections.filter(sec => sec.name === 'Salg');
+                        const mySections = linkSections.filter(sec => sec.name === 'NAVBAR.SALES');
                         if (mySections.length) {
                             this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
                                 links => {
@@ -335,7 +337,7 @@ export class CustomerDetails implements OnInit {
                                     links.forEach((link) => {
                                         mySections[0].linkGroups.forEach((group) => {
                                             group.links.forEach( (li) => {
-                                                if (li.name === link.name) {
+                                                if (this.translationService.translate(li.name) === link.name) {
                                                     addLinks.push(link);
                                                 }
                                             });
