@@ -39,7 +39,7 @@ export class DeletedCompaniesModal implements IUniModal, OnInit {
             label: 'Gjenopprett',
             action: (company: ElsaCompanyLicense) => {
                 this.busy = true;
-                this.companyService.reviveCompany(company.CompanyKey).subscribe(
+                this.companyService.restoreCompany(company.CompanyKey).subscribe(
                     () => {
                         this.fetchDeletedCompanies();
                         this.companyRevived = true;
