@@ -5,19 +5,32 @@
         <i class="material-icons">filter_list</i>
     </button>
 
-    <button *ngIf="savedSearches?.length" [matMenuTriggerFor]="savedFiltersMenu" class="saved-filters-toggle">
-        Lagrede filter
-        <i class="material-icons">keyboard_arrow_down</i>
-    </button>
-
-    <mat-menu style="margin-left: 1rem" #savedFiltersMenu="matMenu">
-        <button (click)="applySearch()" mat-menu-item>Ikke valgt</button>
-        <button (click)="applySearch(search)" *ngFor="let search of savedSearches; let idx = index" mat-menu-item>
-            <span>{{search.name}}</span>
-            <i (click)="showAdvancedFilters(null, search)" class="material-icons">edit</i>
-            <i (click)="deleteSearch(idx, $event)" class="material-icons">close</i>
+    <ng-container *ngIf="savedSearches?.length">
+        <button #toggle class="saved-searches-toggle">
+            Lagrede filter
+            <i class="material-icons">keyboard_arrow_down</i>
         </button>
-    </mat-menu>
+
+        <dropdown-menu [trigger]="toggle" minWidth="12rem">
+            <ng-template>
+                <a class="dropdown-menu-item" (click)="applySearch()">
+                    Ikke valgt
+                </a>
+
+                <a class="dropdown-menu-item"
+                    *ngFor="let search of savedSearches; let idx = index"
+                    (click)="applySearch(search)">
+
+                    <span>{{search.name}}</span>
+                    <section class="align-right">
+                        <i (click)="showAdvancedFilters(null, search)" class="material-icons">edit</i>
+                        <i (click)="deleteSearch(idx, $event)" class="material-icons">close</i>
+                    </section>
+                </a>
+            </ng-template>
+        </dropdown-menu>
+    </ng-container>
+
 </section>
 
 <section class="active-filters-display" *ngIf="advancedSearchFilters?.length">

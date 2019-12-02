@@ -230,11 +230,11 @@ export class WagetypeDetail extends UniView {
         this.showSupplementaryInformations = hasSupplements;
         this.setFieldHidden(fields, 'SupplementPackage', !hasSupplements);
 
-        if (wageType.Benefit !== '') {
+        if (wageType.Benefit) {
             this.benefitDatasource.push({ text: wageType.Benefit });
         }
 
-        if (wageType.Description !== '') {
+        if (wageType.Description) {
             this.descriptionDatasource.push({ text: wageType.Description });
         }
 

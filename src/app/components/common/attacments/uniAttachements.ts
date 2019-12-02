@@ -5,6 +5,7 @@ import {File, FileEntityLink} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../authService';
 import {FileService, ErrorService, UniFilesService, StatisticsService} from '../../../services/services';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import {environment} from 'src/environments/environment';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
@@ -52,12 +53,14 @@ export class UniAttachments {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileList: boolean = true;
     @Input() uploadWithoutEntity: boolean = false;
+    @Input() canSendEHF: boolean = false;
 
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter();
 
     private baseUrl: string = environment.BASE_URL_FILES;
 
     private fileLinks: FileEntityLink[] = [];
+    validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
     uploading: boolean;
     files: File[] = [];
@@ -71,7 +74,8 @@ export class UniAttachments {
         private uniFilesService: UniFilesService,
         private authService: AuthService,
         private modalService: UniModalService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private toast: ToastService
     ) {
         const fileNameCol = new UniTableColumn('Name', 'Filnavn');
         const fileSizeCol = new UniTableColumn('Size', 'Størrelse')
@@ -157,6 +161,14 @@ export class UniAttachments {
     private uploadFile(file: File) {
         const activeCompany = this.authService.activeCompany;
         const data = new FormData();
+
+        if (this.canSendEHF) {
+            if (!this.validEHFFileTypes.some(type => file['name'].includes(type))) {
+                this.toast.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
+                'Du har valgt en fil som ikke er godkjent som vedlegg for EHF, og vil ikke bli lagt til som vedlegg ' +
+                'om du velger utsendelse via EHF. Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
+            }
+        }
 
         data.append('Token', this.authService.jwt);
         data.append('Key', activeCompany.Key);

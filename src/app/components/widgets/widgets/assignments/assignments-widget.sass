@@ -26,23 +26,18 @@ ul
         display: flex
         align-items: center
         height: 4rem
-        margin-bottom: .75rem
-        padding: 0 1.25rem 0 1rem
+        padding: 0 5px
         font-size: 13px
         font-weight: 500
-        background: #f5f5f5
-        border-radius: 2px
+        border-bottom: 1px solid rgba(0, 0, 0, .1)
+        cursor: pointer
 
-        &:hover
-            cursor: pointer
-            background: #f0f0f0
-
-        i.material-icons
+        i.material-icons-outlined
             flex: 0 0 auto
             margin-right: 1rem
-            color: #2699FB
+            color: var(--widget-c2a)
             &.green
-                color: #05C46B
+                color: var(--color-good)
 
         .text-section
             flex: 1
@@ -66,4 +61,3 @@ ul
         .amount
             flex: 0 0 auto
             margin-left: 1rem
-            color: #8E98AB

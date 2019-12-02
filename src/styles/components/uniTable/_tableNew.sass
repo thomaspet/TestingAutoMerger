@@ -1,29 +1,38 @@
-$table-border-style: 1px solid $uni-color-scale9
-
 ag-grid-wrapper
     display: flex
     flex-direction: column
     width: 100%
 
+    &.contained
+        background: #fff
+        padding: 1rem 1rem 0
+        border: 1px solid var(--border-color)
+        border-radius: 3px
+
     table-filters
         flex: 0 0 auto
 
     .uni-ag-wrapper
+        position: relative
         overflow: hidden
+
+    .bottom-bar
+        display: flex
+        justify-content: space-between
+        align-items: center
 
     .row-count
         display: flex
+        margin-top: 1rem
+        font-size: 15px
         &.absolute
             position: absolute
-            bottom: 5px
+            bottom: 1rem
             left: 5px
-
+            margin-top: 0
         span + span
             margin-left: 2rem
 
-    &.font-14
-        .uni-ag-wrapper
-            font-size: 14px
     &.font-13
         .uni-ag-wrapper
             font-size: 13px
@@ -32,6 +41,39 @@ ag-grid-wrapper
         left: 50%
         top: 0.5rem
 
+// Borders
+ag-grid-wrapper
+    .ag-header
+        border-bottom: 1px solid var(--border-color)
+    .ag-row
+        border-bottom: 1px solid var(--border-color)
+
+    &.borders ag-grid-angular:not(.editable)
+        .ag-header
+            border: 1px solid var(--border-color)
+            border-top-left-radius: 3px
+            border-top-right-radius: 3px
+        .ag-body
+            background: #fff
+            border: 1px solid var(--border-color)
+            border-top: none
+            border-bottom-left-radius: 4px
+            border-bottom-right-radius: 4px
+            overflow: hidden // to avoid rows clipping the border radius
+
+    ag-grid-angular.editable
+        .ag-header
+            border-top: 1px solid var(--border-color)
+        .ag-body-container .ag-cell,
+        .ag-header-container .ag-header-cell
+            border-left: 1px solid var(--border-color)
+            &:last-of-type
+                border-right: 1px solid var(--border-color)
+
+        .ag-pinned-right-header,
+        .ag-pinned-right-cols-container
+            border-right: 1px solid var(--border-color)
+
 ag-grid-angular
     width: 100%
     height: 100%
@@ -39,7 +81,9 @@ ag-grid-angular
 .uni-ag-wrapper
     display: block
     position: relative
-    font-size: 15px
+    font-size: 14px
+    @media screen and (max-width: 1300px)
+        font-size: 13px
 
     span.expand-collapse-groups
         cursor: pointer
@@ -63,26 +107,7 @@ ag-grid-angular
 .ag-body-container
     margin-bottom: 0 !important
 
-// Borders
-.ag-header
-    border: $table-border-style
-    border-right: none
-    .ag-pinned-right-header
-        border-left: $table-border-style
-        border-right: $table-border-style
-
 .ag-body
-    .ag-pinned-right-cols-container .ag-cell
-        border-left: $table-border-style
-        border-right: $table-border-style
-
-    .ag-body-container .ag-cell:first-of-type
-        border-left: $table-border-style
-
-    .ag-pinned-right-cols-container .ag-cell
-        border-left: $table-border-style
-        border-right: $table-border-style
-
     .ag-row-group
         font-weight: 600
         .align-right
@@ -93,33 +118,15 @@ ag-grid-angular
             &:hover
                 background: transparent
 
-ag-grid-wrapper:not(.selection-list)
-    .ag-header
-        border-left: none
-
-    .ag-body .ag-cell,
-    .ag-header-container .ag-header-cell
-        border-left: $table-border-style
-
-
-ag-grid-wrapper.selection-list
-    .ag-header:hover // resize guide on hover
-        .ag-header-cell:not(:first-of-type)
-            border-left: $table-border-style
-
-ag-grid-angular.col-menu-hidden
-    .ag-header
-        border-right: $table-border-style
-    .ag-body-container .ag-cell:last-of-type
-        border-right: $table-border-style
-
-.ag-row
-    border-bottom: $table-border-style
 
 // Header & cell styling
 .ag-header
-    background: #fff
-    color: $uni-color-scale5
+    background: var(--table-header-background)
+    color: var(--table-header-color)
+    font-weight: 500
+
+.ag-row
+    color: var(--text-color)
 
 // Hide resize indicator
 .ag-header-cell::after
@@ -132,11 +139,9 @@ ag-grid-angular.col-menu-hidden
 .ag-header-cell,
 .ag-theme-balham .ag-cell,
 .ag-theme-balham .ag-header-cell
+    display: inline-flex !important
+    align-items: center
     padding: 0 10px
-    line-height: 34px !important
-
-    > span
-        display: flex
 
     &:focus
         outline: none
@@ -146,47 +151,43 @@ ag-grid-angular.col-menu-hidden
         right: -1px
         width: 10px
 
-    &.col-menu, &.row-menu
+    &.col-menu, &.row-menu,  &.checkbox-cell
         padding: 0
         cursor: pointer
-        text-align: center
-        color: $uni-color-scale5
+        justify-content: center
+        color: #8B96AC // #707d90
+
+    &.row-drag-cell
+        .ag-cell-wrapper
+            display: inline-flex
+            justify-content: center
+            align-items: center
+        .ag-row-drag
+            display: inline-flex
+            &:before
+                cursor: pointer
+                font-family: 'Material Icons'
+                content: 'unfold_more'
+                font-size: 24px
+                color: #8B96AC
+
+        .ag-cell-value
+            display: none
 
     &.col-menu i.material-icons
-        line-height: 35px // 40px
         margin-left: -2px
         font-size: 20px
-        width: 100%
-
-    &.row-menu i.material-icons
-        line-height: 35px
-
-    .ag-row-drag
-        display: block
-        width: 100%
-        height: 100%
-        text-align: center
-        &:before
-            cursor: pointer
-            font-family: 'Material Icons'
-            content: 'unfold_more'
-            font-size: 24px
-            color: $uni-color-scale4
-
-        & + .ag-cell-value
-            visibility: hidden
-
 
     &.row-menu .row-menu-container
         display: block
-        height: 35px
-        width: 100%
 
-        i.material-icons
-            width: 39px
+        i.material-icons, i.material-icons
             box-sizing: border-box
+            vertical-align: middle
             &:not(:first-of-type)
-                border-left: $table-border-style
+                border-left: 1px solid var(--border-color)
+                margin-left: 4px
+                padding-left: 4px
 
             &.disabled
                 color: $uni-color-scale7
@@ -195,42 +196,60 @@ ag-grid-angular.col-menu-hidden
 .ag-cell
     span[role=link]
         display: block
+        width: 100%
         cursor: pointer
-        margin: 5px 0
-        padding: 0 5px
-        line-height: 25px // row height - margin
-        text-decoration: underline
-        color: $uni-color-c2a !important // #0082c0 !important
+        padding: 5px 0
+        text-decoration: none
+        color: var(--link-color) !important
         &:hover
-            background: darken(#d4dfee, 5%)
+            text-decoration: underline
 
-    &.number-good
-        color: #0082c0 !important
+    span.placeholder
+        color: #707d90
+
     &.number-bad, &.date-bad
-        color: $uni-color-bad !important
+        color: var(--color-bad) !important
+
+.ag-cell-label-container
+    width: 100%
+
+.ag-cell > span,
+.ag-header-cell-text
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
 .align-left
-    text-align: left !important
+    justify-content: flex-start
+    text-align: left
 .align-right
-    text-align: right !important
+    justify-content: flex-end
+    text-align: right
 .align-center
-    text-align: center !important
+    justify-content: center
+    text-align: center
 
 // Row styling
 .ag-row
+    cursor: pointer
     &.ag-row-even
-        background: #fff
-
+        background: var(--table-row-even-background, #fff)
     &.ag-row-odd
-        background: mix(#fff, $uni-color-scale9, 85%) // #f8f9fd
-
+        background: var(--table-row-odd-background, #fff)
     &.ag-row-hover
-        background: darken($uni-color-negative, 1.5%)
+        background: var(--table-row-select-background)
 
 ag-grid-angular:not(.editable)
-    .ag-row-selected,
-    .ag-row-dragging
-        background: #d4dfee
+    .ag-row-selected, .ag-row-dragging
+        background: var(--table-row-select-background)
+
+ag-grid-wrapper.selection-disabled ag-grid-angular:not(.editable)
+    .ag-row
+        cursor: default
+        user-select: text
+    .ag-row-hover, .ag-row-selected, .ag-row-dragging
+        background: unset
+
 
 ag-grid-angular.editable .readonly-row,
 ag-grid-angular .disabled-row
@@ -238,6 +257,13 @@ ag-grid-angular .disabled-row
     color: $uni-color-scale5
     cursor: not-allowed
 
+.ag-overlay-wrapper
+    text-align: left
+    padding-left: 10px
+    padding-top: 50px
+
+ag-grid-angular.has-sum-row .ag-overlay-wrapper
+    padding-top: 0
 
 .ag-icon-checkbox-unchecked,
 .ag-icon-checkbox-checked
@@ -246,7 +272,7 @@ ag-grid-angular .disabled-row
 
 .ag-icon-checkbox-checked
     &:before
-        border-color: $uni-color-c2a !important
+        border-color: var(--color-c2a) !important
         background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
 
     &:after
@@ -255,9 +281,10 @@ ag-grid-angular .disabled-row
 
 .header-checkbox
     @extend %checkboxStyle
+    margin-bottom: 8px
     &.checked
         &:before
-            border-color: $uni-color-c2a !important
+            border-color: var(--color-c2a) !important
             background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
 
         &:after
@@ -266,8 +293,7 @@ ag-grid-angular .disabled-row
 
 %checkboxStyle
     width: 1rem !important
-    height: 34px !important
-    margin-top: 1px
+    height: 25px !important
     box-sizing: border-box
     user-select: none
     box-sizing: border-box
@@ -326,7 +352,7 @@ ag-grid-angular .disabled-row
         background: none
         border: none !important
     .row-menu
-        display: none
+        display: none !important
     .ag-cell
         border: none
         font-weight: 600
@@ -342,13 +368,13 @@ ag-grid-angular .disabled-row
         float: left
 
     &.good
-        background: $uni-color-good unicon-info($uni-color-negative) no-repeat center
+        background: var(--color-good) unicon-info(#fff) no-repeat center
     &.warn
-        background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
+        background: var(--color-warn) unicon-info(#fff) no-repeat center
     &.neutral
-        background: #638bb3 unicon-info($uni-color-negative) no-repeat center
+        background: #638bb3 unicon-info(#fff) no-repeat center
     &.bad
-        background: unicon-warning($uni-color-bad) no-repeat center
+        background: unicon-warning(#F53B57) no-repeat center
         background-size: 1.4rem
         height: 1.9rem
 
@@ -365,10 +391,9 @@ ag-grid-wrapper
         position: absolute
         z-index: #{map-get($zindex, toolbar) - 1}
 
-        input, button
-            height: 35px !important
+        input, .input-with-button
+            height: 100%
             width: 100%
-
 
 // Paging
 .ag-paging-panel
@@ -376,7 +401,7 @@ ag-grid-wrapper
 .pagination
     display: flex
     justify-content: flex-end
-    margin-top: .5rem
+    margin-top: 1rem
 
     i.material-icons
         vertical-align: middle

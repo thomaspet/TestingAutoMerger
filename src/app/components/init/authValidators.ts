@@ -45,11 +45,3 @@ export function passwordMatchValidator(formGroup: AbstractControl) {
         }
     }
 }
-
-export function usernameValidator(control: FormControl) {
-    if (control.value && /[^a-zA-Z0-9-_.]/g.test(control.value)) {
-        return {'usernameValidator': 'Brukernavn kan bare inneholde bokstaver (a-z), tall, bindestrek, understrek og punktum'};
-    } else {
-        return null;
-    }
-}

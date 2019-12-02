@@ -149,19 +149,21 @@ export class StatusService {
         }
     }
 
-    public getStatusLogEntries(entityType: string, entityID: number, toStatus: number): Observable<any> {
+    public getStatusLogEntries(entityType: string, entityID: number): Observable<any> {
         return Observable.forkJoin(
             this.userService.GetAll(null),
             this.statisticsService.GetAll(
-                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}` +
-                `&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,` +
-                `ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
+                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus gt 0`
+                + `&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,`
+                + `ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`
+            ),
             this.loadStatusCache()
         ).map(responses => {
                 const users: Array<User> = responses[0];
                 const data = responses[1].Data ? responses[1].Data : [];
                 data.forEach(item => {
                     item.FromStatusText = this.getStatusText(item.FromStatus);
+                    item.ToStatusText = this.getStatusText(item.ToStatus);
                     const createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
                     item.CreatedByName = createdByUser ? createdByUser.DisplayName : '';
                 });

@@ -1,0 +1,81 @@
+<section class="input-with-button">
+    <input #input
+        type="text"
+        [formControl]="inputControl"
+        (keypress)="busy = true"
+        (keydown)="onKeyDown($event)"
+        role="combobox"
+        [placeholder]="column?.get('placeholder') || ''"
+    />
+
+    <button
+        type="button"
+        tabIndex="-1"
+        (click)="toggle(); input.focus()">
+        <i class="material-icons">search</i>
+    </button>
+</section>
+
+<input-dropdown-menu [input]="input" [visible]="expanded && (lookupResults?.length || options.addNewButton)">
+    <ng-template>
+        <div #dropdown>
+            <ng-container *ngIf="!options.showResultAsTable">
+                <section
+                    *ngFor="let item of lookupResults; let idx = index"
+                    (click)="itemClicked(idx, item.isHeader)"
+                    [ngClass]="item.isHeader ? 'dropdown-menu-header' : 'dropdown-menu-item'"
+                    [attr.aria-selected]="selectedIndex === idx">
+
+                    {{ item.isHeader ? item.header : options.itemTemplate(item) }}
+                </section>
+
+                <section *ngIf="!busy && options.addNewButton"
+                    class="dropdown-menu-item add-new-button"
+                    [attr.aria-selected]="!lookupResults?.length"
+                    (click)="addNewItem()">
+                    {{ options.addNewButton.label }}
+                </section>
+            </ng-container>
+
+            <div class="search-result-table-container table-autocomplete-results" *ngIf="options.showResultAsTable && options.resultTableConfig" >
+                <div *ngIf="options.addNewButton">
+                    <a class="action-button" (click)="addNewItem()">
+                        {{ options.addNewButton.label }}
+                    </a>
+                </div>
+
+                <div *ngIf="lookupResults.length > 0" #container>
+                    <table #list>
+                        <thead>
+                            <tr>
+                                <th *ngFor="let field of options.resultTableConfig.fields"
+                                    [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }">
+                                    {{ field.header }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of lookupResults; let idx = index"
+                                [attr.aria-selected]="selectedIndex === idx"
+                                class="result-item"
+                                role="option"
+                                (click)="itemClicked(idx, item.isHeader)">
+
+                                <td *ngFor="let field of options.resultTableConfig.fields"
+                                    [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }"
+                                    [ngClass]="field.class">
+                                    <span class="result_td" *ngIf="!field.isMoneyField"> {{item[field.key]}} </span>
+                                    <span *ngIf="field.isMoneyField">
+                                        {{ item[field.key] | uninumberformat: 'money' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p *ngIf="lookupResults.length === 0" style="margin-left: .5rem">{{ emptySearchString }}</p>
+            </div>
+        </div>
+
+    </ng-template>
+</input-dropdown-menu>

@@ -1,4 +1,5 @@
 import { BankStatementMatch, BankStatementEntry } from '@uni-entities';
+import { IBankAccount } from './bankjournalmodels';
 
 export interface IMatchEntry {
     ID: number;
@@ -26,6 +27,21 @@ export class BankStatmentMatchDto {
 }
 
 export class BankUtil {
+
+    static IsoDate(date: Date) {
+        const d = date.getDate();
+        const m = date.getMonth() + 1;
+        const y = date.getFullYear();
+        return '' + y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
+    }
+
+    static IsValidAccount(value: IBankAccount): boolean {
+        if (value && value.AccountNumber && value.AccountNumber.length >= 11) {
+            return true;
+        }
+        return false;
+    }
+
     static safeAdd(a: number, b: number): number {
         return parseFloat((a + b).toFixed(2));
     }
@@ -40,6 +56,10 @@ export class BankUtil {
             return ((( 1 + Math.random() ) * 0x10000 ) | 0).toString(16).substring(1);
         }
         return (S4() + S4() + '-' + S4() + '-4' + S4().substr(0, 3) + '-' + S4() + '-' + S4() + S4() + S4()).toLowerCase();
+    }
+
+    static isString(x: any): boolean {
+        return x !== null && x !== undefined && x.constructor === String;
     }
 }
 

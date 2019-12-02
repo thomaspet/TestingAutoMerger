@@ -7,7 +7,7 @@ import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-servi
     template: `
         <ol class="breadcrumbs" role="navigation">
             <li *ngFor="let crumb of crumbs">
-                <a [routerLink]="crumb.url">{{crumb.name}}</a>
+                <a [routerLink]="crumb.url">{{ crumb.name | translate }}</a>
             </li>
         </ol>
     `

@@ -10,7 +10,8 @@ export const COUNTERS = [
         widgetType: 'integrationCounter',
         config: {
             type: TypeOfIntegration.TravelAndExpenses,
-            icon: 'flight_takeoff'
+            icon: 'flight_takeoff',
+            class: 'yellow-counter'
         }
     },
     {
@@ -46,8 +47,8 @@ export const COUNTERS = [
             title: 'Restsum forfalte faktura',
             positive: false,
             link: '/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices',
-            icon: 'description',
-            class: 'pink-counter'
+            icon: 'credit_card',
+            class: 'red-counter'
         }
     },
     {
@@ -64,7 +65,7 @@ export const COUNTERS = [
             title: 'Ordrereserve',
             positive: false,
             link: '/sales/orders?filter=order_reserves',
-            icon: 'business',
+            icon: 'money',
             class: 'green-counter'
         }
     },
@@ -146,7 +147,7 @@ export const COUNTERS = [
             positive: false,
             link: '/bank/ticker?code=bank_list&filter=incomming_without_match',
             icon: 'account_balance',
-            class: 'pink-counter'
+            class: 'red-counter'
         }
     },
     {
@@ -243,7 +244,7 @@ export const COUNTERS = [
             title: 'Ansatte',
             positive: false,
             link: '/salary/employees',
-            icon: 'mood',
+            icon: 'people_outline',
             class: 'green-counter'
         }
     },
@@ -259,8 +260,8 @@ export const COUNTERS = [
             title: 'Stillingskoder',
             positive: false,
             link: '/salary/employees/0/employments',
-            icon: 'people_outline',
-            class: 'pink-counter',
+            icon: 'description',
+            class: 'red-counter',
             useLength: true
         }
     },

@@ -1,7 +1,5 @@
 <section role="dialog" class="paycheckSenderModal uni-modal medium">
-    <header>
-        <h1>Send/Skriv ut lønnslipp</h1>
-    </header>
+    <header>Send/Skriv ut lønnslipp</header>
 
     <article class="scrollable" [attr.aria-busy]="busy">
         <uni-paycheck-mail-options
@@ -16,30 +14,9 @@
     </article>
 
     <footer>
-        <section role="group" class="comboButton" *ngIf="saveActions.length">
-            <button
-                class="comboButton_btn good"
-                type="button"
-                (click)="saveActions[0].action()"
-                [attr.aria-busy]="busy"
-                [disabled]="saveActions[0].disabled">{{saveActions[0].label}}</button>
-            <button
-                class="comboButton_more good"
-                type="button"
-                (click)="open = !open"
-                (clickOutside)="open = false"
-                aria-owns="saveActionMenu"
-                [attr.aria-expanded]="open"
-                [disabled]="saveActions[0].disabled">More options</button>
-
-            <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu" (click)="open = false">
-                <li *ngFor="let action of saveActions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
-            </ul>
-        </section>
-        <section>
-            <button (click)="close()" class="bad">
-                Lukk
-            </button>
-        </section>
+        <combo-button [actions]="saveActions"></combo-button>
+        <button (click)="close()" class="bad">
+            Lukk
+        </button>
     </footer>
 </section>

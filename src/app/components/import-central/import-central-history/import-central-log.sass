@@ -1,4 +1,4 @@
-@import '../import-central-common.sass'
+$xs-and-less: "only screen and (max-width: 767px)"
 
 .uni-container
     margin: 0
@@ -6,7 +6,7 @@
     .header-container
         display: flex
         align-items: center
-        @media #{$xs-and-less}   
+        @media #{$xs-and-less}
             display: inline-block
 
     header
@@ -15,25 +15,25 @@
         font-size: 20px
         border: none
         margin-right: 85px
-        @media #{$xs-and-less}   
+        @media #{$xs-and-less}
             margin-right: 0
 
-    .drop-down-container 
+    .drop-down-container
         margin-right: 15px
-        @media #{$xs-and-less}   
+        @media #{$xs-and-less}
             margin-right: 0
-    
+
     .table-wrapper
         padding: 10px 35px
         overflow: auto
-    
+
     table
         width: 100%
         th
             height: 50px
             border-bottom: 2px solid #d4dce3
             text-align: left
-            
+
         td
             color: gray
             text-align: left
@@ -50,11 +50,11 @@
                     margin-right: 5px
                     font-size: 18px
                 &.progress
-                    color: $redesign-warn
+                    color: var(--color-warn)
                 &.success
-                    color: $redesign-good
+                    color: var(--color-good)
                 &.error
-                    color: $redesign-bad
+                    color: var(--color-bad)
     .no-logs
-        text-align: center    
+        text-align: center
 

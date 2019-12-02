@@ -1,17 +1,16 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
 import {
-    MatTabsModule,
     MatSelectModule,
     MatIconModule,
     MatTooltipModule,
     MatProgressBarModule,
     MatMenuModule,
     MatOptionModule,
+    DateAdapter,
 } from '@angular/material';
 
 import {LayoutModule} from '../layout/layoutModule';
@@ -60,6 +59,9 @@ import {BillPreviousView} from './bill/detail/previous/previous';
 import {BillTransitionModal} from './bill/bill-transition-modal/bill-transition-modal';
 import {ReInvoiceInfoModal} from './bill/reinvoice-info-modal/reinvoice-info-modal';
 import {BillAssignmentModal} from './bill/assignment-modal/assignment-modal';
+import {BillInitModal} from './bill/bill-init-modal/bill-init-modal';
+import {Expense, ExpensePrepaid, ExpenseEntries, ExpensePayable, ExpenseSummaryModal} from './bill/expense/expense';
+import {RecieverModal} from './bill/expense/reciever-modal/reciever-modal';
 import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsModal';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
@@ -69,7 +71,6 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
-import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
@@ -86,10 +87,14 @@ import { UniJournalEntryLineModal } from '@uni-framework/uni-modal/modals/Journa
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
 import {UniCostAllocationList} from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
+import {UniInbox} from './inbox/inbox';
+import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
+import { UniDateAdapter } from '@app/date-adapter';
+import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirect-modal';
+import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal';
 
 @NgModule({
     imports: [
-        MatTabsModule,
         MatSelectModule,
         MatIconModule,
         MatTooltipModule,
@@ -99,7 +104,6 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         UniFrameworkModule,
 
         LayoutModule,
@@ -128,11 +132,14 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
 
         SupplierList,
         SupplierDetails,
-        UniNewSupplierModal,
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
         FileFromInboxModal,
+        UniInbox,
+        NewOutgoingWizardModal,
+        DoneRedirectModal,
+        SupplierEditModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -147,6 +154,13 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         BillTransitionModal,
         ReInvoiceInfoModal,
         BillAssignmentModal,
+        BillInitModal,
+        Expense,
+        ExpensePrepaid,
+        ExpenseEntries,
+        ExpensePayable,
+        ExpenseSummaryModal,
+        RecieverModal,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
@@ -201,7 +215,6 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         EditSupplierInvoicePayments,
         NewAccountModal,
         BillAssignmentModal,
-        UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
         DraftLineDescriptionModal,
@@ -213,8 +226,14 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         UniCostAllocationDetails,
         FileFromInboxModal,
         BillTransitionModal,
+        BillInitModal,
         ReInvoiceInfoModal,
-        UniJournalEntryLineModal
+        UniJournalEntryLineModal,
+        NewOutgoingWizardModal,
+        ExpenseSummaryModal,
+        RecieverModal,
+        DoneRedirectModal,
+        SupplierEditModal
     ],
     exports: [
         AccountSettings,
@@ -273,6 +292,7 @@ import {UniCostAllocationDetails} from '@app/components/accounting/cost-allocati
         UniCostAllocationList,
     ],
     providers: [
+        { provide: DateAdapter, useClass: UniDateAdapter },
         PeriodFilterHelper,
     ]
 })

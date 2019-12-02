@@ -1,48 +1,29 @@
 <section class="save-buttons">
-    <button type="button" *ngIf="main && !main.isUpload"
-        class="toolbar-save"
+    <button type="button" *ngIf="main"
+        class="good toolbar-save"
         (click)="onSave(main)"
         [attr.aria-busy]="busy"
         [disabled]="main.disabled">
-        {{main.label}}
+        {{main.label | translate}}
     </button>
 
-    <uni-upload-file-save
-        *ngIf="main && main.isUpload"
-        class="toolbar-save-button-upload"
-        [buttonText]="main.label"
-        [attr.aria-busy]="busy"
-        (fileUploaded)="onFileUpload($event, main)">
-    </uni-upload-file-save>
+    <ng-container *ngIf="filteredActions?.length > 1">
+        <button #toggle class="good toolbar-save-toggle">
+            <i class="material-icons">expand_more</i>
+        </button>
 
-    <button class="toolbar-save-toggle"
-        *ngIf="actions?.length > 1"
-        (click)="open = !open"
-        (clickOutside)="close()"
-        aria-owns="saveActionMenu"
-        [attr.aria-expanded]="open">
-        More options
-    </button>
+        <dropdown-menu [trigger]="toggle" [minWidth]="'14rem'">
+            <ng-template>
+                <a *ngFor="let action of filteredActions"
+                    class="dropdown-menu-item"
+                    (click)="onSave(action)"
+                    [attr.aria-disabled]="action.disabled || busy">
 
-    <ul class="toolbar-dropdown-list" [attr.aria-expanded]="open" role="menu" id="saveActionMenu">
-        <li *ngFor="let action of actions"
-            (click)="onSave(action)"
-            role="menuitem"
-            [attr.aria-disabled]="action.disabled"
-            [title]="action.label">
-
-            <span *ngIf="!action.isUpload"> {{ action.label }} </span>
-
-            <uni-upload-file-save
-                *ngIf="action.isUpload"
-                class="toolbar-save-list"
-                [buttonText]="action.label"
-                [attr.aria-busy]="busy"
-                (fileUploaded)="onFileUpload($event, action)">
-            </uni-upload-file-save>
-
-        </li>
-    </ul>
+                    <span> {{ action.label | translate }} </span>
+                </a>
+            </ng-template>
+        </dropdown-menu>
+    </ng-container>
 </section>
 
 <!-- Fixed position on the bottom of the page -->

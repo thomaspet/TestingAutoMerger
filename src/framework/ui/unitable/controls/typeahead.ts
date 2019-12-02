@@ -25,42 +25,34 @@ export interface ITypeaheadOptions {
 @Component({
     selector: 'unitable-typeahead',
     template: `
-        <article class="typeahead">
-            <input type="text" #input
-                class="uniTypeahead_input"
-                [formControl]="inputControl"
-                (keypress)="busy = true"
-                (keydown)="onKeyDown($event)"
-                role="combobox"
-            />
+        <input #input
+            type="text"
+            [formControl]="inputControl"
+            (keypress)="busy = true"
+            (keydown)="onKeyDown($event)"
+            role="combobox"
+        />
 
-            <button class="uni-typeahead-searchBtn"
-                    (click)="toggle()"
-                    (keydown)="onKeyDown($event)"
-                    tabIndex="-1">Søk</button>
+        <input-dropdown-menu [input]="input" [visible]="expanded && lookupResults?.length">
+            <ng-template>
+                <section #dropdown>
+                    <section class="dropdown-menu-item"
+                        *ngFor="let item of lookupResults; let idx = index"
+                        (mouseover)="selectedIndex = idx"
+                        (click)="itemClicked(idx)"
+                        [attr.aria-selected]="selectedIndex === idx">
 
-            <ul #list class="uniTable_dropdown_list"
-                id="typeahead-results"
-                role="listbox"
-                tabindex="-1"
-                [attr.aria-expanded]="expanded && lookupResults && lookupResults.length > 0">
-
-                <li *ngFor="let item of lookupResults; let idx = index"
-                    class="uniTable_dropdown_item"
-                    role="option"
-                    (mouseover)="selectedIndex = idx"
-                    (click)="itemClicked(idx)"
-                    [attr.aria-selected]="selectedIndex === idx">
-                    {{options.itemTemplate(item)}}
-                </li>
-            </ul>
-        </article>
+                        {{options.itemTemplate(item)}}
+                    </section>
+                </section>
+            </ng-template>
+        </input-dropdown-menu>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UnitableTypeahead implements OnInit {
-    @ViewChild('input') public inputElement: ElementRef;
-    @ViewChild('list')  private list: ElementRef;
+    @ViewChild('input') inputElement: ElementRef;
+    @ViewChild('dropdown') dropdown: ElementRef;
 
     @Input()
     private column: any;
@@ -159,14 +151,6 @@ export class UnitableTypeahead implements OnInit {
         return undefined;
     }
 
-    public toggle() {
-        if (this.expanded) {
-            this.expanded = false;
-        } else {
-            this.expand();
-        }
-    }
-
     private expand() {
         this.performLookup('').subscribe((res) => {
             this.selectedIndex = -1;
@@ -245,19 +229,11 @@ export class UnitableTypeahead implements OnInit {
     }
 
     private scrollToListItem() {
-        const list = this.list.nativeElement;
-        const currItem = list.children[this.selectedIndex];
-        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
-
-        if (!currItem) {
-            return;
-        }
-
-        if (currItem.offsetTop <= list.scrollTop) {
-            list.scrollTop = currItem.offsetTop;
-        } else if (currItem.offsetTop >= bottom) {
-            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
+        if (this.dropdown && this.dropdown.nativeElement) {
+            const item: HTMLElement = this.dropdown.nativeElement.children[this.selectedIndex];
+            if (item) {
+                item.scrollIntoView({block: 'nearest'});
+            }
         }
     }
-
 }

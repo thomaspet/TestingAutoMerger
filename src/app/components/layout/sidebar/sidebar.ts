@@ -1,9 +1,11 @@
 import {Component} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {BreakpointObserver, BreakpointState} from '@angular/cdk/layout';
-import {NavbarLinkService, INavbarLinkSection, SidebarState} from '../navbar/navbar-link-service';
+import {NavbarLinkService, SidebarState} from '../navbar/navbar-link-service';
+import {INavbarLinkSection} from '../navbar/navbar-links-common';
 import {Observable} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-sidebar',
@@ -15,7 +17,7 @@ export class UniSidebar {
     public popover: boolean;
 
     public expandedSectionIndex: number = 0;
-    public navbarLinkSections: INavbarLinkSection[];
+    public navbarLinkSections: INavbarLinkSection[] = [];
 
     private scrollbar: PerfectScrollbar;
 
@@ -27,7 +29,22 @@ export class UniSidebar {
         this.navbarService.sidebarState$.subscribe(state => this.state = state);
 
         this.navbarService.linkSections$.subscribe(sections => {
-            this.navbarLinkSections = sections;
+            this.navbarLinkSections = _.cloneDeep(sections).filter(section => {
+                section.linkGroups = section.linkGroups.filter(group => {
+                    group.links = group.links.filter(link => {
+                        return link.activeInSidebar;
+                    });
+
+                    if (group.links.length) {
+                        return group;
+                    }
+                });
+
+                if (section.isOnlyLinkSection || section.linkGroups.length) {
+                    return section;
+                }
+            });
+
             this.getActiveSection();
 
             setTimeout(() => {
@@ -60,10 +77,33 @@ export class UniSidebar {
 
     public getActiveSection() {
         try {
-            const rootRoute = this.router.url.split('/')[1];
-            const activeIndex = this.navbarLinkSections.findIndex(section => {
-                return section.url.replace('/', '') === rootRoute;
+            const route = this.router.url;
+
+            if (this.router.url === '/') {
+                this.expandedSectionIndex = 0;
+                return;
+            }
+
+            const sectionsWithSameBase = this.navbarLinkSections.filter(nbls => {
+                return this.router.url.split('/')[1] === nbls.url.replace('/', '');
             });
+
+            let activeIndex = -1;
+
+            if (sectionsWithSameBase.length === 1) {
+                activeIndex = this.navbarLinkSections.findIndex(sec => sec.name === sectionsWithSameBase[0].name);
+            } else {
+                const item = sectionsWithSameBase.find(section => {
+                    return section.linkGroups.filter(linkGroup => {
+                        return linkGroup.links.filter(link => {
+                             return link.url !== '/' && route.includes(link.url);
+                        }).length > 0;
+                    }).length > 0 ;
+                });
+                if (item) {
+                    activeIndex = this.navbarLinkSections.findIndex(sec => sec.name === item.name);
+                }
+            }
 
             if (activeIndex >= 0) {
                 this.expandedSectionIndex = activeIndex;
@@ -73,7 +113,14 @@ export class UniSidebar {
         }
     }
 
-    public toggleSection(index) {
+    public toggleSection(index: number, section?: INavbarLinkSection) {
+
+        // Support home button for SR. Just navigate and return
+        if (section && section.isOnlyLinkSection) {
+            this.navigate(section.url);
+            return;
+        }
+
         if (this.expandedSectionIndex === index && (this.state === 'expanded' || this.popover)) {
             this.expandedSectionIndex = undefined;
         } else {
@@ -102,15 +149,15 @@ export class UniSidebar {
         this.router.navigateByUrl(url);
     }
 
-    public navigateToSectionUrl(url: string, clickEvent: MouseEvent) {
+    public navigateToSectionUrl(section: INavbarLinkSection, clickEvent: MouseEvent) {
         // Icon clicks on collapsed sidebar should not navigate
-        if (url && (this.popover || this.state === 'expanded')) {
+        if ((section.url || section.onIconClickUrl) && (this.popover || this.state === 'expanded')) {
             clickEvent.stopPropagation();
-            this.router.navigateByUrl(url);
+            this.router.navigateByUrl(section.onIconClickUrl || section.url);
         }
     }
 
-    public showMegaMenu() {
+    showMegaMenu() {
         this.navbarService.megaMenuVisible$.next(true);
     }
 }

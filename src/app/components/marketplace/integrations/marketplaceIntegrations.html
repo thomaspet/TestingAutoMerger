@@ -1,6 +1,6 @@
 <section class="integration-main">
     <section class="header">
-        <h1>Integrasjoner</h1>
+        <h1>{{ toolbarHeader | translate}}</h1>
     </section>
     <section class="search">
         <div class="search-input">
@@ -9,7 +9,6 @@
     </section>
 
     <section class="live-integration-items">
-        <h3>Aktive</h3>
         <section class="integration-grid">
             <section class="integration-item" *ngFor="let item of activeIntegrations | filterIntegrations: searchText">
                 <i *ngIf="item._isBought" class="material-icons integration-active">check_circle</i>
@@ -34,32 +33,30 @@
         </section>
     </section>
 
-    <section class="future-integrations">
-       
-            <h3>Lanseres snart</h3>
-            <section class="integration-grid">
-                <section class="integration-item" *ngFor="let item of upcomingIntegrations | filterIntegrations: searchText">
-                    <section class="integration-icon" [style.background-color]="item.IconBackgroundColor">
-                        <img src="{{item.IconReference}}" />
-                    </section>
-                    <div class="title-container">
-                        <p class="title">{{item.Label}}</p>
-                        <p class="sub-title">{{item.CategoryName}}</p>
-                    </div>
-                    <section class="footer">
-                        <span>
-                            <i class="material-icons">power</i>
-                            {{item.CategoryName}}
-                        </span>
+    <section class="future-integrations" *ngIf="upcomingIntegrations?.length">
+        <h3>Lanseres snart</h3>
+        <section class="integration-grid">
+            <section class="integration-item" *ngFor="let item of upcomingIntegrations | filterIntegrations: searchText">
+                <section class="integration-icon" [style.background-color]="item.IconBackgroundColor">
+                    <img src="{{item.IconReference}}" />
+                </section>
+                <div class="title-container">
+                    <p class="title">{{item.Label}}</p>
+                    <p class="sub-title">{{item.CategoryName}}</p>
+                </div>
+                <section class="footer">
+                    <span>
+                        <i class="material-icons">power</i>
+                        {{item.CategoryName}}
+                    </span>
 
-                        <a class="read-more" (click)="openSubscribeModal(item)">Les mer</a>
-                    </section>
+                    <a class="read-more" (click)="openSubscribeModal(item)">Les mer</a>
                 </section>
             </section>
-        
+        </section>
     </section>
 
-    <section class="more-info-container">
+    <section class="more-info-container" *ngIf="!isSrEnvironment">
         <h3>Vil du vite mer?</h3>
         <p class="info-text">
             Dette er et overblikk over systemer som Uni Economy vil ha integrasjoner med på kort sikt. Uni Economy er
@@ -67,6 +64,9 @@
             integrasjoner som vil komme i listen her. Kontakt oss hvis du vil integrere andre systemer med Uni
             Economy.
         </p>
-        <a class="button c2a contact-us-button" href="https://www.unimicro.no/kontakt">Kontakt oss</a>
+
+        <a href="https://www.unimicro.no/kontakt" target="_blank">
+            <button class="c2a contact-us-button">Kontakt oss</button>
+        </a>
     </section>
 </section>

@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
 import {WidgetModule} from '../widgets/widgetModule';
@@ -66,6 +65,7 @@ import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
 import {WageTypeSettings} from './wagetype/views/wagetypeSettings';
 import {WagetypeList} from './wagetype/wagetypeList';
 import {WageTypeViewService} from './wagetype/services/wageTypeViewService';
+import {WagetypeSyncGuard} from './wagetype/wagetypesync.guard';
 
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
@@ -136,14 +136,14 @@ import {
 } from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
-import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
+import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
+import { BarnepassView } from './altinnOverview/barnepass/barnepassview';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         MatTooltipModule,
         MatSlideToggleModule,
         MatSelectModule,
@@ -216,6 +216,7 @@ import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
         WagetypeDetail,
         WagetypeList,
         WageTypeSettings,
+        SyncWagetypesModalComponent,
 
         // Category
         CategoryList,
@@ -284,7 +285,8 @@ import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
         PeriodAdminModalComponent,
         OtpPeriodWagetypeModalComponent,
         UniFindEmployeeModal,
-        UniSupplementEditModal
+        UniSupplementEditModal,
+        SyncWagetypesModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -297,7 +299,8 @@ import { BarnepassView } from '../sales/altinn/barnepass/barnepassview';
         AltinnErrorHandlerService,
         EmpCanActivateGuard,
         AltinnOverviewParser,
-        SalaryHelperMethods
+        SalaryHelperMethods,
+        WagetypeSyncGuard,
     ],
     exports: [
         UniSalary,

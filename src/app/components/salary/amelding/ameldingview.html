@@ -3,7 +3,6 @@
     [config]="toolbarConfig"
     [saveactions]="actions"
     [contextmenu]="contextMenuItems"
-    [statustrack]="getStatusTrackConfig()"
     [searchConfig]="toolbarSearchConfig"
     (statusSelectEvent)="setAmeldingFromEvent($event)">
 </uni-toolbar>
@@ -66,7 +65,7 @@
 
     <!-- Tabs and content -->
     <section class="uni-container amelding-container">
-        <uni-tabs
+        <uni-tabs class="scoped"
             [tabs]="tabs"
             [(activeIndex)]="activeTabIndex"
             (tabClick)="addTab()">

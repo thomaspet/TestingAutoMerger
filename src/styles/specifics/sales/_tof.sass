@@ -7,13 +7,13 @@ article.tof-head
     flex-flow: row wrap
 
     .uni-container
-
         fieldset
             padding-top: 0
             max-width: none
             margin-right: .5rem
 
         &.customer-card
+            margin-right: 1rem
             min-width: 16rem
 
         &.tof-forms
@@ -21,9 +21,11 @@ article.tof-head
             min-width: 48rem
             margin-right: 0
 
-            .mat-tab-label
-                height: 2.5rem !important
-
+    .required-dimension
+        font-size: .9rem
+        i.material-icons
+            vertical-align: middle
+            margin-bottom: 2px
 
     tof-details-form,
     tof-delivery-form,
@@ -40,108 +42,83 @@ article.tof-head
         uni-field
             @include labelLength(10rem)
 
-    .tof-freetext,
     .tof-attachments,
     .tof-reminders,
     .tof-sellers
         box-sizing: border-box
-
-    .tof-freetext
-        label
-            display: block
-            line-height: 2rem
-            margin-bottom: 1rem
-
-            span
-                width: 10rem
-
-            span+*
-                width: calc(100% - 10rem)
-                float: right
-
 
 tof-customer-card
     display: block
     padding: 0 1rem
     max-width: 35rem
 
-    input, button.searchBtn
-        height: 2rem !important
-
-    uni-search
-        display: block
-        height: 2rem
-        margin-bottom: 1rem
+    .customer-select
+        margin-bottom: .5rem
 
     .addressCard
-        display: block
-        height: 8.2rem
+        display: flex
+        flex-direction: column
         width: 100%
         box-sizing: border-box
-        min-height: pxToRem(107)
-        padding: .3rem .8rem
-        margin-bottom: 1.5rem
-        border-radius: pxToRem(5)
-        border: 1px dashed $uni-color-scale8
+        min-height: 8rem
+        padding: .5rem .75rem .75rem
+        border-radius: 4px
+        border: 1px dashed var(--border-color)
         font-size: .9rem
         position: relative
 
-        &[aria-readonly]:not([aria-readonly=false])
-            .edit-btn
-                cursor: not-allowed
-
         .edit-btn
-            min-height: 0
-            height: 0.8rem
-            width: 0.8rem
             position: absolute
-            top: pxToRem(5)
-            right: pxToRem(5)
+            top: .75rem
+            right: .75rem
             cursor: pointer
-
-            background-size: auto .8rem
-            background-image: unicon-edit($uni-color-scale5)
+            font-size: 16px
             &:hover
-                background-image: unicon-edit($uni-color-c2a)
+                color: var(--color-c2a)
 
         .badge-pending
-            background-color: $uni-color-warn
+            background-color: var(--color-warn)
 
         .badge-in-progress
-            background-color: $uni-color-warn
+            background-color: var(--color-warn)
 
         .badge-cancelled
-            background-color: $uni-color-bad
+            background-color: var(--color-bad)
 
         .badge-completed
-            background-color: $uni-color-good
+            background-color: var(--color-good)
 
         .badge-failed
-            background-color: $uni-color-bad
+            background-color: var(--color-bad)
 
         .badge-available
-            background-color: $uni-color-positive
+            background-color: var(--color-c2a)
 
         .badge-unavailable
             display: none
 
         .sharing-badges
-            position: absolute
-            bottom: pxToRem(5)
-            right: pxToRem(5)
-            margin-left: .75rem
-            float: right
+            margin-top: auto
+            display: flex
+            justify-content: flex-end
+            flex-wrap: wrap
 
-        .sharing-badges > span
-            width: pxToRem(45)
-            color: white
-            border: pxToRem(1) solid $uni-color-scale9
-            font-size: .8rem
-            text-align: center
-            padding: pxToRem(4)
+            > span
+                flex: 0 0 auto
+                min-width: 3rem
+                height: 24px
+                line-height: 24px
+                color: #fff
+                font-size: 14px
+                text-align: center
+                padding: 0 8px
+                border-radius: 25px
+                margin-top: .5rem
+                & + span
+                    margin-left: .25rem
 
         .unpaid-invoices a
-            color: $uni-color-bad
+            color: var(--color-bad)
 
 .tradeitem-container
     margin-right: 0
@@ -149,15 +126,28 @@ tof-customer-card
     uni-tradeitem-table
         display: block
 
-
-    .tof-summary
+    .freetext-and-summary
         display: flex
-        .currency-info
-            flex: 0 0 auto
-            margin-left: auto
-            margin-right: 3rem
-            font-size: 14px
+        justify-content: space-between
+        padding-bottom: 1rem
 
-        .vertical-summary
-            flex: 0 0 25rem
-            margin-right: 2.75rem
+        .freetext
+            flex: 1
+            max-width: 35rem
+            span
+                display: block
+                margin: 0 0 .25rem 2px
+                color: var(--color-c2a-dark)
+                font-weight: 500
+                font-size: 14px
+
+        .tof-summary
+            display: flex
+            .currency-info
+                flex: 0 0 auto
+                margin-top: .25rem
+                font-size: 14px
+            .vertical-summary
+                flex: 0 0 auto
+                min-width: 25rem
+                margin-left: 1.5rem

@@ -221,7 +221,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         this.pageStateService.setPageState('order', this.currentListFilter.index + '');
 
         this.tabService.addTab({
-            name: 'Lønnsavregning. ' + this.payrollRunID,
+            name: 'SALARY.PAYROLL.NUMBER~' + this.payrollRunID,
             url: this.pageStateService.getUrl(),
             moduleID: UniModules.Payrollrun,
             active: true

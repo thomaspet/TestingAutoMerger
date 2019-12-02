@@ -13,18 +13,16 @@ uni-summary
 uni-summary .unisummary
     display: flex
     width: 100%
-    background: mix($uni-color-good, $uni-color-negative, 10%)
+    background: #e1f2e1
     flex-flow: row wrap
     position: relative
-    border-top: pxToRem(3) double $uni-color-scale9
-    border-bottom: pxToRem(1) solid $uni-color-scale9
     transition: color 1000ms ease-in
 
     dt, dd
         text-align: left
         flex: 1
         margin: 0
-        border-left: pxToRem(1) solid $uni-color-scale9
+        border-left: 1px solid #fff
         font-weight: 400
 
         &:first-of-type
@@ -53,12 +51,12 @@ uni-summary .unisummary
 
 uni-summary.-is-dirty
     .unisummary
-        color: $uni-color-scale7
+        color: #A1ABBF
         position: relative
         margin-bottom: 1.5rem
 
         small
-            color: $uni-color-scale7
+            color: #A1ABBF
 
         &:before
             animation: fadedown 750ms ease-in
@@ -68,26 +66,29 @@ uni-summary.-is-dirty
             bottom: -1.5rem
             right: 1rem
             font-size: .8rem
-            color: $uni-color-scale6
+            color: #A1ABBF
 
 
 // Vertical summary
 .vertical-summary
     display: flex
     flex-direction: column
+    font-size: 15px
 
     .summary-line
-        flex: 1
+        flex: 0 0 auto
         display: flex
         flex-direction: row
+        align-items: center
+        height: 2rem
         padding: 0 .25rem
 
         &.border-top
-            border-top: 1px solid $uni-color-scale2
+            border-top: 1px solid var(--text-color)
 
         &.total-sum
-            border-top: 1px solid $uni-color-scale2
-            border-bottom: 1px solid $uni-color-scale2
+            border-top: 1px solid var(--text-color)
+            border-bottom: 1px solid var(--text-color)
             font-weight: bold
 
         label

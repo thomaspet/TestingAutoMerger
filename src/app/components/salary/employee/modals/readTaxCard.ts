@@ -46,8 +46,6 @@ export class ReadTaxCard implements OnInit {
             ])
             .setEditable(false)
             .setPageSize(10);
-
-
     }
 
     public ngOnInit() {

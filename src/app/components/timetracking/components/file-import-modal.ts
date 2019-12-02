@@ -8,7 +8,7 @@ import * as moment from 'moment';
     selector: 'timetracking-import-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>Import av timer fra fil</h1></header>
+            <header>Import av timer fra fil</header>
 
             <article>
                 <label class="upload-input">

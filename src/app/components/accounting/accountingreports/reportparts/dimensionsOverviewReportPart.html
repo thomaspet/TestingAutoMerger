@@ -1,6 +1,5 @@
 <section [attr.aria-busy]="busy" class="dimension-result" *ngIf="dimensionType">
     <ag-grid-wrapper
-        class="font-14"
         [resource]="dimensionDataList"
         [config]="uniTableConfigDimension"
         (rowSelectionChange)="selectDimension($event)"

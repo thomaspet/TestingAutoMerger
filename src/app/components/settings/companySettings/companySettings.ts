@@ -67,6 +67,7 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
+import {environment} from 'src/environments/environment';
 
 import * as _ from 'lodash';
 
@@ -103,6 +104,7 @@ export class CompanySettingsComponent implements OnInit {
     public config$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public reportSetupFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    isSrEnvironment: boolean = environment.isSrEnvironment;
 
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
@@ -139,9 +141,6 @@ export class CompanySettingsComponent implements OnInit {
     private hideBankValues: boolean;
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
-
-    private defaultCompanyAccount: any;
-    private defaultTaxAccount: any;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -212,9 +211,7 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getQuoteTemplateText(),
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
-            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
-            this.accountService.searchAccounts('AccountNumber eq 1920', 1),
-            this.accountService.searchAccounts('AccountNumber eq 1950', 1)
+            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -254,8 +251,6 @@ export class CompanySettingsComponent implements OnInit {
                 this.quoteFormList = dataset[12];
                 this.orderFormList = dataset[13];
                 this.invoiceFormList = dataset[14];
-                this.defaultCompanyAccount = dataset[15][0];
-                this.defaultTaxAccount = dataset[16][0];
 
                 this.companySettings$.next(this.setupMultivalueData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
@@ -903,7 +898,19 @@ export class CompanySettingsComponent implements OnInit {
         this.fields$.next(fields);
     }
 
-    private getBankAccountOptions(storeResultInProperty, bankAccountType) {
+    private getBankAccountOptions(storeResultInProperty: string, bankAccountType: string) {
+        const modalConfig: any = {
+            ledgerAccountVisible: true,
+            defaultAccountNumber: bankAccountType === 'company' ? 1920 : bankAccountType === 'tax' ? 1950 : null,
+        };
+
+        if (this.isSrEnvironment) {
+            modalConfig.BICLock = {
+                BIC:  'SPRONO22',
+                BankName: 'SpareBank 1 SR-Bank'
+            };
+        }
+
         return {
             entity: BankAccount,
             listProperty: 'BankAccounts',
@@ -918,27 +925,11 @@ export class CompanySettingsComponent implements OnInit {
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
                     bankaccount.ID = 0;
-                    switch (bankAccountType) {
-                        case 'company':
-                            bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
-                            bankaccount.AccountID = !bankaccount.AccountID ? this.defaultCompanyAccount.ID : bankaccount.AccountID;
-                            break;
-
-                        case 'tax':
-                            bankaccount.Account = !bankaccount.Account ? this.defaultTaxAccount : bankaccount.Account;
-                            bankaccount.AccountID = !bankaccount.AccountID ? this.defaultTaxAccount.ID : bankaccount.AccountID;
-                            break;
-
-                        default:
-                            break;
-                    }
                 }
 
                 const modal = this.modalService.open(UniBankAccountModal, {
                     data: bankaccount,
-                    modalConfig: {
-                        ledgerAccountVisible: true
-                    },
+                    modalConfig: modalConfig,
                     closeOnClickOutside: false
                 });
 
@@ -1407,7 +1398,8 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Betaling fra Nordea',
                 FieldSet: 6,
                 Section: 1,
-                Sectionheader: 'Bankkontoer'
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1417,7 +1409,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideBankValues
+                Hidden: this.hideBankValues || this.isSrEnvironment,
             },
             {
                 EntityType: 'CompanySettings',
@@ -1427,7 +1419,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideBankValues
+                Hidden: this.hideBankValues || this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1436,7 +1428,8 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Betaling fra DnB konto',
                 FieldSet: 6,
                 Section: 1,
-                Sectionheader: 'Bankkontoer'
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1446,7 +1439,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideXtraPaymentOrgXmlTagValue
+                Hidden: this.hideXtraPaymentOrgXmlTagValue || this.isSrEnvironment
             },
             {
                 EntityType: 'CompanySettings',
@@ -1454,7 +1447,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Bokfør kun utbet. fra UE',
                 Tooltip: {
-                    Text: 'Utbetalinger som ikke er sendt fra Uni Economy (som ikke har EndToEndID) blir ikke bokført'
+                    Text: 'Utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) blir ikke bokført'
                 },
                 FieldSet: 6,
                 Section: 1,

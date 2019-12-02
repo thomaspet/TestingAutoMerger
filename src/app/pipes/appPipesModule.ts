@@ -6,8 +6,9 @@ import {UniCurrencyPipe} from './uniCurrencyPipe';
 import {UniDateFormatPipe} from './uniDateFormatPipe';
 import {UniNumberFormatPipe} from './uniNumberFormatPipe';
 import {SkipSanitizationPipe} from './skipSanitizationPipe';
-import { EntitytypeTranslationPipe } from './entitytype-translation.pipe';
-import { UniStatusCodePipe } from '@app/pipes/StatusCodePipe';
+import {UniTranslatePipe} from './uniTranslatePipe';
+import {EntitytypeTranslationPipe} from './entitytype-translation.pipe';
+import {UniStatusCodePipe} from './StatusCodePipe';
 
 @NgModule({
     imports: [
@@ -20,6 +21,7 @@ import { UniStatusCodePipe } from '@app/pipes/StatusCodePipe';
         UniCurrencyPipe,
         UniDateFormatPipe,
         UniNumberFormatPipe,
+        UniTranslatePipe,
         EntitytypeTranslationPipe,
         UniStatusCodePipe
     ],
@@ -30,6 +32,7 @@ import { UniStatusCodePipe } from '@app/pipes/StatusCodePipe';
         UniCurrencyPipe,
         UniDateFormatPipe,
         UniNumberFormatPipe,
+        UniTranslatePipe,
         EntitytypeTranslationPipe,
     ],
     exports: [
@@ -40,6 +43,7 @@ import { UniStatusCodePipe } from '@app/pipes/StatusCodePipe';
         UniCurrencyPipe,
         UniDateFormatPipe,
         UniNumberFormatPipe,
+        UniTranslatePipe,
         EntitytypeTranslationPipe,
         UniStatusCodePipe
     ]

@@ -37,22 +37,12 @@ interface IUniTableSearchOperator {
             [formControl]="basicSearchControl"
         />
 
-        <section #savedSearchesElem class="unitable-saved-filters" *ngIf="tableConfig?.searchListVisible" (click)="toggleSavedSearchesList()">
-            <section>{{activeSearchName || 'Lagrede søk'}}</section>
-            <ul [attr.aria-expanded]="savedSearchesVisible">
-                <li (click)="activateSavedSearch(null)">Ikke valgt</li>
-                <li *ngFor="let search of savedSearches; let idx = index" (click)="activateSavedSearch(search)">
-                    {{search.name}}
-                </li>
-            </ul>
-        </section>
-
-
         <section #advancedSearchElem class="advanced-search-wrapper">
-            <button class="unitableSearch_advancedBtn"
-                [matMenuTriggerFor]="advancedDropdown">
-                Avansert
-            </button>
+            <i [matMenuTriggerFor]="advancedDropdown"
+                class="material-icons unitable-advanced-search-toggle"
+                role="button">
+                settings
+            </i>
 
             <mat-menu #advancedDropdown="matMenu" yPosition="below" [overlapTrigger]="false">
                 <ul #advancedSearchElem class="unitableSearch_advanced" (click)="$event.stopPropagation()">
@@ -309,20 +299,6 @@ export class UniTableSearch implements OnChanges {
                 this.cdr.markForCheck();
             }
         }
-    }
-
-    public toggleSavedSearchesList() {
-        // Allow clickOutside check to finish first
-        // setTimeout(() => {
-            if (!this.savedSearches.length) {
-                return;
-            }
-
-            console.log('toggle');
-
-            this.savedSearchesVisible = !this.savedSearchesVisible;
-            this.cdr.markForCheck();
-        // });
     }
 
     public saveSearch() {

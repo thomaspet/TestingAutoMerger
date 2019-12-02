@@ -1,0 +1,30 @@
+<section class="authentication-component">
+    <h1>
+        <mat-spinner *ngIf="creatingCompany" class="c2a" [diameter]="24"></mat-spinner>
+        Oppretting av demobedrift
+    </h1>
+
+    <ng-container *ngIf="creatingCompany">
+        <p>
+            Vi setter nå opp en demobedrift med innstillinger og data du trenger for å komme i gang.
+        </p>
+        <p>
+            Denne prosessen kan ta litt tid. Du vil bli logget inn automatisk så snart
+            oppretting er fullført. Det blir også sendt ut en epost når selskapet er
+            klart til bruk.
+        </p>
+    </ng-container>
+
+    <section class="creation-error" *ngIf="error">
+        <section class="alert bad">
+            Noe gikk galt da vi prøvde å opprette demo.
+            <br>Det kan være stor pågang for øyeblikket.
+        </section>
+
+        <button class="secondary"
+            [attr.aria-busy]="busy"
+            (click)="createTestCompany()">
+            Prøv igjen
+        </button>
+    </section>
+</section>

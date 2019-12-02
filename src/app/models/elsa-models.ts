@@ -87,6 +87,7 @@ export interface ElsaProduct {
     IsPerUser: boolean;
     Label: string;
     ListOfRoles: string;
+    DefaultRoles?: string;
     Name: string;
     ParentProducts?: string[];
     Price: number;
@@ -117,7 +118,8 @@ export enum ElsaProductType {
     Module = 0,
     Bundle = 1,
     Integration = 2,
-    Extension = 3
+    Extension = 3,
+    BankProduct = 4
 }
 
 export enum ElsaUserLicenseType {

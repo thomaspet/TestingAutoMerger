@@ -42,6 +42,8 @@ export class InvoicedWidget implements AfterViewInit {
     tooltip;
 
     MONTHS = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
+    COLORS = ['#0071CD', '#7FC6E8'];
+
     currentLabels: string[] = [];
     currentLabelsFull: string[] = [];
     periodes: IPeriode[] = [
@@ -204,13 +206,13 @@ export class InvoicedWidget implements AfterViewInit {
                     {
                         label: 'Innbetalt',
                         data: [],
-                        backgroundColor: '#62B2FF',
+                        backgroundColor: this.COLORS[1],
                     },
                     {
                         label: 'Fakturert',
                         data: [],
-                        backgroundColor: '#4898F3',
-                        hoverBackgroundColor: '#4898F3',
+                        backgroundColor: this.COLORS[0],
+                        // hoverBackgroundColor: '#4898F3',
                     }
                 ]
             },

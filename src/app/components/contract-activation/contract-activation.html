@@ -1,113 +1,150 @@
-<section class="activation-section">
-    <section *ngIf="!isDemoLicense" class="info-message">
-        <i class="material-icons good">check_circle</i>
-        Kontrakt er allerede aktivert for dette selskapet
+<section *ngIf="!isTestCompany" class="activation-section">
+    <h1>{{headerText}}</h1>
+
+    <section *ngIf="!isDemoLicense" class="alert info">
+        Kundeforhold er allerede aktivert for dette selskapet
     </section>
 
-    <section *ngIf="isDemoLicense && !canActivateContract" class="info-message">
-        <i class="material-icons bad">error</i>
+    <section *ngIf="isDemoLicense && !canActivateContract" class="alert warn">
         Du har ikke tilgang til å aktivere kundeforhold.
-        Dette må gjøres av lisensadministrator.
+        <br>Dette må gjøres av lisensadministrator.
     </section>
 
-    <section *ngIf="wrongCompanyMessage" class="info-message">
-        <i class="material-icons bad">error</i>
-        {{wrongCompanyMessage}}
-        <a *ngIf="mainCompany" (click)="goToMainCompany()">{{mainCompany.Name}}</a>
-    </section>
+    <ng-container *ngIf="isDemoLicense && canActivateContract">
+        <section *ngIf="isSrEnvironment" style="margin-bottom: 2rem;">
+            <p>
+                SR-Bank Regnskap er en del av kundekonseptet Bank+Regnskap. Informasjon om konseptet
+                <a href="https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap.html" target="_blank">
+                    finner du her.
+                </a>
+            </p>
 
-    <section *ngIf="isDemoLicense && canActivateContract && !wrongCompanyMessage" class="form-container">
-        <h1>Aktivering av kundeforhold</h1>
+            <p>
+                Ved å sende inn skjemaet bestiller du Bank+Regnskap.
+                Du får full versjon av SR-Bank Regnskap og banktjenestene som vil gjøre
+                bruken av systemet så enkel som mulig.
+                Du vil få tilsendt avtaledokumenter for elektronisk signatur.
+            </p>
 
-        <form #f="ngForm" [formGroup]="licenseData" class="uni-html-form label-align-right label-sm">
-            <label>
-                <span>Organisasjonsnummer</span>
-                <input type="search"
-                    formControlName="orgNumber"
-                    [ngClass]="{'invalid': noBrRegMatch}"
-                />
-            </label>
+            <p>
+                Dersom du ikke allerede er bedriftskunde i SR-Bank vil du automatisk bli
+                sendt videre til løypen for opprettelse av kundeforhold. Spørsmål? Chat med oss!
+            </p>
+        </section>
 
-            <small class="form-error" *ngIf="noBrRegMatch">
-                Organisasjonsnummer finnes ikke i enhetsregisteret
-            </small>
+        <section class="company-form" *ngIf="companySettings">
+            <company-details-form [(details)]="companyDetails"></company-details-form>
 
-            <label>
-                <span>Selskapsnavn</span>
-                <input type="text" formControlName="companyName">
-            </label>
-
-            <label>
-                <span>Addresse</span>
-                <input type="text" formControlName="address">
-            </label>
-
-            <label>
-                <span>Postnummer</span>
-                <input type="text" formControlName="postalCode">
-            </label>
-
-            <label>
-                <span>Poststed</span>
-                <input type="text" formControlName="city">
-            </label>
-
-            <label>
+            <label *ngIf="!isSrEnvironment" class="uni-label">
                 <span>Regnskapsbyrå</span>
-                <select formControlName="isBureau">
-                    <option value="false">Nei</option>
-                    <option value="true">Ja</option>
+                <select [(ngModel)]="isBureau">
+                    <option [ngValue]="false">Nei</option>
+                    <option [ngValue]="true">Ja</option>
                 </select>
             </label>
+        </section>
 
-            <fieldset>
-                <legend>Kontaktinformasjon</legend>
+        <section class="contact-form" *ngIf="elsaCustomer">
+            <h1>Kontaktinformasjon</h1>
 
-                <label>
-                    <span>Navn</span>
-                    <input type="text" formControlName="name">
-                </label>
+            <label class="uni-label">
+                <span>Navn</span>
+                <input type="text" [(ngModel)]="elsaCustomer.ContactPerson">
+            </label>
 
-                <label>
-                    <span>Telefon</span>
-                    <input type="text" formControlName="phone">
-                </label>
+            <label class="uni-label">
+                <span>Telefon</span>
+                <input type="text" [(ngModel)]="elsaCustomer.ContactPhone">
+            </label>
 
-                <label>
-                    <span>Epost</span>
-                    <input type="text" formControlName="email">
-                </label>
-            </fieldset>
+            <label class="uni-label">
+                <span>Epost</span>
+                <input type="text" [(ngModel)]="elsaCustomer.ContactEmail">
+            </label>
+        </section>
 
-            <section class="submit-section">
-                <mat-checkbox formControlName="hasAcceptedTerms">
-                    <span class="checkbox-label">
-                        Jeg har lest og godtar
-                        <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" target="_blank" rel="noopener noreferrer">
-                            lisensavtale for Uni Economy
-                        </a>
-                    </span>
-                </mat-checkbox>
+        <section class="submit-section">
+            <mat-checkbox *ngIf="isSrEnvironment" [(ngModel)]="isSrCustomer">
+                <span class="checkbox-label">
+                    Jeg er allerede SR-Bank bedriftskunde
+                </span>
+            </mat-checkbox>
 
-                <button
-                    type="button"
-                    class="good"
-                    [attr.aria-busy]="busy"
-                    [disabled]="!f.form.valid || noBrRegMatch"
-                    (click)="activate()">
-                    Aktiver kontrakt
-                </button>
-            </section>
-        </form>
-    </section>
+            <mat-checkbox [(ngModel)]="hasAcceptedTerms">
+                <span class="checkbox-label">
+                    Jeg har lest og godtar
+                    <a [href]="lisenceAgreementUrl" target="_blank" rel="noopener noreferrer">
+                        lisensavtalen.
+                    </a>
+                </span>
+            </mat-checkbox>
 
+            <button
+                type="button"
+                class="good"
+                [attr.aria-busy]="busy"
+                [disabled]="!hasAcceptedTerms"
+                (click)="activate()">
+                {{buttonText}}
+            </button>
+        </section>
+    </ng-container>
 
 </section>
 
+<!-- Creating company (when customer started demo with testdata) -->
+<section *ngIf="isTestCompany" class="activation-section company-creation">
+    <h1 *ngIf="!companyCreationBusy">Registrer bedriften din</h1>
+    <h1 *ngIf="companyCreationBusy">
+        <mat-spinner class="c2a" [diameter]="24"></mat-spinner>
+        Registrerer bedrift
+    </h1>
 
-<section class="info-section">
-    <img src="../../../../../assets/ue_activation-min.png" alt="Uni Economy bilde">
+    <ng-container *ngIf="!companyCreationMode">
+        <p>
+            Det ser ut som du er innlogget på et selskap med demodata.
+            <br>
+            Før vi aktiverer kontrakten må vi opprette bedriften din i systemet.
+        </p>
 
-    <h1>Uni Economy</h1>
-    <h2>Fremtidens økonomisystem i skyen</h2>
+        <button (click)="companyCreationMode = true" class="c2a">
+            Registrer bedrift
+        </button>
+    </ng-container>
+
+    <ng-container *ngIf="companyCreationMode && !companyCreationBusy">
+        <company-details-form [(details)]="companyDetails"></company-details-form>
+        <label class="uni-label">
+            <span>Skal du betale moms?</span>
+            <mat-radio-group class="horizontal" [(ngModel)]="includeVat">
+                <mat-radio-button [value]="true">Ja</mat-radio-button>
+                <mat-radio-button [value]="false">Nei</mat-radio-button>
+            </mat-radio-group>
+        </label>
+
+        <label class="uni-label">
+            <span>Skal selskapet ha ansatte?</span>
+            <mat-radio-group class="horizontal" [(ngModel)]="includeSalary">
+                <mat-radio-button [value]="true">Ja</mat-radio-button>
+                <mat-radio-button [value]="false">Nei</mat-radio-button>
+            </mat-radio-group>
+        </label>
+
+        <button class="c2a"
+            (click)="createCompany()"
+            [disabled]="includeVat === undefined || includeSalary === undefined">
+            Registrer bedrift
+        </button>
+    </ng-container>
+
+    <ng-container *ngIf="companyCreationBusy">
+        <p>
+            Vi setter nå opp bedriften med innstillinger og data du trenger for å komme i gang.
+        </p>
+        <p>
+            Denne prosessen kan ta litt tid. Du vil bli logget på selskapet så snart
+            oppretting er fullført. Det blir også sendt ut en epost når selskapet er
+            klart til bruk.
+        </p>
+    </ng-container>
 </section>

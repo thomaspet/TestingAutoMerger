@@ -3,19 +3,22 @@
     <article style="overflow: unset">
         <mat-horizontal-stepper [linear]="true" #stepper [@.disabled]="true">
             <mat-step label="Oppsumering" [completed]="currentStep > 0">
-                <h1>Oppsumering</h1>
+                <h1>Oppsummering</h1>
                 <p>
-                    Veiviser for oppretelse av samlefaktura. Alle ordre/fakturakladder du har i listen
-                    vil bli samlefaktureret
+                    Veiviser for opprettelse av samlefaktura. Alle ordre/fakturakladder du har i listen
+                    vil bli samlefakturert
                 </p>
-                <dl>
-                    <dt>Ordre/Fakturakladder samlefaktureres:</dt>
-                    <dd>{{numberOfItems}}</dd>
-                </dl>
-                <dl>
-                    <dt>Total sum:</dt>
-                    <dd>{{totalAmount | uninumberformat: 'money'}}</dd>
-                </dl>
+
+                <section class="summary-field">
+                    <span>Ordre/Fakturakladder samlefaktureres:</span>
+                    <span>{{numberOfItems}}</span>
+                </section>
+
+                <section class="summary-field">
+                    <span>Total sum:</span>
+                    <span>{{totalAmount | uninumberformat: 'money'}}</span>
+                </section>
+
             </mat-step>
             <mat-step label="Valg for samlefaktura" [completed]="currentStep > 1">
                 <uni-form
@@ -41,21 +44,20 @@
                 </p>
                 <p>
                     Trykk Kjør for å fullføre samlefakturajobben. Når jobben er ferdig fakturert vil du få et varsel
-                    og en e-post med en oppsumering
+                    og en e-post med en oppsummering
                 </p>
                 <p>
                     Dersom du ønsker oppdatering på jobben underveis gå til:
                 </p>
                 <p>
-                    Instillinger &rarr; Jobber &rarr; <a (click)="goToBatchInvoicesList()">Samlefaktura</a>
+                    Innstillinger &rarr; Jobber &rarr; Samlefaktura
                 </p>
             </mat-step>
         </mat-horizontal-stepper>
     </article>
     <footer>
-        <button class="back" (click)="goBack()" [disabled]="currentStep === 1">Tilbake</button> <!--Ikke vis på siste side-->
-        <button class="c2a" (click)="goNext()" *ngIf="currentStep < 3">Neste</button> <!--Ikke vis på siste side-->
-        <button (click)="execute()" class="good" *ngIf="currentStep === 3">Kjør</button> <!--Vis kun på siste side-->
-        <button (click)="close('ok')" class="good" *ngIf="currentStep === 4">Lukk</button> <!--Vis kun på siste side-->
+        <button class="back" (click)="goBack()" [disabled]="currentStep === 1">Tilbake</button> <!--Ikke vis på første side-->
+        <button class="c2a" (click)="goNext()" *ngIf="currentStep < 4">Neste</button> <!--Ikke vis på siste side-->
+        <button (click)="execute()" class="good" *ngIf="currentStep === 4">Kjør</button> <!--Vis kun på siste side-->
     </footer>
 </section>`

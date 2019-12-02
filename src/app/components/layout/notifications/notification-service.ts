@@ -18,12 +18,14 @@ import { Router } from '@angular/router';
 import { CompanyService } from '@app/services/services';
 import { BusinessObject } from '@app/models';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
+import {environment} from 'src/environments/environment';
 
 @Injectable()
 export class NotificationService extends BizHttp<Notification> {
     readTimestamp: Date;
 
     unreadCount$: BehaviorSubject<number> = new BehaviorSubject(null);
+    isSrEnvironment = environment.isSrEnvironment;
 
     constructor(
         uniHttp: UniHttp,
@@ -141,7 +143,8 @@ export class NotificationService extends BizHttp<Notification> {
         } else if (commonRouteMap[entityType]) {
             route = commonRouteMap[entityType];
         } else if (notification.EntityType === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
-            route = notification['_count'] === 1
+            route = this.isSrEnvironment ? '/accounting/inbox'
+                : notification['_count'] === 1
                 ? '/accounting/bills/0?fileid=:id'
                 : '/accounting/bills?filter=Inbox';
         }

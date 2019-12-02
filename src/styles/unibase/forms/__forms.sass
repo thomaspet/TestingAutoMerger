@@ -1,8 +1,7 @@
 $labelLength: pxToRem(200)
-$inputHeight: 2rem
+$input-height: 2.5rem
 
 @import 'labels'
-@import 'inputButtons'
 @import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
@@ -10,7 +9,6 @@ $inputHeight: 2rem
 @import 'linebreaks'
 @import 'select'
 @import 'validation'
-@import 'password'
 @import 'labelLength'
 
 uni-form
@@ -25,26 +23,14 @@ fieldset uni-field
 uni-field
     width: 100%
     display: block
-    padding: 0 .5rem pxToRem(10)
+    padding: 0 .5rem 10px
     min-height: 3rem
-    max-width: pxToRem(650)
 
-    label
-        position: relative
-        > span
-            display: inline-block
-            line-height: $inputHeight
-            width: $labelLength
-            white-space: nowrap
-            overflow: hidden
-            text-overflow: ellipsis
-
-            & + *
-                width: calc(100% - #{$labelLength})
-                float: right
-
-uni-button-input button
-    margin: 1.5rem 0 0
+    label.uni-label
+        margin-bottom: 0
+    .validation-results
+        margin-left: $labelLength
+        margin-top: .25rem
 
 uni-hyperlink-input a
     display: block
@@ -54,12 +40,13 @@ uni-field.visuallyHideLabel label > span
     @extend %visuallyHidden
 
 uni-button-input
+    display: block
     min-width: 100%
+    margin-left: #{$labelLength}
     button
-        margin: 0 0 .5rem #{$labelLength} !important
-        height: 2rem
-        line-height: 0
         min-width: 8rem
+        &.secondary
+            border-width: 1px
 
 uni-static-text-input
     line-height: 2rem

@@ -5,7 +5,6 @@ import {FinancialYearService} from '@app/services/services';
 import {WidgetDataService} from '@app/components/widgets/widgetDataService';
 import * as Chart from 'chart.js';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
-import {take} from 'rxjs/operators';
 
 interface IKeyNumberObject {
     label: string;
@@ -119,18 +118,22 @@ export class KpiWidget {
         });
     }
 
+    private formatValue(value) {
+        return value >= 100 || value <= -100
+            ? value.toFixed(0) : value.toFixed(1);
+    }
+
     public initProfitabilityIndicator(data) {
         if (data.sumTK) {
-            this.kpiItem.value = ((data.resultat * 100) / data.sumTK || 1).toFixed(1);
+            this.kpiItem.value = this.formatValue((data.resultat * 100) / data.sumTK || 1);
             this.checkNumbers(this.kpiItem, [1, 5, 9, 15]);
             this.drawDoughnut(this.canvas.nativeElement, this.kpiItem);
         }
     }
 
-
     public initLiquidityIndicator(data) {
         if (data.sumkortsiktiggjeld) {
-            this.kpiItem.value = (data.sumOmlopsmidler / (data.sumkortsiktiggjeld * -1)).toFixed(1);
+            this.kpiItem.value = this.formatValue(data.sumOmlopsmidler / (data.sumkortsiktiggjeld * -1));
             this.checkNumbers(this.kpiItem, [0.5, 1, 1.5, 2]);
             this.drawDoughnut(this.canvas.nativeElement, this.kpiItem);
         }
@@ -139,7 +142,7 @@ export class KpiWidget {
     public initSolidityIndicator(data) {
         if (data.sumTK) {
             // Add result to give a more up-to-date view of the solidity
-            this.kpiItem.value = (((data.sumEK + data.resultat) * 100) / (data.sumTK + data.resultat)).toFixed(1);
+            this.kpiItem.value = this.formatValue(((data.sumEK + data.resultat) * 100) / (data.sumTK + data.resultat));
 
             this.checkNumbers(this.kpiItem, [3, 10, 18, 40]);
             this.drawDoughnut(this.canvas.nativeElement, this.kpiItem);
@@ -178,11 +181,11 @@ export class KpiWidget {
     }
 
     drawDoughnut(canvas, kpiObject: IKeyNumberObject) {
-        let backgroundColor = '#05C46B';
+        let backgroundColor = '#008A00';
         if (kpiObject.indicatorLevel === 3) {
-            backgroundColor = '#FFC048';
+            backgroundColor = '#FF9100';
         } else if (kpiObject.indicatorLevel < 3) {
-            backgroundColor = '#FF0201';
+            backgroundColor = '#DA3D00';
         }
 
         const data = {
@@ -200,7 +203,7 @@ export class KpiWidget {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutoutPercentage: 80,
+                cutoutPercentage: 75,
                 legend: { display: false },
                 tooltips: { enabled: false },
                 events: [],
@@ -208,7 +211,8 @@ export class KpiWidget {
                     doughnutlabel: {
                         labels: [{
                             text: kpiObject.value,
-                            font: { size: '18' }
+                            color: '#676767',
+                            font: { size: '14' }
                         }]
                     }
                 }

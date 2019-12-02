@@ -10,6 +10,7 @@ import {Chart, ChartConfiguration} from 'chart.js';
 
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
+import {BLUE_SCALES} from '../../widget-colors';
 
 @Component({
     selector: 'balance-widget',
@@ -19,14 +20,6 @@ import {WidgetDataService} from '../../widgetDataService';
                 <span>Balansefordeling</span>
             </section>
             <div class="content">
-                <!--
-                <section class="chart-legend">
-                    <section *ngFor="let item of items; let idx = index" class="legend">
-                        <span class="indicator" [ngStyle]="{'background': colors[idx]}"></span>
-                        {{item.SubGroupName}}: <strong>{{ item.Sum | uninumberformat:'money'}}</strong>
-                    </section>
-                </section>
-                -->
                 <div class="canvas-wrapper">
                     <canvas #canvas></canvas>
                 </div>
@@ -47,8 +40,6 @@ export class BalanceWidget {
 
     data;
     absoluteSum;
-    v2 = ['#62B2FF', '#4DB6AC', '#94E4FF', '#7BCBFF', '#f6dc8d', '#80E9DF', '#FF9989', '#FF6656', '#FFDE29'];
-    colors = ['#2F7FDA', '#4898F3', '#62B2FF', '#7BCBFF', '#94E4FF', '#E1FFFF', '#4DB6AC', '#81C784', '#AED581', '#DCE775'];
 
     constructor(
         private dataService: WidgetDataService,
@@ -101,9 +92,11 @@ export class BalanceWidget {
                 labels: this.data.map(i => i.SubGroupName),
                 datasets: [{
                     data: this.data.map(i => Math.abs(i.Sum)),
-                    backgroundColor: this.v2, // this.colors,
+                    backgroundColor: BLUE_SCALES,
                     label: '',
-                    borderColor: 'white',
+                    borderColor: '#fff',
+                    hoverBorderColor: '#fff',
+
                 }]
             },
             options: {
@@ -117,6 +110,9 @@ export class BalanceWidget {
                     labels: {
                         usePointStyle: true
                     }
+                },
+                elements: {
+                    arc: { borderWidth: 3 }
                 },
                 plugins: {
                     datalabels: {

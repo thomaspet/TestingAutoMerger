@@ -1,0 +1,17 @@
+<ng-container *ngIf="statusIndicator">
+
+    <section class="status-indicator" [ngClass]="statusIndicator.class">
+        <i class="material-icons-outlined">{{statusIndicator.icon || 'info'}}</i>
+        {{statusIndicator.label}}
+    </section>
+
+    <section class="status-history">
+        <section *ngFor="let entry of sharingHistory" class="status-entry">
+            <span class="date">{{(entry.SharingCreatedAt || entry.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>
+            <span class="text">{{getSharingText(entry)}}</span>
+            <span class="status">{{getSharingStatus(entry)}}</span>
+        </section>
+
+        <a routerLink="/sharings">Gå til utsendingsliste</a>
+    </section>
+</ng-container>

@@ -30,7 +30,7 @@ export interface ReportCommentSetup {
     selector: 'uni-report-comments',
     template: `
         <section role="dialog" class="uni-modal" style="width: 50vw">
-            <header><h1>Rediger kommentarer</h1></header>
+            <header>Rediger kommentarer</header>
 
             <article class="scrollable" >
                 <ag-grid-wrapper (keydown.esc)="$event.stopPropagation()" [(resource)]="comments" [config]="tableConfig"></ag-grid-wrapper>

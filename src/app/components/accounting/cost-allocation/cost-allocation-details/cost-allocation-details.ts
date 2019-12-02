@@ -96,6 +96,21 @@ export class UniCostAllocationDetails {
     }
 
     onTouch() {
+        this.cleanIDs();
         this.touched.emit(true);
+    }
+
+    cleanIDs() {
+        this.costAllocation.Items.forEach(item => {
+            if (!item || !item.Dimensions) {
+                return;
+            }
+            if (item.Dimensions.Project === null) {
+                item.Dimensions.ProjectID = null;
+            }
+            if (item.Dimensions.Department === null) {
+                item.Dimensions.DepartmentID = null;
+            }
+        });
     }
 }

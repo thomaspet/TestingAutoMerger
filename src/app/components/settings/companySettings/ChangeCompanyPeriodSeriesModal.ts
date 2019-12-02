@@ -17,7 +17,7 @@ declare const _; // lodash
 
     <section role="dialog" class="uni-modal">
 
-        <header><h1>Endre periodeoppsett</h1></header>
+        <header>Endre periodeoppsett</header>
         <article class="change-companysettings-periodseries-form">
 
             <span>

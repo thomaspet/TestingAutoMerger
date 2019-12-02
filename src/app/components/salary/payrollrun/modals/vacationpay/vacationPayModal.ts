@@ -364,7 +364,12 @@ export class VacationPayModal implements OnInit, IUniModal {
             this.promptUserIfNeededAndGetDataObs(headerModel),
             this.setUpRatesObs(this.vacationBaseYear)
         )
-        .pipe(finalize(() => this.busy = false))
+        .pipe(
+            finalize(() => {
+                this.createTableConfig();
+                this.busy = false;
+            })
+        )
         .subscribe();
 
         this.setProperBasicAmount(headerModel);
@@ -589,6 +594,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private isEarlierPayline(row: VacationPayLine) {
+        if (!row) return false;
         return this.isEarlierPay(this.currentYear, row.Year);
     }
 

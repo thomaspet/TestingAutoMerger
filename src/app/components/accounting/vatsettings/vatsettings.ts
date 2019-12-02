@@ -8,7 +8,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {VatDeductionSettings} from './vatdeductions/vatdeductionsettings';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {PageStateService} from '../../../services/services';
 import {VatDeductionGroupSetupModal} from './modals/vatDeductionGroupSetupModal';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';

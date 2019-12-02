@@ -39,6 +39,7 @@ import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
     selector: 'uni-tradeitem-table',
     template: `
         <ag-grid-wrapper *ngIf="showTable && settings"
+            class="selection-disabled"
             [(resource)]="items"
             [config]="tableConfig"
             (rowChange)="onRowChange($event)"
@@ -375,9 +376,10 @@ export class TradeItemTable {
             .setVisible(false);
 
         // Columns
-        const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
+        const productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setJumpToColumn('NumberOfItems')
+            .setPlaceholder('Velg produkt')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (input: string) => {
@@ -438,19 +440,27 @@ export class TradeItemTable {
                             isMoneyField: true
                         }
                     ],
-                    createNewButton: {
-                        buttonText: 'Nytt produkt',
-                        action: () => {
-                            return this.modalService.open(UniProductDetailsModal, {  }).onClose;
-                        },
-                        getAction: (item) => {
-                            return this.productService.Get(item.ID, this.productExpands);
-                        },
-                        errorAction: (msg: string) => {
-                            this.errorService.handle(msg);
-                        }
-                    }
                 },
+                addNewButton: {
+                    label: 'Nytt produkt',
+                    action: () => {
+                        return new Promise(resolve => {
+                            this.modalService.open(UniProductDetailsModal, {}).onClose.subscribe(item => {
+                                if (item) {
+                                    this.productService.Get(item.ID, this.productExpands).subscribe(
+                                        product => resolve(product),
+                                        err => {
+                                            this.errorService.handle(err);
+                                            resolve(null);
+                                        }
+                                    );
+                                } else {
+                                    resolve(null);
+                                }
+                            })
+                        });
+                    }
+                }
             });
 
         const itemTextCol = new UniTableColumn('ItemText', 'Tekst')

@@ -7,7 +7,8 @@ import {
     ElementRef,
     QueryList,
     ChangeDetectionStrategy,
-    OnChanges
+    OnChanges,
+    ViewChild
 } from '@angular/core';
 import {Router} from '@angular/router';
 import {IContextMenuItem} from './unitable';
@@ -71,7 +72,7 @@ export interface IRowModelChangeEvent {
             </button>
         </td>
 
-        <td *ngIf="rowMenuItem" [ngClass]="{'contextMenu': !singleItemMenu}" tabindex="-1">
+        <td *ngIf="rowMenuItem" #contextMenuCell [ngClass]="{'contextMenu': !singleItemMenu}" tabindex="-1">
             <button class="table-button"
                     [disabled]="config?.readonly && contextMenu.disableOnReadonlyRows"
                     (click)="rowMenuItem.action(rowModel.toJS())">
@@ -106,6 +107,9 @@ export class UniTableRow implements OnChanges {
 
     @ViewChildren('rowColumn')
     private cells: QueryList<ElementRef>;
+
+    @ViewChild('contextMenuCell')
+    private contextMenuCell: ElementRef;
 
     public uniTablePipe: UniTablePipe = new UniTablePipe();
     public contextMenu: any;
@@ -143,7 +147,7 @@ export class UniTableRow implements OnChanges {
             if (url.includes('mailto:')) {
                 window.location.href = url;
             } else if (url.includes('https') || url.includes('http') || url.includes('www')) {
-                if (window.confirm('Du forlater nå Uni Economy')) {
+                if (window.confirm('Du forlater nå applikasjonen')) {
                     if (!url.includes('http')) {
                         url = 'https://' + url;
                     }
@@ -196,7 +200,7 @@ export class UniTableRow implements OnChanges {
 
     private contextMenuClick() {
         this.contextMenuClicked.emit({
-            cell: this.cells.last.nativeElement,
+            cell: this.contextMenuCell.nativeElement,
             rowModel: this.rowModel
         });
     }

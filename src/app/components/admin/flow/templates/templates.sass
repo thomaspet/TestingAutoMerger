@@ -1,9 +1,10 @@
-@import '~src/styles/uni-redesign/_color.sass'
-
 \:host
-    font-family: 'Roboto', sans-serif !important
+    font-family: var(--font-family) !important
     h1,h2,h3
-        font-family: 'Roboto', sans-serif !important
+        font-family: var(--font-family) !important
+
+.col-lg-4
+    margin-bottom: 20px
 
 .col-lg-4
     margin-bottom: 20px
@@ -19,7 +20,7 @@
         box-shadow: 0 1px 14px 0px rgba(0, 0, 0, 0.14)
 
     .icon-wrap
-        background-color: $redesign-scale4
+        background-color: #D2DAE2
         height: 100px
         width: 100%
         display: flex
@@ -28,13 +29,12 @@
         flex-direction: row
 
         .center-icon
-            color: $redesign-scale2
             margin: 1rem
         .not-center-icon
             font-size: 3rem
             padding: 0.8rem
             background: white
-            color: $redesign-c2a
+            color: var(--color-c2a)
             border-radius: 5px
             box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2)
 
@@ -42,11 +42,11 @@
         padding: 15px
         margin-bottom: 3rem
         h3
-            color: $redesign-scale2
+            color: #485460
             font-weight: 700
             margin-top: 0
         p
-            color: $redesign-scale3
+            color: #8C96A9
             font-size: 0.875rem
             line-height: 20px
 
@@ -55,6 +55,6 @@
         bottom: 15px
         right: 15px
         min-width: 6rem
-        border-radius: 20px
-        margin: 0
+        border-radius: 25px
+        height: 2.5rem
 

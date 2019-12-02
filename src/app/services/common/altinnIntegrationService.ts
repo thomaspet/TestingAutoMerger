@@ -1,5 +1,5 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options, BarnepassLeveranse, OppgaveBarnepass} from '../../unientities';
+import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {SubEntityService} from '../common/subEntityService';
@@ -8,6 +8,20 @@ import {Injectable} from '@angular/core';
 import {RequestMethod} from '@uni-framework/core/http';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 import {FieldType} from '../../../framework/ui/uniform/index';
+
+
+export interface BarnepassLeveranse {
+    ID: number;
+    inntektsaar: number;
+    oppgave: Array<OppgaveBarnepass>;
+}
+
+export interface OppgaveBarnepass {
+    foedselsnummer: string;
+    navn: string;
+    paaloeptBeloep: number;
+    email: string;
+}
 
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {
@@ -77,6 +91,21 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     public sendBarnepass(leveranse: BarnepassLeveranse): Observable<AltinnReceipt> {
         return this.ActionWithBody(null, leveranse, 'send-barnepass', RequestMethod.Post);
+    }
+
+    public isBarnepassSendt(year: number): Observable<boolean> {
+        return super.GetAction(null, 'is-barnepass-sendt&year='+year);
+    }
+
+    public getBarnepass(year: number): Observable<BarnepassLeveranse> {
+        return super.GetAction(null, 'get-barnepass&year='+year);
+    }
+
+    public emailBarnepassToCustomers(barnepassID: number, customers: any[]) {
+        /*
+        hvis alle - customers = tom
+        */
+        return super.ActionWithBody(barnepassID, customers, 'email-barnepass-to-customers', RequestMethod.Put);
     }
     
     public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {

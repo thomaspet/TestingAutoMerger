@@ -238,6 +238,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             next: this.nextPayrollrun.bind(this),
                             add: this.newPayrollrun.bind(this)
                         },
+                        statustrack: this.getStatustrackConfig()
                     };
 
                     this.saveActions = this.getSaveActions(payrollRun);
@@ -606,14 +607,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private updateTabStrip(payrollrunID) {
         if (payrollrunID) {
             this.tabSer.addTab({
-                name: 'Lønnsavregning ' + payrollrunID,
+                name: 'SALARY.PAYROLL.NUMBER~' + payrollrunID,
                 url: 'salary/payrollrun/' + payrollrunID,
                 moduleID: UniModules.Payrollrun,
                 active: true
             });
         } else {
             this.tabSer.addTab({
-                name: 'Ny lønnsavregning',
+                name: 'SALARY.PAYROLL.NEW',
                 url: this.url + payrollrunID,
                 moduleID: UniModules.Payrollrun,
                 active: true

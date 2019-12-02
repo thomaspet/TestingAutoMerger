@@ -27,7 +27,6 @@ export interface IToastOptions {
     duration?: number;
     type?: ToastType;
     action?: IToastAction;
-    centered?: boolean;
 }
 
 export interface IToast {
@@ -38,7 +37,7 @@ export interface IToast {
     duration: number;
     count: number;
     action?: IToastAction;
-    centered?: boolean;
+    done?: boolean;
 }
 
 @Injectable()
@@ -59,7 +58,6 @@ export class ToastService {
             options.duration || 0,
             options.message,
             options.action,
-            options.centered
         );
     }
 
@@ -69,7 +67,6 @@ export class ToastService {
         durationInSeconds?: number,
         message?: string,
         action?: IToastAction,
-        centered?: boolean
     ): number {
         let toastID: number;
         const sanitizedMessage = this.domSanitizer.sanitize(SecurityContext.HTML, message);
@@ -89,7 +86,6 @@ export class ToastService {
                 duration: duplicate.duration,
                 count: duplicate.count + 1,
                 action: action,
-                centered: centered
             };
         } else {
             toastID = this.nextId++;
@@ -101,7 +97,6 @@ export class ToastService {
                 duration: durationInSeconds || 0,
                 count: 1,
                 action: action,
-                centered: centered
             });
         }
 

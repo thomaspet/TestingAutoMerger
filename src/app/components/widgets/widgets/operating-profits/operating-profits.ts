@@ -32,6 +32,11 @@ export class OperatingProfitWidget {
     showAccumulatedResult: boolean = false;
     accumulatedResult: any[] = [];
     runningResult: any[] = [];
+    isLineChart: boolean = false;
+    lineColors = ['#008A00', '#008ED2', '#FF9100'];
+    barColors = ['#0071CD', '#7FC6E8', 'rgba(89, 104, 121, .75)'];
+    show = [true, true, true];
+    dataHolder: any[] = [];
 
     tooltip: any; // type me
 
@@ -132,6 +137,8 @@ export class OperatingProfitWidget {
     }
 
     private getDataAndLoadChart() {
+        this.isLineChart = this.widget && this.widget.config && this.widget.config.type === 'line';
+        const multiplier = (this.widget && this.widget.config && this.widget.config.costMultiplier) || 1;
         this.statisticsService.GetAllUnwrapped(
             'model=JournalEntryLine&select=Period.No,multiply(-1,sum(amount)) as Sum,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber eq 3\,amount\,0))) as Income,' +
@@ -142,9 +149,9 @@ export class OperatingProfitWidget {
             '&expand=Period,Account.TopLevelAccountGroup')
         .subscribe(
             result => {
-                this.chartConfig = this.getEmptyResultChart();
+                this.chartConfig = this.isLineChart ?  this.getEmptyLineChartConfig() : this.getEmptyResultChart();
                 this.chartConfig.data.datasets[1].data = result.map(res => res.Income || 0);
-                this.chartConfig.data.datasets[2].data = result.map(res => res.Cost || 0);
+                this.chartConfig.data.datasets[2].data = result.map(res => (res.Cost * multiplier) || 0);
                 this.runningResult = result.map(res => res.Sum || 0);
 
                 let sum = 0;
@@ -175,6 +182,8 @@ export class OperatingProfitWidget {
                 this.cost = cost;
                 this.sum = sum;
 
+                this.dataHolder = this.chartConfig.data.datasets;
+
                 this.drawChart();
                 this.busy = false;
                 this.cdr.markForCheck();
@@ -199,6 +208,31 @@ export class OperatingProfitWidget {
         this.chartRef = new Chart(<any> this.operatingProfit.nativeElement, this.chartConfig);
     }
 
+    addhiddenClass(id: string, index) {
+        this.show[index] = !this.show[index];
+
+        const element = document.getElementById(id);
+
+        if (this.show[index]) {
+            element.classList.remove('line-through');
+        } else {
+            element.classList.add('line-through');
+        }
+        this.reDrawAfterLegendClick();
+    }
+
+    reDrawAfterLegendClick() {
+        this.chartRef.config.data.datasets = this.dataHolder.map((l, i) =>  {
+            if (this.show[i]) {
+                return l;
+            } else {
+                return [];
+            }
+        });
+
+        this.chartRef.update();
+    }
+
     private getEmptyResultChart() {
         return {
             type: 'groupableBar',
@@ -207,7 +241,7 @@ export class OperatingProfitWidget {
                 datasets: [{
                     label: 'Resultat',
                     data: [],
-                    borderColor: 'rgba(89, 104, 121, .75)',
+                    borderColor: this.barColors[2],
                     pointBorderColor: '#fff',
                     pointBackgroundColor: (context) => {
                         let value = 0;
@@ -217,7 +251,8 @@ export class OperatingProfitWidget {
                             console.error(e);
                         }
 
-                        return value >= 0 ? '#62B2FF' : '#FCD292';
+                        // return value >= 0 ? '#62B2FF' : '#FCD292';
+                        return value >= 0 ? this.barColors[0] : this.barColors[1];
                     },
                     borderWidth: 1.25,
                     pointBorderWidth: 1.25,
@@ -232,14 +267,14 @@ export class OperatingProfitWidget {
                 {
                     label: 'Inntekter',
                     data: [],
-                    backgroundColor: '#62B2FF',
+                    backgroundColor: this.barColors[0],
                     borderWidth: 0,
-                    stack: 1
+                    stack: 1,
                 },
                 {
                     label: 'Kostnader',
                     data: [],
-                    backgroundColor: '#FCD292',
+                    backgroundColor: this.barColors[1],
                     borderWidth: 0,
                     stack: 1
                 }
@@ -327,6 +362,125 @@ export class OperatingProfitWidget {
                         }
                     }]
                 }
+            }
+        };
+    }
+
+    private getEmptyLineChartConfig() {
+        return {
+            type: 'line',
+            data: {
+                labels: [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ],
+                datasets: [{
+                    label: 'Resultat',
+                    data: [],
+                    backgroundColor: this.lineColors[2],
+                    borderColor: this.lineColors[2],
+                    borderWidth: 4,
+                    fill: false,
+                    options: {
+                        fill: false
+                    },
+                    pointBorderColor: 'transparent',
+                    pointBackgroundColor: 'transparent',
+                    lineTension: 0,
+                },
+                {
+                    label: 'Salg',
+                    data: [],
+                    backgroundColor: this.lineColors[0],
+                    borderColor: this.lineColors[0],
+                    borderWidth: 4,
+                    fill: false,
+                    options: {
+                        fill: false
+                    },
+                    pointBorderColor: 'transparent',
+                    pointBackgroundColor: 'transparent',
+                    lineTension: 0,
+                },
+                {
+                    label: 'Driftskostnader',
+                    data: [],
+                    backgroundColor: this.lineColors[1],
+                    borderColor: this.lineColors[1],
+                    borderWidth: 4,
+                    lineTension: 0,
+                    fill: false,
+                    options: {
+                        fill: false
+                    },
+                    pointBorderColor: 'transparent',
+                    pointBackgroundColor: 'transparent',
+                }
+            ]},
+            options: {
+                legend: { display: false },
+                scaleShowVerticalLines: false,
+                scales: {
+                    yAxes: [
+                        {
+                            gridLines: {
+                                // color: 'rgba(0, 0, 0, 0.1)'
+                                zeroLineColor: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                maxTicksLimit: 6,
+                                callback: function(value) {
+                                    if (value === 0 || (value < 999 && value > -999)) {
+                                        return value;
+                                    } else if (value > -1000000 && value < 1000000) {
+                                        return (value / 1000) + 'k';
+                                    } else if (value <= -1000000 || value >= 1000000) {
+                                        return (value / 1000000) + 'm';
+                                    } else {
+                                        return value;
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            // This axes is just to get a border on the right side of the chart
+                            position: 'right',
+                            ticks: {
+                                display: false
+                            },
+                            gridLines: {
+                                display: false,
+                                drawTicks: false
+                            }
+                        }
+                    ],
+                    xAxes: [{
+                        gridLines: {
+                            display: false
+                        }
+                    }]
+                },
+                tooltips: {
+                    enabled: false,
+                    mode: 'index',
+                    position: 'nearest',
+                    custom: tooltip => {
+                        if (tooltip.dataPoints && tooltip.dataPoints.length) {
+                            this.tooltip = {
+                                month: tooltip.dataPoints[0].xLabel,
+                                result: tooltip.dataPoints[0].yLabel || 0,
+                                income: tooltip.dataPoints[1].yLabel || 0,
+                                cost: (tooltip.dataPoints[2].yLabel || 0) * -1,
+                                style: {
+                                    top: tooltip.y + 'px',
+                                    left: tooltip.x + 'px',
+                                    opacity: '1'
+                                }
+                            };
+                        } else {
+                            this.tooltip = undefined;
+                        }
+
+                        this.cdr.markForCheck();
+                    }
+                },
             }
         };
     }

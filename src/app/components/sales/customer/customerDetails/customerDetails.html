@@ -55,35 +55,49 @@
     </ng-template>
 
     <!-- Distribution tab -->
-    <section *ngIf="activeTabIndex === 1" class="uni-distribution-customer-view">
-        <header>
-            Utsendelse
-        </header>
-        <section class="distribution-type-container customer-view" *ngFor="let type of entityTypes">
-            <div class="content-container customer-view">
-                <section class="entity-name-container">
-                    <span> {{ type.label }} </span>
-                </section>
+    <section *ngIf="activeTabIndex === 1" class="uni-container">
+        <header>Utsendelse</header>
 
-                <section class="entity-priority-container">
-                    <span>  {{ type.defaultPlan ? 'Standardplan: ' + type.defaultPlan.Name :
-                        companySettings && companySettings.Distributions && companySettings.Distributions[type.keyValue] ? 'Standardplan for firma' : 'Ingen plan satt' }} </span>
-                    <ul class="distribution-elements-stepper" *ngIf="type.defaultPlan">
-                        <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
-                            <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
-                            <li class="divider" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
-                        </ng-container>
-                        <li class="list-item" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
-                    </ul>
-                </section>
+        <section>
+            <section class="distribution-type-container customer-view" *ngFor="let type of entityTypes">
+                <div class="content-container customer-view">
+                    <section class="entity-name-container">
+                        <span> {{ type.label }} </span>
+                    </section>
 
-                <section class="entity-functionality-container">
-                    <button class="change-customer-distribution-button" (click)="changeDistributionPlan(type)"> Endre plan </button>
-                    <button class="remove-customer-distribution-button" (click)="removeDistributionPlan(type)" [ngClass]="!type.defaultPlan ? 'disabled' : ''" [disabled]="!type.defaultPlan" title="{{ !type.defaultPlan ? 'Ingen plan å fjerne' : 'Fjerne plan fra kunde' }}">
-                        <i class="material-icons"> delete_outline </i>
-                    </button>
-                </section>
-            </div>
+                    <section class="entity-priority-container">
+                        <span>{{
+                            type.defaultPlan
+                                ? 'Standardplan: ' + type.defaultPlan.Name
+                                : companySettings && companySettings.Distributions && companySettings.Distributions[type.keyValue]
+                                    ? 'Standardplan for firma'
+                                    : 'Ingen plan satt'
+                        }}</span>
+
+                        <ul class="distribution-elements-stepper" *ngIf="type.defaultPlan">
+                            <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
+                                <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                                <li class="divider" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
+                            </ng-container>
+                            <li class="list-item" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
+                        </ul>
+                    </section>
+
+                    <section class="entity-functionality-container">
+                        <button class="tertiary c2a" (click)="changeDistributionPlan(type)">
+                            Endre plan
+                        </button>
+
+                        <button class="icon-button remove-distribution"
+                            (click)="removeDistributionPlan(type)"
+                            [ngClass]="!type.defaultPlan ? 'disabled' : ''"
+                            [disabled]="!type.defaultPlan"
+                            [title]="!type.defaultPlan ? 'Ingen plan å fjerne' : 'Fjerne plan fra kunde'">
+                            <i class="material-icons">delete_outline</i>
+                        </button>
+                    </section>
+                </div>
+            </section>
         </section>
     </section>
 

@@ -8,9 +8,7 @@ import {BehaviorSubject} from 'rxjs';
     selector: 'saft-export-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width:30vw">
-            <header>
-                <h1>{{options.header || 'Saft export'}}</h1>
-            </header>
+            <header>{{options.header || 'Saft export'}}</header>
             <article>
                 <p>Starte export</p>
                 <uni-form

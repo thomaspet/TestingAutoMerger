@@ -17,7 +17,7 @@ uni-bill
 			min-width: 35rem
 			margin: 0 .5rem
 			.uni-container
-				margin-right: 0
+				margin-left: 0
 
 			.freetext-tab-view
 				display: flex
@@ -39,7 +39,7 @@ uni-bill
 				right: 10rem
 				color: #60656a
 				i.material-icons
-					color: #0f4880
+					color: var(--color-c2a)
 					vertical-align: middle
 
 			uni-image
@@ -50,7 +50,7 @@ uni-bill
 
 				.upload-input
 					position: absolute
-					top: -2.25rem
+					top: -2rem
 					right: 2rem
 
 				.uniImage
@@ -60,7 +60,7 @@ uni-bill
 	// Remove margin/padding/shadow that is on journal entry by default
 	journal-entry-manual .uni-container
 		margin: 0
-		box-shadow: none
+		border: none
 		.journalentry-input-components
 			padding: 0
 
@@ -76,8 +76,9 @@ uni-bill
 
 	uni-field
 		max-width: 100%
+		@include labelLength(10rem)
 
-	uni-image picture
+	uni-image .image-container
 		display: inline-block
 
 	.journalentry-input-components
@@ -88,47 +89,27 @@ uni-bill
 		display: inline-block
 		width: 50%
 
-		&.right label > span
-			width: 8rem
-			margin-left: 1rem
-
-.bill-amount-field
-	display: inline-block
-	width: calc(100% - 10.0rem)
-
-.bill-currency-field
-	width: 10rem
-	float: right
-
-
-	span
-		@extend %visuallyHidden
-
-	label span+*
-		width: 100%
-
 article.collapsable h4
 	box-sizing: border-box
 
 /* BILL (detail)  */
 
 .supplier-invoice-table-payment-overdue
-	color: $uni-color-bad
+	color: var(--color-bad)
 
 .supplier-invoice-table-payment-ok
-	color: $uni-color-good
+	color: var(--color-good)
 
 .supplier-invoice-table-plus
-	color: $uni-color-plus !important
+	color: var(--color-c2a) !important
 
-supplier-invoice-table-minus
-	color: $uni-color-minus !important
+.supplier-invoice-table-minus
+	color: var(--color-bad) !important
 
 .compact-summary
 	width: 100%
-	margin-top: 0.5rem
-	margin-left: 1rem
-	margin-right: 1rem
+	font-size: 15px
+	padding-top: 0 !important
 
 	td
 		width: 25%
@@ -136,8 +117,8 @@ supplier-invoice-table-minus
 		padding: pxToRem(5)
 
 	td.warning
-		color: red
-		font-weight: 600
+		color: var(--color-bad)
+		font-weight: 500
 
 /* BILLS (listview)  */
 .bill-container
@@ -160,37 +141,28 @@ supplier-invoice-table-minus
 
 		.refreshbutton
 			cursor: pointer
-			color: $uni-color-scale2
 			position: absolute
 			top: 4px
 			left: 18rem
 			z-index: #{map-get($zindex, toolbar) - 2}
 
 		.hascomments
-			color: $uni-color-warn
+			color: var(--color-warn)
 
 		.bill-list-sum
 			position: absolute
 			top: 1.25rem
 			right: 1rem
 			padding: 0
+			font-size: 15px
 
 	.bill-preview
 		flex: 1
+		margin-left: 1rem
 
-		.accounting-preview-links
+		.accounting-preview-actions
 			margin-bottom: .5rem
-
-			a
-				background: unicon-share($uni-color-c2a) no-repeat left
-				background-size: .7rem
-				padding-left: 1.25rem
-				margin-right: 2rem
-				color: #60656a
-
-				&:hover, &:focus
-					color: darken(#60656a, 10%)
-
+			text-align: right
 
 button.document_from_flow_button
     margin: 1rem 0
@@ -215,8 +187,26 @@ button.document_from_flow_button
 	    position: relative
 	    top: -2px
 
-.smart-booking-settings-form
+smart-booking-settings-modal
+	mat-checkbox
+		display: block
+		margin-bottom: 1rem
+
+.supplier-expense-label
+	display: flex
+	align-items: center
+	padding: 1rem 1.5rem 0 !important
 	span
-		width: 16rem
-	uni-checkbox-input
-		width: calc(100% - 16rem)
+		font-size: 15px
+		white-space: nowrap
+		overflow: hidden
+		text-overflow: ellipsis
+		width: 12.5rem
+	autocomplete
+		flex: 1
+
+label.uni-label.supplier-label
+	padding: 1rem 1.5rem 0
+	margin: 0
+	> span
+		width: 10rem

@@ -1,0 +1,24 @@
+<section class="form-grid">
+    <section class="reciever-container">
+        <label class="uni-label full-width validate-payment-PaymentTo " >
+            <span>Mottaker (ansatt/leverandør)</span>
+            <autocomplete [options]="accountOptions" [value]="session.payment.PaymentTo" (valueChanges)="setAccount($event)"></autocomplete>
+        </label>
+        <i class="material-icons" title="Rediger valgt mottaker" *ngIf="session.payment.PaymentTo" (click)="editSelectedAccount(session.payment.PaymentTo)"> edit </i>
+    </section>
+    <label class="uni-label">
+        <span>Bankkonto</span>
+        <input readonly type="text" [ngModel]="session.payment.PaymentAccount?.AccountNumber" >
+    </label>
+
+    <label class="uni-label">
+        <span>Dato</span>
+        <section class="input-with-button validate-payment-PaymentDate">
+            <input #dateInput type="text" placeholder="I dag" [(ngModel)]="session.payment.PaymentDate" [matDatepicker]="picker" (keydown.enter)="dateInput.blur();dateInput.focus();" >
+            <button (click)="picker.open()">
+                <i class="material-icons">date_range</i>
+            </button>
+            <mat-datepicker #picker></mat-datepicker>
+        </section>
+    </label>
+</section>

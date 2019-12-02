@@ -1,8 +1,4 @@
 <section class="widget-wrapper">
-    <!-- <section class="header">
-        {{widget.description}}
-    </section> -->
-
     <section class="content">
         <section *ngIf="unauthorized" class="missing-access">Mangler tilgang: Kan ikke vise største kunder uten fakturamodulen</section>
         <table *ngIf="!unauthorized">
@@ -24,20 +20,20 @@
                     <td>{{customer.SumPreviousYear | uninumberformat:'money'}}</td>
                     <td>{{customer.SumRest | uninumberformat:'money'}}</td>
 
-                    <td class="menu" [matMenuTriggerFor]="contextMenu">
-                        <ng-container>
-                            <i class="material-icons" style="font-size: 15px; vertical-align: middle; cursor: pointer;">
-                                more_horiz
-                            </i>
-                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                <ul class="menu-list">
-                                    <li *ngFor="let item of contextMenuItems"
-                                        (click)="goToEntity(item.entity, customer.ID)">
-                                        {{item.label}}
-                                    </li>
-                                </ul>
-                            </mat-menu>
-                        </ng-container>
+                    <td>
+                        <i #toggle class="material-icons" style="font-size: 15px; vertical-align: middle; cursor: pointer;">
+                            more_horiz
+                        </i>
+
+                        <dropdown-menu [trigger]="toggle">
+                            <ng-template>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let item of contextMenuItems"
+                                    (click)="goToEntity(item.entity, customer.ID)">
+                                    {{item.label}}
+                                </a>
+                            </ng-template>
+                        </dropdown-menu>
                     </td>
                 </tr>
             </tbody>

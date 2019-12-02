@@ -1,8 +1,6 @@
-@import '~src/styles/uni-redesign/_color.sass'
-@import '../import-central-common.sass'
 .all-cards
     justify-content: center
-    
+
 .card-container
     padding: 15px
 
@@ -21,17 +19,17 @@
             justify-content: center
             label
                 margin-top: 15px
-    
+
 
         &:hover
             box-shadow: 0 1px 14px 0px rgba(0, 0, 0, 0.14)
-        
+
         .card-header
             display: flex
             justify-content: flex-end
             font-size: 14px
             padding: 15px
-        
+
         .card-content
             display: flex
             justify-content: center
@@ -42,23 +40,23 @@
             margin-bottom: 50px
             i
                 font-size: 60px
-                
+
             label
                 font-weight: bold
 
         .card-footer
             display: flex
             justify-content: space-between
-            background-color: $redesign-light-blue
+            background-color: #2699FB
             align-items: center
             padding: 20px 10px
             position: absolute
             bottom: 0
             width: 100%
-            
+
 
             label
-                color: white    
+                color: white
                 font-size: 14px
                 margin-bottom: 0
                 text-align: center
@@ -67,13 +65,13 @@
                     color: white
                     font-size: 18px
                     display: inline-block
-                span 
-                    display: inline-block    
+                span
+                    display: inline-block
 
-        @media #{$xs-and-less} 
+        @media only screen and (max-width: 767px)
             .card-content
                 min-height: 140px
-            
+
             .card-footer
                 flex-flow: column
                 padding: 15px
@@ -85,12 +83,4 @@
     position: fixed
     bottom: 25px
     right: 50px
-    border: solid 2px $redesign-scale5
-    background: #fff
-    color: $redesign-c2a
-    &:hover
-        border: solid 2px $redesign-c2a
-        background: #fff
 
-                
-            

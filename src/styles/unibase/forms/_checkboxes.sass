@@ -1,14 +1,10 @@
 $radioBack: mix($uni-color-scale9, $uni-color-c2a, 90%)
 
 uni-checkbox-input
+    line-height: $input-height
     mat-checkbox
         .mat-checkbox-label
             width: 0 !important // use unifield's label
-        .mat-checkbox-layout
-            margin-top: 4px !important
-            .mat-checkbox-inner-container
-                width: 18px
-                height: 18px
 
     .mat-slide-toggle-content
         width: 0 !important
@@ -18,7 +14,7 @@ mat-checkbox
 
 .mat-checkbox-label, .mat-checkbox-disabled .mat-checkbox-label,
 .mat-radio-label, .mat-radio-disabled .mat-radio-label
-    font-family: $uni-stack
+    font-family: var(--font-family)
     font-size: 16px
     color: $uni-color-positive
     user-select: none
@@ -31,16 +27,9 @@ uni-field
     .mat-slide-toggle-bar
         margin-left: 0 !important
 
-.mat-checkbox-frame
-    border-width: 1px !important
-    border-color: $uni-color-scale7
+uni-checkboxgroup-input mat-checkbox
+    display: block
 
-
-.mat-checkbox-checked .mat-checkbox-background
-    background-color: #1565c0 !important //$uni-color-c2a !important
-
-.mat-checkbox-ripple .mat-ripple-element
-    background-color: transparentize(#1565c0, .75) !important
 
 // Radio
 mat-radio-button
@@ -63,9 +52,32 @@ mat-radio-group.horizontal
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar
     background-color: transparentize($uni-color-c2a, .65) !important
 .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb
-    background-color: $uni-color-c2a !important
+    background-color: var(--color-c2a) !important
 .mat-slide-toggle-ripple .mat-ripple-element
     background-color: transparentize($uni-color-c2a, .85) !important
+
+.mat-checkbox-checkmark .mat-checkbox-checkmark-path
+    stroke: var(--checkbox-checked-color) !important
+    stroke-width: 3px
+
+.mat-checkbox-frame
+    border-width: 1px !important
+    border-color: $uni-color-scale7
+
+.mat-checkbox-checked .mat-checkbox-background
+    background-color: var(--checkbox-checked-background, #fff) !important
+    border: var(--checkbox-checked-border, none)
+
+.mat-checkbox:hover .mat-checkbox-background,
+.mat-checkbox.cdk-focused .mat-checkbox-background
+    border: var(--checkbox-checked-border, none)
+
+.mat-checkbox-ripple .mat-ripple-element
+    background-color: rgba(0,0,0,0) !important
+
+.mat-checkbox-layout .mat-checkbox-inner-container
+    width: var(--checkbox-size, 18px)
+    height: var(--checkbox-size, 18px)
 
 mat-slide-toggle.max-width
     width: 100%

@@ -1,7 +1,6 @@
 <uni-toolbar
     [config]="toolbarconfig"
     [saveactions]="saveActions"
-    [shareActions]="shareActions"
     [selectConfig]="registerConfig"
     (selectValueChanged)="changeRegister($event.Register)">
 </uni-toolbar>
@@ -13,39 +12,37 @@
             (tabClick)="onCustomerFilterClick($event)">
         </uni-tabs>
     <section class="splitview">
-        <nav class="splitview_list" style="min-width: 24rem !important">
-            <div class="project-list-container small-split-view-list">
+        <nav class="small-split-view-list">
+            <mat-form-field>
+                <mat-select [value]="currentListFilter" placeholder="Sorter etter">
+                    <mat-option *ngFor="let filter of accountListfilters" [value]="filter" (click)="onActiveFilterChange(filter)">
+                        {{ filter.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
 
-                <mat-form-field>
-                    <mat-select [value]="currentListFilter" placeholder="Sorter etter">
-                        <mat-option *ngFor="let filter of accountListfilters" [value]="filter" (click)="onActiveFilterChange(filter)">
-                            {{ filter.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+            <input type="search" [(ngModel)]="accountSearchFilterString" [formControl]="searchControl"/>
+            <ul id="role-info">
+                <li *ngFor="let account of filteredAccounts"
+                    [class.selected]="account.ID === activeAccount"
+                    (click)="onRowSelected(account)" style="display: flex; flex-direction: row;">
 
-                <input type="search" [(ngModel)]="accountSearchFilterString" [formControl]="searchControl"/>
-                <ul id="role-info">
-                        <li *ngFor="let account of filteredAccounts"
-                            [class.selected]="account.ID === activeAccount"
-                            (click)="onRowSelected(account)" style="display: flex; flex-direction: row;">
-                                <section style="flex: 1 0; width: 50%; overflow: hidden;">
-                                    <span class="link" (click)="goToAccount($event, account.ID, account.AccountNumber)">
-                                        {{ account.AccountName }}
-                                    </span>
-                                    <br />
-                                    <span>
-                                        Konto: &nbsp; {{ account.AccountNumber }}
-                                    </span>
-                                </section>
-                                <section style="flex: 1 0; text-align: right; font-size: .9rem;">
-                                    <span [class.number-good]="account.SumAmount >= 0" [class.bad]="account.SumAmount < 0"> {{ numberFormatService.asMoney(account.SumAmount) }}  </span>
-                                    <br />
-                                    <span>Antall {{ mainTabs[this.mainActiveIndex].value === 'ALL' || register === 'account' ? 'åpne' : '' }} poster: &nbsp; {{account.count}} </span>
-                                </section>
-                        </li>
-                </ul>
-            </div>
+                    <section style="flex: 1 0; width: 50%; overflow: hidden;">
+                        <span class="link" (click)="goToAccount($event, account.ID, account.AccountNumber)">
+                            {{ account.AccountName }}
+                        </span>
+                        <br />
+                        <span>
+                            Konto: &nbsp; {{ account.AccountNumber }}
+                        </span>
+                    </section>
+                    <section style="flex: 1 0; text-align: right; font-size: .9rem;">
+                        <span [class.number-good]="account.SumAmount >= 0" [class.bad]="account.SumAmount < 0"> {{ numberFormatService.asMoney(account.SumAmount) }}  </span>
+                        <br />
+                        <span>Antall {{ mainTabs[this.mainActiveIndex].value === 'ALL' || register === 'account' ? 'åpne' : '' }} poster: &nbsp; {{account.count}} </span>
+                    </section>
+                </li>
+            </ul>
         </nav>
 
         <main class="splitview_detail customer-post-post-view" style="margin-top: 0 !important;">

@@ -21,43 +21,44 @@ import {parseTime } from '../../common/utils/utils';
 @Component({
     selector: 'uni-time-modal',
     template: `
-        <section class="uni-modal uni-redesign" style="padding: 0;">
-            <header style="padding: 0 2rem"><h1 style="padding: 0">Rediger timer</h1></header>
+        <section class="uni-modal uni-redesign">
+            <header>Rediger timer</header>
 
             <i *ngIf="options.data.linkToCancel" class="material-icons arrow_back icon-blue">arrow_back</i>
             <a *ngIf="options.data.linkToCancel" (click)="close()">Tilbake til timevalg</a>
 
-            <article [attr.aria-busy]="busy" id="uniTableWrapper" style="padding: 0 2rem; overflow: visible">
-                <div class="uniTable">
-                    <div style="display: flex; align-items: center;">
-                        <a class="time-popup-date-text register-text">
-                            <i class="material-icons"> watch_later </i> Registrer timer for {{ date|isotime:'Udddd DD.MM.YYYY' }}
-                        </a>
+            <article [attr.aria-busy]="busy" id="uniTableWrapper">
+                <div style="display: flex; align-items: center;">
+                    <a class="time-popup-date-text register-text">
+                        <i class="material-icons"> watch_later </i> Registrer timer for {{ date|isotime:'Udddd DD.MM.YYYY' }}
+                    </a>
 
-                        <div style="flex: 1"></div>
+                    <mat-form-field *ngIf="templates.length" style="margin-left: auto;">
+                        <mat-select [value]="currentTemplate" (valueChange)="useTemplate($event)" placeholder="Bruk mal">
+                            <mat-option *ngFor="let template of templates" [value]="template">
+                                {{ template.Name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
 
-                        <mat-form-field *ngIf="templates.length">
-                            <mat-select [value]="currentTemplate" (valueChange)="useTemplate($event)" placeholder="Bruk mal">
-                                <mat-option *ngFor="let template of templates" [value]="template">
-                                    {{ template.Name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
+                <workeditor class="workEditor" [order]="options.data.order" [timesheet]="timesheet"> </workeditor>
 
-                    <workeditor class="workEditor" [order]="options.data.order" [timesheet]="timesheet"> </workeditor>
-
-                    <div class="sum">
-                        <a class="time-popup-date-text total-text">
-                            <i class="material-icons"> work_outline </i> Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}
-                        </a>
-                    </div>
+                <div class="sum">
+                    <a class="time-popup-date-text total-text">
+                        <i class="material-icons"> work_outline </i> Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}
+                    </a>
                 </div>
             </article>
 
-            <footer style="flex: 0 0 3.5rem !important; ">
-                <button (click)="close('ok')" style="margin: 0 .5rem; background-color: #01a901; color: #FFF;">Lagre</button>
-                <button (click)="close('cancel')" class="cancel" style="margin: 0;">Avbryt</button>
+            <footer>
+                <button (click)="close('cancel')" class="secondary">
+                    Avbryt
+                </button>
+
+                <button class="c2a" (click)="close('ok')">
+                    Lagre
+                </button>
             </footer>
         </section>
     `,

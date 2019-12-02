@@ -1,261 +1,142 @@
-@media screen and (max-width: 1350px)
-    #marketing-content
-        padding: 0 1rem
-
-    #init-content
-        .view-container
-            width: 27rem !important
-
-        .authentication-component
-            max-width: 25rem
-            padding: 1rem 2rem
-
-@media screen and (max-width: 1025px)
-    .marketing-toggle-btn
-        display: none
-
-    uni-init
-        #marketing-content
-            flex: 1 1 100% !important
-            margin: 0 2.5% 1rem 2.5%
-            padding-top: 2rem !important
-            img
-                display: none
-
-        #init-content
-            margin: 1rem 2.5% 0 2.5%
-            padding-top: 0 !important
-            img
-                padding: 1rem 0 0 0 !important
-            .view-container
-                width: 100% !important
-                padding-top: 1rem
-                background: $uni-color-negative
-            .authentication-component
-                box-shadow: none
-
-        footer
-            display: none
-
-@media screen and (max-width: 450px)
-    #marketing-content
-        h1
-            font-size: 2rem !important
+$init-header-height: 10rem
+$init-footer-height: 6rem
 
 uni-init
-    display: block
     position: fixed
     top: 0
     bottom: 0
     left: 0
     right: 0
     overflow: auto
-    background-size: cover
-    background-image: url('assets/init_bg.jpg')
+    display: flex
+    flex-direction: column
+    width: 100vw
+    min-height: 100vh
+    background: #fff
 
-    .init-container
-        display: flex
-        flex-flow: row wrap-reverse
+    .init-header
+        flex: 0 0 $init-header-height
+        position: relative
+        a
+            position: absolute
+            right: 3rem
+            margin: auto 0
+
+
+    .init-bg
+        position: absolute
+        top: $init-header-height
+        left: 0
         width: 100%
-        min-height: 100%
-        padding: 0
+        max-height: calc(100% - #{$init-header-height} - #{$init-footer-height})
+        overflow: hidden
+        z-index: -1
 
-    #marketing-content,
-    #init-content
-        padding-top: 6rem
+        &.init-bg1
+            img
+                width: 100%
 
-    #marketing-content
-        order: 1
-        flex: 0 1 50%
-        box-sizing: border-box
-        background: $uni-color-negative
-        color: $uni-color-positive
+        &.init-bg2
+            padding: 4rem
+            background-color: #ebf6fb
+            @media screen and (max-width: 1100px)
+                img
+                    display: none
 
+
+    .init-footer
+        flex: 0 0 $init-footer-height
+
+    .init-header, .init-footer
         display: flex
-        flex-flow: row
         justify-content: center
-        padding: 1rem 4rem
         align-items: center
 
-        .marketing-content-wrapper
-            margin: 0 auto
+    img.logo
+        width: 20rem
 
-        img
-            width: 3rem
-            margin-bottom: 2rem
-
-        h1
-            font-size: 2.5rem
-            margin-top: 0
-
-        p
-            font-size: 1.25rem
-            font-weight: 300
-
-
-        button.signup-link
-            height: 4rem
-            border-radius: 0
-            min-width: 10rem
-            margin: 2rem 0 2.5rem 0
-            background: #c43012
-
-            a
-                color: #fff
-                font-size: 24px
-                font-weight: 300
-                text-decoration: none
-
-            &:hover, &:focus
-                background: darken(#c43012, 5%)
-
-    #init-content
-        order: 2
+    .init-main
         flex: 1
+        display: flex
         position: relative
-        box-sizing: border-box
 
-        .view-container
-            width: 30rem
-            margin: 0 auto
+        uni-confirm-invite
             display: flex
-            align-items: center
-            justify-content: center
-            height: 100%
-
-        img
-            display: block
-            margin: 0 auto
-            padding: 0 0 2rem 0
-            width: 18rem
-
-        .marketing-toggle-btn
-            @extend %hideText
-            position: absolute
-            top: .5rem
-            left: .5rem
-            width: 2rem
-            height: 2rem
-            border-radius: 50%
-            background: $uni-color-negative unicon-chevron-left($uni-color-scale6) center no-repeat
-            background-size: .65rem
-
-            &:hover
-                background: $uni-color-negative unicon-chevron-left($uni-color-scale3) center no-repeat
-                background-size: .65rem
-
-            &.expand-content
-                transform: rotate(180deg)
-
-        footer
-            position: absolute
-            bottom: 1rem
-            left: 0
             width: 100%
-            text-align: center
-            color: $uni-color-scale5
-            font-size: .9rem
+            .authentication-component
+                margin: 1rem 8rem auto auto
 
+            // background-color: #ebf6fb
+            // padding: 4rem
+
+
+
+        // background-size: cover
+        // background-repeat: no-repeat
+        // position: relative
+
+        // .view-container
+        //     position: absolute
+        //     top: 0rem
+        //     right: 0rem
+        //     width: 50vw
+        //     padding: 2rem 2rem 2rem 6rem
+        //     display: flex
+        //     justify-content: center
+        //     height: 100%
+
+        //     @media screen and (max-width: 1100px)
+        //         position: static
+        //         width: 100%
+        //         padding: 2rem
+
+    .init-footer
+        font-size: 16px
+        color: #787B80
 
 .authentication-component
+    width: 30rem
+    max-width: 92vw
     min-height: 10rem
-    max-width: 25rem
-    margin: 0 auto
-    position: relative
+    background: #fff
+    border-radius: 4px
+    padding: 1rem 2rem
+    margin-bottom: 2rem
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.16)
+
+    h1
+        margin: 0 0 1rem
+        font-size: 22px
+        font-weight: 500
+        color: var(--color-c2a-dark)
+
+    .init-subtitle
+        font-weight: 500
+        font-size: 15px
+        color: var(--color-c2a-dark)
+        margin-bottom: 2rem
+
+    label.uni-label
+        margin-bottom: 1.25rem
+        > span
+            font-weight: 500
+            color: var(--color-c2a-dark)
+
 
     small.validation
         margin: 0 0 1rem 0
 
-    form
-        label
-            @extend %visuallyHidden
-
-        input
-            display: block
-            width: 100%
-            margin: .75rem 0
-            color: $uni-color-positive
-            height: 2.5rem
-
-        .input-with-icon
-            position: relative
-            width: 100%
-
-            input
-                padding-left: 2.25rem
-
-            i.material-icons
-                color: $uni-color-scale7
-                position: absolute
-                font-size: 21px
-                top: .6rem
-                left: .45rem
-
-        input[type=checkbox]
-            display: inline-block
-            width: 2rem
-
-        small.privacy-info
-            color: $uni-color-scale5
-            display: block
-            margin: 1rem 0
-
-    button.auth-button
-        width: 100%
-        height: 2.5rem
-        padding: 0
-        margin: .25rem 0 .5rem 0
-
-    .uniSelect_input
-        height: 2.5rem
-        margin-top: 1rem
-
-
-    .links
+    a.init-link
+        display: block
         width: 100%
         text-align: center
         margin-top: .5rem
+        font-size: 15px
 
-uni-signup,
-uni-confirm-invite
-    .authentication-component
-        padding: 1rem 3rem
-
-        p
-            color: $uni-color-scale3
-            font-size: 17px
-            &.registration-step-info
-                margin-bottom: 2rem
-
-        button.bad
-            height: 3rem
-            background: #c43012
-
-            &:hover,
-            &:focus
-                background-color: darken(#c43012, 5%)
-                outline: none
-
-            &[disabled],
-            &[aria-disabled]
-                background-color: desaturate(mix(#c43012, $uni-color-negative, 50%), 10%)
-
-                &:hover,
-                &:focus
-                    background-color: desaturate(mix(#c43012, $uni-color-negative, 80%), 10%)
-
-        input.ng-invalid.ng-touched
-            @extend input[type=text].error
-
-    form
-        position: relative
-
-    .username-tooltip
-        position: absolute
-        cursor: pointer
-        top: .5rem
-        right: .5rem
-        color: rgba(0,0,0,.75)
+    .init-submit-button
+        width: 100%
+        height: 2.75rem
+        margin: .5rem 0
 
 uni-password-guide
     ul.password-validation
@@ -272,12 +153,39 @@ uni-password-guide
 
             &:before
                 content: '🞩'
-                color: $uni-color-bad
+                color: var(--color-bad)
                 margin-right: .5rem
 
             &.completed
                 color: $uni-color-scale7
                 &:before
-                    color: $uni-color-good
+                    color: var(--color-good)
                     content: '✓'
 
+.locked-company-container
+    position: absolute
+    height: 100%
+    width: 100%
+    background-color: var(--body-background)
+    z-index: 9
+    display: flex
+    justify-content: center
+
+    section
+        width: 40rem
+        display: flex
+        flex-direction: column
+        background-color: white
+        border: 1px solid #CCC
+        padding: 1rem 2rem
+        border-radius: 3px
+        height: fit-content
+        margin-top: 5rem
+
+        h3
+            font-size: 20px
+            color: var(--color-c2a-dark)
+
+        button
+            width: 15rem
+            margin: 2rem 0 1rem 0

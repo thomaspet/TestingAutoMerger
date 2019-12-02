@@ -77,6 +77,9 @@ export interface EHFData {
         quantity: string;
         vatPercent: string;
         vatExclusiveAmount: string;
+        discount: string;
+        description: string;
+        note: string;
     }[];
 
 }

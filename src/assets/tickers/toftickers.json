@@ -208,6 +208,12 @@
             "Format": "SharingStatus",
             "width": "40px",
             "FilterSelectConfigKey": "SharingStatusCode"
+        },
+        {
+            "Header": "Fakturaliste",
+            "Field": "ExternalReference",
+            "DefaultHidden": true,
+            "Width": "125px"
         }
     ],
     "ParentFilter": {
@@ -1891,7 +1897,7 @@
         }
     ]
 }, {
-    "Name": "Repeterende faktura",
+    "Name": "NAVBAR.RECURRING_INVOICE",
     "Code": "recurring_invoice_list",
     "RequiredUIPermissions": ["ui_sales_invoices"],
     "Type": "Table",

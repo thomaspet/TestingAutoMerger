@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesign maybe-default">
+<section role="dialog" class="uni-modal">
     <header>Opprett flyt fra mal</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
@@ -11,19 +11,19 @@
         </label>
 
         <label *ngFor="let input of flowInputs">
-            <span>{{input.Label.no}}</span>            
+            <span>{{input.Label.no}}</span>
             <input *ngIf="input.Type !== 'bool'" type="text" [(ngModel)]="input.Value" />
-            <input *ngIf="input.Type === 'bool'" type="checkbox" [(ngModel)]="input.Value" />
+            <mat-checkbox *ngIf="input.Type === 'bool'" [(ngModel)]="input.Value"></mat-checkbox>
         </label>
     </article>
 
-    <footer class="center">
-        <button class="c2a" (click)="save()">
-            Lagre
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">
+            Avbryt
         </button>
 
-        <button (click)="onClose.emit()">
-            Avbryt
+        <button class="c2a" (click)="save()">
+            Lagre
         </button>
     </footer>
 </section>

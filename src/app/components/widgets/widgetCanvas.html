@@ -1,26 +1,27 @@
-<header class="dashboard-header uni-redesign">
-    <span class="title">{{companyName}}</span>
+<header class="dashboard-header uni-redesign" [ngClass]="{ 'no-link-dashboard': isSrEnvironment }">
+    <span class="title">{{ isSrEnvironment ? activeLinkLabel : companyName}}</span>
 
-    <ul class="links" *ngIf="links">
-        <li *ngFor="let link of links">
-            <a class="dashboard-link"
-                [routerLink]="link.url"
-                [routerLinkActiveOptions]="{exact: true}"
-                routerLinkActive="active">
-                {{link.label}}
-            </a>
-        </li>
-    </ul>
+    <ng-container *ngIf="!isSrEnvironment">
+        <ul class="links" *ngIf="links">
+            <li *ngFor="let link of links">
+                <a class="dashboard-link"
+                    [routerLink]="link.url"
+                    [routerLinkActiveOptions]="{exact: true}"
+                    routerLinkActive="active">
+                    {{ link.label }}
+                </a>
+            </li>
+        </ul>
 
-    <a class="dashboard-link" routerLink="/overview">Oversikt</a>
+        <a class="dashboard-link" routerLink="/overview">Oversikt</a>
 
-    <newsfeed></newsfeed>
+        <newsfeed></newsfeed>
+    </ng-container>
 
-    <button class="edit-toggle icon-button" (click)="toggleEditMode()">
+    <button class="edit-toggle icon-button" (click)="toggleEditMode()" title="Rediger dashboard-layout">
         <i class="material-icons">edit</i>
     </button>
 </header>
-
 
 <section #canvas
     class="widget-canvas"
@@ -82,7 +83,7 @@
         Lagre
     </button>
 
-    <button (click)="cancelEdit()" class="canvas-cancel outline-warn">
+    <button (click)="cancelEdit()" class="canvas-cancel tertiary">
         Avbryt
     </button>
 </section>

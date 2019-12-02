@@ -2,7 +2,7 @@
     <div [attr.aria-busy]="busy" class="accounting-report-drilldown-main">
         <table class="accounting-report-drilldown-table">
             <tr>
-                <th style="width: 50%">Konto/kontogruppe <button (click)="toggleShowAll()">{{!showall ? 'Vis alle' : 'Skjul alle'}}</button></th>
+                <th style="width: 50%">Konto/kontogruppe <button (click)="toggleShowAll()" class="tertiary c2a">{{!showall ? 'Vis alle' : 'Skjul alle'}}</button></th>
                 <th style="width: 20%" class="amount">{{periodFilter1.year}}</th>
                 <th *ngIf="showPercent" style="width: 5%" class="percentage"></th>
                 <th *ngIf="showPercentOfBudget" style="width: 5%" class="percentage"></th>

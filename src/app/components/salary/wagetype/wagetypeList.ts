@@ -90,8 +90,13 @@ export class WagetypeList implements OnInit {
         this._router.navigateByUrl('/salary/wagetypes/' + event.ID);
     }
 
-    public createWageType() {
-        this._router.navigateByUrl('/salary/wagetypes/0');
+    public createWageType(done) {
+        this._router.navigateByUrl('/salary/wagetypes/0').then(succeeded => {
+            if (succeeded) {
+                return;
+            }
+            done('Avbrutt');
+        });
     }
 
     public syncWagetypes() {
@@ -101,6 +106,7 @@ export class WagetypeList implements OnInit {
         this._wageTypeService
             .syncWagetypes()
             .do(() => this.table.refreshTableData())
+            .finally(() => this.busy = false)
             .subscribe((response) => {
                 this._toastService.addToast('Lønnsarter synkronisert', ToastType.good, 4);
             }

@@ -3,11 +3,6 @@
 @import '~src/styles/unibase/helpers/_zindex.sass'
 @import '~src/styles/unibase/page-layout/_page-layout-variables.sass'
 
-$sidebar-background: #fff
-$sidebar-text-color: $uni-color-scale2
-$active-section-background: #f7f7f7
-$link-hover-background: $uni-color-toolbar
-
 \:host
     position: relative
     height: 100%
@@ -16,21 +11,23 @@ $link-hover-background: $uni-color-toolbar
     box-sizing: border-box
     margin: 0
     padding: 0
-    background: $sidebar-background
+    background: var(--sidebar-background)
     color: $uni-color-negative
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
 
     transition: all .25s ease
     z-index: map-get($zindex, 'sidebar')
 
 #sidebar-container
     position: fixed
-    top: $reserved-height-for-navbar
+    display: flex
+    flex-direction: column
+    top: var(--navbar-height)
     left: 0
     width: 240px
-    height: calc(100vh - #{$reserved-height-for-navbar})
-    background: #fff
-    box-shadow: 1px 0px 4px 0 rgba(0, 0, 0, 0.14)
+    height: calc(100vh - #{var(--navbar-height)})
+    background: var(--sidebar-background)
+    border-right: 1px solid var(--border-color)
     transition: all .25s ease
 
     &.collapsed
@@ -40,18 +37,18 @@ $link-hover-background: $uni-color-toolbar
             width: $sidebar-expanded-width
         &:not(.popover)
             .sidebar-link-icon:hover
-                color: $uni-color-toolbar
+                color: var(--sidebar-icon-color)
 
             .sidebar-link-group
                 display: none
 
 
 #scroll-container
-    height: calc(100% - 3rem)
+    flex: 1
     position: relative
 
 ul.sidebar-menu
-    color: $sidebar-text-color
+    color: var(--sidebar-color)
     max-width: 100%
 
     list-style: none
@@ -67,29 +64,31 @@ ul.sidebar-menu
             line-height: 2rem
             display: flex
             white-space: nowrap
+            color: var(--sidebar-section-header-color)
 
             &:hover
-                background-color: #e8e9ea
+                background-color: var(--sidebar-active-section-background)
+                color: var(--sidebar-hover-color)
 
-            i.material-icons
+            i.material-icons, i.material-icons-outlined
                 flex: 0 0 $sidebar-collapsed-width
                 text-align: center
-                margin-top: -1px
                 line-height: 2rem
-                color: $uni-color-toolbar
+                font-size: 22px
 
                 &.expanded-section-icon
                     margin-left: auto
-                    color: $uni-color-scale5
+                    color: var(--sidebar-color)
                     font-size: 15px
                     margin-top: 0
                     flex-basis: 3rem
 
-                &.sidebar-link-icon:hover
-                    color: $uni-color-link
-
             span
                 font-size: 15px
+                font-weight: 500
+                font-family: var(--font-family)
+                @media screen and (max-width: 1300px)
+                    font-size: 14px
 
 
         .sidebar-link-group
@@ -98,15 +97,15 @@ ul.sidebar-menu
             width: 240px
 
             &:last-of-type
-                margin-top: .75rem
                 padding-bottom: 1rem
 
             > span
                 padding-left: 2.2rem
                 text-transform: uppercase
-                font-size: 14px
+                font-size: 15px
                 font-weight: 600
                 color: $uni-color-toolbar
+
 
             ul.sidebar-sub-menu
                 padding: 0
@@ -116,7 +115,7 @@ ul.sidebar-menu
 
                     a
                         display: block
-                        color: $sidebar-text-color
+                        color: var(--sidebar-color)
                         text-decoration: none
                         padding: 3px 0 3px 3rem
                         margin: 0 1rem
@@ -128,13 +127,16 @@ ul.sidebar-menu
 
                         &:hover,
                         &.active-sidebar-link
-                            background: darken(#edeeef, 2%)
+                            color: var(--sidebar-hover-color)
                             border-radius: 3px
+                            font-weight: 500
 
         &[aria-expanded]:not([aria-expanded=false])
-            background: $active-section-background
-            border-top: 1px solid #eceff5
-            border-bottom: 1px solid #eceff5
+            .sidebar-section-header
+                background: var(--sidebar-active-section-background)
+                color: var(--sidebar-hover-color)
+                border-right: 2px solid var(--sidebar-hover-color)
+                margin-bottom: 10px
 
             .sidebar-link-group
                 display: block
@@ -144,49 +146,25 @@ ul.sidebar-menu
         .sidebar-section-header
                 margin-bottom: 5px
 
-
 .mega-menu-toggle
-    position: absolute
+    flex: 0 0 3rem
     width: 100%
-    height: 2.5rem
-    line-height: 2.5rem
-    text-align: center
-    left: 0
-    bottom: 0
-    color: $uni-color-scale2
-    background: $sidebar-background
-    border-top: 1px solid $uni-color-scale9
-
+    display: flex
+    align-items: center
+    justify-content: center
+    border-top: 1px solid var(--border-color)
     cursor: pointer
+    font-size: 14px
+    color: var(--sidebar-color)
+    background: var(--sidebar-background)
+    white-space: nowrap
+    overflow: hidden
     &:hover
-        background: #e8e9ea
+        background: var(--sidebar-active-section-background)
+        color: var(--sidebar-hover-color)
 
     i.material-icons
-        vertical-align: middle
         font-size: 19px
+
     span
-        font-size: 13px
-
-
-
-// .sidebar-tools
-//     width: 100%
-//     height: 32px
-//     position: absolute
-//     left: 0
-//     bottom: 0
-//     background: $sidebar-background
-//     color: $sidebar-text-color
-//     border-top: 1px solid $uni-color-scale9
-
-//     .material-icons
-//         cursor: pointer
-//         line-height: 32px
-
-//         &:first-of-type
-//             margin-left: .25rem
-//             font-size: 19px
-
-//         &:last-of-type
-//             float: right
-//             margin-right: .25rem
+        padding-left: .5rem

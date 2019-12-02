@@ -126,12 +126,12 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
     private enableReportAction() {
         this.actions = [
-            // {
-            //     label: 'Rapportere Pass og stell av barn',
-            //     action: () => this.router.navigateByUrl('/salary/barnepass'),
-            //     disabled: false,
-            //     main: true
-            // }
+            {
+                label: 'Rapportere Pass og stell av barn',
+                action: () => this.router.navigateByUrl('/salary/barnepass'),
+                disabled: false,
+                main: true
+            }
         ];
     }
 }

@@ -1,8 +1,6 @@
 $toolbar-grey: $uni-color-scale6
 
 @import 'breadcrumbs'
-@import 'statustrack'
-@import 'toolbarTools'
 @import 'toolbarSearch'
 @import 'tags'
 
@@ -11,50 +9,34 @@ $toolbar-grey: $uni-color-scale6
 
 uni-toolbar
     position: fixed
-    top: $reserved-height-for-navbar
+    top: var(--navbar-height)
     width: 100%
     height: 5.5rem
     box-sizing: border-box
-    padding: .25rem 1.5rem //.25rem 2rem
+    padding: .25rem 1.5rem
     display: flex
     flex-direction: row
+    background: var(--toolbar-background)
+    border-bottom: var(--toolbar-border)
 
     &.static
         position: static
         margin-bottom: 2rem
 
-    background: #fff
     color: $toolbar-grey
-    // border-bottom: 1px solid $uni-color-scale9
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.14)
     z-index: map-get($zindex, toolbar)
 
     .toolbar-title
-        color: #1d2b33 // $uni-color-c2a
-        font-size: 1.45rem
-        font-weight: 600
+        color: var(--color-c2a-dark)
+        font-size: 22px
+        font-weight: 500
         .material-icons
             font-size: 22px
             margin-top: 3px
 
-
-.toolbar-dropdown-list
-    @extend %contextMenu
-    position: absolute
-    top: 1.1rem
-    right: 0
-    text-align: left
-    font-size: 14px
-    z-index: #{map-get($zindex, toolbar) + 1}
-
-    li
-        width: 14rem
-        padding: .35rem .5rem
-
 .toolbar-left,
 .toolbar-center,
 .toolbar-right
-    background: #fff
     height: 100%
 
 .toolbar-left
@@ -72,10 +54,10 @@ uni-toolbar
 
     .toolbar-header
         flex: 0 0 auto
-        max-width: 25rem
+        max-width: 22rem
 
         h1, uni-toolbar-search
-            line-height: inherit
+            line-height: 1.75rem
             margin: 0
             overflow: hidden
             text-overflow: ellipsis
@@ -105,7 +87,7 @@ uni-toolbar
     @include media(650px)
         display: none
 
-    uni-statustrack
+    uni-statustrack, toolbar-sharing-status, toolbar-custom-status
         flex: 0 0 auto
         margin: auto 0
         margin-right: 1rem
@@ -116,20 +98,20 @@ uni-toolbar
         display: flex
 
         > *
-            margin-right: 1rem
+            margin: auto 1rem auto 0
 
-        .toolbar-subhead
-            color: $uni-color-scale3
-            font-size: 16px
+        .toolbar-subhead,
+        .toolbar-subhead a
+            font-size: 15px
             @include media(1300px)
-                font-size: 15px
+                font-size: 14px
 
             .subhead-label
                 color: $toolbar-grey
                 font-size: inherit
 
             &.bad
-                color: $uni-color-bad
+                color: var(--color-bad)
 
         .toolbar_uniselect
             margin-left: 1.5rem
@@ -139,40 +121,52 @@ uni-toolbar
                 display: inline-block
                 width: 12rem
                 margin-left: .25rem
-
-                .uniSelect_input
-                    height: 1.75rem
-                    color: $uni-color-scale5
-                    background: #fff unicon-chevron-down($uni-color-scale8) center right .5rem no-repeat !important
-                    background-size: auto .5rem !important
-                    border-color: $uni-color-scale8
-
-                .uniSelect_dropdown_list
-                    color: $uni-color-positive
-                    li
-                        min-height: unset
+                input
+                    height: 2rem !important
 
 .toolbar-extras, .toolbar-left
     small
-        font-size: 16px
         color: $toolbar-grey
         flex-basis: fit-content
         white-space: nowrap
 
-    a:link,
-    a:visited,
-        font-size: 16px
-        color: $uni-color-link
+    a
+        color: var(--link-color)
 
 .toolbar-right
-    flex: 0 1 auto
+    flex: 0 0 auto
     display: flex
-    flex-flow: row wrap
+    flex-flow: row nowrap
     justify-content: flex-end
+    align-items: center
     text-align: right
     margin-left: auto
 
-    .toolbar_tools, uni-save
-        flex: 0 0 auto
-        margin: auto 0 auto .5rem
-        height: 2rem
+    .toolbar-button,
+    uni-context-menu .toggle-button,
+    uni-comments .toggle-button
+        background-color: #fff
+        border: var(--toolbar-button-border)
+        margin-right: .5rem
+        color: var(--toolbar-button-color)
+        font-weight: 500
+        &:hover
+            border-color: var(--toolbar-button-color)
+
+    .new-button i.material-icons
+        font-size: 20px
+
+    > button + button
+        margin-left: 0
+
+@media screen and (max-width: 1400px)
+    .prev, .next
+        display: none
+@media screen and (max-width: 1300px)
+    .toolbar-title
+        font-size: 20px !important
+    .new-button
+        width: 2.5rem
+        padding: 0
+        span
+            display: none

@@ -13,10 +13,8 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
-import {IEditorData} from '../config/unitableConfig';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/fromPromise';
-import * as moment from 'moment';
 import * as Immutable from 'immutable';
 import {LocalDate} from '../../../../app/unientities';
 
@@ -52,7 +50,6 @@ export class UnitableEditor {
     @Output()
     public copyFromAbove: EventEmitter<any> = new EventEmitter();
 
-    public static parentModule: any;
     public isOpen: boolean = false;
 
     private initValue: string | LocalDate;
@@ -188,8 +185,27 @@ export class UnitableEditor {
         }
 
         if (event.target.tagName !== 'TABLE' && event.target.tagName !== 'TD' && !this.el.nativeElement.contains(event.target)) {
-            this.emitAndClose();
-            this.close();
+            let el = event.target;
+            let i = 0;
+            let dropdownClick = false;
+            while (!dropdownClick && el.parentElement && i < 100) {
+                const classList = el.parentElement.classList;
+                if (classList) {
+                    dropdownClick = classList.contains('input-dropdown-menu')
+                        || classList.contains('mat-calendar')
+                        || classList.contains('mat-calendar-body')
+                        || classList.contains('mat-datepicker-popup')
+                        || classList.contains('cdk-overlay-pane');
+                }
+
+                i++;
+                el = el.parentElement;
+            }
+
+            if (!dropdownClick) {
+                this.emitAndClose();
+                this.close();
+            }
         }
     }
 

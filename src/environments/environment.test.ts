@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: true,
+    isSrEnvironment: false,
 
     // Identity Server Settings
     authority: 'https://test-login.unieconomy.no',
@@ -29,10 +30,6 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
-    DEFAULT_HEADERS: {
-        'Content-Type': 'application/json'
-    },
-
     RAYGUN_API_KEY: 'o/sDy5tQZkTH2vkbPj+SZA==',
     APP_INSIGHTS_KEY: '',
 
@@ -52,6 +49,8 @@ export const environment = {
         PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
         MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: '<<voucher-template-url>>'
-    }
+        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx'
+    },
+
+    LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };

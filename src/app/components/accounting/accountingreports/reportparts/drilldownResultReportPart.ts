@@ -63,25 +63,26 @@ export class DrilldownResultReportPart implements OnChanges {
 
     @ViewChild('chartElement1')
     private chartElement1: ElementRef;
-
     private treeSummaryList: ResultSummaryData[] = [];
-    private flattenedTreeSummaryList: ResultSummaryData[] = [];
-    public showPercent: boolean = true;
-    private showPreviousAccountYear: boolean = true;
-    private showBudget = true;
-    public showPercentOfBudget: boolean = false;
-    private hideBudget = false;
-    private showall: boolean = false;
-    private budgetSoFar: number = 0;
-    private numberFormat: INumberFormat = {
+
+    flattenedTreeSummaryList: ResultSummaryData[] = [];
+    showPercent: boolean = true;
+    showPreviousAccountYear: boolean = true;
+    showBudget = true;
+    showPercentOfBudget: boolean = false;
+    hideBudget = false;
+    showall: boolean = false;
+    budgetSoFar: number = 0;
+    numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: ',',
         decimalLength: 0
     };
-    public busy = true;
-    public CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
+
+    busy = true;
+    CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
         '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
-    private myChart: any;
+    myChart: any;
 
     constructor(
         private statisticsService: StatisticsService,
@@ -255,6 +256,7 @@ export class DrilldownResultReportPart implements OnChanges {
                 const list = this.extractGroups(res);
                 this.getBudgetToCurrentMonth(res);
                 this.flattenedTreeSummaryList = list;
+                this.treeSummaryList = [...list];
                 this.calculateTreePercentages(list, null, null);
                 this.setupChart();
             },

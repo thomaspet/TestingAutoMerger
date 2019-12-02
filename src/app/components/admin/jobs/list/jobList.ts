@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ErrorService, JobService} from '@app/services/services';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'recently-executed-jobs',

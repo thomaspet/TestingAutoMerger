@@ -9,7 +9,7 @@ import {Subject} from 'rxjs';
     selector: 'uni-markingdetails-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>Vis avmerkingsdetaljer</h1></header>
+            <header>Vis avmerkingsdetaljer</header>
 
             <article>
                 <mat-progress-bar

@@ -10,7 +10,7 @@ import { JournalEntryService, ErrorService } from '@app/services/services';
 @Component({
     selector: 'select-draftline-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign medium">
+        <section role="dialog" class="uni-modal medium">
             <header>Velg bilagskladd</header>
 
             <article class='modal-content'>

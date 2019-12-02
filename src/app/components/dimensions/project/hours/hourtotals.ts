@@ -33,23 +33,22 @@ export class ProjectHourTotals {
     public busy: boolean = false;
     public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
-    public filters: Array<{ label: string, name: string, isActive: boolean}> = [
-        { label: 'Personer', name: 'persons', isActive: false },
-        { label: 'Timearter', name: 'worktypes', isActive: true }
+
+    filters = [
+        { label: 'Timearter', name: 'worktypes' },
+        { label: 'Personer', name: 'persons' },
     ];
+    activeFilter = this.filters[0];
 
     constructor(
         private pageState: PageStateService,
         private http: UniHttp,
         private router: Router,
-        private route: ActivatedRoute,
         private projectService: ProjectService
     ) {}
 
     public ngOnInit() {
-        this.route.queryParams.subscribe((params) => {
-            this.createFilter(this.filters.find( x => x.isActive).name);
-        });
+        this.onActiveFilterChange(this.filters[0]);
 
         this.projectService.toolbarConfig.pipe(
             takeUntil(this.onDestroy$)
@@ -78,9 +77,8 @@ export class ProjectHourTotals {
         }
     }
 
-    public onFilterClick(filter: { name: string, isActive: boolean }) {
-        this.filters.forEach( x => x.isActive = false);
-        filter.isActive = true;
+    public onActiveFilterChange(filter) {
+        this.activeFilter = filter;
         this.createFilter(filter.name);
     }
 

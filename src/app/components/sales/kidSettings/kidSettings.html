@@ -1,43 +1,42 @@
-<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveactions">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
 </uni-toolbar>
 
 <section class="application">
     <section class="splitview">
         <nav class ="splitview_list">
-            <section class="uni-container">
-                <mat-slide-toggle
-                    [(ngModel)]="showInactiveInList"
-                    (change)="checkInactive()"
-                    [labelPosition]="'before'">
-                    Vis inaktive
-                </mat-slide-toggle>
+            <mat-slide-toggle
+                [(ngModel)]="showInactiveInList"
+                (change)="checkInactive()"
+                [labelPosition]="'before'"
+                style="margin-bottom: 1rem;">
+                Vis inaktive
+            </mat-slide-toggle>
 
-                <ag-grid-wrapper #listTable
-                    [config]="listTableConfig"
-                    [(resource)]="paymentInfoTypes"
-                    (rowClick)="onKidSelect($event)">
-                </ag-grid-wrapper>
-            </section>
+            <ag-grid-wrapper #listTable
+                [config]="listTableConfig"
+                [(resource)]="paymentInfoTypes"
+                (rowClick)="onKidSelect($event)">
+            </ag-grid-wrapper>
         </nav>
 
-        <main class="splitview_detail">
-            <fieldset>
-                <legend>{{currentPaymentInfoType?.Name}}</legend>
+        <main class="splitview_detail uni-container">
+            <header>{{currentPaymentInfoType?.Name}}</header>
 
-                <uni-form
-                    [config]="formConfig$"
-                    [fields]="formFields$"
-                    [model]="formModel$"
-                    (changeEvent)="onDataChange($event)">
-                </uni-form>
+            <uni-form
+                [config]="formConfig$"
+                [fields]="formFields$"
+                [model]="formModel$"
+                (changeEvent)="onDataChange($event)">
+            </uni-form>
 
-                <ag-grid-wrapper #detailsTable *ngIf="currentPaymentInfoType"
-                    [config]="detailsTableConfig"
-                    [(resource)]="currentPaymentInfoType.PaymentInfoTypeParts"
-                    (resourceChange)="onDataChange()">
-                </ag-grid-wrapper>
-            </fieldset>
+            <ag-grid-wrapper #detailsTable *ngIf="currentPaymentInfoType"
+                [config]="detailsTableConfig"
+                [(resource)]="currentPaymentInfoType.PaymentInfoTypeParts"
+                (resourceChange)="onDataChange()">
+            </ag-grid-wrapper>
+
             <h3 *ngIf="!isKidLengthOK" class="validationError">Antall siffer stemmer ikke overens med KID-lengde</h3>
             <p class="modulus">*KID-innstillingene beregnes etter modulus 10</p>
         </main>

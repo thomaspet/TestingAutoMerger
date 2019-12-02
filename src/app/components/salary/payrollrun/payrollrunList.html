@@ -1,9 +1,9 @@
 <uni-toolbar
-    [config]="{title: 'Lønnsavregninger'}"
+    [config]="{title: 'NAVBAR.PAYROLL'}"
     [saveactions]="toolbarActions">
 </uni-toolbar>
 <article class="application">
-    <ag-grid-wrapper
+    <ag-grid-wrapper class="borders"
         [resource]="payrollRuns"
         [config]="payrollrunListConfig"
         (rowSelectionChange)="rowSelected($event)">

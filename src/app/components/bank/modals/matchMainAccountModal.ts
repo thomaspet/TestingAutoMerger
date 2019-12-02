@@ -8,9 +8,7 @@ import { UniSearchAccountConfig } from '@app/services/services';
     selector: 'match-account-manual-modal',
     template: `
         <section role="dialog" class="uni-modal xs">
-            <header>
-                <h1>{{ options.header }}</h1>
-            </header>
+            <header>{{ options.header }}</header>
             <article style="min-height: 12rem;">
                 <p>Velg hovedbokskonto for betaling</p>
                 <uni-search

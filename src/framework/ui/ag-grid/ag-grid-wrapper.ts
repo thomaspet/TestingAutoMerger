@@ -34,13 +34,14 @@ import {
     RowDragEndEvent,
     PaginationChangedEvent,
     RowNode,
-    SortChangedEvent
+    SortChangedEvent,
+    GridOptions
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {Subject} from 'rxjs';
 import * as _ from 'lodash';
 
@@ -71,28 +72,33 @@ export class AgGridWrapper {
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
 
-    public markedRowCount: number = 0;
-    public sumMarkedRows: any = 0;
     private configStoreKey: string;
-    private agGridApi: GridApi;
-    public rowModelType: 'clientSide' | 'infinite';
-    public localData: boolean;
-    public cacheBlockSize: number;
-    public tableHeight: string;
-    public flex: string = '1';
-    public usePagination: boolean;
-    public selectionMode: string = 'single';
-    public paginationInfo: any;
-    public allIsExpanded = true;
 
-    public columns: UniTableColumn[];
-    private agColDefs: ColDef[];
-    public rowClassResolver: (params) => string;
+    agGridApi: GridApi;
+    agColDefs: ColDef[];
+    agTranslations: any;
+    rowClassResolver: (params) => string;
+
+    rowHeight = 45;
+    markedRowCount: number = 0;
+    sumMarkedRows: any = 0;
+
+    rowModelType: 'clientSide' | 'infinite';
+    localData: boolean;
+    cacheBlockSize: number;
+    tableHeight: string;
+    flex: string = '1';
+    usePagination: boolean;
+    selectionMode: string = 'single';
+    paginationInfo: any;
+    allIsExpanded = true;
+    columns: UniTableColumn[];
 
     private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
+    private sumRowSubscription: Subscription;
 
     private isInitialLoad: boolean = true;
     public suppressRowClick: boolean = false;
@@ -115,6 +121,12 @@ export class AgGridWrapper {
     ) {}
 
     public ngOnInit() {
+        this.agTranslations = {
+            rowGroupColumnsEmptyMessage: 'Dra kolonner her for å gruppere',
+            noRowsToShow: 'Ingen rader å vise',
+            loadingOoo: 'Laster data...'
+        };
+
         this.rowSelectionDebouncer$
             .debounceTime(50)
             .subscribe((event: SelectionChangedEvent) => {
@@ -123,6 +135,7 @@ export class AgGridWrapper {
                 this.markedRowCount = rows ? rows.length : 0;
                 this.sumMarkedRows = (rows && this.sumColName) ? this.sumTotalInGroup(rows.map(row => row[this.sumColName])) : 0;
                 this.rowSelectionChange.emit(rows);
+                this.cdr.markForCheck();
             });
 
         this.columnMoveDebouncer$
@@ -136,6 +149,8 @@ export class AgGridWrapper {
         this.colResizeDebouncer$
             .debounceTime(200)
             .subscribe(event => this.onColumnResize(event));
+
+        this.sumRowSubscription = this.dataService.sumRow$.subscribe(() => this.calcTableHeight());
     }
 
     public ngOnDestroy() {
@@ -145,10 +160,12 @@ export class AgGridWrapper {
         this.gridSizeChangeDebouncer$.complete();
         this.dataService.sumRow$.complete();
         this.dataService.localDataChange$.complete();
+        this.sumRowSubscription.unsubscribe();
     }
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {
+            this.rowHeight = this.config.editable ? 45 : 50;
             const sumCols = this.config.columns.filter(col => col.markedRowsSumCol);
 
             if (sumCols && sumCols.length) {
@@ -211,7 +228,7 @@ export class AgGridWrapper {
                 this.localData = false;
                 this.rowModelType = 'infinite';
                 this.cacheBlockSize = 50;
-                this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
+                this.tableHeight = 81 + (this.config.pageSize * this.rowHeight) + 'px';
             }
 
             if (this.agGridApi) {
@@ -241,12 +258,6 @@ export class AgGridWrapper {
     public onAgGridReady(event: GridReadyEvent) {
         this.agGridApi = event.api;
         this.agGridApi.sizeColumnsToFit();
-        if (this.config.isGroupingTicker) {
-            const doc = document.getElementsByClassName('ag-column-drop-empty-message');
-            if (doc && doc.length) {
-                doc[0].innerHTML = 'Dra kolonner her for å gruppere';
-            }
-        }
         this.initialize();
     }
 
@@ -256,9 +267,8 @@ export class AgGridWrapper {
             const loaded = Object.keys(state).every(key => state[key].pageStatus === 'loaded');
 
             if (loaded) {
-                this.onDataLoaded(event.api);
+                this.onDataLoaded();
                 this.dataLoaded.emit();
-
                 if (this.isInitialLoad) {
                     if (this.config.autofocus) {
                         this.focusRow(0);
@@ -289,31 +299,57 @@ export class AgGridWrapper {
         }
     }
 
-    public onDataLoaded(api: GridApi) {
+    public onDataLoaded() {
         if (!this.localData) {
-            const loadedRowCount = this.dataService.loadedRowCount;
-            const pageSize = this.config.pageSize || 20;
-
-            if (loadedRowCount < pageSize) {
-                this.tableHeight = loadedRowCount > 0
-                    ? 75 + (loadedRowCount * 35) + 'px'
-                    : '95px';
+            if (this.dataService.loadedRowCount) {
+                this.agGridApi.hideOverlay();
             } else {
-                let height = 75 + (pageSize * 35);
+                this.agGridApi.showNoRowsOverlay();
+            }
 
-                // Make room for the bar displaying active filters
+            this.calcTableHeight();
+
+            setTimeout(() => {
+                this.dataService.isDataLoading = false;
+            });
+        }
+    }
+
+    private calcTableHeight() {
+        if (this.config && !this.localData) {
+            const rowCount = this.dataService.loadedRowCount || 0;
+            const pageSize = this.config.pageSize || 20;
+            const hasSumRow = !!this.dataService.sumRow$.value;
+
+            let tableHeight;
+            if (rowCount < pageSize) {
+                let heightMultiplier = 1 + (rowCount || 1);
+                if (hasSumRow) {
+                    heightMultiplier += 1;
+                }
+
+                tableHeight = (heightMultiplier * this.rowHeight) + 1 + 'px';
+            } else {
+                let height = (pageSize + 1) * this.rowHeight;
                 if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
                     height -= 40;
                 }
 
-                this.tableHeight = height + 'px';
+                if (hasSumRow || this.config.showTotalRowCount) {
+                    height += this.rowHeight;
+                }
+
+                // +20 to make room for horizontal scrollbar
+                tableHeight = height + 20 + 'px';
             }
 
-            setTimeout(() => {
-                api.doLayout();
-                api.sizeColumnsToFit();
-                this.dataService.isDataLoading = false;
-            });
+            if (tableHeight !== this.tableHeight) {
+                this.tableHeight = tableHeight;
+            }
+
+            if (this.agGridApi) {
+                this.agGridApi.sizeColumnsToFit();
+            }
         }
     }
 
@@ -566,7 +602,7 @@ export class AgGridWrapper {
             if (url.includes('mailto:')) {
                 window.location.href = url;
             } else if (url.includes('http') || url.includes('www')) {
-                if (window.confirm('Du forlater nå Uni Economy')) {
+                if (window.confirm('Du forlater nå applikasjonen')) {
                     if (!url.includes('http')) {
                         url = 'http://' + url;
                     }
@@ -718,7 +754,14 @@ export class AgGridWrapper {
                         data = params.node && params.node.aggData;
                     }
 
-                    return this.tableUtils.getColumnValue(data, col);
+                    return this.tableUtils.getColumnValue(data, col, true);
+                },
+                cellRenderer: (params) => {
+                    if (params.value) {
+                        return `<span>${params.value}</span>`;
+                    } else if (col.placeholder) {
+                        return `<span class="placeholder">${col.placeholder}</span>`;
+                    }
                 }
             };
 
@@ -766,8 +809,10 @@ export class AgGridWrapper {
                 agCol.width = +col.width;
             }
 
-            if (!col.width || col.width >= 64) {
-                agCol.minWidth = 64;
+            if (!col.width || col.width >= 100) {
+                agCol.minWidth = 100;
+            } else {
+                agCol.minWidth = <number> col.width;
             }
 
             agCol.colId = col.field;
@@ -785,6 +830,8 @@ export class AgGridWrapper {
                 suppressResize: true,
                 suppressSorting: true,
                 suppressMovable: true,
+                headerClass: 'checkbox-cell',
+                cellClass: 'checkbox-cell'
             });
 
             this.selectionMode = 'multiple';
@@ -828,6 +875,7 @@ export class AgGridWrapper {
                 suppressAutoSize: true,
                 suppressSizeToFit: true,
                 valueGetter: () => 'Flytt rad',
+                cellClass: 'row-drag-cell'
             });
         }
 

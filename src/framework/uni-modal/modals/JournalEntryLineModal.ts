@@ -1,12 +1,11 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {JournalEntryLine, Dimensions, Project, Department, JournalEntryType} from '../../../app/unientities';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService} from '@uni-framework/uniToast/toastService';
 import {
     ErrorService,
     StatisticsService,
@@ -14,16 +13,14 @@ import {
     DimensionSettingsService,
     CustomDimensionService,
     DepartmentService,
-    ProjectService} from '@app/services/services';
-import { parse } from 'qs';
+    ProjectService
+} from '@app/services/services';
 ​
 @Component({
     selector: 'journalentry-line-modal',
     template: `
-            <section role="dialog" class="uni-modal">
-            <header>
-                <h1>Redigere bilagslinje ( uten kreditering )</h1>
-            </header>
+        <section role="dialog" class="uni-modal">
+            <header>Redigere bilagslinje ( uten kreditering )</header>
             <article>
                 Disse endringene vil ikke medføre en kreditering eller korrigering, <BR/>
                 men vil bli endret direkte på bilagslinjen.<BR/><BR/>

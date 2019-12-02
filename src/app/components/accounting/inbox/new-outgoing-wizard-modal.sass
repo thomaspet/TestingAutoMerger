@@ -1,0 +1,37 @@
+.new-outgoing-modal-conatiner
+    font-size: 14px
+    display: flex
+    flex-direction: column
+    .fake-radio-button-ring
+        width: 1.2rem
+        height: 1.2rem
+        border-radius: .6rem
+        border: 1px solid var(--border-color)
+        cursor: pointer
+        &.checked
+            border: 5px solid var(--color-c2a)
+
+    .value-header
+        font-weight: bold
+
+    .outgoing-item-container
+        display: flex
+        align-items: center
+        padding-left: 1rem
+        height: 5rem
+        margin-top: 1rem
+        border: 1px solid var(--border-color)
+        border-radius: 4px
+        cursor: pointer
+
+        &:hover
+            border: 1px solid var(--color-c2a)
+
+        &.checked
+            border: 2px solid var(--color-c2a)
+
+        .outgoing-text-container
+            display: flex
+            flex-direction: column
+            margin-left: 1rem
+

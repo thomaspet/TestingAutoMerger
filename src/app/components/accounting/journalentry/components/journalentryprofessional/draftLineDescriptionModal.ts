@@ -1,64 +1,46 @@
-import {Component, Input, Output, EventEmitter, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'draftline-description-modal',
     template: `
-        <section
-            role="dialog"
-            class="uni-modal"
-            style="width: 20vw"
-            (clickOutside)="close()"
-            (keydown.esc)="close()">
+        <section role="dialog" class="uni-modal" style="width: 30vw">
+            <header>Beskrivelse på kladd</header>
 
-            <header><h1>Beskrivelse på kladd</h1></header>
-            <article class='modal-content'>
+            <article>
                 <span>Legg til beskrivelse:</span>
                 <br>
-                <input id="text_input" type="text" (keydown.enter)="accept()" [(ngModel)]="text">
+                <input type="text"
+                    id="text_input"
+                    style="width: 100%;"
+                    (keydown.enter)="onClose.emit(text)"
+                    [(ngModel)]="text"
+                />
             </article>
 
             <footer>
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                    {{options.buttonLabels.accept}}
+                <button class="secondary" (click)="onClose.emit(null)">
+                    Avbryt
                 </button>
 
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="close()">
-                    {{options.buttonLabels.cancel}}
+                <button class="c2a" (click)="onClose.emit(text)">
+                    Lagre
                 </button>
             </footer>
         </section>
     `
 })
-export class DraftLineDescriptionModal implements IUniModal, OnInit, AfterViewInit {
-    @Input() public options: IModalOptions;
+export class DraftLineDescriptionModal implements IUniModal {
+    @Input() options: IModalOptions;
+    @Output() onClose = new EventEmitter();
 
-    @Output() public onClose: EventEmitter<any> = new EventEmitter();
+    text: string;
 
-    public text: string;
-
-    public ngOnInit() {
-        if (!this.options.buttonLabels) {
-            this.options.buttonLabels = {
-                accept: 'Ok',
-                cancel: 'Avbryt'
-            };
-        }
-    }
-
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
         setTimeout(function() {
             if (document.getElementById('text_input')) {
                 document.getElementById('text_input').focus();
             }
         });
-    }
-
-    accept() {
-        this.onClose.emit(this.text);
-    }
-
-    close() {
-        this.onClose.emit(null);
     }
 }

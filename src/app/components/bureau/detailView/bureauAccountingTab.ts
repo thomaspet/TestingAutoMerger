@@ -30,7 +30,7 @@ const BASE = environment.BASE_URL;
     <section class="tab-part">
         <section class="image-container">
             <img class="invoice-icon">
-            <span>Leverandørfaktura</span>
+            <span> {{ 'NAVBAR.SUPPLIER_INVOICE' | translate }} </span>
         </section>
         <section class="text-container">
             <p>

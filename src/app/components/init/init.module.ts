@@ -1,29 +1,28 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {LoginModal} from './index';
 import {UniInit} from './init';
-import {ResetPassword} from './resetPassword/resetPassword';
 import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
+import {RegisterCompany} from './registerCompany/registerCompany';
 import {Signup} from './signup/signup';
 import {UniPasswordGuide} from './password-guide';
-import {RECAPTCHA_SETTINGS, RecaptchaSettings, RecaptchaLoaderService, RecaptchaModule, } from 'ng-recaptcha';
+import {RECAPTCHA_SETTINGS, RecaptchaModule, } from 'ng-recaptcha';
 import {RecaptchaFormsModule} from 'ng-recaptcha/forms';
 import {environment} from 'src/environments/environment';
-import { MatTooltipModule } from '@angular/material';
+import { MatTooltipModule, MatRadioModule } from '@angular/material';
+import {NewCompany} from './registerCompany/new-company/new-company';
+import {NewDemo} from './registerCompany/new-demo/new-demo';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         RouterModule,
 
         MatTooltipModule,
@@ -31,26 +30,23 @@ import { MatTooltipModule } from '@angular/material';
         LayoutModule,
         AppCommonModule,
         RecaptchaModule.forRoot(),
-        RecaptchaFormsModule
-
+        RecaptchaFormsModule,
+        MatRadioModule
     ],
     declarations: [
         UniPasswordGuide,
-        LoginModal,
         UniInit,
-        ResetPassword,
         Login,
         ConfirmInvite,
-        Signup
-    ],
-    entryComponents: [
-        LoginModal
+        RegisterCompany,
+        Signup,
+        NewCompany,
+        NewDemo
     ],
     exports: [
-        LoginModal,
         UniInit,
-        ResetPassword,
         Login,
+        RegisterCompany,
         ConfirmInvite
     ],
     providers: [

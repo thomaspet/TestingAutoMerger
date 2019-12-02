@@ -1,39 +1,24 @@
-<div class="autocomplete" (clickOutside)="onClickOutside()">
-    <input #query
-           [attr.aria-describedby]="asideGuid"
-           class="autocomplete_input"
-           [formControl]="control"
-           [readonly]="readOnly$ | async"
-           [placeholder]="field?.Placeholder || ''"
-           (focus)="focusHandler()"
-           (blur)="emitChanges()"
-           role="combobox"
-           type="text"
-           tabindex="-1"
-    />
-    <button #toggleBtn class="uni-typeahead-searchBtn"
-            type="button"
-            tabIndex="-1"
-            (click)="toggle()"
-            [disabled]="readOnly$ | async">
-        Søk
-    </button>
-
-    <ul #list
-        *ngIf="lookupResults?.length"
-        class="uniTable_dropdown_list"
-        role="listbox"
+<section (clickOutside)="onClickOutside()">
+    <input #inputElement
+        [formControl]="control"
+        [readonly]="readOnly$ | async"
+        [placeholder]="field?.Placeholder || ''"
+        (focus)="focusHandler()"
+        (blur)="emitChanges()"
+        role="combobox"
+        type="text"
         tabindex="-1"
-        [attr.aria-expanded]="isExpanded">
+    />
+</section>
 
-        <li *ngFor="let item of lookupResults; let idx = index"
-            class="autocomplete_result uniTable_dropdown_item"
-            role="option"
+<input-dropdown-menu #dropdown [input]="inputElement" [visible]="isExpanded && lookupResults?.length">
+    <ng-template>
+        <section *ngFor="let item of lookupResults; let idx = index"
+            class="dropdown-menu-item"
             (mouseover)="selectedIndex = idx"
             (click)="select(idx)"
             [attr.aria-selected]="selectedIndex === idx">
             {{ template(item) }}
-        </li>
-    </ul>
-    <ng-content></ng-content>
-</div>
+        </section>
+    </ng-template>
+</input-dropdown-menu>

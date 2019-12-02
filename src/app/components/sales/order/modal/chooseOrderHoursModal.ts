@@ -21,7 +21,7 @@ import {
     CustomWorkItem,
 } from '@app/services/services';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, IRowChangeEvent } from '@uni-framework/ui/unitable';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
 import {
     UniTimeModal,

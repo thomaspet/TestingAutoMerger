@@ -98,8 +98,7 @@ export class ProductPurchasesModal implements IUniModal {
 
                     const product = this.products.find(p => p.ID === purchase.ProductID);
                     const rolesOnProduct: string[] = product && product.ListOfRoles
-                        ? product.ListOfRoles.split(',')
-                        : [];
+                        ? product.ListOfRoles.split(',') : [];
 
                     // Check if the user already has a role for the activated product
                     const hasRoleForProduct = this.userRoles.find(role => {
@@ -109,19 +108,36 @@ export class ProductPurchasesModal implements IUniModal {
                         });
                     });
 
-                    // If the above check is false we need to assign them the default role for said product
+                    // If the above check is false we need to assign them the default role(s) for said product
                     if (!hasRoleForProduct && rolesOnProduct.length) {
-                        const defaultRoleName = rolesOnProduct[0].trim().toLowerCase();
-                        const defaultRole = this.roles.find(role => {
-                            return (role.Name || '').toLowerCase() === defaultRoleName;
-                        });
+                        let rolesToActivate = [];
 
-                        if (defaultRole) {
-                            newUserRoles.push({
-                                SharedRoleId: defaultRole.ID,
-                                SharedRoleName: defaultRole.Name,
-                                UserID: entry.userID
+                        if (product.DefaultRoles) {
+                            const defaultRoles = product.DefaultRoles.toLowerCase();
+                            rolesToActivate = this.roles.filter(role => defaultRoles.includes(role.Name.toLowerCase()));
+                        }
+
+                        if (!rolesToActivate.length) {
+                            const defaultRoleName = rolesOnProduct[0].trim().toLowerCase();
+                            const defaultRole = this.roles.find(role => {
+                                return (role.Name || '').toLowerCase() === defaultRoleName;
                             });
+
+                            if (defaultRole) {
+                                rolesToActivate.push(defaultRole);
+                            }
+                        }
+
+                        if (rolesToActivate.length) {
+                            const userRoles = rolesToActivate.map(role => {
+                                return {
+                                    SharedRoleId: role.ID,
+                                    SharedRoleName: role.Name,
+                                    UserID: entry.userID
+                                };
+                            });
+
+                            newUserRoles.push(...userRoles);
                         }
                     }
                 } else if (!purchase['_active'] && purchase.ID) {

@@ -23,15 +23,16 @@ export class SignalRService {
     public hubConnection: signalR.HubConnection;
 
     constructor(private authService: AuthService) {
+        this.authService.token$.subscribe(token => {
+            if (token && !this.connected) {
+                this.startConnection();
+            }
+        });
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
                 this.user = auth.user;
                 this.userGlobalIdentity = auth.user.GlobalIdentity;
                 this.currentCompanyKey = auth.activeCompany.Key;
-                if (!this.connected) {
-                    this.startConnection();
-                }
-
             } else if (this.hubConnection) {
                 this.hubConnection.stop();
                 delete this.hubConnection;
@@ -69,18 +70,18 @@ export class SignalRService {
         if (!this.connected && this.hubConnection) {
             await this.hubConnection.start()
                 .then(() => {
-                    console.log('SignalR connection started');
+                    // console.log('SignalR connection started');
                     this.connected = true;
                     this.addGlobalListener();
                 })
                 .catch(err => {
-                    console.log('Error while starting SignalR connection');
+                    // console.log('Error while starting SignalR connection');
                     if (this.retryConnectionCounter < 5) {
-                        console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
+                        // console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
                         setTimeout(() => this.start(), 5000);
                         this.retryConnectionCounter++;
                     } else {
-                        console.log('Tried to reconnect too many times');
+                        // console.log('Tried to reconnect too many times');
                         delete this.hubConnection;
                     }
             });

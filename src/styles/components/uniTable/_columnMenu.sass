@@ -15,11 +15,8 @@ column-menu-modal
         th.jump-col
             width: auto
 
-    .uni-modal footer button
-        min-width: 6rem
-
     .dragIndicator
-        background-color: $uni-color-scale9
+        background-color: rgba(0, 0, 0, .1)
 
     .dragElement
             opacity: .5
@@ -33,7 +30,7 @@ column-menu-modal
 
         tbody tr
             margin-bottom: .25rem
-            border-radius: pxToRem(5)
+            border-radius: 4px
 
         th
             padding: 0
@@ -46,25 +43,9 @@ column-menu-modal
             &.jump-col
                 width: 13rem
 
-
     .move-icon
         vertical-align: middle
-
-    ul.column-menu-list
-        width: 100%
-        list-style: none
-
-        li
-            width: 100%
-            height: 2.25rem
-            line-height: 2rem
-            margin-bottom: .25rem
-            border-radius: pxToRem(5)
-            cursor: move
-
-            &:hover
-                background: $uni-color-scale9
-
+        cursor: pointer
 
     article p
         margin: 0.25rem

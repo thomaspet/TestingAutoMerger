@@ -61,11 +61,11 @@ export class EmailService extends BizHttp<Email> {
             this.distributeWithTypeAndBody(sendemail.EntityID, fullEntityType, 'Email', email).subscribe(
                 () => {
                     this.toastService.removeToast(this.emailtoast);
-                    this.toastService.addToast(
-                        'E-post lagt i kø for utsendelse',
-                        ToastType.good,
-                        ToastTime.medium,
-                        'Status på sendingen oppdateres løpende under Nøkkeltall \\ Utsendelse');
+                    this.toastService.toast({
+                        title: 'E-post lagt i kø for utsendelse',
+                        type: ToastType.good,
+                        duration: ToastTime.medium
+                    });
                 },
                 (err) => this.errorService.handle(err)
             );
@@ -82,37 +82,37 @@ export class EmailService extends BizHttp<Email> {
             .map(res => res.body);
     }
 
-    public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {
-        const model = new SendEmail();
-        model.EntityType = `Customer${entityTypeName}`;
-        model.EntityID = entity.ID;
-        model.CustomerID = entity.CustomerID;
-        model.EmailAddress = entity.EmailAddress;
+    // public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {
+    //     const model = new SendEmail();
+    //     model.EntityType = `Customer${entityTypeName}`;
+    //     model.EntityID = entity.ID;
+    //     model.CustomerID = entity.CustomerID;
+    //     model.EmailAddress = entity.EmailAddress;
 
-        const entityNumber = entity[`${entityTypeName}Number`]
-            ? ` nr. ` + entity[`${entityTypeName}Number`]
-            : 'kladd';
+    //     const entityNumber = entity[`${entityTypeName}Number`]
+    //         ? ` nr. ` + entity[`${entityTypeName}Number`]
+    //         : 'kladd';
 
-        model.Subject = `${name} ${entityNumber}`;
-        model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
+    //     model.Subject = `${name} ${entityNumber}`;
+    //     model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
 
-        return this.modalService.open(UniSendEmailModal, {
-            data: {
-                model: model,
-                reportType: ReportTypeEnum[entityTypeName.toUpperCase()],
-                entity,
-                parameters: reportForm.parameters,
-                form: reportForm
-            }
-        }).onClose.map(email => {
-            if (email) {
-                this.sendEmailWithReportAttachment(`Models.Sales.${model.EntityType}`,
-                    email.model.selectedForm.ID,
-                    email.model.sendEmail
-                );
-            }
-        });
-    }
+    //     return this.modalService.open(UniSendEmailModal, {
+    //         data: {
+    //             model: model,
+    //             reportType: ReportTypeEnum[entityTypeName.toUpperCase()],
+    //             entity,
+    //             parameters: reportForm.parameters,
+    //             form: reportForm
+    //         }
+    //     }).onClose.map(email => {
+    //         if (email) {
+    //             this.sendEmailWithReportAttachment(`Models.Sales.${model.EntityType}`,
+    //                 email.model.selectedForm.ID,
+    //                 email.model.sendEmail
+    //             );
+    //         }
+    //     });
+    // }
 
     public isValidEmailAddress(email: string): boolean {
         // <something>@<something>.<something>

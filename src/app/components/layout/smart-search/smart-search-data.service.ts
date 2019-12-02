@@ -9,6 +9,7 @@ import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamMo
 import {UserSettingsModal} from '../navbar/user-dropdown/user-settings-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AuthService} from '@app/authService';
+import {UniTranslationService} from '@app/services/common/translationService';
 
 @Injectable()
 export class SmartSearchDataService {
@@ -24,7 +25,7 @@ export class SmartSearchDataService {
     public newTOFWithCustomerURL;
     public prefixModule: any;
     private predefinedPrefixes = [
-        'f', 'o', 't', 'a', 'l', 'p', 'k',
+        'f', 'o', 't', 'a', 'l', 'p', 'k', 'r',
         'faktura',
         'ordre',
         'tilbud',
@@ -33,7 +34,8 @@ export class SmartSearchDataService {
         'leverandør',
         'prosjekt',
         'produkt',
-        'rapport'
+        'rapport',
+        'regning'
     ];
 
     private helpAndUserItems = [
@@ -65,14 +67,15 @@ export class SmartSearchDataService {
     constructor(
         private navbarLinkService: NavbarLinkService,
         private uniModalService: UniModalService,
+        private translate: UniTranslationService,
         private authService: AuthService
     ) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
+            const settings = this.navbarLinkService.settingsSection$.getValue();
             this.componentLookupSource = [];
             this.confirmedSuperSearchRoutes = [];
             this.shortcuts = [];
             linkSections.forEach(section => {
-
                 section.linkGroups.forEach(group => {
                     group.links.forEach( (link) => {
                         if (link.isSuperSearchComponent) {
@@ -81,7 +84,15 @@ export class SmartSearchDataService {
                         if (link.shortcutName) {
                             this.shortcuts.push(link);
                         }
+
+                        link['_section'] = section.name;
                     });
+                    this.componentLookupSource.push(...group.links);
+                });
+            });
+
+            settings.forEach((setting) => {
+                setting.linkGroups.forEach(group => {
                     this.componentLookupSource.push(...group.links);
                 });
             });
@@ -150,7 +161,7 @@ export class SmartSearchDataService {
 
                 // This can be expanded to fit more actions.. For now we are adding the reports
                 // and opening them where you are when clicked!
-                if (this.modelsInSearch[ind].name === 'Rapporter') {
+                if (this.modelsInSearch[ind].name === 'NAVBAR.REPORTS') {
                     type = 'report';
                 }
 
@@ -356,7 +367,9 @@ export class SmartSearchDataService {
 
         this.componentLookupSource.forEach((component) => {
             const name = component && component.name;
-            if (name && name.toLowerCase().indexOf(query) !== -1) {
+
+            if (name && this.translate.translate(name).toLowerCase().indexOf(query) !== -1
+                || this.translate.translate(component._section).toLowerCase().indexOf(query) !== -1 ) {
                 component.type = 'link';
                 results.push(component);
             }

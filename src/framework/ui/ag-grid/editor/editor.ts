@@ -7,7 +7,6 @@ import {
     ChangeDetectorRef,
     ComponentFactoryResolver,
     ElementRef,
-    ApplicationRef,
     ComponentRef,
     ViewChild,
     ViewContainerRef
@@ -20,11 +19,7 @@ import {TableDataService} from '../services/data-service';
 import {TableUtils} from '../services/table-utils';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
-import {
-    GridApi,
-    ColDef,
-    IDatasource,
-} from 'ag-grid-community';
+import {GridApi} from 'ag-grid-community';
 
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -78,12 +73,13 @@ export class TableEditor {
     public currentRowIndex: number;
     public currentCellIndex: number;
 
+    moving: boolean;
+
     constructor(
         private dataService: TableDataService,
         private utils: TableUtils,
         private cdr: ChangeDetectorRef,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private appRef: ApplicationRef,
         private elRef: ElementRef
     ) {
         this.dataService.localDataChange$.subscribe(() => {
@@ -96,7 +92,11 @@ export class TableEditor {
 
         this.moveThrottle
             .throttleTime(100)
-            .subscribe(event => this.move(event.direction, event.key));
+            .subscribe(event => {
+                if (!this.moving) {
+                    this.move(event.direction, event.key);
+                }
+            });
     }
 
     public ngOnChanges(changes) {
@@ -130,7 +130,7 @@ export class TableEditor {
                 // Make sure there is always an empty row at the bottom
                 // if config.autoAddNewRow is true
                 const rowCount = this.agGridApi.getDisplayedRowCount();
-                if (this.config.autoAddNewRow && rowIndex >= (rowCount - 1)) {
+                if (this.config.autoAddNewRow && rowIndex >= rowCount) {
                     this.dataService.addRow();
                 }
 
@@ -162,17 +162,22 @@ export class TableEditor {
                 if (!editorData.cancel) {
                     this.openEditor(editorData.initValue, editorData.initAsDirty);
                 }
-            });
 
+                this.moving = false;
+            }).catch(() => this.moving = false);
         });
-
-
     }
 
     private openEditor(initValue: string, initAsDirty: boolean) {
         this.initValue = initValue;
         const editorClass = this.currentColumn.editor;
         const factory = this.componentFactoryResolver.resolveComponentFactory(editorClass);
+
+        // Editor should be destroyed before this code runs, but check just in case
+        if (this.editor) {
+            this.editor.destroy();
+        }
+
         this.editor = this.editorContainer.createComponent(factory);
         const component = this.editor.instance;
 
@@ -268,7 +273,26 @@ export class TableEditor {
 
     public checkForClickOutside(event) {
         if (this.elRef && !this.elRef.nativeElement.contains(event.target)) {
-            this.emitAndClose();
+            let el = event.target;
+            let i = 0;
+            let dropdownClick = false;
+            while (!dropdownClick && el.parentElement && i < 100) {
+                const classList = el.parentElement.classList;
+                if (classList) {
+                    dropdownClick = classList.contains('input-dropdown-menu')
+                        || classList.contains('mat-calendar')
+                        || classList.contains('mat-calendar-body')
+                        || classList.contains('mat-datepicker-popup')
+                        || classList.contains('cdk-overlay-pane');
+                }
+
+                i++;
+                el = el.parentElement;
+            }
+
+            if (!dropdownClick) {
+                this.emitAndClose();
+            }
         }
     }
 
@@ -377,6 +401,8 @@ export class TableEditor {
     }
 
     private move(direction: 'up'|'down'|'left'|'right', keyCode?: number) {
+        this.moving = true;
+
         // REVISIT: simpler way to get table data?
         const data = [];
         this.agGridApi.forEachNode(node => {
@@ -422,7 +448,12 @@ export class TableEditor {
                 cellIndex = this.getNextEditableCellIndex(cellIndex + 1, data[rowIndex]);
                 if (cellIndex === undefined) {
                     rowIndex = this.getNextEditableRowIndex(rowIndex + 1, data);
-                    cellIndex = this.getNextEditableCellIndex(0, data[rowIndex]);
+                    if (!rowIndex && !this.config.autoAddNewRow) {
+                        return this.emitAndClose();
+                    }
+                    
+                    const updatedData = this.dataService.getViewData();
+                    cellIndex = this.getNextEditableCellIndex(0, updatedData ? updatedData[rowIndex] : data[rowIndex]);
                 }
             break;
         }
@@ -442,6 +473,8 @@ export class TableEditor {
                 // this.agGridApi.ensureColumnVisible(uniColumn.field);
                 this.activate(rowIndex, cellIndex);
             }
+        } else {
+            this.moving = false;
         }
     }
 
@@ -547,8 +580,8 @@ export class TableEditor {
             return {
                 top: cellBounds.top - tableBounds.top,
                 left: cellBounds.left - tableBounds.left,
-                height: cell.clientHeight,
-                width: cell.clientWidth
+                height: cellBounds.height,
+                width: cellBounds.width
             };
 
         } catch (e) {

@@ -3,19 +3,18 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
 import {CompanySettingsService} from '../../../../app/services/common/companySettingsService';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
-import {LocalDate, CompanySettings} from '@uni-entities';
-import {FieldType} from '../../../../framework/ui/uniform/index';
-import { JournalEntryService } from '@app/services/services';
-import { Observable } from 'rxjs';
+import {CompanySettings} from '@uni-entities';
+import {JournalEntryService} from '@app/services/services';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'confirm-credited-journalEntry-with-date-modal',
     template: `
         <section role="dialog" class="uni-modal"
-            (keydown.esc)="cancel($event)">
+            (keydown.esc)="cancel()">
             <header>
-                <h1 class="new">{{options.header}}</h1>
-                <i (click)="cancel($event)" class="material-icons close-button" role="button">
+                {{options.header}}
+                <i (click)="cancel()" class="material-icons close-button" role="button">
                     close
                 </i>
             </header>
@@ -34,24 +33,23 @@ import { Observable } from 'rxjs';
             </article>
 
             <footer>
-                <button *ngIf="!disableCreditButton" class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady || disableCreditButton">
-                    {{options.buttonLabels.accept}}
-                </button>
-
-                <button class="cancel" (click)="cancel($event)">
+                <button class="cancel" (click)="cancel()">
                     {{options.buttonLabels.cancel}}
                 </button>
 
+                <button *ngIf="!disableCreditButton"
+                    class="c2a"
+                    (click)="accept()"
+                    [disabled]="!formReady">
+                    {{options.buttonLabels.accept}}
+                </button>
             </footer>
         </section>
     `
 })
-export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, AfterViewInit {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+export class ConfirmCreditedJournalEntryWithDate implements IUniModal {
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     public vatLockedDateReformatted: string;
     public accountingLockedDateReformatted: string;
@@ -59,9 +57,6 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     public relatedJournalEntriesMessage: string;
 
     public creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-
 
     public showVatLockedDateInfo: boolean = false;
     public showAccountingLockedInfo: boolean = false;
@@ -85,12 +80,8 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
         this.findNonLockedDate();
     }
 
-    public ngAfterViewInit() {
-        setTimeout(function() {
-            if (document.getElementById('good_button_ok')) {
-                document.getElementById('good_button_ok').focus();
-            }
-        });
+    ngOnDestroy() {
+        this.creditingData$.complete();
     }
 
     private findNonLockedDate() {
@@ -190,29 +181,13 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
         });
     }
 
-    public accept(event) {
+    public accept() {
         const current = this.creditingData$.getValue();
         return this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.ACCEPT});
     }
 
-    public cancel(event) {
+    public cancel() {
         const current = this.creditingData$.getValue();
         this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.CANCEL});
-    }
-
-    private getLayout() {
-        return {
-            Name: 'TransqueryList',
-            BaseEntity: 'Account',
-            Fields: [
-                {
-                    EntityType: 'CreditData',
-                    Property: 'creditDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Krediteringsdato',
-                    Placeholder: 'Krediteringsdato'
-                }
-            ]
-        };
     }
 }

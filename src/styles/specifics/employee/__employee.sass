@@ -18,15 +18,14 @@
         read-tax-card
             flex-basis: 50%
 
-        h1, h2
-            @extend h2
+        h2
             margin: 0
 
         p
             margin-top: 0
 
-.freeTextField
-    @include labelLength(0rem)
+.freeTextField label > span
+    width: 0 !important
 
 .freeTextFieldEmployee
     height: 8rem

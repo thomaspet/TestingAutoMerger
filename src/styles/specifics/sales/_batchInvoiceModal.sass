@@ -1,15 +1,10 @@
 batch-invoice-modal
-    dt
-        display: inline-block
-        width: 17.01rem
-        text-align: right
-        font-family: $uni-stack
-    dd
-        display: inline-block
-        margin-left: 1.5rem
-        font-weight: bold
-        color: $uni-color-c2a
-        font-family: $uni-stack
+    .summary-field
+        display: flex
+        span:first-of-type
+            flex: 0 0 19rem
+        span:last-of-type
+            color: var(--color-c2a)
 
     .mat-horizontal-content-container
         overflow: visible !important
@@ -19,7 +14,7 @@ batch-invoice-modal
         margin-top: 1.5rem
 
     .good
-        color: $uni-color-good
+        color: var(--color-good)
         span
             display: inline-block
             position: relative

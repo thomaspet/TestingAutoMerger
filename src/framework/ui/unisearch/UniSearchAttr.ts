@@ -68,7 +68,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
     private keyEventHandler;
     private inputSubscription;
 
-    constructor(private componentElement: ElementRef, private changeDetector: ChangeDetectorRef) { }
+    constructor(public inputElement: ElementRef, private changeDetector: ChangeDetectorRef) { }
 
     public ngOnInit() {
         if (!this.config) {
@@ -81,7 +81,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
             this.searchCompanies = false;
         }
 
-        const el = this.componentElement.nativeElement;
+        const el = this.inputElement.nativeElement;
 
         // Move template outside <input> element, because it won't show if it's inside
         el.parentNode.appendChild(el.firstElementChild);
@@ -113,7 +113,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     ngOnDestroy() {
         try {
-            const el = this.componentElement.nativeElement;
+            const el = this.inputElement.nativeElement;
             el.removeEventListener('keydown', this.keyEventHandler);
 
             this.inputSubscription.unsubscribe();
@@ -150,13 +150,13 @@ export class UniSearchAttr implements OnInit, OnChanges {
             return;
         }
 
-        if (this.selectedIndex === -1 && this.componentElement.nativeElement.value === this.initialDisplayValue) {
+        if (this.selectedIndex === -1 && this.inputElement.nativeElement.value === this.initialDisplayValue) {
             this.closeSearchResult();
             return;
         }
 
         let item: any;
-        if (this.componentElement.nativeElement.value || this.selectedIndex > -1) {
+        if (this.inputElement.nativeElement.value || this.selectedIndex > -1) {
             const index = (this.selectedIndex > -1) ? this.selectedIndex : 0;
             item = this.lookupResults[index];
         } else {
@@ -165,7 +165,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
         this.closeSearchResult();
         this.selectedIndex = -1;
-        this.initialDisplayValue = this.componentElement.nativeElement.value;
+        this.initialDisplayValue = this.inputElement.nativeElement.value;
         if (item) {
             this.busy = true;
             this.config.onSelect(item)
@@ -173,11 +173,11 @@ export class UniSearchAttr implements OnInit, OnChanges {
                 .do(() => this.busy = false)
                 .subscribe(expandedItem => {
                     this.changeEvent.next(expandedItem);
-                    this.componentElement.nativeElement.value = this.inputTemplate(expandedItem);
+                    this.inputElement.nativeElement.value = this.inputTemplate(expandedItem);
                 });
         } else {
             this.changeEvent.next(null);
-            this.componentElement.nativeElement.value = '';
+            this.inputElement.nativeElement.value = '';
         }
     }
 
@@ -186,18 +186,19 @@ export class UniSearchAttr implements OnInit, OnChanges {
             this.closeSearchResult();
         } else {
             this.openSearchResult();
-            this.componentElement.nativeElement.focus();
-            this.performLookup(this.componentElement.nativeElement.value || '');
+            this.inputElement.nativeElement.focus();
+            this.performLookup(this.inputElement.nativeElement.value || '');
         }
-        this.componentElement.nativeElement.focus();
+        this.inputElement.nativeElement.focus();
         this.changeDetector.markForCheck();
     }
 
     private createNewItem() {
         this.closeSearchResult();
+        console.log(this.config);
         this.config.createNewFn(this.currentInputValue).subscribe(
             item => {
-                this.componentElement.nativeElement.value = this.inputTemplate(item);
+                this.inputElement.nativeElement.value = this.inputTemplate(item);
                 this.changeEvent.next(item);
             },
             err => console.error(
@@ -213,7 +214,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         this.currentSearchType = this.currentSearchType === SearchType.INTERNAL
             ? SearchType.EXTERNAL
             : SearchType.INTERNAL;
-        this.performLookup(this.componentElement.nativeElement.value || '');
+        this.performLookup(this.inputElement.nativeElement.value || '');
     }
 
     public toggleSearchCompanies(event?) {
@@ -221,7 +222,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
             event.stopPropagation();
         }
         this.searchCompanies = !this.searchCompanies;
-        this.performLookup(this.componentElement.nativeElement.value || '');
+        this.performLookup(this.inputElement.nativeElement.value || '');
     }
 
     public toggleSearchPersons(event?) {
@@ -229,11 +230,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
             event.stopPropagation();
         }
         this.searchPersons = !this.searchPersons;
-        this.performLookup(this.componentElement.nativeElement.value || '');
-    }
-
-    private isNumber(obj: any) {
-        return typeof obj === 'number';
+        this.performLookup(this.inputElement.nativeElement.value || '');
     }
 
     private performLookup(query: string) {
@@ -250,7 +247,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }
         lookupFn.subscribe(response => {
             this.lookupResults = response;
-            this.selectedIndex = this.componentElement.nativeElement.value ? 0 : -1;
+            this.selectedIndex = this.inputElement.nativeElement.value ? 0 : -1;
             this.busy = false;
             this.changeDetector.markForCheck();
         }, err => console.error('Uncaught error in UniSearch! Add a .catch() in the lookup function!'));
@@ -269,7 +266,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                     this.closeSearchResult();
                 } else {
                     this.openSearchResult();
-                    this.performLookup(this.componentElement.nativeElement.value || '');
+                    this.performLookup(this.inputElement.nativeElement.value || '');
                 }
                 break;
             case KeyCodes.F6:
@@ -291,7 +288,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
             case KeyCodes.ESCAPE:
                 event.preventDefault();
                 this.closeSearchResult();
-                this.componentElement.nativeElement.value = this.initialDisplayValue;
+                this.inputElement.nativeElement.value = this.initialDisplayValue;
                 break;
             case KeyCodes.UP_ARROW:
                 event.preventDefault();
@@ -346,11 +343,16 @@ export class UniSearchAttr implements OnInit, OnChanges {
     }
 
     private scrollToBottom() {
-        this.container.nativeElement.scrollTop = 99999;
+        if (this.container) {
+            this.container.nativeElement.scrollTop = 99999;
+        }
+
     }
 
     private scrollToTop() {
-        this.container.nativeElement.scrollTop = 0;
+        if (this.container) {
+            this.container.nativeElement.scrollTop = 0;
+        }
     }
 
     private scrollToListItem(index: number) {
@@ -377,12 +379,14 @@ export class UniSearchAttr implements OnInit, OnChanges {
         if (!this.expanded) {
             this.expanded = true;
             this.selectedIndex = 0;
-            this.container.nativeElement.scrollTop = 0;
+            if (this.container) {
+                this.container.nativeElement.scrollTop = 0;
+            }
         }
     }
 
     private handleUnfinishedValue() {
-        const val = this.componentElement.nativeElement.value;
+        const val = this.inputElement.nativeElement.value;
         if (val && this.config.unfinishedValueFn && this.expanded) {
             this.config
                 .unfinishedValueFn(val)

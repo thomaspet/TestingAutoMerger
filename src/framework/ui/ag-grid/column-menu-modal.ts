@@ -16,19 +16,18 @@ import * as _ from 'lodash';
     selector: 'column-menu-modal',
     template: `
         <section role="dialog" class="uni-modal" [ngClass]="{'advanced': tableConfig?.advancedColumnMenu}">
-            <header>
-                <h1>{{'Kolonneoppsett'}}</h1>
-            </header>
+            <header>{{'Kolonneoppsett'}}</header>
             <article class="scrollable">
-                <p>Her kan du bestemme synlighet, tittel, rekkefølge og posisjon på kolonnene.</p>
-                <p>"Hopp til kolonne" definere hvilken kolonne man skal gå til ved tab/enter klikk.</p>
                 <p>For å endre posisjon på en kolonne drar du <i class="material-icons move-icon">menu</i> ikonet opp eller ned.</p>
+                <p *ngIf="tableConfig?.editable">
+                    "Hopp til kolonne" definere hvilken kolonne man skal gå til ved tab/enter klikk.
+                </p>
+
                 <table>
                     <thead>
                         <tr>
-                            <th class="visibility-col">Synlig</th>
-                            <th class="title-col">Tittel</th>
-                            <th class="jump-col">Hopp til kolonne</th>
+                            <th class="title-col">Kolonne</th>
+                            <th class="jump-col" *ngIf="tableConfig?.editable">Hopp til kolonne</th>
                             <ng-container *ngIf="tableConfig?.advancedColumnMenu">
                                 <th>Felt eller spørring</th>
                                 <th>Summeringsfunksjon</th>
@@ -48,18 +47,12 @@ import * as _ from 'lodash';
                             (dragend)="onDragEnd($event)">
 
                             <td>
-                                <input type="checkbox"
-                                    [checked]="column.visible"
-                                    (change)="visibilityChanged(idx, column)"
-                                />
-                                <label class="checkbox-label" (click)="visibilityChanged(idx, column)">Synlig</label>
+                                <mat-checkbox [checked]="column.visible" (change)="visibilityChanged(idx, column)">
+                                    {{column.header}}
+                                </mat-checkbox>
                             </td>
 
-                            <td>
-                                {{column.header}}
-                            </td>
-
-                            <td>
+                            <td *ngIf="tableConfig?.editable">
                                 <select [value]="column.jumpToColumn || ''"
                                         (change)="inputChange($event, 'jumpToColumn', column, idx)">
                                     <option value=""></option>
@@ -107,9 +100,9 @@ import * as _ from 'lodash';
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Lagre</button>
-                <button class="bad" (click)="resetAll()">Nullstill</button>
-                <button class="cancel" (click)="close(false)">Avbryt</button>
+                <button class="secondary pull-left" (click)="close(false)">Avbryt</button>
+                <button class="warn" (click)="resetAll()">Nullstill</button>
+                <button class="c2a" (click)="close(true)">Lagre</button>
             </footer>
         </section>
     `,

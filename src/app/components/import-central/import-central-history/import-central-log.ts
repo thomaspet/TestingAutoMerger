@@ -90,6 +90,9 @@ export class ImportCentralLog implements OnInit {
         if (this.uiPermission.saft.hasComponentAccess) {
             templateType.push({ id: TemplateType.Saft, name: 'Saft' });
         }
+        if (this.uiPermission.voucher.hasComponentAccess) {
+            templateType.push({ id: TemplateType.Voucher, name: 'Bilag' });
+        }
         this.operators = [...templateType];
     }
 
@@ -114,6 +117,9 @@ export class ImportCentralLog implements OnInit {
                 break;
             case TemplateType.Saft:
                 this.selectedType = { id: TemplateType.Saft, name: 'Saft' }
+                break;
+            case TemplateType.Voucher:
+                this.selectedType = { id: TemplateType.Voucher, name: 'Bilag' }
                 break;
             default:
                 this.selectedType = { id: TemplateType.All, name: 'All' }
@@ -264,6 +270,8 @@ export class ImportCentralLog implements OnInit {
                         break;
                     case TemplateType.Saft:
                         this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Saft));
+                    case TemplateType.Voucher:
+                        this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Voucher));
                         break;
                     case TemplateType.All:
                         this.jobLogs.push(
@@ -272,8 +280,9 @@ export class ImportCentralLog implements OnInit {
                                     r.JobName === ImportJobName.Customer ||
                                     r.JobName === ImportJobName.Supplier ||
                                     r.JobName === ImportJobName.MainLedger ||
-                                    r.JobName === ImportJobName.Payroll || 
-                                    r.JobName === ImportJobName.Saft
+                                    r.JobName === ImportJobName.Payroll ||
+                                    r.JobName === ImportJobName.Saft || 
+                                    r.JobName === ImportJobName.Voucher
                             ));
                         break;
                     default:

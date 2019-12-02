@@ -57,7 +57,7 @@
                                 [disabled]="group.product && !group.productPurchased"
                                 [selected]="role._checked"
                                 (click)="onRoleClick(group, role)">
-                                {{role.Label}}
+                                {{role.Name | translateRole}}
                             </mat-list-option>
                         </mat-selection-list>
                     </section>
@@ -66,8 +66,8 @@
         </section>
     </article>
 
-    <footer class="center">
-        <button (click)="send()" class="c2a rounded">Send invitasjon</button>
-        <button (click)="onClose.emit()">Avbryt</button>
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="send()">Send invitasjon</button>
     </footer>
 </section>

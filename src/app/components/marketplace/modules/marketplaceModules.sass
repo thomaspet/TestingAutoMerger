@@ -1,6 +1,5 @@
 @import '../marketplaceSharedStyles.sass'
 @import '~src/styles/unibase/helpers/_multiline-ellipsis.sass'
-@import '~src/styles/uni-redesign/_color.sass'
 
 $default-margin: 2rem
 
@@ -14,6 +13,7 @@ $default-margin: 2rem
     vertical-align: middle
 
 .header
+    display: flex
     background-color: white
     width: 100%
     padding-left: $default-margin
@@ -22,23 +22,9 @@ $default-margin: 2rem
     h1
         font-weight: 600
         display: inline-block
-    .pricesBtn
-        float: right
-        font-weight: 600
-        font-size: 16px
-        display: flex
-        margin-top: 1.5rem
-        margin-right: 5rem
-        padding-bottom: 6px
-        background-color: inherit
-        color: $redesign-c2a
-        &:hover
-            background-color: rgba(0,0,0,.12)
-            transition: background-color .25s ease
-        .launch-prices
-            padding-right: 8px
-            font-size: 22px
 
+    button.tertiary
+        margin: auto 2rem auto auto
 
 .modules, .extensions
     display: flex
@@ -80,7 +66,7 @@ $default-margin: 2rem
         box-shadow: 0rem 0.2rem 0.2rem 0.2rem #EDEDED
         transition-property: box-shadow
         transition: .25s ease-in-out
-        
+
     .product-content
         margin: auto 0
 
@@ -120,10 +106,6 @@ $default-margin: 2rem
             margin: 0
             height: 2rem
             min-width: 7rem
-            line-height: 0rem
-            background-color: $primary-button-color
-            text-shadow: none
-            font-size: 15px
             border-radius: 2rem
         .unsubscribe-button
             margin: 0
@@ -139,7 +121,7 @@ $default-margin: 2rem
         position: absolute
         bottom: .75rem
         right: 1.25rem
-        font: 500 14px 'Roboto', sans-serif
+        font: 500 14px var(--font-family)
         text-decoration: none
         color: $primary-button-color
         &:hover

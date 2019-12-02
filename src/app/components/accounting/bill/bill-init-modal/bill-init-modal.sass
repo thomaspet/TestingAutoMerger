@@ -1,0 +1,53 @@
+.inbox
+    display: flex
+    flex-direction: column
+    max-height: 22rem
+    overflow: hidden
+    margin-bottom: 1rem
+    border: 1px solid var(--border-color)
+    border-radius: var(--section-radius)
+
+    .header, .list-item, .no-inbox-items
+        height: 50px
+        display: flex
+        align-items: center
+        padding: 0 1rem
+
+    .header
+        flex: 0 0 50px
+        background: #f5f5f5
+        border-bottom: 1px solid var(--border-color)
+
+    .file-list
+        flex: 1
+        overflow-y: auto
+        .list-item
+            cursor: pointer
+            justify-content: space-between
+            font-size: 14px
+            &:hover
+                background: var(--dropdown-select-background)
+                color: var(--dropdown-select-color)
+            span
+                white-space: nowrap
+                overflow: hidden
+                text-overflow: ellipsis
+                &.date
+                    width: 5rem
+                    margin-left: 2rem
+                    text-align: right
+
+.upload
+    cursor: pointer
+
+    input
+        visibility: hidden
+        height: 0
+        width: 0
+
+    .upload-button
+        pointer-events: none
+        margin-left: .25rem
+        i.material-icons
+            margin-bottom: 4px
+            margin-right: 4px

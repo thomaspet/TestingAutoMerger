@@ -8,7 +8,7 @@
     <section class="uni-container bureau-company-list">
         <section class="bureau-filters">
 
-            <button class="button-clean" style="padding-right: 0;" [matMenuTriggerFor]="groupMenu">
+            <button class="tertiary c2a" [matMenuTriggerFor]="groupMenu">
                 {{activeGroup?.name}}
                 <strong style="margin-left: 5px;">
                     {{activeGroup.companyKeys ? activeGroup.companyKeys.length : companies?.length}}
@@ -27,7 +27,7 @@
                 </button>
             </mat-menu>
 
-            <button class="button-clean" (click)="editGroups()">
+            <button class="tertiary" (click)="editGroups()">
                 Rediger grupper
             </button>
         </section>

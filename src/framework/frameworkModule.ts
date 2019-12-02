@@ -3,10 +3,9 @@ import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
-import {FileSplitModal} from './fileSplit/FileSplitModal';
 import {UniSave} from './save/save';
-import {UniUploadFileSaveAction} from './save/upload';
 import {UniImage, EHFViewer} from './uniImage/uniImage';
+import {AuthImg} from './uniImage/auth-img/auth-img';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
@@ -34,6 +33,8 @@ import { UniModalService, MODALS, UniShowReinvoiceStatus } from './uni-modal';
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
 import {UniDateselectorpModule} from './ui/dateselector/dateselector.module';
 import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
+import {DropdownMenuModule} from './ui/dropdown-menu/dropdown-menu';
+import {ComboButtonModule} from './ui/combo-button/combo-button';
 
 import {
     MatCheckboxModule,
@@ -47,10 +48,13 @@ import {
     MatListModule,
     MatDatepickerModule,
     MatSlideToggleModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTabsModule
 } from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
+import {UniTabs} from './uni-tabs/uni-tabs';
 
 @NgModule({
     imports: [
@@ -81,16 +85,19 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniFormModule,
         UniTableModule,
         AgGridWrapperModule,
-        NgSelectModule
+        NgSelectModule,
+        MatTabsModule,
+        DropdownMenuModule,
+        ComboButtonModule,
+        AutocompleteModule,
     ],
     declarations: [
         UniComponentLoader,
         UniModal,
         UniSave,
-        UniUploadFileSaveAction,
         UniImage,
+        AuthImg,
         EHFViewer,
-        FileSplitModal,
         UniToast,
         UniToastList,
         UniComments,
@@ -98,12 +105,10 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniAvatar,
         UniInfo,
         UniShowReinvoiceStatus,
+        UniTabs,
         ...MODALS
     ],
-    entryComponents: [
-        FileSplitModal,
-        ...MODALS
-    ],
+    entryComponents: [...MODALS],
     providers: [
         UniModalService,
         UniHttp,
@@ -126,12 +131,15 @@ import {NgSelectModule} from '@ng-select/ng-select';
         AgGridWrapperModule,
         ClickOutsideModule,
         NgSelectModule,
+        DropdownMenuModule,
+        ComboButtonModule,
+        AutocompleteModule,
 
         // Components
         UniModal,
         UniSave,
-        UniUploadFileSaveAction,
         UniImage,
+        AuthImg,
         EHFViewer,
         UniToast,
         UniToastList,
@@ -140,8 +148,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
         UniAvatar,
         UniInfo,
         UniShowReinvoiceStatus,
-
         UniComponentLoader,
+        UniTabs,
 
         // Material
         MatCheckboxModule,

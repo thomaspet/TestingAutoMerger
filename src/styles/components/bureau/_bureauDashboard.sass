@@ -19,7 +19,7 @@ uni-bureau-dashboard
                 top: 8px
                 left: 10px
                 content: 'MAL'
-                font: 400 10px 'Roboto'
+                font: 400 10px var(--font-family)
                 background: #1565C0
                 color: #fff
                 padding: 3px 6px
@@ -73,14 +73,12 @@ uni-bureau-dashboard
 
 
     .bureau-filters
+        display: flex
         span
             cursor: pointer
 
-        mat-form-field
-            margin-right: 15px
-
         button i.material-icons
-            margin: -3px 3px 0 0
+            margin-bottom: 2px
 
 
 .bureau-group-menu-item

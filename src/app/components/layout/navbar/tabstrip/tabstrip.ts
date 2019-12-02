@@ -21,6 +21,10 @@ interface ITabContextMenuData {
 @Component({
     selector: 'uni-tabstrip',
     template: `
+        <span class="tabstrip-description" *ngIf="tabs?.length">
+            Nylig brukt:
+        </span>
+
         <ul class="navbar_tabs">
             <!-- Collapsed tabs -->
             <ng-template [ngIf]="collapseTabs" [ngIfElse]="tabsExpanded">
@@ -29,14 +33,14 @@ interface ITabContextMenuData {
                     [ngClass]="{'router-tab-active': lastActiveTab?.active}"
                     (click)="collapsedTab">
 
-                    {{lastActiveTab?.name}}
+                    {{lastActiveTab?.name | translate}}
 
                     <ul class="collapsed-tab-list">
                         <li *ngFor="let tab of tabs; let idx = index"
                             (click)="activateTab(idx)"
                             [ngClass]="{'active': tab.active}">
 
-                            {{tab?.name}}
+                            {{tab?.name | translate}}
                             <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
                                 close
                             </i>
@@ -53,7 +57,7 @@ interface ITabContextMenuData {
                     (contextmenu)="openContextMenu($event, idx)"
                     [ngClass]="{'router-tab-active': tab.active}">
 
-                    {{tab.name}}
+                    {{tab.name | translate }}
                     <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
                         close
                     </i>
@@ -61,7 +65,7 @@ interface ITabContextMenuData {
             </ng-template>
         </ul>
 
-        <ul class="tab-context-menu"
+        <section class="dropdown-menu"
             *ngIf="tabContextMenu"
             (clickOutside)="closeContextMenu()"
             [ngStyle]="{
@@ -69,19 +73,19 @@ interface ITabContextMenuData {
                 top: tabContextMenu.top + 'px'
             }">
 
-            <li (click)="contextMenuClick(tabContextMenu.index, 'tab')">
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'tab')">
                 Lukk fane
-            </li>
-            <li (click)="contextMenuClick(tabContextMenu.index, 'left')">
+            </section>
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'left')">
                 Lukk faner til venstre
-            </li>
-            <li (click)="contextMenuClick(tabContextMenu.index, 'right')">
+            </section>
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'right')">
                 Lukk faner til høyre
-            </li>
-            <li (click)="contextMenuClick(tabContextMenu.index, 'others')">
+            </section>
+            <section class="dropdown-menu-item" (click)="contextMenuClick(tabContextMenu.index, 'others')">
                 Lukk alle andre faner
-            </li>
-        </ul>
+            </section>
+        </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

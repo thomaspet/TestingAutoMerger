@@ -458,7 +458,7 @@
         }
     },
     {
-        "Name": "Leverandørfaktura",
+        "Name": "NAVBAR.SUPPLIER_INVOICE",
         "Code": "supplierinvoice_list",
         "RequiredUIPermissions": ["ui_accounting_bills"],
         "Type": "Table",
@@ -664,7 +664,7 @@
                 }]
             },
             {
-                "Name": "Kladd",
+                "Name": "Opprettet",
                 "Code": "draft_supplierinvoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{

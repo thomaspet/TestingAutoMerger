@@ -1,36 +1,60 @@
-// Validation messages are added through a `small`-tag inside the label, after
-// the input. This helper mixin provide color variances for this.
-@mixin field-validation($color)
-    color: $color
-    background-color: transparentize($color, .9)
-    border: pxToRem(1) solid $color
-    padding: 0 .3rem
+label.uni-label
+    position: relative
+    display: flex
+    flex-direction: column
+    margin-bottom: 1rem
+
+    > span
+        position: relative
+        width: 100%
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+        margin-bottom: 5px
+        font-size: 15px
+        @media screen and (max-width: 1300px)
+            font-size: 14px
+
+        uni-tooltip
+            position: absolute !important
+            right: 0.5rem
+
+        & + *
+            min-width: 9rem
+
+    &.label-left
+        flex-direction: row
+        align-items: center
+
+        > span
+            width: $labelLength
+            margin-bottom: unset
+            & + *
+                flex: 1
 
 label
-    input,
-    textarea
+    input, textarea, .input-with-button,
         width: 100%
 
-    small
-        border-radius: pxToRem(3)
-        margin: .3rem 0 0 $labelLength
-        font-weight: 400
-        display: block
-        font-size: .8rem
+.input-row
+    display: flex
+    label
+        flex: 1
+    label + label
+        margin-left: 1rem
 
-        &.error
-            @include field-validation($uni-color-bad)
 
-        &.warn
-            @include field-validation($uni-color-warn)
+.new-reciever-modal, .uni-autobank-agreement-modal-body
+    label.uni-label.label-left
+        flex-direction: column !important
 
-        &.success
-            @include field-validation($uni-color-good)
+        span
+            margin-bottom: .5rem
+            font-weight: bold
+            width: 100% !important
+            // color: var(--color-c2a)
 
-        &.info
-            @include field-validation($uni-color-c2a)
-
-    uni-tooltip
-        position: absolute !important
-        right: 0.5rem
-        top: -1.1rem
+        uni-multivalue-input, uni-text-input, uni-select-input
+            width: 100%
+        .half-width
+            width: 50% !important

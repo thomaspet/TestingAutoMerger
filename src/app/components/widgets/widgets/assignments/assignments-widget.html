@@ -9,7 +9,7 @@
 
         <ul id="assignments-widget-content">
             <li *ngFor="let approval of approvals" (click)="onApprovalClick(approval)">
-                <i *ngIf="approval._icon" [ngClass]="approval._iconClass" class="material-icons">
+                <i *ngIf="approval._icon" [ngClass]="approval._iconClass" class="material-icons-outlined">
                     {{approval._icon}}
                 </i>
 

@@ -33,19 +33,17 @@
                                 {{ account.count ?  account.count + ' post' + (account.count > 1 ? 'er ' : ' ') + 'å avstemme' : ( account.total ? 'Avstemming ferdig' : 'Mangler kontoutskrift' ) }}
                             </a>
                         </td>
-                        <td [matMenuTriggerFor]="contextMenu">
-                            <ng-container>
-                                <i class="material-icons timetable-context-menu">
-                                    more_horiz
-                                </i>
-                                <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                                    <ul class="menu-list">
-                                        <li *ngFor="let item of actions" (click)="onActionClick(item, account)">
-                                            {{item.label}}
-                                        </li>
-                                    </ul>
-                                </mat-menu>
-                            </ng-container>
+                        <td>
+                            <i #toggle class="material-icons">more_vert</i>
+                            <dropdown-menu [trigger]="toggle">
+                                <ng-template>
+                                    <section class="dropdown-menu-item"
+                                        *ngFor="let action of actions"
+                                        (click)="onActionClick(action, account)">
+                                        {{action.label}}
+                                    </section>
+                                </ng-template>
+                            </dropdown-menu>
                         </td>
                     </tr>
                 </tbody>

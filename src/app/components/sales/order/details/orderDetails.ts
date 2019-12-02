@@ -7,7 +7,6 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
-    UniChooseReportModal,
 } from '@uni-framework/uni-modal';
 import {
     CompanySettings,
@@ -24,7 +23,7 @@ import {
     VatType,
     Department,
     User,
-    ReportDefinition, Contact,
+    Contact,
 } from '@uni-entities';
 import {
     CompanySettingsService,
@@ -41,7 +40,6 @@ import {
     ReportService,
     UserService,
     NumberSeriesService,
-    EmailService,
     SellerService,
     VatTypeService,
     DimensionSettingsService,
@@ -53,16 +51,14 @@ import {
 } from '@app/services/services';
 
 import {IUniSaveAction} from '@uni-framework/save/save';
-import {IContextMenuItem} from '@uni-framework/ui/unitable';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {TofHead} from '../../common/tofHead';
@@ -79,6 +75,7 @@ import {AuthService} from '@app/authService';
 
 import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
+import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 
 @Component({
     selector: 'order-details',
@@ -94,8 +91,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private companySettings: CompanySettings;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
-    private printStatusPrinted: string = '200';
-    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
     private projectID: number;
@@ -104,8 +99,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     order: CustomerOrder;
     orderItems: CustomerOrderItem[];
 
-    private contextMenuItems: IContextMenuItem[] = [];
-    shareActions: IShareAction[];
     saveActions: IUniSaveAction[] = [];
 
     currencyInfo: string;
@@ -133,6 +126,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     paymentInfoTypes: any[];
     distributionPlans: any[];
     reports: any[];
+    canSendEHF: boolean = false;
     hoursOnOrderCount: number = 0;
     nonTransferredHoursOnOrderCount: number = 0;
     private transferredWorkItemIDs: number[] = [];
@@ -235,7 +229,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private tradeItemHelper: TradeItemHelper,
         private userService: UserService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
@@ -285,7 +278,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 if (this.orderID) {
                     Observable.forkJoin(
                         this.getOrder(this.orderID),
-                        this.companySettingsService.Get(1),
+                        this.companySettingsService.Get(1, ['APOutgoing']),
                         this.currencyCodeService.GetAll(null),
                         this.projectService.GetAll(null),
                         this.sellerService.GetAll(null),
@@ -307,6 +300,13 @@ export class OrderDetails implements OnInit, AfterViewInit {
                             this.contacts = [];
                         }
                         this.companySettings = res[1];
+
+                        this.canSendEHF = this.companySettings.APActivated
+                            && this.companySettings.APOutgoing
+                            && this.companySettings.APOutgoing.some(format => {
+                            return format.Name === 'EHF INVOICE 2.0';
+                        });
+
                         this.currencyCodes = res[2];
                         this.projects = res[3];
                         this.sellers = res[4];
@@ -662,6 +662,13 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.updateSaveActions();
     }
 
+    onFreetextChange() {
+        // Stupid data flow requires this
+        this.order = cloneDeep(this.order);
+        this.isDirty = true;
+        this.updateSaveActions();
+    }
+
     private updateCurrency(order: CustomerOrder, getCurrencyRate: boolean) {
         let shouldGetCurrencyRate = getCurrencyRate;
 
@@ -847,7 +854,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 }
 
                 this.isDistributable = this.tofHelper.isDistributable('CustomerOrder', this.order, this.companySettings, this.distributionPlans);
-                
+
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
@@ -1079,67 +1086,47 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 next: this.nextOrder.bind(this),
                 add: () => this.order.ID ? this.router.navigateByUrl('sales/orders/0') : this.ngOnInit()
             },
-            contextmenu: this.contextMenuItems,
+            contextmenu: [
+                {
+                    label: 'Send via utsendelsesplan',
+                    action: () => this.distribute(),
+                    disabled: () => !this.order.ID || !this.isDistributable
+                },
+                {
+                    label: 'Skriv ut / send e-post',
+                    action: () => this.printOrEmail(),
+                    disabled: () => !this.order.ID
+                }
+            ],
             entityID: this.orderID,
             entityType: 'CustomerOrder'
         };
-
-        this.updateShareActions();
     }
 
-    private printAction(reportForm: ReportDefinition): Observable<any> {
-        const savedOrder = this.isDirty
-            ? Observable.fromPromise(this.saveOrder())
-            : Observable.of(this.order);
+    private printOrEmail() {
+        return this.modalService.open(TofReportModal, {
+            data: {
+                entityLabel: 'Ordre',
+                entityType: 'CustomerOrder',
+                entity: this.order,
+                reportType: ReportTypeEnum.ORDER
+            }
+        }).onClose.map(selectedAction => {
+            let printStatus;
+            if (selectedAction === 'print') {
+                printStatus = '200';
+            } else if (selectedAction === 'email') {
+                printStatus = '100';
+            }
 
-        return savedOrder.switchMap((order) => {
-            return this.modalService.open(UniPreviewModal, {
-                data: reportForm
-            }).onClose.switchMap(() => {
-                return this.customerOrderService.setPrintStatus(
+            if (printStatus) {
+                this.customerOrderService.setPrintStatus(
                     this.order.ID,
-                    this.printStatusPrinted
-                ).finally(() => {
-                    this.order.PrintStatus = +this.printStatusPrinted;
+                    printStatus
+                ).subscribe(() => {
+                    this.order.PrintStatus = +printStatus;
                     this.updateToolbar();
                 });
-            });
-        });
-    }
-
-    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerOrder, entityTypeName: string, name: string): Observable<any> {
-        const savedOrder = this.isDirty
-            ? Observable.fromPromise(this.saveOrder())
-            : Observable.of(this.order);
-
-        return savedOrder.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
-            .finally(() => {
-                this.customerOrderService.setPrintStatus(this.order.ID, this.printStatusEmail).take(1).subscribe();
-            });
-        });
-    }
-
-    private chooseForm() {
-        return this.modalService.open(
-            UniChooseReportModal,
-            {data: {
-                name: 'Ordre',
-                typeName: 'Order',
-                entity: this.order,
-                type: ReportTypeEnum.ORDER
-            }}
-        ).onClose.map(res => {
-            if (res === ConfirmActions.CANCEL || !res) {
-                return;
-            }
-
-            if (res.action === 'print') {
-                this.printAction(res.form).subscribe();
-            }
-
-            if (res.action === 'email') {
-                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
             }
         });
     }
@@ -1157,21 +1144,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 obs.complete();
             });
         });
-    }
-
-    private updateShareActions() {
-        this.shareActions = [
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.order.ID || !this.isDistributable
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.order.ID
-            }
-        ];
     }
 
     private updateSaveActions() {

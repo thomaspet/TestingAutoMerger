@@ -1,7 +1,7 @@
 <uni-toolbar
     [config]="toolbarconfig"
     [saveactions]="saveActions"
-    [shareActions]="shareActions"
+    [statustrack]="toolbarStatus"
     [commentsConfig]="commentsConfig"
     [selectConfig]="selectConfig"
     (selectValueChanged)="numberSeriesChange($event)">
@@ -22,6 +22,7 @@
         [reports]="reports"
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
+        [canSendEHF]="canSendEHF"
         (dataChange)="onInvoiceChange($event)">
     </uni-tof-head>
 
@@ -44,18 +45,27 @@
             (itemsChange)="onTradeItemsChange()">
         </uni-tradeitem-table>
 
-        <section class="tof-summary">
-            <span class="currency-info">
-                {{currencyInfo}}
-            </span>
+        <section class="freetext-and-summary">
+            <section *ngIf="invoice" class="freetext">
+                <span>Fritekst</span>
+                <textarea
+                    [(ngModel)]="invoice.FreeTxt"
+                    (change)="onFreetextChange()"
+                    [readonly]="readonly">
+                </textarea>
+            </section>
 
-            <section class="vertical-summary" *ngIf="summaryLines?.length">
-                <section class="summary-line"
-                    *ngFor="let summaryLine of summaryLines"
-                    [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+            <section class="tof-summary">
+                <span class="currency-info">{{currencyInfo}}</span>
 
-                    <label>{{summaryLine.label}}</label>
-                    <span>{{summaryLine.value}}</span>
+                <section class="vertical-summary" *ngIf="summaryLines?.length">
+                    <section class="summary-line"
+                        *ngFor="let summaryLine of summaryLines"
+                        [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+
+                        <label>{{summaryLine.label}}</label>
+                        <span>{{summaryLine.value}}</span>
+                    </section>
                 </section>
             </section>
         </section>

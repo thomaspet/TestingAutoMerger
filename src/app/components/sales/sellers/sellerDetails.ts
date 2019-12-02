@@ -7,7 +7,7 @@ import {UniForm, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/inde
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {IUniSaveAction} from '@uni-framework/save/save';
 
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig, IToolbarSubhead} from './../../common/toolbar/toolbar';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';

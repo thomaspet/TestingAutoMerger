@@ -4,7 +4,7 @@ import {HashLocationStrategy, LocationStrategy, registerLocaleData} from '@angul
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
+import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {APP_ROUTES} from './routes';
 import {App} from './app';
@@ -60,6 +60,7 @@ import {DateAdapter} from '@angular/material';
 import {UniDateAdapter} from './date-adapter';
 
 import localeNb from '@angular/common/locales/nb';
+import {HeaderInterceptor} from './header-interceptor';
 registerLocaleData(localeNb);
 
 // Set moment locale
@@ -123,9 +124,10 @@ moment.locale('nb');
         CanDeactivateGuard,
         TabService,
         ToastService,
-        {provide: LocationStrategy, useClass: HashLocationStrategy},
-        {provide: ErrorHandler, useClass: UniAngularErrorHandler},
-        {provide: DateAdapter, useClass: UniDateAdapter},
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: ErrorHandler, useClass: UniAngularErrorHandler },
+        { provide: DateAdapter, useClass: UniDateAdapter },
+        { provide: HTTP_INTERCEPTORS, useClass: HeaderInterceptor, multi: true }
     ],
 })
 export class AppModule {}

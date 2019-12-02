@@ -5,38 +5,38 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
 @Component({
     selector: 'uni-confirm-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+        <section role="dialog" class="uni-modal">
+            <header>{{options.header | translate}}</header>
 
             <article>
-                <p class="warn" *ngIf="options.warning" [innerHtml]="options.warning"></p>
-                <section [innerHtml]="options.message"></section>
+                <section class="alert warn" *ngIf="options.warning" [innerHtml]="options.warning"></section>
+                <section [innerHtml]="options.message | translate"></section>
             </article>
 
             <footer [ngClass]="options?.footerCls">
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                    {{options.buttonLabels.accept}}
+                <button *ngIf="options.buttonLabels.cancel" class="pull-left secondary" (click)="cancel()">
+                    {{options.buttonLabels.cancel}}
                 </button>
 
-                <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
+                <button *ngIf="options.buttonLabels.reject"
+                    class="secondary"
+                    (click)="reject()">
                     {{options.buttonLabels.reject}}
                 </button>
 
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                    {{options.buttonLabels.cancel}}
+                <button *ngIf="options.buttonLabels.accept"
+                    class="c2a"
+                    id="good_button_ok"
+                    (click)="accept()">
+                    {{options.buttonLabels.accept}}
                 </button>
             </footer>
         </section>
     `
 })
 export class UniConfirmModalV2 implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {

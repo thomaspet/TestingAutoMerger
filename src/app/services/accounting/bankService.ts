@@ -252,4 +252,14 @@ export class BankService extends BizHttp<Bank> {
             .map(response => response.body)
             .map(response => response.Data);
     }
+
+    public createInitialAgreement(payload) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements?action=create-initial-company-and-bank-accounts-agreement')
+            .withBody(payload)
+            .send()
+            .map(response => response.body);
+    }
 }

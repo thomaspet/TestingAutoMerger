@@ -1,35 +1,29 @@
-<section role="dialog" class="uni-modal uni-redesign aprila-modal">
-    <header>
-        <div class="title">
-            <h1  *ngIf="orderStatus!=orderStatusType.ERROR" >Faktura {{options.data.invoiceNumber}} er kreditert.</h1>
-            <h1  *ngIf="orderStatus==orderStatusType.ERROR" >Feil: Fakturaen er ikke blitt kreditert.</h1>
-        </div>
-    </header>
+<section role="dialog" class="uni-modal aprila-modal">
+    <header>{{header}}</header>
 
-    <article>        
-        <label *ngIf="orderStatus==orderStatusType.CREDITED" class="error-message">Aprila Bank har mottatt kreditnota og saldo er
-            gjenopprettet</label>       
+    <article>
+        <section *ngIf="orderStatus==orderStatusType.CREDITED" class="error-message">
+            Aprila Bank har mottatt kreditnota og saldo er gjenopprettet
+        </section>
 
-        <label *ngIf="orderStatus==orderStatusType.RECOURSED"   class="error-message">
+        <section *ngIf="orderStatus==orderStatusType.RECOURSED" class="error-message">
             Din faktura er kreditert hos Aprila bank, men beløp
-            {{options.data.invoiceAmount}},- har blitt utbetalt fra Aprila bank. 
+            {{options.data.invoiceAmount}},- har blitt utbetalt fra Aprila bank.
             <br><br>
             For at saldoen din hos Aprila bank skal
             kunne gjenopprettes må du betale tilbake beløpet. Aprila bank vil sende en faktura for tilbakebetaling innen
             kort tid til deres oppgitte epost.
-        </label>
+        </section>
 
-        <label *ngIf="orderStatus==orderStatusType.ERROR" class="error-message">
-            Forespørsel på kreditering hos Aprila bank feilet. Kreditnota er foreløpig lagret som kladd. Tjenesten kan være nede, så prøv å hente opp igjen kladd om en liten stund for å forespørre kreditering på nytt. Vedvarer feilen så vær vennlig å ta kontakt med kompetansesenteret hos Uni Micro AS.
-        </label>
+        <section *ngIf="orderStatus==orderStatusType.ERROR" class="error-message">
+            Forespørsel på kreditering hos Aprila bank feilet. Kreditnota er foreløpig lagret som kladd.
+            <br><br>
+            Tjenesten kan være nede, så prøv å hente opp igjen kladd om en liten stund for å forespørre kreditering på nytt.
+            Kontakt kundesenter dersom feilen vedvarer.
+        </section>
     </article>
 
-    <footer class="modal-footer">
-        <div class="note">       
-        </div>
-        <div class="actions">
-            <button class="cancel" (click)="close(true)">Lukk</button>
-        </div>
+    <footer>
+        <button class="secondary" (click)="close(true)">Lukk</button>
     </footer>
- 
 </section>

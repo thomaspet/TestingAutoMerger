@@ -2,19 +2,21 @@
     <section class="header">
         <span>{{ widget.description }}</span>
 
-        <section class="filters uni-redesign" *ngIf="showPeriodSelector">
-            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+        <section class="filters" *ngIf="showPeriodSelector">
+            <button #toggle class="tertiary toggle-button">
                 {{ currentPeriod.label }}
                 <i class="material-icons">expand_more</i>
             </button>
 
-            <mat-menu #contextMenu="matMenu">
-                <ul class="widget-filter-menu">
-                    <li *ngFor="let period of wagetypePeriods" role="button" (click)="updateData(period)">
+            <dropdown-menu [trigger]="toggle">
+                <ng-template>
+                    <a class="dropdown-menu-item"
+                        *ngFor="let period of wagetypePeriods"
+                        (click)="updateData(period)">
                         {{ period.label }}
-                    </li>
-                </ul>
-            </mat-menu>
+                    </a>
+                </ng-template>
+            </dropdown-menu>
         </section>
     </section>
 

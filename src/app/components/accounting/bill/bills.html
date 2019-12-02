@@ -22,13 +22,13 @@
     <section class="bill-container">
         <!-- List -->
         <section class="uni-container bill-list">
-            <uni-autocomplete-input
-                *ngIf="activeFilterIndex > 1 && activeFilterIndex < 5"
+            <uniform-autocomplete
+                *ngIf="currentFilter.name === 'Rejected' || currentFilter.name === 'ForApproval' || currentFilter.name === 'Approved'"
                 class="assignee-filter"
                 [field]="assigneeFilterField"
                 [model]="searchParams$"
                 (changeEvent)="onFormFilterChange($event)">
-            </uni-autocomplete-input>
+            </uniform-autocomplete>
 
             <div class="bill-list-sum" *ngIf="this.currentFilter.name === 'Inbox'">
                 {{currentFilter.label}} ({{currentFilter.count}} stk.)
@@ -50,13 +50,16 @@
 
         <!-- Detail -->
         <section class="uni-container bill-preview" *ngIf="previewVisible">
-            <section *ngIf="fileID" class="accounting-preview-links">
-                <a (click)="documentSelected(true)">Bruk på leverandørfaktura</a>
-                <a (click)="documentSelected(false)">Bruk i bilagsføring</a>
+            <section *ngIf="fileID" class="accounting-preview-actions">
+                <button class="secondary" (click)="documentSelected(true)">
+                    {{ 'ACCOUNTING.SUPPLIER_INVOICE.CREATE' | translate }}
+                </button>
+                <button class="tertiary c2a" (click)="documentSelected(false)">
+                    Bruk i bilagsføring
+                </button>
             </section>
 
             <uni-image
-                [useEhfReader]="true"
                 [splitFileDialogAllowed]="true"
                 [rotateAllowed]="true"
                 [uploadWithoutEntity]="true"

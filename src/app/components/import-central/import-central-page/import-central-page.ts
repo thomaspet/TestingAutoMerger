@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
@@ -10,18 +10,19 @@ import { ImportUIPermission, ImportSaftUIPermission } from '@app/models/import-c
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportCardModel } from '@app/models/import-central/ImportCardModel';
 import { ImportVoucherModal } from '../modals/custom-component-modals/imports/voucher/import-voucher-modal';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
   selector: 'import-central-page',
   templateUrl: './import-central-page.html',
   styleUrls: ['./import-central-page.sass']
 })
-export class ImportCentralPage {
+export class ImportCentralPage implements OnInit {
+
 
   busy: boolean = true;
   importCardsList: ImportCardModel[] = [];
   templateUrls = environment.IMPORT_CENTRAL_TEMPLATE_URLS;
-
   uiPermission = {
     customer: new ImportUIPermission(),
     product: new ImportUIPermission(),
@@ -38,7 +39,8 @@ export class ImportCentralPage {
     private userService: UserService,
     private errorService: ErrorService,
     private modalService: UniModalService,
-    private importCentralService: ImportCentralService) {
+    private importCentralService: ImportCentralService,
+    private tabService: TabService, ) {
     this.userService.getCurrentUser().subscribe(res => {
       const permissions = res['Permissions'];
       this.uiPermission = this.importCentralService.getAccessibleComponents(permissions);
@@ -50,6 +52,15 @@ export class ImportCentralPage {
         this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
       }
     );
+  }
+
+  ngOnInit(): void {
+    this.tabService.addTab({
+      url: '/import/page',
+      name: 'Importsentral',
+      active: true,
+      moduleID: UniModules.ImportCentral
+    });
   }
 
   private initImportCards() {
@@ -125,14 +136,30 @@ export class ImportCentralPage {
         importText: 'Importer SAF-T',
         downloadText: 'Eksport SAF-T',
         type: TemplateType.Saft
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess,
+          hasImportAccess: true,
+          hasTemplateAccess: this.uiPermission.voucher.hasTemplateAccess
+        },
+        iconName: 'card_giftcard',
+        title: 'Bilag',
+        importText: 'Importer bilag',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Voucher
       }
-      // removed voucher card as requested
     );
     this.importCardsList = this.importCardsList.filter(x => x.uiPermission.hasComponentAccess);
   }
 
   private navigateToLogHistory(type: TemplateType) {
-    this.router.navigate(['/import/log', { id: type }]);
+    if (type === TemplateType.Payroll) {
+      this.router.navigate(['/salary/variablepayrolls']);
+    } else {
+      this.router.navigate(['/import/log', { id: type }]);
+    }
+
   }
 
   //checks with disclaimer agreement
@@ -206,9 +233,9 @@ export class ImportCentralPage {
         type = 'SAF-T';
         break;
       case TemplateType.Voucher:
-        header = 'Importer Voucher';
+        header = 'Importer bilag';
         jobName = ImportJobName.Voucher;
-        type = 'Voucher';
+        type = 'bilag';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER
         break;
       default:

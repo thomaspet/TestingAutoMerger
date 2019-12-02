@@ -99,7 +99,6 @@ body.modal-open
     right: 0
     transition: opacity 300ms ease
     opacity: 1
-    // background: transparentize($uni-color-scale4, .4)
     background: rgba(0,0,0,.25)
     overflow: auto
     z-index: map-get($zindex, modal)
@@ -120,82 +119,106 @@ body.modal-open
         padding: 1rem 0 !important
 
 .uni-modal
-    width: 40vw
+    position: relative
+    display: flex
+    flex-direction: column
+    width: 48rem
+    max-width: 95vw
     margin: 0 auto
     background: #fff
-    color: $uni-color-positive
-    box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12)
+    color: var(--body-color)
+    box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.1), 0 24px 38px 3px rgba(0, 0, 0, 0.1), 0 9px 46px 8px rgba(0, 0, 0, 0.1)
     box-sizing: border-box
-    border-radius: pxToRem(5)
+    border-radius: 4px
     overflow: visible
-    display: block
-    padding: 0
+    padding: 2rem 0
     border: none
 
-    .uni-container
-        box-shadow: none
-
-    &.xs
-        min-width: 350px
-        width: 30vw
-
-    &.small
-        width: 40vw
-
-    &.medium
-        width: 60vw
-
-    &.large
-        width: 90vw
-
-
-    @media (max-width: 700px)
-        width: 90vw !important
-
-    @media (max-width: 1100px)
-        min-width: 60vw
-
     header
-        background: $uni-color-toolbar
-        border-radius: pxToRem(4) pxToRem(4) 0 0
-        color: #fff
+        flex: 0 0 auto
+        display: flex
+        align-items: center
+        padding: 0 2.25rem 0 2.5rem
+        font-size: 20px
+        font-weight: 500
+        line-height: 24px
+        margin-bottom: 1rem
 
         h1
-            font-size: 16px
-            font-weight: 400
-            width: calc(100% - 4rem)
-            line-height: 1
-            padding: 0 1rem
-            display: inline-block
-            box-sizing: border-box
+            font-size: 20px
+            font-weight: 500
+            line-height: 24px
+            margin: 0
 
         i.close-button
-            font-size: 21px
-            vertical-align: middle
-            margin-top: -5px
+            margin: auto 0 auto auto
+            font-size: 24px
             cursor: pointer
 
     > article
+        flex: 1
         box-sizing: border-box
-        padding: 1rem
+        padding: 1rem 2.5rem
+        width: 100%
+        max-height: calc(100vh - 15rem)
+        min-height: 4rem
+        overflow-y: auto
 
-        &.scrollable
-            width: 100%
-            max-height: calc(100vh - 10rem)
-            min-height: 10rem
-            overflow-y: auto
+        fieldset
+            box-shadow: none
 
     footer
-        width: 100%
-        box-sizing: border-box
-        padding: 0 1rem 1rem 1rem
-        text-align: right
-        border-top: 1px solid $uni-color-scale9
+        flex: 0 0 auto
+        display: flex
+        padding: 0 2.5rem
+        margin-top: 1rem
+        justify-content: flex-end
+        align-items: center
+        border-radius: 0
+        border: 0
+
+        &.center
+            justify-content: center
 
         button
-            display: inline-block
-            min-width: 5rem
-            margin: 1rem 0 0 1rem
+            min-width: 7.5rem
+
+            &.cancel
+                @extend .secondary
+
+    .modal-spinner
+        position: absolute
+        width: 100%
+        height: 100%
+        left: 0
+        top: 0
+        background: rgba(255,255,255,.75)
+        display: flex
+        z-index: 999
+
+        mat-spinner
+            margin: auto
+
+    .uni-container
+        border: none
+
+    &.xs
+        width: 36rem
+
+    &.small
+        width: 48rem
+
+    &.medium
+        width: 72rem
+
+    &.large
+        width: 108rem
+
+    @media (max-width: 700px)
+        width: 95vw !important
+
+    @media (max-width: 1100px)
+        min-width: 60vw
 
 
 uni-bankaccount-modal fieldset
@@ -223,14 +246,13 @@ uni-send-vipps-invoice-modal
 
     *[aria-busy]:not([aria-busy=false]):not(button):not(input):not(textarea):not(.multiselectADropdown):not(label):not(.progress-item),
     .loading
-        position: relative;
-        display: inline;
-        background-color: transparent;
-        border-radius: .3125rem;
-        min-height: 4rem;
-        border: none;
+        position: relative
+        display: inline
+        background-color: transparent
+        border-radius: .3125rem
+        min-height: 4rem
+        border: none
         margin: 0 10px 0 10px
-
 
 uni-preview-modal .uni-modal
     max-height: 95vh
@@ -240,35 +262,6 @@ uni-preview-modal .uni-modal
         overflow: auto
         text-align: center
 
-    .main-action-button
-        border-radius: pxToRem(3) 0 0 pxToRem(3)
-
-    .action-list-toggle
-        @extend %hideText
-        border-radius: 0 pxToRem(3) pxToRem(3) 0
-        margin-left: 0
-        border-left: none
-        float: right
-        min-width: 0
-        width: 2rem
-        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
-        background-size: .75rem auto
-
-        &:hover,
-        &:focus
-            border-left: 0
-            background-color: darken($uni-color-good, 5%)
-
-    .download-action-list
-        @extend %contextMenu
-        bottom: 3rem
-        right: 1rem
-
-uni-login-modal uni-field
-    @include labelLength(9rem)
-
-
-
 .uni-confirm-with-checkbox-modal
     article
         section
@@ -277,7 +270,7 @@ uni-login-modal uni-field
         display: flex
         flex-direction: row
         align-items: center
-        color: $uni-color-warn
+        color: var(--color-warn)
 
         p
             flex: 1

@@ -1,7 +1,7 @@
 .small-split-view-list
     padding: 1rem
     background: #fff
-    border: 1px solid $uni-color-scale9
+    border: 1px solid var(--border-color)
     border-radius: 3px
 
     mat-form-field
@@ -22,7 +22,7 @@
         li
             display: flex
             flex-direction: column
-            border-bottom: 1px solid $uni-color-scale9
+            border-bottom: 1px solid var(--border-color)
             padding: .5rem 1rem
             cursor: pointer
 
@@ -30,7 +30,7 @@
                 background-color: #f3f3f3
 
             &.selected
-                background-color: #D5EEF6
+                background-color: var(--dropdown-select-background)
 
             span
                 flex: 1
@@ -39,14 +39,14 @@
                 text-overflow: ellipsis
                 font-size: .8rem
                 &:first-of-type
-                    font-weight: 600
+                    font-weight: 500
                     font-size: .9rem
                 &.number-good
                     font-weight: 400 !important
-                    color: $uni-color-plus
+                    color: var(--color-c2a)
                 &.number-bad
                     font-weight: 400 !important
-                    color: $uni-color-minus
+                    color: var(--color-bad)
                 &.link
                     color: #0f4880
                     text-decoration: underline

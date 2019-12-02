@@ -84,24 +84,13 @@
             </span>
         </div>
 
-        <picture
-            #imageContainer
-            [ngClass]="{'clickable': currentClicked}"
-            (click)="openFileViewer()">
-
-            <source
-                [attr.srcset]="imgUrl"
-                media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
-
-            <img
-                [attr.src]="imgUrl"
-                (error)="reauthenticate()"
-                (load)="imageLoaded.next()"
-            />
+        <section class="image-container" (click)="openFileViewer()">
+            <auth-img [src]="imgUrl" (load)="imageLoaded.next()"></auth-img>
 
             <span *ngIf="ocrWords?.length">
                 <span *ngFor="let word of ocrWords"
-                    class="image-word"
+                    @flashAnimation
+                    class="image-word iw"
                     title="{{word.text}}"
                     [ngStyle]="word._style"
                     (click)="onOCRWordClick(word, $event)"
@@ -112,31 +101,19 @@
                     <section class="ocr-value-picker" (click)="$event.stopPropagation()">
                         <p>Valgt verdi: <strong>{{currentClickedWord?.text}}</strong></p>
                         <strong>Bruk verdi som</strong>
-                        <button mat-menu-item (click)="selectOCRWord(1, $event)">Organisasjonsnr</button>
-                        <button mat-menu-item (click)="selectOCRWord(7, $event)">Fakturadato</button>
-                        <button mat-menu-item (click)="selectOCRWord(8, $event)">Forfallsdato</button>
-                        <button mat-menu-item (click)="selectOCRWord(5, $event)">Fakturanummer</button>
-                        <button mat-menu-item (click)="selectOCRWord(3, $event)">Bankkonto</button>
-                        <button mat-menu-item (click)="selectOCRWord(4, $event)">KID</button>
-                        <button mat-menu-item (click)="selectOCRWord(6, $event)">Fakturabeløp</button>
+                        <button *ngFor="let value of ocrValues" mat-menu-item (click)="selectOCRWord(value.value)">{{ value.label }}</button>
                     </section>
                 </mat-menu>
 
                 <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
             </span>
-        </picture>
+        </section>
     </section>
 
     <!-- Thumbnails -->
     <ul class="uni-thumbnail-list" *ngIf="!singleImage && files?.length > 1">
         <li *ngFor="let file of files" (click)="showFile(file)">
-
-            <img
-                *ngIf="!file._ehfMarkup"
-                [attr.src]="file._thumbnailUrl"
-                (error)="reauthenticate()"
-            />
-
+            <auth-img *ngIf="!file._ehfMarkup" [src]="file._thumbnailUrl"></auth-img>
             <section *ngIf="file._ehfMarkup" class="ehf-thumbnail">
                 EHF
             </section>

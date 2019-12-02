@@ -52,7 +52,8 @@ import {
     PageStateService,
     CustomDimensionService,
     UniSearchDimensionConfig,
-    CompanySettingsService
+    CompanySettingsService,
+    UniTranslationService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -68,7 +69,7 @@ import {AuthService} from '@app/authService';
 import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
 import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
@@ -290,7 +291,8 @@ export class CustomerDetails implements OnInit {
         private pageStateService: PageStateService,
         private customDimensionService: CustomDimensionService,
         private uniSearchDimensionConfig: UniSearchDimensionConfig,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private translationService: UniTranslationService
     ) {}
 
     public ngOnInit() {
@@ -326,7 +328,7 @@ export class CustomerDetails implements OnInit {
                 if (!!this.customerID) {
                     // Add check to see if user has access to the TOF-modules before adding the tabs
                     this.navbarLinkService.linkSections$.subscribe(linkSections => {
-                        const mySections = linkSections.filter(sec => sec.name === 'Salg');
+                        const mySections = linkSections.filter(sec => sec.name === 'NAVBAR.SALES');
                         if (mySections.length) {
                             this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
                                 links => {
@@ -335,7 +337,7 @@ export class CustomerDetails implements OnInit {
                                     links.forEach((link) => {
                                         mySections[0].linkGroups.forEach((group) => {
                                             group.links.forEach( (li) => {
-                                                if (li.name === link.name) {
+                                                if (this.translationService.translate(li.name) === link.name) {
                                                     addLinks.push(link);
                                                 }
                                             });
@@ -1156,16 +1158,21 @@ export class CustomerDetails implements OnInit {
 
         this.isDirty = true;
         if (changes['OrgNumber'] && customer.OrgNumber) {
-            this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
-                if (res.Data.length > 0) {
-                    let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
-                    res.Data.forEach(function (ba) {
-                        orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
-                    });
-                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
-                }
+            customer.OrgNumber = customer.OrgNumber.replace(/ /g, '');
+            this.customerService.getCustomers(customer.OrgNumber).subscribe(
+                res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
 
-            }, err => this.errorService.handle(err));
+                },
+                // Don't toast this error to the user, they dont care
+                err => console.error(err)
+            );
         }
 
         if (changes['Info.InvoiceAddress']

@@ -1,8 +1,5 @@
 <section role="dialog" class="uni-modal medium">
-    <header>
-        <h1 *ngIf="!busy">{{header}}</h1>
-        <h1 *ngIf="busy">Henter skattekort</h1>
-    </header>
+    <header>{{header}}</header>
 
     <article [attr.aria-busy]="busy">
         <tax-card-read-status [status]="taxStatus$ | async"></tax-card-read-status>

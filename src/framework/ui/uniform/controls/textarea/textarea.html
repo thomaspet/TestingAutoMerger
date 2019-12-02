@@ -1,5 +1,6 @@
 <textarea
     *ngIf="control"
+    [maxlength]="field?.MaxLength || 1000"
     [attr.aria-describedby]="asideGuid"
     [formControl]="control"
     [readonly]="readOnly$ | async"

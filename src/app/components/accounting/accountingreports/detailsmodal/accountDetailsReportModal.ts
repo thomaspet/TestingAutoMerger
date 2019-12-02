@@ -20,8 +20,8 @@ export interface IDetailsModalInput {
 @Component({
     selector: 'account-details-report-modal',
     template: `
-        <section role="dialog" class="uni-modal large uni-redesign">
-            <header><h1>Søk på konto: {{ config?.accountNumber }}</h1></header>
+        <section role="dialog" class="uni-modal large">
+            <header>Søk på konto: {{ config?.accountNumber }}</header>
             <article>
                 <accounting-details-report [config]="config"></accounting-details-report>
             </article>

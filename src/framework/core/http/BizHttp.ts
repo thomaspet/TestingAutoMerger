@@ -8,7 +8,7 @@ import {RequestMethod} from './request-method';
 import {map} from 'rxjs/operators';
 import {cloneDeep} from 'lodash';
 
-interface IHttpCacheStore<T> {
+export interface IHttpCacheStore<T> {
     [hash: number]: IHttpCacheEntry<T>;
 }
 

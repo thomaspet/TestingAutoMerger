@@ -1,0 +1,74 @@
+<section class="content">
+    <ng-container *ngIf="!selectedCompanyType">
+        <section class="select-type-of-company" *ngIf="contractID">
+            <section class="authentication-component">
+                <h1>Prøv SR-Bank Regnskap</h1>
+
+                <p>
+                    For at du skal få best mulig inntrykk av systemet gir vi deg mulighet til å prøve en demo inntil 30 dager.
+                    Demobedriften er en fiktiv bedrift og inneholder ingen reelle data.
+                    Fakturaer vil ikke bli sendt noe sted, og du kan naturligvis ikke betale regninger eller lønn heller.
+                </p>
+
+                <p>
+                    Når du er klar for å bestille Bank+Regnskap og ta i bruk SR-Bank Regnskap for fullt trykker du "Aktiver nå" øverst til høyre i skjermbildet.
+                </p>
+
+                <button class="secondary" (click)="onCompanyTypeSelected('demo')">
+                        Start demoperiode
+                </button>
+            </section>
+
+            <!--  HIDE FOR NOW IN SR!!
+            <section class="authentication-component">
+                <h1>Prøv med din egen bedrift</h1>
+
+                <p>
+                    For å få et best mulig inntrykk av systemet kan du i demoperioden bruke din egen bedrift.
+                </p>
+
+                <p>
+                    Når du er klar for å ta i bruk systemet trykker du "Aktiver" øverst til høyre i skjermbildet.
+                    Ved aktivering vil data fra demoperioden følge med
+                </p>
+
+                <button class="c2a" (click)="onCompanyTypeSelected('company')">
+                    Start demoperiode
+                </button>
+            </section> -->
+        </section>
+
+        <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
+            <small class="alert warn">
+                Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
+            </small>
+            <a routerLink="/init/sign-up">Gå til registrering</a>
+        </section>
+
+        <!-- CHOOSE CONTRACT -->
+        <!-- <section class="authentication-component" *ngIf="!contractID && contracts?.length">
+            <h1>Velg kontrakt</h1>
+
+            <select [(ngModel)]="contractID">
+                <option *ngFor="let contract of contracts" [ngValue]="contract.ID">
+                    {{contract.}}
+                </option>
+            </select>
+
+            <div *ngFor="let contract of contracts">
+                <button (click)="contractID = contract.ID">{{contract.ID}}</button>
+            </div>
+            <button (click)="newCompany = false; testCompany = false;" style="margin-top: 1rem">Tilbake</button>
+        </section> -->
+    </ng-container>
+
+    <init-new-demo
+        *ngIf="selectedCompanyType === 'demo'"
+        [contractID]="contractID">
+    </init-new-demo>
+
+    <init-new-company
+        *ngIf="selectedCompanyType === 'company'"
+        [contractID]="contractID">
+    </init-new-company>
+</section>

@@ -4,6 +4,8 @@ import {IUniTab} from './tabstrip';
 import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {UniTranslationService} from '@app/services/services';
+import {environment} from 'src/environments/environment';
 
 // The enum is numbered based on its parent app:
 //      1×× - Key figures
@@ -59,6 +61,7 @@ export enum UniModules {
     CurrencyOverride = 315,
     Budget          = 316,
     CostAllocation  = 317,
+    Inbox           = 318,
 
     Bank            = 450,
     Payment         = 451,
@@ -114,6 +117,7 @@ export class TabService {
         private router: Router,
         private browserStorage: BrowserStorageService,
         private titleService: Title,
+        private translateService: UniTranslationService
     ) {
         this.tabs = this.getMemStore() || [];
 
@@ -172,11 +176,9 @@ export class TabService {
 
         this.currentActiveTab = newTab;
 
-        /* DUMMY CHECK TO MAKE SURE THERE IS NEVER MORE THEN 7 TABS WHILE WAITING FOR ARNOR'S FINAL FIX */
         if (this.tabs.length > 6) {
-            this.tabs.splice(1, 1); // dont remove home tab
+            this.tabs.splice(0, 1);
         }
-        /***********************************************************************************************/
 
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
@@ -213,9 +215,10 @@ export class TabService {
         }
 
         // Set document title so browser history makes sense
+        const appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
         const documentTitle = this.currentActiveTab
-            ? 'UE - ' + this.currentActiveTab.name
-            : 'Uni Economy';
+            ? this.translateService.translate(this.currentActiveTab.name)
+            : appName;
 
         this.titleService.setTitle(documentTitle);
     }

@@ -1,11 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
-import { AuthService } from '../../../authService';
-import { UniHttp } from '../../../../framework/core/http/http';
-import {
-    UniSelect,
-    ISelectConfig
-} from '../../../../framework/ui/uniform/index';
-import { BrowserStorageService } from '@uni-framework/core/browserStorageService';
+import {Component, ViewChild} from '@angular/core';
+import {AuthService} from '@app/authService';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {Router} from '@angular/router';
+import {Company} from '@uni-entities';
 
 @Component({
     selector: 'uni-login',
@@ -15,88 +14,73 @@ import { BrowserStorageService } from '@uni-framework/core/browserStorageService
 export class Login {
     @ViewChild(UniSelect) select: UniSelect;
 
-    isAuthenticated: boolean;
-    public errorMessage: string = '';
-    public missingCompanies: boolean;
+    isAuthenticated: boolean = true;
+    availableCompanies: any[];
 
-    public availableCompanies: any[];
-    public selectConfig: ISelectConfig;
+    selectConfig: ISelectConfig = {
+        displayProperty: 'Name',
+        placeholder: 'Velg selskap'
+    };
 
     constructor(
-        private _authService: AuthService,
+        private router: Router,
+        public authService: AuthService,
         private http: UniHttp,
         private browserStorage: BrowserStorageService
     ) {
-        this.selectConfig = {
-            displayProperty: 'Name',
-            placeholder: 'Velg selskap'
-        };
-
-        this._authService.isAuthenticated().then(isAuthenticated => {
+        this.authService.isAuthenticated().then(isAuthenticated => {
             this.isAuthenticated = isAuthenticated;
             if (isAuthenticated) {
-                this.getCompanies();
+                this.loadCompanies();
             }
         });
-
     }
 
-    public login() {
-        this._authService.authenticate();
-    }
-
-    private getCompanies() {
-        this.http
-            .asGET()
+    private loadCompanies() {
+        this.http.asGET()
             .usingInitDomain()
             .withEndPoint('companies')
             .send()
-            .subscribe(response => {
-                if (response.status !== 200) {
-                    this.missingCompanies = true;
-                    return;
-                }
-
-                this.availableCompanies = response.body;
-
-                try {
-                    const lastActiveCompanyKey = this.browserStorage.getItem(
-                        'lastActiveCompanyKey'
-                    );
-                    const lastActiveCompany = this.availableCompanies.find(
-                        company => {
-                            return company.Key === lastActiveCompanyKey;
-                        }
-                    );
-
-                    if (lastActiveCompany) {
-                        this.onCompanySelected(lastActiveCompany);
-                    } else if (this.availableCompanies.length === 1) {
-                        this.onCompanySelected(this.availableCompanies[0]);
-                    } else if (this.availableCompanies.length > 1) {
-                        setTimeout(() => {
-                            this.select.focus();
-                        });
-                    } else {
-                        this.missingCompanies = true;
+            .subscribe(
+                res => {
+                    this.availableCompanies = res.body;
+                    if (!this.availableCompanies || !this.availableCompanies.length) {
+                        this.router.navigateByUrl('/init/register-company');
+                        return;
                     }
-                } catch (exception) {
-                    this.missingCompanies = true;
+
+                    if (this.availableCompanies.length === 1) {
+                        this.onCompanySelected(this.availableCompanies[0]);
+                    }
+
+                    try {
+                        const lastActiveKey = JSON.parse(localStorage.getItem('lastActiveCompanyKey'));
+                        if (lastActiveKey) {
+                            const lastActive: Company = this.availableCompanies.find(c => c.Key === lastActiveKey);
+                            if (lastActive && !lastActive.Deleted) {
+                                this.onCompanySelected(lastActive);
+                            }
+                        }
+                    } catch (e) {}
+
+                    setTimeout(() => {
+                        if (this.select) {
+                            this.select.focus();
+                        }
+                    }, 100);
+                },
+                (err) =>  {
+                    console.error(err);
+                    // TODO: add something saying the get failed and they might need to log in again
                 }
-            });
+            );
     }
 
-    public resetLogin() {
-        this.missingCompanies = false;
-        this._authService.clearAuthAndGotoLogin();
-    }
-
-    public onCompanySelected(company) {
+    onCompanySelected(company) {
         if (company) {
-            const url =
-                this.browserStorage.getItem('lastNavigationAttempt') || '/';
+            const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');
-            this._authService.setActiveCompany(company, url);
+            this.authService.setActiveCompany(company, url);
         }
     }
 }

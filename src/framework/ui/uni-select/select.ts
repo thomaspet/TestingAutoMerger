@@ -28,7 +28,6 @@ export class UniSelect implements OnChanges, AfterViewInit {
     @ViewChild('itemDropdown') public itemDropdown: ElementRef;
 
     @Input() public items: any[];
-    @Input() public newButtonAction: Function;
     @Input() public readonly: boolean;
     @Input() public config: ISelectConfig;
     @Input() public value: any;
@@ -94,128 +93,107 @@ export class UniSelect implements OnChanges, AfterViewInit {
             .subscribe((value: string) => {
                 this.filterItems(value);
             });
-        this.createOpenCloseListeners();
-        this.createNavigationListener();
-        this.createSearchListener();
+
         this.readyEvent.emit(this);
     }
 
-    private createOpenCloseListeners() {
-        const keyDownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
-        const f4Event = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.F4);
-        const spaceEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.SPACE);
-        const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return (event.keyCode === KeyCodes.UP_ARROW
-                || event.keyCode === KeyCodes.DOWN_ARROW)
-                && event.altKey;
-        });
-
-        Observable.merge(f4Event, arrowDownEvent)
-            .subscribe((event: KeyboardEvent) => {
-                event.preventDefault();
-                event.stopPropagation();
-
+    onKeyDown(event: KeyboardEvent) {
+        switch (event.keyCode) {
+            case KeyCodes.F4:
                 this.toggle();
-            });
+            break;
+            case KeyCodes.SPACE:
+                event.preventDefault();
+                if (!this.expanded) {
+                    this.toggle();
+                }
+            break;
+            case KeyCodes.UP_ARROW:
+                event.preventDefault();
+                if (this.expanded) {
+                    let index = this.focusedIndex - 1;
+                    if (index < 0) {
+                        index = 0;
+                    }
 
-        spaceEvent.subscribe((event: KeyboardEvent) => this.open());
+                    this.focusedIndex = index;
+                    this.move();
+                    this.scrollToListItem();
+                } else {
+                    this.toggle();
+                }
+            break;
+            case KeyCodes.DOWN_ARROW:
+                event.preventDefault();
+                if (this.expanded) {
+                    let index = this.focusedIndex + 1;
+                    if (index > this.filteredItems.length - 1) {
+                        index = this.filteredItems.length - 1;
+                    }
 
-        keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESCAPE)
-            .subscribe((event: KeyboardEvent) => {
+                    this.focusedIndex = index;
+                    this.move();
+                    this.scrollToListItem();
+                } else {
+                    this.toggle();
+                }
+            break;
+            case KeyCodes.ENTER:
+            case KeyCodes.TAB:
+                event.preventDefault();
+                if (this.expanded) {
+                    this.confirmSelection();
+                    this.close();
+                    this.focus();
+                }
+            break;
+            case KeyCodes.ESCAPE:
                 event.preventDefault();
                 event.stopPropagation();
                 this.selectedItem = this.initialItem;
                 this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
                 this.close();
+                if (this.valueInput && this.valueInput.nativeElement) {
+                    this.valueInput.nativeElement.focus();
+                }
+            break;
+        }
+    }
+
+    onKeyPress(event: KeyboardEvent) {
+        // Copy paste from old select code. Should refactor..
+        const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
+        const keyCode = event.which || event.keyCode;
+        const character = String.fromCharCode(keyCode);
+
+        if (ignoredKeyCodes.indexOf(keyCode) > -1) {
+            return;
+        }
+        if (!this.searchable) {
+            const focusIndex = this.items.findIndex((item) => {
+                try {
+                    return item[this.config.displayProperty][0].toLowerCase() === character;
+                } catch (e) {}
+                return false;
             });
 
-        keyDownEvent.filter((event: KeyboardEvent) => {
-            return event.keyCode === KeyCodes.ENTER || event.keyCode === KeyCodes.TAB;
-        }).subscribe(() => {
+            if (focusIndex >= 0) {
+                this.focusedIndex = focusIndex;
+            }
             this.confirmSelection();
-            this.close();
-        });
-    }
-
-    private createSearchListener() {
-        const keypressEvent = Observable.fromEvent(this.el.nativeElement, 'keypress');
-        keypressEvent.filter((event: KeyboardEvent) => event.keyCode !== KeyCodes.ENTER)
-            .subscribe((event: KeyboardEvent) => {
-                const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
-                const keyCode = event.which || event.keyCode;
-                const character = String.fromCharCode(keyCode);
-
-                if (ignoredKeyCodes.indexOf(keyCode) > -1) {
-                    return;
+        } else {
+            if (!this.expanded) {
+                this.toggle();
+                this.searchControl.setValue(this.searchControl.value + character);
+                if (this.filteredItems.length) {
+                    this.focusedIndex = 0;
                 }
-                if (!this.searchable) {
-                    const focusIndex = this.items.findIndex((item) => {
-                        try {
-                            return item[this.config.displayProperty][0].toLowerCase() === character;
-                        } catch (e) {
-                        }
-                        return false;
-                    });
 
-                    if (focusIndex >= 0) {
-                        this.focusedIndex = focusIndex;
-                    }
-                    this.confirmSelection();
-                } else {
-                    if (!this.expanded) {
-                        this.open();
-                        if (this.filteredItems.length) {
-                            this.focusedIndex = 0;
-                        }
-                        this.cd.markForCheck();
-                        setTimeout(() => {
-                            this.searchInput.nativeElement.focus();
-                            this.searchControl.setValue(this.searchControl.value + character);
-                        }, 200);
-                    }
+                this.cd.markForCheck();
 
-                }
-            });
-    }
-
-    private createNavigationListener() {
-        const arrowsEvents = Observable.fromEvent(this.el.nativeElement, 'keydown')
-            .filter((event: KeyboardEvent) => !this.readonly && !(event.altKey || event.shiftKey || event.ctrlKey))
-            .filter((event: KeyboardEvent) => {
-                return event.keyCode === KeyCodes.UP_ARROW
-                    || event.keyCode === KeyCodes.DOWN_ARROW
-                    || event.keyCode === KeyCodes.RIGHT_ARROW
-                    || event.keyCode === KeyCodes.LEFT_ARROW;
-            });
-
-
-        arrowsEvents.subscribe((event: KeyboardEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            let index = -1;
-
-            switch (event.keyCode) {
-                case KeyCodes.UP_ARROW:
-                case KeyCodes.LEFT_ARROW:
-                    index = this.focusedIndex - 1;
-                    if (index < 0) {
-                        index = 0;
-                    }
-                    break;
-                case KeyCodes.DOWN_ARROW:
-                case KeyCodes.RIGHT_ARROW:
-                    index = this.focusedIndex + 1;
-                    if (index > this.filteredItems.length - 1) {
-                        index = this.filteredItems.length - 1;
-                    }
-                    break;
             }
 
-            this.focusedIndex = index;
-            this.move();
-            this.scrollToListItem();
-        });
+        }
     }
 
     private filterItems(filterString: string) {
@@ -224,18 +202,29 @@ export class UniSelect implements OnChanges, AfterViewInit {
                 const displayValue = this.getDisplayValue(item) || '';
                 return displayValue.toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
             });
+
+            if (this.filteredItems.length && this.focusedIndex < 0) {
+                this.focusedIndex = 0;
+            }
             this.cd.markForCheck();
         } else {
             this.searchFn(filterString).subscribe(items => {
                 this.filteredItems = items;
+                if (this.filteredItems.length && this.focusedIndex < 0) {
+                    this.focusedIndex = 0;
+                }
                 this.cd.markForCheck();
             });
         }
     }
 
-    private getDisplayValue(item): string {
-        if (!item || !this.config) {
+    private getDisplayValue(item, showNullAsNotSelected?: boolean): string {
+        if (!this.config) {
             return '';
+        }
+
+        if (!item) {
+            return showNullAsNotSelected ? 'Ikke valgt' : '';
         }
 
         if (typeof item === 'string') {
@@ -330,15 +319,11 @@ export class UniSelect implements OnChanges, AfterViewInit {
         }
     }
 
-    public onNewItemClick() {
-        this.newButtonAction();
-        this.close();
-    }
-
-    public toggle() {
+    public toggle(event?) {
         if (this.readonly) {
             return;
         }
+
         if (this.expanded) {
             this.close();
             this.focus();
@@ -355,14 +340,11 @@ export class UniSelect implements OnChanges, AfterViewInit {
     }
 
     private scrollToListItem() {
-        const list = this.itemDropdown.nativeElement;
-        const currItem = list.children[this.focusedIndex];
-        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
-
-        if (currItem.offsetTop <= list.scrollTop) {
-            list.scrollTop = currItem.offsetTop;
-        } else if (currItem.offsetTop >= bottom) {
-            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
+        if (this.itemDropdown && this.itemDropdown.nativeElement) {
+            const item = this.itemDropdown.nativeElement.children[this.focusedIndex];
+            if (item) {
+                item.scrollIntoView({block: 'nearest'});
+            }
         }
     }
 

@@ -1,50 +1,50 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {Email} from '../../../app/unientities';
-
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {Email} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-email-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Epost'}}</h1>
-            </header>
+            <header>{{options.header || 'Epost'}}</header>
             <article>
-                <uni-form
+                <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
-                    (readyEvent)="onReady()"
                     [model]="formModel$">
                 </uni-form>
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Ok</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button
+                    class="secondary"
+                    (click)="close(false)"
+                    (keydown.shift.tab)="$event.preventDefault(); form?.focus()">
+                    Avbryt
+                </button>
+
+                <button
+                    class="c2a"
+                    (click)="close(true)"
+                    (keydown.tab)="$event.preventDefault()">
+                    Ok
+                </button>
             </footer>
         </section>
     `
 })
 export class UniEmailModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<Email> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$  = new BehaviorSubject<Email>(null);
+    formFields$ = new BehaviorSubject([]);
     initialState: any;
 
-    constructor(private elementRef: ElementRef) {}
-
-    public ngOnInit() {
+    ngOnInit() {
         const email = this.options.data || {};
         this.initialState = Object.assign({}, email);
         const fields = this.getFormFields();
@@ -57,29 +57,14 @@ export class UniEmailModal implements IUniModal {
         this.formFields$.next(this.getFormFields());
     }
 
-    public onReady() {
-        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
-        if (inputs.length) {
-            const first = inputs[0];
-            first.focus();
-            first.value = first.value; // set cursor at end of text
-
-            const last = inputs[inputs.length - 1];
-            Observable.fromEvent(last, 'keydown')
-                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
-                .subscribe(() => this.close(true));
-        }
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formModel$.complete();
+        this.formFields$.complete();
     }
 
-    public close(emitValue?: boolean) {
-        let email: Email;
-        if (emitValue) {
-            email = this.formModel$.getValue();
-        } else {
-            email = this.initialState;
-        }
-
-        this.onClose.emit(email);
+    close(emitValue?: boolean) {
+        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
     }
 
     private getFormFields(): UniFieldLayout[] {
@@ -95,6 +80,11 @@ export class UniEmailModal implements IUniModal {
                 Property: 'Description',
                 FieldType: FieldType.TEXT,
                 Label: 'Beskrivelse',
+                Options: {
+                    events: {
+                        enter: () => this.close(true)
+                    }
+                }
             }
         ];
     }

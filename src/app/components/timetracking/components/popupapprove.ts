@@ -7,10 +7,8 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
     template: `
         <section role="dialog" class="uni-modal" style="width: 50vw;">
             <header>
-                <h1>
-                    {{workrelation?.Worker?.Info?.Name}} - {{workrelation?.Description}}
-                    {{workrelation?.WorkPercentage}}%
-                </h1>
+                {{workrelation?.Worker?.Info?.Name}} - {{workrelation?.Description}}
+                {{workrelation?.WorkPercentage}}%
             </header>
 
             <article>

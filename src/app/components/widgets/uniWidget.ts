@@ -14,7 +14,7 @@ import {
 // for all appfrontend, not just widgets.
 import {
     UniShortcutWidget,
-    UniChartWidget,
+    UniPieChartWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniSumWidget,
@@ -35,7 +35,12 @@ import {
     AssignmentsWidget,
     ExpensesWidget,
     BalanceWidget,
-    PaymentWidget
+    SRUnpaidDoughnutChart,
+    OverdueInvoicesWidget,
+    ReminderListWidget,
+    PaymentWidget,
+    PublicDueDatesWidget,
+    BankBalanceWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -58,9 +63,10 @@ export interface IUniWidget {
     };
 }
 
+// CUSTOM SR WIDGET MAP??? :ANDERS??
 export const WIDGET_MAP = {
     shortcuts: UniShortcutWidget,
-    chart: UniChartWidget,
+    pieChart: UniPieChartWidget,
     clock: UniClockWidget,
     sum: UniSumWidget,
     companyLogo: UniCompanyLogoWidget,
@@ -72,6 +78,7 @@ export const WIDGET_MAP = {
     integrationCounter: UniIntegrationCounterWidget,
     invoiced: InvoicedWidget,
     unpaid: UniUnpaidDoughnutChart,
+    unpaidsr: SRUnpaidDoughnutChart,
     timetracking_calendar: TimetrackingCalendar,
     operatingprofit: OperatingProfitWidget,
     kpi: KpiWidget,
@@ -81,7 +88,11 @@ export const WIDGET_MAP = {
     assignments: AssignmentsWidget,
     expenses: ExpensesWidget,
     balance: BalanceWidget,
-    payment_chart: PaymentWidget
+    overdue_invoices: OverdueInvoicesWidget,
+    reminderList: ReminderListWidget,
+    payment_chart: PaymentWidget,
+    public_duedates: PublicDueDatesWidget,
+    bank_balance: BankBalanceWidget
 };
 
 @Directive({

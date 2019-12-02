@@ -47,7 +47,7 @@
         </section>
     </section>
 
-    <section class="uni-container">
+    <section [hidden]="activeTabIndex === 0" class="uni-container">
         <timetracking-timetable
             *ngIf="activeTabIndex === 1"
             [lazy]="true"

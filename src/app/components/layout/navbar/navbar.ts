@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, Input} from '@angular/core';
 import {NavbarLinkService} from './navbar-link-service';
 import {AuthService} from '@app/authService';
 import {TabService} from './tabstrip/tabService';
@@ -12,106 +12,21 @@ import * as moment from 'moment';
 
 @Component({
     selector: 'uni-navbar',
-    template: `
-        <uni-mega-menu *ngIf="navbarService.megaMenuVisible$ | async"></uni-mega-menu>
-
-        <section class="navbar">
-            <section class="navbar-left">
-                <img class="ue-logo"
-                    src="../../../../../assets/ue-logo-small.png"
-                    alt="Uni Economy logo"
-                    routerLink="/"
-                />
-
-                <i *ngIf="hasActiveContract"
-                    class="material-icons hamburger-toggle"
-                    role="button"
-                    (click)="toggleSidebarState()">
-                    menu
-                </i>
-            </section>
-
-            <section class="navbar-right">
-                <section *ngIf="isDemo && !demoExpired" class="demo-company-notifier" routerLink="/contract-activation">
-                    {{demoText}}
-                    <a>Aktiver nå</a>
-                </section>
-
-                <section *ngIf="isDemo && demoExpired" class="demo-company-notifier expired">
-                    Prøveperiode utløpt
-                </section>
-
-                <section *ngIf="isTemplateCompany"
-                    class="template-company-warning"
-                    matTooltip="Denne klienten er merket som mal. Det vil si at man ved oppretting av nye klienter kan kopiere data og innstillinger fra den. Man bør derfor kun registrere data som skal kopieres til nye klienter.">
-                    MALKLIENT
-                </section>
-
-                <button *ngIf="hasActiveContract" class="navbar-search" mat-icon-button (click)="openSearch()">
-                    <mat-icon aria-label="Search">search</mat-icon>
-                </button>
-
-                <navbar-create-new *ngIf="hasActiveContract"></navbar-create-new>
-
-                <i *ngIf="hasActiveContract" role="link" class="material-icons bureau-link" routerLink="bureau">
-                    business
-                </i>
-
-                <uni-company-dropdown></uni-company-dropdown>
-                <notifications></notifications>
-
-                <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length)">
-                    <i
-                        role="button"
-                        class="material-icons"
-                        [matMenuTriggerFor]="settingsMenu">
-                        settings
-                    </i>
-
-                    <mat-menu #settingsMenu="matMenu" yPosition="below" [overlapTrigger]="false">
-                        <ng-template matMenuContent>
-                            <section class="navbar-link-dropdown">
-                                <section class="link-section" *ngIf="settingsLinks?.length">
-                                    <strong>Innstillinger</strong>
-                                    <ul>
-                                        <li *ngFor="let link of settingsLinks">
-                                            <a [routerLink]="link.url">{{link.name}}</a>
-                                        </li>
-                                    </ul>
-                                </section>
-
-                                <section class="link-section" *ngIf="adminLinks?.length">
-                                    <strong>Admin</strong>
-                                    <ul>
-                                        <li *ngFor="let link of adminLinks">
-                                            <a [routerLink]="link.url">{{link.name}}</a>
-                                        </li>
-                                    </ul>
-                                </section>
-                            </section>
-                        </ng-template>
-                    </mat-menu>
-                </section>
-
-                <navbar-user-dropdown></navbar-user-dropdown>
-            </section>
-
-        </section>
-
-        <section *ngIf="hasActiveContract" class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
-            <uni-tabstrip></uni-tabstrip>
-            <uni-tabstrip-help></uni-tabstrip-help>
-        </section>
-    `,
+    templateUrl: './navbar.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNavbar {
+
+    @Input()
+    deativateFunctions: boolean = false;
+
     sidebarState: string;
 
     user: User;
     licenseRole: string;
     hasActiveContract: boolean;
     isTemplateCompany: boolean;
+    isTestCompany: boolean;
 
     isDemo: boolean;
     demoExpired: boolean;
@@ -136,6 +51,7 @@ export class UniNavbar {
             if (auth && auth.activeCompany) {
                 this.hasActiveContract = auth.hasActiveContract;
                 this.isTemplateCompany = auth.activeCompany.IsTemplate;
+                this.isTestCompany = auth.activeCompany.IsTest;
                 this.isDemo = auth.isDemo;
 
                 if (auth.isDemo) {
@@ -178,14 +94,13 @@ export class UniNavbar {
             this.sidebarState = state;
         });
 
-        this.navbarService.linkSections$.subscribe(linkSections => {
+        this.navbarService.settingsSection$.subscribe(linkSections => {
             this.settingsLinks = [];
             this.adminLinks = [];
 
             try {
-                const settingsSection = linkSections.find(section => section.url === '/settings');
-                this.settingsLinks = settingsSection.linkGroups[0].links;
-                this.adminLinks = settingsSection.linkGroups[1].links;
+                this.settingsLinks = linkSections[0].linkGroups[0].links;
+                this.adminLinks = linkSections[0].linkGroups[1].links;
             } catch (e) {/* dont care, just means the user doesnt have settings permissions */}
 
             this.cdr.markForCheck();

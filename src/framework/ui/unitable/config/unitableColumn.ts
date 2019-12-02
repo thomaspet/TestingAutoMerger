@@ -1,11 +1,10 @@
-import {UnitableAutocomplete} from '../controls/autocomplete';
+import {UnitableAutocomplete} from '../controls/table-autocomplete';
 import {UnitableTypeahead} from '../controls/typeahead';
 import {UnitableTextInput} from '../controls/text';
 import {UnitableNumberInput} from '../controls/number';
 import {UnitableDateTimepicker} from '../controls/dateTimePicker/dateTimePicker';
 import {UnitableSelect} from '../controls/select';
 import {LocalDatePicker} from '../controls/localDatePicker/LocalDatePicker';
-import {UniSearchWrapper} from '../controls/uniSearchWrapper';
 
 /*
     Dont make changes to this unless you know what you're doing!
@@ -27,7 +26,6 @@ export enum UniTableColumnType {
     Percent = 8,
     LocalDate = 9,
     Boolean = 10,
-    UniSearch = 11,
     Typeahead = 12,
     Link = 13
 }
@@ -93,6 +91,7 @@ export interface IUniTableColumn {
     linkClick?: (rowModel) => void;
     maxLength?: number;
     resizeable?: boolean;
+    placeholder?: string;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -139,6 +138,7 @@ export class UniTableColumn implements IUniTableColumn {
     public rowGroup?: boolean;
     public enableRowGroup?: boolean;
     public enablePivot?: boolean;
+    public placeholder: string;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -261,10 +261,10 @@ export class UniTableColumn implements IUniTableColumn {
             case UniTableColumnType.LocalDate:
                 this.editor = LocalDatePicker;
             break;
+        }
 
-            case UniTableColumnType.UniSearch:
-                this.editor = UniSearchWrapper;
-            break;
+        if (type === UniTableColumnType.LocalDate || type === UniTableColumnType.DateTime) {
+            this.setWidth('6rem');
         }
 
         return this;
@@ -312,14 +312,12 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setLinkResolver(linkResolver: (rowModel) => string) {
         this.linkResolver = linkResolver;
-        this.setAlignment('center');
         this.cls += ' link-cell';
         return this;
     }
 
     public setLinkClick(clickHandler: (rowModel) => void) {
         this.linkClick = clickHandler;
-        this.setAlignment('center');
         this.cls += ' link-cell';
         return this;
     }
@@ -402,6 +400,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setMaxLength(maxLength: number) {
         this.maxLength = maxLength;
+        return this;
+    }
+
+    setPlaceholder(placeholder: string) {
+        this.placeholder = placeholder;
         return this;
     }
 }

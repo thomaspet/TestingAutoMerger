@@ -2,43 +2,27 @@
     display: block
     margin-bottom: 10px
 
-.mat-menu-item
-    min-width: 12rem
-    display: flex
-    justify-content: space-between
-
-    i.material-icons
-        margin: auto 0
-        font-size: 22px
-        margin-left: .5rem
-
-        &:first-of-type
-            margin-left: auto
-
-        &:hover
-            color: #d24d57
-
 .filter-inputs
     display: flex
 
     input
-        height: 36px
+        height: 2.5rem
         width: 15rem
         border-top-right-radius: 0
         border-bottom-right-radius: 0
 
     .icon-button
         background: #fff
-        border: 1px solid #C3CAD9
-        margin-left: 0
+        border: 1px solid var(--border-color)
         border-left: none
         border-top-left-radius: 0
         border-bottom-left-radius: 0
 
-    .saved-filters-toggle
+    button.saved-searches-toggle
+        border-color: var(--border-color)
         padding-right: .5rem
         i.material-icons
-            font-size: 22px
+            color: var(--link-color)
 
 .active-filters-display
     display: flex
@@ -53,7 +37,7 @@
         background: #f9f9f9
         height: 30px
         line-height: 30px
-        border: 1px solid #C3CAD9
+        border: 1px solid var(--border-color)
         border-radius: 3px
         font-size: 14px
         cursor: pointer
@@ -70,7 +54,7 @@
             height: 100%
             line-height: 30px
             padding: 0 5px
-            border-left: 1px solid #C3CAD9
+            border-left: 1px solid var(--border-color)
             &:hover
                 background: rgba(0, 0, 0, .05)
 
@@ -82,7 +66,7 @@
         margin: auto 0 auto 1rem
         cursor: pointer
         font-size: 15px
-        color: #1565c0
+        color: var(--color-c2a)
 
 
 

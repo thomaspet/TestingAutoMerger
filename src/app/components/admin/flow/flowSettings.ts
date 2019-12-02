@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {EventplanService} from '@app/services/common/eventplan.service';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 

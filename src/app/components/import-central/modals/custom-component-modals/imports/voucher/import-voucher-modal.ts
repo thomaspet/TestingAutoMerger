@@ -1,14 +1,15 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit} from '@angular/core';
-import {IModalOptions, IUniModal, UniModalService} from '@uni-framework/uni-modal';
-import {environment} from 'src/environments/environment';
-import {AuthService} from '@app/authService';
-import {HttpClient} from '@angular/common/http';
-import {JobService, ErrorService, PayrollrunService} from '@app/services/services';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
-import {ImportFileType, TemplateType, VoucherOptions} from '@app/models/import-central/ImportDialogModel';
-import {Subject} from 'rxjs';
-import {DisclaimerModal} from '../../../disclaimer/disclaimer-modal';
-import {ISelectConfig} from '@uni-framework/ui/uniform';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { IModalOptions, IUniModal, UniModalService } from '@uni-framework/uni-modal';
+import { environment } from 'src/environments/environment';
+import { AuthService } from '@app/authService';
+import { HttpClient } from '@angular/common/http';
+import { JobService, ErrorService, PayrollrunService, UserService } from '@app/services/services';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { ImportFileType, TemplateType, VoucherOptions } from '@app/models/import-central/ImportDialogModel';
+import { Subject } from 'rxjs';
+import { DisclaimerModal } from '../../../disclaimer/disclaimer-modal';
+import { ISelectConfig } from '@uni-framework/ui/uniform';
+import { User } from '@uni-entities';
 
 @Component({
     selector: 'import-voucher-modal',
@@ -34,11 +35,13 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     fileServerUrl: string = environment.BASE_URL_FILES;
     fileType: ImportFileType = ImportFileType.StandardizedExcelFormat;
 
+    user: User = new User();
+
     // import options
     voucherOptions: VoucherOptions = VoucherOptions.Draft;
     draft: VoucherOptions = VoucherOptions.Draft;
     post: VoucherOptions = VoucherOptions.Post;
-    isVatEnabled: boolean = false;
+    isVatEnabled: boolean = true;
     draftDescription: string = '';
     config: ISelectConfig;
     operators: any[] = [];
@@ -56,8 +59,13 @@ export class ImportVoucherModal implements OnInit, IUniModal {
         private jobService: JobService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private modalService: UniModalService
-    ) {}
+        private modalService: UniModalService,
+        private userService: UserService,
+    ) {
+        this.userService.getCurrentUser().subscribe(res => {
+            this.user = res;
+        });
+    }
 
     ngOnInit(): void {
         this.config = {
@@ -168,7 +176,8 @@ export class ImportVoucherModal implements OnInit, IUniModal {
                             ? true
                             : false,
                         draftDescription: this.draftDescription,
-                        importWithVAT: this.isVatEnabled
+                        importWithVAT: this.isVatEnabled,
+                        user: this.user.UserName
                     }
                 };
                 dataToImport = importModel;
@@ -246,6 +255,6 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     }
 
     public openDisclaimerNote() {
-        this.modalService.open(DisclaimerModal).onClose.subscribe(val => {});
+        this.modalService.open(DisclaimerModal).onClose.subscribe(val => { });
     }
 }
