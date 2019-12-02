@@ -97,7 +97,7 @@ export class UserDetails {
             data: { user: this.user }
         }).onClose.subscribe(rolesChanged => {
             if (rolesChanged) {
-                this.loadData();
+                this.loadSubscription = this.loadData();
             }
         });
     }

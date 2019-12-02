@@ -85,7 +85,7 @@
         </div>
 
         <section class="image-container" (click)="openFileViewer()">
-            <auth-img [src]="imgUrl"></auth-img>
+            <auth-img [src]="imgUrl" (load)="imageLoaded.next()"></auth-img>
 
             <span *ngIf="ocrWords?.length">
                 <span *ngFor="let word of ocrWords"

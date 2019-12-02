@@ -369,7 +369,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     activeInSidebar: true
                 },
                 {
-                    name: 'Bankavstemning',
+                    name: 'Bankavstemming',
                     url: '/bank/reconciliation',
                     moduleID: UniModules.Payment,
                     activeInSidebar: true

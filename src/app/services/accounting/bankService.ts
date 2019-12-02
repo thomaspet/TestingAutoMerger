@@ -84,12 +84,22 @@ export class BankService extends BizHttp<Bank> {
         .map(res => res.body);
     }
 
-    public updateAutobankAgreement(id: any, password: string) {
+    public updateAutobankAgreementStatus(id: any, password: string) {
         return this.http
             .asPUT()
             .withBody(password)
             .usingBusinessDomain()
             .withEndPoint(`bank-agreements/${id}?action=update-status`)
+            .send()
+            .map(res => res.body);
+    }
+
+    public updateAutobankAgreement(id: any, payload: any) {
+        return this.http
+            .asPUT()
+            .withBody(payload)
+            .usingBusinessDomain()
+            .withEndPoint(`bank-agreements/${id}?action=update-bank-properties`)
             .send()
             .map(res => res.body);
     }

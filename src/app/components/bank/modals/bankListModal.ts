@@ -12,28 +12,12 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {FileService} from '@app/services/services';
 import {saveAs} from 'file-saver';
+import { BankIntegrationAgreement } from '@uni-entities';
 
 @Component({
     selector: 'uni-autobank-agreement-list-modal',
     styles: [`.material-icons { line-height: 2; cursor: pointer}`],
-    template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header>{{ options?.header }}</header>
-
-            <article>
-                <ag-grid-wrapper
-                    class="transquery-grid-font-size"
-                    *ngIf="tableData"
-                    [config]="tableConfig"
-                    [resource]="tableData">
-                </ag-grid-wrapper>
-            </article>
-
-            <footer class="center">
-                <button class="c2a rounded" (click)="close()"> Lukk </button>
-            </footer>
-        </section>
-    `
+    templateUrl: './bankListModal.html'
 })
 
 export class UniBankListModal implements IUniModal, OnInit {
@@ -44,15 +28,21 @@ export class UniBankListModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public tableData: any[];
+    public bankAgreements: BankIntegrationAgreement[];
     tableConfig: UniTableConfig = this.getTableConfig();
+    currentAgreement: BankIntegrationAgreement;
+    isDirty: boolean;
+    password: string;
+    errorMessage: string;
+    initBankStatementValue: boolean;
+    displayInfo: boolean;
 
     constructor(
         private modalService: UniModalService,
         private bankService: BankService,
         private fileService: FileService,
         private toastService: ToastService
-    ) { }
+    ) {}
 
     public ngOnInit() {
         switch (this.options.listkey) {
@@ -63,7 +53,46 @@ export class UniBankListModal implements IUniModal, OnInit {
                 this.tableConfig = this.getTableConfig();
                 break;
         }
-        this.tableData = this.options.list;
+        this.bankAgreements = this.options.list;
+        this.currentAgreement = {...this.bankAgreements[0]};
+    }
+
+    public onBankSelected(event: BankIntegrationAgreement) {
+        this.currentAgreement = {...event};
+        this.password = '';
+        this.errorMessage = '';
+        this.isDirty = false;
+        this.initBankStatementValue = this.currentAgreement.IsBankBalance;
+        this.displayInfo = false;
+    }
+
+    public updateAutobankAgreement() {
+        this.errorMessage = '';
+        const payload =  {
+            IsInbound: this.currentAgreement.IsInbound,
+            IsOutgoing: this.currentAgreement.IsOutgoing,
+            IsBankStatement : this.currentAgreement.IsBankBalance,
+            IsBankBalance : this.currentAgreement.IsBankBalance,
+            Password : this.password,
+        };
+        this.password = '';
+
+        this.bankService.updateAutobankAgreement(this.currentAgreement.ID, payload).subscribe(
+            (response: BankIntegrationAgreement) => {
+                this.toastService.addToast('Godkjent', ToastType.good, ToastTime.medium,
+                'Autobankavtalen er oppdatert');
+
+                if (this.initBankStatementValue !== this.currentAgreement.IsBankBalance && this.currentAgreement.IsBankBalance) {
+                    this.displayInfo = true;
+                }
+
+                this.bankAgreements = this.bankAgreements.map(x => {
+                    if (x.ID === response.ID) {
+                        return response;
+                    }
+                    return x;
+                });
+            });
     }
 
     public getStatusText(code: number) {
@@ -94,22 +123,25 @@ export class UniBankListModal implements IUniModal, OnInit {
     }
 
     private getTableConfig() {
-        const bankNameCol = new UniTableColumn('BankAccount.Bank.Name', 'Bank', UniTableColumnType.Text);
-        const emailCol = new UniTableColumn('Email', 'E-post', UniTableColumnType.Text);
-        const manualCol = new UniTableColumn('BankAcceptance', 'Manuell godkjenning', UniTableColumnType.Boolean)
-            .setAlignment('center');
-        const inCol = new UniTableColumn('IsInbound', 'Innbetalinger', UniTableColumnType.Boolean)
-            .setAlignment('center');
-        const outCol = new UniTableColumn('IsOutgoing', 'Utbetalinger', UniTableColumnType.Boolean)
-            .setAlignment('center');
+        const bankNameCol = new UniTableColumn('Name', 'Bank', UniTableColumnType.Text);
+
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+            .setWidth(150, false)
             .setTemplate((row) => {
                 return this.getStatusText(row.StatusCode);
-            })
-            .setAlignment('right');
+            });
+
+
+        const contextMenuItems: any[] = [
+            {
+                action: () => this.deleteAgreements(this.currentAgreement),
+                label: 'Kanseller avtale',
+                disabled: () => false
+            }
+        ];
 
         return new UniTableConfig('autobank_agreement_list_modal', false, true, 15)
-            .setColumns([ bankNameCol, emailCol, manualCol, inCol, outCol, statusCol ])
+            .setColumns([ bankNameCol, statusCol])
             .setColumnMenuVisible(false);
     }
 
@@ -168,7 +200,7 @@ export class UniBankListModal implements IUniModal, OnInit {
             if (!password) {
                 return;
             } else {
-                this.bankService.updateAutobankAgreement(agreement.ID, password)
+                this.bankService.updateAutobankAgreementStatus(agreement.ID, password)
                     .finally(() => {
                         this.onClose.emit();
                     })
