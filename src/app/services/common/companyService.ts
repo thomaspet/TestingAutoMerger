@@ -98,7 +98,7 @@ export class CompanyService extends BizHttp<Company> {
             .do(() => super.invalidateCache());
     }
 
-    reviveCompany(companyKey: string) {
+    restoreCompany(companyKey: string) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
