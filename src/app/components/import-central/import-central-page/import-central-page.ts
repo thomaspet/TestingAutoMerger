@@ -154,12 +154,7 @@ export class ImportCentralPage implements OnInit {
   }
 
   private navigateToLogHistory(type: TemplateType) {
-    if (type === TemplateType.Payroll) {
-      this.router.navigate(['/salary/variablepayrolls']);
-    } else {
-      this.router.navigate(['/import/log', { id: type }]);
-    }
-
+    this.router.navigate(['/import/log', { id: type }]);
   }
 
   //checks with disclaimer agreement

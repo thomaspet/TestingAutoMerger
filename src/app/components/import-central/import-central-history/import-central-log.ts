@@ -235,6 +235,22 @@ export class ImportCentralLog implements OnInit {
                         break;
                 }
                 break;
+
+            case ImportJobName.Voucher:
+                switch (type) {
+                    case 'entityName':
+                        str = 'Bilag';
+                        break;
+                    case 'listName':
+                        str = 'Bilaglisten';
+                        break;
+                    case 'url':
+                        str = '/accounting/transquery';
+                        break;
+                    default:
+                        break;
+                }
+                break;
             default:
                 break;
         }
@@ -281,7 +297,7 @@ export class ImportCentralLog implements OnInit {
                                     r.JobName === ImportJobName.Supplier ||
                                     r.JobName === ImportJobName.MainLedger ||
                                     r.JobName === ImportJobName.Payroll ||
-                                    r.JobName === ImportJobName.Saft || 
+                                    r.JobName === ImportJobName.Saft ||
                                     r.JobName === ImportJobName.Voucher
                             ));
                         break;
