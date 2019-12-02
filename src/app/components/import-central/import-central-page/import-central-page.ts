@@ -126,15 +126,14 @@ export class ImportCentralPage {
         type: TemplateType.Saft
       },
       {
-        //TODO:: set UI permissions
         uiPermission: {
-          hasComponentAccess: true,
+          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess,
           hasImportAccess: true,
-          hasTemplateAccess: true
+          hasTemplateAccess: this.uiPermission.voucher.hasTemplateAccess
         },
         iconName: 'card_giftcard',
-        title: 'Voucher',
-        importText: 'Importer Voucher',
+        title: 'Bilag',
+        importText: 'Importer bilag',
         downloadText: 'Last ned mal',
         type: TemplateType.Voucher
       }
@@ -217,9 +216,9 @@ export class ImportCentralPage {
         type = 'SAF-T';
         break;
       case TemplateType.Voucher:
-        header = 'Importer Voucher';
+        header = 'Importer bilag';
         jobName = ImportJobName.Voucher;
-        type = 'Voucher';
+        type = 'bilag';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER
         break;
       default:
