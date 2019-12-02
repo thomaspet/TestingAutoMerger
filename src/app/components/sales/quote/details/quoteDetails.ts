@@ -162,6 +162,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private quoteExpands: string[] = [
         'Customer',
         'Customer.Info.Contacts.Info',
+        'Customer.Info.Addresses',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -177,7 +178,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'DefaultSeller.Seller',
         'PaymentTerms',
         'DeliveryTerms'
-    ].concat(this.customerExpands.map(option => 'Customer.' + option));
+    ];
 
     private quoteItemExpands: string[] = [
         'Product',
@@ -1368,7 +1369,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                                         this.refreshQuote()
                                             .then(() => done(doneText));
                                     }
-                                }
+                                },
+                                err => this.handleSaveError(err, done)
                             );
                         }).catch(error => {
                             this.handleSaveError(error, done);
@@ -1395,7 +1397,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.refreshQuote()
                             .then(() => done(doneText));
                     }
-                }
+                },
+                err => this.handleSaveError(err, done)
             );
         }).catch(error => {
             this.handleSaveError(error, done);
