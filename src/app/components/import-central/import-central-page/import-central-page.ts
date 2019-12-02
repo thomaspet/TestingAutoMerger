@@ -139,9 +139,9 @@ export class ImportCentralPage implements OnInit {
       },
       {
         uiPermission: {
-          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess,
+          hasComponentAccess: true, //this.uiPermission.voucher.hasComponentAccess
           hasImportAccess: true,
-          hasTemplateAccess: this.uiPermission.voucher.hasTemplateAccess
+          hasTemplateAccess: true//this.uiPermission.voucher.hasTemplateAccess
         },
         iconName: 'card_giftcard',
         title: 'Bilag',
