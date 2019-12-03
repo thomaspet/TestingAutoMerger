@@ -223,6 +223,7 @@ export const CHARTS = [
         id: 'bank_balance',
         description: 'Banksaldo',
         permissions: ['ui_bank'],
+        srOnly: true,
         width: 4,
         height: 3,
         widgetType: 'bank_balance',

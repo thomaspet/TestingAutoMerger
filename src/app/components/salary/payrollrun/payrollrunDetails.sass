@@ -1,31 +1,39 @@
 @import '~src/styles/unibase/colors/__colors.sass'
 
-.payroll-info
-    padding: 1rem 0 0 1rem !important
-    margin: 1rem auto 0
-    min-height: 3rem
-    line-height: 1.7rem
+.payroll-info-and-links
     background: #fff
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1)
+    display: flex
+    flex-direction: column
+    padding: 0
+    justify-content: center
 
+    section
+        padding: .75rem 1rem
+
+.payroll-info
+    line-height: 1.7rem
+    font-size: 15px
+    display: flex
+    align-items: center
+    overflow: auto
+
+    i
+        font-size: 20px
+        margin-right: .3rem
     span
-        margin-right: 2rem
+        margin-right: 3rem
         white-space: nowrap
 
-    .material-icons
-        vertical-align: middle
-        margin-top: -4px
+        &:last-of-type
+            flex: 1
+
+.link-list-section
+    display: flex
+    border-top: 1px solid #CCC
+    a
+        font-size: 15px
+        margin-right: 2.5rem
 
 section.coverView
     height: 50vh
-
-section.functions
-    padding-bottom: 1rem
-
-h4.functionsHeader
-    margin-top: 0
-    margin-bottom: 0
-
-a
-    margin-left: 2rem
-

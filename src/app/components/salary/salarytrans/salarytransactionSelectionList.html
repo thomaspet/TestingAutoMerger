@@ -24,10 +24,10 @@
 
         <cdk-virtual-scroll-viewport id="role-info" class="emp-list" itemSize="34" >
             <li *cdkVirtualFor="let employee of filteredEmployees; templateCacheSize: 100"
-                [class.selected]="employee.ID === selectedEmp?.ID"
-                class="emp-item"
+                [class.selected]="employee.ID === selectedEmp?.ID" class="emp-item"
                 (click)="rowSelected(employee)" style="display: flex; flex-direction: row;">
-                <span>{{ employee.EmployeeNumber }} - {{ employee.Name }}</span>
+                <strong>{{ employee.EmployeeNumber }}. &nbsp; </strong>
+                <span> {{ employee.Name }}</span>
                 <i class="material-icons bad" *ngIf="errors[employee.ID]" title="{{ errors[employee.ID] }}"> warning </i>
             </li>
             <li *ngIf="hasInitialized && !(filteredEmployees).length" style="padding: 0; line-height: 34px;">
@@ -38,13 +38,11 @@
 
     <section class="uni-container salarytrans-details">
         <header *ngIf="selectedEmp && agaZone">
-            <a [routerLink]="['/salary/employees/' + selectedEmp.ID]">
-                {{selectedEmp.EmployeeNumber}} - {{selectedEmp?.Name}}
-            </a>
-            &ensp;|&ensp;
-            Virksomhet: {{selectedEmp.SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
-            <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
-
+            <section class="header-info-container">
+                <a [routerLink]="['/salary/employees/' + selectedEmp.ID]" title="Gå til ansattkortet"> {{selectedEmp.EmployeeNumber}} - {{selectedEmp?.Name}} </a>
+                <span> <strong>Virksomhet:</strong> &nbsp; {{selectedEmp.SubEntity?.BusinessRelationInfo?.Name}} </span>
+                <span title="Arbeidsgiveravgift"><strong>Aga-sone:</strong> &nbsp; {{ agaZone.ZoneName }}</span>
+            </section>
 
             <section class="navigation-buttons">
                 <i class="material-icons" role="button" (click)="prevRow()">
@@ -56,7 +54,7 @@
             </section>
         </header>
 
-        <link-menu [menu]="linkMenu$ | async"></link-menu>
+        <link-menu [menu]="linkMenu$ | async" style="padding-top: .5rem"></link-menu>
         <salary-transactions-employee *ngIf="selectedEmp" [employee]="selectedEmp"></salary-transactions-employee>
         <section class="detail_tables" *ngIf="employees && selectedEmp">
             <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':hasDirty()}"></uni-summary>
