@@ -1171,6 +1171,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             entityType: 'CustomerInvoice',
             showSharingStatus: true,
             hideDisabledActions: true,
+            navigation: {
+                prev: this.previousInvoice.bind(this),
+                next: this.nextInvoice.bind(this)
+            },
             contextmenu: [{
                 label: 'Periodisering',
                 action: () => this.accrueInvoice(),
@@ -1265,6 +1269,26 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 });
             }
         });
+    }
+
+    private nextInvoice() {
+        this.customerInvoiceService.getNextID(this.invoice.ID).subscribe(id => {
+            if (id) {
+                this.router.navigateByUrl('/sales/invoices/' + id);
+            } else {
+                this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer etter denne');
+            }
+        }, err => this.errorService.handle(err) );
+    }
+
+    private previousInvoice() {
+        this.customerInvoiceService.getPreviousID(this.invoice.ID).subscribe(id => {
+            if (id) {
+                this.router.navigateByUrl('/sales/invoices/' + id);
+            } else {
+                this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer før denne');
+            }
+        }, err => this.errorService.handle(err) );
     }
 
     private getToolbarSubheads() {
