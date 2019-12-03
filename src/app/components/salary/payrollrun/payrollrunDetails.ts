@@ -391,7 +391,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     openTaxCardModal() {
         this.modalService.open(TaxCardModal, {
             data: this.employeeService.convertToEmployee(this.selectedEmp),
-            modalConfig: { }
+            modalConfig: { },
+            closeOnClickOutside: false
         }).onClose.subscribe(res => {
                 if (!res) { return; }
 
