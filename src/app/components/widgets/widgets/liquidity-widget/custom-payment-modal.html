@@ -1,0 +1,107 @@
+<section role="dialog" class="uni-modal uni-redesign custom-payment">
+    <header>
+        {{ editMode ? 'Legg til andre inn- eller utbetalinger' : 'Andre inn- og utbetalinger' }}
+    </header>
+    <article >
+
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section *ngIf="editMode">
+            <span class="info-text-span">
+                Her kan du legge til andre inntekter eller utgifter på ferventet inn- og utbetalingsdato i banken din. <a (click)="getDataAndLoadList()"> Se listen over registrerte betalinger </a>
+            </span>
+
+            <label class="uni-label">
+                <span>Beskrivelse</span>
+                <input type="text" placeholder="Beskrivelse av inntekt eller utgift" [(ngModel)]="customPaymentObject.Description"/>
+            </label>
+
+            <section class="radio-buttons-section">
+                <i class="material-icons" [ngClass]="customPaymentObject.IsCustomerPayment ? 'checked' : '' "
+                    (click)="customPaymentObject.IsCustomerPayment = true;">
+                    {{ customPaymentObject.IsCustomerPayment ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                </i>
+                <span (click)="customPaymentObject.IsCustomerPayment = true;"> Innbetaling </span>
+
+                <i class="material-icons" [ngClass]="!customPaymentObject.IsCustomerPayment ? 'checked' : '' "
+                    (click)="customPaymentObject.IsCustomerPayment = false;">
+                    {{ !customPaymentObject.IsCustomerPayment ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                </i>
+                <span (click)="customPaymentObject.IsCustomerPayment = false;"> Utbetaling </span>
+            </section>
+
+            <section class="radio-buttons-section">
+                <i class="material-icons" [ngClass]="interval === 365 ? 'checked' : '' " (click)="interval = 365">
+                    {{ interval === 365 ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                </i>
+                <span (click)="interval = 365"> Årlig </span>
+
+                <i class="material-icons" [ngClass]="interval === 30 ? 'checked' : '' " (click)="interval = 30">
+                    {{ interval === 30 ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                </i>
+                <span (click)="interval = 30"> Månedlig </span>
+
+                <i class="material-icons" [ngClass]="interval === 0 ? 'checked' : '' " (click)="interval = 0">
+                    {{ interval === 0 ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                </i>
+                <span (click)="interval = 0"> Kun en gang </span>
+            </section>
+
+            <section class="sum-and-date-section">
+                <label class="uni-label">
+                    <span>Sum</span>
+                    <input type="text" placeholder="00.00" [(ngModel)]="customPaymentObject.Amount"/>
+                </label>
+
+                <label class="uni-label">
+                    <span>Dato</span>
+                    <section class="input-with-button">
+                        <input #dateInput type="text" placeholder="I dag" [(ngModel)]="customPaymentObject.DueDate" [matDatepicker]="picker" >
+                        <button (click)="picker.open()">
+                            <i class="material-icons">date_range</i>
+                        </button>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </section>
+                </label>
+            </section>
+            <small class="error"> {{ errorMsg }} </small>
+        </section>
+
+        <section *ngIf="!editMode">
+            <span class="info-text-span">
+                Her kan du se, legge til og redigere andre inntekter og utgifter på forventet inn- og utbetalingsdato i banken din.
+            </span>
+
+            <button class="secondary" style="margin: .75rem 0; width: 100%;" (click)="setCurrent(getNewPayment())">
+                <i class="material-icons c2a" style="margin-right: .5rem">add_circle_outline</i>
+                <span>Registrer ny inn- eller utbetaliger</span>
+            </button>
+
+            <section class="payment-list-sections">
+                <span class="header">{{ payments.length ? 'Allerede' : 'Ingen' }} registrerte inn- og utbetaliger</span>
+                <ul>
+                    <li *ngFor="let payment of payments; let i = index;" (click)="setCurrent(payment)">
+                        <section>
+                            <span class="desc"> {{ payment.Description }} </span>
+                            <span class="sum"> {{ payment.Amount | uninumberformat: 'money'  }} </span>
+                        </section>
+                        <section *ngIf="payment.CustomLiquidityPaymentType === 0">
+                            {{  payment.DueDate | date:'dd.MM.yyyy' }}
+                        </section>
+                        <section *ngIf="payment.CustomLiquidityPaymentType !== 0">
+                            {{  payment.CustomLiquidityPaymentType === 365 ? 'Årlig' : 'Månedlig' }}
+                        </section>
+                        <i class="material-icons" title="Slett betaling" (click)="$event.stopPropagation(); deletePayment(payment, i)">delete_outline</i>
+                    </li>
+                </ul>
+            </section>
+        </section>
+    </article>
+
+    <footer class="center">
+        <button (click)="close()" class="secondary">Avbryt</button>
+        <button (click)="saveCustomPayment()" [disabled]="!editMode" class="c2a">Lagre</button>
+    </footer>
+</section>
