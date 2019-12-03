@@ -27,6 +27,7 @@ import {ReminderListWidget} from './reminder-list/reminder-list';
 import {PaymentWidget} from './payment/payment-chart';
 import {PublicDueDatesWidget} from './public-duedates-widget/public-duedates';
 import {BankBalanceWidget} from './bank-balance-widget';
+import {LiquidityWidget} from './liquidity-widget/liquidity-widget';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -56,7 +57,8 @@ export const UNI_WIDGETS = [
     ReminderListWidget,
     PaymentWidget,
     PublicDueDatesWidget,
-    BankBalanceWidget
+    BankBalanceWidget,
+    LiquidityWidget
 ];
 
 export * from './shortcuts';
@@ -87,3 +89,4 @@ export * from './reminder-list/reminder-list';
 export * from './payment/payment-chart';
 export * from './public-duedates-widget/public-duedates';
 export * from './bank-balance-widget';
+export * from './liquidity-widget/liquidity-widget';

@@ -40,7 +40,8 @@ import {
     ReminderListWidget,
     PaymentWidget,
     PublicDueDatesWidget,
-    BankBalanceWidget
+    BankBalanceWidget,
+    LiquidityWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -92,7 +93,8 @@ export const WIDGET_MAP = {
     reminderList: ReminderListWidget,
     payment_chart: PaymentWidget,
     public_duedates: PublicDueDatesWidget,
-    bank_balance: BankBalanceWidget
+    bank_balance: BankBalanceWidget,
+    liquidity: LiquidityWidget
 };
 
 @Directive({

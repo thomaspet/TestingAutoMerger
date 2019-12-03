@@ -201,7 +201,7 @@ export const CHARTS = [
         id: 'operatingprofit_line',
         description: 'Driftsresultat',
         permissions: ['ui_accounting'],
-        width: 8,
+        width: 6,
         height: 3,
         widgetType: 'operatingprofit',
         srOnly: true,
@@ -213,9 +213,18 @@ export const CHARTS = [
     {
         id: 'public_duedates',
         description: 'Offentlige frister neste 30 dager',
-        width: 8,
+        width: 6,
         height: 3,
         widgetType: 'public_duedates',
+        srOnly: true,
+        config: {}
+    },
+    {
+        id: 'liquidity',
+        description: 'Likviditetsprognose',
+        width: 5,
+        height: 3,
+        widgetType: 'liquidity',
         srOnly: true,
         config: {}
     },
@@ -224,7 +233,7 @@ export const CHARTS = [
         description: 'Banksaldo',
         permissions: ['ui_bank'],
         srOnly: true,
-        width: 4,
+        width: 3,
         height: 3,
         widgetType: 'bank_balance',
         config: {
