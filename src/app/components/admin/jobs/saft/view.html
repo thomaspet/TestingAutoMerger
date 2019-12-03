@@ -1,61 +1,58 @@
-<h2>SAF-T (auditfile)
-    <i class="material-icons"
-        style="cursor: pointer"
-        (click)="refresh()">
-        refresh
-    </i>
+<h2 style="margin-bottom: 1rem">SAF-T (auditfile)
+    <i class="material-icons" style="cursor: pointer; color: var(--color-c2a);" (click)="refresh()" title="Oppdater visning"> refresh </i>
 </h2>
 
-<label class="upload-input">
-    <i class="material-icons">cloud_upload</i>
-    <span>Last opp fil</span>
+<section class="saft-buttons-section">
+    <label>
+        <i class="material-icons">cloud_upload</i>
+        <span>Last opp fil</span>
 
-    <input type="file" accept=".xml"
-        (change)="uploadFile($event)"
-        [attr.aria-disabled]="busy"
-        [disabled]="busy"
-    />
-</label>
+        <input type="file" accept=".xml"
+            (change)="uploadFile($event)"
+            [attr.aria-disabled]="busy"
+            [disabled]="busy"
+        />
+    </label>
 
-<label class="upload-input" (click)="exportSaft($event)"style="margin-left:3rem">
-    <i class="material-icons">cloud_download</i>
-    <span>Start SAFT eksport</span>
-</label>
+    <label (click)="exportSaft($event)">
+        <i class="material-icons">cloud_download</i>
+        <span>Start SAFT eksport</span>
+    </label>
+</section>
 
-
-<table [attr.aria-busy]="busyFetch" class="uni-table">
+<table [attr.aria-busy]="busyFetch" class="uni-table jobs-table">
     <thead>
         <tr>
-            <th class="size-2">Job</th>
+            <th>Job</th>
             <th class="size-1">ID</th>
-            <th class="size-2">Filnavn</th>
-            <th class="size-2">Størrelse</th>
-            <th class="size-2">Type</th>
+            <th class="size-filename">Filnavn</th>
+            <th>Størrelse</th>
+            <th>Type</th>
             <th>Jobstatus</th>
-            <td class="size-2"></td>
+            <th class="size-buttons"></th>
         </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let file of files" class="saftTableLine" >
-        <td>{{file.JobName}}</td>
-        <td>{{file.FileID}}</td>
-        <td>{{file.FileName}}</td>
-        <td>{{file.FileSize}}</td>
-        <td>{{file.FileContentType}}</td>
-        <td class="ellipsis">
-            <span [hidden]="!file.busyFetch">Henter status..</span>
-            <a href="/#/admin/job-logs?jobName={{jobName}}&jobID={{file.jobid || 0}}" class="bad" [hidden]="!file.hasError">
-                &nbsp;En feil har oppstått
-            </a>
-            <a href="/#/admin/job-logs?jobName={{jobName}}&jobID={{file.jobid || 0}}">{{file.jobStatus}}</a>
-        </td>
-        <td *ngIf="file.JobName!=='ExportSaft'">
-            <button  [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onJobStart(file)" class="good">Start import</button>
-            <button [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onFileDeleteClick(file)" class="bad">Slett</button>
-        </td>
-        <td *ngIf="file.JobName==='ExportSaft'">
-                <button *ngIf="file.FileID>=0" (click)="onDownloadExport(file)" class="good" style="margin: 0 !important">Last ned</button>
-        </td>
-    </tr>
+        <tr *ngFor="let file of files" class="saftTableLine" >
+            <td>{{file.JobName}}</td>
+            <td>{{file.FileID}}</td>
+            <td>{{file.FileName}}</td>
+            <td>{{file.FileSize}}</td>
+            <td>{{file.FileContentType}}</td>
+            <td class="ellipsis">
+                <span [hidden]="!file.busyFetch">Henter status..</span>
+                <a href="/#/admin/job-logs?jobName={{jobName}}&jobID={{file.jobid || 0}}" class="bad" [hidden]="!file.hasError">
+                    &nbsp;En feil har oppstått
+                </a>
+                <a href="/#/admin/job-logs?jobName={{jobName}}&jobID={{file.jobid || 0}}">{{file.jobStatus}}</a>
+            </td>
+            <td *ngIf="file.JobName !== 'ExportSaft'">
+                <button  [disabled]="file.disabled" [attr.aria-busy]="file.busy" (click)="onJobStart(file)" class="secondary">Start import</button>
+                <i class="material-icons bad" *ngIf="!file.disabled" (click)="onFileDeleteClick(file)" title="Slett fil"> delete_outline </i>
+            </td>
+            <td *ngIf="file.JobName === 'ExportSaft'">
+                <button *ngIf="file.FileID>=0" (click)="onDownloadExport(file)" class="secondary" style="margin: 0 !important">Last ned</button>
+            </td>
+        </tr>
     </tbody>
 </table>
