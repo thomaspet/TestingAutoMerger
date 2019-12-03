@@ -84,7 +84,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
     private emp: Employee;
-    private showFunctions: boolean = true;
     private browserStorageItemName: string = 'showFunctionsPayrollRunDetails';
 
     public creatingRun: boolean;
@@ -150,8 +149,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.config$.next({
             submitText: ''
         });
-
-        this.showFunctions = this.browserStorage.getItem(this.browserStorageItemName);
 
         this.route.params.subscribe(params => {
             this.journalEntry = undefined;
@@ -381,11 +378,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 filter((transes: SalaryTransaction[]) => !transes.some(trans => trans.EmployeeID === emp.ID))
             )
             .subscribe(() => this.addEmpTranses(emp.ID));
-    }
-
-    toggleShowFunctions() {
-        this.showFunctions = !this.showFunctions;
-        this.browserStorage.setItem(this.browserStorageItemName, this.showFunctions);
     }
 
     openTaxCardModal() {

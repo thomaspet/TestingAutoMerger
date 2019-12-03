@@ -1,6 +1,5 @@
 <ul class="link-menu">
     <li *ngFor="let menuItem of menu; let index = index" class="link-menu-item">
-        <span *ngIf="index && index < menu.length">&ensp;|&ensp;</span>
 
         <i class="material-icons warn" *ngIf="menuItem.validation === 20">warning</i>
         <i class="material-icons bad" *ngIf="menuItem.validation === 30">warning</i>

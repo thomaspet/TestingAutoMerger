@@ -14,7 +14,7 @@ export class UniBankReconciliationList {
 
     tabs: IUniTab[] = [
         { name: 'Bankkontoer' },
-        { name: 'Avstemingsrapport' },
+        { name: 'Avstemmingsrapport' },
         { name: 'Kontoutskrifter' }
     ];
 

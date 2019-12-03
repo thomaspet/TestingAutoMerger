@@ -31,11 +31,26 @@
         min-width: 50rem
         margin-right: 0
 
+        header
+            display: flex
+            padding: .5rem 1rem
+
+        .header-info-container
+            display: flex
+            flex: 1
+            font-size: 15px
+
+            span
+                margin-left: 3rem
+
         .navigation-buttons
-            float: right
+            margin-left: 1rem
+
             i.material-icons
                 vertical-align: middle
                 cursor: pointer
+                &:first-of-type
+                    margin-right: 1rem
 
 
         link-menu, salary-transactions-employee
