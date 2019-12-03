@@ -571,13 +571,6 @@ export class BillView implements OnInit {
                 Section: 0
             },
             <any> {
-                Property: 'BankAccountID',
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Bankkonto',
-                Classes: 'bill-small-field',
-                Section: 0
-            },
-            <any> {
                 Property: '_paymentStatus',
                 FieldType: FieldType.TEXT,
                 Label: 'Betalingsstatus',
