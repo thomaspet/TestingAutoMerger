@@ -2198,6 +2198,7 @@ export class SalaryBalance extends UniEntity {
     public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
+    public EmploymentID: number;
     public FromDate: Date;
     public ID: number;
     public Instalment: number;
@@ -2217,6 +2218,7 @@ export class SalaryBalance extends UniEntity {
     public UpdatedBy: string;
     public WageTypeNumber: number;
     public Employee: Employee;
+    public Employment: Employment;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
     public CustomFields: any;

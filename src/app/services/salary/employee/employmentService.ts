@@ -4,12 +4,13 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project, CompanySalary,
-    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction,
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction, NumberSeries,
 } from '../../../unientities';
 import {Observable, ReplaySubject} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {CompanySalaryService} from '../companySalary/companySalaryService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import { StatisticsService } from '@app/services/common/statisticsService';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -69,6 +70,7 @@ export class EmploymentService extends BizHttp<Employment> {
         protected http: UniHttp,
         private companySalaryService: CompanySalaryService,
         private toastService: ToastService,
+        private statisticsService: StatisticsService,
         ) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
@@ -441,5 +443,13 @@ export class EmploymentService extends BizHttp<Employment> {
                 },
             },
         ];
+    }
+
+    public searchEmployments(query: string, employeeID?: number): Observable<{ID: number, JobName: string}[]> {
+        let statisticsQuery = `startswith(ID,${query}) or contains(JobName,${query})`;
+        if (employeeID) {
+            statisticsQuery = `EmployeeID eq ${employeeID} and ( ${statisticsQuery} )`;
+        }
+        return this.statisticsService.GetAllUnwrapped(`select=ID as ID,JobName as JobName&filter=${statisticsQuery}&model=Employment`);
     }
 }
