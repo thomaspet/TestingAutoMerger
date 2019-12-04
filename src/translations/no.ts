@@ -70,6 +70,7 @@ export const NO = {
             'NEW': 'Ny leverandørfaktura',
             'SINGLE': 'Leverandørfaktura',
             'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten fakturabeløp eller leverandør med orgnr.',
+            'USE_NO_DOCUMENT': 'Før leverandørfaktura uten dokument',
             'CREATE': 'Opprett leverandørfaktura',
             'LATEST': 'Siste leverandørfaktura',
             'BOOK_WITH_AMOUNT': 'Bokføre leverandørfaktura med beløp {sum}?',
