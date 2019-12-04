@@ -38,7 +38,7 @@ export class AccountDetails implements OnInit {
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
-    private vatDeductionGroups: VatDeductionGroup[];
+    private vatDeductionGroups: any[];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
     public dimensionsConfig$: BehaviorSubject<any> = new BehaviorSubject({});

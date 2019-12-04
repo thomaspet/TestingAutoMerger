@@ -191,19 +191,21 @@ export class SupplierDetails implements OnInit {
     ) {}
 
     public ngOnInit() {
-        this.tabs = [
-            {name: 'Detaljer'},
-            {name: 'Åpne poster'},
-            {name: 'Dokumenter'}
-        ];
-
         if (!this.modalMode) {
             combineLatest(this.route.params, this.route.queryParams)
                 .pipe(map(results => ({params: results[0], query: results[1]})))
                 .subscribe(results => {
+
+                this.tabs = [
+                    {name: 'Detaljer'},
+                    {name: 'Åpne poster'},
+                    {name: 'Dokumenter'}
+                ];
+
                 this.supplierID = +results.params['id'];
-                const index = +results.query['tabIndex']  || 0;
                 this.supplier$.getValue().ID = 0;
+
+                const index = +results.query['tabIndex']  || 0;
 
                 this.commentsConfig = {
                     entityType: 'Supplier',
@@ -211,20 +213,19 @@ export class SupplierDetails implements OnInit {
                 };
 
                 this.setup();
-
-                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
-                    links => {
-                        this.reportLinks = links;
-                        this.tabs = [
-                            {name: 'Detaljer'},
-                            {name: 'Åpne poster'},
-                            {name: 'Dokumenter'},
-                            ...links
-                        ];
-                        this.activeTabIndex = index;
-                    },
-                    err => this.errorService.handle(err)
-                );
+                if (this.supplierID) {
+                    this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
+                        links => {
+                            this.reportLinks = links;
+                            this.tabs = [
+                                {name: 'Detaljer'},
+                                {name: 'Åpne poster'},
+                                {name: 'Dokumenter'},
+                                ...links
+                            ];
+                            this.activeTabIndex = index;
+                        }, err => this.errorService.handle(err) );
+                }
             });
         }
         this.setupSaveActions();

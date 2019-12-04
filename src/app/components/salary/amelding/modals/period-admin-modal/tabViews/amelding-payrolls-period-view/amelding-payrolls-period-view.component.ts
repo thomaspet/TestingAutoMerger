@@ -37,7 +37,7 @@ export class AmeldingPayrollsPeriodViewComponent implements OnInit {
   }
 
   private setupTable() {
-    const idCol = new UniTableColumn('PayrollrunID', 'Lønnsavregning', UniTableColumnType.Number)
+    const idCol = new UniTableColumn('PayrollrunID', 'Lønnsavregning', UniTableColumnType.Text)
       .setTemplate(rowmodel => {
         return `${rowmodel.PayrollrunID} - ${rowmodel.PayrollrunDescription}`;
       });
