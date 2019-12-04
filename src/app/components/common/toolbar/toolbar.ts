@@ -39,6 +39,7 @@ export interface StatusIndicator {
     class?: string;
     icon?: string;
     subStatuses?: {label: string, timestamp?: Date, status?: string}[];
+    link?: string;
 }
 
 export interface IToolbarConfig {
