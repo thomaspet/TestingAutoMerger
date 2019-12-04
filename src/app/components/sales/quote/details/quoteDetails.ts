@@ -249,7 +249,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
             this.commentsConfig = {
                 entityType: 'CustomerQuote',
-                entityID: this.quoteID
+                entityID: !hasCopyParam ? this.quoteID : 0
             };
 
             if (this.quoteID) {

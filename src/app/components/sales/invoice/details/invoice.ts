@@ -285,7 +285,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
             this.commentsConfig = {
                 entityType: 'CustomerInvoice',
-                entityID: this.invoiceID
+                entityID: !hasCopyParam ? this.invoiceID : 0
             };
 
             if (this.invoiceID === 0) {
@@ -1655,6 +1655,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private copyInvoice(invoice: CustomerInvoice): CustomerInvoice {
+        this.invoiceID = 0;
         invoice.ID = 0;
         invoice.InvoiceNumber = null;
         invoice.InvoiceNumberSeriesID = null;

@@ -851,11 +851,6 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Kreditert",
-            "Field": "Credited",
-            "DefaultHidden": true
-        },
-        {
             "Header": "Rekvisisjon",
             "Field": "Requisition",
             "DefaultHidden": true
@@ -1394,11 +1389,6 @@
         {
             "Header": "Kredittdager",
             "Field": "CreditDays",
-            "DefaultHidden": true
-        },
-        {
-            "Header": "Kreditert",
-            "Field": "Credited",
             "DefaultHidden": true
         },
         {

@@ -270,7 +270,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
             this.commentsConfig = {
                 entityType: 'CustomerOrder',
-                entityID: this.orderID
+                entityID: !hasCopyParam ? this.orderID : 0
             };
 
             this.authService.authentication$.take(1).subscribe(authDetails => {
@@ -1029,7 +1029,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     private getToolbarSubheads() {
-        if (!this.order) {
+        if (!this.order || !this.order.ID) {
             return;
         }
 

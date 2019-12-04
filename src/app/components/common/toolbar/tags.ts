@@ -180,7 +180,9 @@ export class UniTags implements OnChanges {
             this.tags.push(tag);
             this.tagsChange.emit(this.tags);
             this.buildNewIgnoreFilter(this.tags);
-            this.autoComplete.control.setValue('');
+            if (this.autoComplete && this.autoComplete.control) {
+                this.autoComplete.control.setValue('');
+            }
         }
     }
 
