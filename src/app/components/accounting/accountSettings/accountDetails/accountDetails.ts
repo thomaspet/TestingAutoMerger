@@ -79,10 +79,6 @@ export class AccountDetails implements OnInit {
                 );
                 this.vatDeductionGroups = dataset[3];
 
-                if (this.vatDeductionGroups.length) {
-                    this.vatDeductionGroups.unshift({ID: 0, Name: ''});
-                }
-
                 this.extendFormConfig();
                 this.setDimensionsForm();
             },
@@ -408,8 +404,6 @@ export class AccountDetails implements OnInit {
             completeEvent('Lagring feilet');
             return;
         }
-
-        account.UseVatDeductionGroupID = account.UseVatDeductionGroupID || null;
 
         if (account.ID && account.ID > 0) {
             this.accountService

@@ -722,8 +722,8 @@ export class BillView implements OnInit {
                                             const modal = this.modalService.open(UniConfirmModalV2, {
                                                 header: 'OCR tolkning er ikke aktivert',
                                                 message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning)'
-                                                + ' 10 ganger gratis. '
-                                                + 'For å bruke tjenesten videre må du aktivere OCR tolkning under firmainnstillinger i menyen.',
+                                                + ' 10 ganger gratis. For å bruke tjenesten'
+                                                + ' videre må du aktivere OCR tolkning under firmainnstillinger i menyen.',
                                                 buttonLabels: {
                                                     accept: 'Ok',
                                                     cancel: 'Avbryt'
@@ -1262,7 +1262,10 @@ export class BillView implements OnInit {
 
     public onFormInput(event) {
         this.flagUnsavedChanged();
-        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
+        if (this.current.value.ID
+            && this.current.value.SupplierID
+            && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled
+        ) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -1332,7 +1335,10 @@ export class BillView implements OnInit {
             );
         }
 
-        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
+        if (this.current.value.ID
+            && this.current.value.SupplierID
+            && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled
+        ) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -2232,17 +2238,12 @@ export class BillView implements OnInit {
             }
 
             // Legg til delbetaling
-            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || it.StatusCode === StatusCodeSupplierInvoice.Draft || it.StatusCode === StatusCodeSupplierInvoice.Approved ) {
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled
+                || it.StatusCode === StatusCodeSupplierInvoice.Draft
+                || it.StatusCode === StatusCodeSupplierInvoice.Approved
+            ) {
                 const sts = this.supplierInvoiceService.getPaymentStatus(it);
                 if (sts !== 'Betalt') {
-                    list.push(
-                        {
-                            label: 'Legg til del-betaling',
-                            action: (done) => this.addPayment(done),
-                            main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
-                            disabled: false
-                        }
-                    );
                     if (!it.IsSentToPayment) {
                         list.push({
                             label: 'Legg til betaling',
@@ -2254,6 +2255,15 @@ export class BillView implements OnInit {
                             disabled: false
                         });
                     }
+
+                    list.push(
+                        {
+                            label: 'Legg til del-betaling',
+                            action: (done) => this.addPayment(done),
+                            main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
+                            disabled: false
+                        }
+                    );
 
                     if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
                         list.push(
@@ -2695,12 +2705,15 @@ export class BillView implements OnInit {
 
         this.updateJournalEntryManualDates(fd, vd);
 
-        //Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
+        // Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
         if (this.validationMessage && this.validationMessage.Level === ValidationLevel.Error) {
             this.toast.addToast('Fakturaen kan ikke bokføres', ToastType.bad, 7, this.validationMessage.Message);
             return Observable.of(false);
         }
-        if (this.journalEntryManual.validationResult && this.journalEntryManual.validationResult.Messages && this.journalEntryManual.validationResult.Messages.filter(msg => msg.Level !== ValidationLevel.Info).length > 0) {
+        if (this.journalEntryManual.validationResult
+            && this.journalEntryManual.validationResult.Messages
+            && this.journalEntryManual.validationResult.Messages.filter(msg => msg.Level !== ValidationLevel.Info).length > 0
+        ) {
             let validationMessage = '';
             this.journalEntryManual.validationResult.Messages.forEach((msg) => {
                 validationMessage += msg.Message + '<br>';
@@ -2845,7 +2858,7 @@ export class BillView implements OnInit {
                     resolve(result);
                 }, (err) => {
                     this.errorService.handle(err);
-                    //slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
+                    // Slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
                     const autoCreatedDraftLines = current.JournalEntry.DraftLines.filter(x =>
                         x.Account.AccountNumber === current.Supplier.SupplierNumber &&
                         x.Description === 'fakturanr. ' + current.InvoiceNumber);
@@ -3052,7 +3065,10 @@ export class BillView implements OnInit {
 
     public onFormReady() {
         this.formReady = true;
-        if (this.current.value.ID && this.current.value.SupplierID && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled) {
+        if (this.current.value.ID
+            && this.current.value.SupplierID
+            && this.current.value.StatusCode !== StatusCodeSupplierInvoice.Journaled
+        ) {
             this.getValidationMessage(
                 this.current.value.SupplierID,
                 this.current.value.DefaultDimensionsID,
@@ -4098,7 +4114,7 @@ export class BillView implements OnInit {
             // Map AccountingCost string to object
             const model = this.current.value;
             const lines = items.map((line) => {
-                let newpart = new AccountingCostSuggestion();
+                const newpart = new AccountingCostSuggestion();
                 const parts = line.AccountingCost.split(';');
                 parts.map(p => {
                     const keyvalue = p.split('=');
