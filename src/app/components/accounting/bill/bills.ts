@@ -146,6 +146,24 @@ export class BillsView implements OnInit {
             statusCode: StatusCodeSupplierInvoice.Journaled
         },
         {
+            label: 'Ubetalt',
+            name: 'unpaid',
+            filter: 'RestAmount eq TaxInclusiveAmount AND IsSentToPayment eq 0',
+            passiveCounter: true
+        },
+        {
+            label: 'Betalingsliste',
+            name: 'issenttopayment',
+            filter: 'RestAmount ne 0 AND (IsSentToPayment eq 1 OR RestAmount lt TaxInclusiveAmount)',
+            passiveCounter: true
+        },
+        {
+            label: 'Betalt',
+            name: 'paid',
+            filter: 'RestAmount eq 0 AND TaxInclusiveAmount ne 0',
+            passiveCounter: true
+        },
+        {
             label: 'Alle',
             name: 'All',
             filter: '',
@@ -757,14 +775,18 @@ export class BillsView implements OnInit {
     }
 
     private refreshTotals() {
-        this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter)
-            .subscribe((result: Array<IStatTotal>) => {
+        Observable.forkJoin(
+            this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter),
+            this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('ubetalt'),
+            this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('betalingsliste'),
+            this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('betalt'))
+            .subscribe((data: Array<any>) => {
                 this.hasQueriedTotals = true;
                 this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
                 let count = 0;
                 let total = 0;
-                if (result) {
-                    result.forEach(x => {
+                if (data[0]) {
+                    data[0].forEach(x => {
                         count += x.countid;
                         total += x.sumTaxInclusiveAmount;
                         const statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
@@ -774,6 +796,21 @@ export class BillsView implements OnInit {
                             this.filters[ix].total += x.sumTaxInclusiveAmount;
                         }
                     });
+                }
+
+                if (data[1]) {
+                    const ix = this.filters.findIndex(y => y.name === 'unpaid');
+                    if (ix >= 0) { this.filters[ix].count += data[1][0].countid; }
+                }
+
+                if (data[2]) {
+                    const ix = this.filters.findIndex(y => y.name === 'issenttopayment');
+                    if (ix >= 0) { this.filters[ix].count += data[2][0].countid; }
+                }
+
+                if (data[3]) {
+                    const ix = this.filters.findIndex(y => y.name === 'paid');
+                    if (ix >= 0) { this.filters[ix].count += data[3][0].countid; }
                 }
                 const ixAll = this.filters.findIndex(x => x.name === 'All');
                 this.filters[ixAll].count = count;
