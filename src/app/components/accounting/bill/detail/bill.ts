@@ -399,7 +399,8 @@ export class BillView implements OnInit {
             source: this.currencyCodes,
             valueProperty: 'ID',
             displayProperty: 'Code',
-            debounceTime: 200
+            debounceTime: 200,
+            hideDeleteButton: true
         };
 
         const queries = [];
@@ -602,6 +603,7 @@ export class BillView implements OnInit {
             valueProperty: 'ID',
             displayValue: 'Code',
             debounceTime: 200,
+            hideDeleteButton: true
         };
 
         const bankAccountField = fields.find(f => f.Property === 'BankAccountID');
