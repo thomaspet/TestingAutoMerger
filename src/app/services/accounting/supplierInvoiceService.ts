@@ -159,15 +159,16 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     public getPaymentStatus(supplierInvoice: SupplierInvoice): string {
 
-        if(supplierInvoice.TaxExclusiveAmount > 0) {
+        if (supplierInvoice.TaxInclusiveAmount > 0) {
             if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
             if (supplierInvoice.TaxInclusiveAmount > supplierInvoice.RestAmount && supplierInvoice.RestAmount > 0) { return 'Delvis betalt'; }
             if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
-        }
-        else {
+        } else if (supplierInvoice.TaxExclusiveAmount < 0 ) {
             if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
             if (supplierInvoice.TaxInclusiveAmount < supplierInvoice.RestAmount && supplierInvoice.RestAmount < 0) { return 'Delvis betalt'; }
             if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
+        } else {
+            return '';
         }
         return 'Ubetalt';
     }
@@ -220,6 +221,21 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.body.Data);
+    }
+
+    public getInvoiceListGroupedPaymentTotals(status: string = ''): Observable<Array<any>> {
+        let route = '?model=supplierinvoice&select=count(id)&filter=issenttopayment eq 0 and taxinclusiveamount eq restamount';
+        if (status === 'betalt') {
+            route = '?model=supplierinvoice&select=count(id)&filter=RestAmount eq 0 AND TaxInclusiveAmount ne 0';
+        } else if (status === 'betalingsliste') {
+            route = '?model=supplierinvoice&select=count(id)&filter=RestAmount ne 0 AND (IsSentToPayment eq 1 OR RestAmount lt TaxInclusiveAmount)';
+        }
+        console.log(route);
+        return this.http
+            .asGET()
+            .withEndPoint(route).usingStatisticsDomain()
+            .send()
+            .map(response => response.body.Data );
     }
 
     public fetch(route: string, httpParams?: HttpParams): Observable<any> {
