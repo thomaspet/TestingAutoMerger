@@ -776,12 +776,11 @@ export class BillsView implements OnInit {
 
     private refreshTotals() {
         Observable.forkJoin(
-        this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter),
-        this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('ubetalt'),
-        this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('betalingsliste'),
-        this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('betalt'))
-        .subscribe((data: Array<any>) => {
-
+            this.supplierInvoiceService.getInvoiceListGroupedTotals(this.currentUserFilter),
+            this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('ubetalt'),
+            this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('betalingsliste'),
+            this.supplierInvoiceService.getInvoiceListGroupedPaymentTotals('betalt'))
+            .subscribe((data: Array<any>) => {
                 this.hasQueriedTotals = true;
                 this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
                 let count = 0;
@@ -813,7 +812,6 @@ export class BillsView implements OnInit {
                     const ix = this.filters.findIndex(y => y.name === 'paid');
                     if (ix >= 0) { this.filters[ix].count += data[3][0].countid; }
                 }
-
                 const ixAll = this.filters.findIndex(x => x.name === 'All');
                 this.filters[ixAll].count = count;
                 this.filters[ixAll].total = total;

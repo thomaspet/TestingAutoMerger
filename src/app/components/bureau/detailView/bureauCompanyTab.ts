@@ -20,34 +20,61 @@ import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
 const BASE = environment.BASE_URL;
 const FILE_BASE = environment.BASE_URL_FILES;
-
+/* tslint:disable:max-line-length */
 @Component({
     selector: 'uni-bureau-company-tab',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-<section class="company-overview" *ngIf="!!viewData && !!company">
-    <section class="highlighted-bar">
-        <section>
-            <span>Virksomheter</span>
-            <a>{{viewData[2]}}</a>
+        <section class="company-overview" *ngIf="!!viewData && !!company">
+            <i class="material-icons" style="font-size: 2.6rem"> home_work </i>
+            <a (click)="navigateToCompanyUrl('/')" class="company_name"> {{company.Name}} </a>
+
+            <section class="highlighted-bar">
+                <section>
+                    <span>Virksomheter</span>
+                    <a>{{viewData[2]}}</a>
+                </section>
+                <section>
+                    <span>Org. Nummer</span>
+                    <a>{{viewData[0].OrganizationNumber}}</a>
+                </section>
+                <section>
+                    <span>Aktive Brukere</span>
+                    <a (click)="navigateToCompanyUrl('/settings/users')">{{viewData[1]}}</a>
+                </section>
+            </section>
+            <section class="info-section">
+                <section>
+                    <i class="material-icons">room</i>
+                    <span class="info-section-header">Addresse</span>
+                    <span> {{ viewData[0].DefaultAddress?.AddressLine1 }} {{ viewData[0].DefaultAddress?.City }} {{ viewData[0].DefaultAddress?.PostalCode }} </span>
+                </section>
+
+                <section>
+                    <i class="material-icons">mail_outline</i>
+                    <span class="info-section-header">E-post</span>
+                    <span> {{ viewData[0].DefaultEmail?.EmailAddress }} </span>
+                </section>
+
+                <section>
+                    <i class="material-icons">call</i>
+                    <span class="info-section-header">Telefon</span>
+                    <span> {{ viewData[0].DefaultPhone?.Number }} </span>
+                </section>
+
+                <section>
+                    <i class="material-icons">credit_card</i>
+                    <span class="info-section-header">Driftskonto</span>
+                    <span>{{viewData[0].CompanyBankAccount?.AccountNumber}}</span>
+                </section>
+
+                <section>
+                    <i class="material-icons">compare_arrows</i>
+                    <span class="info-section-header">EHF</span>
+                    <span> <strong> {{ viewData[0].APActivated ? "Aktivert" : "Ikke aktivert" }} </strong> </span>
+                </section>
+            </section>
         </section>
-        <section>
-            <span>Org. Nummer</span>
-            <a>{{viewData[0].OrganizationNumber}}</a>
-        </section>
-        <section>
-            <span>Aktive Brukere</span>
-            <a (click)="navigateToCompanyUrl('/settings/users')">{{viewData[1]}}</a>
-        </section>
-    </section>
-    <section class="info-section">
-        <span><i class="material-icons">room</i><span class="info-name">Addresse</span>{{viewData[0].DefaultAddress?.AddressLine1}} {{viewData[0].DefaultAddress?.City}} {{viewData[0].DefaultAddress?.PostalCode}}</span>
-        <span><i class="material-icons">mail_outline</i><span class="info-name">E-post</span>{{viewData[0].DefaultEmail?.EmailAddress}}</span>
-        <span><i class="material-icons">call</i><span class="info-name">Telefon</span>{{viewData[0].DefaultPhone?.Number}}</span>
-        <span><i class="material-icons">credit_card</i><span class="info-name">Driftskonto</span>{{viewData[0].CompanyBankAccount?.AccountNumber}}</span>
-        <span><i class="material-icons">compare_arrows</i><span class="info-name">EHF</span>{{viewData[0].APActivated ? "aktivert" : "ikke aktivert"}}</span>
-    </section>
-</section>
 `
 })
 export class BureauCompanyTab implements AfterViewInit, OnDestroy {

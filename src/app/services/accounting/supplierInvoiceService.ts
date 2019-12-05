@@ -159,7 +159,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     public getPaymentStatus(supplierInvoice: SupplierInvoice): string {
 
-        if (supplierInvoice.TaxInclusiveAmount > 0) {
+        if(supplierInvoice.TaxInclusiveAmount > 0) {
             if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
             if (supplierInvoice.TaxInclusiveAmount > supplierInvoice.RestAmount && supplierInvoice.RestAmount > 0) { return 'Delvis betalt'; }
             if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
@@ -230,7 +230,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         } else if (status === 'betalingsliste') {
             route = '?model=supplierinvoice&select=count(id)&filter=RestAmount ne 0 AND (IsSentToPayment eq 1 OR RestAmount lt TaxInclusiveAmount)';
         }
-        console.log(route);
         return this.http
             .asGET()
             .withEndPoint(route).usingStatisticsDomain()

@@ -2252,6 +2252,7 @@ export class BillView implements OnInit {
                                     this.fetchInvoice(this.currentID, true);
                                     this.updateInvoicePayments().add(done());
                             }),
+                            main: true,
                             disabled: false
                         });
                     }
