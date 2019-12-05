@@ -6,6 +6,9 @@
         align-items: center
         padding: 1.1rem
 
+        i.material-icons
+            color: var(--color-c2a)
+
         .highlighted-bar
             display: flex
             flex-direction: row
@@ -20,19 +23,32 @@
                 align-items: center
                 padding: 0.8rem
 
+                span
+                    font-weight: bold
+                    font-size: 14px
+
+                a
+                    font-size: 18px
+
         .info-section
             display: flex
             flex-direction: row
-            white-space: normal
             flex-wrap: wrap
-            width: 95%
-            font-size: 0.9rem
+            width: 100%
 
-            span
-                width: 50%
-                margin-top: 1rem
+            section
+                height: 44px
+                display: flex
+                flex: 0 0 50%
+                align-items: center
 
-            .info-name
-                font-weight: bold
-                margin-left: 1rem
-                margin-right: 0.3rem
+                span
+                    font-size: 14px
+
+                span.info-section-header
+                    font-weight: bold
+                    margin: 0 1rem
+
+        a.company_name
+            margin-bottom: 1rem
+            font-size: 1.2rem

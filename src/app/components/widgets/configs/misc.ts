@@ -35,9 +35,17 @@ export const MISC_WIDGETS = [
     },
     {
         id: 'companylogo',
-        description: 'Firmalogo',
+        description: 'Logo - Horisontal',
         width: 2,
         height: 1,
+        widgetType: 'companyLogo',
+        config: {}
+    },
+    {
+        id: 'companylogo_vertical',
+        description: 'Logo - Vertikal',
+        width: 2,
+        height: 3,
         widgetType: 'companyLogo',
         config: {}
     },
