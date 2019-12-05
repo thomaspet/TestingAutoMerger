@@ -66,7 +66,8 @@ export class UniBankAccountModal implements IUniModal {
     accountInfo: any;
     errorMsg: string = '';
     bankAccountsConnectedToAccount: string = '';
-
+    connectedAccountWarningShowed = false;
+    
     constructor(
         private bankService: BankService,
         private accountService: AccountService,
@@ -209,7 +210,8 @@ export class UniBankAccountModal implements IUniModal {
             } else {
                 this.bankAccountsConnectedToAccount =  '';
             }
-            if (this.bankAccountsConnectedToAccount !== '') {
+            if (this.bankAccountsConnectedToAccount !== '' && !this.connectedAccountWarningShowed) {
+                this.connectedAccountWarningShowed = true;
                 this.modalService.open(UniConfirmModalV2, {
                     message: this.bankAccountsConnectedToAccount,
                     buttonLabels: {
