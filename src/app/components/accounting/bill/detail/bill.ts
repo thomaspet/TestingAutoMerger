@@ -125,7 +125,7 @@ export class BillView implements OnInit {
 
     public busy: boolean = true;
     public toolbarConfig: IToolbarConfig;
-    paymentStatus: StatusIndicator;
+    public paymentStatus: StatusIndicator;
     public formConfig$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
@@ -3815,6 +3815,44 @@ export class BillView implements OnInit {
                     _state = STATUSTRACK_STATES.Obsolete;
                 }
                 _addIt = true;
+            }
+            if (_addIt) {
+                statustrack.push({
+                    title: status.Text,
+                    state: _state,
+                    code: status.Code,
+                    substatusList: [],
+                });
+            }
+        });
+        return statustrack;
+    }
+
+    private getPaymentStatusConfig() {
+        const current = this.current.getValue();
+        let statustrack: StatusIndicator;
+        const activeStatus = current.StatusCode;
+        const buildLink = (payment) => {
+            if (!payment.JournalEntryNumber) {
+                return '';
+            }
+            const [journalEntryNumber, year] = payment.JournalEntryNumber.split('-');
+            return `#/accounting/transquery?JournalEntryNumber=${journalEntryNumber}&AccountYear=${year}`;
+        };
+        this.supplierInvoiceService.statusTypes.forEach((status) => {
+            let _state: STATUSTRACK_STATES;
+            const _substatuses: any[] = [];
+            let _addIt = status.isPrimary;
+            if (status.Code > activeStatus) {
+                _state = STATUSTRACK_STATES.Future;
+            } else if (status.Code < activeStatus) {
+                _state = STATUSTRACK_STATES.Completed;
+            } else if (status.Code === activeStatus) {
+                _state = STATUSTRACK_STATES.Active;
+                if (this.CurrentTask) {
+                    _state = STATUSTRACK_STATES.Obsolete;
+                }
+                _addIt = true;
 
                 this.invoicePayments.sort((payment1, payment2) =>
                     new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
@@ -3822,26 +3860,46 @@ export class BillView implements OnInit {
 
                 this.invoicePayments.forEach(payment => {
                     _substatuses.push({
-                        title: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
-                        subtitle: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
+                        label: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
+                        status: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
                             ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
-                        state: STATUSTRACK_STATES.Completed,
                         timestamp: new Date(<any> payment.PaymentDate),
-                        data: payment,
-                        formatDateTime: 'L' // Use moment.js date time format
+                        link: buildLink(payment)
                     });
                 });
             }
+
+            const paymentStatus = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+            const statusClass = this.getPaymentStatusClass();
             if (_addIt) {
-                statustrack.push({
-                    title: status.Text,
-                    state: _state,
-                    code: status.Code,
-                    substatusList: _substatuses,
-                });
+                statustrack = {
+                    label: paymentStatus,
+                    class: statusClass,
+                    subStatuses: _substatuses,
+                };
             }
         });
         return statustrack;
+    }
+
+    private getPaymentStatusClass() {
+        let statusClass = 'info';
+        const paymentStatus = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+        switch (paymentStatus) {
+            case 'Betalt':
+                statusClass = 'good';
+                break;
+            case 'Delvis betalt':
+                statusClass = 'warn';
+                break;
+            case 'Sendt til  betaling':
+                statusClass = 'neutral';
+                break;
+            case 'Ubetalt':
+                statusClass = 'bad';
+                break;
+        }
+        return statusClass;
     }
 
     private get CurrentTask(): Task {
@@ -3863,6 +3921,7 @@ export class BillView implements OnInit {
     private setupToolbar() {
         const doc: SupplierInvoice = this.current.getValue();
         const stConfig = this.getStatustrackConfig();
+        this.paymentStatus = this.getPaymentStatusConfig();
         const jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber
             ? doc.JournalEntry.JournalEntryNumber
             : undefined;
