@@ -42,6 +42,7 @@ export enum UniModules {
     CustomDimensions = 211,
     KIDSettings      = 212,
     RecurringInvoice = 213,
+    BatchInvoice     = 214,
 
     Accounting      = 300,
     Transquery      = 301,

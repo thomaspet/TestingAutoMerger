@@ -2882,11 +2882,16 @@ export class BillView implements OnInit {
         return new Promise((resolve, reject) => {
             const invoiceGET = this.supplierInvoiceService.Get(id, [
                 'Supplier.Info.BankAccounts',
-                `JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType,
-                JournalEntry.DraftLines.Accrual.Periods,JournalEntry.Lines`,
+                'JournalEntry.DraftLines.Account',
+                'JournalEntry.DraftLines.VatType',
+                'JournalEntry.DraftLines.Accrual.Periods',
+                'JournalEntry.Lines',
                 'CurrencyCode',
                 'BankAccount',
-                'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department', 'ReInvoice'
+                'DefaultDimensions',
+                'DefaultDimensions.Project',
+                'DefaultDimensions.Department',
+                'ReInvoice'
             ], true);
 
             forkJoin(

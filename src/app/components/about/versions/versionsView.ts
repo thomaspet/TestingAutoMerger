@@ -25,6 +25,8 @@ export class UniVersionsView {
         buildDate: string
     };
 
+    myDate;
+
     public toolbarConfig: IToolbarConfig = {title: 'Versjoner'};
 
     constructor(

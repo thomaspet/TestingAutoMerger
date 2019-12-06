@@ -1,0 +1,29 @@
+.uni-modal
+    width: 45rem
+
+.summary
+    display: flex
+    section
+        span + span
+            font-weight: 500
+            padding-left: .5rem
+            color: var(--color-c2a)
+
+        & + section
+            margin-left: 2rem
+
+.alert, .alert a
+    font-size: 15px
+    font-weight: 400
+
+.alert
+    display: flex
+    flex-direction: column
+    margin-bottom: 2rem
+    padding: .75rem 1rem
+    span
+        margin: 1rem 0
+
+    ::ng-deep .mat-checkbox-label
+        font-size: 15px
+

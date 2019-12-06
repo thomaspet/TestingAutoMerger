@@ -225,6 +225,7 @@ ag-grid-angular
 .align-right
     justify-content: flex-end
     text-align: right
+    padding-right: 1rem
 .align-center
     justify-content: center
     text-align: center
@@ -239,9 +240,10 @@ ag-grid-angular
     &.ag-row-hover
         background: var(--table-row-select-background)
 
-ag-grid-angular:not(.editable)
-    .ag-row-selected, .ag-row-dragging
-        background: var(--table-row-select-background)
+ag-grid-wrapper:not(.no-select-background)
+    ag-grid-angular:not(.editable):not(.multi-row-select)
+        .ag-row-selected, .ag-row-dragging
+            background: var(--table-row-select-background)
 
 ag-grid-wrapper.selection-disabled ag-grid-angular:not(.editable)
     .ag-row
@@ -425,3 +427,6 @@ ag-grid-wrapper
             font-size: 12px
         i.material-icons
             font-size: 19px
+
+.checkbox-column
+    color: var(--color-c2a-dark)

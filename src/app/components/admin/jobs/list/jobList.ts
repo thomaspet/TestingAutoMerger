@@ -16,7 +16,6 @@ export class JobList implements OnInit {
         {name: 'Siste utførte'},
         {name: 'Alle jobber'},
         {name: 'SAF-T'},
-        {name: 'Samlefakturering'},
     ];
 
     activeTabIndex: number = 0;

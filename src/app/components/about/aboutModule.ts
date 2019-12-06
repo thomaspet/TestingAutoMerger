@@ -6,7 +6,7 @@ import {UniVersionsView} from './versions/versionsView';
 @NgModule({
     imports: [
         CommonModule,
-        AppCommonModule,
+        AppCommonModule
     ],
     declarations: [
         UniVersionsView

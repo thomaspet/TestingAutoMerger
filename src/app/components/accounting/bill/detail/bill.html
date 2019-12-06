@@ -24,7 +24,7 @@
                     [options]="autocompleteOptions"
                     [readonly]="supplierIsReadOnly"
                     [value]="(current | async).Supplier"
-                    (valueChanges)="newSupplierSelected($event)">
+                    (valueChange)="newSupplierSelected($event)">
                 </autocomplete>
             </label>
 

@@ -16,6 +16,12 @@ const CONFIG_STORAGE_KEY = 'uniTable_column_configs';
 const FILTER_STORAGE_KEY = 'uniTable_filters';
 const SORT_STORAGE_KEY = 'uniTable_sort';
 
+export interface LastUsedFilter {
+    searchText: string;
+    basicSearchFilters: ITableFilter[];
+    advancedSearchFilters: ITableFilter[];
+}
+
 @Injectable()
 export class TableUtils {
     private columnSetupMap: ColumnSetupMap = {};
@@ -228,21 +234,23 @@ export class TableUtils {
         return value || '';
     }
 
-    getLastUsedFilter(tableName: string): ITableFilter[] {
-        const key = tableName + '_filters';
+    getLastUsedFilter(tableName: string): LastUsedFilter {
+        const key = tableName + '_last_used_filters';
         try {
-            const filters = JSON.parse(sessionStorage.getItem(key));
-            if (filters && filters.length) {
-                return filters;
-            }
+            const lastUsedFilters = JSON.parse(sessionStorage.getItem(key));
+            return lastUsedFilters;
         } catch (e) { console.error(e); }
     }
 
-    setLastUsedFilter(tableName: string, filters: ITableFilter[]) {
-        const key = tableName + '_filters';
+    setLastUsedFilter(tableName: string, lastUsedFilter: LastUsedFilter) {
+        const key = tableName + '_last_used_filters';
 
-        if (filters && filters.length) {
-            sessionStorage.setItem(key, JSON.stringify(filters || []));
+        if (lastUsedFilter && (
+            lastUsedFilter.searchText
+            || (lastUsedFilter.basicSearchFilters && lastUsedFilter.basicSearchFilters.length)
+            || (lastUsedFilter.advancedSearchFilters && lastUsedFilter.advancedSearchFilters.length)
+        )) {
+            sessionStorage.setItem(key, JSON.stringify(lastUsedFilter));
         } else {
             sessionStorage.removeItem(key);
         }

@@ -35,12 +35,12 @@ import {
     PaginationChangedEvent,
     RowNode,
     SortChangedEvent,
-    GridOptions,
-    ICellRendererParams
+    ICellRendererParams,
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';
+import {StatusCellRenderer} from './cell-renderer/status-cell';
 
 import {Observable, Subscription} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -93,7 +93,9 @@ export class AgGridWrapper {
     selectionMode: string = 'single';
     paginationInfo: any;
     allIsExpanded = true;
+    hasLoadedData: boolean;
     columns: UniTableColumn[];
+    hasSumRow: boolean;
 
     private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
@@ -107,7 +109,10 @@ export class AgGridWrapper {
 
     // Used for custom cell renderers
     public context: any;
-    public cellRendererComponents: any = {rowMenu: RowMenuRenderer};
+    public cellRendererComponents: any = {
+        rowMenu: RowMenuRenderer,
+        statusCell: StatusCellRenderer
+    };
 
     isRowSelectable: (rowModel: any) => boolean;
 
@@ -151,7 +156,13 @@ export class AgGridWrapper {
             .debounceTime(200)
             .subscribe(event => this.onColumnResize(event));
 
-        this.sumRowSubscription = this.dataService.sumRow$.subscribe(() => this.calcTableHeight());
+        this.sumRowSubscription = this.dataService.sumRow$.subscribe(sumRow => {
+            const hasSumRow = !!sumRow;
+            if (this.hasSumRow !== hasSumRow) {
+                this.hasSumRow = hasSumRow;
+                this.calcTableHeight();
+            }
+        });
     }
 
     public ngOnDestroy() {
@@ -263,10 +274,11 @@ export class AgGridWrapper {
     }
 
     public onAgModelUpdate(event: ModelUpdatedEvent) {
+        this.hasLoadedData = true;
+
         if (this.rowModelType === 'infinite') {
             const state = event.api.getCacheBlockState();
             const loaded = Object.keys(state).every(key => state[key].pageStatus === 'loaded');
-
             if (loaded) {
                 this.onDataLoaded();
                 this.dataLoaded.emit();
@@ -633,8 +645,8 @@ export class AgGridWrapper {
             if (res) {
                 let columns;
                 if (res.resetAll) {
-                    columns = this.tableUtils.getTableColumns(this.config);
                     this.tableUtils.removeColumnSetup(this.config.configStoreKey);
+                    columns = this.tableUtils.getTableColumns(this.config);
                 } else {
                     columns = res.columns.map((col, index) => {
                         col.index = index;
@@ -647,6 +659,7 @@ export class AgGridWrapper {
                 this.columns = columns;
                 this.columnsChange.emit(this.columns);
                 this.agColDefs = this.getAgColDefs(columns);
+
                 this.cdr.markForCheck();
                 setTimeout(() => {
                     if (this.agGridApi) {
@@ -727,14 +740,20 @@ export class AgGridWrapper {
         this.context = { componentParent: this };
 
         const colDefs = columns.map(col => {
+            const alignmentClass = col.alignment && `align-${col.alignment}`;
 
-            let cellClass: any = col.cls;
+            let cellClass: any = (col.cls || '') + ` ${alignmentClass}`;
             if (col.conditionalCls) {
                 cellClass = (params) => {
                     let cls = col.conditionalCls(params);
                     if (col.cls) {
                         cls += ' ' + col.cls;
                     }
+
+                    if (col.alignment) {
+                        cls += ` align-${col.alignment}`;
+                    }
+
                     return cls;
                 };
             }
@@ -743,7 +762,7 @@ export class AgGridWrapper {
                 headerName: col.header,
                 suppressMenu: true,
                 hide: !col.visible,
-                headerClass: col.headerCls,
+                headerClass: (col.headerCls || '') + ` ${alignmentClass}`,
                 cellClass: cellClass,
                 headerTooltip: col.header,
                 rowGroup: col.rowGroup,
@@ -759,7 +778,7 @@ export class AgGridWrapper {
                 },
                 cellRenderer: (params: ICellRendererParams) => {
                     if (params.value) {
-                        return `<span>${params.value}</span>`;
+                        return params.value;
                     } else if (col.placeholder) {
                         const placeholderValue = typeof col.placeholder === 'function'
                             ? col.placeholder(params.node.data)
@@ -785,9 +804,7 @@ export class AgGridWrapper {
                 agCol.suppressAutoSize = true;
             }
 
-            if (col.type === UniTableColumnType.LocalDate
-                || col.type === UniTableColumnType.DateTime
-            ) {
+            if (col.type === UniTableColumnType.LocalDate || col.type === UniTableColumnType.DateTime) {
                 agCol.comparator = (value1, value2, node1, node2) => {
                     return this.tableUtils.dateComparator(node1, node2, col);
                 };
@@ -810,6 +827,15 @@ export class AgGridWrapper {
                 agCol.cellRenderer = CellRenderer.getTooltipColumn(col);
             }
 
+            if (col.type === UniTableColumnType.Status) {
+                agCol.tooltip = undefined;
+                agCol.cellRenderer = 'statusCell';
+            }
+
+            if (col.checkboxConfig) {
+                agCol.cellRenderer = CellRenderer.getCheckboxColumn(col);
+            }
+
             if (col.width >= 0) {
                 agCol.width = +col.width;
             }
@@ -827,7 +853,7 @@ export class AgGridWrapper {
 
         if (this.config.multiRowSelect) {
             colDefs.unshift({
-                // headerCheckboxSelection: true,
+                headerCheckboxSelection: true,
                 headerComponent: CellRenderer.getHeaderCheckbox(this.config),
                 checkboxSelection: true,
                 width: 38,
@@ -1156,5 +1182,11 @@ export class AgGridWrapper {
         };
 
         this.agGridApi.exportDataAsExcel(obj);
+    }
+
+    clearLastUsedFilter() {
+        if (this.config) {
+            this.tableUtils.setLastUsedFilter(this.config.configStoreKey, undefined);
+        }
     }
 }

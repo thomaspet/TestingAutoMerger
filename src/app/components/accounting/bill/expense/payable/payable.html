@@ -2,7 +2,7 @@
     <section class="reciever-container">
         <label class="uni-label full-width validate-payment-PaymentTo " >
             <span>Mottaker (ansatt/leverandør)</span>
-            <autocomplete [options]="accountOptions" [value]="session.payment.PaymentTo" (valueChanges)="setAccount($event)"></autocomplete>
+            <autocomplete [options]="accountOptions" [value]="session.payment.PaymentTo" (valueChange)="setAccount($event)"></autocomplete>
         </label>
         <i class="material-icons" title="Rediger valgt mottaker" *ngIf="session.payment.PaymentTo" (click)="editSelectedAccount(session.payment.PaymentTo)"> edit </i>
     </section>

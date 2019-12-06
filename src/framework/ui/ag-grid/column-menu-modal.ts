@@ -101,7 +101,7 @@ import * as _ from 'lodash';
 
             <footer>
                 <button class="secondary pull-left" (click)="close(false)">Avbryt</button>
-                <button class="warn" (click)="resetAll()">Nullstill</button>
+                <button class="secondary bad" (click)="resetAll()">Nullstill</button>
                 <button class="c2a" (click)="close(true)">Lagre</button>
             </footer>
         </section>

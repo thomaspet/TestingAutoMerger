@@ -1,22 +1,18 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerOrder, CustomerOrderItem} from '../../unientities';
-import {StatusCodeCustomerOrder, LocalDate} from '../../unientities';
+import {CustomerOrder, StatusCodeCustomerOrder} from '@uni-entities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ErrorService} from '../common/errorService';
 import {ITickerActionOverride} from '../../services/common/uniTickerService';
-import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';
+import {ReportDefinitionService} from '../../services/reports/reportDefinitionService';
 import {ReportDefinitionParameterService} from '../../services/reports/reportDefinitionParameterService';
-import { SendEmail } from '../../models/sendEmail';
-import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
-import { CompanySettingsService } from '../common/companySettingsService';
-import { EmailService } from '../common/emailService';
-import { UniModalService } from '../../../framework/uni-modal/modalService';
-import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
-import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
-import * as moment from 'moment';
-import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
+import {SendEmail} from '../../models/sendEmail';
+import {CompanySettingsService} from '../common/companySettingsService';
+import {EmailService} from '../common/emailService';
+import {UniModalService} from '../../../framework/uni-modal/modalService';
+import {UniSendEmailModal} from '../../../framework/uni-modal/modals/sendEmailModal';
+import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
 @Injectable()

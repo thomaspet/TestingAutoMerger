@@ -16,6 +16,7 @@ export class TableDataService {
     private config: UniTableConfig;
     private gridApi: GridApi;
     private hasRemoteLookup: boolean;
+    private dataSource;
 
     public sumRow$: BehaviorSubject<any[]> = new BehaviorSubject(undefined);
     public totalRowCount$: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -57,8 +58,12 @@ export class TableDataService {
 
         if (configChanged) {
             this.filterString = undefined;
-            const lastUsedFilters = this.utils.getLastUsedFilter(newConfig.configStoreKey);
-            this.setFilters(lastUsedFilters || newConfig.filters, [], false);
+            const lastUsedFilter = this.utils.getLastUsedFilter(newConfig.configStoreKey) || <any> {};
+            this.setFilters(
+                lastUsedFilter.advancedSearchFilters || newConfig.filters || [],
+                lastUsedFilter.basicSearchFilters || [],
+                false
+            );
         } else if (configFiltersChanged) {
             this.filterString = undefined;
             this.setFilters(newConfig.filters, [], false);
@@ -92,17 +97,25 @@ export class TableDataService {
             this.loadedRowCount = 0;
 
             this.isDataLoading = true;
-            this.gridApi.setDatasource(this.getRemoteDatasource(resource));
+            this.dataSource = this.getRemoteDatasource(resource);
+            this.gridApi.setDatasource(this.dataSource);
         }
 
         // Get columns sums if working with local data.
         // Remote data column sums is handled in dataSource
         if (Array.isArray(resource)) {
-            this.sumRow$.next(undefined);
             const sumColumns = this.config.columns.filter(col => col.isSumColumn || col.aggFunc);
             if (sumColumns.length) {
                 this.getLocalDataColumnSums(sumColumns, resource);
             }
+        }
+    }
+
+    private resetRemoteDatasource() {
+        if (this.hasRemoteLookup && this.dataSource) {
+            this.loadedRowCount = 0;
+            this.isDataLoading = true;
+            this.gridApi.setDatasource(this.dataSource);
         }
     }
 
@@ -207,8 +220,6 @@ export class TableDataService {
                 );
 
                 if (params.startRow === 0) {
-                    this.sumRow$.next(undefined);
-
                     if (this.columnSumResolver) {
                         this.columnSumResolver(urlParams)
                             .catch(err => {
@@ -220,6 +231,8 @@ export class TableDataService {
                                 if (sums) {
                                     sums['_isSumRow'] = true;
                                     this.sumRow$.next(Array.isArray(sums) ? sums : [sums]);
+                                } else {
+                                    this.sumRow$.next(undefined);
                                 }
                             });
                     } else {
@@ -235,13 +248,14 @@ export class TableDataService {
         if (this.gridApi) {
             this.loadedRowCount = 0;
 
-            if (this.gridApi.getSelectedRows().length) {
-                this.gridApi.deselectAll();
-            }
-
             if (this.hasRemoteLookup) {
-                this.gridApi.refreshInfiniteCache();
+                // this.gridApi.refreshInfiniteCache();
+                this.resetRemoteDatasource();
             } else {
+                if (this.gridApi.getSelectedRows().length) {
+                    this.gridApi.deselectAll();
+                }
+
                 this.viewData = this.filterLocalData(this.originalData);
                 this.gridApi.setRowData(this.viewData);
                 this.localDataChange$.next(this.originalData);
@@ -250,7 +264,6 @@ export class TableDataService {
                 setTimeout(() => {
                     const sumColumns = this.config.columns.filter(col => col.isSumColumn || col.aggFunc);
                     if (sumColumns.length) {
-                        const visibleData = [];
                         this.getLocalDataColumnSums(sumColumns, this.originalData);
                     }
                 });
@@ -464,6 +477,8 @@ export class TableDataService {
         basicSearchFilters: ITableFilter[] = [],
         refreshTableData: boolean = true
     ): any {
+        this.resetRemoteDatasource();
+
         // Dont use filters that are missing field or operator.
         // This generally means the user is not done creating them yet
         advancedSearchFilters = advancedSearchFilters.filter(f => !!f.field && !!f.operator);

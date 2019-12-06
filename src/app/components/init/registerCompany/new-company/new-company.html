@@ -15,7 +15,7 @@
 
         <autocomplete
             [options]="autocompleteOptions"
-            (valueChanges)="onCompanySelected($event)">
+            (valueChange)="onCompanySelected($event)">
         </autocomplete>
 
         <section *ngIf="company">

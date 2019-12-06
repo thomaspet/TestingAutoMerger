@@ -7,7 +7,7 @@
             class="tab">
 
             {{tab[labelProperty] | translate}}
-            <strong *ngIf="tab[counterProperty]">{{tab[counterProperty]}}</strong>
+            <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
             <i *ngIf="tab.tooltip"
                 class="material-icons tab-tooltip"
                 [ngClass]="tab.tooltipClass"
@@ -22,12 +22,14 @@
             (click)="onTabClick(tab)"
             [attr.aria-disabled]="tab.disabled"
             [routerLink]="tab.path"
+            [queryParams]="tab.queryParams"
+            [routerLinkActiveOptions]="{ exact: pathMatchExact }"
             routerLinkActive #rla="routerLinkActive"
             [class.active]="rla.isActive"
             class="tab">
 
             {{tab[labelProperty] | translate}}
-            <strong *ngIf="tab[counterProperty]">{{tab[counterProperty]}}</strong>
+            <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
             <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
                 info
             </i>

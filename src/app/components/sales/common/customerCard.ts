@@ -24,7 +24,7 @@ import * as moment from 'moment';
             [options]="autocompleteOptions"
             [readonly]="readonly"
             [value]="entity?.Customer"
-            (valueChanges)="onCustomerSelected($event)">
+            (valueChange)="onCustomerSelected($event)">
         </autocomplete>
 
         <section *ngIf="entity" class="addressCard" [attr.aria-readonly]="readonly">
