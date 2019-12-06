@@ -101,6 +101,7 @@ export class UniToolbar {
     @Input() saveactions: IUniSaveAction[];
     @Input() contextmenu: IContextMenuItem[];
     @Input() statustrack: IStatus[];
+    @Input() showFullStatustrack: boolean;
     @Input() customStatus: StatusIndicator;
     @Input() commentsConfig: ICommentsConfig;
     @Input() searchConfig: IToolbarSearchConfig;

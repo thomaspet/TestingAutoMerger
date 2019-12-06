@@ -3937,17 +3937,12 @@ export class BillView implements OnInit {
             title: doc && doc.Supplier && doc.Supplier.Info
                 ? doc.Supplier.Info.Name
                 : 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
-            subheads: [
-                { title: doc && doc.InvoiceNumber ? `Fakturanr. ${doc.InvoiceNumber}` : '' },
-                {
-                    title: jnr ? `Bilagsnr. ${jnr}` : '',
-                    link: jnr
-                        ? jnr.split('-').length > 1
-                            ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
-                            : `#/accounting/transquery?JournalEntryNumber=${jnr}&AccountYear=${moment(doc.InvoiceDate).year()}`
-                        : undefined
-                }
-            ],
+            subheads: [{
+                title: jnr ? `Bilagsnr. ${jnr}` : '',
+                link: jnr && jnr.split('-').length > 1
+                    ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
+                    : `#/accounting/transquery?JournalEntryNumber=${jnr}&AccountYear=${moment(doc.InvoiceDate).year()}`,
+            }],
             statustrack: stConfig,
             navigation: {
                 prev: () => this.navigateTo('prev'),
@@ -3969,21 +3964,6 @@ export class BillView implements OnInit {
                 });
             };
         }
-
-        this.setPaymentStatus();
-    }
-
-    private setPaymentStatus() {
-        // Jorge takes over implementation here
-
-        // this.paymentStatus = {
-        //     label: 'Delbetalt',
-        //     class: 'warn',
-        //     subStatuses: [
-        //         { label: 'Beløp: 10 000', timestamp: new Date(), status: 'Overført bank' },
-        //         { label: 'Beløp: 1 500', timestamp: new Date(), status: 'Opprettet' },
-        //     ]
-        // };
     }
 
     private navigateTo(direction = 'next') {

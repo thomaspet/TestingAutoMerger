@@ -1,0 +1,57 @@
+<span class="status" [ngClass]="[status.class || status.state, hasSubStatuses ? 'has-substatus' : '']">
+    <i class="material-icons-outlined check" *ngIf="isActive && !singleStatus">check_circle_outline</i>
+    <i class="material-icons-outlined info" *ngIf="singleStatus">info</i>
+
+    {{status.title}}
+
+    <span class="sub-status-counter" *ngIf="hasSubStatuses">
+        {{status.substatusList.length}}
+    </span>
+</span>
+
+<section class="status-details-container">
+    <section class="status-details" *ngIf="hasSubStatuses || showStatusHistory">
+        <section class="sub-statuses" *ngIf="status.substatusList?.length">
+            <span class="header">Understatuser</span>
+
+            <ul>
+                <li *ngFor="let substatus of status.substatusList"
+                    (click)="subStatusClick.next([substatus, status])"
+                    [ngClass]="{
+                        'selectable': substatus.selectable,
+                        'active': substatus.state === STATES.Active && status.substatusList.length > 1
+                    }">
+
+                    <span class="title">{{substatus.title}}</span>
+                    <span class="timestamp">{{formatTime(substatus.timestamp, substatus.formatDateTime)}}</span>
+                    <span class="subtitle" *ngIf="substatus.subtitle">{{substatus.subtitle}}</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="history" *ngIf="showStatusHistory">
+            <span class="header">Historikk</span>
+
+            <a *ngIf="!statusHistoryLoaded" (click)="loadStatusHistory()">
+                Hent statushistorikk
+            </a>
+
+            <span *ngIf="statusHistoryLoaded && !statusHistory?.length">
+                Fant ingen statushistorikk
+            </span>
+
+            <ul *ngIf="statusHistory?.length">
+                <li *ngFor="let logEntry of statusHistory">
+                    <span>
+                        {{logEntry.FromStatusText || 'Ingen status' }}
+                        <i class="material-icons">arrow_right</i>
+                        {{logEntry.ToStatusText}}
+                    </span>
+
+                    <span>{{logEntry.CreatedByName}}</span>
+                    <span>{{logEntry.CreatedAt | date: 'dd.MM.yyyy HH:MM'}}</span>
+                </li>
+            </ul>
+        </section>
+    </section>
+</section>

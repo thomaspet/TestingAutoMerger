@@ -9,6 +9,7 @@ import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 // REVISIT: toolbar should be a module (maybe even in framework?)
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {StatusTrack} from './toolbar/statustrack/statustrack';
+import {StatustrackStatus} from './toolbar/statustrack/statustrack-status/statustrack-status';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
@@ -99,6 +100,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         AltinnAuthenticationModal,
         UniBreadcrumbs,
         StatusTrack,
+        StatustrackStatus,
         UniToolbar,
         UniToolbarSearch,
         UniToolbarValidation,
@@ -191,6 +193,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         AltinnAuthenticationModal,
         UniBreadcrumbs,
         StatusTrack,
+        StatustrackStatus,
         UniToolbar,
         UniQueryReadOnly,
         UniSummary,

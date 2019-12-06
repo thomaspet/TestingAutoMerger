@@ -415,10 +415,6 @@ export class AMeldingView implements OnInit {
     private updateToolbar() {
         this.toolbarConfig = {
             title: `Periode ${this.currentPeriod}`,
-            subheads: [
-            {
-                title: this.currentAMelding ? 'A-melding ' + this.currentAMelding.ID : null
-            }],
             navigation: {
                 prev: this.prevPeriod.bind(this),
                 next: this.nextPeriod.bind(this)
