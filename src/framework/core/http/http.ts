@@ -181,6 +181,10 @@ export class UniHttp {
     }
 
     public sendToUrl(url: any): Observable<any> {
+        if (this.authService.jwt) {
+            this.headers = this.headers.set('Authorization', 'Bearer ' + this.authService.jwt);
+        }
+
         const options: any = {
             observe: 'body',
             headers: this.headers
@@ -219,7 +223,18 @@ export class UniHttp {
         });
     }
 
-    public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
+    public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, addCompanyKeyHeader: boolean = true): Observable<any> {
+        const token = this.authService.jwt;
+        const companyKey = this.authService.getCompanyKey();
+
+        if (token) {
+            this.headers = this.headers.set('Authorization', 'Bearer ' + token);
+        }
+
+        if (companyKey && addCompanyKeyHeader) {
+            this.headers = this.headers.set('CompanyKey', companyKey);
+        }
+
         let baseurl = request.baseUrl || this.baseUrl ;
         baseurl = baseurl !== '' ? baseurl + '/' : baseurl;
         const apidomain = request.apiDomain || this.apiDomain;
