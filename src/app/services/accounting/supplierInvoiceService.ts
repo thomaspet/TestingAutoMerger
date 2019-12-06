@@ -162,11 +162,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         if(supplierInvoice.TaxInclusiveAmount > 0) {
             if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
             if (supplierInvoice.TaxInclusiveAmount > supplierInvoice.RestAmount && supplierInvoice.RestAmount > 0) { return 'Delvis betalt'; }
-            if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
+            if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til betaling'; }
         } else if (supplierInvoice.TaxExclusiveAmount < 0 ) {
             if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
             if (supplierInvoice.TaxInclusiveAmount < supplierInvoice.RestAmount && supplierInvoice.RestAmount < 0) { return 'Delvis betalt'; }
-            if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til  betaling'; }
+            if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til betaling'; }
         } else {
             return '';
         }

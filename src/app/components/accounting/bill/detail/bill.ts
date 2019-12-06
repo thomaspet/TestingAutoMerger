@@ -3829,57 +3829,38 @@ export class BillView implements OnInit {
     }
 
     private getPaymentStatusConfig() {
-        const current = this.current.getValue();
-        let statustrack: StatusIndicator;
-        const activeStatus = current.StatusCode;
-        const buildLink = (payment) => {
-            if (!payment.JournalEntryNumber) {
-                return '';
-            }
-            const [journalEntryNumber, year] = payment.JournalEntryNumber.split('-');
-            return `#/accounting/transquery?JournalEntryNumber=${journalEntryNumber}&AccountYear=${year}`;
-        };
-        this.supplierInvoiceService.statusTypes.forEach((status) => {
-            let _state: STATUSTRACK_STATES;
-            const _substatuses: any[] = [];
-            let _addIt = status.isPrimary;
-            if (status.Code > activeStatus) {
-                _state = STATUSTRACK_STATES.Future;
-            } else if (status.Code < activeStatus) {
-                _state = STATUSTRACK_STATES.Completed;
-            } else if (status.Code === activeStatus) {
-                _state = STATUSTRACK_STATES.Active;
-                if (this.CurrentTask) {
-                    _state = STATUSTRACK_STATES.Obsolete;
-                }
-                _addIt = true;
-
-                this.invoicePayments.sort((payment1, payment2) =>
-                    new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
-                );
-
-                this.invoicePayments.forEach(payment => {
-                    _substatuses.push({
-                        label: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
-                        status: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
-                            ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
-                        timestamp: new Date(<any> payment.PaymentDate),
-                        link: buildLink(payment)
-                    });
-                });
-            }
-
-            const paymentStatus = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+        if (this.invoicePayments && this.invoicePayments.length) {
+            const label = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
             const statusClass = this.getPaymentStatusClass();
-            if (_addIt) {
-                statustrack = {
-                    label: paymentStatus,
-                    class: statusClass,
-                    subStatuses: _substatuses,
+
+            this.invoicePayments.sort((payment1, payment2) =>
+                new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
+            );
+
+            const buildLink = (payment) => {
+                if (!payment.JournalEntryNumber) {
+                    return '';
+                }
+                const [journalEntryNumber, year] = payment.JournalEntryNumber.split('-');
+                return `#/accounting/transquery?JournalEntryNumber=${journalEntryNumber}&AccountYear=${year}`;
+            };
+
+            const paymentStatuses = this.invoicePayments.map(payment => {
+                return {
+                    label: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
+                    status: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
+                        ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
+                    timestamp: new Date(<any> payment.PaymentDate),
+                    link: buildLink(payment)
                 };
-            }
-        });
-        return statustrack;
+            });
+
+            return {
+                label: label,
+                class: statusClass,
+                subStatuses: paymentStatuses,
+            };
+        }
     }
 
     private getPaymentStatusClass() {
@@ -3888,16 +3869,16 @@ export class BillView implements OnInit {
         switch (paymentStatus) {
             case 'Betalt':
                 statusClass = 'good';
-                break;
+            break;
             case 'Delvis betalt':
                 statusClass = 'warn';
-                break;
-            case 'Sendt til  betaling':
-                statusClass = 'neutral';
-                break;
+            break;
             case 'Ubetalt':
                 statusClass = 'bad';
-                break;
+            break;
+            default:
+                statusClass = 'info';
+            break;
         }
         return statusClass;
     }
