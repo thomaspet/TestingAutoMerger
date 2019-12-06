@@ -2,7 +2,7 @@ import {ViewChild, Component, SimpleChanges, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin} from 'rxjs';
 import {ICommentsConfig, StatusIndicator, IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
@@ -89,6 +89,7 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
+import {finalize} from 'rxjs/operators';
 
 interface ITab {
     name: string;
@@ -125,7 +126,7 @@ export class BillView implements OnInit {
 
     public busy: boolean = true;
     public toolbarConfig: IToolbarConfig;
-    public paymentStatus: StatusIndicator;
+    public paymentStatusIndicator: StatusIndicator;
     public formConfig$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
@@ -385,9 +386,6 @@ export class BillView implements OnInit {
                 this.customDimensionService.getMetadata(),
                 this.fileService.getLinkedEntityID(pageParams.fileid, 'SupplierInvoice'),
                 this.vatDeductionService.GetAll(null),
-                this.bankService.getBankPayments(id),
-                this.bankService.getRegisteredPayments(id),
-                this.bankService.getSumOfPayments(id)
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
@@ -422,11 +420,6 @@ export class BillView implements OnInit {
                 }
 
                 this.vatDeductions = res[4];
-
-                this.invoicePayments = res[5].concat(res[6]);
-
-                this.sumOfPayments = res[7][0];
-
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
 
@@ -567,13 +560,6 @@ export class BillView implements OnInit {
                 Property: 'InvoiceNumber',
                 FieldType: FieldType.TEXT,
                 Label: 'Fakturanummer',
-                Classes: 'bill-small-field right',
-                Section: 0
-            },
-            <any> {
-                Property: '_paymentStatus',
-                FieldType: FieldType.TEXT,
-                Label: 'Betalingsstatus',
                 Classes: 'bill-small-field right',
                 Section: 0
             },
@@ -1496,7 +1482,6 @@ export class BillView implements OnInit {
         const lines = this.journalEntryManual.getJournalEntryData() || [];
 
         if (!model) { return; }
-        model['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(model);
 
         this.customDimensions.forEach((dim) => {
             if (change['DefaultDimensions.Dimension' + dim.Dimension + 'ID']) {
@@ -2888,28 +2873,37 @@ export class BillView implements OnInit {
         return label;
     }
 
-    private fetchInvoice(id: number | string, flagBusy: boolean): Promise<any> {
+    private fetchInvoice(id: number, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
         this.files = undefined;
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
         return new Promise((resolve, reject) => {
-            this.supplierInvoiceService.Get(
-                id,
-                [
-                    'Supplier.Info.BankAccounts',
-                    `JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType,
-                    JournalEntry.DraftLines.Accrual.Periods,JournalEntry.Lines`,
-                    'CurrencyCode',
-                    'BankAccount',
-                    'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department', 'ReInvoice'
-                ], true).finally( () => {
-                this.flagUnsavedChanged(true);
-            })
-                .subscribe((invoice: SupplierInvoice) => {
+            const invoiceGET = this.supplierInvoiceService.Get(id, [
+                'Supplier.Info.BankAccounts',
+                `JournalEntry.DraftLines.Account,JournalEntry.DraftLines.VatType,
+                JournalEntry.DraftLines.Accrual.Periods,JournalEntry.Lines`,
+                'CurrencyCode',
+                'BankAccount',
+                'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department', 'ReInvoice'
+            ], true);
+
+            forkJoin(
+                invoiceGET,
+                this.bankService.getBankPayments(id),
+                this.bankService.getRegisteredPayments(id),
+                this.bankService.getSumOfPayments(id)
+            ).pipe(
+                finalize(() => this.flagUnsavedChanged(true))
+            ).subscribe(
+                ([invoice, bankPayments, registeredPayments, sumOfPayments]) => {
                     if (flagBusy) { this.busy = false; }
                     if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
+
+                    this.invoicePayments = (bankPayments || []).concat(registeredPayments || []);
+                    this.sumOfPayments = sumOfPayments[0];
+
                     invoice['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(invoice);
                     this.current.next(invoice);
                     this.currentFreeTxt = invoice.FreeTxt;
@@ -2932,10 +2926,12 @@ export class BillView implements OnInit {
                     this.sumRemainder = null;
 
                     resolve('');
-                }, (err) => {
+                },
+                err => {
                     this.errorService.handle(err);
                     reject(err);
-                });
+                }
+            );
         });
     }
 
@@ -3828,37 +3824,40 @@ export class BillView implements OnInit {
         return statustrack;
     }
 
-    private getPaymentStatusConfig() {
-        if (this.invoicePayments && this.invoicePayments.length) {
-            const label = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+    private getPaymentStatusIndicator() {
+        const statusLabel = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+
+        if (statusLabel) {
             const statusClass = this.getPaymentStatusClass();
+            let payments;
+            if (this.invoicePayments) {
+                this.invoicePayments.sort((payment1, payment2) =>
+                    new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
+                );
 
-            this.invoicePayments.sort((payment1, payment2) =>
-                new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
-            );
-
-            const buildLink = (payment) => {
-                if (!payment.JournalEntryNumber) {
-                    return '';
-                }
-                const [journalEntryNumber, year] = payment.JournalEntryNumber.split('-');
-                return `#/accounting/transquery?JournalEntryNumber=${journalEntryNumber}&AccountYear=${year}`;
-            };
-
-            const paymentStatuses = this.invoicePayments.map(payment => {
-                return {
-                    label: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
-                    status: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
-                        ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
-                    timestamp: new Date(<any> payment.PaymentDate),
-                    link: buildLink(payment)
+                const buildLink = (payment) => {
+                    if (!payment.JournalEntryNumber) {
+                        return '';
+                    }
+                    const [journalEntryNumber, year] = payment.JournalEntryNumber.split('-');
+                    return `#/accounting/transquery?JournalEntryNumber=${journalEntryNumber}&AccountYear=${year}`;
                 };
-            });
+
+                payments = this.invoicePayments.map(payment => {
+                    return {
+                        label: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
+                        status: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
+                            ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
+                        timestamp: new Date(<any> payment.PaymentDate),
+                        link: buildLink(payment)
+                    };
+                });
+            }
 
             return {
-                label: label,
+                label: statusLabel,
                 class: statusClass,
-                subStatuses: paymentStatuses,
+                subStatuses: payments,
             };
         }
     }
@@ -3902,7 +3901,7 @@ export class BillView implements OnInit {
     private setupToolbar() {
         const doc: SupplierInvoice = this.current.getValue();
         const stConfig = this.getStatustrackConfig();
-        this.paymentStatus = this.getPaymentStatusConfig();
+        this.paymentStatusIndicator = this.getPaymentStatusIndicator();
         const jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber
             ? doc.JournalEntry.JournalEntryNumber
             : undefined;
