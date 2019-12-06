@@ -52,6 +52,7 @@ export enum LedgerTableEmitValues {
     MarkedLocked = 3
 }
 
+const CONFIG_STORAGE_KEY = 'legderaccounts_column_configs';
 
 @Component({
     selector: 'ledger-account-reconciliation',
@@ -1028,6 +1029,18 @@ export class LedgerAccountReconciliation {
             });
         });
 
+        try {
+            const columnsVisibility = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
+            if (columnsVisibility && columnsVisibility.length > 0) {
+                columns.forEach(col => {
+                    const colVisibility = columnsVisibility.find(x => x.field === col.field);
+                    if (colVisibility) {
+                        col.visible = colVisibility.visible;
+                    }
+                });
+            }
+        } catch {}
+
         let pageSize = window.innerHeight // Window size
             - 144 // Form height
             - 20 // Body margin and padding
@@ -1092,7 +1105,15 @@ export class LedgerAccountReconciliation {
             if (result) {
                 if (result.columns) {
                     this.uniTableConfig.columns = result.columns;
+                    const columnsVisibility = [];
+                    this.uniTableConfig.columns.forEach((col) => {
+                        columnsVisibility.push({ field: col.field, visible: col.visible });
+                    });
+                    localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(columnsVisibility));
                 } else {
+                    if (result.resetAll) {
+                        localStorage.removeItem(CONFIG_STORAGE_KEY);
+                    }
                     this.setupUniTable();
                     this.getTableData();
                 }
