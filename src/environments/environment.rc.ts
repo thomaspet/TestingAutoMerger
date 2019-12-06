@@ -11,7 +11,6 @@ export const environment = {
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://rc-integration.unieconomy.no/',
     BASE_URL_FILES: 'https://rc-files.unieconomy.no',
-    UNI_PUSH_ADAPTER_URL: 'https://rc-pushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://rc-jobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://rc-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://rc-signal.unieconomy.no/pushHub',

@@ -5,8 +5,9 @@
 
     .content
         display: flex
+        align-items: center
+        padding: 2rem 0
         margin-right: 10vw
-        padding-top: 4rem
 
         @media screen and (max-width: 1750px)
             margin-right: 5vw
@@ -14,18 +15,15 @@
             margin-right: 2vw
         @media screen and (max-width: 1100px)
             margin: 0 auto
-
         @media screen and (max-height: 810px)
             padding-top: 2rem
 
 .select-type-of-company
     display: flex
-    padding-bottom: 2.5rem
-
     @media screen and (max-width: 700px)
         flex-direction: column
         .authentication-component
-            width: 90vw !important
+            width: 85vw !important
             margin: 0 0 1rem !important
 
     .authentication-component
@@ -36,7 +34,10 @@
         margin: 0 0 auto
 
         h1
-            margin: 0
+            margin: 0 0 .5rem
+
+        p
+            margin-top: 0
 
         &:first-of-type
             margin-right: 2rem
