@@ -211,6 +211,30 @@ export class SaftExportView implements OnInit {
         return retlist;
     }
 
+    private mapValidationJob(list: Array<JobRun>): Array<ISaftFileInfo> {
+        const retlist: Array<ISaftFileInfo> = [];
+        let filter: string = '';
+        list.forEach(job => {
+            const f: any = {};
+            f.JobName = job.JobName;
+            if (job.Output) {
+                const o = JSON.parse(job.Output);
+                if (!!o) {
+                    f.HasError = o.HasError;
+                    f.Message = o.Message;
+                    f.CorrectionLines = o.CorrectionLines;
+                }
+            }
+            if (filter) {
+                filter += ' or ';
+            }
+            filter += 'id eq ' + f.FileID;
+            f.hasError = job.Exception === '';
+            retlist.push(f);
+        });
+
+        return retlist;
+    }
 
     private findJobIds(list: Array<ISaftFileInfo>): Array<ISaftFileInfo> {
         const n = list.length;

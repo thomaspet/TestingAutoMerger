@@ -43,7 +43,18 @@ export class JobService {
             .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobruns?job=' + jobName + '&run=' + hangfireJobId
                 + '&loglimit=' + loglimit)
             .map(jobRun => {
-                if (jobRun.Exception) {
+                if (jobRun && jobRun.Exception) {
+                    throw new Error(jobRun.Exception);
+                }
+                return jobRun;
+            });
+    }
+
+    public getJobRunWithOutput(jobName: string, hangfireJobId: number): Observable<JobLog> {
+        return this.uniHttp.asGET()
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobrun/output?job=' + jobName + '&run=' + hangfireJobId)
+            .map(jobRun => {
+                if (jobRun && jobRun.Exception) {
                     throw new Error(jobRun.Exception);
                 }
                 return jobRun;
@@ -110,6 +121,7 @@ export class JobService {
             .sendToUrl(environment.UNI_JOB_SERVER_URL
                 + 'job-schedules?job=' + jobName + '&scheduleId=' + id  + '&cronExpression=' + cronExp);
     }
+
 }
 
 export interface JobServerMassInviteInput {

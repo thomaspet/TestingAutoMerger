@@ -1,0 +1,14 @@
+<section role="dialog" class="uni-modal medium">
+    <header>Konto for bilagsdifferanse ved saf-t import</header>
+    <article>
+        <uni-form
+            [config]="{autofocus: true}"
+            [model]="model"
+            [fields]="layout"
+        ></uni-form>
+    </article>
+    <footer>
+        <button (click)="save()" class="good">Lagre</button>
+        <button (click)="close()" class="bad">Avbryt</button>
+    </footer>
+</section>
