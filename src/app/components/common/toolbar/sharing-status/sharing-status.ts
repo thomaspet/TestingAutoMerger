@@ -23,6 +23,10 @@ export class ToolbarSharingStatus {
     }
 
     loadStatuses() {
+        this.sharingHistory = undefined;
+        this.sharingStatusText = undefined;
+        this.statusIndicator = undefined;
+
         if (this.entityType && this.entityID) {
             const previousSharingsQuery = `model=Sharing`
                 + `&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entityID}`
