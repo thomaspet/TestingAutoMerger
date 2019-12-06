@@ -35,7 +35,8 @@ import {
     PaginationChangedEvent,
     RowNode,
     SortChangedEvent,
-    GridOptions
+    GridOptions,
+    ICellRendererParams
 } from 'ag-grid-community';
 
 // Barrel here when we get more?
@@ -756,11 +757,15 @@ export class AgGridWrapper {
 
                     return this.tableUtils.getColumnValue(data, col, true);
                 },
-                cellRenderer: (params) => {
+                cellRenderer: (params: ICellRendererParams) => {
                     if (params.value) {
                         return `<span>${params.value}</span>`;
                     } else if (col.placeholder) {
-                        return `<span class="placeholder">${col.placeholder}</span>`;
+                        const placeholderValue = typeof col.placeholder === 'function'
+                            ? col.placeholder(params.node.data)
+                            : col.placeholder;
+
+                        return `<span class="placeholder">${placeholderValue}</span>`;
                     }
                 }
             };
