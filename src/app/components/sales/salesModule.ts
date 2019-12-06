@@ -69,7 +69,6 @@ import {KidModalComponent} from '@app/components/sales/customer/kid-modal/kid-mo
 import {AvtaleGiroModal} from './customer/avtalegiro-modal/avtalegiro-modal';
 import {AprilaOfferModal} from './invoice/modals/aprila-offer/aprila-offer-modal';
 import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
-import {BatchInvoiceModal} from './common/batchInvoiceModal/batchInvoiceModal';
 
 @NgModule({
     imports: [
@@ -133,7 +132,6 @@ import {BatchInvoiceModal} from './common/batchInvoiceModal/batchInvoiceModal';
         UniReminderSendingModal,
         UniReminderSendingMethodModal,
         UniChooseOrderHoursModal,
-        BatchInvoiceModal,
         DebtCollection,
         SentToDebtCollection,
         InvoiceReminders,
@@ -173,7 +171,6 @@ import {BatchInvoiceModal} from './common/batchInvoiceModal/batchInvoiceModal';
         AvtaleGiroModal,
         AprilaOfferModal,
         AprilaCreditNoteModal,
-        BatchInvoiceModal,
         CustomerEditModal,
     ],
     providers: [
