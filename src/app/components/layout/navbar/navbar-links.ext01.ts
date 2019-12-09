@@ -133,12 +133,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/sales/sellers',
                         moduleID: UniModules.Sellers,
                         activeInSidebar: false
-                    },
-                    {
-                        name: 'NAVBAR.CURRENCY',
-                        url: '/currency/exchange',
-                        moduleID: UniModules.CurrencyExchange,
-                        activeInSidebar: false
                     }
                 ]
             }
