@@ -94,9 +94,6 @@ import {AltinnReceiptListComponent} from './altinnReceiptList/altinn-receipt-lis
 import {ReconciliationRequestComponent} from './reconciliation/reconciliation-request/reconciliation-request.component';
 import {AltinnErrorHandlerService} from './sharedServices/altinnErrorHandlerService';
 import {AltinnResponseStatusComponent} from './common/altinn-response-status/altinn-response-status.component';
-import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
-import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
-import {AltinnOverviewParser} from './altinnOverview/altinnOverviewParser';
 import {TimeTransferComponent} from './payrollrun/modals/time-transfer/time-transfer.component';
 import {EmpCanActivateGuard} from './employee/empGuard';
 import { TravelComponent } from './travel/travel.component';
@@ -137,7 +134,6 @@ import {
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
-import { BarnepassView } from './altinnOverview/barnepass/barnepassview';
 
 @NgModule({
     imports: [
@@ -239,10 +235,6 @@ import { BarnepassView } from './altinnOverview/barnepass/barnepassview';
         ReconciliationRequestComponent,
         AltinnResponseStatusComponent,
         ReconciliationResponseModalComponent,
-        AltinnOverviewComponent,
-        AltinnOverviewDetailsComponent,
-
-        BarnepassView,
 
         // Travel
         TraveltypeComponent,
@@ -298,7 +290,6 @@ import { BarnepassView } from './altinnOverview/barnepass/barnepassview';
         SalaryTransViewService,
         AltinnErrorHandlerService,
         EmpCanActivateGuard,
-        AltinnOverviewParser,
         SalaryHelperMethods,
         WagetypeSyncGuard,
     ],

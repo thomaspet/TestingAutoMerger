@@ -2,6 +2,8 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {MatSlideToggleModule, MatTooltipModule, MatTreeModule} from '@angular/material';
+
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -14,13 +16,13 @@ import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {AppPipesModule} from '@app/pipes/appPipesModule';
 
-import { InvoiceList } from './invoice/list/invoiceList';
-import { OrderDetails } from './order/details/orderDetails';
-import { TradeItemHelper } from './salesHelper/tradeItemHelper';
-import { OrderList } from './order/list/orderList';
-import { UniOrderToInvoiceModal } from './order/orderToInvoiceModal';
-import { QuoteDetails } from './quote/details/quoteDetails';
-import { QuoteList } from './quote/list/quoteList';
+import {InvoiceList} from './invoice/list/invoiceList';
+import {OrderDetails} from './order/details/orderDetails';
+import {TradeItemHelper} from './salesHelper/tradeItemHelper';
+import {OrderList} from './order/list/orderList';
+import {UniOrderToInvoiceModal} from './order/orderToInvoiceModal';
+import {QuoteDetails} from './quote/details/quoteDetails';
+import {QuoteList} from './quote/list/quoteList';
 
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
@@ -63,16 +65,10 @@ import {SellerSalesList} from './sellers/sellerSalesList';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
-import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
-import {
-    MatSlideToggleModule,
-    MatTooltipModule,
-    MatTreeModule,
- } from '@angular/material';
-import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
-import { AprilaOfferModal } from './invoice/modals/aprila-offer/aprila-offer-modal';
-import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
-import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal';
+import {KidModalComponent} from '@app/components/sales/customer/kid-modal/kid-modal.component';
+import {AvtaleGiroModal} from './customer/avtalegiro-modal/avtalegiro-modal';
+import {AprilaOfferModal} from './invoice/modals/aprila-offer/aprila-offer-modal';
+import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
 
 @NgModule({
     imports: [
@@ -136,7 +132,6 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         UniReminderSendingModal,
         UniReminderSendingMethodModal,
         UniChooseOrderHoursModal,
-        BatchInvoiceModal,
         DebtCollection,
         SentToDebtCollection,
         InvoiceReminders,
@@ -176,7 +171,6 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         AvtaleGiroModal,
         AprilaOfferModal,
         AprilaCreditNoteModal,
-        BatchInvoiceModal,
         CustomerEditModal,
     ],
     providers: [

@@ -140,6 +140,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         expands: ['customer']
                     },
                     {
+                        name: 'NAVBAR.BATCH_INVOICE',
+                        url: '/sales/batch-invoices',
+                        activeInSidebar: true,
+                    },
+                    {
                         name: 'NAVBAR.REMINDER',
                         url: '/sales/reminders',
                         moduleID: UniModules.Reminders,
@@ -468,12 +473,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/salary/salarybalancetemplates',
                         moduleID: UniModules.SalarybalanceTemplates,
                         activeInSidebar: true
-                    },
-                    {
-                        name: 'NAVBAR.ALTINN',
-                        url: '/salary/altinnoverview',
-                        moduleID: UniModules.AltinnOverview,
-                        activeInSidebar: true
                     }
                 ]
             }
@@ -567,6 +566,33 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 },
             ]
         }]
+    },
+
+    // ALTINN
+    {
+        name: 'Altinn',
+        url: '/altinn',
+        icon: 'share',
+        megaMenuGroupIndex: 2,
+        linkGroups: [
+            {
+                name: 'NAVBAR.REGISTER',
+                links: [
+                    {
+                        name: 'Oversikt',
+                        url: '/altinn/overview',
+                        moduleID: UniModules.AltinnOverview,
+                        activeInSidebar: true
+                    },
+                    {
+                        name: 'Innstillinger',
+                        url: '/altinn/settings',
+                        moduleID: UniModules.AltinnOverview,
+                        activeInSidebar: true
+                    }
+                ]
+            }
+        ]
     },
 
     // MARKETPLACE

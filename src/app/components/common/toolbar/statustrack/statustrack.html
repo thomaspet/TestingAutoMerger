@@ -1,54 +1,21 @@
-<section *ngIf="activeStatus" class="status-container" [ngClass]="{'has-substatus': activeStatus.substatusList?.length}">
-    <section class="status-indicator" [ngClass]="activeStatus.class">
-        <i class="material-icons-outlined">info</i>
-        {{activeStatus.title}}
-        <span class="sub-status-counter" *ngIf="activeStatus.substatusList?.length">
-            {{activeStatus.substatusList.length}}
-        </span>
-    </section>
-
-    <section class="status-details" *ngIf="activeStatus.substatusList?.length || (entityType && entityID)">
-        <section class="sub-statuses" *ngIf="activeStatus.substatusList?.length">
-            <span class="header">Understatuser</span>
-
-            <ul>
-                <li *ngFor="let substatus of activeStatus.substatusList"
-                    (click)="onSubStatusClick(substatus, activeStatus)"
-                    [ngClass]="{
-                        'selectable': substatus.selectable,
-                        'active': isActiveSubStatus(substatus) && activeStatus.substatusList.length > 1
-                    }">
-
-                    <span class="title">{{substatus.title}}</span>
-                    <span class="timestamp">{{formatTime(substatus.timestamp, substatus.formatDateTime)}}</span>
-                    <span class="subtitle" *ngIf="substatus.subtitle">{{substatus.subtitle}}</span>
-                </li>
-            </ul>
-        </section>
-
-        <section class="history" *ngIf="entityType && entityID">
-            <span class="header">Historikk</span>
-
-            <a *ngIf="!statusHistoryLoaded" (click)="loadStatusHistory()">
-                Hent statushistorikk
-            </a>
-
-            <span *ngIf="statusHistoryLoaded && !statusHistory?.length">
-                Fant ingen statushistorikk
-            </span>
-
-            <ul *ngIf="statusHistory?.length">
-                <li *ngFor="let logEntry of statusHistory">
-                    <span>
-                        {{logEntry.FromStatusText || 'Ingen status' }}
-                        <i class="material-icons">arrow_right</i>
-                        {{logEntry.ToStatusText}}
-                    </span>
-
-                    <span>{{logEntry.CreatedByName}}</span>
-                    <span>{{logEntry.CreatedAt | date: 'dd.MM.yyyy HH:MM'}}</span>
-                </li>
-            </ul>
-        </section>
-    </section>
+<!-- Full status track -->
+<section *ngIf="config?.length && showFullStatustrack" class="status-list">
+    <statustrack-status
+        *ngFor="let status of config"
+        [singleStatus]="!showFullStatustrack"
+        [entityType]="entityType"
+        [entityID]="entityID"
+        [status]="status"
+        (subStatusClick)="statusSelectEvent.next($event)">
+    </statustrack-status>
 </section>
+
+<!-- Single status -->
+<statustrack-status
+    *ngIf="!showFullStatustrack && activeStatus"
+    [singleStatus]="!showFullStatustrack"
+    [entityType]="entityType"
+    [entityID]="entityID"
+    [status]="activeStatus"
+    (subStatusClick)="statusSelectEvent.next($event)">
+</statustrack-status>

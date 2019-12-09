@@ -70,6 +70,8 @@ export class VatReportView implements OnInit, OnDestroy {
         {name: 'Oppgjørsbilag', disabled: true},
     ];
     public statusCodeClassName: string;
+
+
     constructor(
         private tabService: TabService,
         private companySettingsService: CompanySettingsService,
@@ -155,18 +157,18 @@ export class VatReportView implements OnInit, OnDestroy {
         const activeStatus = this.currentVatReport.StatusCode;
 
         this.vatReportService.statusTypes.forEach((status) => {
-            let _state: STATUSTRACK_STATES;
+            let state: STATUSTRACK_STATES;
 
             if (status.Code > activeStatus) {
-                _state = STATUSTRACK_STATES.Future;
+                state = STATUSTRACK_STATES.Future;
             } else if (status.Code < activeStatus) {
-                _state = STATUSTRACK_STATES.Completed;
+                state = STATUSTRACK_STATES.Completed;
             } else if (status.Code === activeStatus) {
                 if (this.currentVatReport && this.vatReportsInPeriod && this.vatReportsInPeriod.length > 0 &&
                     this.currentVatReport.ID !== this.vatReportsInPeriod[this.vatReportsInPeriod.length - 1].ID) {
-                    _state = STATUSTRACK_STATES.Obsolete;
+                        state = STATUSTRACK_STATES.Obsolete;
                 } else {
-                    _state = STATUSTRACK_STATES.Active;
+                    state = STATUSTRACK_STATES.Active;
                 }
             }
 
@@ -177,33 +179,41 @@ export class VatReportView implements OnInit, OnDestroy {
                     addStatus = false;
                 }
             }
-            const subStatusList: IStatus[] = [];
-            if (this.vatReportsInPeriod) {
-                this.vatReportsInPeriod.forEach(report => {
-                    subStatusList.push({
-                        title: report.Title,
-                        state:  report.ID === this.currentVatReport.ID
-                            ? STATUSTRACK_STATES.Active
-                            : STATUSTRACK_STATES.Obsolete,
-                        timestamp: report.ExecutedDate
-                            ? new Date(<any> report.ExecutedDate)
-                            : null,
-                        data: report,
-                        selectable: true
-                    });
-                });
-            }
 
+            const subStatusList: IStatus[] = [];
+            if (status.Code === activeStatus) {
+                if (this.vatReportsInPeriod) {
+                    this.vatReportsInPeriod.forEach(report => {
+                        subStatusList.push({
+                            title: report.Title,
+                            state:  report.ID === this.currentVatReport.ID
+                                ? STATUSTRACK_STATES.Active
+                                : STATUSTRACK_STATES.Obsolete,
+                            timestamp: report.ExecutedDate
+                                ? new Date(<any> report.ExecutedDate)
+                                : null,
+                            data: report,
+                            selectable: true
+                        });
+                    });
+                }
+            } else {
+                // Don't show korrigert / angret if they're not the current status
+                if (status.Code === StatusCodeVatReport.Adjusted || status.Code === StatusCodeVatReport.Cancelled) {
+                    addStatus = false;
+                }
+            }
 
             if (addStatus) {
                 statustrack.push({
                     title: status.Text,
-                    state: _state,
+                    state: state,
                     code: status.Code,
                     substatusList: subStatusList,
                 });
             }
         });
+
         return statustrack;
     }
 
@@ -445,14 +455,17 @@ export class VatReportView implements OnInit, OnDestroy {
     private getVatReportsInPeriod() {
         // Get list of credit notes for an invoice
         this.vatReportService.GetAll(
-            `filter=TerminPeriodID eq ${this.currentVatReport.TerminPeriodID}&expand=JournalEntry`
-        )
-            .subscribe((response: VatReport[]) => {
+            `filter=TerminPeriodID eq ${this.currentVatReport.TerminPeriodID}`,
+            ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary']
+        ).subscribe(
+            (response: VatReport[]) => {
                 this.vatReportsInPeriod = response;
                 if (this.currentVatReport) {
                     this.updateToolbar();
                 }
-            }, err => this.errorService.handle(err));
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private getStatusDates(vatReportID: number) {

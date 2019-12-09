@@ -17,7 +17,6 @@ export const environment = {
     // If you add base urls here please also update the api check in header-interceptor.ts!
     BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
-    UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',

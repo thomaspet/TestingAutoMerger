@@ -33,6 +33,41 @@ export class CellRenderer {
         };
     }
 
+    static getCheckboxColumn(col: UniTableColumn) {
+        return (params: ICellRendererParams) => {
+            const row = params.node.data;
+            if (row) {
+                const element = document.createElement('i');
+                element.classList.add('material-icons');
+                element.style.cursor = 'pointer';
+
+
+                const options = col.checkboxConfig || {};
+                let checked = false;
+
+                if (options.checked) {
+                    if (typeof options.checked === 'function') {
+                        checked = options.checked(row);
+                    } else {
+                        checked = !!options.checked;
+                    }
+                }
+
+                element.innerText = checked ? 'check_box' : 'check_box_outline_blank';
+                element.onclick = () => {
+                    checked = !checked;
+                    element.innerText = checked ? 'check_box' : 'check_box_outline_blank';
+                    if (options && options.onChange) {
+                        options.onChange(row, checked);
+                    }
+                };
+
+                return element;
+            }
+
+        };
+    }
+
     static getTooltipColumn(col: UniTableColumn) {
         return function(params: ICellRendererParams) {
             const el = document.createElement('span');

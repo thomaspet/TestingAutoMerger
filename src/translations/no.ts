@@ -135,6 +135,7 @@ export const NO = {
         'EXTRACT': 'Uttrekk (BETA)',
         'REPORTS': 'Rapporter',
         'SALES': 'Salg',
+        'BATCH_INVOICE': 'Samlefakturering',
         'INVOICE': 'Faktura',
         'RECURRING_INVOICE': 'Repeterende faktura',
         'ORDER': 'Ordre',

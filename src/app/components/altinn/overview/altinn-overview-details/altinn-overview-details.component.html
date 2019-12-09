@@ -1,0 +1,14 @@
+<article>
+    <section *ngIf="(errorMessage$ | async)" class="alert bad">
+        Feilmelding fra Altinn: {{errorMessage$ | async}}
+    </section>
+    <ag-grid-wrapper [resource]="altinnReceipts$ | async" [config]="tableConfig$ | async"></ag-grid-wrapper>
+</article>
+<footer>
+    <section class="collapsable" [ngClass]="{'-is-open': dataOpen}">
+        <h4 (click)="dataOpen = !dataOpen">Kvittering fra Altinn</h4>
+        <div class="collapsable-content">
+            <p>{{receipt?.XmlReceipt || receipt?.AltinnResponseData}}</p>
+        </div>
+    </section>
+</footer>

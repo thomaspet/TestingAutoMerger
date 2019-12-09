@@ -148,7 +148,7 @@ export const SHORTCUT_LISTS = [
                 },
                 {
                     label: 'Altinn',
-                    url: '/salary/altinnoverview',
+                    url: '/altinn/overview',
                     icon: 'search'
                 },
             ]

@@ -1,13 +1,16 @@
 import {Component, ViewChild, ElementRef, ChangeDetectorRef} from '@angular/core';
+import {Router} from '@angular/router';
 import {Overlay, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal} from '@angular/cdk/portal';
 import {take} from 'rxjs/operators';
 
 import {NotificationService} from './notification-service';
 import {NotificationsDropdown} from './notifications-dropdown/notifications-dropdown';
-
-import { ToastService, ToastType, ToastTime, IToastAction } from '@uni-framework/uniToast/toastService';
-import { SignalRService } from '@app/services/common/signal-r.service';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {SignalRService} from '@app/services/common/signal-r.service';
+import {AuthService} from '@app/authService';
+import {CompanyService} from '@app/services/services';
+import {ChatBoxService} from '../chat-box/chat-box.service';
 
 @Component({
     selector: 'notifications',
@@ -27,6 +30,10 @@ export class Notifications {
         public notificationService: NotificationService,
         public signalRService: SignalRService,
         private toastService: ToastService,
+        private authService: AuthService,
+        private router: Router,
+        private companyService: CompanyService,
+        private chatBoxService: ChatBoxService,
     ) {
         this.notificationService.getNotifications().subscribe(
             notifications => {
@@ -49,20 +56,25 @@ export class Notifications {
 
         this.signalRService.pushMessage$.subscribe((message: any) => {
             if (message && message.entityType === 'notification') {
-                if (message.cargo && message.cargo.entityType === 'UserRole') {
-                    if (this._lastRoleRefresh && (new Date().getTime() - this._lastRoleRefresh) < 3000) {
-                        // Ignoring message since we already warned about this..
-                        return;
-                    }
-                    this._lastRoleRefresh = new Date().getTime();
-                    this.toastReloadMessage('Trykk oppdater, eller last siden på nytt for oppdatere programmet'
-                        + ' slik at det gjenspeiler de nye tilgangene.',
-                        `Din brukertilgang har blitt endret av "${message.cargo.senderDisplayName}"`);
-                    this.cdr.markForCheck();
+                if (message.cargo && message.cargo.sourceEntityType === 'Comment') {
+                    this.handleCommentNotification(message.cargo);
                 } else {
-                    this.loadAndShowUnread();
+                    const entityType = message.cargo && message.cargo.entityType;
+                    switch (entityType) {
+                        case 'Approval':
+                            this.handleApprovalNotification(message.cargo);
+                        break;
+                        case 'UserRole':
+                            this.handleUserRoleNotificiation(message.cargo);
+                        break;
+                        case 'BatchInvoice':
+                            this.handleBatchInvoiceNotification(message.cargo);
+                        break;
+                    }
                 }
-             }
+
+                this.cdr.markForCheck();
+            }
         });
 
         const position = this.overlay.position().connectedTo(
@@ -81,43 +93,102 @@ export class Notifications {
         this.overlayRef.backdropClick().subscribe(() => this.toggle());
     }
 
-    loadAndShowUnread() {
-        this.notificationService.getNotifications('', true).subscribe(
-            notifications => {
-                notifications.forEach(notification => {
-                    if (notification['_unread']) {
-                        this.notificationService.unreadCount$.next(this.notificationService.unreadCount$.value + 1);
-                        this.toastNotification(notification);
-                    }
-                });
-            });
+    private handleCommentNotification(body) {
+        // Chat boxes across companies doesn't work very well. Ignoring these for now.
+        if (body.companyKey !== this.authService.activeCompany.Key) {
+            return;
+        }
+
+        // Mostly copy paste from notification-service. ChatBoxService should probably handle this..
+        const businessObject = {
+            EntityID: body.entityID,
+            EntityType: body.entityType,
+            CompanyKey: body.companyKey,
+        };
+
+        const chatboxObjects = this.chatBoxService.businessObjects.value;
+        const chatBoxExists = chatboxObjects.find(object => {
+            return object.EntityID === businessObject.EntityID
+                && object.EntityType.toLowerCase() === businessObject.EntityType.toLowerCase();
+        });
+
+        if (!chatBoxExists) {
+            chatboxObjects.push(businessObject);
+            this.chatBoxService.businessObjects.next(chatboxObjects);
+        }
     }
 
-    toastNotification(notification) {
-        if (!notification.Message) { return; }
-        this.toastService.addToast(
-            notification.SenderDisplayName,
-            ToastType.good,
-            ToastTime.medium,
-            notification.Message,
-            <IToastAction>{
-                label: 'Åpne',
-                click: () => this.notificationService.onNotificationClick(notification)
-            }
-        );
-    }
+    private handleUserRoleNotificiation(body) {
+        if (this._lastRoleRefresh && (new Date().getTime() - this._lastRoleRefresh) < 3000) {
+            return;
+        }
 
-    toastReloadMessage(msg: string, title: string) {
-        this.toastService.addToast(
-            title,
-            ToastType.bad,
-            ToastTime.forever,
-            msg,
-            <IToastAction>{
-                label: 'Oppdater',
+        this._lastRoleRefresh = new Date().getTime();
+
+        this.toastService.toast({
+            title: `Tilgangsnivået ditt har blitt endret av ${body.senderDisplayName}`,
+            message: 'De nye tilgangene blir tilgjengelig neste gang applikasjonen laster',
+            type: ToastType.info,
+            duration: 0,
+            action: {
+                label: 'Last på nytt nå',
                 click: () => window.location.reload()
             }
+        });
+    }
+
+    private handleApprovalNotification(body) {
+        this.companyService.GetAll().subscribe(
+            companies => {
+                const company = (companies || []).find(c => c.Key === body.companyKey);
+                if (!company) {
+                    return;
+                }
+
+                let url = `/assignments/approvals?id=${body.sourceEntityID}`;
+                let message = body.message;
+
+                if (body.sourceEntityType === 'SupplierInvoice') {
+                    message = `Faktura: ${body.message}`;
+                    const route = `/accounting/bills/${body.sourceEntityID}`;
+                    if (this.authService.canActivateRoute(this.authService.currentUser, route)) {
+                        url = route;
+                    }
+                }
+
+                this.toastService.toast({
+                    title: `${body.senderDisplayName} har spurt deg om godkjenning`,
+                    message: `Selskap: ${body.companyName}<br>${message}`,
+                    type: ToastType.info,
+                    duration: 10,
+                    action: {
+                        label: 'Gå til godkjenning',
+                        click: () => {
+                            const companyKey = body.companyKey;
+                            const activeCompanyKey = this.authService.getCompanyKey();
+                            if (companyKey === activeCompanyKey) {
+                                this.router.navigateByUrl(url);
+                            } else {
+                                this.authService.setActiveCompany(company, url);
+                            }
+                        }
+                    }
+                });
+            },
+            () => {/* Fail silently */}
         );
+    }
+
+    private handleBatchInvoiceNotification(body) {
+        const messageSplit = body.message && body.message.split('\n');
+        if (messageSplit && messageSplit.length) {
+            this.toastService.toast({
+                title: messageSplit[0],
+                message: messageSplit.slice(1).join('<br>'),
+                type: ToastType.info,
+                duration: 10
+            });
+        }
     }
 
     toggle() {

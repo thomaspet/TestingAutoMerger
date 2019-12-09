@@ -1496,7 +1496,8 @@ export class UniTicker {
                 .setSuppressDragLeaveHidesColumns(true)
                 .setAutoGroupColumnDef({
                     headerName: 'Gruppering',
-                    suppressMenu: true
+                    suppressMenu: true,
+                    minWidth: 150
                 });
         }
 

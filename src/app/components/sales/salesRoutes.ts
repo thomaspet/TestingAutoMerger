@@ -25,11 +25,8 @@ import {RecurringInvoiceList} from './recurringInvoice/recurringInvoiceList';
 
 import {SellerList} from './sellers/sellerList';
 import {SellerDetails} from './sellers/sellerDetails';
-import {SellerSalesList} from './sellers/sellerSalesList';
 
-import {ProductGroups, GroupDetails} from './productgroup/productgroups';
-import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
-
+import {ProductGroups} from './productgroup/productgroups';
 import {KIDSettings} from './kidSettings/kidSettings';
 
 export const salesRoutes: Routes = [
@@ -121,5 +118,9 @@ export const salesRoutes: Routes = [
         path: 'kidsettings',
         component: KIDSettings,
         canDeactivate: [CanDeactivateGuard],
+    },
+    {
+        path: 'batch-invoices',
+        loadChildren: './batch-invoice/batch-invoice.module#BatchInvoiceModule',
     },
 ];

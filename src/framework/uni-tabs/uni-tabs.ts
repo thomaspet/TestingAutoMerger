@@ -6,6 +6,7 @@ import {takeUntil, debounceTime} from 'rxjs/operators';
 export interface IUniTab {
     name: string;
     path?: string;
+    queryParams?: {[key: string]: any};
     disabled?: boolean;
     tooltip?: string;
     tooltipIcon?: string;
@@ -36,6 +37,7 @@ export class UniTabs {
 
     onDestroy$ = new Subject();
     overflowIndex: number;
+    pathMatchExact: boolean;
 
     constructor(
         private router: Router,
@@ -52,6 +54,10 @@ export class UniTabs {
                 });
 
                 this.activeIndex = activeIndex >= 0 ? activeIndex : 0;
+            }
+
+            if (this.tabs.some(tab => !!tab.queryParams)) {
+                this.pathMatchExact = true;
             }
 
             setTimeout(() => {

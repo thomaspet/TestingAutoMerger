@@ -27,7 +27,6 @@ export class HeaderInterceptor implements HttpInterceptor {
             || url.startsWith('http://localhost')
             || url.startsWith(environment.BASE_URL_INTEGRATION)
             || url.startsWith(environment.BASE_URL_FILES)
-            || url.startsWith(environment.UNI_PUSH_ADAPTER_URL)
             || url.startsWith(environment.UNI_JOB_SERVER_URL)
             || url.startsWith(environment.ELSA_SERVER_URL)
             || url.startsWith(environment.SIGNALR_PUSHHUB_URL);

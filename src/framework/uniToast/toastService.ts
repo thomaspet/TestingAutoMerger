@@ -6,6 +6,7 @@ export enum ToastType {
     bad = 1,
     good = 2,
     warn = 3,
+    info = 4,
 }
 
 export enum ToastTime {

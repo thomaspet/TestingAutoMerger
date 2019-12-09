@@ -26,9 +26,6 @@ import {FlowModal} from './flow/flow-modal/flow-modal';
 import {FlowList} from './flow/flow-list/flow-list';
 import {FlowTemplates} from './flow/templates/templates';
 import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
-import { BatchInvoicesContainer } from '@app/components/admin/jobs/batchInvoices/batchInvoicesContainer/batcInvoicesContainer';
-import { BatchInvoicesList } from '@app/components/admin/jobs/batchInvoices/BatchInvoicesList/batchInvoicesList';
-import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/BatchInvoicesDetails/batchInvoicesDetails';
 
 @NgModule({
     entryComponents: [
@@ -71,10 +68,6 @@ import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/B
         FlowTemplateModal,
         FlowList,
         FlowTemplates,
-
-        BatchInvoicesContainer,
-        BatchInvoicesList,
-        BatchInvoicesDetails,
     ],
     providers: [
         PeopleService,
@@ -86,9 +79,6 @@ import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/B
         JobLog,
         ApprovalThresholds,
         UniGdprPeopleList,
-        BatchInvoicesContainer,
-        BatchInvoicesList,
-        BatchInvoicesDetails
     ]
 })
 export class AdminModule {}

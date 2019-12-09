@@ -873,7 +873,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.getOpenPostsForRow();
 
         // Reset cell width/position in case the previous row had an attachment
-        if (selectedRow.FileIDs || !selectedRow.FileIDs.length) {
+        if (!selectedRow.FileIDs || !selectedRow.FileIDs.length) {
             setTimeout(() => this.journalEntryProfessional.table.resetFocusedCell());
         }
     }

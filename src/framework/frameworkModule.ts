@@ -55,6 +55,7 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 import {UniTabs} from './uni-tabs/uni-tabs';
+import {DatepickerModule} from './ui/datepicker/datepicker.module';
 
 @NgModule({
     imports: [
@@ -90,6 +91,7 @@ import {UniTabs} from './uni-tabs/uni-tabs';
         DropdownMenuModule,
         ComboButtonModule,
         AutocompleteModule,
+        DatepickerModule,
     ],
     declarations: [
         UniComponentLoader,
@@ -134,6 +136,7 @@ import {UniTabs} from './uni-tabs/uni-tabs';
         DropdownMenuModule,
         ComboButtonModule,
         AutocompleteModule,
+        DatepickerModule,
 
         // Components
         UniModal,

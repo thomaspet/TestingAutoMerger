@@ -31,6 +31,7 @@
         [config]="statustrack || config.statustrack"
         [entityType]="config?.entityType"
         [entityID]="config?.entityID"
+        [showFullStatustrack]="showFullStatustrack"
         (statusSelectEvent)="selectStatus($event)">
     </uni-statustrack>
 

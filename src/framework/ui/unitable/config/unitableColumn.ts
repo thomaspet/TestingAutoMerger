@@ -5,6 +5,7 @@ import {UnitableNumberInput} from '../controls/number';
 import {UnitableDateTimepicker} from '../controls/dateTimePicker/dateTimePicker';
 import {UnitableSelect} from '../controls/select';
 import {LocalDatePicker} from '../controls/localDatePicker/LocalDatePicker';
+import {get} from 'lodash';
 
 /*
     Dont make changes to this unless you know what you're doing!
@@ -27,7 +28,9 @@ export enum UniTableColumnType {
     LocalDate = 9,
     Boolean = 10,
     Typeahead = 12,
-    Link = 13
+    Link = 13,
+    Status = 14,
+    Checkbox = 15
 }
 
 export enum UniTableColumnSortMode {
@@ -53,6 +56,26 @@ export interface FilterSelectConfig {
     options: any[];
     displayField: string;
     valueField: string;
+}
+
+export interface TableStatusIndicator {
+    label: string;
+    width: string;
+    type?: 'info' | 'c2a' | 'good' | 'warn' | 'bad';
+    tooltip?: string;
+}
+
+export interface TableStatusMap {
+    [statusCode: number]: string | {
+        label: string;
+        class: 'info' | 'c2a' | 'good' | 'warn' | 'bad',
+        tooltip?: (row) => string;
+    };
+}
+
+export interface TableCheckboxConfig {
+    checked?: boolean | ((row) => boolean);
+    onChange?: (row, checked: boolean) => void;
 }
 
 export interface IUniTableColumn {
@@ -89,9 +112,11 @@ export interface IUniTableColumn {
     hasLink?: (rowModel) => boolean;
     linkResolver?: (rowModel) => string;
     linkClick?: (rowModel) => void;
+    checkboxConfig?: TableCheckboxConfig;
     maxLength?: number;
     resizeable?: boolean;
-    placeholder?: string;
+    placeholder?: string | ((row) => string);
+    statusMap?: TableStatusMap;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -138,7 +163,9 @@ export class UniTableColumn implements IUniTableColumn {
     public rowGroup?: boolean;
     public enableRowGroup?: boolean;
     public enablePivot?: boolean;
-    public placeholder: string;
+    public placeholder: string | ((row) => string);
+    public statusMap: TableStatusMap;
+    public checkboxConfig: TableCheckboxConfig;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -163,19 +190,6 @@ export class UniTableColumn implements IUniTableColumn {
         this.headerCls = '';
 
         this.setType(type || UniTableColumnType.Text);
-
-        if (type === UniTableColumnType.Number || type === UniTableColumnType.Money || type === UniTableColumnType.Percent) {
-            this.filterOperator = 'eq';
-            this.setAlignment('right');
-            this.numberFormat = {
-                thousandSeparator: ' ',
-                decimalSeparator: ',',
-                decimalLength: (type === UniTableColumnType.Money) ? 2 : undefined,
-                postfix: (type === UniTableColumnType.Percent) ? '%' : undefined
-            };
-        } else if (type === UniTableColumnType.Link) {
-            this.editable = false;
-        }
     }
 
     public setHeader(header: string) {
@@ -248,6 +262,14 @@ export class UniTableColumn implements IUniTableColumn {
             case UniTableColumnType.Money:
             case UniTableColumnType.Percent:
                 this.editor = UnitableNumberInput;
+                this.filterOperator = 'eq';
+                this.setAlignment('right');
+                this.numberFormat = {
+                    thousandSeparator: ' ',
+                    decimalSeparator: ',',
+                    decimalLength: (type === UniTableColumnType.Money) ? 2 : undefined,
+                    postfix: (type === UniTableColumnType.Percent) ? '%' : undefined
+                };
             break;
 
             case UniTableColumnType.DateTime:
@@ -260,6 +282,34 @@ export class UniTableColumn implements IUniTableColumn {
 
             case UniTableColumnType.LocalDate:
                 this.editor = LocalDatePicker;
+            break;
+
+            case UniTableColumnType.Link:
+                this.editable = false;
+            break;
+
+            case UniTableColumnType.Status:
+                this.resizeable = false;
+                this.editable = false;
+                this.filterOperator = 'eq';
+                this.setAlignment('center');
+            break;
+
+            case UniTableColumnType.Boolean:
+                this.filterSelectConfig = {
+                    displayField: 'label',
+                    valueField: 'value',
+                    options: [
+                        { label: 'Ja', value: true },
+                        { label: 'Nei', value: false }
+                    ]
+                };
+            break;
+
+            case UniTableColumnType.Checkbox:
+                this.setAlignment('center');
+                this.setWidth('4rem', false);
+                this.setCls('checkbox-column');
             break;
         }
 
@@ -344,11 +394,6 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setAlignment(alignment: 'left'|'right'|'center') {
         this.alignment = alignment;
-
-        // ngx datatable
-        this.headerCls += ' align-' + alignment;
-        this.cls += ' align-' + alignment;
-
         return this;
     }
 
@@ -403,8 +448,30 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    setPlaceholder(placeholder: string) {
+    setPlaceholder(placeholder: string | ((row) => string)) {
         this.placeholder = placeholder;
+        return this;
+    }
+
+    setStatusMap(statusMap: TableStatusMap) {
+        this.statusMap = statusMap;
+
+        const filterOptions = Object.keys(statusMap).map(key => {
+            const label = typeof statusMap[key] === 'string' ? statusMap[key] : statusMap[key].label;
+            return {label, value: key};
+        });
+
+        this.filterSelectConfig = {
+            options: filterOptions,
+            valueField: 'value',
+            displayField: 'label'
+        };
+
+        return this;
+    }
+
+    setCheckboxConfig(checkboxConfig: TableCheckboxConfig) {
+        this.checkboxConfig = checkboxConfig;
         return this;
     }
 }

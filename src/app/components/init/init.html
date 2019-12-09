@@ -1,16 +1,18 @@
 <section class="init-header">
     <img class="logo" src="themes/logo.svg">
-    <a *ngIf="isAuthenticated" (click)="authService.signoutRedirect()">
+    <!-- <a *ngIf="isAuthenticated" (click)="authService.clearAuthAndGotoLogin()">
         Logg ut
-    </a>
+    </a> -->
 
     <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
+    <a *ngIf="!isAuthenticated && !showTryForFree" routerLink="/init/login">Logg inn</a>
 </section>
 
-<section *ngIf="useBackground1" class="init-bg init-bg1"><img [src]="background1"></section>
-<section *ngIf="!useBackground1" class="init-bg init-bg2"><img [src]="background2"></section>
-
 <section class="init-main">
+    <section class="init-bg" [ngClass]="{'full-width-image': fullWidthBackground}">
+        <img [src]="background">
+    </section>
+
     <router-outlet></router-outlet>
 </section>
 

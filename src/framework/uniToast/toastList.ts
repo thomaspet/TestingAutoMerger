@@ -12,6 +12,7 @@ import {ToastService} from './toastService';
                 'bad' : toast.type === 1,
                 'good': toast.type === 2,
                 'warn': toast.type === 3,
+                'info': toast.type === 4,
                 'toast-done': toast.done
             }">
         </uni-toast>

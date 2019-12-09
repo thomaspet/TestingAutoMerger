@@ -11,7 +11,6 @@ export const environment = {
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://pilot-integration.unieconomy.no/',
     BASE_URL_FILES: 'https://pilot-unifiles.unieconomy.no',
-    UNI_PUSH_ADAPTER_URL: 'https://pilotapi-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://pilot-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://prod-signal.unieconomy.no/pushHub',

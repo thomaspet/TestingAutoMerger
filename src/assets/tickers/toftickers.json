@@ -77,6 +77,11 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Kredittdager",
             "Field": "CreditDays",
             "DefaultHidden": true
@@ -846,6 +851,11 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Kredittdager",
             "Field": "CreditDays",
             "DefaultHidden": true
@@ -1384,6 +1394,11 @@
         {
             "Header": "Kommentar",
             "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
             "DefaultHidden": true
         },
         {
@@ -1952,6 +1967,11 @@
         {
             "Header": "Kommentar",
             "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
             "DefaultHidden": true
         },
         {

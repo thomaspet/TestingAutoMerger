@@ -1400,47 +1400,51 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         done();
                     }
                 });
-
-                this.saveActions.push({
-                    label: 'Skriv ut / send på epost',
-                    action: (done) => {
-                        this.modalService.open(TofReportModal, {
-                            header: 'Skriv ut / send på epost',
-                            data: {
-                                entityLabel: 'Faktura',
-                                entityType: 'CustomerInvoice',
-                                entity: this.invoice,
-                                reportType: ReportTypeEnum.INVOICE,
-                            }
-                        }).onClose.subscribe(selectedAction => {
-                            if (selectedAction) {
-                                let printStatus;
-
-                                if (selectedAction === 'print') {
-                                    printStatus = '200';
-                                } else if (selectedAction === 'email') {
-                                    printStatus = '100';
-                                }
-
-                                if (printStatus) {
-                                    this.customerInvoiceService.setPrintStatus(this.invoice.ID, printStatus).subscribe(
-                                        () => {
-                                            setTimeout(() => {
-                                                if (this.toolbar) {
-                                                    this.toolbar.refreshSharingStatuses();
-                                                }
-                                            }, 500);
-                                        },
-                                        err => console.error(err)
-                                    );
-                                }
-                            }
-
-                            done();
-                        });
-                    }
-                });
             }
+        }
+
+        if (this.invoice.StatusCode) {
+            const entityLabel = this.invoice.InvoiceType === InvoiceTypes.Invoice ? 'Faktura' : 'Kreditnota';
+
+            this.saveActions.push({
+                label: 'Skriv ut / send på epost',
+                action: (done) => {
+                    this.modalService.open(TofReportModal, {
+                        header: 'Skriv ut / send på epost',
+                        data: {
+                            entityLabel: entityLabel,
+                            entityType: 'CustomerInvoice',
+                            entity: this.invoice,
+                            reportType: ReportTypeEnum.INVOICE,
+                        }
+                    }).onClose.subscribe(selectedAction => {
+                        if (selectedAction) {
+                            let printStatus;
+
+                            if (selectedAction === 'print') {
+                                printStatus = '200';
+                            } else if (selectedAction === 'email') {
+                                printStatus = '100';
+                            }
+
+                            if (printStatus) {
+                                this.customerInvoiceService.setPrintStatus(this.invoice.ID, printStatus).subscribe(
+                                    () => {
+                                        setTimeout(() => {
+                                            if (this.toolbar) {
+                                                this.toolbar.refreshSharingStatuses();
+                                            }
+                                        }, 500);
+                                    },
+                                    err => console.error(err)
+                                );
+                            }
+                        }
+
+                        done();
+                    });
+                }
+            });
         }
 
         this.saveActions.push({
@@ -1501,7 +1505,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 });
             },
             disabled: false,
-            main: !id || transitions
         });
 
         this.saveActions.push({
@@ -1805,19 +1808,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                     }
                                 }
 
-                                if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
-                                    const onSendingComplete = () => {
-                                        setTimeout(() => {
-                                            if (this.toolbar) {
-                                                this.toolbar.refreshSharingStatuses();
-                                            }
-                                        }, 500);
-
-                                        if (!wasDraft) {
-                                            this.router.navigateByUrl('/sales/invoices/' + updatedInvoice.ID);
+                                const onSendingComplete = () => {
+                                    setTimeout(() => {
+                                        if (this.toolbar) {
+                                            this.toolbar.refreshSharingStatuses();
                                         }
-                                    };
+                                    }, 500);
 
+                                    if (!wasDraft) {
+                                        this.router.navigateByUrl('/sales/invoices/' + updatedInvoice.ID);
+                                    }
+                                };
+
+                                if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
                                     if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
                                         this.toastService.toast({
                                             title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
@@ -1831,10 +1834,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             data: this.invoice
                                         }).onClose.subscribe(() => onSendingComplete());
                                     }
-                                }
-
-                                if (wasDraft) {
-                                    this.router.navigateByUrl('/sales/invoices/' + invoice.ID);
+                                } else {
+                                    onSendingComplete();
                                 }
                             });
                         },

@@ -1,0 +1,35 @@
+<uni-toolbar
+    [config]="{title: 'Ny samlefakturering'}"
+    [saveactions]="[saveaction]">
+</uni-toolbar>
+
+<section class="application">
+    <section class="quick-filters">
+        <select [ngModel]="entityType" (ngModelChange)="setEntityType($event)">
+            <option value="CustomerOrder">Ordre</option>
+            <option value="CustomerInvoice">Fakturakladd</option>
+        </select>
+
+        <uni-datepicker [(value)]="fromDate" (valueChange)="onFilterChange()" placeholder="Fra dato"></uni-datepicker>
+        <uni-datepicker [(value)]="toDate" (valueChange)="onFilterChange()" placeholder="Til dato"></uni-datepicker>
+        <mat-checkbox
+            *ngIf="entityType === 'CustomerOrder'"
+            [(ngModel)]="readyForInvoiceOnly"
+            (ngModelChange)="onFilterChange()">
+            Kun ordre merket klar til fakturering
+        </mat-checkbox>
+    </section>
+
+    <section class="header">
+        <i class="material-icons-outlined">info</i>
+        <span>{{numberOfItems}} {{entityLabel}} klar til samlefakturering</span>
+        <span>Du kan bruke tabellfilter og avkrysningsboksene for å redusere uttrekket ytterligere</span>
+    </section>
+
+    <ag-grid-wrapper
+        class="borders no-select-background"
+        [config]="tableConfig"
+        [resource]="lookupFunction"
+        (filtersChange)="onTableFiltersChange()">
+    </ag-grid-wrapper>
+</section>

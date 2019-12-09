@@ -379,7 +379,7 @@ export class TradeItemTable {
         const productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setJumpToColumn('NumberOfItems')
-            .setPlaceholder('Velg produkt')
+            .setPlaceholder(row => row && !row.ItemText ? 'Velg produkt' : '')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (input: string) => {

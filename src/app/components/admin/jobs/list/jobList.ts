@@ -16,7 +16,6 @@ export class JobList implements OnInit {
         {name: 'Siste utførte'},
         {name: 'Alle jobber'},
         {name: 'SAF-T'},
-        {name: 'Samlefakturering'},
     ];
 
     activeTabIndex: number = 0;
@@ -47,7 +46,6 @@ export class JobList implements OnInit {
                 case 'lastjobs': this.activeTabIndex = 0; break;
                 case 'alljobs': this.activeTabIndex = 1; break;
                 case 'saft-t': this.activeTabIndex = 2; break;
-                case 'batchinvoices': this.activeTabIndex = 3; break;
             }
         });
     }

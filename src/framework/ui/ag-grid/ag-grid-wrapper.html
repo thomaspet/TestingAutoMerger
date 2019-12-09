@@ -35,7 +35,8 @@
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
             'ag-theme-balham': config?.isGroupingTicker,
-            'has-sum-row': !!(dataService?.sumRow$ | async)
+            'has-sum-row': !!(dataService?.sumRow$ | async),
+            'multi-row-select': config?.multiRowSelect
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -97,8 +98,12 @@
 <!-- Note that row-count appears twice in this file, make changes in both -->
 <section *ngIf="!usePagination" class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
     <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
-    <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
-    <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
+
+    <!-- Disabled for infinite scroll tables since the number doesnt make sense -->
+    <ng-container *ngIf="config?.multiRowSelect && !dataService?.hasRemoteLookup">
+        <span *ngIf="sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
+        <span *ngIf="!sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
+    </ng-container>
 </section>
 
 <section *ngIf="usePagination" class="bottom-bar">

@@ -39,7 +39,7 @@ export class Autocomplete {
     @Input() readonly: boolean;
     @Input() options: AutocompleteOptions;
     @Input() value: any;
-    @Output() valueChanges = new EventEmitter();
+    @Output() valueChange = new EventEmitter();
 
     searchControl = new FormControl('');
     controlSubscription: Subscription;
@@ -160,7 +160,7 @@ export class Autocomplete {
         // Check specifically for false so canClearValue defaults to true
         if (value || this.options.canClearValue !== false) {
             this.value = value || null;
-            this.valueChanges.emit(this.value);
+            this.valueChange.emit(this.value);
         }
 
         this.focusIndex = -1;

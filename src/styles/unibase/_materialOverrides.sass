@@ -148,6 +148,14 @@ mat-calendar
     .mat-calendar-previous-button, .mat-calendar-next-button
         color: var(--link-color) !important
 
+    .mat-calendar-body
+        tr[aria-hidden]:not([aria-hidden=false])
+            display: none
+
+        .mat-calendar-body-label
+            color: rgba(0, 0, 0, 0)
+
+
     .mat-calendar-body-cell-content
         color: var(--text-color) !important
         border-radius: var(--button-radius) !important
@@ -173,5 +181,5 @@ mat-calendar
 mat-spinner circle
     stroke: var(--color-c2a) !important
 
-i.material-icons
+i.material-icons, i.material-icons-outlined
     vertical-align: middle
