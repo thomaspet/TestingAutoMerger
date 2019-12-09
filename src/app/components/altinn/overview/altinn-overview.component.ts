@@ -17,14 +17,17 @@ import { Router } from '@angular/router';
 })
 export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
-    public receipts$: BehaviorSubject<AltinnReceipt[]> = new BehaviorSubject([]);
-    public config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
-    public selectedReceipt$: BehaviorSubject<AltinnReceipt> = new BehaviorSubject(null);
-    public busy: boolean;
-    public actions: IUniSaveAction[];
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+
+    receipts$: BehaviorSubject<AltinnReceipt[]> = new BehaviorSubject([]);
+    config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
+    selectedReceipt$: BehaviorSubject<AltinnReceipt> = new BehaviorSubject(null);
+    busy: boolean;
+    actions: IUniSaveAction[];
+
     private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
-    constructor(
+
+    constructor (
         private altinnReceiptService: AltinnReceiptService,
         private tabService: TabService,
         private router: Router
@@ -37,12 +40,11 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             .do(receipts => this.receipts$.next(receipts))
             .subscribe(receipts => this.focus(receipts[0]));
 
-        this.config$
-            .next(this.getConfig());
+        this.config$.next(this.getConfig());
 
         this.tabService.addTab({
             moduleID: UniModules.AltinnOverview,
-            url: 'salary/altinnoverview',
+            url: 'altinn/overview',
             name: 'Altinn oversikt'
         });
 
@@ -128,7 +130,7 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         this.actions = [
             {
                 label: 'Rapportere Pass og stell av barn',
-                action: () => this.router.navigateByUrl('/salary/barnepass'),
+                action: () => this.router.navigateByUrl('/altinn/barnepass'),
                 disabled: false,
                 main: true
             }

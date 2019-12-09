@@ -327,6 +327,8 @@ export class WizardSettingsModal implements IUniModal {
         const accountsSettingsObject = this.accountSettings$.getValue();
         this.mapAccounts(accountsSettingsObject);
 
+        this.companySettings.BankAccounts = [];
+
         const queries = [
             this.companySettingsService.Put(1, this.companySettings),
             this.companySalaryService.Put(this.companySalary.ID, this.companySalary)

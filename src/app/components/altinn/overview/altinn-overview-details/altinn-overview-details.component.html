@@ -6,7 +6,7 @@
 </article>
 <footer>
     <section class="collapsable" [ngClass]="{'-is-open': dataOpen}">
-        <h4 (click)="dataOpen = !dataOpen">kvittering fra altinn</h4>
+        <h4 (click)="dataOpen = !dataOpen">Kvittering fra Altinn</h4>
         <div class="collapsable-content">
             <p>{{receipt?.XmlReceipt || receipt?.AltinnResponseData}}</p>
         </div>

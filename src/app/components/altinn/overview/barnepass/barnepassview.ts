@@ -3,7 +3,18 @@ import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Product, AltinnReceipt, ReportDefinition } from '@uni-entities';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { AltinnIntegrationService, ErrorService, CustomerInvoiceService, FinancialYearService, ProductService, ModulusService, ReportDefinitionService, ReportNames, OppgaveBarnepass, BarnepassLeveranse } from '@app/services/services';
+import {
+    AltinnIntegrationService,
+    ErrorService,
+    CustomerInvoiceService,
+    FinancialYearService,
+    ProductService,
+    ModulusService,
+    ReportDefinitionService,
+    ReportNames,
+    OppgaveBarnepass,
+    BarnepassLeveranse
+} from '@app/services/services';
 import { RequestMethod } from '@uni-framework/core/http';
 import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';

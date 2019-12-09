@@ -48,7 +48,6 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                     {name: 'NAVBAR.INTEGRATION', activeInSidebar: false, url: '/settings/webhooks'},
                     {name: 'NAVBAR.USERS', activeInSidebar: false, url: '/settings/users'},
                     {name: 'NAVBAR.TEAMS', activeInSidebar: false, url: '/settings/teams'},
-                    {name: 'NAVBAR.ALTINN', activeInSidebar: false, url: '/settings/altinn'},
                     {name: 'NAVBAR.NUMBERSERIES', activeInSidebar: false, url: '/settings/numberseries'},
                     {name: 'NAVBAR.TERMS', activeInSidebar: false, url: '/settings/terms'},
                     {name: 'NAVBAR.DIMENSION_SETTINGS', activeInSidebar: false, url: '/settings/dimension'},

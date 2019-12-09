@@ -1,22 +1,19 @@
 <section role="dialog" class="uni-modal barnepassProductsModal">
     <header><h1>Produkter som inkluderes i rapporteringen</h1></header>
     <article>
-        <table style="width: 100%;">
-            <tr>
-                <td><label>Legg til</label></td>
-                <td><uni-search
-                    [config]="searchConfig"
-                    (changeEvent)="productSelected($event)">
-                </uni-search></td>
-            </tr>
-        </table>
-    </article>
-    <article style="padding: 1.5rem;">
-        <span>
+
+        <label class="uni-label label-left">
+            <span>Legg til</span>
+            <uni-search
+                [config]="searchConfig"
+                (changeEvent)="productSelected($event)">
+            </uni-search>
+        </label>
+
+        <span style="display: block; font-size: 15px; margin: 1.5rem 0;">
             Produkter i listen er med i grunnlaget for RF-1301 Pass og stell av barn. Produkter kan legges til og fjernes når det måttes ønskes og rapporteringsgrunnlaget vil endre seg.
         </span>
-    </article>
-    <article>
+
         <section>
             <ag-grid-wrapper
                 [resource]="products"
@@ -25,8 +22,9 @@
             </ag-grid-wrapper>
         </section>
     </article>
+
     <footer>
-        <button (click)="save()" class="good">Lagre</button>
-        <button (click)="close()" class="bad">Avbryt</button>
+        <button (click)="save()" class="c2a">Lagre</button>
+        <button (click)="close()" class="secondary">Avbryt</button>
     </footer>
 </section>

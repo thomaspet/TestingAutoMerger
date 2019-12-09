@@ -3,7 +3,6 @@ import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
-import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {Settings} from './settings';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTerms} from './terms/terms';
@@ -45,11 +44,6 @@ export const settingsRoutes: Routes = [
             {
                 path: 'users',
                 component: UserManagement
-            },
-            {
-                path: 'altinn',
-                component: AltinnSettings,
-                canDeactivate: [CanDeactivateGuard]
             },
             {
                 path: 'teams',

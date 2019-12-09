@@ -89,6 +89,10 @@ const routes = [
         loadChildren: './components/bank/bankModule#BankModule',
     },
     {
+        path: 'altinn',
+        loadChildren: './components/altinn/altinnModule#AltinnModule',
+    },
+    {
         path: 'contract-activation',
         loadChildren: './components/contract-activation/contract-activation.module#ContractActivationModule'
     },

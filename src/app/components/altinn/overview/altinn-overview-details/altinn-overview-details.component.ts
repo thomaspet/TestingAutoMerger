@@ -7,7 +7,7 @@ import {
     AltinnOverviewParser,
     IAltinnResponseReceiptDto,
     IAltinnResponseDto,
-} from '@app/components/salary/altinnOverview/altinnOverviewParser';
+} from '@app/components/altinn/overview/altinnOverviewParser';
 
 @Component({
     selector: 'uni-altinn-overview-details',

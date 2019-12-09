@@ -418,12 +418,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/salary/salarybalancetemplates',
                         moduleID: UniModules.SalarybalanceTemplates,
                         activeInSidebar: false
-                    },
-                    {
-                        name: 'NAVBAR.ALTINN',
-                        url: '/salary/altinnoverview',
-                        moduleID: UniModules.AltinnOverview,
-                        activeInSidebar: false
                     }
                 ]
             }
@@ -481,6 +475,32 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.WorkProfiles,
                         activeInSidebar: false
                     },
+                ]
+            }
+        ]
+    },
+    // ALTINN
+    {
+        name: 'Altinn',
+        url: '/altinn',
+        icon: 'share',
+        megaMenuGroupIndex: 2,
+        linkGroups: [
+            {
+                name: 'NAVBAR.REGISTER',
+                links: [
+                    {
+                        name: 'Oversikt',
+                        url: '/altinn/overview',
+                        moduleID: UniModules.AltinnOverview,
+                        activeInSidebar: false
+                    },
+                    {
+                        name: 'Innstillinger',
+                        url: '/altinn/settings',
+                        moduleID: UniModules.AltinnOverview,
+                        activeInSidebar: false
+                    }
                 ]
             }
         ]

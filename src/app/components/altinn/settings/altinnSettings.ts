@@ -7,9 +7,7 @@ import {
     ErrorService,
     IntegrationServerCaller,
     AltinnIntegrationService,
-    CompanySettingsService
-} from '../../../services/services';
-import {SettingsService} from '../settings-service';
+} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
@@ -30,31 +28,29 @@ export class AltinnSettings implements OnInit {
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public altinn$: BehaviorSubject<AltinnExtended> = new BehaviorSubject(null);
     public busy: boolean;
+    actions: IUniSaveAction[] = [
+        {
+            label: 'Lagre innstillinger',
+            action: this.saveAltinn.bind(this),
+            main: true,
+            disabled: false
+        }
+    ];
 
     public loginErr: string = '';
     public isDirty: boolean = false;
     public onlyOnce: boolean = true;
 
     constructor(
-        private settingsService: SettingsService,
         private _altinnService: AltinnIntegrationService,
         private integrate: IntegrationServerCaller,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private companySettingsService: CompanySettingsService,
         private toast: ToastService
     ) {}
 
     public ngOnInit() {
         this.getData();
-        this.settingsService.setSaveActions([
-            {
-                label: 'Lagre altinn innstillinger',
-                action: this.saveAltinn.bind(this),
-                main: true,
-                disabled: false
-            }
-        ]);
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
