@@ -18,6 +18,7 @@ export interface IAutoBankAgreementDetails {
     BankAccountID: number;
     BankAcceptance: boolean;
     IsBankBalance: boolean;
+    BankApproval: boolean;
     IsBankStatement: boolean;
     IsInbound: boolean;
     IsOutgoing: boolean;
@@ -285,6 +286,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         IsInbound: true,
         IsOutgoing: true,
         IsBankBalance: true,
+        BankApproval: true,
         IsBankStatement: true,
         Password: '',
         _confirmPassword: '',
