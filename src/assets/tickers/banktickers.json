@@ -28,8 +28,7 @@
             {
                 "Header": "Kunde",
                 "Field": "BusinessRelation.Name",
-                "FilterOperator": "contains",
-                "IsBankRuleField": true
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Konto fra",

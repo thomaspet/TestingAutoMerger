@@ -235,7 +235,11 @@ export class AgGridWrapper {
                 this.tableHeight = undefined;
                 this.rowModelType = 'clientSide';
                 this.cacheBlockSize = undefined;
-                this.usePagination = this.config.pageable && !this.config.editable && !this.config.rowDraggable;
+                this.usePagination = this.config.pageable
+                    && !this.config.editable
+                    && !this.config.rowDraggable
+                    && !this.config.virtualScroll;
+
             } else {
                 this.localData = false;
                 this.rowModelType = 'infinite';

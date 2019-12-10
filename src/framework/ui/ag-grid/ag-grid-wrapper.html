@@ -10,7 +10,7 @@
     *ngIf="rowModelType"
     [ngStyle]="{
         'height': tableHeight,
-        'flex': config?.isGroupingTicker ? '1' : 'unset',
+        'flex': config?.isGroupingTicker || config?.virtualScroll ? '1' : 'unset',
         'overflow': config?.editable ? 'unset' : 'hidden'
     }">
 
@@ -44,7 +44,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [domLayout]="(localData && !config?.isGroupingTicker) ? 'autoHeight' : 'normal'"
+        [domLayout]="(localData && !config?.isGroupingTicker && !config?.virtualScroll) ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
@@ -96,7 +96,7 @@
 </section>
 
 <!-- Note that row-count appears twice in this file, make changes in both -->
-<section *ngIf="!usePagination" class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
+<section *ngIf="!usePagination && !config?.hideRowCount" class="row-count" [ngClass]="{'absolute': !!(dataService?.sumRow$ | async)}">
     <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
 
     <!-- Disabled for infinite scroll tables since the number doesnt make sense -->
@@ -108,7 +108,7 @@
 
 <section *ngIf="usePagination" class="bottom-bar">
     <!-- Note that row-count appears twice in this file, make changes in both -->
-    <section class="row-count">
+    <section class="row-count" *ngIf="!config?.hideRowCount">
         <span *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">Antall rader: {{dataService?.totalRowCount$ | async}}</span>
         <span *ngIf="config?.multiRowSelect && sumMarkedRows">Sum markerte rader: {{ sumMarkedRows }} ({{ markedRowCount }} stk)</span>
         <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
