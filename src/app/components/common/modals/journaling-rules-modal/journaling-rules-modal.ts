@@ -254,7 +254,7 @@ export class JournalingRulesModal implements OnInit, IUniModal {
                 if (defaultOperators.slice(0, 3).find(op => op.operator === f.operator )) {
                     filter = `${f.operator}(${f.field},'${f.value}')`;
                 } else {
-                    filter = f.field + ' ' + f.operator + ' ' + (!f.value ? `''` : f.value);
+                    filter = f.field + ' ' + f.operator + ' ' + (!f.value ? `''` : `'` + f.value + `'`);
                 }
                 rule.push(filter);
             });

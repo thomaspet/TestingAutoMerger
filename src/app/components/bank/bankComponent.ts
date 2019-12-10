@@ -568,8 +568,7 @@ export class BankComponent {
             IsActive: true
         };
         rule.Rule = `ExternalBankAccountNumber eq ${row[0].FromBankAccountAccountNumber
-            || row[0].PaymentExternalBankAccountNumber} and BusinessRelation.Name eq ${row[0].BusinessRelationName
-            || ' '} and Description eq ${row[0].PaymentDescription || ' '} and ` +
+            || row[0].PaymentExternalBankAccountNumber} and Description eq ${row[0].PaymentDescription || ' '} and ` +
             `PaymentID eq ${row[0].PaymentPaymentID || ''} and InPaymentID eq ${row[0].PaymentInPaymentID || ''}`;
 
         return new Promise(() => {
