@@ -13,6 +13,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 
 import {trigger, transition, animate, style} from '@angular/animations';
 import {SignalRService} from '@app/services/common/signal-r.service';
+import {ToolbarDropdownButton} from '@app/components/common/toolbar/toolbar';
 
 @Component({
     templateUrl: './batch-invoice-list.html',
@@ -36,6 +37,14 @@ export class BatchInvoiceList {
         label: 'Ny samlefakturering',
         action: () => this.router.navigate(['sales/batch-invoices/new'])
     }];
+
+    dropdownButton: ToolbarDropdownButton = {
+        label: 'Ny samlefakturering',
+        items: [
+            { label: 'Fra ordre', action: () => this.router.navigateByUrl('sales/batch-invoices/new?entityType=CustomerOrder') },
+            { label: 'Fra fakturakladd', action: () => this.router.navigateByUrl('sales/batch-invoices/new?entityType=CustomerInvoice') }
+        ]
+    };
 
     queryParamSubscription: Subscription;
     statusCodeFilter: string;

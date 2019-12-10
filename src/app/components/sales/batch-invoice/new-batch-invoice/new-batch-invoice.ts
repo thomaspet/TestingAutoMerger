@@ -1,24 +1,23 @@
 import {Component, ViewChild} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
-import {StatisticsService, CustomerOrderService, ErrorService} from '@app/services/services';
 import {HttpParams} from '@angular/common/http';
-import {IUniTab} from '@uni-framework/uni-tabs';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs';
+
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {StatisticsService, CustomerOrderService, ErrorService, BrowserStorageService} from '@app/services/services';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import * as moment from 'moment';
 import {BatchInvoiceModal, BatchInvoiceModalOptions} from './batch-invoice-modal/batch-invoice-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {Router} from '@angular/router';
 import {StatusCodeCustomerInvoice, StatusCodeCustomerOrder} from '@uni-entities';
-import {tap} from 'rxjs/operators';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
+import * as moment from 'moment';
+
 interface NewBatchInvoiceState {
-    entityType: 'CustomerOrder' | 'CustomerInvoice';
     fromDate: Date;
     toDate: Date;
     readyForInvoiceOnly: boolean;
-    uncheckedRowMap: any;
 }
 
 const STATE_KEY = 'new_batch_invoice_state';
@@ -30,34 +29,28 @@ const STATE_KEY = 'new_batch_invoice_state';
 export class NewBatchInvoice {
     @ViewChild(AgGridWrapper) table: AgGridWrapper;
 
-    saveaction: IUniSaveAction = {
-        label: 'Samlefakturer uttrekk',
-        action: (done) => this.runBatchInvoice(done)
-    };
-
-    // tabs: IUniTab[] = [
-    //     { name: 'Ordre', value: 'CustomerOrder' },
-    //     { name: 'Fakturakladd', value: 'CustomerInvoice' }
-    // ];
+    saveaction: IUniSaveAction;
 
     entityType: 'CustomerOrder' | 'CustomerInvoice';
     entityLabel: string;
-    backendCount: number;
-    numberOfItems: number;
-
-    params: HttpParams;
 
     fromDate: Date;
     toDate: Date;
     readyForInvoiceOnly: boolean;
 
-    lookupFunction;
-    tableConfig: UniTableConfig;
+    items: any[];
+    totalRowCount: number;
+    selectedItems: any[];
+    selectedItemSum: number;
 
-    uncheckedRowMap = {};
+    tableConfig: UniTableConfig;
+    queryParamSubscription: Subscription;
+    loadSubscription: Subscription;
 
     constructor(
+        private browserStorage: BrowserStorageService,
         private router: Router,
+        private route: ActivatedRoute,
         private statisticsService: StatisticsService,
         private orderService: CustomerOrderService,
         private errorService: ErrorService,
@@ -72,183 +65,153 @@ export class NewBatchInvoice {
     }
 
     ngOnInit() {
-        const savedState: NewBatchInvoiceState = this.getSavedState();
-        if (savedState) {
-            this.fromDate = savedState.fromDate;
-            this.toDate = savedState.toDate;
-            this.readyForInvoiceOnly = savedState.readyForInvoiceOnly;
-            this.uncheckedRowMap = savedState.uncheckedRowMap || {};
-            this.entityType = savedState.entityType || 'CustomerOrder';
+        this.queryParamSubscription = this.route.queryParamMap.subscribe(params => {
+            this.entityType = <any> params.get('entityType') || 'CustomerOrder';
+            this.entityLabel = this.entityType  === 'CustomerOrder' ? 'ordre' : 'fakturakladder';
+            this.saveaction = {
+                label: `Samlefakturer valgte ${this.entityLabel}`,
+                action: (done) => this.runBatchInvoice(done)
+            };
+
+            const savedState: NewBatchInvoiceState = this.getSavedState();
+            if (savedState) {
+                this.fromDate = savedState.fromDate;
+                this.toDate = savedState.toDate;
+                this.readyForInvoiceOnly = savedState.readyForInvoiceOnly;
+            } else {
+                this.fromDate = moment().startOf('month').toDate();
+                this.toDate = moment().endOf('month').toDate();
+            }
+
+            this.tableConfig = this.entityType === 'CustomerOrder' ? this.getOrderTable() : this.getInvoiceTable();
+            this.loadData();
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.queryParamSubscription) {
+            this.queryParamSubscription.unsubscribe();
         }
 
-        if (!this.entityType) {
-            this.entityType = 'CustomerOrder';
-        }
-
-        this.init();
-    }
-
-    setEntityType(entityType: 'CustomerOrder' | 'CustomerInvoice') {
-        if (entityType !== this.entityType) {
-            this.uncheckedRowMap = {};
-            this.entityType = entityType;
-            this.init();
+        if (this.loadSubscription) {
+            this.loadSubscription.unsubscribe();
         }
     }
 
-    private init() {
-        this.entityLabel = this.entityType  === 'CustomerOrder' ? 'ordre' : 'fakturakladder';
-        this.numberOfItems = 0;
-        this.initTable();
-        this.saveState();
+    onRowSelectionChange(items) {
+        this.selectedItems = items || [];
+        this.selectedItemSum = this.selectedItems.reduce((total, item) => {
+            const amount = this.entityType === 'CustomerOrder' ? item.RestExclusiveAmountCurrency : item.TaxExclusiveAmountCurrency;
+            return total + (amount || 0);
+        }, 0);
     }
 
-    private initTable() {
-        this.tableConfig = this.entityType === 'CustomerOrder' ? this.getOrderTable() : this.getInvoiceTable();
-        const modelPrefix = this.entityType === 'CustomerOrder' ? 'Order' : 'Invoice';
-
-        this.lookupFunction = (params: HttpParams) => {
-            const selects = [
-                'ID as ID',
-                `${modelPrefix}Date as ${modelPrefix}Date`,
-                'Customer.CustomerNumber as CustomerNumber',
-                'CustomerName as CustomerName',
-                'DeliveryDate as DeliveryDate',
-                'OurReference as OurReference',
-                'TaxExclusiveAmountCurrency as TaxExclusiveAmountCurrency',
-                'StatusCode as StatusCode',
-            ];
-
-            if (this.entityType === 'CustomerOrder') {
-                selects.push('RestExclusiveAmountCurrency as RestExclusiveAmountCurrency');
-                selects.push('ReadyToInvoice as ReadyToInvoice');
-                selects.push('OrderNumber as OrderNumber');
-            }
-
-            let filter = this.entityType === 'CustomerOrder'
-                // tslint:disable-next-line
-                ? `(CustomerOrder.StatusCode eq '${StatusCodeCustomerOrder.Registered}' or CustomerOrder.StatusCode eq '${StatusCodeCustomerOrder.PartlyTransferredToInvoice}')`
-                : `(CustomerInvoice.StatusCode eq ${StatusCodeCustomerInvoice.Draft})`;
-
-            filter += ` and CustomerID gt 0`;
-
-            const quickFilters = [];
-            if (this.fromDate) {
-                quickFilters.push(`${modelPrefix}Date ge '${moment(this.fromDate).format('YYYY-MM-DD')}'`);
-            }
-
-            if (this.toDate) {
-                quickFilters.push(`${modelPrefix}Date le '${moment(this.toDate).format('YYYY-MM-DD')}'`);
-            }
-
-            if (this.entityType === 'CustomerOrder' && this.readyForInvoiceOnly) {
-                quickFilters.push(`ReadyToInvoice eq 'true'`);
-            }
-
-            if (quickFilters.length) {
-                filter += ` and (${quickFilters.join(' and ')})`;
-            }
-
-            if (params.has('filter')) {
-                filter += ` and ${params.get('filter')}`;
-            }
-
-            params = params
-                .set('model', this.entityType)
-                .set('expand', 'Customer.Info')
-                .set('select', selects.join(','))
-                .set('filter', filter);
-
-            this.params = params;
-            return this.statisticsService.GetAllByHttpParams(params, true).pipe(
-                tap(res => {
-                    this.backendCount = +res.headers.get('count') || 0;
-                    this.updateNumberOfItems();
-                })
-            );
-        };
-    }
-
-    private updateNumberOfItems() {
-        const uncheckedCount = Object.keys(this.uncheckedRowMap).length || 0;
-        this.numberOfItems = (this.backendCount || 0) - uncheckedCount;
+    onDataLoaded() {
+        const data = this.table && this.table.getTableData(true);
+        this.totalRowCount = data && data.length || 0;
     }
 
     onFilterChange() {
-        if (this.table && this.table.dataLoaded) {
-            this.table.refreshTableData();
-            this.saveState();
-        }
-    }
-
-    onTableFiltersChange() {
-        // Reset checkboxes to avoid numberOfItems calculation being messed up
-        this.uncheckedRowMap = {};
+        this.loadData();
+        this.saveState();
     }
 
     private runBatchInvoice(doneCallback) {
         doneCallback();
-        const sumSelect = this.entityType === 'CustomerOrder'
-            ? 'RestExclusiveAmountCurrency as Amount'
-            : 'TaxExclusiveAmount as Amount';
 
-        let params = this.params
-            .set('select', `ID as ID,${sumSelect}`)
-            .delete('top');
+        if (this.selectedItems && this.selectedItems.length) {
+            this.modalService.open(BatchInvoiceModal, {
+                data: <BatchInvoiceModalOptions> {
+                    entityType: this.entityType,
+                    itemIDs: this.selectedItems.map(item => item.ID),
+                }
+            }).onClose.subscribe(didCreateBatchInvoice => {
+                if (didCreateBatchInvoice) {
+                    this.clearSavedState();
+                    if (this.table) {
+                        this.table.clearLastUsedFilter();
+                    }
 
-        // Remove customer expand if there is no customer filter
-        // to make the request as "cheap" as possible
-        const filter = params.get('filter');
-        if (!filter || !filter.includes('Customer.')) {
-            params = params.delete('expand');
+                    this.router.navigateByUrl('/sales/batch-invoices');
+                }
+            });
+        }
+    }
+
+    private loadData() {
+        this.selectedItems = [];
+        const modelPrefix = this.entityType === 'CustomerOrder' ? 'Order' : 'Invoice';
+        const selects = [
+            'ID as ID',
+            `${modelPrefix}Date as ${modelPrefix}Date`,
+            'Customer.CustomerNumber as CustomerNumber',
+            'CustomerName as CustomerName',
+            'DeliveryDate as DeliveryDate',
+            'OurReference as OurReference',
+            'TaxExclusiveAmountCurrency as TaxExclusiveAmountCurrency',
+            'StatusCode as StatusCode',
+        ];
+
+        if (this.entityType === 'CustomerOrder') {
+            selects.push('RestExclusiveAmountCurrency as RestExclusiveAmountCurrency');
+            selects.push('ReadyToInvoice as ReadyToInvoice');
+            selects.push('OrderNumber as OrderNumber');
         }
 
-        this.statisticsService.GetAllByHttpParams(params).subscribe(
-            res => {
-                const data = (res.body && res.body.Data) || [];
-                const itemIDs = [];
-                let sum = 0;
+        let filter = this.entityType === 'CustomerOrder'
+            // tslint:disable-next-line
+            ? `(CustomerOrder.StatusCode eq '${StatusCodeCustomerOrder.Registered}' or CustomerOrder.StatusCode eq '${StatusCodeCustomerOrder.PartlyTransferredToInvoice}')`
+            : `(CustomerInvoice.StatusCode eq ${StatusCodeCustomerInvoice.Draft})`;
 
-                data.forEach(item => {
-                    if (!this.uncheckedRowMap[item.ID]) {
-                        itemIDs.push(item.ID);
-                        sum += item.Amount;
-                    }
-                });
+        filter += ` and CustomerID gt 0`;
 
-                this.modalService.open(BatchInvoiceModal, {
-                    data: <BatchInvoiceModalOptions> {
-                        entityType: this.entityType,
-                        itemIDs: itemIDs,
-                        sum: sum
-                    }
-                }).onClose.subscribe(didCreateBatchInvoice => {
-                    if (didCreateBatchInvoice) {
-                        this.clearSavedState();
-                        if (this.table) {
-                            this.table.clearLastUsedFilter();
-                        }
+        const quickFilters = [];
+        if (this.fromDate) {
+            quickFilters.push(`${modelPrefix}Date ge '${moment(this.fromDate).format('YYYY-MM-DD')}'`);
+        }
 
-                        this.router.navigateByUrl('/sales/batch-invoices');
-                    }
-                });
-            },
+        if (this.toDate) {
+            quickFilters.push(`${modelPrefix}Date le '${moment(this.toDate).format('YYYY-MM-DD')}'`);
+        }
+
+        if (this.entityType === 'CustomerOrder' && this.readyForInvoiceOnly) {
+            quickFilters.push(`ReadyToInvoice eq 'true'`);
+        }
+
+        if (quickFilters.length) {
+            filter += ` and (${quickFilters.join(' and ')})`;
+        }
+
+        const params = new HttpParams()
+            .set('model', this.entityType)
+            .set('expand', 'Customer.Info')
+            .set('select', selects.join(','))
+            .set('filter', filter);
+
+        if (this.loadSubscription) {
+            this.loadSubscription.unsubscribe();
+        }
+
+        this.loadSubscription = this.statisticsService.GetAllByHttpParams(params, true).subscribe(
+            res => this.items = res.body && res.body.Data || [],
             err => {
                 this.errorService.handle(err);
-                doneCallback();
+                this.items = [];
             }
         );
     }
 
     private getOrderTable() {
-        return new UniTableConfig('batch_invoice_orders', false, false)
+        return new UniTableConfig('batch_invoice_orders', false)
             .setSearchable(true)
+            .setVirtualScroll(true)
+            .setMultiRowSelect(true)
+            .setHideRowCount(true)
             .setColumns([
-                this.getCheckboxColumn(),
+                // this.getCheckboxColumn(),
                 new UniTableColumn(`OrderNumber`, 'Ordrenr.')
                     .setLinkResolver(row => `/sales/orders/${row.ID}`),
-                new UniTableColumn('Customer.CustomerNumber', 'Kundenr.')
-                    .setAlias('CustomerNumber'),
+                new UniTableColumn('CustomerNumber', 'Kundenr.'),
                 new UniTableColumn('CustomerName', 'Kundenavn')
                     .setWidth('15rem'),
                 new UniTableColumn(`OrderDate`, 'Ordredato', UniTableColumnType.LocalDate)
@@ -266,67 +229,66 @@ export class NewBatchInvoice {
 
     private getInvoiceTable() {
         return new UniTableConfig('batch_invoice_invoices', false, false)
-        .setSearchable(true)
-        .setColumns([
-            this.getCheckboxColumn(),
-            new UniTableColumn('ID', 'Faktura ID')
-                .setLinkResolver(row => `/sales/invoices/${row.ID}`),
-            new UniTableColumn('Customer.CustomerNumber', 'Kundenr.')
-                .setAlias('CustomerNumber'),
-            new UniTableColumn('CustomerName', 'Kundenavn')
-                .setWidth('15rem'),
-            new UniTableColumn(`InvoiceDate`, 'Fakturadato', UniTableColumnType.LocalDate)
-                .setWidth('8rem', false),
-            new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate)
-                .setWidth('8rem', false),
-            new UniTableColumn('OurReference', 'Vår referanse'),
-            new UniTableColumn('TaxExclusiveAmountCurrency', 'Sum eks. mva', UniTableColumnType.Money),
-        ]);
+            .setSearchable(true)
+            .setVirtualScroll(true)
+            .setMultiRowSelect(true)
+            .setHideRowCount(true)
+            .setColumns([
+                // this.getCheckboxColumn(),
+                new UniTableColumn('ID', 'Faktura ID')
+                    .setLinkResolver(row => `/sales/invoices/${row.ID}`),
+                new UniTableColumn('CustomerNumber', 'Kundenr.'),
+                new UniTableColumn('CustomerName', 'Kundenavn')
+                    .setWidth('15rem'),
+                new UniTableColumn(`InvoiceDate`, 'Fakturadato', UniTableColumnType.LocalDate)
+                    .setWidth('8rem', false),
+                new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate)
+                    .setWidth('8rem', false),
+                new UniTableColumn('OurReference', 'Vår referanse'),
+                new UniTableColumn('TaxExclusiveAmountCurrency', 'Sum eks. mva', UniTableColumnType.Money),
+            ]);
     }
 
-    private getCheckboxColumn() {
-        return new UniTableColumn('', '', UniTableColumnType.Checkbox).setCheckboxConfig({
-            checked: row => {
-                console.log(this.uncheckedRowMap);
-                return !this.uncheckedRowMap[row.ID];
-            },
-            onChange: (row, checked) => {
-                if (checked && this.uncheckedRowMap[row.ID]) {
-                    delete this.uncheckedRowMap[row.ID];
-                } else if (!checked) {
-                    this.uncheckedRowMap[row.ID] = true;
-                }
+    // private getCheckboxColumn() {
+    //     return new UniTableColumn('', '', UniTableColumnType.Checkbox).setCheckboxConfig({
+    //         checked: row => {
+    //             return !this.uncheckedRowMap[row.ID];
+    //         },
+    //         onChange: (row, checked) => {
+    //             if (checked && this.uncheckedRowMap[row.ID]) {
+    //                 delete this.uncheckedRowMap[row.ID];
+    //             } else if (!checked) {
+    //                 this.uncheckedRowMap[row.ID] = true;
+    //             }
 
-                this.saveState();
-                this.updateNumberOfItems();
-            }
-        });
-    }
+    //             this.saveState();
+    //             this.updateNumberOfItems();
+    //         }
+    //     });
+    // }
 
     private getSavedState() {
-        let state;
-        try {
-            state = JSON.parse(sessionStorage.getItem(STATE_KEY));
-        } catch (e) {}
-
-        return state;
+        const key = `${STATE_KEY}_${this.entityType}`;
+        return this.browserStorage.getSessionItemFromCompany(key);
     }
 
     private clearSavedState() {
-        sessionStorage.removeItem(STATE_KEY);
+        const key = `${STATE_KEY}_${this.entityType}`;
+        this.browserStorage.removeSessionItemFromCompany(key);
     }
 
     private saveState() {
         try {
             const state: NewBatchInvoiceState = {
-                entityType: this.entityType,
+                // entityType: this.entityType,
                 fromDate: this.fromDate,
                 toDate: this.toDate,
                 readyForInvoiceOnly: this.readyForInvoiceOnly,
-                uncheckedRowMap: this.uncheckedRowMap
+                // uncheckedRowMap: this.uncheckedRowMap
             };
 
-            sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+            const key = `${STATE_KEY}_${this.entityType}`;
+            this.browserStorage.setSessionItemOnCompany(key, state);
         } catch (e) {}
     }
 }

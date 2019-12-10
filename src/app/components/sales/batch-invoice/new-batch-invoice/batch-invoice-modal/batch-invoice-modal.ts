@@ -14,7 +14,6 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 export interface BatchInvoiceModalOptions {
     entityType: 'CustomerOrder' | 'CustomerInvoice';
     itemIDs: number[];
-    sum: number;
 }
 
 @Component({
@@ -31,7 +30,6 @@ export class BatchInvoiceModal implements IUniModal {
     formFields: any[];
 
     numberOfItems: number;
-    sum: number;
     entityType: 'CustomerOrder' | 'CustomerInvoice';
     entityLabel: string;
     itemIDs: number[];
@@ -57,7 +55,6 @@ export class BatchInvoiceModal implements IUniModal {
             this.entityLabel = data.entityType === 'CustomerOrder' ? 'ordre' : 'fakturakladder';
             this.itemIDs = data.itemIDs;
             this.numberOfItems = data.itemIDs.length;
-            this.sum = data.sum;
 
             this.batchInvoice = <BatchInvoice> {};
 

@@ -29,6 +29,12 @@ export interface ToolbarButton {
     tooltip?: string;
 }
 
+export interface ToolbarDropdownButton {
+    label: string;
+    class?: string;
+    items: { label: string, action: () => any }[];
+}
+
 export interface IToolbarCreateNewAction {
     label: string;
     action: () => void;
@@ -108,6 +114,7 @@ export class UniToolbar {
     @Input() selectConfig: any;
     @Input() subheads: IToolbarSubhead[];
     @Input() validationMessages: IToolbarValidation[];
+    @Input() dropdownButton: ToolbarDropdownButton;
 
     @Output() tagsChange = new EventEmitter();
     @Output() tagsBusy: EventEmitter<boolean> = new EventEmitter();

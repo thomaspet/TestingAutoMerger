@@ -137,6 +137,23 @@
         [hideDisabled]="config?.hideDisabledActions">
     </uni-context-menu>
 
+    <ng-container *ngIf="dropdownButton">
+        <button #toggleBtn [ngClass]="dropdownButton.class || 'good'">
+            {{dropdownButton.label}}
+            <i class="material-icons" style="margin: 0 -4px 0 0">expand_more</i>
+        </button>
+
+        <dropdown-menu [trigger]="toggleBtn">
+            <ng-template>
+                <section class="dropdown-menu-item"
+                    *ngFor="let item of dropdownButton.items"
+                    (click)="item.action()">
+                    {{item.label}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
+    </ng-container>
+
     <uni-save id="toolbar-save"
         *ngIf="saveactions || config?.saveactions"
         [actions]="saveactions || config?.saveactions"
