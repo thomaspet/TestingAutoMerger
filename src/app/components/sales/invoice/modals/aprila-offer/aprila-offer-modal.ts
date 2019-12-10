@@ -32,7 +32,7 @@ export class AprilaOfferModal implements OnInit, IUniModal {
 
     ngOnInit() {
         if (this.options.data.invoiceId) {
-            this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalingstilbud`;
+            this.headerTitle = `Faktura utbetalingstilbud`;
             this.getOffer();
         }
     }
@@ -56,7 +56,7 @@ export class AprilaOfferModal implements OnInit, IUniModal {
                         this.isOffered = true;
                     } else if (this.offer.Status === 'Rejected') {
                         this.isOffered = false;
-                        this.headerTitle = `Faktura ${this.options.data.invoiceNumber} utbetalingstilbud avvist`;
+                        this.headerTitle = `Faktura utbetalingstilbud avvist`;
                         this.offerLimitMessage = `Du har brukt  `
                             + `${Math.round(this.offer.Limits.Limit - this.offer.Limits.RemainingLimit)},-`
                             + ` av din totale ramme (${this.offer.Limits.Limit})`;
@@ -93,8 +93,10 @@ export class AprilaOfferModal implements OnInit, IUniModal {
         this.customerInvoiceService.acceptDeclineAprilaOffer(
             this.options.data.invoiceId, this.offer.OrderId, true, this.offer
         ).subscribe(
-            () => {
-                this.close(true);
+            res => {
+                this.close({
+                    accepted: true
+                });
                 this.offerFeedbackProgress = false;
             },
             () => {
@@ -104,21 +106,37 @@ export class AprilaOfferModal implements OnInit, IUniModal {
         );
     }
 
-    declineOffer() {
+    declineOffer(discard: boolean) {
         this.offerFeedbackProgress = true;
-        const orderid = this.isOffered ? this.offer.OrderId : '';
-        this.customerInvoiceService.acceptDeclineAprilaOffer(
-            this.options.data.invoiceId, orderid, false, null
-        ).subscribe(
-            () => {
-                this.offerFeedbackProgress = false;
+        if (this.isOffered) {
+            const orderid = this.isOffered ? this.offer.OrderId : '';
+            this.customerInvoiceService.acceptDeclineAprilaOffer(
+                this.options.data.invoiceId, orderid, false, null
+            ).subscribe(
+                () => {
+                    this.offerFeedbackProgress = false;
+                    if (discard) {
+                        this.close(false);
+                    } else {
+                        this.close({
+                            accepted: false
+                        });
+                    }
+                },
+                err => {
+                    this.errorService.handle(err);
+                    this.offerFeedbackProgress = false;
+                    this.close(false);
+                }
+            );
+        } else {
+            if (discard) {
                 this.close(false);
-            },
-            err => {
-                this.errorService.handle(err);
-                this.offerFeedbackProgress = false;
-                this.close(false);
+            } else {
+                this.close({
+                    accepted: false
+                });
             }
-        );
+        }
     }
 }

@@ -76,9 +76,10 @@
         </div>
 
         <div class="actions" *ngIf="!gettingOfferProgress && !isError">
+                <button class="cancel" (click)="declineOffer(true)" [disabled]="offerFeedbackProgress">Avbryt</button>
             <button class="c2a"
                 *ngIf="!isOfferAccept"
-                (click)="declineOffer()"
+                (click)="declineOffer(false)"
                 [disabled]="offerFeedbackProgress"
                 [attr.aria-busy]="offerFeedbackProgress">
                 Fakturer vanlig
@@ -94,8 +95,9 @@
         </div>
 
         <div class="actions" *ngIf="isError">
+           <button class="cancel" (click)="declineOffer(true)" [disabled]="offerFeedbackProgress">Avbryt</button>
             <button class="secondary"
-                (click)="declineOffer()"
+                (click)="declineOffer(false)"
                 [disabled]="offerFeedbackProgress"
                 [attr.aria-busy]="offerFeedbackProgress">
                 Fakturer vanlig
