@@ -86,9 +86,10 @@ export class UniRegisterPaymentModal implements IUniModal {
             this.config.hideBankCharges = true;
         }
         const paymentData = this.options.data || {};
+
         if (this.config.entityName === 'CustomerInvoice' || this.config.entityName === 'SupplierInvoice' ||
             this.config.entityName === 'JournalEntryLine') {
-            Math.abs(UniMath.round(this.config.currencyExchangeRate = paymentData.Amount / paymentData.AmountCurrency, 4));
+            Math.abs(UniMath.round(this.config.currencyExchangeRate = (paymentData.Amount / paymentData.AmountCurrency) || 1, 4));
         }
 
         this.isRegisterButtonDisabled = paymentData.Amount === 0;
@@ -189,41 +190,40 @@ export class UniRegisterPaymentModal implements IUniModal {
             const payment: Payment = this.formModel$.getValue();
             payment.CurrencyExchangeRate = this.paymentCurrencyExchangeRate;
             const diffCurrencyExchangeRate = Math.abs(
-                this.config.currencyExchangeRate - payment.CurrencyExchangeRate
+                (this.config.currencyExchangeRate || 1) - (payment.CurrencyExchangeRate || 1)
             );
 
             const diffPercent = UniMath.round(
                 (diffCurrencyExchangeRate * 100 / (this.config.currencyExchangeRate || 1)), 2
             );
 
-            if (payment.CurrencyExchangeRate === 1 || payment.CurrencyExchangeRate === 0) {
+            if (!payment.CurrencyExchangeRate || payment.CurrencyExchangeRate === 1) {
                 payment.AmountCurrency = payment.Amount;
                 payment.CurrencyExchangeRate = 1;
             }
 
-            if (diffPercent < 15) {
+            if (diffPercent && diffPercent >= 15) {
+                // Confirm high diff
+                const confirmModal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Høyt avvik valutakurs',
+                    message: `Valutakurs for faktura og betaling avviker med ${diffPercent}%, `
+                        + `er du sikker på at du har registrert riktige tall? Store differanser `
+                        + `vil kunne føre til høye agioposteringer, i dette tilfellet blir `
+                        + `agioposteringen på ${this.config.AgioAmount}`,
+                    buttonLabels: {
+                        accept: 'Ja, det er riktig',
+                        reject: 'Avbryt'
+                    }
+                });
+
+                confirmModal.onClose.subscribe((response) => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.onClose.emit(payment);
+                    }
+                });
+            } else {
                 this.onClose.emit(payment);
-                return;
             }
-
-            // Confirm high diff
-            const confirmModal = this.modalService.open(UniConfirmModalV2, {
-                header: 'Høyt avvik valutakurs',
-                message: `Valutakurs for faktura og betaling avviker med ${diffPercent}%, `
-                    + `er du sikker på at du har registrert riktige tall? Store differanser `
-                    + `vil kunne føre til høye agioposteringer, i dette tilfellet blir `
-                    + `agioposteringen på ${this.config.AgioAmount}`,
-                buttonLabels: {
-                    accept: 'Ja, det er riktig',
-                    reject: 'Avbryt'
-                }
-            });
-
-            confirmModal.onClose.subscribe((response) => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.onClose.emit(payment);
-                }
-            });
         });
 
     }

@@ -18,14 +18,14 @@ export class WorkitemGroupService {
     }
 
     public GetGroups(relationId: number, fromDate, toDate, ... statuses: Array<StatusCode> ) {
-        var d1 = toIso(fromDate);
-        var d2 = toIso(toDate);
-        var route = this.routeBuilder('model=workitemgroup',
-            '&select', 'id as ID,statuscode as StatusCode,task.id as TaskID',
+        const d1 = toIso(fromDate);
+        const d2 = toIso(toDate);
+        let route = this.routeBuilder('model=workitemgroup',
+            '&select', 'id as ID,statuscode as StatusCode,task.id as TaskID'
+            + `,isnull(task.modelid,${workitemgroupModelID}) as Modelid`,
             'join', 'workitemgroup.id eq task.entityid',
             'expand', 'items', 'filter', `workrelationid eq ${relationId}`
-                + ` and items.date ge '${d1}' and items.date le '${d2}'`
-                + ` and isnull(task.modelid, ${workitemgroupModelID}) eq ${workitemgroupModelID}`);
+                + ` and items.date ge '${d1}' and items.date le '${d2}'`);
         if (statuses && statuses.length > 0) {
             route += ' AND (';
             statuses.forEach( (x, index) =>
@@ -33,11 +33,49 @@ export class WorkitemGroupService {
             );
             route += ')';
         }
-        return this.getStatistics(route).map( x => x.Data );
+        return this.getStatistics(route).map( x => {
+            if (x && x.Success) {
+                return this.removeDuplicatesByFilter(x.Data, 'ID', 'Modelid', workitemgroupModelID, 'TaskID');
+            }
+            return x.Data;
+        });
+    }
+
+    removeDuplicatesByFilter(list: Array<any>, idCol: string, pickField: string, pickValue: any, wipeField?: string) {
+        if (!(list && list.length)) { return list; }
+        const keys = {};
+        let hasDuplicates = false;
+        list.forEach( x => {
+            const key = x[idCol];
+            if (!keys[key]) {
+                keys[key] = x;
+            } else {
+                if (keys[key][pickField] !== pickValue) {
+                  keys[key] = x;
+                }
+                hasDuplicates = true;
+            }
+        });
+        if (hasDuplicates) {
+          list.length = 0;
+          for (let prop in keys) {
+            if (prop && keys[prop]) {
+              list.push(keys[prop]);
+            }
+          }
+        }
+        if (wipeField) {
+          list.forEach( x => {
+            if (x && x[pickField] !== pickValue ) {
+              x[wipeField] = undefined;
+            }
+          });
+        }
+        return list;
     }
 
     public GetApprovers(groupId: number): Observable<Array<{ name: string, email: string, statuscode: number }>> {
-        var query = 'model=workitemgroup'
+        const query = 'model=workitemgroup'
             + '&select=user.displayname as name,user.email as email,approval.statuscode as statuscode'
             + '&filter=task.modelid eq 196 and id eq ' + groupId
             + '&join=workitemgroup.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id';
@@ -61,9 +99,9 @@ export class WorkitemGroupService {
     }
 
     public CreateGroup(relationId: number, fromDate, toDate) {
-        var d1 = toIso(fromDate);
-        var d2 = toIso(toDate);
-        var route = this.routeBuilder('workitemgroups',
+        const d1 = toIso(fromDate);
+        const d2 = toIso(toDate);
+        const route = this.routeBuilder('workitemgroups',
             'action', 'create-from-items', 'workrelationid', relationId, 'fromdate', d1, 'todate', d2);
         return this.POST(route);
     }
@@ -76,8 +114,8 @@ export class WorkitemGroupService {
     // HELPERS (simpliyfiers?):
 
     private routeBuilder(route: string, ... argPairs: any[] ) {
-        var result = route;
-        for (var i = 0; i < argPairs.length; i += 2 ) {
+        let result = route;
+        for (let i = 0; i < argPairs.length; i += 2 ) {
             result += ( argPairs[i].substr(0, 1) === '&' ? '' : i > 0 ? '&' : '?' )
             + argPairs[i] + '=' + argPairs[i + 1];
         }

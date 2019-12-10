@@ -436,7 +436,8 @@ export class AddPaymentModal implements IUniModal {
     }
 
     private validateToAccountNumber(value: number, field: UniFieldLayout): UniFormError | null {
-        if (this.options && this.options.data.disablePaymentToField && !this.options.data.customerBankAccounts[0]) {
+        const bankAccount = this.options.data.customerBankAccounts && this.options.data.customerBankAccounts[0];
+        if (this.options && this.options.data.disablePaymentToField && !bankAccount) {
             return {
                 value: value,
                 errorMessage: 'Gå til kunde og fyll inn kontonummer',
@@ -461,8 +462,9 @@ export class AddPaymentModal implements IUniModal {
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler konto fra!');
                 return false;
             } else if (!data['ToBankAccountID']) {
-                if (this.options && !this.options.data.customerBankAccounts[0]) {
-                    this.toastService.addToast('Error', ToastType.bad, 5, 'Gå til kunde og fyll inn kontonummer');
+                const bankAccount = this.options.data.customerBankAccounts && this.options.data.customerBankAccounts[0];
+                if (this.options && !bankAccount) {
+                    this.toastService.addToast('Betalingen mangler "til konto"', ToastType.bad, 5);
                     return false;
                 }
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler konto til!');
