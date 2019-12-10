@@ -853,7 +853,7 @@ export class AgGridWrapper {
 
         if (this.config.multiRowSelect) {
             colDefs.unshift({
-                headerCheckboxSelection: true,
+                // headerCheckboxSelection: true,
                 headerComponent: CellRenderer.getHeaderCheckbox(this.config),
                 checkboxSelection: true,
                 width: 38,
