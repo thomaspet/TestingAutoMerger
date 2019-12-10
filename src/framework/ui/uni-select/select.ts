@@ -66,6 +66,12 @@ export class UniSelect implements OnChanges, AfterViewInit {
                 this.valueInputControl.setValue(displayValue);
             });
         }
+        if (this.items && this.items.length && !this.config.hideDeleteButton) {
+            if (this.items[0] && this.config && _.get(this.items[0], this.config.displayProperty)
+                && _.get(this.items[0], this.config.displayProperty) !== 'Ikke valgt') {
+                this.items.unshift(null);
+            }
+        }
     }
 
     public ngOnChanges(changes) {
