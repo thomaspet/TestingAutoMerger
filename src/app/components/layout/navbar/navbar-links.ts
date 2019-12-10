@@ -209,12 +209,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/sales/sellers',
                         moduleID: UniModules.Sellers,
                         activeInSidebar: true
-                    },
-                    {
-                        name: 'NAVBAR.CURRENCY',
-                        url: '/currency/exchange',
-                        moduleID: UniModules.CurrencyExchange,
-                        activeInSidebar: true
                     }
                 ]
             }
@@ -270,12 +264,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.VAT_MESSAGE',
                         url: '/accounting/vatreport',
                         moduleID: UniModules.VatReport,
-                        activeInSidebar: true
-                    },
-                    {
-                        name: 'NAVBAR.RESULT_BALANCE',
-                        url: '/accounting/accountingreports',
-                        moduleID: UniModules.AccountingReports,
                         activeInSidebar: true
                     },
                     {

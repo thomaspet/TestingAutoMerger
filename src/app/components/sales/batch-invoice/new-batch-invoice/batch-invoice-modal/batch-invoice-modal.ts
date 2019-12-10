@@ -122,6 +122,8 @@ export class BatchInvoiceModal implements IUniModal {
     }
 
     private getFormFields(sellers: Seller[], entityType: string) {
+        const entityLabel = entityType === 'CustomerOrder' ? 'ordre' : 'fakturakladd';
+
         return [
             {
                 Property: 'InvoiceDate',
@@ -145,7 +147,7 @@ export class BatchInvoiceModal implements IUniModal {
                 Options: {
                     source:  [
                         {ID: BatchInvoiceOperation.OneInvoiceEachCustomer, Name: `En faktura per kunde`},
-                        {ID: BatchInvoiceOperation.OneInvoiceEachOrder, Name: `En faktura per ordre`},
+                        {ID: BatchInvoiceOperation.OneInvoiceEachOrder, Name: `En faktura per ${entityLabel}`},
                         {ID: BatchInvoiceOperation.OneInvoiceEachProject, Name: `En faktura per prosjekt`},
                     ],
                     valueProperty: 'ID',
@@ -157,7 +159,7 @@ export class BatchInvoiceModal implements IUniModal {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Selger',
                 Options: {
-                    source: [{ID: 0, Name: 'Hentes fra ordre'}, ...sellers],
+                    source: [{ID: 0, Name: `Hentes fra ${entityLabel}`}, ...sellers],
                     valueProperty: 'ID',
                     displayProperty: 'Name'
                 }
@@ -166,13 +168,13 @@ export class BatchInvoiceModal implements IUniModal {
                 Property: 'OurRef',
                 FieldType: FieldType.TEXT,
                 Label: 'Vår refereranse',
-                Placeholder: 'Hentes fra ' + (entityType === 'CustomerOrder' ? 'ordre' : 'fakturakladd')
+                Placeholder: `Hentes fra ${entityLabel}`
             },
             {
                 Property: 'YourRef',
                 FieldType: FieldType.TEXT,
                 Label: 'Deres refereranse',
-                Placeholder: 'Hentes fra ' + (entityType === 'CustomerOrder' ? 'ordre' : 'fakturakladd')
+                Placeholder: `Hentes fra ${entityLabel}`
             },
             {
                 Property: 'FreeTxt',

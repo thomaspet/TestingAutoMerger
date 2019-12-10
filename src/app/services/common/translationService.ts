@@ -27,6 +27,11 @@ export  class UniTranslationService {
             return stringToTranslate || '';
         }
 
+        // Guard for numbers, split fail when clean number
+        if (typeof stringToTranslate === 'number') {
+            stringToTranslate = parseFloat(stringToTranslate).toString();
+        }
+
         // Find params from the translation string. The param values are declared after a ~
         let paramsInString = stringToTranslate.split('~');
         if (paramsInString.length > 1) {
