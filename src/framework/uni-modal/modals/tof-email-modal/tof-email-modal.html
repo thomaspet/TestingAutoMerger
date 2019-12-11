@@ -1,0 +1,25 @@
+<section role="dialog" class="uni-modal">
+    <header>{{options.header || 'Send e-post'}}</header>
+    <article>
+        <small *ngIf="isTestCompany" class="alert warn">
+            Siden du er logget inn på et demoselskap vil alle eposter
+            bli sendt til deg istedenfor til mottakeradresse.
+        </small>
+
+        <uni-form
+            [config]="formConfig$"
+            [fields]="formFields$"
+            [model]="formModel$"
+            (changeEvent)="onFormChange($event)">
+        </uni-form>
+    </article>
+
+    <footer>
+        <span *ngIf="invalidEmail" class="warn" style="margin-right: 2rem">
+            Ugyldig e-post
+        </span>
+
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="sendEmail()">Send</button>
+    </footer>
+</section>

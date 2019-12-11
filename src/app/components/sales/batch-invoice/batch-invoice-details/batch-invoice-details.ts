@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ViewChi
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {HttpParams} from '@angular/common/http';
 import {StatisticsService, ErrorService} from '@app/services/services';
-import {StatusCode, BatchInvoice} from '@uni-entities';
+import {StatusCode, BatchInvoice, Status} from '@uni-entities';
 import {BatchInvoiceService} from '@app/services/sales/batchInvoiceService';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
@@ -71,7 +71,7 @@ export class BatchInvoiceDetails {
                 'CustomerOrder.OrderNumber as OrderNumber',
                 'CustomerOrder.TaxExclusiveAmount as OrderTaxExclusiveAmount',
                 'StatusCode as StatusCode',
-                'Comment.Text as ErrorText'
+                'Comment.Text as Comment'
             ].join(',');
 
             const params = tableParams
@@ -90,22 +90,21 @@ export class BatchInvoiceDetails {
         return new UniTableConfig('batchinvoice_details', false, false)
             .setColumnMenuVisible(false)
             .setColumns([
-                new UniTableColumn('CustomerInvoiceID', 'Ordre / faktura')
-                    .setWidth('8rem', false)
+                new UniTableColumn('OrderNumber', 'Ordre')
+                    .setWidth('9rem', false)
+                    .setLinkResolver(row => row.CustomerOrderID && `/sales/orders/${row.CustomerOrderID}`)
+                    .setTemplate(row => {
+                        if (row.OrderNumber) {
+                            return `Ordre ${row.OrderNumber}`;
+                        }
+                    }),
+                new UniTableColumn('CustomerInvoiceID', 'Faktura')
+                    .setWidth('9rem', false)
+                    .setLinkResolver(row => row.InvoiceNumber && `/sales/invoices/${row.CustomerInvoiceID}`)
                     .setTemplate(row => {
                         if (row.InvoiceNumber) {
                             return `Faktura ${row.InvoiceNumber}`;
-                        } else if (row.OrderNumber) {
-                            return `Ordre ${row.OrderNumber}`;
                         }
-                    })
-                    .setLinkResolver(row => {
-                        if (row.CustomerInvoiceID) {
-                            return `/sales/invoices/${row.CustomerInvoiceID}`;
-                        } else if (row.CustomerOrderID) {
-                            return `/sales/orders/${row.CustomerOrderID}`;
-                        }
-
                     }),
                 new UniTableColumn('CustomerInvoiceCustomerName', 'Kunde')
                     .setTemplate(row => row.InvoiceCustomerName || row.OrderCustomerName),
@@ -118,10 +117,15 @@ export class BatchInvoiceDetails {
                         [StatusCode.Pending]: 'I kø',
                         [StatusCode.Active]: 'Under arbeid',
                         [StatusCode.Completed]: { label: 'Fullført', class: 'good' },
+                        [StatusCode.Deviation]: {
+                            label: 'Ignorert',
+                            class: 'warn',
+                            tooltip: row => row.Comment
+                        },
                         [StatusCode.Error]: {
                             label: 'Feilet',
                             class: 'bad',
-                            tooltip: row => row.ErrorText || 'Mangler feilmelding'
+                            tooltip: row => row.Comment || 'Mangler feilmelding'
                         },
                         0: 'Ingen status'
                     }),

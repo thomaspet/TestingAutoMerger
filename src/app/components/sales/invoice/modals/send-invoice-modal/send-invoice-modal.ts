@@ -4,6 +4,7 @@ import {CustomerInvoice, DistributionPlan, CompanySettings, SharingType, StatusC
 import {map, catchError} from 'rxjs/operators';
 import {forkJoin, of as observableOf} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal';
+import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 import {ReportTypeEnum} from '@app/models';
 import {Router} from '@angular/router';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
@@ -14,7 +15,8 @@ import {
     ReportService,
     CustomerInvoiceService,
     StatisticsService,
-    DistributionPlanService
+    DistributionPlanService,
+    EmailService
 } from '@app/services/services';
 import {TofReportModal} from '@app/components/sales/common/tof-report-modal/tof-report-modal';
 import * as moment from 'moment';
@@ -58,6 +60,7 @@ export class SendInvoiceModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private invoiceService: CustomerInvoiceService,
         private ehfService: EHFService,
+        private emailService: EmailService
     ) {}
 
     public ngOnInit() {
@@ -153,8 +156,6 @@ export class SendInvoiceModal implements IUniModal {
                 return `Sendt på epost til ${sharing.SharingTo}`;
             case SharingType.AP:
                 return 'Sending via aksesspunkt/EHF';
-            case SharingType.Vipps:
-                return 'Sending via Vipps';
             case SharingType.Export:
                 return 'Eksportert';
             case SharingType.InvoicePrint:
@@ -218,19 +219,15 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     private sendEmail() {
-        this.modalService.open(TofReportModal, {
-            header: 'Send faktura på epost',
+        this.modalService.open(TofEmailModal, {
             data: {
-                entityLabel: 'Faktura',
-                entityType: 'CustomerInvoice',
                 entity: this.invoice,
-                reportType: ReportTypeEnum.INVOICE,
-                hidePrintButton: true
+                entityType: 'CustomerInvoice',
+                reportType: ReportTypeEnum.INVOICE
             }
-        }).onClose.subscribe(selectedAction => {
-            if (selectedAction === 'email') {
-                this.invoiceService.setPrintStatus(this.invoice.ID, '100').subscribe();
-                this.onClose.emit();
+        }).onClose.subscribe(emailSent => {
+            if (emailSent) {
+                this.onClose.emit('email');
             }
         });
     }

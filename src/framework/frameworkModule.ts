@@ -28,7 +28,7 @@ import {UniComponentLoader} from './core/componentLoader';
 import {ComponentCreator} from './core/dynamic/UniComponentCreator';
 import {Logger} from './core/logger';
 
-import { UniModalService, MODALS, UniShowReinvoiceStatus } from './uni-modal';
+import {UniModalService, MODALS, UniShowReinvoiceStatus} from './uni-modal';
 
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
 import {UniDateselectorpModule} from './ui/dateselector/dateselector.module';

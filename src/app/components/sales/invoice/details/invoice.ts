@@ -1166,7 +1166,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
-            // statustrack: this.getStatustrackConfig(),
             entityID: this.invoiceID,
             entityType: 'CustomerInvoice',
             showSharingStatus: true,
@@ -1178,7 +1177,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             contextmenu: [{
                 label: 'Periodisering',
                 action: () => this.accrueInvoice(),
-                disabled: () => this.invoice.StatusCode > StatusCodeCustomerInvoice.Invoiced
+                disabled: () => this.invoice.StatusCode >= StatusCodeCustomerInvoice.Invoiced
             }],
         };
 
@@ -1243,30 +1242,41 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (this.companySettings.AccountingLockedDate) {
             data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
         }
-        this.modalService.open(AccrualModal, { data: data }).onClose.subscribe((res: any) => {
-            if (res && res.action === 'ok') {
-                const accrual = res.model;
-                if (!accrual['_createguid'] && !accrual.ID) {
-                    accrual['createguid'] = createGuid();
-                }
-                const accrual$ = accrual.ID ? this.accrualService.Put(accrual.ID, accrual) : this.accrualService.Post(accrual);
-                const journalEntry$ = this.invoice.JournalEntryID ?
-                    this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
+        this.modalService.open(AccrualModal, { data: data }).onClose.subscribe(modalResult => {
+            if (modalResult && modalResult.action === 'ok') {
+                const accrual = modalResult.model;
+
+                const accrualPUT = accrual.ID
+                    ? this.accrualService.Put(accrual.ID, accrual)
+                    : this.accrualService.Post(accrual);
+
+                const journalEntryGET = this.invoice.JournalEntryID
+                    ? this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
                     : this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID);
-                forkJoin([accrual$, journalEntry$]).subscribe(([savedAccrual, currentJournalEntry]) => {
-                    if (currentJournalEntry.DraftLines && currentJournalEntry.DraftLines.length) {
-                        currentJournalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
-                        this.invoice.AccrualID = savedAccrual.ID;
-                        this.invoice.JournalEntryID = currentJournalEntry.ID;
-                        const saveInvoice$ = this.customerInvoiceService.Put(this.invoice.ID, this.invoice);
-                        const saveJournalEntry$ = this.journalEntryService.Put(currentJournalEntry.ID, currentJournalEntry);
-                        forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
-                            this.invoice = <CustomerInvoice>invoice;
-                            this.readonlyDraft = true;
-                            this.toastService.addToast('Periodiseringen er oppdatert', ToastType.good, 3);
-                        });
+
+                forkJoin(accrualPUT, journalEntryGET).subscribe(
+                    ([savedAccrual, journalEntry]) => {
+                        if (journalEntry.DraftLines && journalEntry.DraftLines.length) {
+                            this.invoice.AccrualID = savedAccrual.ID;
+                            this.invoice.JournalEntryID = journalEntry.ID;
+                            journalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
+
+                            forkJoin(
+                                this.save(true),
+                                this.journalEntryService.Put(journalEntry.ID, journalEntry)
+                            ).subscribe(
+                                () => {
+                                    this.readonlyDraft = true;
+                                    this.toastService.addToast('Periodiseringen er oppdatert', ToastType.good, 3);
+                                },
+                                err => this.errorService.handle(err)
+                            );
+                        }
+                    },
+                    err => {
+                        this.errorService.handle(err);
                     }
-                });
+                );
             }
         });
     }

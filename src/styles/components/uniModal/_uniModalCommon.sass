@@ -226,34 +226,6 @@ uni-bankaccount-modal fieldset
     max-width: none
     box-shadow: none
 
-uni-send-email-modal
-    textarea
-        height: 12rem
-        overflow: auto
-
-uni-send-vipps-invoice-modal
-    [aria-busy]:not([aria-busy=false]):before
-        display: inline-block
-        content: ''
-        height: 15px !important
-        width: 15px !important
-        background: transparent
-        border-radius: 50%
-        border: none
-        border-top: none
-        animation: rotate .5s infinite linear
-        margin: 0 7px -1px -7px
-
-    *[aria-busy]:not([aria-busy=false]):not(button):not(input):not(textarea):not(.multiselectADropdown):not(label):not(.progress-item),
-    .loading
-        position: relative
-        display: inline
-        background-color: transparent
-        border-radius: .3125rem
-        min-height: 4rem
-        border: none
-        margin: 0 10px 0 10px
-
 uni-preview-modal .uni-modal
     max-height: 95vh
 

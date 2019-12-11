@@ -1,24 +1,15 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {CustomerQuote, CustomerQuoteItem, LocalDate} from '../../unientities';
+import {CustomerQuote} from '../../unientities';
 import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ErrorService} from '../common/errorService';
-import { ITickerActionOverride } from '../../services/common/uniTickerService';
-import { ReportDefinitionService } from '../../services/reports/reportDefinitionService';
-import { ReportDefinitionParameterService } from '../../services/reports/reportDefinitionParameterService';
-import { SendEmail } from '../../models/sendEmail';
-import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
-import { CompanySettingsService } from '../common/companySettingsService';
-import { EmailService } from '../common/emailService';
-import { UniModalService } from '../../../framework/uni-modal/modalService';
-import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
-import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
-import * as moment from 'moment';
-import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
-import { IUniSaveAction } from '@uni-framework/save/save';
+import {ITickerActionOverride} from '../../services/common/uniTickerService';
+import {UniModalService} from '../../../framework/uni-modal/modalService';
+import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
+import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 
 @Injectable()
 export class CustomerQuoteService extends BizHttp<CustomerQuote> {
@@ -75,10 +66,6 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         http: UniHttp,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private emailService: EmailService,
-        private reportDefinitionService: ReportDefinitionService,
-        private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private companySettingsService: CompanySettingsService,
     ) {
         super(http);
         this.relativeURL = CustomerQuote.RelativeUrl;
@@ -140,59 +127,14 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
 
     public onSendEmail(selectedRows: Array<any>): Promise<any> {
         const quote = selectedRows[0];
-
-        return new Promise((resolve, reject) => {
-            this.companySettingsService.Get(1)
-                .subscribe(settings => {
-                    Observable.forkJoin(
-                        this.reportDefinitionService.getReportByID(
-                            settings['DefaultCustomerQuoteReportID']
-                        ),
-                        this.reportDefinitionParameterService.GetAll(
-                            'filter=ReportDefinitionId eq ' + settings['DefaultCustomerQuoteReportID']
-                        )
-                    ).subscribe(data => {
-                        if (data[0] && data[1]) {
-                            const defaultQuoteReportForm = data[0];
-                            const defaultReportParameterName = data[1][0].Name;
-
-                            const model = new SendEmail();
-                            model.EmailAddress = quote.CustomerQuoteEmailAddress || '';
-                            model.EntityType = 'CustomerQuote';
-                            model.EntityID = quote.ID;
-                            model.CustomerID = quote.CustomerID;
-
-                            const quoteNumber = (quote.QuoteNumber)
-                                ? ` nr. ${quote.QuoteNumber}`
-                                : 'kladd';
-
-                            model.Subject = 'Tilbud' + quoteNumber;
-                            model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
-
-                            const value = defaultReportParameterName === 'Id'
-                                ? quote[defaultReportParameterName.toUpperCase()]
-                                : quote[defaultReportParameterName];
-                            const parameters = [{ Name: defaultReportParameterName, value: value }];
-
-                            this.modalService.open(UniSendEmailModal, {
-                                data: {model: model, reportType: ReportTypeEnum.QUOTE, entity: quote, parameters}
-                            }).onClose.subscribe(email => {
-                                if (email) {
-                                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerQuote',
-                                        defaultQuoteReportForm.ID,
-                                        email.model.sendEmail,
-                                        email.parameters || parameters
-                                    );
-                                }
-                                resolve();
-                            }, err => {
-                                this.errorService.handle(err);
-                                resolve();
-                            });
-                        }
-                    }, err => this.errorService.handle(err));
-                }, err => this.errorService.handle(err)
-            );
+        this.modalService.open(TofEmailModal, {
+            data: {
+                entity: quote,
+                entityType: 'CustomerQuote',
+                reportType: ReportTypeEnum.QUOTE
+            }
         });
+
+        return Promise.resolve();
     }
 }

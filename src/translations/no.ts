@@ -198,7 +198,7 @@ export const NO = {
         'TEAMS': 'Teams',
         'NUMBERSERIES': 'Nummerserier',
         'TERMS': 'Betingelser',
-        'RULES': 'Regler',
+        'RULES': 'Godkjenningsregler',
         'IMPORT_CENTRAL': 'Importsentral',
         'JOBS': 'Jobber',
         'MODELS': 'Modeller',

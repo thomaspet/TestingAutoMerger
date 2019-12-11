@@ -3,7 +3,6 @@ import {UniConfirmModalWithList} from './modals/confirmModalWithList';
 import {UniAddressModal} from './modals/addressModal';
 import {UniPhoneModal} from './modals/phoneModal';
 import {UniEmailModal} from './modals/emailModal';
-import {UniSendEmailModal} from './modals/sendEmailModal';
 import {UniSendPaymentModal} from './modals/sendPaymentModal';
 import {UniBankAccountModal} from './modals/bankAccountModal';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
@@ -35,6 +34,7 @@ import { BarnepassProductsModal } from './modals/barnepassModals/barnepassProduc
 import { BarnepassSenderModal } from './modals/barnepassModals/barnepassSenderModal';
 import { UniCompanySaftAccountModal } from '@app/components/admin/jobs/saft/companySaftAccountModal/companySaftAccountModal';
 import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
+import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -43,7 +43,6 @@ export * from './modals/confirmModalWithList';
 export * from './modals/addressModal';
 export * from './modals/phoneModal';
 export * from './modals/emailModal';
-export * from './modals/sendEmailModal';
 export * from './modals/sendPaymentModal';
 export * from './modals/bankAccountModal';
 export * from './modals/unsavedChangesModal';
@@ -72,6 +71,7 @@ export * from './modals/license-agreement-modal/license-agreement-modal';
 export * from './modals/invoice-approval-modal/invoice-approval-modal';
 export * from './modals/wizard-settings-modal/wizard-settings-modal';
 export * from './modals/file-split-modal/file-split-modal';
+export * from './modals/tof-email-modal/tof-email-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -79,7 +79,6 @@ export const MODALS = [
     UniAddressModal,
     UniPhoneModal,
     UniEmailModal,
-    UniSendEmailModal,
     UniSendPaymentModal,
     UniBankAccountModal,
     UniUnsavedChangesModal,
@@ -110,6 +109,7 @@ export const MODALS = [
     BarnepassProductsModal,
     BarnepassSenderModal,
     UniCompanySaftAccountModal,
-    FileSplitModal
+    FileSplitModal,
+    TofEmailModal
 ];
 

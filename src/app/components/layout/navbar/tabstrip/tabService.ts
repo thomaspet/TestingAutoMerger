@@ -93,7 +93,6 @@ export enum UniModules {
 
     Jobs            = 700,
     Translations    = 701,
-    Thresholds      = 704,
     Dimensions      = 705,
     About           = 706,
     Versions        = 707,

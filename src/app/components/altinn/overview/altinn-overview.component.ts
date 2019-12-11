@@ -23,7 +23,14 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
     config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
     selectedReceipt$: BehaviorSubject<AltinnReceipt> = new BehaviorSubject(null);
     busy: boolean;
-    actions: IUniSaveAction[];
+    actions: IUniSaveAction[] = [
+        {
+            label: 'Rapportere Pass og stell av barn',
+            action: () => this.router.navigateByUrl('/altinn/childcare'),
+            disabled: false,
+            main: true
+        }
+    ];
 
     private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
 
@@ -47,8 +54,6 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             url: 'altinn/overview',
             name: 'Altinn oversikt'
         });
-
-        this.enableReportAction();
     }
 
     public ngAfterViewInit(): void {
@@ -124,16 +129,5 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
     public updateSelected(row: AltinnReceipt) {
         this.selectedReceipt$.next(row);
-    }
-
-    private enableReportAction() {
-        this.actions = [
-            {
-                label: 'Rapportere Pass og stell av barn',
-                action: () => this.router.navigateByUrl('/altinn/barnepass'),
-                disabled: false,
-                main: true
-            }
-        ];
     }
 }

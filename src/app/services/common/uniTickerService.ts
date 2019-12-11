@@ -1031,7 +1031,6 @@ export class UniTickerService {
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},
                     {ID: SharingType.Print,         Name: 'Utskrift'},
-                    {ID: SharingType.Vipps,         Name: 'Vipps'},
                     {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint'},
                     {ID: SharingType.Factoring,     Name: 'Factoring'},
                     {ID: SharingType.Efaktura,      Name: 'Efaktura'},

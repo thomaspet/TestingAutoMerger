@@ -302,6 +302,8 @@ export class TradeItemTable {
                 }
                 return item;
             });
+
+            this.itemsChange.emit(this.items);
             this.getMandatoryDimensionsReports();
         };
         if (shouldAskBeforeChange && !alreadyAskedDimensionChange) {
@@ -356,6 +358,8 @@ export class TradeItemTable {
                         item.DimensionsID = null;
                         return item;
                     });
+
+                    this.itemsChange.emit(this.items);
                     this.getMandatoryDimensionsReports();
                 }
             });
@@ -367,8 +371,10 @@ export class TradeItemTable {
                 item.DimensionsID = null;
                 return item;
             });
+
+            this.itemsChange.emit(this.items);
             this.getMandatoryDimensionsReports();
-}
+        }
     }
 
     private initTableConfig() {

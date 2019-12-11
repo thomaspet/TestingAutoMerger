@@ -106,8 +106,6 @@ export class ToolbarSharingStatus {
                 return `Sendt på epost`;
             case SharingType.AP:
                 return 'Sending via aksesspunkt/EHF';
-            case SharingType.Vipps:
-                return 'Sending via Vipps';
             case SharingType.Export:
                 return 'Eksportert';
             case SharingType.InvoicePrint:

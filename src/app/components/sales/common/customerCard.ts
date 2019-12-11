@@ -1,13 +1,11 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Customer, SharingType, StatusCodeSharing} from '@uni-entities';
+import {Customer} from '@uni-entities';
 import {
-    EHFService,
     UniSearchCustomerConfig,
     CustomerService,
     ErrorService,
     StatisticsService,
-    StatusService
 } from '@app/services/services';
 import {TofHelper} from '../salesHelper/tofHelper';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
@@ -15,7 +13,6 @@ import {UniModalService} from '@uni-framework/uni-modal';
 import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {CustomerEditModal} from './customer-edit-modal/customer-edit-modal';
 import {cloneDeep} from 'lodash';
-import * as moment from 'moment';
 
 @Component({
     selector: 'tof-customer-card',
@@ -57,17 +54,6 @@ import * as moment from 'moment';
                     faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
                 </a>
             </div>
-
-            <!--<section class="sharing-badges">
-                <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I sendingskø</span>
-                <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">Fakturaprint</span>
-                <span [attr.title]="printTitle" [ngClass]="printClass">Utskrift</span>
-                <span [attr.title]="vippsTitle" [ngClass]="vippsClass">Vipps</span>
-                <span [attr.title]="emailTitle" [ngClass]="emailClass">E-post</span>
-                <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
-                <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">eFaktura</span>
-            </section>-->
-
         </section>
     `
 })
@@ -80,24 +66,8 @@ export class TofCustomerCard {
 
     @Output() entityChange: EventEmitter<any> = new EventEmitter();
 
-    ehfClass: string = 'badge-unavailable';
-    efakturaClass: string = 'badge-unavailable';
-    emailClass: string = 'badge-unavailable';
-    vippsClass: string = 'badge-unavailable';
-    printClass: string = 'badge-unavailable';
-    invoicePrintClass: string = 'badge-unavailable';
-    distributionPendingClass: string = 'badge-unavailable';
-    ehfTitle: string;
-    efakturaTitle: string;
-    emailTitle: string;
-    vippsTitle: string;
-    printTitle: string = 'Sendt til utskrift';
-    invoicePrintTitle: string = 'Sendt til fakturaprint';
-    distributionPendingTitle: string;
-
     uniSearchConfig: IUniSearchConfig;
     customerDueInvoiceData: any;
-    private lastPeppolAddressChecked: string;
 
     private emailControl: FormControl = new FormControl('');
     private yourRefControl: FormControl = new FormControl('');
@@ -132,13 +102,11 @@ export class TofCustomerCard {
     ];
 
     constructor(
-        private ehfService: EHFService,
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
-        private statusService: StatusService,
         private tofHelper: TofHelper,
     ) {}
 
@@ -187,13 +155,6 @@ export class TofCustomerCard {
 
     ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
-
-            if (this.entity.ID) {
-                this.setSharingBadges();
-            } else {
-                this.clearSharingBadges();
-            }
-
             this.customerDueInvoiceData = null;
 
             const customer: any = this.entity.Customer || {Info: {Name: ''}};
@@ -206,8 +167,6 @@ export class TofCustomerCard {
                     }
                 });
             }
-
-            this.showDefaultBadgeForCustomer(customer);
 
             if (customer && customer.customerID) {
                 this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
@@ -225,7 +184,6 @@ export class TofCustomerCard {
     onCustomerSelected(customer: Customer) {
         const setCustomer = c => {
             this.entity = this.tofHelper.mapCustomerToEntity(c, this.entity);
-            this.showDefaultBadgeForCustomer(c);
             this.entity = cloneDeep(this.entity);
             this.entityChange.emit(this.entity);
         };
@@ -283,151 +241,5 @@ export class TofCustomerCard {
             + `&orderby=Info.Name&top=50&distinct=true`;
 
         return this.statisticsService.GetAllUnwrapped(odata);
-    }
-
-    private toBadgeClass(code: number): string {
-        switch (code) {
-            case StatusCodeSharing.Pending:
-                return 'badge-pending';
-            case StatusCodeSharing.InProgress:
-                return 'badge-in-progress';
-            case StatusCodeSharing.Failed:
-                return 'badge-failed';
-            case StatusCodeSharing.Completed:
-                return 'badge-completed';
-            case StatusCodeSharing.Cancelled:
-                return 'badge-cancelled';
-            default:
-                return 'badge-unavailable';
-        }
-    }
-
-    private showDefaultBadgeForCustomer(customer: Customer) {
-        if (customer && this.entityType === 'CustomerInvoice') {
-            // Can customer receive EHF?
-            if (customer.PeppolAddress || customer.OrgNumber) {
-                const peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
-
-                if (peppoladdress !== this.lastPeppolAddressChecked) {
-                    this.ehfService.GetAction(
-                        null, 'is-ehf-receiver',
-                        'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
-                    ).subscribe(enabled => {
-                        if (enabled && this.ehfClass === 'badge-unavailable') {
-                            this.ehfClass = 'badge-available';
-                            this.ehfTitle = 'Kan sende EHF til ' + peppoladdress;
-                        }
-                        this.lastPeppolAddressChecked = peppoladdress;
-                    }, err => this.errorService.handle(err));
-                }
-            }
-
-            if (customer.EInvoiceAgreementReference) {
-                this.efakturaClass = 'badge-available';
-                this.efakturaTitle = 'Kan sende efaktura til ' + customer.EInvoiceAgreementReference;
-            } else if (customer.EfakturaIdentifier) {
-                this.efakturaClass = 'badge-available';
-                this.efakturaTitle = 'Kan sende efaktura til ' + customer.EfakturaIdentifier;
-            }
-        }
-
-        // Can customer receive email?
-        if (customer && customer.Info && customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress) {
-            this.emailClass = 'badge-available';
-            this.emailTitle = 'Kan sende på e-post til ' + customer.Info.DefaultEmail.EmailAddress;
-        }
-    }
-
-    private clearSharingBadges() {
-        this.ehfClass = 'badge-unavailable';
-        this.efakturaClass = 'badge-unavailable';
-        this.emailClass = 'badge-unavailable';
-        this.vippsClass = 'badge-unavailable';
-        this.printClass = 'badge-unavailable';
-        this.invoicePrintClass = 'badge-unavailable';
-        this.distributionPendingClass = 'badge-unavailable';
-        this.ehfTitle = '';
-        this.efakturaTitle = '';
-        this.emailTitle = '';
-        this.vippsTitle = '';
-        this.printTitle = '';
-        this.invoicePrintTitle = '';
-        this.distributionPendingTitle = '';
-    }
-
-    private setSharingBadges() {
-        this.statisticsService.GetAllUnwrapped(
-            `model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}`
-            + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`
-        ).subscribe(sharings => {
-            [
-                SharingType.Unknown,
-                SharingType.AP,
-                SharingType.Email,
-                SharingType.Vipps,
-                SharingType.Print,
-                SharingType.InvoicePrint,
-                SharingType.Efaktura
-            ].forEach(type => {
-                let cls = '';
-                let title = '';
-                const firstOfType = sharings.find(sharing => sharing.SharingType === type);
-                if (firstOfType) {
-                    cls = this.toBadgeClass(firstOfType.SharingStatusCode);
-                    title = this.statusService.getSharingStatusText(firstOfType.SharingStatusCode);
-
-                    if (firstOfType.SharingStatusCode === StatusCodeSharing.Completed && type !== SharingType.Print) {
-                        title += ' til ' + firstOfType.SharingTo;
-                    }
-
-                    if (firstOfType.SharingExternalMessage) {
-                        if (firstOfType.SharingExternalMessage === 'Opened by receiver') {
-                            title += ' - Åpnet av mottaker';
-                        } else if (firstOfType.SharingExternalMessage === 'Payed') {
-                            title += ' - Betalt av mottaker';
-                        } else {
-                            title += ' - ' + firstOfType.SharingExternalMessage;
-                        }
-                    }
-
-                    const date = moment(firstOfType.SharingUpdatedAt || firstOfType.SharingCreatedAt);
-                    if (date.isValid()) {
-                        title += '\n' + date.format('DD.MM.YYYY HH:mm');
-                    }
-
-                    switch (type) {
-                        case SharingType.Unknown:
-                            this.distributionPendingClass = cls;
-                            this.distributionPendingTitle = firstOfType.SharingExternalMessage ? firstOfType.SharingExternalMessage :
-                                'I kø, sendingsmetode velges basert på utsendelsesoppsettet når jobben startes';
-                            break;
-                        case SharingType.AP:
-                            this.ehfClass = cls;
-                            this.ehfTitle = title;
-                            break;
-                        case SharingType.Email:
-                            this.emailClass = cls;
-                            this.emailTitle = title;
-                            break;
-                        case SharingType.Vipps:
-                            this.vippsClass = cls;
-                            this.vippsTitle = title;
-                            break;
-                        case SharingType.Print:
-                            this.printClass = cls;
-                            this.printTitle = title;
-                            break;
-                        case SharingType.InvoicePrint:
-                            this.invoicePrintClass = cls;
-                            this.invoicePrintTitle = title;
-                            break;
-                        case SharingType.Efaktura:
-                            this.efakturaClass = cls;
-                            this.efakturaTitle = title;
-                            break;
-                    }
-                }
-            });
-        });
     }
 }
