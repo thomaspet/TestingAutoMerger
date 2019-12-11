@@ -21,7 +21,8 @@ export class Login {
 
     selectConfig: ISelectConfig = {
         displayProperty: 'Name',
-        placeholder: 'Velg selskap'
+        placeholder: 'Velg selskap',
+        hideDeleteButton: true
     };
 
     constructor(

@@ -154,7 +154,8 @@ export class BatchInvoiceModal implements IUniModal {
                         {ID: BatchInvoiceOperation.OneInvoiceEachProject, Name: `En faktura per prosjekt`},
                     ],
                     valueProperty: 'ID',
-                    displayProperty: 'Name'
+                    displayProperty: 'Name',
+                    hideDeleteButton: true
                 }
             },
             {
@@ -164,7 +165,8 @@ export class BatchInvoiceModal implements IUniModal {
                 Options: {
                     source: [{ID: 0, Name: `Hentes fra ${entityLabel}`}, ...sellers],
                     valueProperty: 'ID',
-                    displayProperty: 'Name'
+                    displayProperty: 'Name',
+                    hideDeleteButton: true
                 }
             },
             {
