@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Email} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -7,9 +6,6 @@ import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';
 import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {UniSendEmailModal} from '@uni-framework/uni-modal/modals/sendEmailModal';
-import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -19,7 +15,6 @@ export class EmailService extends BizHttp<Email> {
         http: UniHttp,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private modalService: UniModalService,
     ) {
         super(http);
 
@@ -81,38 +76,6 @@ export class EmailService extends BizHttp<Email> {
             .send()
             .map(res => res.body);
     }
-
-    // public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {
-    //     const model = new SendEmail();
-    //     model.EntityType = `Customer${entityTypeName}`;
-    //     model.EntityID = entity.ID;
-    //     model.CustomerID = entity.CustomerID;
-    //     model.EmailAddress = entity.EmailAddress;
-
-    //     const entityNumber = entity[`${entityTypeName}Number`]
-    //         ? ` nr. ` + entity[`${entityTypeName}Number`]
-    //         : 'kladd';
-
-    //     model.Subject = `${name} ${entityNumber}`;
-    //     model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
-
-    //     return this.modalService.open(UniSendEmailModal, {
-    //         data: {
-    //             model: model,
-    //             reportType: ReportTypeEnum[entityTypeName.toUpperCase()],
-    //             entity,
-    //             parameters: reportForm.parameters,
-    //             form: reportForm
-    //         }
-    //     }).onClose.map(email => {
-    //         if (email) {
-    //             this.sendEmailWithReportAttachment(`Models.Sales.${model.EntityType}`,
-    //                 email.model.selectedForm.ID,
-    //                 email.model.sendEmail
-    //             );
-    //         }
-    //     });
-    // }
 
     public isValidEmailAddress(email: string): boolean {
         // <something>@<something>.<something>

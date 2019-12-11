@@ -2,14 +2,13 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ReportDefinition, ReportParameter, StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '@uni-entities';
-import {SendEmail} from '@app/models/sendEmail';
-import {IUniModal, IModalOptions, UniModalService, UniSendEmailModal} from '@uni-framework/uni-modal';
+import {IUniModal, IModalOptions, UniModalService} from '@uni-framework/uni-modal';
+import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 import {
     ReportTypeService,
     ErrorService,
     ReportDefinitionParameterService,
     CompanySettingsService,
-    EmailService,
 } from '@app/services/services';
 
 class CustomReportParameter extends ReportParameter {
@@ -49,7 +48,6 @@ export class TofReportModal implements IUniModal {
         private modalService: UniModalService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private companySettingsService: CompanySettingsService,
-        private emailService: EmailService
     ) {}
 
     ngOnInit() {
@@ -191,35 +189,16 @@ export class TofReportModal implements IUniModal {
     sendEmail() {
         this.setReportParameters();
 
-        const model = <SendEmail> {};
-        model.EntityType = this.entityType;
-        model.EntityID = this.entity.ID;
-        model.CustomerID = this.entity.CustomerID;
-        model.EmailAddress = this.entity.EmailAddress;
-
-        const entityNumber = this.entity[`${this.entityTypeShort}Number`]
-            ? `nr. ` + this.entity[`${this.entityTypeShort}Number`]
-            : 'kladd';
-
-        model.Subject = `${this.entityLabel} ${entityNumber}`;
-        model.Message = `Vedlagt finner du ${this.entityLabel.toLowerCase()} ${entityNumber}`;
-
-        this.modalService.open(UniSendEmailModal, {
+        this.modalService.open(TofEmailModal, {
             data: {
-                model: model,
-                reportType: this.reportType,
                 entity: this.entity,
-                parameters: this.selectedReport.parameters,
-                form: this.selectedReport
+                entityType: this.entityType,
+                reportType: this.reportType,
+                report: this.selectedReport,
+                parameters: this.selectedReport.parameters
             }
-        }).onClose.subscribe(email => {
-            if (email) {
-                this.emailService.sendEmailWithReportAttachment(
-                    `Models.Sales.${model.EntityType}`,
-                    email.model.selectedForm.ID,
-                    email.model.sendEmail
-                );
-
+        }).onClose.subscribe(emailSent => {
+            if (emailSent) {
                 this.onClose.emit('email');
             }
         });

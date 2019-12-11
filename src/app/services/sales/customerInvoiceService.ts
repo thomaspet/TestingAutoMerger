@@ -9,20 +9,15 @@ import {
     StatusCodeCustomerInvoiceReminder,
     JournalEntry,
 } from '../../unientities';
-import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
 import { ITickerActionOverride } from '../../services/common/uniTickerService';
-import { CompanySettingsService } from '../common/companySettingsService';
-import { EmailService } from '../common/emailService';
 import { UniModalService } from '../../../framework/uni-modal/modalService';
-import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
+import { TofEmailModal } from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
 import { BizHttp, RequestMethod } from '@uni-framework/core/http';
 import { Observable } from 'rxjs';
 import { ErrorService } from '../common/errorService';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
-import { ReportDefinitionService } from '../../services/reports/reportDefinitionService';
-import { ReportDefinitionParameterService } from '../../services/reports/reportDefinitionParameterService';
 import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 
 @Injectable()
@@ -71,18 +66,12 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         },
     ];
 
-    private printStatusPrinted: string = '200';
-
     constructor(
         http: UniHttp,
         private errorService: ErrorService,
         private router: Router,
         private toastService: ToastService,
-        private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
-        private emailService: EmailService,
-        private reportDefinitionService: ReportDefinitionService,
-        private reportDefinitionParameterService: ReportDefinitionParameterService,
     ) {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
@@ -275,59 +264,15 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
     public onSendEmail(selectedRows: Array<any>): Promise<any> {
         const invoice = selectedRows[0];
-        return new Promise((resolve, reject) => {
-            this.companySettingsService.Get(1)
-                .subscribe(settings => {
-                    Observable.forkJoin(
-                        this.reportDefinitionService.getReportByID(
-                            settings['DefaultCustomerInvoiceReportID']
-                        ),
-                        this.reportDefinitionParameterService.GetAll(
-                            'filter=ReportDefinitionId eq ' + settings['DefaultCustomerInvoiceReportID']
-                        )
-                    ).subscribe(data => {
-                        if (data[0] && data[1]) {
-                            const defaultInvoiceReportForm = data[0];
-                            const defaultReportParameterName = data[1][0].Name;
-
-                            const model = new SendEmail();
-                            model.EmailAddress = invoice.CustomerInvoiceEmailAddress || '';
-                            model.EntityType = 'CustomerInvoice';
-                            model.EntityID = invoice.ID;
-                            model.CustomerID = invoice.CustomerID;
-
-                            const invoiceNumber = (invoice.InvoiceNumber)
-                                ? ` nr. ${invoice.InvoiceNumber}`
-                                : 'kladd';
-
-                            model.Subject = 'Faktura' + invoiceNumber;
-                            model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
-
-                            const value = defaultReportParameterName === 'Id'
-                                ? invoice[defaultReportParameterName.toUpperCase()]
-                                : invoice[defaultReportParameterName];
-                            const parameters = [{ Name: defaultReportParameterName, value: value }];
-
-                            this.modalService.open(UniSendEmailModal, {
-                                data: { model: model, reportType: ReportTypeEnum.INVOICE, entity: invoice, parameters }
-                            }).onClose.subscribe(email => {
-                                if (email) {
-                                    this.emailService.sendEmailWithReportAttachment('Models.Sales.CustomerInvoice',
-                                        email.model.selectedForm.ID,
-                                        email.model.sendEmail,
-                                        email.parameters || parameters
-                                    );
-                                }
-                                resolve();
-                            }, err => {
-                                this.errorService.handle(err);
-                                resolve();
-                            });
-                        }
-                    }, err => this.errorService.handle(err));
-                }, err => this.errorService.handle(err)
-                );
+        this.modalService.open(TofEmailModal, {
+            data: {
+                entity: invoice,
+                entityType: 'CustomerInvoice',
+                reportType: ReportTypeEnum.INVOICE
+            }
         });
+
+        return Promise.resolve();
     }
 
 
