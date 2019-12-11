@@ -11,15 +11,13 @@ import {UniQueryModule} from '../uniquery/uniqueryModule';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
-import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
-import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
 import {SaftImportModal} from './jobs/saft/saftimportmodal';
 import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.component';
 import {PeopleService} from '@app/components/admin/gdpr/people.service';
 import {GdprFileWriter} from '@app/components/admin/gdpr/gdpr-file-writer';
 import {SaftExportModal} from './jobs/saft/saftexportmodal';
-import {MatAutocompleteModule, MatSlideToggleModule, MatRadioModule, MatCheckboxModule, MatProgressSpinnerModule, MatProgressBarModule} from '@angular/material';
+import {MatAutocompleteModule} from '@angular/material';
 
 import {FlowSettings} from './flow/flowSettings';
 import {FlowModal} from './flow/flow-modal/flow-modal';
@@ -46,18 +44,11 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         AppPipesModule,
         UniQueryModule,
         MatAutocompleteModule,
-        MatSlideToggleModule,
-        MatProgressSpinnerModule,
-        MatRadioModule,
-        MatCheckboxModule,
-        MatProgressBarModule
     ],
     declarations: [
         JobList,
         JobDetails,
         JobLog,
-        ApprovalThresholds,
-        ApprovalThresholdRules,
         SaftExportView,
         SaftImportModal,
         SaftExportModal,
@@ -77,7 +68,6 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         JobList,
         JobDetails,
         JobLog,
-        ApprovalThresholds,
         UniGdprPeopleList,
     ]
 })

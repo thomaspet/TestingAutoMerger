@@ -59,12 +59,6 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                 name: 'Admin',
                 links: [
                     {
-                        name: 'Regler',
-                        url: '/admin/thresholds',
-                        moduleID: UniModules.Thresholds,
-                        activeInSidebar: false
-                    },
-                    {
                         name: 'Jobber',
                         url: '/admin/jobs',
                         moduleID: UniModules.Jobs,
