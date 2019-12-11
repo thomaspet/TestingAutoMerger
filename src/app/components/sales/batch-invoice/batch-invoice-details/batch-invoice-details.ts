@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ViewChi
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {HttpParams} from '@angular/common/http';
 import {StatisticsService, ErrorService} from '@app/services/services';
-import {StatusCode, BatchInvoice} from '@uni-entities';
+import {StatusCode, BatchInvoice, Status} from '@uni-entities';
 import {BatchInvoiceService} from '@app/services/sales/batchInvoiceService';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
@@ -71,7 +71,7 @@ export class BatchInvoiceDetails {
                 'CustomerOrder.OrderNumber as OrderNumber',
                 'CustomerOrder.TaxExclusiveAmount as OrderTaxExclusiveAmount',
                 'StatusCode as StatusCode',
-                'Comment.Text as ErrorText'
+                'Comment.Text as Comment'
             ].join(',');
 
             const params = tableParams
@@ -117,10 +117,15 @@ export class BatchInvoiceDetails {
                         [StatusCode.Pending]: 'I kø',
                         [StatusCode.Active]: 'Under arbeid',
                         [StatusCode.Completed]: { label: 'Fullført', class: 'good' },
+                        [StatusCode.Deviation]: {
+                            label: 'Ignorert',
+                            class: 'warn',
+                            tooltip: row => row.Comment
+                        },
                         [StatusCode.Error]: {
                             label: 'Feilet',
                             class: 'bad',
-                            tooltip: row => row.ErrorText || 'Mangler feilmelding'
+                            tooltip: row => row.Comment || 'Mangler feilmelding'
                         },
                         0: 'Ingen status'
                     }),
