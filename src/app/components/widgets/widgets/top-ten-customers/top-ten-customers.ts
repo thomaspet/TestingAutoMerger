@@ -63,6 +63,7 @@ export class TopTenCustomersWidget {
             + '&join=Customer.ID eq CustomerInvoice.CustomerID'
             + '&top=10'
             + '&expand=info'
+            + '&filter=CustomerInvoice.StatusCode gt 42001'
             + '&orderby=sum(casewhen(CustomerInvoice.InvoiceDate gt 20170101,CustomerInvoice.TaxInclusiveAmount,0)) desc'
             + '&wrap=false'
             + '&distinct=false';

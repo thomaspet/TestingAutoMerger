@@ -144,7 +144,8 @@ export const CHARTS = [
         config: {
             dataEndpoint: '/api/statistics?model=Customer&select=Info.Name as Name,'
                 + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
-                + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0',
+                + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
+                + '&filter=CustomerInvoices.StatusCode gt 42001',
             valueKey: 'RestAmount',
             labelKey: 'Name',
             maxNumberOfLabels: 7,
