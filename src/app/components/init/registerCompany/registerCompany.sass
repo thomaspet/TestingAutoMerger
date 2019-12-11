@@ -1,22 +1,6 @@
-\:host
+.content
     display: flex
-    width: 100%
-    justify-content: flex-end
-
-    .content
-        display: flex
-        align-items: center
-        padding: 2rem 0
-        margin-right: 10vw
-
-        @media screen and (max-width: 1750px)
-            margin-right: 5vw
-        @media screen and (max-width: 1650px)
-            margin-right: 2vw
-        @media screen and (max-width: 1100px)
-            margin: 0 auto
-        @media screen and (max-height: 810px)
-            padding-top: 2rem
+    align-items: center
 
 .select-type-of-company
     display: flex
@@ -39,8 +23,8 @@
         p
             margin-top: 0
 
-        &:first-of-type
-            margin-right: 2rem
+        & + .authentication-component
+            margin-left: 2rem
 
         button
             margin: auto auto 1rem

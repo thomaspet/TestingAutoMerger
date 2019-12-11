@@ -12,14 +12,12 @@ import {theme} from 'src/themes/theme';
 })
 export class UniInit {
     isAuthenticated: boolean;
-    useBackground1 = true;
     showTryForFree = true;
-    background1 = theme.login_background;
-    background2 = 'assets/onboarding-background.svg';
 
-    background;
-    fullWidthBackground: boolean;
-
+    isSrEnvironment = environment.isSrEnvironment;
+    illustration: string;
+    background: string;
+    backgroundHeight = theme.init.backgroundHeight;
 
     private onDestroy$ = new Subject();
 
@@ -29,21 +27,14 @@ export class UniInit {
     ) {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
-
-                if (environment.isSrEnvironment) {
-                    if (event.url.includes('register-company')) {
-                        this.background = 'assets/onboarding-background.svg';
-                        this.fullWidthBackground = false;
-                    } else {
-                        this.background = theme.login_background;
-                        this.fullWidthBackground = true;
-                    }
+                if (event.url.includes('login') && theme.init.login_background) {
+                    this.background = theme.init.login_background;
+                    this.illustration = undefined;
                 } else {
-                    this.background = 'assets/onboarding-background.svg';
-                    this.fullWidthBackground = false;
+                    this.background = theme.init.background;
+                    this.illustration = theme.init.illustration;
                 }
 
-                this.useBackground1 = !event.url.includes('register-company');
                 this.showTryForFree = !event.url.includes('sign-up');
             }
         });

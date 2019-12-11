@@ -1,10 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, HostBinding} from '@angular/core';
 import {AuthService} from '@app/authService';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Router} from '@angular/router';
 import {Company} from '@uni-entities';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-login',
@@ -13,6 +14,7 @@ import {Company} from '@uni-entities';
 })
 export class Login {
     @ViewChild(UniSelect) select: UniSelect;
+    @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
 
     isAuthenticated: boolean = true;
     availableCompanies: any[];
