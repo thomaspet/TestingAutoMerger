@@ -1,5 +1,4 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {Customer} from '@uni-entities';
 import {FormControl} from '@angular/forms';
 import {debounceTime, take, finalize, tap, catchError} from 'rxjs/operators';
 import {Subscription, BehaviorSubject, Observable, of as observableOf} from 'rxjs';
