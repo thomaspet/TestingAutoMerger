@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, HostListener} from '@angular/core';
-import {IToast} from './toastService';
+import {IToast, ToastType} from './toastService';
 
 @Component({
     selector: 'uni-toast',
@@ -12,6 +12,7 @@ export class UniToast {
 
     hovering: boolean;
     timedOut: boolean;
+    icon: string;
 
     @HostListener('click') close() {
         this.dismiss.emit(true);
@@ -25,6 +26,23 @@ export class UniToast {
         this.hovering = false;
         if (this.timedOut) {
             this.close();
+        }
+    }
+
+    ngOnChanges() {
+        if (this.toast) {
+            switch (this.toast.type) {
+                case ToastType.good:
+                    this.icon = 'check_circle';
+                break;
+                case ToastType.bad:
+                case ToastType.warn:
+                    this.icon = 'error_outline';
+                break;
+                default:
+                    this.icon = 'info';
+                break;
+            }
         }
     }
 
