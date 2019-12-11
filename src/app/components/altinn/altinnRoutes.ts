@@ -18,7 +18,7 @@ export const altinnRoutes: Routes = [
         component: AltinnSettings
     },
     {
-        path: 'barnepass',
+        path: 'childcare',
         component: BarnepassView
     },
 ];
