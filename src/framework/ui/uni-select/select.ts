@@ -70,6 +70,8 @@ export class UniSelect implements OnChanges, AfterViewInit {
             if (this.items[0] && this.config && _.get(this.items[0], this.config.displayProperty)
                 && _.get(this.items[0], this.config.displayProperty) !== 'Ikke valgt') {
                 this.items.unshift(null);
+            } else if (this.items[0] && this.config && !this.config.displayProperty && _.get(this.items[0], this.config.valueProperty)) {
+                this.items.unshift(null);
             }
         }
     }
