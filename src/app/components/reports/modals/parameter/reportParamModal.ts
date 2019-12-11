@@ -85,6 +85,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     private browserStorageReportParams: any;
     private hasParameterDependency: boolean = false;
     private report: ExtendedReportDefinition;
+    private activeYear: number;
 
     constructor(
         private browserStorageService: BrowserStorageService,
@@ -94,7 +95,15 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private financialYearService: FinancialYearService,
         private uniModalService: UniModalService,
         private toastService: ToastService,
-    ) { }
+    ) {
+        // Queries could give different results when changing current year
+        this.financialYearService.lastSelectedFinancialYear$.subscribe((res) => {
+            if (this.activeYear && this.activeYear != res.Year && !this.rememberSelection) {
+                this.reportDefinitionParameterService.invalidateCache();
+            }
+            this.activeYear = res.Year;
+        });
+    }
 
     fetchEditedParams() {
         const model = this.model$.getValue();
