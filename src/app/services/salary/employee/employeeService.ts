@@ -450,7 +450,8 @@ export class EmployeeService extends BizHttp<Employee> {
                         ],
                         template: (obj) => `${obj.id} - ${obj.name}`,
                         valueProperty: 'id',
-                        displayProperty: 'name'
+                        displayProperty: 'name',
+                        hideDeleteButton: true
                     }
                 },
                 {

@@ -1,12 +1,19 @@
 \:host
     display: flex
-    align-items: center
-    margin: 0 15rem 0 auto
+    align-items: flex-start
+    margin-left: 10rem
+    height: 100%
 
-    @media screen and (max-width: 1100px)
-        margin: 0 3rem 0 auto
-    @media screen and (max-width: 700px)
-        margin: 0 auto
+    &.ue-login
+        button.login-button
+            margin-top: 5.5rem
+    &.ext01-login
+        align-items: center
+
+    @media screen and (max-width: 1400px)
+        margin-left: 5rem
+    @media screen and (max-width: 1000px)
+        margin-left: 0
 
 button.c2a
     width: 20rem

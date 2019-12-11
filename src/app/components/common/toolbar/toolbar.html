@@ -9,7 +9,8 @@
         <uni-toolbar-search
             *ngIf="searchVisible; else textHeader"
             [config]="searchConfig"
-            (clickOutside)="toggleSearch()">
+            (clickOutside)="toggleSearch()"
+            (close)="searchVisible = false">
         </uni-toolbar-search>
 
         <ng-template #textHeader>

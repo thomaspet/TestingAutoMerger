@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
-import * as _ from 'lodash';
+import {get} from 'lodash';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
 export interface ISelectConfig {
@@ -50,6 +50,8 @@ export class UniSelect implements OnChanges, AfterViewInit {
     public activeDecentantId: string;
     public valueInputControl = new FormControl('');
 
+    public showNotSelectedOption: boolean;
+
     constructor(public cd: ChangeDetectorRef, public el: ElementRef) {
         // Set a guid for DOM elements, etc.
         this.guid = (new Date()).getTime().toString();
@@ -66,25 +68,26 @@ export class UniSelect implements OnChanges, AfterViewInit {
                 this.valueInputControl.setValue(displayValue);
             });
         }
-        if (this.items && this.items.length && !this.config.hideDeleteButton) {
-            if (this.items[0] && this.config && _.get(this.items[0], this.config.displayProperty)
-                && _.get(this.items[0], this.config.displayProperty) !== 'Ikke valgt') {
-                this.items.unshift(null);
-            }
-        }
+
     }
 
     public ngOnChanges(changes) {
         if (this.config && this.items) {
+            if (this.config && this.items && this.items.length) {
+                this.showNotSelectedOption = !this.config.hideDeleteButton && get(this.items[0], this.config.valueProperty);
+            }
+
             // Init selected item
             if (this.config.valueProperty && typeof this.value !== 'object') {
-                this.selectedItem = this.items.find(item => _.get(item, this.config.valueProperty) === this.value);
+                this.selectedItem = this.items.find(item => get(item, this.config.valueProperty) === this.value);
             } else {
                 this.selectedItem = this.value;
             }
             this.searchable = (this.config.searchable || this.config.searchable === undefined);
             this.searchControl.setValue('');
             this.filteredItems = this.items;
+
+
             this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
             const displayValue = this.getDisplayValue(this.selectedItem);
             this.valueInputControl.setValue(displayValue);
@@ -119,7 +122,8 @@ export class UniSelect implements OnChanges, AfterViewInit {
                 if (this.expanded) {
                     let index = this.focusedIndex - 1;
                     if (index < 0) {
-                        index = 0;
+                        index = this.showNotSelectedOption ? -1 : 0;
+                        // index = 0;
                     }
 
                     this.focusedIndex = index;
@@ -148,7 +152,10 @@ export class UniSelect implements OnChanges, AfterViewInit {
             case KeyCodes.TAB:
                 event.preventDefault();
                 if (this.expanded) {
-                    this.confirmSelection();
+                    const item = this.filteredItems[this.focusedIndex];
+                    if (item) {
+                        this.confirmSelection(item);
+                    }
                     this.close();
                     this.focus();
                 }
@@ -185,8 +192,11 @@ export class UniSelect implements OnChanges, AfterViewInit {
 
             if (focusIndex >= 0) {
                 this.focusedIndex = focusIndex;
+                const item = this.filteredItems[focusIndex];
+                if (item) {
+                    this.confirmSelection(item);
+                }
             }
-            this.confirmSelection();
         } else {
             if (!this.expanded) {
                 this.toggle();
@@ -196,9 +206,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
                 }
 
                 this.cd.markForCheck();
-
             }
-
         }
     }
 
@@ -236,7 +244,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
         if (typeof item === 'string') {
             return item;
         } else if (this.config.displayProperty) {
-            return _.get(item, this.config.displayProperty, '');
+            return get(item, this.config.displayProperty, '');
         } else if (this.config.template) {
             return this.config.template(item);
         } else {
@@ -256,17 +264,20 @@ export class UniSelect implements OnChanges, AfterViewInit {
         this.cd.markForCheck();
     }
 
-    private confirmSelection(event?: MouseEvent) {
+    private confirmSelection(item, event?: MouseEvent) {
         if (event) {
             event.stopPropagation();
             event.preventDefault();
         }
-        if (this.focusedIndex > -1) {
-            this.selectedItem = this.filteredItems[this.focusedIndex];
-        } else {
-            return;
-        }
-        this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
+
+        // if (this.focusedIndex > -1) {
+        //     this.selectedItem = this.filteredItems[this.focusedIndex];
+        // } else {
+        //     return;
+        // }
+
+        // this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
+        this.selectedItem = item;
         this.initialItem = this.selectedItem;
         const displayValue = this.getDisplayValue(this.selectedItem);
         this.valueInputControl.setValue(displayValue);
@@ -274,6 +285,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
             this.valueChange.emit(this.selectedItem);
             this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
         }
+
         this.close();
         this.focus();
     }

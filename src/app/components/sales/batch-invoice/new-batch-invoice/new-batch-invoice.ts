@@ -13,6 +13,7 @@ import {StatusCodeCustomerInvoice, StatusCodeCustomerOrder} from '@uni-entities'
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 import * as moment from 'moment';
+import {ToolbarButton, IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 
 interface NewBatchInvoiceState {
     fromDate: Date;
@@ -30,6 +31,14 @@ export class NewBatchInvoice {
     @ViewChild(AgGridWrapper) table: AgGridWrapper;
 
     saveaction: IUniSaveAction;
+    toolbarConfig: IToolbarConfig = {
+        title: 'Ny samlefakturering',
+        buttons: [{
+            label: 'Tilbake til liste',
+            class: 'secondary',
+            action: () => this.router.navigateByUrl('/sales/batch-invoices')
+        }]
+    };
 
     entityType: 'CustomerOrder' | 'CustomerInvoice';
     entityLabel: string;
@@ -70,7 +79,8 @@ export class NewBatchInvoice {
             this.entityLabel = this.entityType  === 'CustomerOrder' ? 'ordre' : 'fakturakladder';
             this.saveaction = {
                 label: `Samlefakturer valgte ${this.entityLabel}`,
-                action: (done) => this.runBatchInvoice(done)
+                action: (done) => this.runBatchInvoice(done),
+                disabled: true
             };
 
             const savedState: NewBatchInvoiceState = this.getSavedState();
@@ -101,9 +111,11 @@ export class NewBatchInvoice {
     onRowSelectionChange(items) {
         this.selectedItems = items || [];
         this.selectedItemSum = this.selectedItems.reduce((total, item) => {
-            const amount = this.entityType === 'CustomerOrder' ? item.RestExclusiveAmountCurrency : item.TaxExclusiveAmountCurrency;
+            const amount = this.entityType === 'CustomerOrder' ? item.RestAmountCurrency : item.TaxInclusiveAmountCurrency;
             return total + (amount || 0);
         }, 0);
+
+        this.saveaction.disabled = !this.selectedItems.length;
     }
 
     onDataLoaded() {
@@ -148,12 +160,12 @@ export class NewBatchInvoice {
             'CustomerName as CustomerName',
             'DeliveryDate as DeliveryDate',
             'OurReference as OurReference',
-            'TaxExclusiveAmountCurrency as TaxExclusiveAmountCurrency',
+            'TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency',
             'StatusCode as StatusCode',
         ];
 
         if (this.entityType === 'CustomerOrder') {
-            selects.push('RestExclusiveAmountCurrency as RestExclusiveAmountCurrency');
+            selects.push('RestAmountCurrency as RestAmountCurrency');
             selects.push('ReadyToInvoice as ReadyToInvoice');
             selects.push('OrderNumber as OrderNumber');
         }
@@ -208,7 +220,6 @@ export class NewBatchInvoice {
             .setMultiRowSelect(true)
             .setHideRowCount(true)
             .setColumns([
-                // this.getCheckboxColumn(),
                 new UniTableColumn(`OrderNumber`, 'Ordrenr.')
                     .setLinkResolver(row => `/sales/orders/${row.ID}`),
                 new UniTableColumn('CustomerNumber', 'Kundenr.'),
@@ -219,8 +230,8 @@ export class NewBatchInvoice {
                 new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate)
                     .setWidth('8rem', false),
                 new UniTableColumn('OurReference', 'Vår referanse'),
-                new UniTableColumn('TaxExclusiveAmountCurrency', 'Sum eks. mva', UniTableColumnType.Money),
-                new UniTableColumn('RestExclusiveAmountCurrency', 'Restsum', UniTableColumnType.Money),
+                new UniTableColumn('TaxInclusiveAmountCurrency', 'Sum inkl. mva', UniTableColumnType.Money),
+                new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Money),
                 new UniTableColumn('StatusCode', 'Status')
                     .setTemplate(row => this.orderService.getStatusText(row.StatusCode)),
                 new UniTableColumn('ReadyToInvoice', 'Klar til fakturering', UniTableColumnType.Boolean)
@@ -234,7 +245,6 @@ export class NewBatchInvoice {
             .setMultiRowSelect(true)
             .setHideRowCount(true)
             .setColumns([
-                // this.getCheckboxColumn(),
                 new UniTableColumn('ID', 'Faktura ID')
                     .setLinkResolver(row => `/sales/invoices/${row.ID}`),
                 new UniTableColumn('CustomerNumber', 'Kundenr.'),
@@ -245,27 +255,9 @@ export class NewBatchInvoice {
                 new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate)
                     .setWidth('8rem', false),
                 new UniTableColumn('OurReference', 'Vår referanse'),
-                new UniTableColumn('TaxExclusiveAmountCurrency', 'Sum eks. mva', UniTableColumnType.Money),
+                new UniTableColumn('TaxInclusiveAmountCurrency', 'Sum inkl. mva', UniTableColumnType.Money),
             ]);
     }
-
-    // private getCheckboxColumn() {
-    //     return new UniTableColumn('', '', UniTableColumnType.Checkbox).setCheckboxConfig({
-    //         checked: row => {
-    //             return !this.uncheckedRowMap[row.ID];
-    //         },
-    //         onChange: (row, checked) => {
-    //             if (checked && this.uncheckedRowMap[row.ID]) {
-    //                 delete this.uncheckedRowMap[row.ID];
-    //             } else if (!checked) {
-    //                 this.uncheckedRowMap[row.ID] = true;
-    //             }
-
-    //             this.saveState();
-    //             this.updateNumberOfItems();
-    //         }
-    //     });
-    // }
 
     private getSavedState() {
         const key = `${STATE_KEY}_${this.entityType}`;
@@ -280,11 +272,9 @@ export class NewBatchInvoice {
     private saveState() {
         try {
             const state: NewBatchInvoiceState = {
-                // entityType: this.entityType,
                 fromDate: this.fromDate,
                 toDate: this.toDate,
                 readyForInvoiceOnly: this.readyForInvoiceOnly,
-                // uncheckedRowMap: this.uncheckedRowMap
             };
 
             const key = `${STATE_KEY}_${this.entityType}`;

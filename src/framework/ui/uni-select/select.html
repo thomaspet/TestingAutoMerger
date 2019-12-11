@@ -37,11 +37,18 @@
             </section>
 
             <section #itemDropdown>
+                <section *ngIf="showNotSelectedOption"
+                    class="dropdown-menu-item"
+                    (mouseover)="focusedIndex = -1"
+                    [attr.aria-selected]="focusedIndex === -1"
+                    (click)="confirmSelection(null)">
+                    Ikke valgt
+                </section>
+
                 <section *ngFor="let item of filteredItems; let idx = index"
                     class="dropdown-menu-item"
                     [attr.aria-selected]="idx === focusedIndex"
-                    (mouseover)="focusedIndex = idx"
-                    (click)="confirmSelection($event, true)">
+                    (click)="confirmSelection(item, $event)">
                     {{getDisplayValue(item, true)}}
                 </section>
             </section>

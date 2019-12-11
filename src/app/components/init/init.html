@@ -1,19 +1,22 @@
 <section class="init-header">
     <img class="logo" src="themes/logo.svg">
-    <!-- <a *ngIf="isAuthenticated" (click)="authService.clearAuthAndGotoLogin()">
-        Logg ut
-    </a> -->
 
     <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
     <a *ngIf="!isAuthenticated && !showTryForFree" routerLink="/init/login">Logg inn</a>
 </section>
 
-<section class="init-main">
-    <section class="init-bg" [ngClass]="{'full-width-image': fullWidthBackground}">
-        <img [src]="background">
+<section class="init-main" [ngClass]="isSrEnvironment ? 'ext01-init' : 'ue-init'">
+    <section class="init-bg"
+        [ngStyle]="{'background': background, height: backgroundHeight}">
     </section>
 
-    <router-outlet></router-outlet>
+    <section class="illustration-container">
+        <img *ngIf="illustration" [src]="illustration">
+    </section>
+
+    <section class="content-container">
+        <router-outlet></router-outlet>
+    </section>
 </section>
 
 <section class="init-footer">
