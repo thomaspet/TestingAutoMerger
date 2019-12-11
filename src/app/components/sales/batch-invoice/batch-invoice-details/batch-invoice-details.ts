@@ -90,22 +90,21 @@ export class BatchInvoiceDetails {
         return new UniTableConfig('batchinvoice_details', false, false)
             .setColumnMenuVisible(false)
             .setColumns([
-                new UniTableColumn('CustomerInvoiceID', 'Ordre / faktura')
-                    .setWidth('8rem', false)
+                new UniTableColumn('OrderNumber', 'Ordre')
+                    .setWidth('9rem', false)
+                    .setLinkResolver(row => row.CustomerOrderID && `/sales/orders/${row.CustomerOrderID}`)
+                    .setTemplate(row => {
+                        if (row.OrderNumber) {
+                            return `Ordre ${row.OrderNumber}`;
+                        }
+                    }),
+                new UniTableColumn('CustomerInvoiceID', 'Faktura')
+                    .setWidth('9rem', false)
+                    .setLinkResolver(row => row.InvoiceNumber && `/sales/invoices/${row.CustomerInvoiceID}`)
                     .setTemplate(row => {
                         if (row.InvoiceNumber) {
                             return `Faktura ${row.InvoiceNumber}`;
-                        } else if (row.OrderNumber) {
-                            return `Ordre ${row.OrderNumber}`;
                         }
-                    })
-                    .setLinkResolver(row => {
-                        if (row.CustomerInvoiceID) {
-                            return `/sales/invoices/${row.CustomerInvoiceID}`;
-                        } else if (row.CustomerOrderID) {
-                            return `/sales/orders/${row.CustomerOrderID}`;
-                        }
-
                     }),
                 new UniTableColumn('CustomerInvoiceCustomerName', 'Kunde')
                     .setTemplate(row => row.InvoiceCustomerName || row.OrderCustomerName),
