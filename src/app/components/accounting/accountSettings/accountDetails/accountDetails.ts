@@ -4,7 +4,7 @@ import {BehaviorSubject} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
-    Account, VatType, AccountGroup, VatDeductionGroup, CostAllocation,
+    Account, VatType, AccountGroup, VatDeductionGroup,
     DimensionSettings, AccountMandatoryDimension
 } from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
@@ -20,9 +20,11 @@ import {
     AccountMandatoryDimensionService
 } from '../../../../services/services';
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
+import {getNewGuid} from '@app/components/common/utils/utils';
+import {RequestMethod} from '@uni-framework/core/http';
+import {environment} from 'src/environments/environment';
+
 import * as _ from 'lodash';
-import { getNewGuid } from '@app/components/common/utils/utils';
-import { RequestMethod } from '@uni-framework/core/http';
 
 @Component({
     selector: 'account-details',
@@ -30,19 +32,19 @@ import { RequestMethod } from '@uni-framework/core/http';
 })
 export class AccountDetails implements OnInit {
     @Input() public inputAccount: Account;
-    @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
-    @Output() public changeEvent: EventEmitter<Account> = new EventEmitter<Account>();
+    @Output() public accountSaved = new EventEmitter<Account>();
+    @Output() public changeEvent = new EventEmitter<Account>();
 
-    public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
-    public dimensions$: BehaviorSubject<any> = new BehaviorSubject({});
+    public account$ = new BehaviorSubject(null);
+    public dimensions$ = new BehaviorSubject({});
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
     private vatDeductionGroups: any[];
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
-    public dimensionsConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public dimensionsFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public config$ = new BehaviorSubject({});
+    public fields$ = new BehaviorSubject(this.getFormFields());
+    public dimensionsConfig$ = new BehaviorSubject({});
+    public dimensionsFields$ = new BehaviorSubject([]);
     public invalidateDimensionsCache = false;
     public deleteButtonDisabled = true;
 
@@ -61,6 +63,15 @@ export class AccountDetails implements OnInit {
 
     public ngOnInit() {
         this.setup();
+    }
+
+    ngOnDestroy() {
+        this.account$.complete();
+        this.dimensions$.complete();
+        this.config$.complete();
+        this.fields$.complete();
+        this.dimensionsConfig$.complete();
+        this.dimensionsFields$.complete();
     }
 
     private setup() {
@@ -457,121 +468,121 @@ export class AccountDetails implements OnInit {
         });
     }
 
-    // TODO: change to 'ComponentLayout' when object respects the interface
-    private getComponentLayout(): any {
-        return {
-            Name: 'AccountDetails',
-            BaseEntity: 'Account',
-            Fields: [
-                // Fieldset 1 (account)
-                {
-                    FieldSet: 1,
-                    Legend: 'Konto',
-                    EntityType: 'Account',
-                    Property: 'AccountNumber',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Kontonr',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Konto',
-                    EntityType: 'Account',
-                    Property: 'AccountName',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Kontonavn',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Konto',
-                    EntityType: 'Account',
-                    Property: 'VatTypeID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Mvakode',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Konto',
-                    EntityType: 'Account',
-                    Property: 'AccountGroupID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Kontogruppe',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Konto',
-                    EntityType: 'Account',
-                    Property: 'CurrencyCodeID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Valuta',
-                },
-                // Fieldset 2 (details)
-                {
-                    FieldSet: 2,
-                    Legend: 'Detaljer',
-                    EntityType: 'Account',
-                    Property: 'SystemAccount',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Systemkonto',
-                },
-                {
-                    FieldSet: 2,
-                    Legend: 'Detaljer',
-                    EntityType: 'Account',
-                    Property: 'UsePostPost',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'PostPost',
-                },
-                {
-                    FieldSet: 2,
-                    Legend: 'Detaljer',
-                    EntityType: 'Account',
-                    Property: 'CostAllocationID',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Fordelingsnøkkel'
-                },
-                {
-                    FieldSet: 2,
-                    Legend: 'Detaljer',
-                    EntityType: 'Account',
-                    Property: 'DoSynchronize',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Synkronisér'
-                },
-                // Fieldset 3 (vatdeduction)
-                {
-                    FieldSet: 3,
-                    Legend: 'Forholdsmessig fradrag MVA',
-                    EntityType: 'Account',
-                    Property: 'UseVatDeductionGroupID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Bruk satsgruppe',
-                },
-                // Fieldset 4 (valid)
-                {
-                    FieldSet: 4,
-                    Legend: 'Gyldig',
-                    EntityType: 'Account',
-                    Property: 'Visible',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Synlig',
-                },
-                {
-                    FieldSet: 4,
-                    Legend: 'Gyldig',
-                    EntityType: 'Account',
-                    Property: 'Locked',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Sperret',
-                },
-                {
-                    FieldSet: 4,
-                    Legend: 'Gyldig',
-                    EntityType: 'Account',
-                    Property: 'LockManualPosts',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Sperre manuelle poster',
-                },
-                // Fieldset 5 (description)
+    private getFormFields() {
+        const fields: any[] = [
+            // Fieldset 1 (account)
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'AccountNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Kontonr',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'AccountName',
+                FieldType: FieldType.TEXT,
+                Label: 'Kontonavn',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'VatTypeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Mvakode',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'AccountGroupID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Kontogruppe',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'CurrencyCodeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Valuta',
+            },
+            // Fieldset 2 (details)
+            {
+                FieldSet: 2,
+                Legend: 'Detaljer',
+                EntityType: 'Account',
+                Property: 'SystemAccount',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Systemkonto',
+            },
+            {
+                FieldSet: 2,
+                Legend: 'Detaljer',
+                EntityType: 'Account',
+                Property: 'UsePostPost',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'PostPost',
+            },
+            {
+                FieldSet: 2,
+                Legend: 'Detaljer',
+                EntityType: 'Account',
+                Property: 'CostAllocationID',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Fordelingsnøkkel'
+            },
+            {
+                FieldSet: 2,
+                Legend: 'Detaljer',
+                EntityType: 'Account',
+                Property: 'DoSynchronize',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Synkronisér'
+            },
+            // Fieldset 3 (vatdeduction)
+            {
+                FieldSet: 3,
+                Legend: 'Forholdsmessig fradrag MVA',
+                EntityType: 'Account',
+                Property: 'UseVatDeductionGroupID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Bruk satsgruppe',
+            },
+            // Fieldset 4 (valid)
+            {
+                FieldSet: 4,
+                Legend: 'Gyldig',
+                EntityType: 'Account',
+                Property: 'Visible',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Synlig',
+            },
+            {
+                FieldSet: 4,
+                Legend: 'Gyldig',
+                EntityType: 'Account',
+                Property: 'Locked',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Sperret',
+            },
+            {
+                FieldSet: 4,
+                Legend: 'Gyldig',
+                EntityType: 'Account',
+                Property: 'LockManualPosts',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Sperre manuelle poster',
+            },
+        ];
+
+        // Only available on SR currently. Will be added to UE later
+        if (environment.isSrEnvironment) {
+            fields.push(
                 {
                     FieldSet: 5,
                     Legend: 'Kontohjelp',
@@ -580,7 +591,7 @@ export class AccountDetails implements OnInit {
                     FieldType: FieldType.TEXT,
                     Label: 'Søkeord',
                     Tooltip: {
-                        Text: 'Kommaseparerte ord som kan søkes på for å finne denne kontoen'
+                        Text: 'Kommaseparert liste med ord som kan søkes på for å finne denne kontoen'
                     }
                 },
                 {
@@ -591,9 +602,11 @@ export class AccountDetails implements OnInit {
                     FieldType: FieldType.TEXTAREA,
                     MaxLength: 255,
                     Label: 'Beskrivelse',
-                },
-            ]
-        };
+                }
+            );
+        }
+
+        return fields;
     }
 
     deleteAccount(): void {
