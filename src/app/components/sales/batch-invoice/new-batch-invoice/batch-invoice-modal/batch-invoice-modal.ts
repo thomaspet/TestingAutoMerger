@@ -34,6 +34,8 @@ export class BatchInvoiceModal implements IUniModal {
     entityLabel: string;
     itemIDs: number[];
 
+    canDistribute: boolean;
+
     constructor(
         private router: Router,
         private batchInvoiceService: BatchInvoiceService,
@@ -47,7 +49,7 @@ export class BatchInvoiceModal implements IUniModal {
         this.busy = true;
 
         forkJoin(
-            this.companySettingsService.getCompanySettings(),
+            this.companySettingsService.getCompanySettings(['Distributions']),
             this.sellerService.GetAll().pipe(catchError(() => of([])))
         ).subscribe(([settings, sellers]) => {
             const data: BatchInvoiceModalOptions = this.options.data || {};
@@ -68,6 +70,10 @@ export class BatchInvoiceModal implements IUniModal {
             this.batchInvoice.DueDate = new LocalDate(dueDate);
 
             this.formFields = this.getFormFields(sellers || [], data.entityType);
+
+            this.canDistribute = settings.AutoDistributeInvoice
+                && !!settings.Distributions && !!settings.Distributions.CustomerInvoiceDistributionPlanID;
+
             this.busy = false;
         });
     }

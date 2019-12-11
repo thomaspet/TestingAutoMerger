@@ -6,18 +6,28 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <section class="alert" *ngIf="batchInvoice">
+        <section *ngIf="batchInvoice" class="alert">
             <strong>Klar til å kjøre samlefakturering av {{numberOfItems}} {{entityLabel}}</strong>
 
             <span>
-                Fakturaene sendes ut etter oppsatt <a (click)="goToDistributionSettings()">utsendingsplan</a>,
-                og når jobben er fullført vil du få et varsel i applikasjonen.
+                <ng-container *ngIf="canDistribute">
+                    Fakturaene sendes ut etter oppsatt <a (click)="goToDistributionSettings()">utsendingsplan</a>.
+                </ng-container>
+
+                Når jobben er fullført vil du få et varsel i applikasjonen.
                 Du kan også velge å få en epost med oppsummering av jobben.
             </span>
 
             <mat-checkbox [(ngModel)]="batchInvoice.NotifyEmail">
                 Send meg en epost når jobben er fullført
             </mat-checkbox>
+        </section>
+
+        <section class="alert warn" *ngIf="canDistribute === false">
+            <span>
+                Du har ikke satt opp <a (click)="goToDistributionSettings()">automatisk utsendelse</a> av fakturaer.
+                <br>Samlefakturering kan kjøres, men fakturaene vil ikke bli sendt.
+            </span>
         </section>
 
         <uni-form

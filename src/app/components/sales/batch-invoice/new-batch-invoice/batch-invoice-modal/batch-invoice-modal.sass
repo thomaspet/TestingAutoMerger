@@ -1,6 +1,9 @@
 .uni-modal
     width: 45rem
 
+    > article
+        max-height: calc(100vh - 12rem)
+
 .summary
     display: flex
     section
@@ -19,10 +22,21 @@
 .alert
     display: flex
     flex-direction: column
-    margin-bottom: 2rem
     padding: .75rem 1rem
-    span
-        margin: 1rem 0
+
+    &:last-of-type
+        margin-bottom: 2rem
+
+    // span
+    //     margin: .75rem 0
+
+    // &.warn span
+    //     margin: 0
+
+    strong
+        margin-bottom: .75rem
+    mat-checkbox
+        margin-top: .75rem
 
     ::ng-deep .mat-checkbox-label
         font-size: 15px
