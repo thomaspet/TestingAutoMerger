@@ -21,10 +21,8 @@
     </article>
 
     <footer>
-        <section role="group" class="comboButton" *ngIf="saveActions.length">
-            <combo-button [actions]="saveActions"></combo-button>
-        </section>
-        <section>
+        <section role="group" class="comboButton">
+            <combo-button *ngIf="saveActions.length" [actions]="saveActions"></combo-button>
             <button (click)="close()" class="bad">
                 Lukk
             </button>
