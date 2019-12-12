@@ -61,6 +61,7 @@
             </ag-grid-wrapper>
 
             <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
+                class="borders"
                 [resource]="resource"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"

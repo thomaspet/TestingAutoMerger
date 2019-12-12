@@ -89,7 +89,7 @@ ag-grid-angular
         cursor: pointer
         color: #1565c0
         position: absolute
-        top: 1px
+        top: .6rem
         right: 1rem
         z-index: 999
         font-size: 14px
@@ -109,9 +109,7 @@ ag-grid-angular
 
 .ag-body
     .ag-row-group
-        font-weight: 600
-        .align-right
-            font-style: italic
+        font-weight: 500
         .table-link
             text-decoration: none !important
             cursor: default
@@ -137,8 +135,8 @@ ag-grid-angular
 
 .ag-cell,
 .ag-header-cell,
-.ag-theme-balham .ag-cell,
-.ag-theme-balham .ag-header-cell
+.ag-cell,
+.ag-header-cell
     display: inline-flex !important
     align-items: center
     padding: 0 10px
@@ -146,6 +144,9 @@ ag-grid-angular
     > span
         display: flex
         align-items: center
+        .ag-group-expanded
+            margin-right: .5rem
+            padding-top: 2px
         .ag-group-child-count
             margin-left: .5rem
 
@@ -436,3 +437,20 @@ ag-grid-wrapper
 
 .checkbox-column
     color: var(--color-c2a-dark)
+
+.ag-column-drop.ag-column-drop-horizontal
+    display: flex
+    height: 3rem
+    align-items: center
+    background: #fff
+    border: 1px solid var(--border-color)
+    margin-bottom: .5rem
+    padding: 0 .5rem
+
+    .ag-column-drop-icon
+        margin-top: 5px
+
+    .ag-column-drop-empty-message,
+    .ag-column-drop-list
+        margin-left: 1rem
+        height: unset
