@@ -35,6 +35,12 @@ export class AccountService extends BizHttp<Account> {
                 map(x => this.mapStatisticsToAccountObjects(x))
         );
     }
+    public getSaftMappingAccounts(): Observable<any> {
+        return this.http.asGET()
+            .withEndPoint(this.relativeURL + '?action=saftmapping-accounts')
+            .send()
+            .map(res => res.body);
+    }
 
     private mapStatisticsToAccountObjects(statisticsData: any[]): Account[] {
         const accounts = [];
