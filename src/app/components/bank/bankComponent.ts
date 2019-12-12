@@ -259,7 +259,6 @@ export class BankComponent {
                 this.router.navigateByUrl('/contract-activation');
                 return;
             } else {
-                this.updateTab();
                 this.companySettingsService.getCompanySettings(['TaxBankAccount']).subscribe(companySettings => {
                     this.companySettings = companySettings;
                     if (this.isSrEnvirnment) {
@@ -331,13 +330,13 @@ export class BankComponent {
                 this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
 
                 if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code || this.filter !== params['filter']) {
-                    this.updateTab();
                     this.selectedTicker = ticker;
                     this.updateSaveActions(tickerCode);
                     this.toolbarconfig.title = this.selectedTicker.Name;
                     this.toolbarconfig.contextmenu = this.getContextMenu();
                     this.cdr.markForCheck();
                 }
+                this.updateTab();
                 this.filter = params['filter'];
             });
         });
@@ -350,12 +349,14 @@ export class BankComponent {
             url += '?' + queryParams;
         }
 
-        this.tabService.addTab({
-            name: 'Bank',
-            url: url,
-            moduleID: UniModules.Bank,
-            active: true
-        });
+        if (this.selectedTicker) {
+            this.tabService.addTab({
+                name: this.selectedTicker.Code === 'bank_list' ? 'Innbetalinger' : 'Utbetalinger',
+                url: url,
+                moduleID: this.selectedTicker.Code === 'bank_list' ? UniModules.Incomming : UniModules.Payment,
+                active: true
+            });
+        }
     }
 
     public getContextMenu() {

@@ -34,7 +34,6 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.isGroupingTicker,
             'has-sum-row': !!(dataService?.sumRow$ | async),
             'multi-row-select': config?.multiRowSelect
         }"

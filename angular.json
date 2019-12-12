@@ -29,7 +29,6 @@
               "src/assets/bootstrap-grid/bootstrap-grid.min.css",
               "node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
-              "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@ng-select/ng-select/themes/default.theme.css",
               {"input": "src/assets/ehf-viewer.css", "bundleName": "ehf-viewer"},
