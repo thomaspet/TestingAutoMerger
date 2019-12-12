@@ -34,7 +34,7 @@ export class OperatingProfitWidget {
     runningResult: any[] = [];
     isLineChart: boolean = false;
     lineColors = ['#008A00', '#008ED2', '#FF9100'];
-    barColors = ['#0071CD', '#7FC6E8', 'rgba(89, 104, 121, .75)'];
+    barColors = ['#01A901', '#0070E0', 'rgba(89, 104, 121, .75)'];
     show = [true, true, true];
     dataHolder: any[] = [];
 
@@ -67,7 +67,6 @@ export class OperatingProfitWidget {
     }
 
     init() {
-        this.prepChartType();
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         const year = new Date().getFullYear();
         this.years.push(year);
@@ -201,6 +200,11 @@ export class OperatingProfitWidget {
     }
 
     private drawChart() {
+
+        if (!this.isLineChart) {
+            this.operatingProfit.nativeElement.style.backgroundColor = '#FFFFFFF';
+        }
+
         if (this.chartRef) {
             this.chartRef.destroy();
         }
@@ -235,7 +239,7 @@ export class OperatingProfitWidget {
 
     private getEmptyResultChart() {
         return {
-            type: 'groupableBar',
+            type: 'bar',
             data: {
                 labels: [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ],
                 datasets: [{
@@ -286,7 +290,7 @@ export class OperatingProfitWidget {
                     const chartArea = chart.chartArea;
 
                     ctx.save();
-                    ctx.fillStyle = '#fbfbfb';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
 
                     ctx.restore();
@@ -483,77 +487,5 @@ export class OperatingProfitWidget {
                 },
             }
         };
-    }
-
-    private prepChartType() {
-        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
-
-        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
-            calculateBarX: function (index) {
-                // position the bars based on the stack index
-                const stackIndex = this.getMeta().stackIndex;
-                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
-            },
-
-            hideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                this.hiddens = [];
-                for (let i = 0; i < datasetIndex; i++) {
-                    const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        this.hiddens.push(dsMeta.hidden);
-                        dsMeta.hidden = true;
-                    }
-                }
-            },
-
-            unhideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                for (let i = 0; i < datasetIndex; i++) {
-                        const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        dsMeta.hidden = this.hiddens.unshift();
-                    }
-                }
-            },
-
-            calculateBarY: function (index, datasetIndex) {
-                this.hideOtherStacks(datasetIndex);
-                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
-                this.unhideOtherStacks(datasetIndex);
-                return barY;
-            },
-
-            calculateBarBase: function (datasetIndex, index) {
-                this.hideOtherStacks(datasetIndex);
-                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
-                this.unhideOtherStacks(datasetIndex);
-                return barBase;
-            },
-
-            getBarCount: function () {
-                const stacks = [];
-
-                // put the stack index in the dataset meta
-                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
-                    const meta = this.chart.getDatasetMeta(datasetIndex);
-                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
-                    let stackIndex = stacks.indexOf(dataset.stack);
-                    if (stackIndex === -1) {
-                    stackIndex = stacks.length;
-                    stacks.push(dataset.stack);
-                    }
-                    meta.stackIndex = stackIndex;
-                }
-                }, this);
-
-                this.getMeta().stacks = stacks;
-                return stacks.length;
-            },
-        });
     }
 }

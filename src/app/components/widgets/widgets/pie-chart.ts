@@ -101,7 +101,7 @@ export class UniPieChartWidget {
                 animation: { animateScale: true },
                 legend: {
                     position: 'left',
-                    labels: { usePointStyle: true }
+                    labels: { usePointStyle: true, padding: 15 }
                 }
             },
         });

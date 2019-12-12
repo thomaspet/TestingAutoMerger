@@ -21,28 +21,32 @@
 
         <mat-datepicker #picker></mat-datepicker>
     </div>
+
     <div style="display: flex">
         <label> Halv dag </label>
         <input [(ngModel)]="timeOff.IsHalfDay" type="checkbox" [readonly]="showEndDate">
     </div>
+
     <div style="display: flex">
         <label> Beskrivelse</label>
         <textarea [(ngModel)]="timeOff.Description"> </textarea>
     </div>
+
     <mat-progress-bar
         *ngIf="loading$ | async"
         class="uni-progress-bar"
         mode="indeterminate">
     </mat-progress-bar>
+
     <small *ngIf="errorMsg" class="bad">
         {{ errorMsg }}
     </small> <br />
 
-    <div style="display: flex;">
-        <button  class="rounded good" style="margin-top: 1rem" (click)="saveTimeOff()">
+    <div class="save-timeoff-footer" >
+        <button  class="c2a" (click)="saveTimeOff()">
             Lagre fridag
         </button>
-        <button [disabled]="!timeOff.ID" class="rounded bad" style="margin: 1rem 0 0 1rem" (click)="deleteTimeOff()">
+        <button *ngIf="timeOff.ID" class="secondary bad" (click)="deleteTimeOff()">
             {{ getButtonText() }}
         </button>
     </div>

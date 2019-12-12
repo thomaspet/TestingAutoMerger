@@ -111,7 +111,7 @@ export class PublicDueDatesWidget {
 
     drawBaseText() {
         this.ctx.font = 'normal bold 13px MuseoSans, arial, sans-serif';
-        this.ctx.fillStyle = '#262626';
+        this.ctx.fillStyle = '#2b2b2b';
         this.ctx.fillText('DAGER', this.middleWidth - 30, this.middleHeight + 50);
 
         this.ctx.font = 'normal normal 13px MuseoSans, arial, sans-serif';
@@ -146,7 +146,7 @@ export class PublicDueDatesWidget {
         this.dataHolder.forEach((item, index) => {
 
             this.ctx.font = 'normal bold 13px MuseoSans, arial, sans-serif';
-            this.ctx.fillStyle = '#262626';
+            this.ctx.fillStyle = '#2b2b2b';
 
             // Make sure every other item goes up and down
             const y = index % 2 === 0 ? this.canvas.nativeElement.height * 0.2 : this.canvas.nativeElement.height * 0.8;

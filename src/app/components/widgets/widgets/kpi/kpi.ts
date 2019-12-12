@@ -181,11 +181,11 @@ export class KpiWidget {
     }
 
     drawDoughnut(canvas, kpiObject: IKeyNumberObject) {
-        let backgroundColor = '#008A00';
+        let backgroundColor = '#01A901';
         if (kpiObject.indicatorLevel === 3) {
-            backgroundColor = '#FF9100';
+            backgroundColor = '#FF9E2C';
         } else if (kpiObject.indicatorLevel < 3) {
-            backgroundColor = '#DA3D00';
+            backgroundColor = '#D63731';
         }
 
         const data = {

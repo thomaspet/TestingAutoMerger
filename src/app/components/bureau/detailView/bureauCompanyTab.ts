@@ -13,13 +13,12 @@ import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
 import {CompanySettings} from '../../../unientities';
-import {UniFilesService} from '../../../services/common/uniFilesService';
 import {ErrorService} from '../../../services/common/errorService';
 import {FinancialYearService} from '@app/services/services';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
 const BASE = environment.BASE_URL;
-const FILE_BASE = environment.BASE_URL_FILES;
+
 /* tslint:disable:max-line-length */
 @Component({
     selector: 'uni-bureau-company-tab',

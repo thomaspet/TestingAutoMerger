@@ -44,12 +44,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.RESULT_BALANCE',
-                        url: '/accounting/accountingreports',
-                        moduleID: UniModules.AccountingReports,
-                        activeInSidebar: true
-                    },
-                    {
                         name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,
@@ -277,7 +271,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/accounting/accountquery',
                         moduleID: UniModules.AccountQuery,
                         activeInSidebar: true
-                    }
+                    },
+                    {
+                        name: 'NAVBAR.RESULT_BALANCE',
+                        url: '/accounting/accountingreports',
+                        moduleID: UniModules.AccountingReports,
+                        activeInSidebar: true
+                    },
                 ]
             },
             {

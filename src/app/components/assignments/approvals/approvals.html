@@ -17,22 +17,14 @@
                 <small>{{approval._createdDate}}</small>
             </section>
 
-            <section class="assignment-buttons">
-                <i class="material-icons approve-approval"
-                    role="button"
-                    title="Godkjenn"
-                    *ngIf="approval._activeApproval"
-                    (click)="approveOrReject(approval, 'approve')">
-                    check_circle
-                </i>
+            <section class="assignment-buttons" *ngIf="approval._activeApproval">
+                <button class="secondary" (click)="approveOrReject(approval, 'approve')">
+                    Godkjenn
+                </button>
 
-                <i class="material-icons reject-approval"
-                    role="button"
-                    title="Avvis"
-                    *ngIf="approval._activeApproval"
-                    (click)="approveOrReject(approval, 'reject')">
-                    add_circle
-                </i>
+                <button class="secondary bad" (click)="approveOrReject(approval, 'reject')">
+                    Avvis
+                </button>
             </section>
         </li>
     </ul>

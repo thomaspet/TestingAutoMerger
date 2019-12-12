@@ -18,7 +18,12 @@
 
                 <span class="date-inbox-field" title="{{ item._date }}"> {{ item._date }}</span>
                 <span>
-                    <button [ngClass]="item.ID === currentFileID ? 'c2a' : 'secondary'" title="Bruk dokumentet for å registrer kjøp" (click)="registerBuy(item, $event)"> Registrer kjøp </button>
+                    <button class="use-document-button"
+                        [ngClass]="item.ID === currentFileID ? 'c2a' : 'secondary'"
+                        (click)="registerBuy(item, $event)"
+                        title="Bruk dokumentet for å registrer kjøp" >
+                        Registrer kjøp
+                    </button>
                     <i class="material-icons" title="Slett dokumentet" (click)="deleteDocument(item, $event)">delete_outline</i>
                 </span>
             </li>
@@ -28,10 +33,9 @@
     <section *ngIf="!inboxList?.length && dataLoaded" class="empty-inbox-class">
         <span>Ingen elementer i innboks</span>
 
-        <section class="upload-button" (click)="uploadFile()">
-            <i class="material-icons">cloud_upload</i>
-            <span>Last opp</span>
-        </section>
+        <button class="secondary upload-button" (click)="uploadFile()">
+            Last opp dokument
+        </button>
     </section>
 
     <section class="uni-container bill-preview inbox-preview" *ngIf="showPreview">

@@ -1,6 +1,6 @@
 $cellpadding: pxToRem(3) pxToRem(10)
 
-$unitable-border: 1px solid $uni-color-scale9
+$unitable-border: 1px solid var(--border-color)
 
 .uni-table:not(.editable-table) tr
     &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
@@ -105,7 +105,7 @@ table.uni-table
         background: #fff // mix($uni-color-scale9, $uni-color-negative, 60%)
         height: 2.5rem
         margin-bottom: pxToRem(-1)
-        color: #707d90
+        color: var(--scale1)
         font-weight: 400
         font-size: 14px
 
@@ -118,7 +118,7 @@ table.uni-table
                 display: inline-block
                 float: right
                 font-size: .8rem
-                color: $uni-color-scale5
+                color: var(--scale1)
                 padding-top: .2rem
                 height: 1rem
 
@@ -170,24 +170,6 @@ unitable-editor
 unitable-contextmenu
     width: 0
     height: 0
-
-    ul
-        position: absolute
-        z-index: map-get($zindex, picker)
-
-        margin: 0
-        padding: 0
-        border-top-left-radius: 3px
-        border-bottom-left-radius: 3px
-        list-style: none
-
-        &.hidden
-            display: none
-
-        li
-            padding: 5px 10px
-            min-width: 5rem
-            cursor: pointer
 
 .unitable-delete-btn
     margin: 0
@@ -245,4 +227,4 @@ transquery-details
     tr
         &[aria-readonly]:not([aria-readonly=false])
             background: #f0f0f0
-            color: #707d90
+            color: var(--scale1)

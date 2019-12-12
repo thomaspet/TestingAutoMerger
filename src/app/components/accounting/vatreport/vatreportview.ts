@@ -182,7 +182,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
             const subStatusList: IStatus[] = [];
             if (status.Code === activeStatus) {
-                if (this.vatReportsInPeriod) {
+                if (this.vatReportsInPeriod && this.vatReportsInPeriod.length > 1) {
                     this.vatReportsInPeriod.forEach(report => {
                         subStatusList.push({
                             title: report.Title,

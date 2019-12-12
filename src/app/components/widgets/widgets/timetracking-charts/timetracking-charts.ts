@@ -11,6 +11,7 @@ import {WidgetDataService} from '../../widgetDataService';
 import {IUniWidget} from '../../uniWidget';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
+import {BLUE_SCALES} from '../../widget-colors';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 
 @Component({
@@ -177,7 +178,7 @@ export class UniTimetrackingCharts implements AfterViewInit {
             data: {
                 datasets: [{
                     data: dataset,
-                    backgroundColor: ['#2F7FDA', '#4898F3', '#62B2FF', '#7BCBFF', '#94E4FF'],
+                    backgroundColor: BLUE_SCALES,
                     label: '',
                     borderColor: 'white'
                 }],

@@ -74,7 +74,7 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
     public viewData: any[];
     private subscription: Subscription;
     private reportCache: Array<any> = [];
-    @HostBinding('class.no_access') public noAccess: boolean = false;
+    @HostBinding('class.no_access') public noAccess: boolean = true;
 
     constructor(
         private element: ElementRef,
@@ -97,7 +97,7 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
             .getCurrentCompany()
             .subscribe(company => {
                 this.company = company;
-                this.noAccess = false;
+                // this.noAccess = false;
                 this.element.nativeElement.setAttribute('aria-busy', true);
                 Observable.forkJoin(
                     this.getApprovedInvoices(company.Key),

@@ -27,6 +27,11 @@ import {DUE_DATE_COLORS} from '../widget-colors';
                 {{ missingDataMsg }}
             </section>
 
+            <div *ngIf="!missingData" class="overdue-info-header">
+                <span class="overdue-number"> {{ overdueHeaderNumber }} </span>
+                <span *ngIf="overdueHeaderNumber"> Utestående </span>
+            </div>
+
             <div *ngIf="!missingData" class="content">
                 <div style="height: 100%">
                     <canvas style="max-height: 220px" #unpaidDoughnutChart></canvas>
@@ -46,6 +51,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     chartRef: any;
     chartConfig: any;
     totalAmount: number = 0;
+    overdueHeaderNumber: string = '';
     missingData: boolean;
     missingDataMsg: string = 'Mangler data';
     colors = DUE_DATE_COLORS; // ['#008A00', '#E7A733', '#FF9100', '#DA3D00', '#A20076'];
@@ -86,7 +92,8 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
                     this.chartConfig = this.getEmptyResultChart();
                     this.chartConfig.data.labels = this.widget.config.labels;
                     if (this.widget.config.function === 'unpaid') {
-                        this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
+                        // this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
+                        this.overdueHeaderNumber = this.numberFormatService.asMoney(this.totalAmount) + ' kr';
                     } else {
                         this.chartConfig.options.plugins.doughnutlabel.labels = [
                             {
@@ -179,14 +186,16 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutoutPercentage: 78,
+                cutoutPercentage: 70,
                 animation: {
                     animateScale: true
                 },
                 legend: {
-                    position: 'left',
+                    position: 'right',
+                    align: 'center',
                     labels: {
-                        usePointStyle: true
+                        usePointStyle: true,
+                        padding: 15
                     }
                 },
                 elements: {

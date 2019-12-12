@@ -4,7 +4,7 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 @Component({
     selector: 'uni-timedit-modal',
     template: `
-    <section role="dialog" class="uni-modal uni-redesign" style="width: 60vw; font-size: .9rem">
+    <section role="dialog" class="uni-modal uni-redesign" style="width: 50rem; padding-bottom: 0;">
         <header>Redigering av fridag</header>
 
         <article class="budget-entry-modal-container">

@@ -35,7 +35,7 @@ export class UniInbox {
     toolbarConfig = {
         title: 'NAVBAR.INBOX',
         buttons: [{
-            label: 'Last opp',
+            label: 'Last opp dokument',
             class: 'inbox-upload-button',
             icon: 'cloud_upload',
             action: () => this.uploadFile()
@@ -127,8 +127,7 @@ export class UniInbox {
                 buttonLabels: {
                     cancel: 'Avbryt',
                     reject: 'Slett'
-                },
-                footerCls: 'delete-button-bad'
+                }
             };
 
             this.modalService.open(UniConfirmModalWithList, options).onClose.subscribe(res => {

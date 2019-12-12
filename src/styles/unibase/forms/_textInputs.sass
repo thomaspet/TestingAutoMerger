@@ -18,7 +18,7 @@ textarea
     padding: 3px 10px
     background-color: #fff
     border: 1px solid var(--border-color)
-    border-radius: 4px
+    border-radius: var(--section-radius)
     transition: box-shadow .3s ease
     overflow: hidden
     text-overflow: ellipsis
@@ -29,14 +29,14 @@ textarea
 
 
     &[disabled], &[readonly]
-        background-color: #f5f5f5
+        background-color: #F5F6F8
 
     &::-webkit-input-placeholder,
     &:-moz-placeholder,
     &::-moz-placeholder,
     &:-ms-input-placeholder,
     &:placeholder
-        color: #707d90
+        color: var(--scale1)
 
     &.success
         border-color: var(--color-good)

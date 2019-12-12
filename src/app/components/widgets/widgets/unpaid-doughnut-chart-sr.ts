@@ -247,12 +247,12 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
         return [
             {
                 text: 'Sum',
-                color: '#262626',
+                color: '#2b2b2b',
                 font: { size: '16' }
             },
             {
                 text: this.numberFormatService.asMoney(this.totalAmount),
-                color: '#262626',
+                color: '#2b2b2b',
                 font: { size: '17', weight: '500' }
             }
         ];

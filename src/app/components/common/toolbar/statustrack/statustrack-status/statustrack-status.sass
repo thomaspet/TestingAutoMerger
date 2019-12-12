@@ -10,26 +10,27 @@
 span.status
     display: inline-flex
     align-items: center
+
+    background: var(--scale4)
+    border-radius: 25px
+    padding: 2px 4px
+
     i.check
         font-size: 22px
         margin-right: 4px
     i.info
-        margin-right: 4px
+        margin-right: 6px
 
     &.active, &.c2a
-        color: var(--color-c2a-dark)
-        font-weight: 500
+        color: var(--color-c2a)
     &.obsolete, &.warn
         color: var(--color-warn)
-        font-weight: 500
     &.bad
         color: var(--color-bad)
-        font-weight: 500
     &.good
         color: var(--color-good)
-        font-weight: 500
 
-    &.has-substatus
+    &.has-substatus, &.single-status
         padding-right: 1rem
 
     .sub-status-counter
