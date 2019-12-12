@@ -113,7 +113,7 @@
         <span *ngIf="config?.multiRowSelect && !sumMarkedRows">Antall markerte rader: {{ markedRowCount }} stk</span>
     </section>
 
-    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.isGroupingTicker">
+    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1">
         <i class="material-icons" (click)="paginate('first')">first_page</i>
         <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 

@@ -22,7 +22,7 @@ uni-ticker
     position: relative
 
     ag-grid-wrapper
-        height: calc(100vh - 16rem)
+        height: 100%
 
     // Only visible when inside uni-ticker-wrapper
     // Important actions should be in toolbar in overview.ts
@@ -101,23 +101,3 @@ uni-sub-ticker-container
 
                 span.ticker-title
                     font-size: 1.25rem
-
-        .ticker-data
-            padding: 1rem 0 0
-
-    uni-ticker
-        width: 100%
-        overflow: visible
-        margin-right: 0 !important
-
-        ag-grid-wrapper
-            height: unset
-
-        .ticker-data
-            border: none
-
-    .sub-ticker-container .data-container
-        background-color: inherit
-        height: auto
-        width: 100%
-        padding: 0
