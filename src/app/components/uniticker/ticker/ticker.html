@@ -1,4 +1,4 @@
-<section *ngIf="ticker && prefetchDataLoaded && canShowTicker">
+<ng-container *ngIf="ticker && prefetchDataLoaded && canShowTicker">
     <!-- Main ticker header -->
     <section *ngIf="!parentModel; else subTickerHeader" class="ticker-horizontal-menu">
         <a *ngFor="let action of getTickerActions()"
@@ -40,43 +40,40 @@
         </header>
     </ng-template>
 
-    <section class="ticker-data">
-        <section class="data-container">
-            <mat-checkbox
-                class="ticker-default-filter"
-                *ngIf="this.ticker && this.ticker.DefaultTableFilter && this.ticker.DefaultTableFilter.label"
-                (change)="setupTableConfig()"
-                [(ngModel)]="this.ticker.DefaultTableFilter.active">
-                {{ this.ticker.DefaultTableFilter.label }}
-            </mat-checkbox>
-            <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
-                class="borders"
-                [resource]="lookupFunction"
-                [columnSumResolver]="columnSumResolver"
-                [config]="tableConfig"
-                [useSpinner]="true"
-                (columnsChange)="onColumnsChange($event)"
-                (rowSelectionChange)="onRowSelectionChange($event)"
-                (rowClick)="onRowClick($event)">
-            </ag-grid-wrapper>
+    <mat-checkbox
+        class="ticker-default-filter"
+        *ngIf="this.ticker && this.ticker.DefaultTableFilter && this.ticker.DefaultTableFilter.label"
+        (change)="setupTableConfig()"
+        [(ngModel)]="this.ticker.DefaultTableFilter.active">
+        {{ this.ticker.DefaultTableFilter.label }}
+    </mat-checkbox>
 
-            <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
-                class="borders"
-                [resource]="resource"
-                [columnSumResolver]="columnSumResolver"
-                [config]="tableConfig"
-                (rowSelectionChange)="onRowSelectionChange($event)"
-                (filtersChangeWhileGroup)="filtersChangeWhileGroup($event)"
-                (rowClick)="onRowClick($event)">
-            </ag-grid-wrapper>
+    <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
+        class="borders"
+        [resource]="lookupFunction"
+        [columnSumResolver]="columnSumResolver"
+        [config]="tableConfig"
+        [useSpinner]="true"
+        (columnsChange)="onColumnsChange($event)"
+        (rowSelectionChange)="onRowSelectionChange($event)"
+        (rowClick)="onRowClick($event)">
+    </ag-grid-wrapper>
 
-            <div *ngIf="ticker.Type !== 'table'">
-                <uni-ticker-detail-view
-                    [ticker]="ticker"
-                    [model]="model"
-                    [columnOverrides]="columnOverrides">
-                </uni-ticker-detail-view>
-            </div>
-        </section>
-    </section>
-</section>
+    <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
+        class="borders"
+        [resource]="resource"
+        [columnSumResolver]="columnSumResolver"
+        [config]="tableConfig"
+        (rowSelectionChange)="onRowSelectionChange($event)"
+        (filtersChangeWhileGroup)="filtersChangeWhileGroup($event)"
+        (rowClick)="onRowClick($event)">
+    </ag-grid-wrapper>
+
+    <div *ngIf="ticker.Type !== 'table'">
+        <uni-ticker-detail-view
+            [ticker]="ticker"
+            [model]="model"
+            [columnOverrides]="columnOverrides">
+        </uni-ticker-detail-view>
+    </div>
+</ng-container>

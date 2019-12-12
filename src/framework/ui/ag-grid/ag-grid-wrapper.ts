@@ -376,7 +376,9 @@ export class AgGridWrapper {
         } else {
             this.agGridApi.expandAll();
         }
+
         this.allIsExpanded = !this.allIsExpanded;
+        this.agGridApi.sizeColumnsToFit();
     }
 
     public onRowDragEnd(event: RowDragEndEvent) {

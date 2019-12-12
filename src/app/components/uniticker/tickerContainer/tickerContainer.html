@@ -7,21 +7,17 @@
     (activeIndexChange)="onFilterSelected($event)">
 </uni-tabs>
 
-<section *ngIf="ticker" class="ticker-container"
-    [ngClass]="{'detail-visible': showSubTickers && ticker?.SubTickers?.length}">
-
-    <section class="main-ticker-container" [ngClass]="{ 'ticker-grouping': grouping }">
-        <uni-ticker
-            [ticker]="ticker"
-            [selectedFilter]="selectedFilter"
-            [expressionFilters]="expressionFilters"
-            [actionOverrides]="actionOverrides"
-            [columnOverrides]="columnOverrides"
-            (rowSelected)="onRowSelected($event)"
-            (editModeToggled)="editModeChanged($event)"
-            (rowSelectionChange)="rowSelectionChange.emit($event)">
-        </uni-ticker>
-    </section>
+<ng-container *ngIf="ticker">
+    <uni-ticker
+        [ticker]="ticker"
+        [selectedFilter]="selectedFilter"
+        [expressionFilters]="expressionFilters"
+        [actionOverrides]="actionOverrides"
+        [columnOverrides]="columnOverrides"
+        (rowSelected)="onRowSelected($event)"
+        (editModeToggled)="editModeChanged($event)"
+        (rowSelectionChange)="rowSelectionChange.emit($event)">
+    </uni-ticker>
 
     <uni-sub-ticker-container
         *ngIf="showSubTickers && ticker?.SubTickers?.length"
@@ -33,5 +29,4 @@
         [actionOverrides]="actionOverrides"
         [columnOverrides]="columnOverrides">
     </uni-sub-ticker-container>
-
-</section>
+</ng-container>
