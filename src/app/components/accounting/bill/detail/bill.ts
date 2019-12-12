@@ -668,8 +668,12 @@ export class BillView implements OnInit {
                 });
             }),
             display: (bankAccount: BankAccount) => {
-                return bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
+                let ret = bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
                 + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
+                if (bankAccount['Label']) {
+                    ret = bankAccount['Label'] + '-' + ret;
+                }
+                return ret;
             }
         };
 

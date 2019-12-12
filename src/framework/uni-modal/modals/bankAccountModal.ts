@@ -67,7 +67,7 @@ export class UniBankAccountModal implements IUniModal {
     errorMsg: string = '';
     bankAccountsConnectedToAccount: string = '';
     connectedAccountWarningShowed = false;
-    
+
     constructor(
         private bankService: BankService,
         private accountService: AccountService,
@@ -514,6 +514,15 @@ export class UniBankAccountModal implements IUniModal {
                         return modal.onClose.take(1).toPromise();
                     }
                 }
+            },
+            <any>{
+                FieldSet: 2,
+                FieldSetColumn: 1,
+                EntityType: 'BankAccount',
+                Property: 'Label',
+                FieldType: FieldType.TEXT,
+                ReadOnly: false,
+                Label: 'Label',
             }
         ];
     }
