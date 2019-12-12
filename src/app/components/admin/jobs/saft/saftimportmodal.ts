@@ -214,35 +214,35 @@ export class SaftImportModal implements IUniModal {
         this.jobService.getJobRunWithOutput(JOBNAME, this.jobID)
             .subscribe( (result: any) => {
                 if (result) {
-                    // file.jobStatus = (x.Progress && x.Progress.length > 0) ? x.Progress[0].Progress : '';
-                    this.jobID = this.noJobID;
-                    if (result.Exception) {
-                        this.fileError = true;
-                    }
+                    const progress = (result.Progress && result.Progress.length > 0) ? result.Progress[0].Progress : '';
                     const output = JSON.parse(result.Output);
-                    if (output) {
-                        this.fileStatus = output.Message;
-                        if (output.HasError) {
-                            this.fileError = true;
+                    if (result.Exception || (output && output.HasError)) {
+                        this.fileError = true;
+                        this.jobID = this.noJobID;
+                        if (output) {
+                            this.fileStatus = output.Message;
                         } else {
+                            this.fileStatus = result.Exception;
+                        }
+                    } else if (progress.startsWith('100%')) {
+                        this.jobID = this.noJobID;
+                        if (output) {
+                            this.fileStatus = output.Message;
                             this.fileError = false;
                             this.correctionLines = output.CorrectionLines;
                             if (!this.correctionLines || this.correctionLines.length === 0) {
                                 this.fileOk = true;
                             }
+                        } else {
+                            this.fileError = true;
+                            this.fileStatus = 'Noe gikk galt ved validering av fil';
                         }
-                    } else {
-                        this.fileError = true;
-                        this.fileStatus = 'Noe gikk galt ved validering av fil';
+                        this.busy = false;
+                        this.fileIsValidated = true;
                     }
-                    this.busy = false;
-                    this.fileIsValidated = true;
-                    this.goNext();
-/*
-                    const lastProgress = x.Progress && x.Progress.length > 0 ?
-                        moment(x.Progress[0].Created) : moment();
-                    const diff = moment.duration(moment().diff(moment(lastProgress)));
-*/
+                    if (this.jobID === this.noJobID) {
+                        this.goNext();
+                    }
                 }
             });
     }
