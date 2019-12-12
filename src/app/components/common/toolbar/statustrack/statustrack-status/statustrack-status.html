@@ -1,8 +1,8 @@
-<span class="status" [ngClass]="[status.class || status.state, hasSubStatuses ? 'has-substatus' : '']">
+<span class="status" [ngClass]="classString">
     <i class="material-icons-outlined check" *ngIf="isActive && !singleStatus">check_circle_outline</i>
-    <i class="material-icons-outlined info" *ngIf="singleStatus">info</i>
+    <i class="material-icons info" *ngIf="singleStatus">info</i>
 
-    {{status.title}}
+    <span class="status-text">{{status.title}}</span>
 
     <span class="sub-status-counter" *ngIf="hasSubStatuses">
         {{status.substatusList.length}}

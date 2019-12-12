@@ -67,7 +67,7 @@
                 right: 2%
 
             thead
-                color: $uni-color-scale5
+                color: var(--scale1)
 
             tbody > tr > td
                 height: 2.5rem
@@ -76,10 +76,10 @@
 
                 /*-n+2 selects the last two elements of each tr*/
                 &:nth-last-of-type(-n+2)
-                    background-color: #f4f4f4 // $uni-color-scale9
+                    background-color: var(--scale4)
                 &.selected
-                    background-color: $uni-color-scale9
-                    color: $uni-color-positive
+                    background-color: var(--scale4)
+                    color: var(--color-c2a)
 
     button
         @extend button.c2a
@@ -94,7 +94,7 @@
     margin: .75rem 0 0 0
     padding-top: 0 !important
     box-sizing: border-box
-    border-top: 1px solid $uni-color-scale9
+    border-top: 1px solid var(--border-color)
 
     .template-header
         display: flex

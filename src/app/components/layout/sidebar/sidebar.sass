@@ -64,7 +64,6 @@ ul.sidebar-menu
             line-height: 2rem
             display: flex
             white-space: nowrap
-            color: var(--sidebar-section-header-color)
 
             &:hover
                 background-color: var(--sidebar-active-section-background)
@@ -75,10 +74,10 @@ ul.sidebar-menu
                 text-align: center
                 line-height: 2rem
                 font-size: 22px
+                color: var(--sidebar-icon-color)
 
                 &.expanded-section-icon
                     margin-left: auto
-                    color: var(--sidebar-color)
                     font-size: 15px
                     margin-top: 0
                     flex-basis: 3rem
@@ -87,6 +86,7 @@ ul.sidebar-menu
                 font-size: 15px
                 font-weight: 500
                 font-family: var(--font-family)
+                color: var(--sidebar-color)
                 @media screen and (max-width: 1300px)
                     font-size: 14px
 
@@ -137,6 +137,9 @@ ul.sidebar-menu
                 color: var(--sidebar-hover-color)
                 border-right: 2px solid var(--sidebar-hover-color)
                 margin-bottom: 10px
+
+                span
+                    color: var(--sidebar-icon-color)
 
             .sidebar-link-group
                 display: block

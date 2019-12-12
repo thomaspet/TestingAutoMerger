@@ -1,33 +1,11 @@
 \:host
     display: flex
     align-items: center
-
     position: relative
     padding: 1rem 0
 
     &:hover .status-history
         display: block
-
-.status-indicator
-    display: inline-flex
-    align-items: center
-    cursor: default
-    font-weight: 500
-    font-size: 15px
-    color: var(--color-c2a-dark)
-
-    i
-        margin-right: 4px
-
-    &.good
-        color: var(--color-good)
-    &.warn
-        color: var(--color-warn)
-    &.bad
-        color: var(--color-bad)
-
-    @media only screen and (max-width: 1300px)
-        font-size: 14px
 
 .status-history
     display: none

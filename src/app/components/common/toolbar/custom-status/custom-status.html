@@ -1,5 +1,5 @@
 <ng-container *ngIf="status">
-    <section class="status-indicator" [ngClass]="status.class">
+    <section class="toolbar-status-indicator" [ngClass]="status.class">
         <i class="material-icons-outlined">{{status.icon || 'info'}}</i>
         {{status.label}}
         <span class="sub-status-counter {{status.class}}" *ngIf="status.subStatuses?.length">

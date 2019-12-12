@@ -38,11 +38,19 @@ import { of } from 'rxjs/observable/of';
                     *ngIf="modalConfig && modalConfig.model && modalConfig?.model['_periodYears'] && currentFinancialYearPeriods">
                     <table>
                         <tr>
-                            <th><button class="previous yearbutton" [disabled]="buttonsDisabled" (click)="showPreviousYear()"></button></th>
+                            <th>
+                                <i *ngIf="!buttonsDisabled" (click)="showPreviousYear()" class="material-icons" style="cursor: pointer">
+                                keyboard_arrow_left
+                            </i>
+                            </th>
                             <th>{{modalConfig?.model['_periodYears'][0]}}</th>
                             <th>{{modalConfig?.model['_periodYears'][1]}}</th>
                             <th>{{modalConfig?.model['_periodYears'][2]}}</th>
-                            <th style="width: 25px"><button class="next yearbutton" [disabled]="buttonsDisabled" (click)="showNextYear()">></button></th>
+                            <th style="width: 25px">
+                                <i *ngIf="!buttonsDisabled" (click)="showNextYear()" class="material-icons" style="cursor: pointer">
+                                    keyboard_arrow_right
+                                </i>
+                            </th>
                         </tr>
                         <tr *ngFor="let period of currentFinancialYearPeriods; let i = index">
                             <td>{{period.Name}}</td>
@@ -68,9 +76,13 @@ import { of } from 'rxjs/observable/of';
 
             </article>
             <footer>
-                <button (click)="close('ok')" [disabled]="lockedDateSelected || buttonsDisabled" class="good">Ok</button>
-                <button (click)="close('cancel')">Avbryt</button>
-                <button (click)="close('remove')"  [disabled]="buttonsDisabled" class="bad">Fjern</button>
+                <button (click)="close('cancel')" class="secondary">Avbryt</button>
+                <button (click)="close('remove')" *ngIf="!buttonsDisabled" class="secondary bad">
+                    Fjern periodisering
+                </button>
+                <button (click)="close('ok')" *ngIf="!buttonsDisabled" [disabled]="lockedDateSelected" class="c2a">
+                    Lagre periodisering
+                </button>
             </footer>
 
         </section>

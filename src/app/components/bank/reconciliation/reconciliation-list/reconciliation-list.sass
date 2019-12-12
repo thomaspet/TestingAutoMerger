@@ -5,13 +5,13 @@
         width: 100%
         table-layout: fixed
         border-collapse: collapse
-        border: 1px solid $uni-color-scale9
+        border: 1px solid var(--border-color)
         border-radius: 3px
 
         thead, tbody
             tr
                 height: 50px
-                border-bottom: 1px solid $uni-color-scale9
+                border-bottom: 1px solid var(--border-color)
 
                 td:first-of-type
                     padding-left: 1rem
@@ -82,8 +82,8 @@
     display: flex
     flex-direction: column
 
-    li:nth-child(odd)
-        background-color: $uni-color-negative
+    li:nth-child(even)
+        background-color: var(--table-row-even-background)
 
     #scrolling-viewport
         height: 100%
@@ -106,17 +106,7 @@
             padding-right: 2rem
             padding-left: 0
 
-        .good
-            color: $uni-color-plus
-            font-weight: 600
-        .bad
-            color: $uni-color-bad
-            font-weight: 600
-        .done
-            color: $uni-color-good
-            font-weight: 600
-
 .list-header
     font-weight: 600
-    border-bottom: 1px solid $uni-color-scale9
+    border-bottom: 1px solid var(--border-color)
     width: calc(100% - 1rem)

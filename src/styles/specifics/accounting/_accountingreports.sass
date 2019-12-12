@@ -43,7 +43,7 @@ accounting-reports, accounting-details-report
 
     .percentage
         text-align: right !important
-        color: $uni-color-scale5 !important
+        color: var(--scale1) !important
         text-overflow: clip
         width: 5%
 
@@ -128,7 +128,7 @@ accounting-reports, accounting-details-report
 
         td, th
             padding: pxToRem(2) pxToRem(6)
-            border-left: pxToRem(1) solid $uni-color-scale9
+            border-left: 1px solid var(--border-color)
             height: calc(1.2rem + #{pxToRem(10)})
             white-space: nowrap
             overflow: hidden
@@ -138,16 +138,16 @@ accounting-reports, accounting-details-report
                 border-left: none
 
         tr
-            border-bottom: pxToRem(1) solid $uni-color-scale9
+            border-bottom: 1px solid var(--border-color)
 
             &:nth-of-type(odd)
-                background: mix($uni-color-scale9, $uni-color-negative, 30%)
+                background: var(--table-row-odd-background)
 
             &:nth-of-type(even)
-                background: $uni-color-negative
+                background: var(--table-row-even-background)
 
             &:hover
-                background: mix($uni-color-c2a, $uni-color-negative, 15%)
+                background: var(--table-row-select-background)
 
             &:nth-last-of-type(2)
                 border-bottom: pxToRem(1) solid black
@@ -168,15 +168,10 @@ accounting-reports, accounting-details-report
                 color: blue
 
         th
-            background: $uni-color-negative
-            border-bottom: pxToRem(1) solid $uni-color-scale8
+            border-bottom: 1px solid var(--border-color)
             margin-bottom: pxToRem(-1)
-            color: $uni-color-positive
             font-weight: 600
             text-align: left
-
-            a:link
-                color: $uni-color-positive
 
         .bottom
             vertical-align: bottom

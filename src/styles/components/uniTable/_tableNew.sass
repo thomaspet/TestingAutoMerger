@@ -162,7 +162,7 @@ ag-grid-angular
         padding: 0
         cursor: pointer
         justify-content: center
-        color: #8B96AC // #707d90
+        color: var(--scale1)
 
     &.row-drag-cell
         .ag-cell-wrapper
@@ -176,7 +176,7 @@ ag-grid-angular
                 font-family: 'Material Icons'
                 content: 'unfold_more'
                 font-size: 24px
-                color: #8B96AC
+                color: var(--scale1)
 
         .ag-cell-value
             display: none
@@ -212,7 +212,7 @@ ag-grid-angular
             text-decoration: underline
 
     span.placeholder
-        color: #707d90
+        color: var(--scale1)
 
     &.number-bad, &.date-bad
         color: var(--color-bad) !important
@@ -263,7 +263,7 @@ ag-grid-wrapper.selection-disabled ag-grid-angular:not(.editable)
 ag-grid-angular.editable .readonly-row,
 ag-grid-angular .disabled-row
     background: #f0f0f0
-    color: $uni-color-scale5
+    color: var(--scale1)
     cursor: not-allowed
 
 .ag-overlay-wrapper
@@ -282,7 +282,7 @@ ag-grid-angular.has-sum-row .ag-overlay-wrapper
 .ag-icon-checkbox-checked
     &:before
         border-color: var(--color-c2a) !important
-        background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
+        background: var(--color-c2a) !important
 
     &:after
         opacity: 1 !important
@@ -294,7 +294,7 @@ ag-grid-angular.has-sum-row .ag-overlay-wrapper
     &.checked
         &:before
             border-color: var(--color-c2a) !important
-            background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
+            background: var(--color-c2a) !important
 
         &:after
             opacity: 1 !important
@@ -381,7 +381,7 @@ ag-grid-angular.has-sum-row .ag-overlay-wrapper
     &.warn
         background: var(--color-warn) unicon-info(#fff) no-repeat center
     &.neutral
-        background: #638bb3 unicon-info(#fff) no-repeat center
+        background: var(--color-c2a) unicon-info(#fff) no-repeat center
     &.bad
         background: unicon-warning(#F53B57) no-repeat center
         background-size: 1.4rem

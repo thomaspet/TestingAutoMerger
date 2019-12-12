@@ -136,7 +136,7 @@ export class VatReportView implements OnInit, OnDestroy {
                         + ', ' + this.periodDateFormat.transform(this.currentVatReport.TerminPeriod)
                 },
                 {
-                    title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke Bokført',
+                    title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke bokført',
                     link: journalEntryLink
                 }
 
@@ -182,7 +182,7 @@ export class VatReportView implements OnInit, OnDestroy {
 
             const subStatusList: IStatus[] = [];
             if (status.Code === activeStatus) {
-                if (this.vatReportsInPeriod) {
+                if (this.vatReportsInPeriod && this.vatReportsInPeriod.length > 1) {
                     this.vatReportsInPeriod.forEach(report => {
                         subStatusList.push({
                             title: report.Title,

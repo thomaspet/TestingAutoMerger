@@ -104,7 +104,7 @@ uni-widget
         align-items: center
         justify-content: center
         height: 100%
-        color: #707d90
+        color: var(--scale1)
         font-size: 14px
 
 uni-widget:hover .widget-remove-btn
@@ -126,7 +126,7 @@ uni-widget-canvas
     flex-direction: column
     font-family: var(--font-family)
     padding: 0 // 1.5rem
-    color: #596879
+    color: var(--text-color)
     text-align: left
     position: relative
 
@@ -180,7 +180,7 @@ uni-widget-canvas
         display: flex
         justify-content: center
         align-items: center
-        color: #8E98AB
+        color: var(--scale1)
 
 .widget-logo-wrapper
     display: block
@@ -340,6 +340,7 @@ uni-widget-canvas
 
             a:first-of-type
                 flex: 1
+                font-weight: 500
             i
                 vertical-align: middle
 
@@ -359,7 +360,7 @@ uni-shortcuts
         font-size: 15px
 
         + .uni-widget-button
-            border-left: 1px solid $uni-color-scale9
+            border-left: 1px solid var(--border-color)
 
         i.material-icons
             display: block
@@ -403,12 +404,13 @@ uni-shortcuts
     .numbers-section
         flex: 1
         div.header
-            color: #8E98AB
-            font-size: 15px
+            font-size: 14px
             margin-bottom: 5px
+            font-weight: 400
         div
             font-size: 1.5rem
             color: var(--widget-header-color)
+            font-weight: 500
 
     i.material-icons
         flex: 0 0 auto
@@ -416,17 +418,17 @@ uni-shortcuts
         border-radius: 50%
 
     &.green-counter i.material-icons
-        color: #008A00 // #05C46B
-        background: #E1F4E3 // #DAF6E9
+        color: #01A901 // #05C46B
+        background: #DAF0CD // #DAF6E9
     &.blue-counter i.material-icons
-        color: var(--color-c2a-dark) // #2699FB
-        background: #DFF1F9 // #E3EEFB
+        color: #0070E0 // #2699FB
+        background: #DAEEFF // #E3EEFB
     &.yellow-counter i.material-icons
-        color: #FF9100 // #FFC048
-        background: #F8F5EB // #FFF6E4
+        color: #FBBE11 // #FFC048
+        background: #FFEBD5 // #FFF6E4
     &.red-counter i.material-icons
-        color: #da3d00 // #E01E5A
-        background: #FBE6E0 // #FBE1E6
+        color: #D63731 // #E01E5A
+        background: #FDD5D2 // #FBE1E6
 
     .icon-section
         flex: 1
@@ -435,6 +437,21 @@ uni-shortcuts
         align-items: center
         i
             font-size: 2rem
+
+.overdue-info-header
+    height: 4rem
+    display: flex
+    flex-direction: column
+    justify-content: flex-end
+    padding-left: 1.5rem
+
+    span
+        font-size: 14px
+
+    span.overdue-number
+        font-size: 18px
+        font-weight: 500
+        color: var(--text-color)
 
 .chart-legend
     display: flex
@@ -589,14 +606,14 @@ header.dashboard-header
     a.dashboard-link
         font-size: 14px
         font-weight: 500
-        color: #707D90
+        color: var(--scale1)
         text-decoration: none
         padding: 8px 15px
-        border-radius: var(--section-radius)
         &:hover
             background: rgba(0, 0, 0, .07)
         &.active
             color: var(--color-c2a)
+            border-bottom: 2px solid var(--color-c2a)
 
     &:not(.no-link-dashboard)
         @media screen and (max-width: 1400px)

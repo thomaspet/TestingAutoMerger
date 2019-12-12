@@ -1,5 +1,3 @@
-$toolbar-grey: $uni-color-scale6
-
 @import 'breadcrumbs'
 @import 'toolbarSearch'
 @import 'tags'
@@ -23,11 +21,11 @@ uni-toolbar
         position: static
         margin-bottom: 2rem
 
-    color: $toolbar-grey
+    color: var(--scale1)
     z-index: map-get($zindex, toolbar)
 
     .toolbar-title
-        color: var(--color-c2a-dark)
+        color: var(--toolbar-header-color)
         font-size: 22px
         font-weight: 500
         .material-icons
@@ -107,7 +105,7 @@ uni-toolbar
                 font-size: 14px
 
             .subhead-label
-                color: $toolbar-grey
+                color: var(--scale1)
                 font-size: inherit
 
             &.bad
@@ -126,7 +124,7 @@ uni-toolbar
 
 .toolbar-extras, .toolbar-left
     small
-        color: $toolbar-grey
+        color: var(--scale1)
         flex-basis: fit-content
         white-space: nowrap
 
@@ -148,10 +146,10 @@ uni-toolbar
         background-color: #fff
         border: var(--toolbar-button-border)
         margin-right: .5rem
-        color: var(--toolbar-button-color)
+        color: var(--color-c2a)
         font-weight: 500
         &:hover
-            border-color: var(--toolbar-button-color)
+            border-color: var(--color-c2a)
 
     .new-button i.material-icons
         font-size: 20px
@@ -170,3 +168,41 @@ uni-toolbar
         padding: 0
         span
             display: none
+
+
+.toolbar-status-indicator
+    display: inline-flex
+    align-items: center
+    position: relative
+    cursor: default
+    font-size: 15px
+    color: var(--color-c2a)
+
+    i
+        margin-right: 4px
+
+    &.good
+        color: var(--color-good)
+    &.warn
+        color: var(--color-warn)
+    &.bad
+        color: var(--color-bad)
+
+    @media only screen and (max-width: 1300px)
+        font-size: 14px
+
+    .sub-status-counter
+        position: absolute
+        top: 0
+        right: -1rem
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 14px
+        height: 14px
+        border-radius: 50%
+        font-size: 10px
+        font-weight: 500
+        background: var(--color-warn)
+        color: #fff
+

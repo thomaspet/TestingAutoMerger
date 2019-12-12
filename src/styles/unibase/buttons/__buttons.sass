@@ -6,20 +6,21 @@
 
 @mixin main-btn($type)
     color: #fff
-    background-color: var(--color-#{$type})
+    background-color: var(--button-#{$type})
     border: none
     &:hover, &:focus, &:active, &.test
-        background-color: var(--color-#{$type}-hover)
+        background-color: var(--button-#{$type}-hover)
         box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2)
     &:before
         border-color: #fff
 
-@mixin secondary-btn-color($color)
-    color: $color
+@mixin secondary-btn-color($type)
+    color: var(--button-#{$type})
     &:hover, &:focus, &:active
-        border-color: $color
+        color: var(--button-#{$type}-hover)
+        border-color: var(--button-#{$type}-hover) // $color
     &:before
-        border-color: $color !important
+        border-color: var(--button-#{$type}) !important
 
 button, a.button
     position: relative
@@ -101,11 +102,11 @@ button, a.button
         background-color: #fff
         border: 2px solid #ccc
         font-weight: 500
-        @include secondary-btn-color(var(--color-c2a))
+        @include secondary-btn-color(c2a)
         &.good
-            @include secondary-btn-color(var(--color-good))
+            @include secondary-btn-color(good)
         &.bad
-            @include secondary-btn-color(var(--color-bad))
+            @include secondary-btn-color(bad)
 
 
     // Tertiary
@@ -116,22 +117,22 @@ button, a.button
         font-weight: 500
 
         &.c2a
-            color: var(--color-c2a)
+            color: var(--button-c2a)
             &:hover, &:focus, &:active
-                color: var(--color-c2a-hover)
+                color: var(--button-c2a-hover)
 
             &.busy, &[aria-busy]:not([aria-busy=false])
                 &:before
-                    border-color: var(--color-c2a)
+                    border-color: var(--button-c2a)
 
         &.bad
-            color: var(--color-bad)
+            color: var(--button-bad)
             &:hover, &:focus, &:active
-                color: var(--color-bad-hover)
+                color: var(--button-bad-hover)
 
             &.busy, &[aria-busy]:not([aria-busy=false])
                 &:before
-                    border-color: var(--color-bad)
+                    border-color: var(--button-bad)
 
 .inbox-upload-button
     display: flex
@@ -146,11 +147,3 @@ button[type=submit]
 
 combo-button + button
     margin-left: 1rem
-
-.delete-button-bad
-    .c2a
-        background-color: var(--color-bad)
-        color: white
-        font-weight: 500
-        &:hover
-            background-color: var(--color-bad-hover)

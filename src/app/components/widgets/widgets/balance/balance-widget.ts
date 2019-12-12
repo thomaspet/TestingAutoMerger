@@ -108,7 +108,8 @@ export class BalanceWidget {
                 legend: {
                     position: 'left',
                     labels: {
-                        usePointStyle: true
+                        usePointStyle: true,
+                        padding: 15
                     }
                 },
                 elements: {

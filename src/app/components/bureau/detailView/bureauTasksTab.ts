@@ -27,7 +27,7 @@ const BASE = environment.BASE_URL;
 <section class="tasks" *ngIf="!!viewData">
     <section class="for-approval">
         <i class="material-icons">check_circle</i>
-        <a class="company_name">Til godkjenning</a>
+        <span>Til godkjenning</span>
         <section class="text-container">
             <p>
                 Faktura
@@ -42,7 +42,7 @@ const BASE = environment.BASE_URL;
     </section>
     <section class="for-processing">
         <i class="material-icons">autorenew</i>
-        <a class="company_name">Til behandling</a>
+        <span>Til behandling</span>
         <section class="text-container">
             <p>
                 Fakturainnboks

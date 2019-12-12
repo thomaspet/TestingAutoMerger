@@ -14,20 +14,17 @@ project-hourtotals
         table-layout: fixed
 
         tr:nth-child(even)
-            background-color: lighten($uni-color-scale9,5%)
+            background-color: var(--table-row-even-background)
 
         th
-            border-bottom: 1px solid $uni-color-scale6
+            border-bottom: 1px solid var(--border-color)
             padding-bottom: pxToRem(5)
 
         th.prc, td.prc
             width: 3em
-            background-color: lighten($uni-color-good,72%)
 
         th.prc
-            border-width: pxToRem(1) pxToRem(1) pxToRem(1) pxToRem(1)
-            border-style: solid
-            border-color: $uni-color-scale8
+            border: 1px solid var(--border-color)
 
         td.left
             text-align: left
@@ -35,8 +32,8 @@ project-hourtotals
 
         td
             padding: pxToRem(2) pxToRem(2) pxToRem(2) pxToRem(2)
-            border-left: 1px solid $uni-color-scale8
-            border-bottom: 1px solid $uni-color-scale8
+            border-left: 1px solid var(--border-color)
+            border-bottom: 1px solid var(--border-color)
             text-align: center
             overflow: hidden
 

@@ -90,9 +90,7 @@ export class DrilldownResultReportPart implements OnChanges {
         private numberFormatService: NumberFormat,
         private modalService: UniModalService,
         private http: UniHttp
-    ) {
-        this.prepChartType();
-    }
+    ) { }
 
     public ngOnChanges() {
         if (this.filter) {
@@ -486,7 +484,7 @@ export class DrilldownResultReportPart implements OnChanges {
         }
 
         this.myChart = new Chart(element, {
-            type: 'groupableBar',
+            type: 'bar',
             data: <any> data,
             options: {
                 tooltips: {
@@ -506,79 +504,6 @@ export class DrilldownResultReportPart implements OnChanges {
                     display: true
                 }
             }
-        });
-    }
-
-    private prepChartType() {
-        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
-
-        const helpers = Chart.helpers;
-        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
-            calculateBarX: function (index, datasetIndex) {
-                // position the bars based on the stack index
-                const stackIndex = this.getMeta().stackIndex;
-                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
-            },
-
-            hideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                this.hiddens = [];
-                for (let i = 0; i < datasetIndex; i++) {
-                    const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        this.hiddens.push(dsMeta.hidden);
-                        dsMeta.hidden = true;
-                    }
-                }
-            },
-
-            unhideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                for (let i = 0; i < datasetIndex; i++) {
-                        const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        dsMeta.hidden = this.hiddens.unshift();
-                    }
-                }
-            },
-
-            calculateBarY: function (index, datasetIndex) {
-                this.hideOtherStacks(datasetIndex);
-                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
-                this.unhideOtherStacks(datasetIndex);
-                return barY;
-            },
-
-            calculateBarBase: function (datasetIndex, index) {
-                this.hideOtherStacks(datasetIndex);
-                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
-                this.unhideOtherStacks(datasetIndex);
-                return barBase;
-            },
-
-            getBarCount: function () {
-                const stacks = [];
-
-                // put the stack index in the dataset meta
-                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
-                    const meta = this.chart.getDatasetMeta(datasetIndex);
-                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
-                    let stackIndex = stacks.indexOf(dataset.stack);
-                    if (stackIndex === -1) {
-                    stackIndex = stacks.length;
-                    stacks.push(dataset.stack);
-                    }
-                    meta.stackIndex = stackIndex;
-                }
-                }, this);
-
-                this.getMeta().stacks = stacks;
-                return stacks.length;
-            },
         });
     }
 

@@ -18,10 +18,9 @@ export class StatustrackStatus {
     STATES = STATUSTRACK_STATES;
     isActive: boolean;
     hasDetailsSection: boolean;
-    cssClasses: string[];
+    classString: string;
 
     hasSubStatuses: boolean;
-    showSubStatusCounter: boolean;
     showStatusHistory: boolean;
 
     statusHistoryLoaded: boolean;
@@ -38,8 +37,22 @@ export class StatustrackStatus {
         }
 
         this.hasSubStatuses = this.status.substatusList && this.status.substatusList.length > 0;
-        this.showSubStatusCounter = this.hasSubStatuses && (this.singleStatus || this.isActive);
         this.showStatusHistory = (this.singleStatus || this.isActive) && !!this.entityType && !!this.entityID;
+
+        const classes = [];
+        if (this.status && (this.status.class || this.status.state)) {
+            classes.push(this.status.class || this.status.state);
+        }
+
+        if (this.hasSubStatuses) {
+            classes.push('has-substatus');
+        }
+
+        if (this.singleStatus) {
+            classes.push('single-status');
+        }
+
+        this.classString = classes.join(' ');
     }
 
     formatTime(datetime, formatDateTime?: string) {

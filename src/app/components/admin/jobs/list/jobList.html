@@ -1,7 +1,7 @@
 <uni-toolbar [config]="{title: 'Jobber', hideBreadcrumbs: true}"></uni-toolbar>
 
 <section class="application">
-    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex" (activeIndexChange)="updateTab()"></uni-tabs>
 
     <section class="uni-container">
         <ng-template [ngIf]="activeTabIndex === 0">

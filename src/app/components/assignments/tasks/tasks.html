@@ -29,14 +29,10 @@
                 </small>
             </section>
 
-            <section class="assignment-buttons">
-                <i class="material-icons complete-task"
-                    role="button"
-                    title="Fullfør oppgave"
-                    *ngIf="!task._completed && !task._activeApproval"
-                    (click)="completeTask(task)">
-                    check_circle
-                </i>
+            <section class="assignment-buttons" *ngIf="!task._completed && !task._activeApproval">
+                <button class="secondary" (click)="completeTask(task)">
+                    Fullfør
+                </button>
             </section>
         </li>
     </ul>

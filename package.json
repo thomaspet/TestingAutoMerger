@@ -45,7 +45,7 @@
     "ag-grid-enterprise": "19.0.0",
     "angular-tree-component": "^7.0.1",
     "applicationinsights-js": "1.0.20",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.3",
     "chartjs-plugin-datalabels": "0.6.0",
     "chartjs-plugin-doughnutlabel": "2.0.3",
     "core-js": "^2.5.4",

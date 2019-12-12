@@ -59,7 +59,7 @@ export class AssignmentsWidget {
                         if (task) {
                             if (task.Model.Name === 'SupplierInvoice') {
                                 approval._typeText = 'Leverandørfaktura';
-                                approval._icon = 'description';
+                                approval._icon = 'arrow_right_alt';
                                 approval._iconClass = 'blue';
 
                                 const titleSplit = (task.Title || '').split(/-(.+)/);
