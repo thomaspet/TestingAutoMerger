@@ -136,7 +136,7 @@ export class VatReportView implements OnInit, OnDestroy {
                         + ', ' + this.periodDateFormat.transform(this.currentVatReport.TerminPeriod)
                 },
                 {
-                    title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke Bokført',
+                    title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke bokført',
                     link: journalEntryLink
                 }
 

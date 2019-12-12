@@ -4,7 +4,7 @@ import * as moment from 'moment';
 
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ErrorService, JobService} from '@app/services/services';
+import {ErrorService, JobService, PageStateService} from '@app/services/services';
 import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
@@ -22,6 +22,7 @@ export class JobList implements OnInit {
     jobRuns: any[];
     jobRunsConfig: UniTableConfig;
     jobs: any[];
+    tabValues = ['lastjobs', 'alljobs', 'saft-t'];
 
     constructor(
         private tabService: TabService,
@@ -29,29 +30,36 @@ export class JobList implements OnInit {
         private route: ActivatedRoute,
         private jobService: JobService,
         private errorService: ErrorService,
+        private pagestateService: PageStateService
     ) {}
 
     public ngOnInit() {
-        this.tabService.addTab({
-            url: '/admin/jobs',
-            name: 'Jobber',
-            active: true,
-            moduleID: UniModules.Jobs
-        });
-
         this.setupJobTable();
         this.route.queryParams.subscribe((params: any) => {
-            const activeTab = params.tab || '';
-            switch (activeTab) {
-                case 'lastjobs': this.activeTabIndex = 0; break;
-                case 'alljobs': this.activeTabIndex = 1; break;
-                case 'saft-t': this.activeTabIndex = 2; break;
+
+            if (params && params.tab) {
+                const index = this.tabValues.findIndex(tab => params.tab === tab);
+                this.activeTabIndex = index > 0 ? index : 0;
+            } else {
+                this.activeTabIndex = 0;
             }
+
+            this.updateTab();
         });
     }
 
     public refresh() {
         this.getLatestJobRuns();
+    }
+
+    public updateTab() {
+        this.pagestateService.setPageState('tab', this.tabValues[this.activeTabIndex]);
+        this.tabService.addTab({
+            url: this.pagestateService.getUrl(),
+            name: 'Jobber',
+            active: true,
+            moduleID: UniModules.Jobs
+        });
     }
 
     private getLatestJobRuns() {

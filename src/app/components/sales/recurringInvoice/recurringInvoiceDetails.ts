@@ -936,6 +936,9 @@ export class UniRecurringInvoice implements OnInit {
 
     private saveAndRefreshInvoice(done) {
         const requiresPageRefresh = !this.invoice.ID;
+
+        // If null, set to 0 so field is updated
+        this.invoice.MaxIterations = this.invoice.MaxIterations || 0;
         this.saveInvoice(done).then(res => {
             if (res) {
                 this.isDirty = false;
