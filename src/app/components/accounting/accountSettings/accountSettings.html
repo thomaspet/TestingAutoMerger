@@ -1,19 +1,15 @@
-﻿<uni-toolbar
-    [config]="toolbarconfig"
-    [saveactions]="saveaction">
-</uni-toolbar>
+﻿<uni-toolbar [config]="toolbarconfig" [saveactions]="saveaction"></uni-toolbar>
 
-<section class=" application">
-    <section class="splitview">
-        <nav class="splitview_list">
-            <account-list (uniAccountChange)="changeAccount($event)"></account-list>
-        </nav>
-        <main class="splitview_detail">
-            <account-details
-                [inputAccount]="account"
-                (accountSaved)="accountSaved($event)"
-                (changeEvent)="change($event)">
-            </account-details>
-        </main>
+<section class="application account-settings-container">
+    <section class="uni-container list">
+        <account-list (uniAccountChange)="changeAccount($event)"></account-list>
+    </section>
+
+    <section class="uni-container details">
+        <account-details
+            [inputAccount]="account"
+            (accountSaved)="accountSaved($event)"
+            (changeEvent)="change($event)">
+        </account-details>
     </section>
 </section>

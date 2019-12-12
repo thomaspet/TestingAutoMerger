@@ -1,13 +1,38 @@
 account-settings
-    .splitview_list
-        min-width: 60%
-        top: 0
+    .account-settings-container
+        display: flex
+        height: calc(100vh - 13rem)
+        margin-top: 1rem
+        overflow: hidden
 
-    .splitview_detail
-        min-width: 40%
-        @include labelLength(11rem)
+        account-list, account-details
+            display: block
+
+        .list
+            flex: 1
+            height: 100%
+            overflow: hidden
+            ag-grid-wrapper
+                height: 100%
+
+        .details
+            flex: 0 0 35rem
+            height: 100%
+            margin-left: 1rem
+            overflow-y: auto
+            @include labelLength(11rem)
+
+        @media screen and (max-width: 1400px)
+            flex-direction: column
+            height: unset
+            .list
+                height: 25rem
+            .details
+                flex: 1
+                margin-left: 0
 
 account-list
+    height: 100%
     .is-locked, .is-unlocked, .is-visible, .is-hidden, .is-na
         @extend %hideText
 
