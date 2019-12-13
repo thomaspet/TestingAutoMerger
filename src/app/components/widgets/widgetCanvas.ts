@@ -145,12 +145,6 @@ export class UniWidgetCanvas {
                 ].filter(link => {
                     return this.authService.canActivateRoute(auth.user, link.url);
                 });
-
-                if (this.layout) {
-                    this.canvasHelper.resetGrid();
-                    const layout = this.canvasHelper.getSavedLayout(this.layoutName);
-                    this.initializeLayout(layout);
-                }
             }
         });
 
