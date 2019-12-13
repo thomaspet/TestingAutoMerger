@@ -36,8 +36,8 @@ export class UniToast {
                     this.icon = 'check_circle';
                 break;
                 case ToastType.bad:
-                case ToastType.warn:
-                    this.icon = 'error_outline';
+                // case ToastType.warn:
+                    this.icon = 'block'; // 'error_outline';
                 break;
                 default:
                     this.icon = 'info';

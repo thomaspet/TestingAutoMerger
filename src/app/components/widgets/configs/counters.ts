@@ -130,7 +130,7 @@ export const COUNTERS = [
             title: 'Betalingsliste',
             positive: false,
             link: '/accounting/bills?filter=ToPayment',
-            icon: 'list',
+            icon: 'format_list_bulleted',
             class: 'green-counter'
         }
     },
