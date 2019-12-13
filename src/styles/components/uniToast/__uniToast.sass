@@ -13,26 +13,33 @@ uni-toast
     max-width: 95vw
     padding: 1rem
     font-family: var(--font-family)
-    color: var(--text-color) !important
     cursor: pointer
-    border: 1px solid var(--border-color)
     border-radius: 4px
     overflow: hidden
     opacity: 1
     transform: none
     transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76)
+    color: var(--text-color)
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+
+    &.good
+        background-color: var(--toast-good)
+        color: var(--toast-good-text)
+    &.bad
+        background-color: var(--toast-bad)
+        color: var(--toast-bad-text)
+    &.warn
+        background-color: var(--toast-warn)
+        color: var(--toast-warn-text)
+    &.info
+        background-color: var(--toast-info)
+        color: var(--toast-info-text)
+        .header, i.toast-type-icon
+            color: var(--color-c2a-dark)
 
     & + uni-toast
         margin-top: .5rem
 
-    &.good
-        background-color: var(--alert-good)
-    &.bad
-        background-color: var(--alert-bad)
-    &.warn
-        background-color: var(--alert-warn)
-    &.info
-        background-color: var(--alert-info)
 
     &.toast-done
         opacity: 0
@@ -40,22 +47,23 @@ uni-toast
 
     i.toast-type-icon
         flex: 0 0 auto
-        margin-right: .5rem
-        color: var(--text-color)
-        font-size: 22px
+        margin-right: .75rem
+        // color: var(--text-color)
+        // font-size: 22px
 
     .toast-body
         flex: 1
         .header
             font-weight: 500
-            font-size: 16px
+            font-size: 17px
+            margin-bottom: .5rem
             small.toast-count
                 color: var(--text-color)
                 font-weight: 300
                 font-size: 13px
 
-        .message
-            font-size: 13px
+        // .message
+        //     font-size: 1rem
 
         .toast-action
             height: 30px
@@ -66,4 +74,4 @@ uni-toast
     i.toast-close-icon
         flex: 0 0 auto
         margin-left: 1rem
-        font-size: 22px
+        // font-size: 22px

@@ -345,7 +345,7 @@ export class AgGridWrapper {
                     heightMultiplier += 1;
                 }
 
-                tableHeight = (heightMultiplier * this.rowHeight) + 1 + 'px';
+                tableHeight = (heightMultiplier * this.rowHeight) + 18 + 'px';
             } else {
                 let height = (pageSize + 1) * this.rowHeight;
                 if (this.dataService.advancedSearchFilters && this.dataService.advancedSearchFilters.length) {
@@ -407,7 +407,18 @@ export class AgGridWrapper {
                     this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
                 }
 
-                event.api.sizeColumnsToFit();
+                // Only size to fit when we don't have horizontal scroll
+                let skipSizeToFit;
+                try {
+                    const wrapper: HTMLElement = this.wrapperElement.nativeElement;
+                    const tableBody = wrapper.querySelector('.ag-body-container');
+                    const tableBodyViewport = wrapper.querySelector('.ag-body-viewport-wrapper');
+                    skipSizeToFit = tableBody.clientWidth - tableBodyViewport.clientWidth > 0;
+                } catch (e) {}
+
+                if (!skipSizeToFit) {
+                    event.api.sizeColumnsToFit();
+                }
             }
         }
     }
