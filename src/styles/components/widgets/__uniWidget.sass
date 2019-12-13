@@ -364,14 +364,14 @@ uni-shortcuts
 
         i.material-icons
             display: block
-            color: $uni-color-toolbar
+            color: var(--color-c2a-dark)
             font-size: 36px
             margin-bottom: .25rem
 
         i.letter-icon
             font-style: normal
             font-family: serif
-            color: $uni-color-toolbar
+            color: var(--color-c2a-dark)
             font-size: 40px
             margin: .5rem 0
 
@@ -399,7 +399,7 @@ uni-shortcuts
     height: 100%
     cursor: pointer
     padding: 0 2rem
-    color: #596879
+    color: var(--widget-header-color)
 
     .numbers-section
         flex: 1
@@ -407,28 +407,28 @@ uni-shortcuts
             font-size: 14px
             margin-bottom: 5px
             font-weight: 400
+            color: var(--scale1)
         div
             font-size: 1.5rem
-            color: var(--widget-header-color)
             font-weight: 500
 
-    i.material-icons
+    i.material-icons-outlined
         flex: 0 0 auto
         padding: 1rem
         border-radius: 50%
 
-    &.green-counter i.material-icons
-        color: #01A901 // #05C46B
-        background: #DAF0CD // #DAF6E9
-    &.blue-counter i.material-icons
-        color: #0070E0 // #2699FB
-        background: #DAEEFF // #E3EEFB
-    &.yellow-counter i.material-icons
-        color: #FBBE11 // #FFC048
-        background: #FFEBD5 // #FFF6E4
-    &.red-counter i.material-icons
-        color: #D63731 // #E01E5A
-        background: #FDD5D2 // #FBE1E6
+    &.green-counter i.material-icons-outlined
+        color: var(--color-good)
+        background: var(--alert-good)
+    &.blue-counter i.material-icons-outlined
+        color: var(--color-c2a)
+        background: var(--alert-info)
+    &.yellow-counter i.material-icons-outlined
+        color: var(--color-warn-light)
+        background: var(--alert-warn)
+    &.red-counter i.material-icons-outlined
+        color: var(--color-bad-light)
+        background: var(--alert-bad)
 
     .icon-section
         flex: 1

@@ -47,7 +47,7 @@ export const COUNTERS = [
             title: 'Restsum forfalte faktura',
             positive: false,
             link: '/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices',
-            icon: 'credit_card',
+            icon: 'insert_drive_file',
             class: 'red-counter'
         }
     },
