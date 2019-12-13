@@ -22,7 +22,7 @@ interface IIntegrationConfig {
                 <div>{{count$ | async}}</div>
             </div>
 
-            <i class="material-icons">{{ widget.config.icon }}</i>
+            <i class="material-icons-outlined">{{ widget.config.icon }}</i>
         </div>
     `
 })
