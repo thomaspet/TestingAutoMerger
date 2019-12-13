@@ -80,31 +80,31 @@ export class OperatingProfitWidget {
         }
 
         this.getDataAndLoadChart();
-        const ShadowLineElement = (<any> Chart).elements.Line.extend({
-            draw () {
-                const { ctx } = this._chart;
-                const originalStroke = ctx.stroke;
+        // const ShadowLineElement = (<any> Chart).elements.Line.extend({
+        //     draw () {
+        //         const { ctx } = this._chart;
+        //         const originalStroke = ctx.stroke;
 
-                ctx.stroke = function () {
-                    ctx.save();
-                    ctx.shadowColor = 'rgba(0, 0, 0, .05)';
-                    ctx.shadowBlur = 3;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 1;
-                    originalStroke.apply(this, arguments);
-                    ctx.restore();
-                };
+        //         ctx.stroke = function () {
+        //             ctx.save();
+        //             ctx.shadowColor = 'rgba(0, 0, 0, .05)';
+        //             ctx.shadowBlur = 3;
+        //             ctx.shadowOffsetX = 0;
+        //             ctx.shadowOffsetY = 1;
+        //             originalStroke.apply(this, arguments);
+        //             ctx.restore();
+        //         };
 
-                (<any> Chart).elements.Line.prototype.draw.apply(this, arguments);
+        //         (<any> Chart).elements.Line.prototype.draw.apply(this, arguments);
 
-                ctx.stroke = originalStroke;
-            }
-          });
+        //         ctx.stroke = originalStroke;
+        //     }
+        //   });
 
-        Chart.defaults.ShadowLine = Chart.defaults.line;
-        Chart.controllers.ShadowLine = Chart.controllers.line.extend({
-            datasetElementType: ShadowLineElement
-        });
+        // Chart.defaults.ShadowLine = Chart.defaults.line;
+        // Chart.controllers.ShadowLine = Chart.controllers.line.extend({
+        //     datasetElementType: ShadowLineElement
+        // });
     }
 
     ngOnDestroy() {
@@ -262,7 +262,7 @@ export class OperatingProfitWidget {
                     pointBorderWidth: 1.25,
                     pointRadius: 4,
                     lineTension: 0,
-                    type: 'ShadowLine',
+                    type: 'line',
                     fill: false,
                     options: {
                         fill: false
