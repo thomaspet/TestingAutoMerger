@@ -80,31 +80,6 @@ export class OperatingProfitWidget {
         }
 
         this.getDataAndLoadChart();
-        // const ShadowLineElement = (<any> Chart).elements.Line.extend({
-        //     draw () {
-        //         const { ctx } = this._chart;
-        //         const originalStroke = ctx.stroke;
-
-        //         ctx.stroke = function () {
-        //             ctx.save();
-        //             ctx.shadowColor = 'rgba(0, 0, 0, .05)';
-        //             ctx.shadowBlur = 3;
-        //             ctx.shadowOffsetX = 0;
-        //             ctx.shadowOffsetY = 1;
-        //             originalStroke.apply(this, arguments);
-        //             ctx.restore();
-        //         };
-
-        //         (<any> Chart).elements.Line.prototype.draw.apply(this, arguments);
-
-        //         ctx.stroke = originalStroke;
-        //     }
-        //   });
-
-        // Chart.defaults.ShadowLine = Chart.defaults.line;
-        // Chart.controllers.ShadowLine = Chart.controllers.line.extend({
-        //     datasetElementType: ShadowLineElement
-        // });
     }
 
     ngOnDestroy() {
