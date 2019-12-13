@@ -204,7 +204,9 @@ export class BarnepassView implements OnInit {
         }).onClose.subscribe(response => {
             if (response) {
                 this.products = response;
-                this.getInvoices();
+                this.getInvoices().subscribe((result) => {
+                    this.invoices = result;
+                });
             }
         });
     }
