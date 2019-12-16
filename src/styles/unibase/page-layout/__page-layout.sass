@@ -1,11 +1,16 @@
-@import 'page-layout-variables'
-
 body
     height: 100vh
     width: 100vw
     max-width: 100vw
     max-height: 100vh
     overflow: hidden
+
+    // Sidebar width variables
+    --sidebar-collapsed-width: 4rem
+    --sidebar-expanded-width: 240px
+    @media screen and (max-width: 1300px)
+        --sidebar-expanded-width: 220px
+
 
 .application
     width: calc(100% - 1rem)
@@ -34,7 +39,7 @@ body
     box-sizing: border-box
 
     uni-sidebar
-        flex: 0 0 $sidebar-expanded-width
+        flex: 0 0 var(--sidebar-expanded-width)
 
     #page-content-container
         flex: 1 0 auto
@@ -46,18 +51,18 @@ body
         box-sizing: border-box
         margin: 0
         max-height: 100%
-        max-width: calc(100vw - #{$sidebar-expanded-width})
+        max-width: calc(100vw - #{var(--sidebar-expanded-width)})
 
     uni-toolbar
-        max-width: calc(100vw - #{$sidebar-expanded-width})
+        max-width: calc(100vw - #{var(--sidebar-expanded-width)})
 
     &.sidebar-collapsed
         uni-sidebar
-            flex-basis: $sidebar-collapsed-width
+            flex-basis: var(--sidebar-collapsed-width)
 
         #page-content-container,
         uni-toolbar
-            max-width: calc(100vw - #{$sidebar-collapsed-width})
+            max-width: calc(100vw - #{var(--sidebar-collapsed-width)})
 
     &.sidebar-hidden
         uni-sidebar
