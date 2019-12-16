@@ -100,7 +100,12 @@ export class TradeItemHelper  {
         const newRow = event.rowModel;
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
-
+        if (!newRow.PriceIncVatCurrency) {
+            this.calculatePriceIncVat(event.rowModel, currencyExchangeRate);
+        }
+        if (!newRow.PriceExVatCurrency) {
+            this.calculatePriceExVat(event.rowModel, currencyExchangeRate);
+        }
         // if not currencyExchangeRate has been defined from the parent component, assume no
         // currency is select - i.e. the currency amounts will be the same as the base currency
         // amounts - this is accomplished by setting the currencyExchangeRate to 1
@@ -153,8 +158,12 @@ export class TradeItemHelper  {
             newRow.VatType = vatTypes.find(vt => vt.ID === newRow.VatTypeID);
         }
 
-        newRow.VatPercent = newRow.VatType ? newRow.VatType.VatPercent : 0;
-
+        if (newRow.VatType && newRow.VatType.VatPercent) {
+            newRow.VatPercent = newRow.VatType.VatPercent;
+        } else {
+            const vattype = vatTypes.find(vt => vt.ID === newRow.VatTypeID);
+            newRow.VatPercent = vattype ? vattype.VatPercent : 0;
+        }
         if (event.field === 'Account') {
             this.mapAccountToQuoteItem(
                 newRow,
