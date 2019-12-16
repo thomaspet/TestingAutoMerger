@@ -5,12 +5,10 @@
 .reconciliation-list-view
     display: flex
     flex-direction: column
-    color: rgba(72, 72, 74, 0.97)
 
     input[type=search]
         width: 100%
         flex: 0 0 2.5rem
-        border: 1px solid #DDDEE0
         margin-bottom: 1rem
 
     .header
@@ -18,7 +16,6 @@
         padding: 0 .5rem
         font-size: 14px
         font-weight: 500
-        color: #485460
 
     ul
         flex: 1
@@ -36,10 +33,10 @@
             cursor: pointer
             border: 1px solid rgba(0, 0, 0, 0)
             &:hover
-                background: darken(#F5F6F9, 5%)
+                background: var(--table-row-select-background)
             &.selected
-                border-color: #2699FB
-                background: rgba(38, 153, 251, 0.1)
+                border-color: var(--color-c2a)
+                background: var(--table-row-select-background)
             & + li
                 margin-top: .5rem
 
@@ -71,9 +68,9 @@
             flex-basis: 7rem
 
 .positive
-    color: rgba(22, 93, 190, 0.96)
+    color: var(--color-c2a)
 .negative
-    color: #D12323
+    color: var(--color-bad)
 
 .upload-bank-section
     width: 90%

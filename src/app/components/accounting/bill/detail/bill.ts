@@ -3906,14 +3906,14 @@ export class BillView implements OnInit {
     }
 
     private setupToolbar() {
-        const doc: SupplierInvoice = this.current.getValue();
+        const invoice: SupplierInvoice = this.current.getValue();
         const stConfig = this.getStatustrackConfig();
         this.paymentStatusIndicator = this.getPaymentStatusIndicator();
-        const jnr = doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber
-            ? doc.JournalEntry.JournalEntryNumber
+        const jnr = invoice && invoice.JournalEntry && invoice.JournalEntry.JournalEntryNumber
+            ? invoice.JournalEntry.JournalEntryNumber
             : undefined;
         this.commentsConfig = {
-            entityID: doc.ID || 0,
+            entityID: invoice.ID || 0,
             entityType: SupplierInvoice.EntityType
         };
         this.contextMenuItems = [
@@ -3940,21 +3940,22 @@ export class BillView implements OnInit {
             }
         ];
         this.toolbarConfig = {
-            title: doc && doc.Supplier && doc.Supplier.Info
-                ? doc.Supplier.Info.Name
+            title: invoice && invoice.ID
+                ? `Leverandørfaktura ${invoice.InvoiceNumber || 'kladd'}`
                 : 'ACCOUNTING.SUPPLIER_INVOICE.NEW',
+
             subheads: [{
                 title: jnr ? `Bilagsnr. ${jnr}` : '',
                 link: jnr && jnr.split('-').length > 1
                     ? `#/accounting/transquery?JournalEntryNumber=${jnr.split('-')[0]}&AccountYear=${jnr.split('-')[1]}`
-                    : `#/accounting/transquery?JournalEntryNumber=${jnr}&AccountYear=${moment(doc.InvoiceDate).year()}`,
+                    : `#/accounting/transquery?JournalEntryNumber=${jnr}&AccountYear=${moment(invoice.InvoiceDate).year()}`,
             }],
             statustrack: stConfig,
             navigation: {
                 prev: () => this.navigateTo('prev'),
                 next: () => this.navigateTo('next'),
             },
-            entityID: doc && doc.ID ? doc.ID : null,
+            entityID: invoice && invoice.ID || null,
             entityType: 'SupplierInvoice',
             contextmenu: this.contextMenuItems
         };
