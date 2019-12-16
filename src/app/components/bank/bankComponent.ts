@@ -265,8 +265,8 @@ export class BankComponent {
                         this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
                             if (!agreements || !agreements.length) {
                                 this.modalService.open(BankInitModal,
-                                    { data: { user: this.authService.currentUser }, closeOnClickOutside: false}).onClose
-                                .subscribe((agreement: any) => {
+                                    { data: { user: this.authService.currentUser, cs: this.companySettings }, closeOnClickOutside: false})
+                                .onClose.subscribe((agreement: any) => {
                                     if (!agreement) {
                                         this.router.navigateByUrl('/');
                                     } else {
@@ -1110,6 +1110,24 @@ export class BankComponent {
     }
 
     public openAutobankAgreementModal() {
+        if (!this.companySettings.OrganizationNumber) {
+            const config: IModalOptions = {
+                header: 'Mangler organisasjonsnummer',
+                message: 'Du har ikke registrert organisasjonsnummer for din bedrift. ' +
+                'Dette må gjøres før du kan opprette en autobankavtale. Gå til firmaoppsett for å registrere organisasjonsnummer.',
+                buttonLabels: {
+                    accept: 'Gå til firmaoppsett',
+                    cancel: 'Avbryt'
+                }
+            };
+            this.modalService.open(UniConfirmModalV2, config).onClose.subscribe((response: ConfirmActions) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.router.navigateByUrl('/settings/company');
+                }
+            });
+            return;
+        }
+
         this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements },
             closeOnClickOutside: false }).onClose.subscribe(() => {
             this.paymentBatchService.checkAutoBankAgreement().subscribe(result => {

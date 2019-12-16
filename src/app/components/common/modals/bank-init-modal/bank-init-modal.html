@@ -43,6 +43,7 @@
                 For å komme i gang med denne tjenesten må du gjennom denne veiviseren for oppsett av bankkontoer og opprettelse av passord. <br/> <br/>
                 Dersom du ikke har fått SR-Bank-kontoene dine enda, trykker du Gjennomfør senere under. Veiviseren finner du igjen ved å trykke deg inn på Bank i menyen til venstre.
             </p>
+            <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
         </article>
 
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1">
