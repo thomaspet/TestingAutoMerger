@@ -71,6 +71,13 @@ export class BankInitModal implements IUniModal, OnInit {
     ) {}
 
     ngOnInit() {
+        if (!this.options.data || !this.options.data.cs || !this.options.data.cs.OrganizationNumber) {
+            this.errorMsg = '*Mangler organisasjonsnummer. Du må gå til firmaoppsett og ' +
+            'registrer dette før du kan koble sammen bank og regnskap.';
+            this.isNextStepValid = false;
+            return;
+        }
+
         this.currentUser = this.options.data.user;
         this.payload.Phone = this.currentUser.PhoneNumber;
         this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
@@ -122,7 +129,7 @@ export class BankInitModal implements IUniModal, OnInit {
 
     next() {
         this.steps++;
-
+        this.errorMsg = '';
         if (this.steps >= 1 && this.steps <= 3) {
             this.fields$.next(this.setUpUniForm());
         }
@@ -132,6 +139,7 @@ export class BankInitModal implements IUniModal, OnInit {
 
     prev() {
         this.steps--;
+        this.errorMsg = '';
         this.isNextStepValid = true;
 
         if (this.steps >= 1 && this.steps <= 3) {
