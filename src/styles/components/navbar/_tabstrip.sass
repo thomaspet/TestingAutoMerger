@@ -18,57 +18,27 @@
         .collapsed-tab-list
             left: calc(#{$sidebar-collapsed-width} + 1.5rem)
 
-uni-tabstrip .dropdown-menu
-    position: absolute
-    width: 12rem
+uni-tabstrip
+    display: flex
+    align-items: center
+    font-size: 14px
 
-.collapsed-tab-container
-    position: relative
-    color: var(--color-c2a)
-    padding-right: 2rem !important
-
-    &:after
-        content: ''
-        background: unicon-chevron-down($uni-color-negative) center no-repeat
-        background-size: .6rem
-        width: 2rem
-        height: 2rem
-        display: block
+    .right-click-menu
         position: absolute
-        top: 0
-        right: 0
+        width: 12rem
 
-    &:hover, &:focus
-        .collapsed-tab-list
-            visibility: visible
-
-    .collapsed-tab-list
-        @extend %mainNavDropdown
-        position: fixed
-        top: 4.75rem
-        min-width: 14rem
-        list-style: none
-        background: #fff
-        padding: 0
-        visibility: hidden
-
-        li
-            display: block
-            color: $uni-color-positive
-            text-align: left
-            height: 2.5rem
-            line-height: 2.5rem
-
-            + li
-                border-top: 1px solid var(--border-color)
-
-            .close-tab
-                float: right
-                line-height: 2.5rem
+    .tab-dropdown > span
+        display: flex
+        align-items: center
+        color: var(--color-c2a)
+        cursor: pointer
+        i
+            color: var(--text-color)
+            font-size: 21px
 
 .tabstrip-description
-    font-size: 14px
     color: var(--tabstrip-color)
+    margin-right: 1rem
 
 .navbar_tabs
     margin: 0
@@ -80,8 +50,6 @@ uni-tabstrip .dropdown-menu
         cursor: pointer
         height: 30px
         line-height: 30px
-        padding-left: 1.25rem
-        font-size: 14px
         max-width: 15rem
         min-width: 4rem
         white-space: nowrap
@@ -89,6 +57,9 @@ uni-tabstrip .dropdown-menu
         text-overflow: ellipsis
         position: relative
         color: var(--tabstrip-link-color)
+
+        & + li
+            padding-left: .75rem
 
         .close-tab
             visibility: hidden
