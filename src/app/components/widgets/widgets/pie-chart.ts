@@ -8,7 +8,7 @@
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
 import * as Chart from 'chart.js';
-import {BLUE_SCALES} from '../widget-colors';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-pie-chart',
@@ -28,7 +28,7 @@ import {BLUE_SCALES} from '../widget-colors';
 export class UniPieChartWidget {
     @ViewChild('chartElement') chartElement: ElementRef;
 
-    colors = BLUE_SCALES; // [ '#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF', '#CEEEFF', '#DFF1F9' ];
+    colors = theme.widgets.pie_colors;
 
     public widget: IUniWidget;
     private myChart: any;

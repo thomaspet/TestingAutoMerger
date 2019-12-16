@@ -10,10 +10,11 @@ import {
 import {StatisticsService, NumberFormat} from '@app/services/services';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
+import {theme} from 'src/themes/theme';
+
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
-import {DUE_DATE_COLORS} from '../widget-colors';
 
 @Component({
     selector: 'uni-unpaid-doughnut-widget',
@@ -54,7 +55,7 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     overdueHeaderNumber: string = '';
     missingData: boolean;
     missingDataMsg: string = 'Mangler data';
-    colors = DUE_DATE_COLORS; // ['#008A00', '#E7A733', '#FF9100', '#DA3D00', '#A20076'];
+    colors = theme.widgets.due_date_colors;
 
     constructor(
         private statisticsService: StatisticsService,

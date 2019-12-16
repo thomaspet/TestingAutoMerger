@@ -128,7 +128,7 @@ export const CHARTS = [
         widgetType: 'pieChart',
         config: {
             dataEndpoint: '/api/statistics?model=Employee&select=count(ID) as '
-                + 'Count,Employments.JobName as JobName&expand=Employments',
+                + `Count,isnull(Employments.JobName,'Ingen stillingskode') as JobName&expand=Employments`,
             labelKey: 'JobName',
             valueKey: 'Count',
             maxNumberOfLabels: 7,

@@ -12,7 +12,7 @@ import {IUniWidget} from '../uniWidget';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
-import {DUE_DATE_COLORS} from '../widget-colors';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'sr-unpaid-doughnut-widget',
@@ -64,8 +64,7 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
-    // colors: string[] = ['#008A00', '#FFF000', '#FF9100', '#DA3D00'];
-    colors = DUE_DATE_COLORS; // ['#008A00', '#E7A733', '#FF9100', '#DA3D00'];
+    colors = theme.widgets.due_date_colors;
     show = [true, true, true, true];
 
     chartRef: Chart; //  = new Chart(null, null);

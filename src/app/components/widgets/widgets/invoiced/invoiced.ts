@@ -11,9 +11,10 @@ import {StatisticsService, NumberFormat} from '@app/services/services';
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
 import {Router} from '@angular/router';
+import {Observable} from 'rxjs';
+
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
 
 interface IPeriode {
     label: string;

@@ -10,6 +10,7 @@ import {FinancialYearService, StatisticsService} from '@app/services/services';
 import * as Chart from 'chart.js';
 import {AuthService} from '@app/authService';
 import {Subscription} from 'rxjs';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-operating-chart',
@@ -35,7 +36,7 @@ export class OperatingProfitWidget {
     runningResult: any[] = [];
     isLineChart: boolean = false;
     lineColors = ['#008A00', '#008ED2', '#FF9100'];
-    barColors = ['#01A901', '#0070E0', 'rgba(89, 104, 121, .75)'];
+    barColors = theme.widgets.result_bar_colors;
     show = [true, true, true];
     dataHolder: any[] = [];
 
