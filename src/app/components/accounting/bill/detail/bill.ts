@@ -3832,7 +3832,7 @@ export class BillView implements OnInit {
     }
 
     private getPaymentStatusIndicator() {
-        const statusLabel = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+        const statusLabel = this.supplierInvoiceService.getPaymentStatusText(this.current.getValue()['PaymentStatus']);
 
         if (statusLabel) {
             const statusClass = this.getPaymentStatusClass();
@@ -3871,7 +3871,7 @@ export class BillView implements OnInit {
 
     private getPaymentStatusClass() {
         let statusClass = 'info';
-        const paymentStatus = this.supplierInvoiceService.getPaymentStatus(this.current.getValue());
+        const paymentStatus = this.supplierInvoiceService.getPaymentStatusText(this.current.getValue()['PaymentStatus']);
         switch (paymentStatus) {
             case 'Betalt':
                 statusClass = 'good';

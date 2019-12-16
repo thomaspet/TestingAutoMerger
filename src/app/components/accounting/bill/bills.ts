@@ -148,19 +148,19 @@ export class BillsView implements OnInit {
         {
             label: 'Ubetalt',
             name: 'unpaid',
-            filter: 'RestAmount eq TaxInclusiveAmount AND IsSentToPayment eq 0',
+            filter: 'PaymentStatus eq 30109',
             passiveCounter: true
         },
         {
             label: 'Betalingsliste',
             name: 'issenttopayment',
-            filter: 'RestAmount ne 0 AND (IsSentToPayment eq 1 OR RestAmount lt TaxInclusiveAmount)',
+            filter: 'PaymentStatus eq 30110 OR PaymentStatus eq 30111',
             passiveCounter: true
         },
         {
             label: 'Betalt',
             name: 'paid',
-            filter: 'RestAmount eq 0 AND TaxInclusiveAmount ne 0',
+            filter: 'PaymentStatus eq 30112',
             passiveCounter: true
         },
         {
@@ -865,9 +865,8 @@ export class BillsView implements OnInit {
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
             new UniTableColumn('PaymentStatus', 'Betalingsstatus')
-                .setVisible(true)
-                .setTemplate((dataItem) => {
-                    return this.supplierInvoiceService.getPaymentStatus(dataItem);
+                .setTemplate((invoice) => {
+                    return this.supplierInvoiceService.getPaymentStatusText(invoice.PaymentStatus);
                 }),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
                 .setVisible(!!filter.showStatus)

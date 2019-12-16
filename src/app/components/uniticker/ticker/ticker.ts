@@ -46,7 +46,7 @@ import { Observable, empty, forkJoin } from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
-import {GetPrintStatusText} from '../../../models/printStatus';
+import {GetPrintStatusText, GetPaymentStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';
 import {SharingType, StatusCodeSharing} from '../../../unientities';
 
@@ -1104,6 +1104,10 @@ export class UniTicker {
 
                     if (column.SelectableFieldName.toLowerCase().endsWith('printstatus')) {
                         col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLowerCase().endsWith('paymentstatus')) {
+                        col.template = (rowModel) => GetPaymentStatusText(rowModel[column.Alias]);
                     }
 
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')

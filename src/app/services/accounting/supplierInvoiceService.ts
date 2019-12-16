@@ -20,6 +20,13 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
+    public paymentStatusCodes = [
+        { Code: 30109, Text: 'Ubetalt'},
+        { Code: 30110, Text: 'Overført til bank'},
+        { Code: 30111, Text: 'Delbetalt'},
+        { Code: 30112, Text: 'Betalt'}
+    ];
+
     constructor(http: UniHttp, private errorService: ErrorService) {
         super(http);
         super.disableCache();
@@ -32,8 +39,13 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         this.DefaultOrderBy = null;
     }
 
-    public getStatusText(statusCode: number): string {
+    getStatusText(statusCode: number): string {
         const statusType = this.statusTypes.find(x => x.Code === statusCode);
+        return statusType && statusType.Text || '';
+    }
+
+    getPaymentStatusText(statusCode: number): string {
+        const statusType = this.paymentStatusCodes.find(x => x.Code === statusCode);
         return statusType && statusType.Text || '';
     }
 
@@ -188,7 +200,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber', 'CurrencyCodeID',
             'CurrencyCode.Code', 'CreatedAt', 'ReInvoice.StatusCode',
-            'ReInvoice.ID'
+            'ReInvoice.ID', 'PaymentStatus'
         );
 
         let route = '?model=SupplierInvoice' +
@@ -224,11 +236,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getInvoiceListGroupedPaymentTotals(status: string = ''): Observable<Array<any>> {
-        let route = '?model=supplierinvoice&select=count(id)&filter=issenttopayment eq 0 and taxinclusiveamount eq restamount';
+        let route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30109';
         if (status === 'betalt') {
-            route = '?model=supplierinvoice&select=count(id)&filter=RestAmount eq 0 AND TaxInclusiveAmount ne 0';
+            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30112';
         } else if (status === 'betalingsliste') {
-            route = '?model=supplierinvoice&select=count(id)&filter=RestAmount ne 0 AND (IsSentToPayment eq 1 OR RestAmount lt TaxInclusiveAmount)';
+            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30110 OR PaymentStatus eq 30111';
         }
         return this.http
             .asGET()
