@@ -14,7 +14,7 @@ import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import { Observable } from 'rxjs';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
-import {DUE_DATE_COLORS} from '../../widget-colors';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'overdue-invoices-widget',
@@ -36,7 +36,7 @@ export class OverdueInvoicesWidget implements AfterViewInit {
     tableData = [];
     hasLoadedData: boolean = false;
     show = [true, true, true, true];
-    colors = DUE_DATE_COLORS; // ['#008A00', '#E7A733', '#FF9100', '#DA3D00'];
+    colors = theme.widgets.due_date_colors;
     chartLegends = ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager'];
 
     constructor(

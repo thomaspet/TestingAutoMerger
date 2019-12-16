@@ -5,6 +5,7 @@ import {FinancialYearService} from '@app/services/services';
 import {WidgetDataService} from '@app/components/widgets/widgetDataService';
 import * as Chart from 'chart.js';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
+import {theme} from 'src/themes/theme';
 
 interface IKeyNumberObject {
     label: string;
@@ -181,18 +182,18 @@ export class KpiWidget {
     }
 
     drawDoughnut(canvas, kpiObject: IKeyNumberObject) {
-        let backgroundColor = '#01A901';
+        let backgroundColor = theme.widgets.kpi.good;
         if (kpiObject.indicatorLevel === 3) {
-            backgroundColor = '#FF9E2C';
+            backgroundColor = theme.widgets.kpi.warn;
         } else if (kpiObject.indicatorLevel < 3) {
-            backgroundColor = '#D63731';
+            backgroundColor = theme.widgets.kpi.bad;
         }
 
         const data = {
             labels: ['', ''],
             datasets: [{
                 data: [kpiObject.indicatorLevel, 5 - kpiObject.indicatorLevel],
-                backgroundColor: [backgroundColor, '#E8E8E8'],
+                backgroundColor: [backgroundColor, theme.widgets.kpi.background],
             }]
         };
 

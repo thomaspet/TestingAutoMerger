@@ -4,6 +4,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {Observable} from 'rxjs';
 import {ObservableInput} from 'rxjs';
 import {ComplexValidationRule, EntityValidationRule} from '../../unientities';
+import {environment} from 'src/environments/environment';
 
 @Injectable()
 export class ErrorService {
@@ -14,6 +15,16 @@ export class ErrorService {
 
     public handle(error: any) {
         this.handleWithMessage(error, null);
+    }
+
+    handleJSError(error: Error) {
+        // Don't toast JS errors in production, just log them
+        if (environment.useProdMode) {
+            console.error(error);
+            this.logger.log(error);
+        } else {
+            this.handle(error);
+        }
     }
 
     public handleRxCatch(err: any, caught: Observable<any>): ObservableInput<any> {

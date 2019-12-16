@@ -55,7 +55,7 @@ export class ToastService {
     toast(options: IToastOptions) {
         this.addToast(
             options.title,
-            options.type || ToastType.bad,
+            options.type || ToastType.warn,
             options.duration || 0,
             options.message,
             options.action,
@@ -92,7 +92,7 @@ export class ToastService {
             toastID = this.nextId++;
             this.toasts.push(<IToast>{
                 id: toastID,
-                type: type || ToastType.bad,
+                type: type || ToastType.warn,
                 title: title,
                 message: sanitizedMessage || '',
                 duration: durationInSeconds || 0,

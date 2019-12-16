@@ -51,7 +51,6 @@ export class App {
         public navbarService: NavbarLinkService,
         private browserStorage: BrowserStorageService,
         private router: Router,
-        private translationService: UniTranslationService,
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
     ) {

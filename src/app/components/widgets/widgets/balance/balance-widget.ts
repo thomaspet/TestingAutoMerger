@@ -10,7 +10,7 @@ import {Chart, ChartConfiguration} from 'chart.js';
 
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
-import {BLUE_SCALES} from '../../widget-colors';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'balance-widget',
@@ -92,7 +92,7 @@ export class BalanceWidget {
                 labels: this.data.map(i => i.SubGroupName),
                 datasets: [{
                     data: this.data.map(i => Math.abs(i.Sum)),
-                    backgroundColor: BLUE_SCALES,
+                    backgroundColor: theme.widgets.pie_colors,
                     label: '',
                     borderColor: '#fff',
                     hoverBorderColor: '#fff',

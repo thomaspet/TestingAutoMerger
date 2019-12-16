@@ -10,7 +10,7 @@ import * as Chart from 'chart.js';
 
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
-import {BLUE_SCALES} from '../../widget-colors';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'expenses-widget',
@@ -51,7 +51,7 @@ export class ExpensesWidget {
     missingData: boolean;
     totalAmount = 0;
     items: {label: string, sum: number}[] = [];
-    colors = BLUE_SCALES; // ['#005AA4', '#008ED2', '#7FC6E8'];
+    colors = theme.widgets.pie_colors;
 
     constructor(
         private dataService: WidgetDataService,
