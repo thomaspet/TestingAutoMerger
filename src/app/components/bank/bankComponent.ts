@@ -42,17 +42,16 @@ import {
     CustomerInvoiceService,
     ElsaPurchaseService,
     CompanySettingsService,
-    PageStateService
 } from '../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
-import { RequestMethod } from '@uni-framework/core/http';
-import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
-import { JournalingRulesModal } from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
+import {RequestMethod} from '@uni-framework/core/http';
+import {BookPaymentManualModal} from '@app/components/common/modals/bookPaymentManual';
+import {JournalingRulesModal} from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
 import {BankInitModal} from '@app/components/common/modals/bank-init-modal/bank-init-modal';
-import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
-import { AuthService } from '@app/authService';
-import { environment } from 'src/environments/environment';
+import {MatchCustomerInvoiceManual} from '@app/components/bank/modals/matchCustomerInvoiceManual';
+import {AuthService} from '@app/authService';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-bank-component',
@@ -248,14 +247,19 @@ export class BankComponent {
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
         private authService: AuthService,
-        private pageStateService: PageStateService
     ) {
         this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
 
         // Route all test clients to contract activation, Bank is not for demo use
         this.authService.authentication$.take(1).subscribe(auth => {
             if (auth.isDemo) {
-                this.toastService.addToast('Du må aktivere lisens før du kan koble sammen Bank + Regnskap', ToastType.good, 7);
+                const productName = environment.isSrEnvironment ? 'Bank + Regnskap' : 'bankmodulen';
+                this.toastService.toast({
+                    title: `Du må ha en aktiv lisens for å ta i bruk ${productName}`,
+                    type: ToastType.warn,
+                    duration: 5
+                });
+
                 this.router.navigateByUrl('/contract-activation');
                 return;
             } else {
