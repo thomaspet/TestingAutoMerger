@@ -5,7 +5,7 @@ export const environment = {
     // Identity Server Settings
     authority: 'https://test-login.unieconomy.no',
     client_id: 'f522f1f4-7734-4930-6ecc-d308ca7135ec',
-    post_logout_redirect_uri: '/#/login',
+    post_logout_redirect_uri: '',
 
     BASE_URL_INIT: '',
     BASE_URL: '',

@@ -720,6 +720,8 @@ export class AgGridWrapper {
             event.api.expandAll();
             this.allIsExpanded = true;
         }
+
+        this.agGridApi.sizeColumnsToFit();
     }
 
     private sumTotalInGroup(values) {
