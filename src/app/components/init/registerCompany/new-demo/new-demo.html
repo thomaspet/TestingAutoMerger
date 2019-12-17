@@ -1,6 +1,7 @@
 <section class="authentication-component">
     <h1>
         <mat-spinner *ngIf="creatingCompany" class="c2a" [diameter]="24"></mat-spinner>
+        <i *ngIf="!creatingCompany" routerLink="/init/register-company" class="material-icons">arrow_back_ios</i>
         Oppretting av demobedrift
     </h1>
 

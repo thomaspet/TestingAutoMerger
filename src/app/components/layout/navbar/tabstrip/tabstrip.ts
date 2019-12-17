@@ -1,5 +1,5 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
-import {Router, NavigationEnd} from '@angular/router';
+import {Router} from '@angular/router';
 import {TabService, UniModules} from './tabService';
 import {AuthService} from '../../../../authService';
 import {Observable} from 'rxjs';
@@ -25,47 +25,36 @@ interface ITabContextMenuData {
             Nylig brukt:
         </span>
 
-        <ul class="navbar_tabs">
-            <!-- Collapsed tabs -->
-            <ng-template [ngIf]="collapseTabs" [ngIfElse]="tabsExpanded">
-                <li *ngIf="tabs?.length"
-                    class="collapsed-tab-container"
-                    [ngClass]="{'router-tab-active': lastActiveTab?.active}"
-                    (click)="collapsedTab">
+        <section *ngIf="collapseTabs && tabs?.length" class="tab-dropdown">
+            <span #trigger>
+                {{lastActiveTab?.name | translate}}
+                <i class="material-icons" *ngIf="tabs.length > 1">expand_more</i>
+            </span>
 
-                    {{lastActiveTab?.name | translate}}
+            <dropdown-menu *ngIf="tabs.length > 1" [trigger]="trigger">
+                <ng-template>
+                    <section *ngFor="let tab of tabs" (click)="activateTab(idx)" class="dropdown-menu-item">
+                        {{tab?.name | translate}}
+                    </section>
+                </ng-template>
+            </dropdown-menu>
+        </section>
 
-                    <ul class="collapsed-tab-list">
-                        <li *ngFor="let tab of tabs; let idx = index"
-                            (click)="activateTab(idx)"
-                            [ngClass]="{'active': tab.active}">
+        <ul *ngIf="!collapseTabs" class="navbar_tabs">
+            <li *ngFor="let tab of tabs; let idx = index"
+                (click)="activateTab(idx)"
+                (mousedown)="onMouseDown(idx, $event)"
+                (contextmenu)="openContextMenu($event, idx)"
+                [ngClass]="{'router-tab-active': tab.active}">
 
-                            {{tab?.name | translate}}
-                            <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
-                                close
-                            </i>
-                        </li>
-                    </ul>
-                </li>
-            </ng-template>
-
-            <!-- Expanded tabs (ng else) -->
-            <ng-template #tabsExpanded>
-                <li *ngFor="let tab of tabs; let idx = index"
-                    (click)="activateTab(idx)"
-                    (mousedown)="onMouseDown(idx, $event)"
-                    (contextmenu)="openContextMenu($event, idx)"
-                    [ngClass]="{'router-tab-active': tab.active}">
-
-                    {{tab.name | translate }}
-                    <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
-                        close
-                    </i>
-                </li>
-            </ng-template>
+                {{tab.name | translate }}
+                <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
+                    close
+                </i>
+            </li>
         </ul>
 
-        <section class="dropdown-menu"
+        <section class="dropdown-menu right-click-menu"
             *ngIf="tabContextMenu"
             (clickOutside)="closeContextMenu()"
             [ngStyle]="{
@@ -91,11 +80,10 @@ interface ITabContextMenuData {
 })
 export class UniTabStrip {
     public tabs: IUniTab[] = [];
-    private homeTabActive: boolean;
     private lastActiveTab: IUniTab;
 
     public collapseTabs: boolean;
-    private componentDestroyedSubject: Subject<any> = new Subject();
+    private onDestroy$ = new Subject();
 
     public tabContextMenu: ITabContextMenuData;
 
@@ -105,33 +93,13 @@ export class UniTabStrip {
         private authService: AuthService,
         private cdr: ChangeDetectorRef
     ) {
-        this.authService.companyChange.subscribe((change) => {
+        this.authService.companyChange.subscribe(() => {
             this.tabService.removeAllTabs();
         });
 
-        this.router.events
-            .takeUntil(this.componentDestroyedSubject)
-            .filter(event => event instanceof NavigationEnd)
-            .subscribe((navigationEvent: NavigationEnd) => {
-                this.homeTabActive = navigationEvent.url === '/';
-                this.cdr.detectChanges();
-            });
-
-        Observable.fromEvent(window, 'keydown')
-            .takeUntil(this.componentDestroyedSubject)
-            .subscribe((event: KeyboardEvent) => {
-                if (event.keyCode === 87 && event.altKey) {
-                    this.tabService.closeTab();
-                } else if (event.keyCode === 37 && event.altKey) {
-                    this.tabService.activatePrevTab();
-                } else if (event.keyCode === 39 && event.altKey) {
-                    this.tabService.activateNextTab();
-                }
-            });
-
         this.collapseTabs = window.innerWidth <= 1250;
         Observable.fromEvent(window, 'resize')
-            .takeUntil(this.componentDestroyedSubject)
+            .takeUntil(this.onDestroy$)
             .throttleTime(200)
             .subscribe(event => {
                 const collapseTabs = window.innerWidth <= 1250;
@@ -147,7 +115,7 @@ export class UniTabStrip {
     public ngAfterViewInit() {
         this.tabService.tabs$
             .asObservable()
-            .takeUntil(this.componentDestroyedSubject)
+            .takeUntil(this.onDestroy$)
             .subscribe((tabs) => {
                 this.tabs = tabs;
                 const activeTab = tabs.find(tab => tab.active);
@@ -162,7 +130,8 @@ export class UniTabStrip {
     }
 
     public ngOnDestroy() {
-        this.componentDestroyedSubject.next();
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     public onMouseDown(index: number, event: MouseEvent) {

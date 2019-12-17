@@ -1,7 +1,6 @@
 @import '~src/styles/unibase/colors/__colors.sass'
 @import '~src/styles/unibase/icons/__icons.sass'
 @import '~src/styles/unibase/helpers/_zindex.sass'
-@import '~src/styles/unibase/page-layout/_page-layout-variables.sass'
 
 \:host
     position: relative
@@ -18,23 +17,24 @@
     transition: all .25s ease
     z-index: map-get($zindex, 'sidebar')
 
+
 #sidebar-container
     position: fixed
     display: flex
     flex-direction: column
     top: var(--navbar-height)
     left: 0
-    width: 240px
+    width: var(--sidebar-expanded-width)
     height: calc(100vh - #{var(--navbar-height)})
     background: var(--sidebar-background)
     border-right: 1px solid var(--border-color)
     transition: all .25s ease
 
     &.collapsed
-        width: $sidebar-collapsed-width
+        width: var(--sidebar-collapsed-width)
 
         &.popover
-            width: $sidebar-expanded-width
+            width: var(--sidebar-expanded-width)
         &:not(.popover)
             .sidebar-link-icon:hover
                 color: var(--sidebar-icon-color)
@@ -70,7 +70,7 @@ ul.sidebar-menu
                 color: var(--sidebar-hover-color)
 
             i.material-icons, i.material-icons-outlined
-                flex: 0 0 $sidebar-collapsed-width
+                flex: 0 0 var(--sidebar-collapsed-width)
                 text-align: center
                 line-height: 2rem
                 font-size: 22px
@@ -94,7 +94,6 @@ ul.sidebar-menu
         .sidebar-link-group
             display: none // hide until section is expanded
             margin: 0
-            width: 240px
 
             &:last-of-type
                 padding-bottom: 1rem

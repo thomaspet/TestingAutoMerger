@@ -1,89 +1,89 @@
 <!-- TOOLBAR LEFT -->
 <section class="toolbar-left">
-    <uni-breadcrumbs
-        *ngIf="!config?.hideBreadcrumbs"
-        [omitFinalCrumb]="config?.omitFinalCrumb">
-    </uni-breadcrumbs>
+    <section class="title-section">
+        <uni-breadcrumbs
+            *ngIf="!config?.hideBreadcrumbs"
+            [omitFinalCrumb]="config?.omitFinalCrumb">
+        </uni-breadcrumbs>
 
-    <section class="toolbar-header">
-        <uni-toolbar-search
-            *ngIf="searchVisible; else textHeader"
-            [config]="searchConfig"
-            (clickOutside)="toggleSearch()"
-            (close)="searchVisible = false">
-        </uni-toolbar-search>
+        <section class="toolbar-header">
+            <uni-toolbar-search
+                *ngIf="searchVisible; else textHeader"
+                [config]="searchConfig"
+                (clickOutside)="toggleSearch()"
+                (close)="searchVisible = false">
+            </uni-toolbar-search>
 
-        <ng-template #textHeader>
-            <h1 class="toolbar-title" (click)="toggleSearch()">
-                {{config?.title || searchConfig?.initValue | translate}}
-                <i class="material-icons" *ngIf="searchConfig">
-                    search
-                </i>
-            </h1>
-        </ng-template>
-    </section>
-</section>
-
-<!-- TOOLBAR CENTER -->
-<section class="toolbar-center">
-    <!-- Statuses needs refactoring, but I don't have time before SR deadline.. -->
-    <uni-statustrack
-        *ngIf="statustrack || config?.statustrack"
-        [config]="statustrack || config.statustrack"
-        [entityType]="config?.entityType"
-        [entityID]="config?.entityID"
-        [showFullStatustrack]="showFullStatustrack"
-        (statusSelectEvent)="selectStatus($event)">
-    </uni-statustrack>
-
-    <toolbar-sharing-status
-        *ngIf="config?.showSharingStatus && config?.entityType && config?.entityID"
-        [entityType]="config?.entityType"
-        [entityID]="config?.entityID">
-    </toolbar-sharing-status>
-
-    <toolbar-custom-status
-        *ngIf="customStatus"
-        [status]="customStatus">
-    </toolbar-custom-status>
-
-    <uni-toolbar-validation
-        *ngIf="validationMessages?.length"
-        [validationMessages]="validationMessages">
-    </uni-toolbar-validation>
-
-    <section class="toolbar-extras" #toolbarExtras>
-        <section *ngIf="selectConfig" class="toolbar_uniselect">
-            {{selectConfig.label}}
-            <uni-select
-                [config]="uniSelectConfig"
-                [items]="selectConfig.items"
-                [value]="selectConfig.selectedItem"
-                (valueChange)="selectValueSelected($event)">
-            </uni-select>
+            <ng-template #textHeader>
+                <h1 class="toolbar-title" (click)="toggleSearch()">
+                    {{config?.title || searchConfig?.initValue | translate}}
+                    <i class="material-icons" *ngIf="searchConfig">
+                        search
+                    </i>
+                </h1>
+            </ng-template>
         </section>
+    </section>
 
-        <ng-template ngFor let-subhead [ngForOf]="subheads || config?.subheads">
-            <small class="toolbar-subhead"
-                *ngIf="subhead.title || subhead.link"
-                [title]="subhead.title"
-                [ngClass]="subhead.classname || ''"
-                (click)="triggerSubheadEvent(subhead)">
+    <section class="main-section">
+        <uni-statustrack
+            *ngIf="statustrack || config?.statustrack"
+            [config]="statustrack || config.statustrack"
+            [entityType]="config?.entityType"
+            [entityID]="config?.entityID"
+            [showFullStatustrack]="showFullStatustrack"
+            (statusSelectEvent)="selectStatus($event)">
+        </uni-statustrack>
 
-                <span *ngIf="subhead.label" class="subhead-label">{{subhead.label | translate}}: </span>
+        <toolbar-sharing-status
+            *ngIf="config?.showSharingStatus && config?.entityType && config?.entityID"
+            [entityType]="config?.entityType"
+            [entityID]="config?.entityID">
+        </toolbar-sharing-status>
 
-                <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title | translate}}</a>
-                {{subhead.link ? '' : subhead.title | translate}}
-            </small>
-        </ng-template>
+        <toolbar-custom-status
+            *ngIf="customStatus"
+            [status]="customStatus">
+        </toolbar-custom-status>
 
-        <uni-tags
-            *ngIf="tags"
-            [tags]="tags"
-            [config]="tagConfig"
-            (tagsChange)="tagsChangeEvent($event)"
-            (tagsBusy)="tagsBusyEvent($event)">
-        </uni-tags>
+        <uni-toolbar-validation
+            *ngIf="validationMessages?.length"
+            [validationMessages]="validationMessages">
+        </uni-toolbar-validation>
+
+        <section class="toolbar-extras" #toolbarExtras>
+            <section *ngIf="selectConfig" class="toolbar_uniselect">
+                {{selectConfig.label}}
+                <uni-select
+                    [config]="uniSelectConfig"
+                    [items]="selectConfig.items"
+                    [value]="selectConfig.selectedItem"
+                    (valueChange)="selectValueSelected($event)">
+                </uni-select>
+            </section>
+
+            <ng-template ngFor let-subhead [ngForOf]="subheads || config?.subheads">
+                <small class="toolbar-subhead"
+                    *ngIf="subhead.title || subhead.link"
+                    [title]="subhead.title"
+                    [ngClass]="subhead.classname || ''"
+                    (click)="triggerSubheadEvent(subhead)">
+
+                    <span *ngIf="subhead.label" class="subhead-label">{{subhead.label | translate}}: </span>
+
+                    <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title | translate}}</a>
+                    {{subhead.link ? '' : subhead.title | translate}}
+                </small>
+            </ng-template>
+
+            <uni-tags
+                *ngIf="tags"
+                [tags]="tags"
+                [config]="tagConfig"
+                (tagsChange)="tagsChangeEvent($event)"
+                (tagsBusy)="tagsBusyEvent($event)">
+            </uni-tags>
+        </section>
     </section>
 </section>
 

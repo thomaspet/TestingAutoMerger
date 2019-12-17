@@ -1,15 +1,12 @@
 \:host
     display: block
-    margin-top: -5rem
 
     .view-wrapper
         display: flex
         flex-direction: column
-        height: calc(100vh - 13rem)
-        margin: 6.5rem 1.5rem 0 1.5rem
-        padding: 1rem
-        background-color: #FFF
-        width: calc(100% - 3rem)
+        height: calc(100vh - 12.5rem)
+        padding-bottom: 0
+        margin-bottom: 0
 
     .reconciliation-toolbar
         flex: 0 0 auto
@@ -88,7 +85,6 @@
     flex: 1
     overflow: auto
     display: flex
-    padding: 1rem 0
     border-radius: 3px
 
     .list-section
@@ -241,13 +237,13 @@
     white-space: nowrap
 
 .positive
-    color: rgba(22, 93, 190, 0.96)
+    color: var(--color-c2a)
 .negative
-    color: #D12323
+    color: var(--color-bad)
 .c2a
-    color: #0f4880
+    color: var(--color-c2a)
 .good
-    color: #01a901
+    color: var(--color-good)
 
 .ontop
     z-index: 999
