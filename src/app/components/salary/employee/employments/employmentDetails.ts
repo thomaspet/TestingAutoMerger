@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account, Employee, LocalDate, CompanySalary} from '../../../../unientities';
+import {Employment, Account, Employee, LocalDate, CompanySalary, RegulativeGroup, RegulativeStep} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
@@ -10,7 +10,7 @@ import {
     EmploymentService,
     AccountService,
     StatisticsService,
-    CompanySalaryService
+    CompanySalaryService,
 } from '../../../../services/services';
 import {filter, take} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
@@ -51,6 +51,8 @@ export class EmploymentDetails implements OnChanges {
     private searchCache: any[] = [];
     private jobCodeInitValue: Observable<any>;
     private companySalarySettings: CompanySalary;
+    private regulativeGroups: RegulativeGroup[];
+    private regulativeSteps: RegulativeStep[];
 
     constructor(
         private employmentService: EmploymentService,
@@ -58,13 +60,16 @@ export class EmploymentDetails implements OnChanges {
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private companySalaryService: CompanySalaryService
+        private companySalaryService: CompanySalaryService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
                 this.companySalarySettings = compsalarysettings;
             });
-     }
+
+        // TODO: get real data
+        this.employmentService.setRegulativeGroups(this.regulativeGroups);
+    }
 
     public ngOnChanges(change: SimpleChanges) {
         if (!this.formReady) {
@@ -260,6 +265,7 @@ export class EmploymentDetails implements OnChanges {
     public onFormChange(changes: SimpleChanges) {
 
         const employment = this.employment$.getValue();
+        const fields = this.fields$.value;
 
         if (changes['TypeOfEmployment']) {
             this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
@@ -279,6 +285,23 @@ export class EmploymentDetails implements OnChanges {
         if (changes['StartDate'] && !this.employee.EmploymentDateOtp) {
             this.employee.EmploymentDateOtp = changes['StartDate'].currentValue;
             this.employeeChange.emit(this.employee);
+        }
+
+        if (changes['RegulativeGroupID']) {
+            fields.find(f => f.Property === 'RegulativeStepNr').ReadOnly = false;
+
+            this.regulativeSteps = this.regulativeGroups.filter((regulativeGroup: RegulativeGroup) => regulativeGroup.ID === changes['RegulativeGroupID'].currentValue)[0].Regulatives[0].Steps;
+            this.employmentService.setRegulativeSteps(this.regulativeSteps);
+        }
+
+        if (changes['RegulativeStepNr']) {
+            fields.find(f => f.Property === 'MonthRate').ReadOnly = true;
+            fields.find(f => f.Property === 'HourRate').ReadOnly = true;
+            this.fields$.next(fields);
+
+            employment.MonthRate = this.regulativeSteps.filter((step: RegulativeStep) => step.ID === changes['RegulativeStepNr'].currentValue)[0].Amount / 12;
+            this.employment$.next(employment);
+            this.employmentChange.emit(employment);
         }
 
         if (changes['Dimensions.ProjectID'] || changes['Dimensions.DepartmentID']) {
