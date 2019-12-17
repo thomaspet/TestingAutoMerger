@@ -176,6 +176,6 @@ export class ErrorService {
     }
 
     public addErrorToast(message: string) {
-        this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
+        this.toastService.addToast('En feil oppstod', ToastType.warn, null, message);
     }
 }
