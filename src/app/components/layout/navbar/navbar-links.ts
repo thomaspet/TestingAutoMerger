@@ -422,6 +422,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/salary/variablepayrolls',
                         moduleID: UniModules.VariablePayrolls,
                         activeInSidebar: true
+                    },
+                    {
+                        name: 'NAVBAR.REGULATIVE',
+                        url: '/salary/regulative',
+                        moduleID: UniModules.Regulative,
+                        activeInSidebar: true
                     }
                 ]
             },

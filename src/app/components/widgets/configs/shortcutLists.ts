@@ -348,6 +348,11 @@ export const SHORTCUT_LISTS = [
                     label: 'Variable lønnsposter',
                     link: '/salary/variablepayrolls',
                     urlToNew: ''
+                },
+                {
+                    label: 'Regulativ',
+                    link: '/salary/variablepayrollsregulative',
+                    urlToNew: ''
                 }
             ]
         }

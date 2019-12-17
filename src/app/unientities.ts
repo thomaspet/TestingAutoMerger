@@ -3344,6 +3344,7 @@ export class UserVerification extends UniEntity {
 
     public _createguid: string;
     public CompanyId: number;
+    public CompanyKey: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;

@@ -1,0 +1,25 @@
+<article class="regulative" [attr.aria-busy]="busy">
+    <uni-toolbar
+        [config]="toolbarConfig"
+        [saveactions]="saveActions"
+        class="regulativeToolbar">
+    </uni-toolbar>
+
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeIndex" (tabClick)="tabChange()"></uni-tabs>
+
+    <section class="uni-container">
+        <section style="width: 90%; margin: 0 5%;" *ngIf="regulativeGroups.length">
+            <ag-grid-wrapper
+                [resource]="regulativeSteps"
+                [config]="tableConfig">
+            </ag-grid-wrapper>
+        </section>
+
+        <section *ngIf="!regulativeGroups.length" style="width: 50%; margin: 0 25%;">
+            <div>Ingen regulativ, importer regulativ fra excel ark eller kommunen og statens standard regulativ for å komme igang.</div>
+            <button (click)="importNewFromExcel()" style="margin: 1rem auto; display: block; width: 15rem;">Importer nytt regulativ</button>
+            <button (click)="importStadardRegulatives()" style="margin: 0 auto; display: block; width: 15rem;">Importer standard regulativ</button>
+        </section>
+        
+    </section>
+</article>

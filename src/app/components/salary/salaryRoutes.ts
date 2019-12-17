@@ -36,6 +36,7 @@ import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls
 import {routes as SalarybalanceTemplateRoutes} from './salarybalance/template/salarybalanceTemplateRoutes';
 import {SalarybalanceTemplateView} from './salarybalance/template/salarybalanceTemplateView';
 import {OTPExportComponent} from './otpexport/otpexport.component';
+import {RegulativeComponent} from './regulative/regulative';
 
 export const salaryRoutes: Routes = [
     {
@@ -140,5 +141,9 @@ export const salaryRoutes: Routes = [
         path: 'variablepayrolls/:id',
         component: VariablePayrollsComponent,
         canDeactivate: [CanDeactivateGuard],
+    },
+    {
+        path: 'regulative',
+        component: RegulativeComponent,
     },
 ];
