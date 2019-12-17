@@ -127,7 +127,8 @@ export class ContractActivation {
                     Address: this.companySettings.DefaultAddress.AddressLine1,
                     PostalCode: this.companySettings.DefaultAddress.PostalCode,
                     City: this.companySettings.DefaultAddress.City,
-                    Country: this.companySettings.DefaultAddress.Country
+                    Country: this.companySettings.DefaultAddress.Country,
+                    CompanyTypeID: this.companySettings.CompanyTypeID
                 };
             },
             err => this.errorService.handle(err)
@@ -142,6 +143,7 @@ export class ContractActivation {
         this.companySettings.DefaultAddress.City = this.companyDetails.City;
         this.companySettings.DefaultAddress.Country = this.companyDetails.Country;
         this.companySettings.DefaultAddress.CountryCode = this.companyDetails.CountryCode;
+        this.companySettings.CompanyTypeID = this.companyDetails.CompanyTypeID;
 
         if (!this.companySettings.CompanyName || !this.companySettings.OrganizationNumber) {
             this.toastService.toast({
@@ -162,9 +164,29 @@ export class ContractActivation {
             return;
         }
 
-        this.busy = true;
         this.elsaCustomer.Name = this.elsaCustomer.ContactPerson;
         this.elsaCustomer.OrgNumber = this.companySettings.OrganizationNumber;
+
+        // personal number is required by SR Bank
+        if (this.isSrEnvironment && !this.elsaCustomer.PersonalNumber) {
+            this.toastService.toast({
+                title: 'Vennligst fyll ut personnummer'
+            });
+            return;
+        }
+        // remove all whitespaces from personal number and then check for length and "only contains numbers"
+        if (this.elsaCustomer.PersonalNumber) {
+            this.elsaCustomer.PersonalNumber = this.elsaCustomer.PersonalNumber.replace(/\s/g, '');
+            if (this.elsaCustomer.PersonalNumber.length !== 11 || !/^\d+$/.test(this.elsaCustomer.PersonalNumber)) {
+                this.toastService.toast({
+                    title: 'Personnummer skal være 11 siffer'
+                });
+                return;
+            }
+        }
+
+        this.elsaCustomer.CompanyTypeID = this.companySettings.CompanyTypeID || null;
+        this.busy = true;
 
         forkJoin(
             this.companySettingsService.Put(1, this.companySettings),

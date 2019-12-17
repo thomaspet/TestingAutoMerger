@@ -21,6 +21,8 @@ export interface ElsaCustomer {
     ContactPhone: string;
     Managers?: any[];
     Contracts?: ElsaContract[];
+    CompanyTypeID?: number;
+    PersonalNumber?: string;
 }
 
 export interface ElsaCompanyLicense {
