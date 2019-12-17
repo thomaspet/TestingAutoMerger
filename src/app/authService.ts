@@ -120,6 +120,8 @@ export class AuthService {
                             if (!this.router.url.startsWith('/init')) {
                                 this.router.navigate(['/init/login']);
                             }
+
+                            this.setLoadIndicatorVisibility(false);
                         }
                     );
                 } else {
