@@ -1189,15 +1189,6 @@ export class AgGridWrapper {
             fileName: 'Gruppert_export'
         };
 
-        obj.shouldRowBeSkipped = function(params) {
-            if (params.node.group && !params.node.leafGroup) {
-                return false;
-            } else if (params.node.parent && params.node.parent.expanded) {
-                return false;
-            }
-            return true;
-        };
-
         this.agGridApi.exportDataAsExcel(obj);
     }
 
