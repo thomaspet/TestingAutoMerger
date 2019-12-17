@@ -127,7 +127,9 @@ export class BatchInvoiceModal implements IUniModal {
     private getFormFields(sellers: Seller[], entityType: string) {
         const entityLabel = entityType === 'CustomerOrder' ? 'ordre' : 'fakturakladd';
 
-        return [
+        const fields = [];
+
+        fields.push(
             {
                 Property: 'InvoiceDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
@@ -143,21 +145,27 @@ export class BatchInvoiceModal implements IUniModal {
                 FieldType: FieldType.NUMERIC,
                 Label: 'Minimumsbeløp'
             },
-            {
+        );
+
+        if (this.entityType === 'CustomerOrder') {
+            fields.push({
                 Property: 'Operation',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Antall faktura',
                 Options: {
                     source:  [
                         {ID: BatchInvoiceOperation.OneInvoiceEachCustomer, Name: `En faktura per kunde`},
-                        {ID: BatchInvoiceOperation.OneInvoiceEachOrder, Name: `En faktura per ${entityLabel}`},
+                        {ID: BatchInvoiceOperation.OneInvoiceEachOrder, Name: `En faktura per ordre`},
                         {ID: BatchInvoiceOperation.OneInvoiceEachProject, Name: `En faktura per prosjekt`},
                     ],
                     valueProperty: 'ID',
                     displayProperty: 'Name',
                     hideDeleteButton: true
                 }
-            },
+            });
+        }
+
+        fields.push(
             {
                 Property: 'SellerID',
                 FieldType: FieldType.DROPDOWN,
@@ -185,7 +193,9 @@ export class BatchInvoiceModal implements IUniModal {
                 Property: 'FreeTxt',
                 FieldType: FieldType.TEXTAREA,
                 Label: 'Fritekst'
-            },
-        ];
+            }
+        );
+
+        return fields;
     }
 }
