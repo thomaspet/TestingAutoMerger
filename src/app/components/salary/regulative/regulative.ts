@@ -42,6 +42,8 @@ export class RegulativeComponent {
         }
     ];
 
+    busy: boolean = false;
+
     regulativeGroups: RegulativeGroup[] = [];
 
     tableConfig: UniTableConfig;
