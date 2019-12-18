@@ -28,6 +28,8 @@ export function generateEHFMarkup(invoice: EHFData) {
                     </section>
                 </section>
 
+                ${getPaymentTerms(invoice)}
+
                 ${getTableMarkup(invoice)}
 
                 ${
@@ -188,6 +190,18 @@ function getTableMarkup(invoice: EHFData) {
             </tbody>
 
         </table>
+    `;
+}
+
+function getPaymentTerms(invoice: EHFData) {
+    if (!invoice.paymentTerms) {
+        return '';
+    }
+
+    return `
+        <section class="terms">
+            <b>Betalingsbetingelser:</b> ${invoice.paymentTerms}
+        </section>
     `;
 }
 

@@ -32,6 +32,7 @@ export interface EHFData {
     yourReference?: string;
     ourReference?: string;
     note?: string;
+    paymentTerms?: string;
 
     customer?: CompanyInfo;
     supplier?: CompanyInfo;
