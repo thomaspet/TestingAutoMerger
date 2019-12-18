@@ -64,8 +64,6 @@ export class RegulativeComponent implements OnInit {
 
     activeIndex: number = 0;
 
-    busy: boolean;
-
     constructor(
         private uniModalService: UniModalService,
         private regulativeGroupService: RegulativeGroupService,
