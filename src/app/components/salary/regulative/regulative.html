@@ -1,4 +1,4 @@
-<article class="regulative" [attr.aria-busy]="busy">
+<article class="regulative">
     <uni-toolbar
         [config]="toolbarConfig"
         [saveactions]="saveActions"
@@ -11,7 +11,8 @@
         <section style="width: 90%; margin: 0 5%;" *ngIf="regulativeGroups.length">
             <ag-grid-wrapper
                 [resource]="regulativeSteps"
-                [config]="tableConfig">
+                [config]="tableConfig"
+                [attr.aria-busy]="busy">
             </ag-grid-wrapper>
         </section>
 
@@ -20,6 +21,6 @@
             <button (click)="importNewFromExcel()" style="margin: 1rem auto; display: block; width: 15rem;">Importer nytt regulativ</button>
             <button (click)="importStadardRegulatives()" style="margin: 0 auto; display: block; width: 15rem;">Importer standard regulativ</button>
         </section>
-        
+
     </section>
 </article>

@@ -689,9 +689,9 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultReminderFeeAccount: Account;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -2196,26 +2196,8 @@ export class PostingSummaryDraft extends UniEntity {
 }
 
 
-export class RegulativeGroup extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'RegulativeGroup';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Name: string;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Regulatives: Array<Regulative>;
-    public CustomFields: any;
-}
-
-
 export class Regulative extends UniEntity {
-    public static RelativeUrl = '';
+    public static RelativeUrl = 'regulatives';
     public static EntityType = 'Regulative';
 
     public _createguid: string;
@@ -2229,6 +2211,24 @@ export class Regulative extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Steps: Array<RegulativeStep>;
+    public CustomFields: any;
+}
+
+
+export class RegulativeGroup extends UniEntity {
+    public static RelativeUrl = 'regulativegroups';
+    public static EntityType = 'RegulativeGroup';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Regulatives: Array<Regulative>;
     public CustomFields: any;
 }
 
@@ -2581,6 +2581,7 @@ export class VacationPayLine extends UniEntity {
     public ID: number;
     public ManualVacationPayBase: number;
     public MissingEarlierVacationPay: number;
+    public PaidTaxFreeVacationPay: number;
     public PaidVacationPay: number;
     public Rate: number;
     public Rate60: number;
@@ -2809,6 +2810,7 @@ export class AccountSetup extends UniEntity {
     public IsENK: boolean;
     public IsMini: boolean;
     public PlanType: PlanTypeEnum;
+    public SaftMappingAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCode: string;
@@ -6064,6 +6066,7 @@ export class Account extends UniEntity {
     public UseVatDeductionGroup: VatDeductionGroup;
     public CurrencyCode: CurrencyCode;
     public CostAllocation: CostAllocation;
+    public SaftMappingAccount: SaftMappingAccount;
     public CustomFields: any;
 }
 
@@ -6244,6 +6247,7 @@ export class BankAccount extends UniEntity {
     public Deleted: boolean;
     public IBAN: string;
     public ID: number;
+    public Label: string;
     public Locked: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -7035,6 +7039,7 @@ export class SupplierInvoice extends UniEntity {
     public PaymentDueDate: LocalDate;
     public PaymentID: string;
     public PaymentInformation: string;
+    public PaymentStatus: number;
     public PaymentTerm: string;
     public PaymentTermsID: number;
     public PrintStatus: number;
@@ -7660,9 +7665,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -8199,6 +8204,10 @@ export class Forskuddstrekk extends UniEntity {
 }
 
 
+export class IActionResult extends UniEntity {
+}
+
+
 export class CreateCompanyDetails extends UniEntity {
     public CompanyName: string;
     public ContractID: number;
@@ -8729,10 +8738,6 @@ export class ReportRow extends UniEntity {
 
 export class BudgetImport extends UniEntity {
     public Budget: Budget;
-}
-
-
-export class IActionResult extends UniEntity {
 }
 
 
