@@ -362,9 +362,9 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     activeInSidebar: true
                 },
                 {
-                    name: 'Bankavstemming',
+                    name: 'NAVBAR.BANK_RECONCILIATION',
                     url: '/bank/reconciliation',
-                    moduleID: UniModules.Payment,
+                    moduleID: UniModules.BankReconciliation,
                     activeInSidebar: true
                 },
             ]
