@@ -147,21 +147,30 @@ export class Notifications {
 
                 let url = `/assignments/approvals?id=${body.sourceEntityID}`;
                 let message = body.message;
+                let entityLabel = body.sourceEntityType;
 
                 if (body.sourceEntityType === 'SupplierInvoice') {
+                    entityLabel = 'leverandørfaktura';
                     message = `Faktura: ${body.message}`;
                     const route = `/accounting/bills/${body.sourceEntityID}`;
                     if (this.authService.canActivateRoute(this.authService.currentUser, route)) {
                         url = route;
                     }
+                } else if (body.sourceEntityType === 'WorkItemGroup') {
+                    entityLabel = 'timeliste';
                 }
 
-                this.toastService.toast({
-                    title: `${body.senderDisplayName} har spurt deg om godkjenning`,
-                    message: `Selskap: ${body.companyName}<br>${message}`,
-                    type: ToastType.info,
-                    duration: 10,
-                    action: {
+                let header = `${body.senderDisplayName} spurt deg om godkjenning`;
+                let action;
+                let toastType;
+
+                if (body.message.includes('Rejected')) {
+                    header = `${body.senderDisplayName} har avvist en ${entityLabel}`;
+                    toastType = ToastType.warn;
+                } else if (body.message.includes('Approved')) {
+                    header = `${body.senderDisplayName} har godkjent en ${entityLabel}`;
+                } else {
+                    action = {
                         label: 'Gå til godkjenning',
                         click: () => {
                             const companyKey = body.companyKey;
@@ -172,7 +181,15 @@ export class Notifications {
                                 this.authService.setActiveCompany(company, url);
                             }
                         }
-                    }
+                    };
+                }
+
+                this.toastService.toast({
+                    title: header,
+                    message: `Selskap: ${body.companyName}<br>${message}`,
+                    type: toastType || ToastType.info,
+                    duration: 10,
+                    action: action
                 });
             },
             () => {/* Fail silently */}
