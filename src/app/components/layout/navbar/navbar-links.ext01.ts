@@ -69,6 +69,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         expands: ['customer']
                     },
                     {
+                        name: 'NAVBAR.BATCH_INVOICE',
+                        url: '/sales/batch-invoices',
+                        activeInSidebar: true,
+                    },
+                    {
                         name: 'NAVBAR.REMINDER',
                         url: '/sales/reminders',
                         moduleID: UniModules.Reminders,
@@ -312,12 +317,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
-                // {
-                //     name: 'NAVBAR.BANK_RECONCILIATION',
-                //     url: '/bank/reconciliation',
-                //     moduleID: UniModules.BankReconciliation,
-                //     activeInSidebar: true
-                // }
+                {
+                    name: 'NAVBAR.BANK_RECONCILIATION',
+                    url: '/bank/reconciliation',
+                    moduleID: UniModules.BankReconciliation,
+                    activeInSidebar: true
+                }
             ]
         }]
     },

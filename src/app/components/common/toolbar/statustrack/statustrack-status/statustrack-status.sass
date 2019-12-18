@@ -4,13 +4,14 @@
     align-items: center
     padding: .5rem 0
     cursor: default
+    color: var(--text-color)
+
     &:hover .status-details-container
         display: block
 
 span.status
     display: inline-flex
     align-items: center
-    color: var(--text-color)
     border-radius: 25px
     padding: 2px 4px
 
@@ -34,8 +35,8 @@ span.status
 
     .sub-status-counter
         position: absolute
-        top: 5px
-        right: 0rem
+        top: unset
+        right: .75rem
         display: flex
         align-items: center
         justify-content: center
@@ -47,13 +48,19 @@ span.status
         background: var(--color-warn)
         color: #fff
 
+    &.single-status .sub-status-counter
+        top: 5px
+        right: 0
+
+
 // Using container to allow padding without breaking the hover functionality
 .status-details-container
     display: none
     position: absolute
     left: 0
-    top: 2rem
-    padding-top: 1rem
+    top: 0
+    color: var(--text-color)
+    font-weight: 400
 
     .status-details
         background: #fff

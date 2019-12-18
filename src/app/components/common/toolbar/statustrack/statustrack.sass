@@ -1,21 +1,97 @@
+@import '~src/styles/unibase/helpers/_zindex.sass'
+
 \:host
     font-size: 15px
 
     @media screen and (max-width: 1300px)
         font-size: 13px
 
-    .status-list
-        display: inline-flex
-        align-items: center
-        statustrack-status + statustrack-status
-            &:before
-                content: ''
-                display: inline-block
-                width: 1rem
-                border-top: 1px solid var(--border-color)
-                margin-bottom: 4px
-                margin: 0 6px -1px 6px
-
     > statustrack-status
         display: inline-flex
         align-items: center
+
+
+$statustrack-background: #fff
+$statustrack-height: 1.5rem
+$statustrack-border: .0625rem
+
+.status-list
+    display: flex
+    background: $statustrack-background
+    box-sizing: border-box
+    height: $statustrack-height + $statustrack-border
+    margin: 0
+    border-radius: 5px
+
+    statustrack-status
+        position: relative
+        line-height: $statustrack-height
+        cursor: pointer
+        border-top: 1px solid var(--border-color)
+        border-bottom: 1px solid var(--border-color)
+
+        padding: 0 1rem
+        & + statustrack-status
+            padding-left: 1.25rem
+
+        &:first-of-type
+            border-radius: 5px 0 0 5px
+            border-left: 1px solid var(--border-color)
+
+        &:last-of-type
+            border-radius: 0 5px 5px 0
+            border-right: 1px solid var(--border-color)
+
+        &.active,
+        &.obsolete
+            z-index: #{map-get($zindex, toolbar) + 2}
+            color: #fff
+            font-weight: 500
+
+        &.active
+            background: var(--color-c2a)
+            border-color: var(--color-c2a)
+
+        &.obsolete
+            background: var(--color-warn)
+            border-color: var(--color-warn)
+            ::ng-deep .sub-status-counter
+                color: var(--color-warn)
+                background: #fff
+
+        &:not(:last-of-type)
+            &:after
+                border-left-color: $statustrack-background
+
+            &:before
+                border-left-color: var(--border-color)
+
+            &.active:after
+                border-left-color: var(--color-c2a)
+
+            &.obsolete:after
+                border-left-color: var(--color-warn)
+
+            &.active:before,
+            & + .active:before
+                display: none
+
+        &:before,
+        &:after
+            content: ''
+            position: absolute
+            display: block
+            height: 0
+            width: 0
+            top: -1px
+            border-color: transparent
+            border-style: solid
+            border-width: (($statustrack-height/2) + ($statustrack-border/2)) 0 (($statustrack-height/2) + ($statustrack-border/2)) .5rem
+
+        &:before
+            z-index: #{map-get($zindex, toolbar) + 1}
+            right: -.5625rem
+
+        &:after
+            z-index: #{map-get($zindex, toolbar) + 3}
+            right: -.5rem
