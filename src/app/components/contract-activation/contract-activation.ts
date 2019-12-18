@@ -43,6 +43,7 @@ export class ContractActivation {
 
     contractID: number;
     companySettings: CompanySettings;
+    currentCompanyKey: string;
     elsaCustomer: ElsaCustomer;
 
     companyDetails: CompanyDetails = {};
@@ -85,6 +86,7 @@ export class ContractActivation {
                 if (this.canActivateContract && this.isDemoLicense) {
                     this.isTestCompany = auth && auth.activeCompany && auth.activeCompany.IsTest;
                     if (!this.isTestCompany) {
+                        this.currentCompanyKey = license.Company && license.Company.Key;
                         this.initActivationData(license.Company.ContractID);
                     }
                 }
@@ -164,8 +166,9 @@ export class ContractActivation {
             return;
         }
 
-        this.elsaCustomer.Name = this.elsaCustomer.ContactPerson;
+        this.elsaCustomer.Name = this.companySettings.CompanyName;
         this.elsaCustomer.OrgNumber = this.companySettings.OrganizationNumber;
+        this.elsaCustomer.CompanyKey = this.currentCompanyKey;
 
         // personal number is required by SR Bank
         if (this.isSrEnvironment && !this.elsaCustomer.PersonalNumber) {
