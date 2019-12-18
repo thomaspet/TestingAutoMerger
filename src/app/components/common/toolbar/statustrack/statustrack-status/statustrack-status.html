@@ -1,5 +1,5 @@
 <span class="status" [ngClass]="classString">
-    <i class="material-icons-outlined check" *ngIf="isActive && !singleStatus">check_circle_outline</i>
+    <!-- <i class="material-icons-outlined check" *ngIf="isActive && !singleStatus">check_circle_outline</i> -->
     <i class="material-icons info" *ngIf="singleStatus">info</i>
 
     <span class="status-text">{{status.title}}</span>
@@ -9,7 +9,7 @@
     </span>
 </span>
 
-<section class="status-details-container">
+<section class="status-details-container" [ngStyle]="{'padding-top': singleStatus ? '3rem' : '2rem'}">
     <section class="status-details" *ngIf="hasSubStatuses || showStatusHistory">
         <section class="sub-statuses" *ngIf="status.substatusList?.length">
             <span class="header">Understatuser</span>

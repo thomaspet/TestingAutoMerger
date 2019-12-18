@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, HostBinding} from '@angular/core';
 import {IStatus, STATUSTRACK_STATES} from '../statustrack';
 import * as moment from 'moment';
 import {StatusService, ErrorService} from '@app/services/services';
@@ -14,6 +14,12 @@ export class StatustrackStatus {
     @Input() entityType: string;
     @Input() entityID: number;
     @Output() subStatusClick = new EventEmitter();
+
+    @HostBinding('class') get hostClass() {
+        if (this.status) {
+            return this.status.class || this.status.state;
+        }
+    }
 
     STATES = STATUSTRACK_STATES;
     isActive: boolean;

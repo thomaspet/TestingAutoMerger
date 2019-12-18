@@ -456,19 +456,21 @@ export class AMeldingView implements OnInit {
                     _state = STATUSTRACK_STATES.Obsolete;
                 }
 
-                this.aMeldingerInPeriod.forEach(amelding => {
-                    _substatuses.push({
-                        title: 'A-melding ' + amelding.ID,
-                        state: amelding.ID === this.currentAMelding.ID
-                            ? STATUSTRACK_STATES.Active
-                            : STATUSTRACK_STATES.Obsolete,
-                        timestamp: amelding.UpdatedAt
-                            ? new Date(<any> amelding.UpdatedAt)
-                            : new Date(<any> amelding.CreatedAt),
-                        data: amelding,
-                        selectable: true
+                if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 1) {
+                    this.aMeldingerInPeriod.forEach(amelding => {
+                        _substatuses.push({
+                            title: 'A-melding ' + amelding.ID,
+                            state: amelding.ID === this.currentAMelding.ID
+                                ? STATUSTRACK_STATES.Active
+                                : STATUSTRACK_STATES.Obsolete,
+                            timestamp: amelding.UpdatedAt
+                                ? new Date(<any> amelding.UpdatedAt)
+                                : new Date(<any> amelding.CreatedAt),
+                            data: amelding,
+                            selectable: true
+                        });
                     });
-                });
+                }
 
             }
 
