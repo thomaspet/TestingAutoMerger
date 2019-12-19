@@ -137,7 +137,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 },
                 {
                     title: journalEntryID ? 'Bokført på bilagnr: ' + journalEntryNumber : 'Ikke bokført',
-                    link: journalEntryLink
+                    link: journalEntryID ? journalEntryLink : null
                 }
 
             ],
