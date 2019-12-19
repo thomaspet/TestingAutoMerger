@@ -2,8 +2,8 @@ import {NgModule, TemplateRef, Component, Input, ViewChild, ChangeDetectionStrat
 import {CommonModule} from '@angular/common';
 import {OverlayModule, OverlayRef, Overlay, OverlayConfig, ConnectedPosition} from '@angular/cdk/overlay';
 import {PortalModule, TemplatePortalDirective} from '@angular/cdk/portal';
-import {fromEvent, Subject} from 'rxjs';
-import {takeUntil, take} from 'rxjs/operators';
+import {fromEvent, Subscription} from 'rxjs';
+import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'dropdown-menu',
@@ -17,36 +17,53 @@ import {takeUntil, take} from 'rxjs/operators';
 export class DropdownMenu {
     @ContentChild(TemplateRef) content: TemplateRef<any>;
     @ViewChild(TemplatePortalDirective) contentTemplate: TemplatePortalDirective;
-    @Input() trigger: HTMLElement;
+    @Input() trigger: any;
     @Input() minWidth: number | string;
     @Input() alignRight: boolean;
 
     protected overlayRef: OverlayRef;
-    onDestroy$ = new Subject();
+    clickSubscription: Subscription;
     visible: boolean;
+    element: HTMLElement;
 
     constructor(protected overlay: Overlay) {}
 
-    ngAfterViewInit() {
-        if (this.trigger) {
-            fromEvent(this.trigger, 'click').pipe(
-                takeUntil(this.onDestroy$)
-            ).subscribe(() => {
-                if (this.visible) {
-                    this.hide();
-                } else {
-                    this.show();
+    ngOnChanges(changes) {
+        if (changes['trigger'] && this.trigger) {
+            try {
+                if (this.clickSubscription) {
+                    this.clickSubscription.unsubscribe();
                 }
-            });
-        } else {
-            console.warn('Missing trigger for DropdownMenu, add: [trigger]="<reference to toggle element>"');
+
+                if (this.trigger.nodeType) {
+                    this.element = this.trigger;
+                } else if (this.trigger.elementRef) {
+                    this.element = this.trigger.elementRef.nativeElement;
+                } else {
+                    this.element = undefined;
+                    console.warn('Missing/invalid trigger for dropdown-menu.ts');
+                }
+
+                if (this.element) {
+                    this.clickSubscription = fromEvent(this.element, 'click').subscribe(() => {
+                        if (this.visible) {
+                            this.hide();
+                        } else {
+                            this.show();
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
 
     ngOnDestroy() {
         this.hide();
-        this.onDestroy$.next();
-        this.onDestroy$.complete();
+        if (this.clickSubscription) {
+            this.clickSubscription.unsubscribe();
+        }
     }
 
     show() {
@@ -97,7 +114,7 @@ export class DropdownMenu {
         ];
 
         const positionStrategy = this.overlay.position()
-            .flexibleConnectedTo(this.trigger)
+            .flexibleConnectedTo(this.element)
             .withPush(false)
             .withPositions(positions);
 
@@ -113,7 +130,7 @@ export class DropdownMenu {
 
     private syncWidth() {
         if (this.overlayRef) {
-            const refRect = this.trigger.getBoundingClientRect();
+            const refRect = this.element.getBoundingClientRect();
             this.overlayRef.updateSize({
                 minWidth: this.minWidth || refRect.width || '10rem'
             });

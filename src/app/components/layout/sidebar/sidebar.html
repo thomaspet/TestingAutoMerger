@@ -13,16 +13,18 @@
                 [attr.aria-expanded]="expandedSectionIndex === idx && !section.isOnlyLinkSection">
 
                 <section class="sidebar-section-header" (click)="toggleSection(idx, section)">
-                    <i class="material-icons-outlined"
-                        *ngIf="section.icon"
-                        [matTooltip]="section.name | translate"
-                        [matTooltipDisabled]="popover || state === 'expanded'"
-                        matTooltipPosition="right"
-                        matTooltipClass="sidebar-tooltip"
-                        [ngClass]="{'sidebar-link-icon': section.url}"
-                        (click)="navigateToSectionUrl(section, $event)">
-                        {{section.icon}}
-                    </i>
+                    <section class="icon-container">
+                        <uni-icon
+                            [icon]="section.icon"
+                            [matIconClass]="'material-icons-outlined'"
+                            [ngClass]="{'ue-icon': !isSrEnvironment}"
+                            (click)="navigateToSectionUrl(section, $event)"
+                            [matTooltip]="section.name | translate"
+                            [matTooltipDisabled]="popover || state === 'expanded'"
+                            matTooltipPosition="right">
+                        </uni-icon>
+                    </section>
+
                     <span>{{ section.name | translate }}</span>
                 </section>
 

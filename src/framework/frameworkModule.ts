@@ -56,6 +56,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 import {UniTabs} from './uni-tabs/uni-tabs';
 import {DatepickerModule} from './ui/datepicker/datepicker.module';
+import {UniIcon} from './ui/icon/uni-icon';
 
 @NgModule({
     imports: [
@@ -108,6 +109,7 @@ import {DatepickerModule} from './ui/datepicker/datepicker.module';
         UniInfo,
         UniShowReinvoiceStatus,
         UniTabs,
+        UniIcon,
         ...MODALS
     ],
     entryComponents: [...MODALS],
@@ -153,6 +155,7 @@ import {DatepickerModule} from './ui/datepicker/datepicker.module';
         UniShowReinvoiceStatus,
         UniComponentLoader,
         UniTabs,
+        UniIcon,
 
         // Material
         MatCheckboxModule,

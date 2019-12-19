@@ -10,11 +10,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         megaMenuGroupIndex: 0,
         linkGroups: []
     },
-    // SALGcon
+    // SALG
     {
         name: 'NAVBAR.SALES',
         url: '/sales',
-        icon: 'insert_chart',
+        icon: 'sales',
         megaMenuGroupIndex: 0,
         linkGroups: [
             {
@@ -148,7 +148,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         name: 'NAVBAR.EXPENSE',
         url: '/accounting',
         onIconClickUrl: '/accounting/inbox',
-        icon: 'receipt',
+        icon: 'expense',
         megaMenuGroupIndex: 1,
         linkGroups: [
             {
@@ -202,7 +202,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.ACCOUNTING',
         url: '/accounting',
-        icon: 'library_books',
+        icon: 'accounting',
         megaMenuGroupIndex: 1,
         linkGroups: [
             {
@@ -288,7 +288,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.BANK',
         url: '/bank',
-        icon: 'account_balance',
+        icon: 'bank',
         megaMenuGroupIndex: 2,
         linkGroups: [{
             name: '',
@@ -331,7 +331,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.SALARY',
         url: '/salary',
-        icon: 'group',
+        icon: 'salary',
         megaMenuGroupIndex: 3,
         linkGroups: [
             {
@@ -427,7 +427,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.HOURS',
         url: '/timetracking',
-        icon: 'watch_later',
+        icon: 'timetracking',
         megaMenuGroupIndex: 2,
         linkGroups: [
             {
@@ -482,7 +482,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'Altinn',
         url: '/altinn',
-        icon: 'share',
+        icon: 'altinn',
         megaMenuGroupIndex: 2,
         linkGroups: [
             {
@@ -571,7 +571,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.MARKETPLACE',
         url: '/marketplace',
-        icon: 'shopping_cart',
+        icon: 'marketplace',
         megaMenuGroupIndex: 4,
         linkGroups: [
             {

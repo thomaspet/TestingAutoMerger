@@ -3,9 +3,9 @@ import {Router, NavigationEnd} from '@angular/router';
 import {BreakpointObserver, BreakpointState} from '@angular/cdk/layout';
 import {NavbarLinkService, SidebarState} from '../navbar/navbar-link-service';
 import {INavbarLinkSection} from '../navbar/navbar-links-common';
-import {Observable} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-sidebar',
@@ -13,6 +13,7 @@ import * as _ from 'lodash';
     styleUrls: ['./sidebar.sass']
 })
 export class UniSidebar {
+    isSrEnvironment = environment.isSrEnvironment;
     public state: SidebarState;
     public popover: boolean;
 
@@ -29,7 +30,7 @@ export class UniSidebar {
         this.navbarService.sidebarState$.subscribe(state => this.state = state);
 
         this.navbarService.linkSections$.subscribe(sections => {
-            this.navbarLinkSections = _.cloneDeep(sections).filter(section => {
+            this.navbarLinkSections = cloneDeep(sections).filter(section => {
                 section.linkGroups = section.linkGroups.filter(group => {
                     group.links = group.links.filter(link => {
                         return link.activeInSidebar;

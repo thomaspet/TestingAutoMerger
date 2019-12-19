@@ -5,7 +5,7 @@ import {AuthService} from '@app/authService';
     selector: 'navbar-create-new',
     template: `
         <ng-container *ngIf="links">
-            <i #toggle class="material-icons" role="button">add_box</i>
+            <uni-icon #toggle [icon]="'add'"></uni-icon>
 
             <dropdown-menu [trigger]="toggle" minWidth="12rem">
                 <ng-template>
@@ -20,7 +20,7 @@ import {AuthService} from '@app/authService';
 })
 
 export class NavbarCreateNew {
-    public links: any[] = [];
+    links: any[] = [];
 
     constructor(
         private authService: AuthService,

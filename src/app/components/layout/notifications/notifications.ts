@@ -11,6 +11,7 @@ import {SignalRService} from '@app/services/common/signal-r.service';
 import {AuthService} from '@app/authService';
 import {CompanyService} from '@app/services/services';
 import {ChatBoxService} from '../chat-box/chat-box.service';
+import {UniIcon} from '@uni-framework/ui/icon/uni-icon';
 
 @Component({
     selector: 'notifications',
@@ -18,7 +19,7 @@ import {ChatBoxService} from '../chat-box/chat-box.service';
     styleUrls: ['./notifications.sass']
 })
 export class Notifications {
-    @ViewChild('toggleButton') toggleRef: ElementRef;
+    @ViewChild(UniIcon) toggleRef: UniIcon;
 
     overlayRef: OverlayRef;
     dropdownPortal: ComponentPortal<NotificationsDropdown>;
@@ -78,7 +79,7 @@ export class Notifications {
         });
 
         const position = this.overlay.position().connectedTo(
-            this.toggleRef,
+            this.toggleRef.elementRef.nativeElement,
             {originX: 'end', originY: 'bottom'},
             {overlayX: 'end', overlayY: 'top'}
         );
