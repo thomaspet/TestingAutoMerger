@@ -22,7 +22,6 @@ export interface IAutoBankAgreementDetails {
     IsBankStatement: boolean;
     IsInbound: boolean;
     IsOutgoing: boolean;
-    BankApproval: boolean;
     Password: string;
     BankAccountNumber: number;
     _confirmPassword?: string;
