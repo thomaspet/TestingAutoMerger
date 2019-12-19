@@ -40,23 +40,25 @@
             MALKLIENT
         </section>
 
-        <i *ngIf="hasActiveContract && !deativateFunctions"
-            (click)="openSearch()"
-            role="button"
-            class="material-icons navbar-search">
-            search
-        </i>
+        <uni-icon
+            *ngIf="hasActiveContract && !deativateFunctions"
+            [icon]="'search'"
+            (click)="openSearch()">
+        </uni-icon>
 
-        <i *ngIf="hasActiveContract && !deativateFunctions" role="link" class="material-icons bureau-link" routerLink="bureau">
-            business
-        </i>
+        <uni-icon
+            *ngIf="hasActiveContract && !deativateFunctions"
+            [icon]="'company'"
+            role="link"
+            routerLink="bureau">
+        </uni-icon>
 
         <navbar-create-new *ngIf="hasActiveContract && !deativateFunctions"></navbar-create-new>
 
         <notifications *ngIf="!deativateFunctions"></notifications>
 
         <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length) && !deativateFunctions">
-            <i class="material-icons" #settingsToggle role="button">settings</i>
+            <uni-icon #settingsToggle [icon]="'settings'"></uni-icon>
 
             <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
                 <ng-template>

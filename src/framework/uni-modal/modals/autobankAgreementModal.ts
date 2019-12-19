@@ -288,6 +288,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         IsBankBalance: true,
         BankApproval: true,
         IsBankStatement: true,
+        BankApproval: true,
         Password: '',
         _confirmPassword: '',
         BankAccountNumber: 0

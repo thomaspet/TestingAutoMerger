@@ -36,9 +36,6 @@
         &.popover
             width: var(--sidebar-expanded-width)
         &:not(.popover)
-            .sidebar-link-icon:hover
-                color: var(--sidebar-icon-color)
-
             .sidebar-link-group
                 display: none
 
@@ -69,18 +66,18 @@ ul.sidebar-menu
                 background-color: var(--sidebar-active-section-background)
                 color: var(--sidebar-hover-color)
 
-            i.material-icons, i.material-icons-outlined
+            .icon-container
                 flex: 0 0 var(--sidebar-collapsed-width)
-                text-align: center
-                line-height: 2rem
-                font-size: 22px
-                color: var(--sidebar-icon-color)
+                display: flex
+                justify-content: center
+                align-items: center
 
-                &.expanded-section-icon
-                    margin-left: auto
-                    font-size: 15px
-                    margin-top: 0
-                    flex-basis: 3rem
+                uni-icon
+                    color: var(--sidebar-icon-color)
+                    &.ue-icon
+                        font-size: 22px
+                        width: 22px
+                        height: 22px
 
             span
                 font-size: 15px

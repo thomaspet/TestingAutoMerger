@@ -6,7 +6,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.KPI',
         url: '',
-        icon: 'bar_chart',
+        icon: 'home',
         megaMenuGroupIndex: 0,
         linkGroups: [
             {
@@ -79,7 +79,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.SALES',
         url: '/sales',
-        icon: 'shopping_cart',
+        icon: 'sales',
         megaMenuGroupIndex: 1,
         linkGroups: [
             {
@@ -213,7 +213,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.ACCOUNTING',
         url: '/accounting',
-        icon: 'library_books',
+        icon: 'accounting',
         megaMenuGroupIndex: 2,
         linkGroups: [
             {
@@ -332,7 +332,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.BANK',
         url: '/bank',
-        icon: 'account_balance',
+        icon: 'bank',
         megaMenuGroupIndex: 3,
         linkGroups: [{
             name: '',
@@ -375,7 +375,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.SALARY',
         url: '/salary',
-        icon: 'group',
+        icon: 'salary',
         megaMenuGroupIndex: 4,
         linkGroups: [
             {
@@ -477,7 +477,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.HOURS',
         url: '/timetracking',
-        icon: 'watch_later',
+        icon: 'timetracking',
         megaMenuGroupIndex: 3,
         linkGroups: [
             {
@@ -533,7 +533,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.PROJECT_BETA',
         url: '/dimensions',
-        icon: 'work_outline',
+        icon: 'project',
         megaMenuGroupIndex: 1,
         linkGroups: [{
             name: '',
@@ -566,7 +566,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'Altinn',
         url: '/altinn',
-        icon: 'share',
+        icon: 'altinn',
         megaMenuGroupIndex: 2,
         linkGroups: [
             {
@@ -593,7 +593,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
     {
         name: 'NAVBAR.MARKETPLACE',
         url: '/marketplace',
-        icon: 'shopping_basket',
+        icon: 'marketplace',
         megaMenuGroupIndex: 4,
         linkGroups: [
             {

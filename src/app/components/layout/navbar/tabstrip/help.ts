@@ -1,13 +1,13 @@
 import {Component, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {environment} from 'src/environments/environment';
-import { BoostChat } from '@app/components/layout/boostChat/boostChat';
+import {BoostChat} from '@app/components/layout/boostChat/boostChat';
 
 @Component({
     selector: 'uni-tabstrip-help',
     template: `
-        <i #toggle role="button" class="material-icons">help</i>
+        <uni-icon #trigger [icon]="'help'"></uni-icon>
 
-        <dropdown-menu [trigger]="toggle">
+        <dropdown-menu [trigger]="trigger">
             <ng-template>
                 <a class="dropdown-menu-item" href="https://help.unieconomy.no" target="_blank" *ngIf="!isSrEnvironment">
                     Kundesenter
@@ -46,8 +46,9 @@ import { BoostChat } from '@app/components/layout/boostChat/boostChat';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTabstripHelp {
-    isSrEnvironment: boolean = environment.isSrEnvironment;
     @ViewChild(BoostChat) boost: BoostChat;
+
+    isSrEnvironment: boolean = environment.isSrEnvironment;
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {

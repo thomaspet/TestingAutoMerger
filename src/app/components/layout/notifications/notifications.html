@@ -1,8 +1,7 @@
-<i #toggleButton role="button" class="material-icons" (click)="toggle()">
-    notifications
-</i>
-<span 
-    class="unread-indicator" 
+<uni-icon [icon]="'notifications'" (click)="toggle()"></uni-icon>
+
+<span
+    class="unread-indicator"
     *ngIf="(notificationService.unreadCount$ | async) > 0"
     >
     {{notificationService.unreadCount$ | async}}
