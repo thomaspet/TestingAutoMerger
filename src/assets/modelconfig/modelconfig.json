@@ -319,6 +319,11 @@
             "Name": "Payment",
             "Translated": "Betaling",
             "Url": "/bank"
+        },
+        {
+            "Name": "Barnepass",
+            "Translated": "Barnepass",
+            "Url": "/altinn/childcare"
         }
     ]
 }
