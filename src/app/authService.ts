@@ -369,6 +369,11 @@ export class AuthService {
                 });
 
                 this.setLoadIndicatorVisibility(true, true);
+
+                // Hotfix 20.12.19. This should only be necessary until the next release.
+                this.runLogoutRequest();
+                //
+
                 this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
                     document.getElementById('silentLogout').setAttribute('src', req.url);
                 });
@@ -379,6 +384,20 @@ export class AuthService {
             }
 
         });
+    }
+
+    // Hotfix 20.12.19. This should only be necessary until the next release.
+    private runLogoutRequest() {
+        const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
+        const headers = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', 'Bearer ' + this.jwt)
+            .set('CompanyKey', this.activeCompany && this.activeCompany.Key);
+
+        this.http.post(url, '', { headers: headers }).subscribe(
+            () => {},
+            () => {} // fail silently
+        );
     }
 
     public cleanStorageAndRedirect() {
