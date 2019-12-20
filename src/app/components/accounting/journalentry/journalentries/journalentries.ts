@@ -19,7 +19,7 @@ import {
 } from '../../../../../framework/uni-modal';
 import {Observable} from 'rxjs';
 import {SelectDraftLineModal} from './selectDraftLineModal';
-import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
+import {ConfirmCreditedJournalEntryWithDate} from '../../../common/modals/confirmCreditedJournalEntryWithDate';
 
 @Component({
     selector: 'journalentries',
@@ -367,7 +367,7 @@ export class JournalEntries {
                 JournalEntryID: this.currentJournalEntryID
             }
         }).onClose.subscribe(response => {
-            if (response.action === ConfirmActions.ACCEPT) {
+            if (response && response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.creditDate)
                     .subscribe(
                         res => {

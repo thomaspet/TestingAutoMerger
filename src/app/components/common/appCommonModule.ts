@@ -40,6 +40,7 @@ import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDesc
 import {LinkMenu} from './linkMenu/linkMenu';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
@@ -98,6 +99,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ContextMenu,
         AccrualModal,
         AltinnAuthenticationModal,
+        ConfirmCreditedJournalEntryWithDate,
         UniBreadcrumbs,
         StatusTrack,
         StatustrackStatus,
@@ -163,6 +165,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
     ],
     entryComponents: [
         AltinnAuthenticationModal,
+        ConfirmCreditedJournalEntryWithDate,
         UniReminderSettingsModal,
         ReminderSettings,
         AddPaymentModal,
@@ -188,6 +191,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
     ],
     exports: [
         PredefinedDescriptionList,
+        ConfirmCreditedJournalEntryWithDate,
         ContextMenu,
         AccrualModal,
         AltinnAuthenticationModal,

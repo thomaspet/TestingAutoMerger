@@ -36,7 +36,7 @@ import {
     UniModalService,
     ConfirmActions,
 } from '../../../../framework/uni-modal';
-import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
+import {ConfirmCreditedJournalEntryWithDate} from '../../common/modals/confirmCreditedJournalEntryWithDate';
 
 import {BehaviorSubject, Subject} from 'rxjs';
 import * as moment from 'moment';
@@ -472,7 +472,7 @@ export class TransqueryDetails implements OnInit {
             },
             data: {JournalEntryID: item.JournalEntryID}
         }).onClose.subscribe(response => {
-            if (response.action === ConfirmActions.ACCEPT) {
+            if (response && response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.creditDate)
                     .subscribe(
                         res => {

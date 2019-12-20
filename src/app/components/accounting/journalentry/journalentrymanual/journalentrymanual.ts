@@ -22,7 +22,7 @@ import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceIn
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {Observable, forkJoin} from 'rxjs';
-import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
+import {ConfirmCreditedJournalEntryWithDate} from '../../../common/modals/confirmCreditedJournalEntryWithDate';
 import {
     ToastService,
     ToastType,

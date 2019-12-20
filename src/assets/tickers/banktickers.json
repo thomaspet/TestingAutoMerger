@@ -165,6 +165,7 @@
                 "Name": "Innbetalt ingen match",
                 "Code": "incomming_without_match",
                 "UseAllCriterias": true,
+                "tooltip": "Du har innbetalinger vi ikke har klart å koble mot faktura, vennligst behandle disse her",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -251,6 +252,15 @@
             {
                 "Name": "Lag regel for betaling uten match",
                 "Code": "bank_rule_nomatch",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Krediter bilag på betaling",
+                "Code": "credit_journal_entry",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,

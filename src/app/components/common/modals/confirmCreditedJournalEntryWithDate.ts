@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
-import {CompanySettingsService} from '../../../../app/services/common/companySettingsService';
+import {CompanySettingsService} from '../../../services/common/companySettingsService';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {CompanySettings} from '@uni-entities';

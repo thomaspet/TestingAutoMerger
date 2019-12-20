@@ -8,11 +8,11 @@
 
             {{tab[labelProperty] | translate}}
             <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
-            <i *ngIf="tab.tooltip"
+            <i *ngIf="tab.tooltip && tab[counterProperty]"
                 class="material-icons tab-tooltip"
                 [ngClass]="tab.tooltipClass"
                 [matTooltip]="tab.tooltip">
-                {{tab.tooltipIcon || 'info'}}
+                {{tab.tooltipIcon || 'info_outline'}}
             </i>
         </a>
     </ng-container>
@@ -30,8 +30,8 @@
 
             {{tab[labelProperty] | translate}}
             <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
-            <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
-                info
+            <i class="material-icons tab-tooltip" *ngIf="tab.tooltip && tab[counterProperty]" matTooltip="{{tab.tooltip}}">
+                info_outline
             </i>
         </a>
     </ng-container>
@@ -59,10 +59,10 @@
                     <section class="align-right">
                         <strong style="margin-left: 1rem">{{tab[counterProperty]}}</strong>
                         <i class="material-icons tab-tooltip" style="margin-left: 0.5rem"
-                            *ngIf="tab.tooltip"
+                            *ngIf="tab.tooltip && tab[counterProperty]"
                             (click)="$event.stopPropagation()"
                             matTooltip="{{tab.tooltip}}">
-                            info
+                            info_outline
                         </i>
                     </section>
                 </a>
@@ -80,10 +80,10 @@
                     <section class="align-right">
                         <strong style="margin-left: 1rem">{{tab[counterProperty]}}</strong>
                         <i class="material-icons tab-tooltip" style="margin-left: 0.5rem"
-                            *ngIf="tab.tooltip"
+                            *ngIf="tab.tooltip && tab[counterProperty]"
                             (click)="$event.stopPropagation()"
                             matTooltip="{{tab.tooltip}}">
-                            info
+                            info_outline
                         </i>
                     </section>
                 </a>
