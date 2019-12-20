@@ -11,6 +11,7 @@ export interface IUniTab {
     tooltip?: string;
     tooltipIcon?: string;
     tooltipClass?: string;
+    hideTooltipWithoutCount?: boolean;
     value?: any;
     count?: number;
     onClick?: () => void;

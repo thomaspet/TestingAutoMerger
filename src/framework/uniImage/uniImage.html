@@ -26,53 +26,64 @@
 
     <!-- Image -->
     <section class="image-section" *ngIf="currentFile && imgUrl && !currentFile?._ehfMarkup">
-        <section class="uni-image-pager" *ngIf="files?.length && !hideToolbar">
-            <a *ngIf="files.length > 1 || currentFile.Pages > 1"
-                class="prev"
-                (click)="previous()">
-                <i class="material-icons">keyboard_arrow_left</i>
-            </a>
+        <section class="uni-image-header" *ngIf="files?.length && !hideToolbar">
+            <i class="material-icons prev" *ngIf="files.length > 1 || currentFile.Pages > 1" (click)="previous()">
+                keyboard_arrow_left
+            </i>
 
-            <span class="file-name">{{currentFile.Name}}</span>
-            <span *ngIf="currentFile.Pages > 1">
-                ({{currentPage}}/{{currentFile.Pages}})
+            <span class="file-name">
+                {{currentFile.Name}}
+                <ng-container *ngIf="currentFile.Pages > 1">
+                    ({{currentPage}}/{{currentFile.Pages}})
+                </ng-container>
             </span>
 
-            <a class="print" (click)="print()">
-                <i class="material-icons">print</i>
-            </a>
+            <section class="actions">
+                <i *ngIf="canPrint"
+                    (click)="print()"
+                    matTooltip="Skriv ut"
+                    role="button"
+                    class="material-icons">
+                    print
+                </i>
 
-            <a class="split" (click)="splitFile()"
-                *ngIf="splitAllowed && !readonly && currentPage > 1 && currentFile.Pages > 1 && currentFile.Name.toLowerCase().endsWith('.pdf')">
-                <i class="material-icons">call_split</i>
-            </a>
+                <i (click)="downloadFile()"
+                    matTooltip="Last ned fil"
+                    role="button"
+                    class="material-icons" >
+                    get_app
+                </i>
 
-            <a class="split" (click)="splitFileDialog()"
-                *ngIf="splitFileDialogAllowed && currentFile.Pages > 1 && currentFile.Name.toLowerCase().endsWith('.pdf')">
-                <i class="material-icons">call_split</i>
-            </a>
+                <i role="button"
+                    matTooltip="Åpne i nytt vindu"
+                    class="material-icons open-file-viewer"
+                    (click)="openFileViewer()">
+                    open_in_new
+                </i>
 
-            <a class="trash" (click)="deleteImage()" *ngIf="!readonly">
-                <i class="material-icons">delete</i>
-            </a>
+                <span *ngIf="dropdownMenuItems?.length" class="dropdown">
+                    <i #trigger class="material-icons" matTooltip="Flere valg">more_horiz</i>
 
-            <a (click)="rotateLeft()" *ngIf="rotateAllowed">
-                <i class="material-icons">undo</i>
-            </a>
+                    <dropdown-menu [trigger]="trigger" [minWidth]="'12rem'">
+                        <ng-template>
+                            <section
+                                *ngFor="let item of dropdownMenuItems"
+                                (click)="item.action()"
+                                [class.disabled]="item.disabled"
+                                class="dropdown-menu-item">
+                                {{item.label}}
+                            </section>
+                        </ng-template>
+                    </dropdown-menu>
+                </span>
+            </section>
 
-            <a (click)="rotateRight()" *ngIf="rotateAllowed">
-                <i class="material-icons">redo</i>
-            </a>
-
-            <a (click)="openFileViewer()">
-                <i class="material-icons">open_in_new</i>
-            </a>
-
-            <a *ngIf="files.length > 1 || currentFile.Pages > 1"
-                class="next"
+            <i *ngIf="files.length > 1 || currentFile.Pages > 1"
+                class="material-icons next"
+                role="button"
                 (click)="next()">
-                <i class="material-icons">keyboard_arrow_right</i>
-            </a>
+                keyboard_arrow_right
+            </i>
         </section>
 
         <div *ngIf="uploading && !hideToolbar" class="uploading-progress-info">

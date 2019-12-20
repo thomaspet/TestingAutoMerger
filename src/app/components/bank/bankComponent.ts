@@ -584,19 +584,18 @@ export class BankComponent {
         return new Promise(() => {
             this.paymentBatchService.Get(row.PaymentBatchID).subscribe((paymentBatch) => {
                 if (!paymentBatch.PaymentFileID) {
-                    this.toastService.addToast('Fil ikke generert', ToastType.bad, 15, 'Fant ingen betalingsfil.');
+                    this.toastService.addToast('Fil ikke generert', ToastType.warn, 5, 'Fant ingen betalingsfil.');
                 } else {
                     this.fileService
                         .downloadXml(paymentBatch.PaymentFileID)
                         .subscribe((blob) => {
-                            this.toastService.addToast('Innbetalingsfil hentet', ToastType.good, 5);
                             // download file so the user can open it
                             saveAs(blob, `payments_${paymentBatch.ID}.xml`);
                         },
                         err => {
                             this.errorService.handleWithMessage(err, 'Feil ved henting av innbetalingsfil');
                         }
-                        );
+                    );
                 }
             });
         });

@@ -7,8 +7,8 @@
             class="tab">
 
             {{tab[labelProperty] | translate}}
-            <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
-            <i *ngIf="tab.tooltip && tab[counterProperty]"
+            <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
+            <i *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
                 class="material-icons tab-tooltip"
                 [ngClass]="tab.tooltipClass"
                 [matTooltip]="tab.tooltip">
@@ -29,8 +29,10 @@
             class="tab">
 
             {{tab[labelProperty] | translate}}
-            <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
-            <i class="material-icons tab-tooltip" *ngIf="tab.tooltip && tab[counterProperty]" matTooltip="{{tab.tooltip}}">
+            <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
+            <i class="material-icons tab-tooltip"
+                *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
+                [matTooltip]="tab.tooltip">
                 info_outline
             </i>
         </a>

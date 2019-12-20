@@ -166,6 +166,7 @@
                 "Code": "incomming_without_match",
                 "UseAllCriterias": true,
                 "tooltip": "Du har innbetalinger vi ikke har klart å koble mot faktura, vennligst behandle disse her",
+                "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -627,6 +628,7 @@
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
                 "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken, men vi har ikke funnet en matchende post i systemet. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
+                "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [

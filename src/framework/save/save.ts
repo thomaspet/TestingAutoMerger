@@ -69,8 +69,10 @@ export class UniSave {
     }
 
     onSave(action) {
-        // don't call save again if its still working on saving or is disabled
-        if (this.busy || action.disabled) { return; }
+        // Don't call save again if its still working on saving or is disabled
+        if (this.busy || !action || action.disabled) {
+            return;
+        }
 
         this.busy = true;
         this.statusMessage = undefined;

@@ -6,13 +6,19 @@ import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import 'rxjs/add/operator/switchMap';
 import {Observable, of} from 'rxjs';
-import {take, tap} from 'rxjs/operators';
+import {take, tap, switchMap, map} from 'rxjs/operators';
+import {ErrorService} from './errorService';
+import {saveAs} from 'file-saver';
 
 @Injectable()
 export class FileService extends BizHttp<File> {
     private imageCache: IHttpCacheStore<Blob> = {};
 
-    constructor(private httpClient: HttpClient, http: UniHttp) {
+    constructor(
+        private httpClient: HttpClient,
+        private errorService: ErrorService,
+        http: UniHttp
+    ) {
         super(http);
         super.disableCache();
 
@@ -45,16 +51,7 @@ export class FileService extends BizHttp<File> {
         );
     }
 
-    public printFile(fileID: number) {
-        return this.http
-            .asGET()
-            .withDefaultHeaders()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${fileID}?action=download`)
-            .send();
-    }
-
-    public getDownloadUrl(fileID: number) {
+    getDownloadUrl(fileID: number) {
         return this.http
             .asGET()
             .withDefaultHeaders()
@@ -64,18 +61,37 @@ export class FileService extends BizHttp<File> {
             .map(response => response.body);
     }
 
-    public downloadXml(fileID: number, type = 'application/xml') {
-        return this.http
-            .asGET()
-            .withDefaultHeaders()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${fileID}?action=download`)
-            .send()
-            .switchMap((urlResponse: HttpResponse<any>) => {
-                const url = urlResponse.body.replace(/\"/g, '');
-                return this.http.http.get(url, {responseType: 'text'});
-            })
-            .map(res => new Blob([res], { type: type }));
+    downloadFile(file: File) {
+        this.getDownloadUrl(file.ID).pipe(
+            switchMap(url => this.httpClient.get(url, { responseType: 'blob' }))
+        ).subscribe(
+            (blob: Blob) => {
+                saveAs(blob, file.Name);
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    downloadXml(fileID: number, type = 'application/xml') {
+        return this.getDownloadUrl(fileID).pipe(
+            switchMap(url => {
+                url = url.replace(/\"/g, '');
+                return this.httpClient.get(url, { responseType: 'text' });
+            }),
+            map(res => new Blob([res], { type: type }))
+        );
+
+        // return this.http
+        //     .asGET()
+        //     .withDefaultHeaders()
+        //     .usingBusinessDomain()
+        //     .withEndPoint(`files/${fileID}?action=download`)
+        //     .send()
+        //     .switchMap((urlResponse: HttpResponse<any>) => {
+        //         const url = urlResponse.body.replace(/\"/g, '');
+        //         return this.http.http.get(url, {responseType: 'text'});
+        //     })
+        //     .map(res => new Blob([res], { type: type }));
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {
