@@ -141,6 +141,7 @@ export const salaryRoutes: Routes = [
         path: 'variablepayrolls/:id',
         component: VariablePayrollsComponent,
         canDeactivate: [CanDeactivateGuard],
+        canActivate: [WagetypeSyncGuard],
     },
     {
         path: 'regulative',
