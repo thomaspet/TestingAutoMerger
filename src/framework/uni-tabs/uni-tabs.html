@@ -7,7 +7,7 @@
             class="tab">
 
             {{tab[labelProperty] | translate}}
-            <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
+            <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
             <i *ngIf="tab.tooltip"
                 class="material-icons tab-tooltip"
                 [ngClass]="tab.tooltipClass"
@@ -29,7 +29,7 @@
             class="tab">
 
             {{tab[labelProperty] | translate}}
-            <strong *ngIf="tab[counterProperty] >= 0">{{tab[counterProperty]}}</strong>
+            <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
             <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
                 info
             </i>
