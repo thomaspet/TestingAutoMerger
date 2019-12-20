@@ -85,21 +85,23 @@ export class UniImage {
     @Output() imageLoaded = new EventEmitter();
 
     private baseUrl: string = environment.BASE_URL_FILES;
-
-    public uploading: boolean;
     private keyListener: any;
-    public state = 'initial';
 
-    public files: FileExtended[] = [];
-    public currentFile: FileExtended;
-    public currentPage: number = 1;
-    public imgUrl: string;
-    public selectedEHFAttachment: any;
+    uploading: boolean;
+    state = 'initial';
 
-    public highlightStyle: any;
-    public currentClickedWord: any;
-    public ocrWords: any[] = [];
-    public ocrValues = [
+    files: FileExtended[] = [];
+    currentFile: FileExtended;
+    currentPage: number = 1;
+    imgUrl: string;
+    selectedEHFAttachment: any;
+    canPrint: boolean;
+    dropdownMenuItems: { label: string, action: () => void, disabled?: boolean }[];
+
+    highlightStyle: any;
+    currentClickedWord: any;
+    ocrWords: any[] = [];
+    ocrValues = [
         {label: 'Organisasjonsnr', value: 1},
         {label: 'Fakturadato', value: 7},
         {label: 'Forfallsdato', value: 8},
@@ -109,7 +111,7 @@ export class UniImage {
         {label: 'Fakturabeløp', value: 6},
     ];
 
-    public processingPercentage: number = null;
+    processingPercentage: number = null;
 
     cacheBuster = performance.now(); // used for busting the image cache after changes
     onDestroy$: Subject<any> = new Subject();
@@ -153,6 +155,12 @@ export class UniImage {
             'Fileviewer',
             'menubar=0,scrollbars=1,height=950,width=965,left=0,top=8'
         );
+    }
+
+    downloadFile() {
+        if (this.currentFile) {
+            this.fileService.downloadFile(this.currentFile);
+        }
     }
 
     public setOcrValues(values: any[]) {
@@ -360,9 +368,9 @@ export class UniImage {
     public print() {
         const fileName = (this.currentFile.Name || '').toLowerCase();
         if (fileName.includes('.pdf')) {
-            this.fileService.printFile(this.currentFile.ID).subscribe(
-                (res: any) => {
-                    const url = res.body + '&attachment=false';
+            this.fileService.getDownloadUrl(this.currentFile.ID).subscribe(
+                url => {
+                    url += '&attachment=false';
                     try {
                         printJS({
                             printable: url,
@@ -372,13 +380,6 @@ export class UniImage {
                 },
                 err => this.errorService.handle(err)
             );
-        } else {
-            try {
-                printJS({
-                    printable: this.currentFile._imgUrls[this.currentPage - 1],
-                    type: 'image'
-                });
-            } catch (e) {}
         }
     }
 
@@ -471,8 +472,9 @@ export class UniImage {
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.REJECT) {
                 const deleteRequest = this.entity && this.entityID
-                    ? this.fileService.delete(deleteFileID)
-                    : this.fileService.deleteOnEntity(this.entity, this.entityID, deleteFileID);
+                    ? this.fileService.deleteOnEntity(this.entity, this.entityID, deleteFileID)
+                    : this.fileService.delete(deleteFileID);
+
 
                 deleteRequest.subscribe(
                     () => this.removeImage(),
@@ -518,20 +520,25 @@ export class UniImage {
         const file = fileToShow || this.files && this.files[0];
 
         if (file) {
-            this.removeHighlight();
-            this.ocrWords = [];
-
             if (file !== this.currentFile) {
                 this.currentPage = 1;
             }
 
             this.currentFile = file;
+            this.removeHighlight();
+            this.ocrWords = [];
+            this.canPrint = file.Name && file.Name.includes('.pdf');
+
+            this.dropdownMenuItems = this.getDropdownMenuItems();
+
             if (!file._ehfMarkup) {
                 this.imgUrl = this.generateImageUrl(file, 1200, this.currentPage || 1);
             }
         } else {
             this.currentFile = undefined;
             this.imgUrl = undefined;
+            this.dropdownMenuItems = undefined;
+            this.canPrint = false;
         }
 
         this.cdr.markForCheck();
@@ -539,6 +546,37 @@ export class UniImage {
 
     skipSanitazion(link: string) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(link);
+    }
+
+    private getDropdownMenuItems() {
+        const items = [];
+
+        if (!this.readonly) {
+            items.push({ label: 'Slett fil', action: () => this.deleteImage() });
+        }
+
+        if (this.rotateAllowed) {
+            items.push(
+                { label: 'Roter venstre', action: () => this.rotateLeft() },
+                { label: 'Roter høyre', action: () => this.rotateRight() }
+            );
+        }
+
+        if (this.currentFile.Pages > 1 && this.currentFile.Name.toLowerCase().endsWith('.pdf')) {
+            if (this.splitAllowed && !this.readonly) {
+                items.push({
+                    label: 'Del fil i to fra denne siden',
+                    action: () => this.splitFile(),
+                    disabled: this.currentPage === 1
+                });
+            }
+
+            if (this.splitFileDialogAllowed) {
+                items.push({ label: 'Del opp fil', action: () => this.splitFileDialog() });
+            }
+        }
+
+        return items;
     }
 
     private generateImageUrl(file: FileExtended, width: number, pageOverride?: number): string {

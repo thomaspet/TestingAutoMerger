@@ -891,9 +891,8 @@ export class CompanySettingsComponent implements OnInit {
 
 
         const ocrToggle = fields.find(f => f.Property === 'UseOcrInterpretation');
-        ocrToggle.Label = settings.UseOcrInterpretation
-            ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning';
-        ocrToggle.Options.class = settings.UseOcrInterpretation ? 'bad' : '';
+        ocrToggle.Label = settings.UseOcrInterpretation ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning';
+        ocrToggle.Options.class = settings.UseOcrInterpretation ? 'secondary bad' : '';
 
         this.fields$.next(fields);
     }

@@ -34,7 +34,6 @@ export const TRANSLATION_OVERRIDES = {
             'NEW': 'Ny regning',
             'SINGLE': 'Regning',
             'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Regningen mangler enten fakturabeløp eller leverandør med orgnr.',
-            'USE_NO_DOCUMENT': 'Før regning uten dokument',
             'CREATE': 'Opprett regning',
             'LATEST': 'Siste regninger',
             'BOOK_WITH_AMOUNT': 'Bokføre regning med beløp {sum}?',

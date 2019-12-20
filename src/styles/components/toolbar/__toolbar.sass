@@ -38,6 +38,18 @@ uni-toolbar
         .main-section
             display: none
 
+    @media screen and (max-width: 1400px)
+        .prev, .next
+            display: none
+    @media screen and (max-width: 1300px)
+        .toolbar-title
+            font-size: 20px !important
+        .new-button
+            width: 2.5rem
+            padding: 0
+            span
+                display: none
+
 .toolbar-left
     flex: 1
     display: flex
@@ -162,19 +174,6 @@ uni-toolbar
 
     > button + button
         margin-left: 0
-
-@media screen and (max-width: 1400px)
-    .prev, .next
-        display: none
-@media screen and (max-width: 1300px)
-    .toolbar-title
-        font-size: 20px !important
-    .new-button
-        width: 2.5rem
-        padding: 0
-        span
-            display: none
-
 
 .toolbar-status-indicator
     display: inline-flex
