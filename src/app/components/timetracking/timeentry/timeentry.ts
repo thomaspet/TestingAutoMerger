@@ -2,6 +2,7 @@
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
 import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {RegtimeTotals} from './totals/totals';
@@ -14,6 +15,7 @@ import {WorkEditor} from '@app/components/common/timetrackingCommon';
 import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
 import {TimeentryImportModal} from '../components/file-import-modal';
+import {View as Vacation} from './vacation/vacation';
 import {UniHttp} from '@uni-framework/core/http/http';
 
 import {WorkerService, IFilter, IFilterInterval} from '@app/services/timetracking/workerService';
@@ -31,54 +33,67 @@ type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes
     templateUrl: './timeentry.html'
 })
 export class TimeEntry {
-    public busy: boolean = true;
-    public missingWorker: boolean = false;
-    public userName: string = '';
-    public workRelations: Array<WorkRelation> = [];
-    public timeSheet: TimeSheet = new TimeSheet();
-    public currentBalance: WorkBalanceDto;
-    public incomingBalance: WorkBalance;
-    public teams: Array<Team>;
-    public percentage: number = 0;
+    busy: boolean = true;
+    missingWorker: boolean = false;
+    mode: string = '';
+    userName: string = '';
+    workRelations: Array<WorkRelation> = [];
+    timeSheet: TimeSheet = new TimeSheet();
+    currentBalance: WorkBalanceDto;
+    incomingBalance: WorkBalance;
+    teams: Array<Team>;
+    percentage: number = 0;
+    flexData: any = [];
+    initialized: boolean = false;
+    workedToday: string = '';
 
-    private workedToday: string = '';
     private customDateSelected: Date = null;
     private currentDate: Date = new Date();
     private getTotalsFromQueryParams: boolean = false;
 
-    @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
-    @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
-    @ViewChild(RegtimeBalance) private regtimeBalance: RegtimeBalance;
-    @ViewChild(WorkEditor) private workEditor: WorkEditor;
-    @ViewChild(SideMenu) private sideMenu: SideMenu;
-    @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
-    @ViewChild(TimeentryImportModal) private fileImport: TimeentryImportModal;
+    @ViewChild(RegtimeTotals)
+    private regtimeTotals: RegtimeTotals;
+
+    @ViewChild(TimeTableReport)
+    private timeTable: TimeTableReport;
+
+    @ViewChild(RegtimeBalance)
+    private regtimeBalance: RegtimeBalance;
+
+    @ViewChild(WorkEditor)
+    private workEditor: WorkEditor;
+
+    @ViewChild(SideMenu)
+    private sideMenu: SideMenu;
+
+    @ViewChild(TeamworkReport)
+    private teamreport: TeamworkReport;
+
+    @ViewChild(Vacation)
+    private vacation: Vacation;
 
     public preSaveConfig: IPreSaveConfig = {
         askSave: () => this.checkSave(),
         askReload: () => this.reset(false)
     };
 
-    public actions: IUniSaveAction[] = [
-        { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
-    ];
+    actions: IUniSaveAction[] = [ { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }];
+    saveActions: IUniSaveAction[] = [];
 
-    public toolbarConfig: any = {
+    public toolbarConfig: IToolbarConfig = {
         title: 'Registrere timer'
     };
 
     private initialContextMenu: Array<any> = [
-        { label: 'Import', action: (done) => this.import(done), disabled: () => !this.registrationViewActive },
-        { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.registrationViewActive }
+        { label: 'Import', action: (done) => this.import(done) },
+        { label: 'Eksport', action: (done) => this.export(done) }
     ];
 
-    private registrationViewActive: boolean = true;
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
         {
             name: 'Registrering',
             onClick: () => {
-                this.registrationViewActive = true;
                 this.updateTabUrl('Registrering');
             }
         },
@@ -91,7 +106,7 @@ export class TimeEntry {
         {
             name: 'Totaler',
             onClick: () => {
-                this.regtimeTotals.activate(this.timeSheet, this.currentFilter);
+                this.regtimeTotals.activate(this.timeSheet);
                 this.updateTabUrl('Totaler');
             }
         },
@@ -144,12 +159,14 @@ export class TimeEntry {
             if (paramMap.has('projectID')) {
                 this.tabService.addTab({
                     name: 'Timer',
-                    url: '/timetracking/timeentry?projectID=' + paramMap.get('projectID'),
+                    url: '/timetracking/timeentry?mode=Registrering&projectID=' + paramMap.get('projectID'),
                     moduleID: UniModules.Timesheets
                 });
                 this.projectService.Get(+paramMap.get('projectID')).subscribe(project => this.project = project);
             }
-            if (paramMap.has('mode')) {
+
+            if (paramMap.has('mode') || 'Registrering') {
+                this.mode = paramMap.get('mode');
                 if (paramMap.get('mode') === 'Totaler') {
                     this.getTotalsFromQueryParams = true;
                 } else {
@@ -159,14 +176,18 @@ export class TimeEntry {
                     this.activeTabIndex = tempIndex > 0 ? tempIndex : this.activeTabIndex;
                 }
             }
+
+            this.updateTabUrl(this.mode);
         });
 
         this.approvalCheck();
     }
 
     private updateTabUrl(mode: string) {
+        this.mode = mode || this.mode;
         this.tabService.currentActiveTab.url = `/timetracking/timeentry?mode=${mode}`;
         this.pageStateService.setPageState('mode', mode);
+        this.updateToolbar();
     }
 
     private initApplicationTab() {
@@ -409,14 +430,27 @@ export class TimeEntry {
             title: trimLength(this.userName, 20),
             subheads: [
                 { title: subTitle }
-            ],
-            navigation: {
-                add: () => {
-                    this.onAddNew();
-                }
-            },
-            contextmenu: contextMenus
+            ]
         };
+
+        if (this.mode === 'Registrering') {
+            this.toolbarConfig.contextmenu = contextMenus;
+            if (this.flexData && this.flexData.Items && this.initialized) {
+                this.prepFlexData(this.flexData);
+            }
+        }
+
+        this.saveActions = this.mode === 'Registrering' ? this.actions : [];
+
+        if (this.mode === 'Ferie') {
+            this.toolbarConfig.buttons = [{
+                icon: 'beach_access',
+                label: 'Ny ferie',
+                action: () => this.vacation.openEditModal(null),
+                tooltip: 'Opprett ny ferie'
+            }];
+        }
+        this.initialized = true;
     }
 
     private loadItems(date?: Date, toDate?: Date) {
@@ -474,13 +508,16 @@ export class TimeEntry {
     }
 
     private loadFlex(rel: WorkRelation) {
-        this.regtimeBalance.refresh(rel);
+        if (this.regtimeBalance) {
+            this.regtimeBalance.refresh(rel);
+        }
     }
 
     // Formats flex data and sends it to calendar component
     private prepFlexData(data: any) {
         const flexDays = [];
         const flexWeeks = [];
+        this.flexData = data;
         data.Items.forEach((item) => {
             if (item.IsWeekend) {
                 flexDays.push('');
@@ -672,6 +709,7 @@ export class TimeEntry {
                             if (!this.teamreport.isInitialized) {
                                 this.teamreport.initialize(this.teams);
                             }
+                            this.updateTabUrl('Godkjenning');
                         }
                     };
 

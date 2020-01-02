@@ -1,42 +1,10 @@
 ﻿<section class="vacation_section">
-    <section class="vacation-buttons">
-        <button class="good" (click)="onAddNew()">Ny ferie</button>
-        <button [disabled]="!hasUnsavedChanges" class="good" (click)="onSave()">Lagre endringer</button>
-        <button [disabled]="!hasUnsavedChanges" class="secondary-button" (click)="onReset()">Avbryt</button>
-        <button [disabled]="!items.length" class="bad" (click)="onDelete()">Slett ferie</button>
-    </section>
-
-    <section class="splitview">
-        <nav class="splitview_list">
-
-            <table class="timeentriesTable">
-                <thead>
-                    <tr>
-                        <th>Beskrivelse</th>
-                        <th>Fra dato</th>
-                        <th>Til dato</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of items" (click)="onItemClicked(item)" [class.active-row]="item._isSelected">
-                        <td>{{item.Description}}</td>
-                        <td>{{item.FromDate|isotime}}</td>
-                        <td>{{item.ToDate|isotime}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </nav>
-
-        <main class="splitview_detail">
-            <uni-form
-                [config]="{}"
-                [layout]="layout$"
-                [model]="current$"
-                (changeEvent)="onChange($event)"
-                (readyEvent)="onReady($event)">
-            </uni-form>
-        </main>
-
-    </section>
-
+    <span class="header">
+        <i class="material-icons" (click)="openEditModal(null)">beach_access</i>
+        <span> Oversikt over tidligere ferier registrert i systemer. Her kan du også redigere ferier, eller registrere nye. </span>
+    </span>
+    <ag-grid-wrapper
+        [(resource)]="items"
+        [config]="uniTableConfig">
+    </ag-grid-wrapper>
 </section>

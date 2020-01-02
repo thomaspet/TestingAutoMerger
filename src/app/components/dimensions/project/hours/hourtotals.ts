@@ -71,9 +71,9 @@ export class ProjectHourTotals {
 
     public onAddHoursClick() {
         if (this.currentProjectID) {
-            this.router.navigateByUrl(`/timetracking/timeentry?projectID=${this.currentProjectID}`);
+            this.router.navigateByUrl(`/timetracking/timeentry?mode=Registrering&projectID=${this.currentProjectID}`);
         } else {
-            this.router.navigateByUrl('/timetracking/timeentry');
+            this.router.navigateByUrl('/timetracking/timeentry?mode=Registrering');
         }
     }
 

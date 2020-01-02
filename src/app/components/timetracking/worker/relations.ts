@@ -85,7 +85,7 @@ export class View implements OnInit {
     }
 
     public onRegisterHours() {
-        this.router.navigateByUrl('/timetracking/timeentry?workerId=' + this.currentId + '&workRelationId='
+        this.router.navigateByUrl('/timetracking/timeentry?mode=Registrering&workerId=' + this.currentId + '&workRelationId='
             + this.currentRelation.ID);
     }
 

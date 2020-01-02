@@ -74,7 +74,7 @@ export class UniFlexWidget {
 
     public onClickNavigate() {
         if (!this.widget._editMode) {
-            this.router.navigateByUrl('/timetracking/timeentry');
+            this.router.navigateByUrl('/timetracking/timeentry?mode=Registrering');
         }
     }
 }

@@ -35,6 +35,7 @@ import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
+import {EditVacationModal} from './timeentry/vacation/edit-vacation-modal';
 
 import {MatSelectModule} from '@angular/material';
 import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular/material';
@@ -84,6 +85,7 @@ import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular
         ReportWorkflow,
         UniApproveTaskModal,
         TimetrackingDashboard,
+        EditVacationModal
     ],
     providers: [
         CanDeactivateGuard,
@@ -95,7 +97,8 @@ import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular
         TimetrackingDashboard,
         TimeApproveModal,
         UniApproveTaskModal,
-        UniTimeEditModal
+        UniTimeEditModal,
+        EditVacationModal
     ]
 })
 export class TimetrackingModule {}

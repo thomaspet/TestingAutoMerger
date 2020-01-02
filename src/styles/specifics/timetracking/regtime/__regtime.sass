@@ -55,12 +55,11 @@ teamwork-report
 
 regtimebalance
     button
-        height: 2rem
-        line-height: 0
         margin: 1rem 0 !important
 
     > h3
         margin: 0
+        font-size: 16px
 
 // END NEW
 
@@ -152,13 +151,19 @@ vacation .timeentriesTable
     .active-row
         background-color: #d0dae6
 
+
+
 .flex-table
     border-collapse: collapse
     width: 100%
 
+    tr
+        height: 40px
+
     td
         padding: pxToRem(4)
         border-bottom: pxToRem(1) solid $uni-color-scale7
+        font-size: 14px
 
     td.spacer
         width: 1.6rem
@@ -186,14 +191,18 @@ div.bad
 
 .datebox
     position: absolute
-    top: pxToRem(-7)
-    right: pxToRem(1)
+    top: 0.3rem
+    right: .09rem
     font-size: pxToRem(10)
     color: $uni-color-scale7
 
 .flex-detail
     border-collapse: collapse
     width: 100%
+    font-size: 14px
+    tr
+        height: 40px
+        td
 
     td.today
         background-color: lighten($uni-color-warn, 45%)
@@ -207,6 +216,7 @@ div.bad
     tr td:not(:first-child):not(:last-child)
         text-align: center
         position: relative
+        font-weight: 500
 
     tr td:first-child
         padding-right: 4rem
@@ -232,7 +242,7 @@ div.bad
         text-align: center
 
     td.sum
-        background-color: lighten($uni-color-c2a, 66%)
+        background-color: #DAEEFF
 
 .compactcells
     td, th
@@ -300,19 +310,23 @@ uni-file-import input
             background: var(--color-good)
 
 .vacation_section
-    .splitview_list
-        min-width: 40%
-    .splitview_detail
-        min-width: 50%
+    span.header
+        display: flex
+        align-items: center
+        margin: 1rem 0
         padding: 1rem
+        border: 2px solid #CCC
+        border-radius: 3px
+        width: fit-content
 
-    .vacation-buttons
-        button
-            margin: 0 .5rem 0 0
-            height: 2rem
-            line-height: 0
-            min-width: 8rem
+        i
+            color: var(--color-good)
+            margin-right: 1rem
+            cursor: pointer
 
+        span
+            font-size: 14px
+            font-weight: 500
 
 workrelations .splitview_list
     flex: 0 0 auto

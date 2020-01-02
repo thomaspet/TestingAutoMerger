@@ -164,7 +164,7 @@ export const SHORTCUT_LISTS = [
             shortcuts: [
                 {
                     label: 'Timeføring',
-                    url: '/timetracking/timeentry',
+                    url: '/timetracking/timeentry?mode=Registrering',
                     icon: 'watch_later'
                 },
                 {
@@ -404,7 +404,7 @@ export const SHORTCUT_LISTS = [
             shortcuts: [
                 {
                     label: 'Registrere timer',
-                    link: '/timetracking/timeentry',
+                    link: '/timetracking/timeentry?mode=Registrering',
                     urlToNew: ''
                 },
                 {

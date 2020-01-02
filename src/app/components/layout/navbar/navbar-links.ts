@@ -485,7 +485,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 links: [
                     {
                         name: 'NAVBAR.HOUR_REG',
-                        url: '/timetracking/timeentry',
+                        url: '/timetracking/timeentry?mode=Registrering',
                         moduleID: UniModules.Timesheets,
                         activeInSidebar: true
                     },
