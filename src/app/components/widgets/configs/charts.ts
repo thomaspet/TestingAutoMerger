@@ -226,7 +226,7 @@ export const CHARTS = [
         width: 5,
         height: 3,
         widgetType: 'liquidity',
-        srOnly: true,
+        srOnly: false,
         config: {}
     },
     {

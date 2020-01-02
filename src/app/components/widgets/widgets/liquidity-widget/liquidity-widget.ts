@@ -2,7 +2,7 @@ import {Component, ViewChild, ElementRef, ChangeDetectorRef} from '@angular/core
 import {CustomPaymentModal} from './custom-payment-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {WidgetDataService} from '../../widgetDataService';
-import {NumberFormat} from '@app/services/services';
+import {NumberFormat, ReportDefinitionService} from '@app/services/services';
 import {Router} from '@angular/router';
 import * as Chart from 'chart.js';
 
@@ -21,7 +21,9 @@ export class LiquidityWidget {
     chartRef: Chart;
     chartConfig: any;
     bankBalance: string = '';
+    bankBalanceString: string = '';
     sumOverdueInvoices: string = '';
+    sumSupplierInvoices: string = '';
 
     constructor (
         private router: Router,
@@ -38,8 +40,19 @@ export class LiquidityWidget {
         this.widgetDataService.clearCache();
         this.widgetDataService.getData('/api/biz/liquiditypayment?action=getLiquidityTableData').subscribe(response => {
             if (response) {
-                this.sumOverdueInvoices = this.numberFormat.asMoney(response.OverdueInvoices);
-                this.bankBalance = this.numberFormat.asMoney(response.BankBalance);
+                this.sumOverdueInvoices = this.numberFormat.asMoney(response.OverdueCustomerInvoices);
+                this.sumSupplierInvoices = this.numberFormat.asMoney(response.OverdueSupplierInvoices);
+
+                if (response.BankBalanceRefferance === 0) {
+                    this.bankBalanceString = 'Kunne ikke hente banksaldo';
+                } else if (response.BankBalanceRefferance === 1) {
+                    this.bankBalanceString = 'Saldo hentet fra bankkonto: ';
+                    this.bankBalance = this.numberFormat.asMoney(response.BankBalance);
+                } else {
+                    this.bankBalanceString = 'Saldo hentet fra hovedbokskonto: ';
+                    this.bankBalance = this.numberFormat.asMoney(response.BankBalance);
+                }
+
                 this.data = response.Period;
                 this.chartConfig = this.getEmptyLineChartConfig();
                 this.chartConfig.data.datasets[0].data = this.data.map(res => res.Liquidity || 0);
@@ -51,6 +64,10 @@ export class LiquidityWidget {
 
     goToOverdueInvoiceList() {
         this.router.navigateByUrl('/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices');
+    }
+
+    goToSupplierInvoices() {
+        this.router.navigateByUrl('/accounting/bills?filter=unpaid');
     }
 
     addCustomerPayment(isNew: boolean = true) {
@@ -139,31 +156,7 @@ export class LiquidityWidget {
                             display: false
                         }
                     }]
-                },
-                // tooltips: {
-                //     enabled: false,
-                //     mode: 'index',
-                //     position: 'nearest',
-                //     custom: tooltip => {
-                //         if (tooltip.dataPoints && tooltip.dataPoints.length) {
-                //             this.tooltip = {
-                //                 month: tooltip.dataPoints[0].xLabel,
-                //                 result: tooltip.dataPoints[0].yLabel || 0,
-                //                 income: tooltip.dataPoints[1].yLabel || 0,
-                //                 cost: (tooltip.dataPoints[2].yLabel || 0) * -1,
-                //                 style: {
-                //                     top: tooltip.y + 'px',
-                //                     left: tooltip.x + 'px',
-                //                     opacity: '1'
-                //                 }
-                //             };
-                //         } else {
-                //             this.tooltip = undefined;
-                //         }
-
-                //         this.cdr.markForCheck();
-                //     }
-                // },
+                }
             }
         };
     }

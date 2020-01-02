@@ -9,7 +9,7 @@
             <span> Graf </span>
         </section>
     </section>
-    <span class="balance-header">Saldo bankkontoer pr. 26.10.2019: <strong> Kr. {{ bankBalance }}</strong></span>
+    <span class="balance-header"> {{ bankBalanceString }} <strong *ngIf="bankBalance"> Kr. {{ bankBalance }}</strong></span>
 
    <article>
         <section class="widget-body" *ngIf="mode === 'table' && data.length">
@@ -84,7 +84,8 @@
    </article>
 
    <footer>
-       <a title="Gå til liste over forfalte faktura" (click)="goToOverdueInvoiceList()"> Forfalte kundefaktura (ikke med i oversikt): kr. {{ sumOverdueInvoices }} </a>
+       <a title="Gå til liste over forfalte faktura" (click)="goToOverdueInvoiceList()"> Forfalte kundefaktura: kr. {{ sumOverdueInvoices }} </a>
+       <a title="Gå til liste over regninger" (click)="goToSupplierInvoices()">Forfalte regninger: kr. {{ sumSupplierInvoices }} </a>
    </footer>
 
 </section>
