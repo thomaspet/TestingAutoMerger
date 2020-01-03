@@ -709,12 +709,10 @@ export class VariablePayrollsComponent {
 
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
         rowModel.PayrollRunID = this.payrollRunID;
-        return this.salaryTransService.completeTrans(rowModel).map(trans => {
-            rowModel['Rate'] = trans.Rate;
-            rowModel['Text'] = trans.Text;
-            rowModel['Sum'] = trans.Sum;
-            rowModel['Amount'] = trans.Amount;
-            return rowModel;
+        return this.salaryTransService.completeTrans(rowModel).map((transes: SalaryTransaction[]) => {
+            this.filteredTransactions = this.salaryTransService.updateDataSource(this.filteredTransactions, transes);
+                
+            return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
         });
     }
 

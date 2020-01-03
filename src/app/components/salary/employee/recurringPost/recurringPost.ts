@@ -367,12 +367,10 @@ export class RecurringPost extends UniView {
 
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
         rowModel.EmployeeID = this.employeeID;
-        return this.salaryTransService.completeTrans(rowModel).map(trans => {
-            rowModel['Rate'] = trans.Rate;
-            rowModel['Text'] = trans.Text;
-            rowModel['Sum'] = trans.Sum;
-            rowModel['Amount'] = trans.Amount;
-            return rowModel;
+        return this.salaryTransService.completeTrans(rowModel).map((transes: SalaryTransaction[]) => {
+            this.recurringPosts = this.salaryTransService.updateDataSource(this.recurringPosts, transes);
+
+            return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
         });
     }
 

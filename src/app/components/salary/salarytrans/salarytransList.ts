@@ -459,12 +459,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
         rowModel.PayrollRunID = this.payrollRunID;
         rowModel.EmployeeID = this.employeeID;
-        return this.salaryTransService.completeTrans(rowModel).map(trans => {
-            rowModel['Rate'] = trans.Rate;
-            rowModel['Text'] = trans.Text;
-            rowModel['Sum'] = trans.Sum;
-            rowModel['Amount'] = trans.Amount;
-            return rowModel;
+        return this.salaryTransService.completeTrans(rowModel).map((transes: SalaryTransaction[]) => {
+            this.salaryTransactions = this.salaryTransService.updateDataSource(this.salaryTransactions, transes);
+
+            return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
         });
     }
 

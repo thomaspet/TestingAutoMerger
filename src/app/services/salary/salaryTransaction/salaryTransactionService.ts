@@ -26,7 +26,7 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
         return trans.ID ? super.Put(trans.ID, trans) : super.Post(trans);
     }
 
-    public completeTrans(trans: SalaryTransaction): Observable<SalaryTransaction> {
+    public completeTrans(trans: SalaryTransaction): Observable<SalaryTransaction[]> {
         return super.ActionWithBody(null, trans, 'complete-trans', RequestMethod.Post);
     }
 
@@ -36,5 +36,18 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
 
     public updateFromEmployments(employmentIDs: number[]): Observable<SalaryTransaction[]> {
         return super.ActionWithBody(null, employmentIDs, 'update-from-employments');
+    }
+
+    public updateDataSource(source: SalaryTransaction[], transes: SalaryTransaction[]): SalaryTransaction[] {
+        return transes.length > 1 ? [...source, ...transes.filter((x, i) => i !== 0)] : source;
+    }
+
+    public fillInRowmodel(rowModel: SalaryTransaction, trans: SalaryTransaction) {
+        rowModel['Rate'] = trans.Rate;
+        rowModel['Text'] = trans.Text;
+        rowModel['Sum'] = trans.Sum;
+        rowModel['Amount'] = trans.Amount;
+
+        return rowModel;
     }
 }
