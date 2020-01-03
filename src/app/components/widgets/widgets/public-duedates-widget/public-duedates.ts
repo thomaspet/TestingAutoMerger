@@ -40,7 +40,9 @@ export class PublicDueDatesWidget {
     public ngAfterViewInit() {
         this.widgetDataService.getData('/api/biz/deadlines?action=number-of-days-filtered&nrOfDays=30').subscribe((items) => {
 
-            this.dataHolder = items;
+            this.dataHolder = items.sort((a, b) => {
+                return a.Deadline > b.Deadline ? -1 : 1;
+            });
             this.dataLoaded = true;
 
             // Needs redraw on canvas size change  -- TODO --
@@ -111,7 +113,7 @@ export class PublicDueDatesWidget {
 
     drawBaseText() {
         this.ctx.font = 'normal bold 13px MuseoSans, arial, sans-serif';
-        this.ctx.fillStyle = '#262626';
+        this.ctx.fillStyle = '#2b2b2b';
         this.ctx.fillText('DAGER', this.middleWidth - 30, this.middleHeight + 50);
 
         this.ctx.font = 'normal normal 13px MuseoSans, arial, sans-serif';
@@ -146,13 +148,14 @@ export class PublicDueDatesWidget {
         this.dataHolder.forEach((item, index) => {
 
             this.ctx.font = 'normal bold 13px MuseoSans, arial, sans-serif';
-            this.ctx.fillStyle = '#262626';
+            this.ctx.fillStyle = '#2b2b2b';
 
             // Make sure every other item goes up and down
             const y = index % 2 === 0 ? this.canvas.nativeElement.height * 0.2 : this.canvas.nativeElement.height * 0.8;
             // Tweak to place text
             const textAlignmentValue = index % 2 === 0 ? -8 : 12;
             // Draw line
+
             this.ctx.beginPath();
             this.ctx.moveTo(this.pointsXValues[item.duedays], this.middleHeight + (index % 2 === 0 ? -4 : 4));
             this.ctx.lineTo(this.pointsXValues[item.duedays], y);
@@ -161,7 +164,7 @@ export class PublicDueDatesWidget {
             // Set text-alignment based on text placement
             if (item.duedays < 3) {
                 this.ctx.textAlign = 'left';
-            } else if (item.duedays >= 28) {
+            } else if (item.duedays >= 26) {
                 this.ctx.textAlign = 'right';
             } else {
                 this.ctx.textAlign = 'center';
