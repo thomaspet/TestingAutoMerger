@@ -52,7 +52,7 @@ export class UniPhoneModal implements IUniModal {
         if (phone._initValue && fields[0] && !phone[fields[0].Property]) {
             phone[fields[0].Property] = phone._initValue;
         }
-        this.formModel$.next(phone);
+        this.formModel$.next(Object.assign({}, phone));
         this.formFields$.next(this.getFormFields());
     }
 

@@ -53,7 +53,7 @@ export class UniEmailModal implements IUniModal {
             email[fields[0].Property] = email._initValue;
         }
 
-        this.formModel$.next(email);
+        this.formModel$.next(Object.assign({}, email));
         this.formFields$.next(this.getFormFields());
     }
 

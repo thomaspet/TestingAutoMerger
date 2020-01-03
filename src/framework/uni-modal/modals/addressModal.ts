@@ -61,7 +61,7 @@ export class UniAddressModal implements IUniModal {
             address[fields[0].Property] = address._initValue;
         }
         this.initialState = Object.assign({}, address);
-        this.formModel$.next(address);
+        this.formModel$.next(Object.assign({}, address));
         this.formFields$.next(fields);
     }
 
