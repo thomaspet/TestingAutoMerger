@@ -434,7 +434,7 @@ export class EmploymentService extends BizHttp<Employment> {
 
     stepFieldIsReadonly(): boolean {
         let isReadOnly = false;
-        this.employment$.take(1).subscribe(res => isReadOnly = !!res.RegulativeGroupID);
+        this.employment$.take(1).subscribe(res => isReadOnly = !res.RegulativeGroupID);
         return isReadOnly;
     }
 
@@ -443,7 +443,6 @@ export class EmploymentService extends BizHttp<Employment> {
         this.regulativeGroups$.take(1).subscribe(res => {
             if (!res || !res.length) return;
 
-            this.employment$.take(1).subscribe(res => console.log(res));
             fields = [
                 {
                     EntityType: 'Employment',
@@ -462,10 +461,11 @@ export class EmploymentService extends BizHttp<Employment> {
                             .map((result: [Employment, RegulativeGroup[]]) =>
                                 result[1].filter(reg => reg.ID === result[0].RegulativeGroupID)),
                         search: (query: string) => this.regulativeGroups$
-                            .map(regulativeGroup =>
-                                regulativeGroup.filter(reg =>
+                            .map(
+                                regulativeGroup => regulativeGroup.filter(reg =>
                                     reg.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                    reg.ID.toString().startsWith(query))
+                                    reg.ID.toString().startsWith(query)
+                                )
                             )
                     },
                 },
@@ -486,7 +486,7 @@ export class EmploymentService extends BizHttp<Employment> {
                         getDefaultData: () => this.employment$
                             .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeSteps$.take(1)))
                             .map((result: [Employment, RegulativeStep[]]) =>
-                            result[1].filter(reg => reg.Step === result[0].RegulativeStepNr)),
+                                result[1].filter(reg => reg.Step === result[0].RegulativeStepNr)),
                         search: (query: string) => this.regulativeSteps$
                             .map(steps => steps.filter(step => step.Step.toString().startsWith(query)))
                     }

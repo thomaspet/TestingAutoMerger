@@ -11,6 +11,7 @@ import {
     AccountService,
     StatisticsService,
     CompanySalaryService,
+    RegulativeGroupService,
 } from '../../../../services/services';
 import {filter, take} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
@@ -61,14 +62,20 @@ export class EmploymentDetails implements OnChanges {
         private errorService: ErrorService,
         private modalService: UniModalService,
         private companySalaryService: CompanySalaryService,
+        private regulativeGroupService: RegulativeGroupService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
                 this.companySalarySettings = compsalarysettings;
             });
 
-        // TODO: get real data
-        this.employmentService.setRegulativeGroups(this.regulativeGroups);
+        this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
+            this.employmentService.setRegulativeGroups(x);
+            if (this.employment.RegulativeGroupID)
+                this.employmentService.setRegulativeSteps(x.filter((regulativeGroup: RegulativeGroup) => regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
+
+            this.regulativeGroups = x;
+        })
     }
 
     public ngOnChanges(change: SimpleChanges) {
@@ -299,7 +306,7 @@ export class EmploymentDetails implements OnChanges {
             fields.find(f => f.Property === 'HourRate').ReadOnly = true;
             this.fields$.next(fields);
 
-            employment.MonthRate = this.regulativeSteps.filter((step: RegulativeStep) => step.ID === changes['RegulativeStepNr'].currentValue)[0].Amount / 12;
+            employment.MonthRate = this.regulativeSteps.filter((step: RegulativeStep) => step.Step === changes['RegulativeStepNr'].currentValue)[0].Amount / 12;
             this.employment$.next(employment);
             this.employmentChange.emit(employment);
         }
