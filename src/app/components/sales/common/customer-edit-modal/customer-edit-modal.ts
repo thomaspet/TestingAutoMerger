@@ -20,6 +20,7 @@ export class CustomerEditModal implements IUniModal {
     busy: boolean;
 
     isNewCustomer: boolean;
+    value: string = '';
 
     customer$ = new BehaviorSubject<Customer>(null);
     fields$ = new BehaviorSubject([]);
@@ -43,7 +44,8 @@ export class CustomerEditModal implements IUniModal {
             this.customer$.next(customer);
             this.config$.next({autofocus: true});
         } else {
-            this.initNewCustomer();
+            this.value = this.options.listkey;
+            this.initNewCustomer(this.options.listkey);
         }
 
         this.fields$.next(this.getFormFields());
@@ -55,7 +57,7 @@ export class CustomerEditModal implements IUniModal {
         this.config$.complete();
     }
 
-    initNewCustomer() {
+    initNewCustomer(searchValue?: string) {
         this.busy = true;
 
         this.externalLookupOptions = {
@@ -89,6 +91,7 @@ export class CustomerEditModal implements IUniModal {
             ['Info.Phones', 'Info.Addresses', 'Info.Emails']
         ).subscribe(
             res =>  {
+                res.Info.Name = searchValue || '';
                 this.customer$.next(res);
                 this.busy = false;
             },

@@ -286,8 +286,8 @@ export class BillView implements OnInit {
                 { header: 'Orgnummer', field: 'OrgNumber' },
             ],
             createLabel: 'Opprett ny leverandør',
-            createHandler: () => {
-                return this.modalService.open(SupplierEditModal, {header: 'Ny leverandør'}).onClose;
+            createHandler: (value) => {
+                return this.modalService.open(SupplierEditModal, {header: 'Ny leverandør', listkey: !!value.trim() ? value : '' }).onClose;
             }
         };
 

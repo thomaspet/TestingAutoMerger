@@ -18,7 +18,7 @@ export interface AutocompleteOptions {
     itemTemplate?: (item) => string;
     resultTableColumns?: {header: string, field?: string, template?: (item) => string}[];
     editHandler?: (item) => Observable<any>;
-    createHandler?: () => Observable<any>;
+    createHandler?: (value?) => Observable<any>;
     createLabel?: string;
     filterCheckboxes?: {
         label: string;
@@ -45,6 +45,7 @@ export class Autocomplete {
 
     lookupResults: any[] = [];
     focusIndex = -1;
+    initialSearch: boolean = true;
     isExpanded$ = new BehaviorSubject<boolean>(false);
     loading$ = new BehaviorSubject<boolean>(false);
 
@@ -149,6 +150,11 @@ export class Autocomplete {
                 controlValue = this.options.displayFunction(this.value);
             } else if (this.options.displayField) {
                 controlValue = get(this.value, this.options.displayField);
+            } else if (this.value && this.initialSearch) {
+                controlValue = this.value;
+                this.isExpanded$.next(true);
+                this.initialSearch = false;
+                this.performLookup(controlValue);
             }
         }
 
@@ -179,7 +185,7 @@ export class Autocomplete {
 
     create() {
         if (this.options && this.options.createHandler) {
-            this.options.createHandler().subscribe(newEntity => {
+            this.options.createHandler(this.searchControl.value).subscribe(newEntity => {
                 if (newEntity) {
                     this.select(newEntity);
                 }

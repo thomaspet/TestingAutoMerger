@@ -9,6 +9,7 @@
         <section *ngIf="externalLookupOptions" class="external-search">
             <autocomplete
                 [options]="externalLookupOptions"
+                [value]="value"
                 (valueChange)="onExternalSearchSelected($event)"
                 (keydown.shift.tab)="$event.preventDefault()"
                 (keydown.tab)="onSearchShiftTab($event)">
