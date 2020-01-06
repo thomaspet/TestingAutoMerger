@@ -6,6 +6,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniView} from '@uni-framework/core/uniView';
 import {Router, ActivatedRoute} from '../../../../../../../node_modules/@angular/router';
 import {Observable} from '../../../../../../../node_modules/rxjs';
+import { ToastService } from '@uni-framework/uniToast/toastService';
 
 const SALARYBALANCES_ON_TEMPLATE_KEY = 'salarybalancesontemplate';
 
@@ -28,7 +29,8 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     cacheService: UniCacheService,
     private errorService: ErrorService,
     private salarybalanceService: SalarybalanceService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private toastService: ToastService,
   ) {
     super(router.url, cacheService);
 
@@ -95,6 +97,13 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
         const row = event.rowModel;
         row['_isDirty'] = true;
         if (event.field === 'Employee') {
+          const isDuplicatedEmployees = this.employees.some(x => x.ID === row.Employee.ID);
+          if (isDuplicatedEmployees) {
+            row['Employee'] = null;
+            this.toastService.addToast('Ansatt eksisterer allerede i listen.')
+            return row;
+          }
+
           this.mapEmployeeToSalarybalance(row);
         }
         const updateIndex = this.salarybalances.findIndex(x => x['_originalIndex'] === row['_originalIndex']);
