@@ -9,6 +9,7 @@ import {IUniWidget} from '../../uniWidget';
 import {FinancialYearService, StatisticsService} from '@app/services/services';
 import * as Chart from 'chart.js';
 import {AuthService} from '@app/authService';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'uni-operating-chart',
@@ -42,6 +43,8 @@ export class OperatingProfitWidget {
 
     unauthorized: boolean;
     busy: boolean = true;
+
+    dataSubscription: Subscription;
 
     constructor(
         private authService: AuthService,
@@ -112,6 +115,10 @@ export class OperatingProfitWidget {
         if (this.chartRef) {
             this.chartRef.destroy();
         }
+
+        if (this.dataSubscription) {
+            this.dataSubscription.unsubscribe();
+        }
     }
 
     ngOnChanges() {
@@ -139,7 +146,7 @@ export class OperatingProfitWidget {
     private getDataAndLoadChart() {
         this.isLineChart = this.widget && this.widget.config && this.widget.config.type === 'line';
         const multiplier = (this.widget && this.widget.config && this.widget.config.costMultiplier) || 1;
-        this.statisticsService.GetAllUnwrapped(
+        this.dataSubscription = this.statisticsService.GetAllUnwrapped(
             'model=JournalEntryLine&select=Period.No,multiply(-1,sum(amount)) as Sum,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber eq 3\,amount\,0))) as Income,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber ge 4\,amount\,0))) as Cost' +
@@ -342,17 +349,6 @@ export class OperatingProfitWidget {
                                         return value;
                                     }
                                 }
-                            }
-                        },
-                        {
-                            // This axes is just to get a border on the right side of the chart
-                            position: 'right',
-                            ticks: {
-                                display: false
-                            },
-                            gridLines: {
-                                display: false,
-                                drawTicks: false
                             }
                         }
                     ],
