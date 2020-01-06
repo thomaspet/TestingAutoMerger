@@ -18,6 +18,7 @@ export class SupplierEditModal implements IUniModal {
     @Output() onClose = new EventEmitter();
 
     busy: boolean;
+    value: string = '';
 
     supplier$ = new BehaviorSubject<Supplier>(null);
     fields$ = new BehaviorSubject([]);
@@ -40,7 +41,8 @@ export class SupplierEditModal implements IUniModal {
             this.supplier$.next(supplier);
             this.config$.next({autofocus: true});
         } else {
-            this.initNewSupplier();
+            this.value = this.options.listkey;
+            this.initNewSupplier(this.options.listkey);
         }
 
         this.fields$.next(this.getFormFields());
@@ -52,7 +54,7 @@ export class SupplierEditModal implements IUniModal {
         this.config$.complete();
     }
 
-    initNewSupplier() {
+    initNewSupplier(searchValue?: string) {
         this.busy = true;
 
         this.externalLookupOptions = {
@@ -86,6 +88,7 @@ export class SupplierEditModal implements IUniModal {
             ['Info.Phones', 'Info.Addresses', 'Info.Emails']
         ).subscribe(
             res =>  {
+                res.Info.Name = searchValue || '';
                 this.supplier$.next(res);
                 this.busy = false;
             },

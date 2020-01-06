@@ -4,7 +4,6 @@ import { AutocompleteOptions } from '@uni-framework/ui/autocomplete/autocomplete
 import { Observable } from 'rxjs';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { RecieverModal } from '../reciever-modal/reciever-modal';
-import {SupplierEditModal} from '../../edit-supplier-modal/edit-supplier-modal';
 import { tap } from 'rxjs/operators';
 
 interface IEmpSupplier {
