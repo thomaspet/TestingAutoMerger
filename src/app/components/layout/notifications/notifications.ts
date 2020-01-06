@@ -161,7 +161,7 @@ export class Notifications {
                     entityLabel = 'timeliste';
                 }
 
-                let header = `${body.senderDisplayName} spurt deg om godkjenning`;
+                let header = `${body.senderDisplayName} har spurt deg om godkjenning`;
                 let action;
                 let toastType;
 
