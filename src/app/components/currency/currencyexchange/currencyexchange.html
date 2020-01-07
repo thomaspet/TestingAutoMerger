@@ -2,12 +2,14 @@
 
 <section class="application">
     <section class="uni-container">
-        <uni-form
-            [config]="{}"
-            [fields]="fields"
-            [model]="filter"
-            (changeEvent)="loadData()">
-        </uni-form>
+        <label class="uni-label label-left" style="width: 20rem">
+            <span style="width: 7rem">Valutadato</span>
+            <uni-datepicker
+                style="flex: 0 0 10.5rem;"
+                [(value)]="currencyDate"
+                (valueChange)="loadData()">
+            </uni-datepicker>
+        </label>
 
         <ag-grid-wrapper
             [resource]="exchangelist"
