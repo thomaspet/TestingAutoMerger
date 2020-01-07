@@ -157,17 +157,21 @@ export class SentToDebtCollection implements OnInit {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
+            const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
+            .setFilterOperator('contains')
+            .setVisible(false);
+
         const configStoreKey = 'sales.reminders.sentToDebtCollection';
         this.reminderToDebtCollectTable = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(false)
-            .setColumnMenuVisible(false)
+            .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
-                invoiceDateCol, invoiceDueDateCol, statusCol
+                invoiceDateCol, invoiceDueDateCol, statusCol, externalRefCol
             ]);
     }
 }

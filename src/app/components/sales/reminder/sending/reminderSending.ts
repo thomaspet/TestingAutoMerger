@@ -72,7 +72,8 @@ export class ReminderSending {
         + "getlatestsharingstatus('CustomerInvoiceReminder',ID) as LastSharingStatus,"
         + "getlatestsharingdate('CustomerInvoiceReminder',ID) as LastSharingDate,"
         + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
-        + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode'
+        + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode,'
+        + 'CustomerInvoice.ExternalReference as ExternalReference'
         + '&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode'
         + '&filter='
         + 'isnull(statuscode,0) ne 42104 and (customerinvoice.collectorstatuscode ne 42505 or '
@@ -457,6 +458,10 @@ export class ReminderSending {
         const sharingDateCol = new UniTableColumn('LastSharingDate', 'Siste utsendelsesdato', UniTableColumnType.LocalDate)
             .setVisible(false);
 
+            const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
+            .setFilterOperator('contains')
+            .setVisible(false);
+
         if (this.modalMode) {
             jobNumberCol.visible = false;
         } else {
@@ -478,7 +483,7 @@ export class ReminderSending {
                 jobNumberCol, reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol,
                 feeAmountCol, interestAmountCol, dueDateCol, statusCol, remindedDateCol,
-                lastSharingCol, sharingStatusCol, sharingDateCol
+                lastSharingCol, sharingStatusCol, sharingDateCol, externalRefCol
             ]);
 
         if (this.currentRunNumber > 0) {

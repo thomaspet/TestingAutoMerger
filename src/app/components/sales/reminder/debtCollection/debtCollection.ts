@@ -251,6 +251,10 @@ export class DebtCollection implements OnInit {
             return item.DontSendReminders ? 'Ja' : 'Nei';
         });
 
+        const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
+        .setFilterOperator('contains')
+        .setVisible(false);
+
         // Context menu
         const contextMenuItems: IContextMenuItem[] = [];
         contextMenuItems.push({
@@ -294,14 +298,14 @@ export class DebtCollection implements OnInit {
         const configStoreKey = 'sales.reminders.reminderToDebtCollect';
         this.reminderToDebtCollectTable = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(false)
-            .setColumnMenuVisible(false)
+            .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
-                invoiceDateCol, invoiceDueDateCol, reminderStoppCol
+                invoiceDateCol, invoiceDueDateCol, reminderStoppCol, externalRefCol
             ])
             .setContextMenu(contextMenuItems);
     }
