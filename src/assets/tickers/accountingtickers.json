@@ -545,6 +545,14 @@
                 "FilterOperator": "startswith"
             },
             {
+                "Header": "Restbeløp",
+                "Field": "RestAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "SumColumn": true,
+                "FilterOperator": "startswith"
+            },
+            {
                 "Header": "Tildelt/godkjent av",
                 "Field": "stuff(user.displayname)",
                 "Alias": "Assignees",

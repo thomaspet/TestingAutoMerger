@@ -67,7 +67,7 @@ export class LiquidityWidget {
     }
 
     goToSupplierInvoices() {
-        this.router.navigateByUrl('/accounting/bills?filter=unpaid');
+        this.router.navigateByUrl('/overview?code=supplierinvoice_list&filter=all_supplierinvoices');
     }
 
     addCustomerPayment(isNew: boolean = true) {
