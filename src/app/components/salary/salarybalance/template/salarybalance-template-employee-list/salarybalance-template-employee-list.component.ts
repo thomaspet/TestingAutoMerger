@@ -97,10 +97,10 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
         const row = event.rowModel;
         row['_isDirty'] = true;
         if (event.field === 'Employee') {
-          const isDuplicatedEmployees = this.employees.some(x => x.ID === row.Employee.ID);
+          const isDuplicatedEmployees = this.salarybalances.some(x => x.EmployeeID === row.Employee.ID);
           if (isDuplicatedEmployees) {
+            this.toastService.addToast(`Kan ikke legge til fordi ansatt "${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}" eksisterer allerede.`)
             row['Employee'] = null;
-            this.toastService.addToast('Ansatt eksisterer allerede i listen.')
             return row;
           }
 
