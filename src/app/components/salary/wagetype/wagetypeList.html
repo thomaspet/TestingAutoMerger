@@ -4,9 +4,9 @@
     [saveactions]="toolbarActions">
 </uni-toolbar>
 <input type="hidden" value="Sync" style="background-color:red" (click)='onCustomClick()' id="letmesync">
-<article class="application wagetype" [attr.aria-busy] = "busy">
+<article class="application wagetype-list" [attr.aria-busy] = "busy">
     <ag-grid-wrapper
-        class="transquery-grid-font-size"
+        class="borders"
         [resource]="lookupFunction"
         [config]="tableConfig"
         (rowClick)="rowSelected($event)">

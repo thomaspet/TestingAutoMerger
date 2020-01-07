@@ -5,9 +5,9 @@ import 'rxjs/add/observable/forkJoin';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IReference} from '../../../../models/iReference';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig, ICommentsConfig, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {BehaviorSubject} from 'rxjs';
@@ -29,7 +29,6 @@ import {
     SupplierService,
     PhoneService,
     AddressService,
-    EmailService,
     BankAccountService,
     ErrorService,
     UniQueryDefinitionService,
@@ -58,11 +57,10 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-declare const _; // lodash
-
 @Component({
     selector: 'supplier-details',
     templateUrl: './supplierDetails.html',
+    styleUrls: ['./supplierDetails.sass']
 })
 export class SupplierDetails implements OnInit {
     @Input()

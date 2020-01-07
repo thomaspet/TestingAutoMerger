@@ -60,7 +60,7 @@ export class SupplierList {
                     disabled: false
                 },
                 {
-                    label: 'Import Logs',
+                    label: 'Importlogg',
                     action: this.importLogs.bind(this),
                     main: true,
                     disabled: false

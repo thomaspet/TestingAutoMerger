@@ -233,31 +233,21 @@ export class ReminderList {
         this.updateReminderTable();
 
         // Define columns to use in the table
-        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text, false)
-            .setWidth('100px').setFilterOperator('contains');
-        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text, false)
+        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr')
+            .setWidth('100px');
+        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
             .setWidth('100px')
-            .setFilterOperator('contains')
             .setLinkResolver(reminder => `/sales/invoices/${reminder.CustomerInvoiceID}`);
-        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
+        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr')
             .setWidth('100px')
             .setFilterOperator('startswith')
             .setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
-        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text, false)
-            .setFilterOperator('contains')
-            .setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`).setWidth('15%');
-        const emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text, true)
-            .setFilterOperator('contains').setWidth('15%');
 
-        const currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
-            .setFilterOperator('contains')
-            .setWidth('5%');
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde');
+        const emailCol = new UniTableColumn('EmailAddress', 'Epost');
+        const currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta');
 
-        const taxInclusiveAmountCurrencyCol = new UniTableColumn(
-            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false
-        )
-            .setWidth('8%')
-            .setFilterOperator('eq')
+        const taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number)
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
@@ -266,37 +256,27 @@ export class ReminderList {
             })
             .setCls('column-align-right');
 
-        const restAmountCurrencyCol = new UniTableColumn(
-                'RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false
-            )
-            .setWidth('10%')
-            .setFilterOperator('eq')
+        const restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        const feeAmountCol = new UniTableColumn('Fee', 'Gebyr', UniTableColumnType.Number, false)
-            .setWidth('10%')
-            .setFilterOperator('eq')
+        const feeAmountCol = new UniTableColumn('Fee', 'Gebyr', UniTableColumnType.Number)
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        const interestAmountCol = new UniTableColumn('Interest', 'Renter', UniTableColumnType.Number, false)
-            .setWidth('10%')
-            .setFilterOperator('eq')
+        const interestAmountCol = new UniTableColumn('Interest', 'Renter', UniTableColumnType.Number)
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
-            .setVisible(false)
+            .setVisible(false);
 
-        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Opprettet', UniTableColumnType.LocalDate, false)
-            .setWidth('8%').setFilterOperator('eq');
-        const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate, true)
-            .setWidth('8%').setFilterOperator('eq');
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Opprettet', UniTableColumnType.LocalDate);
+        const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
 
         const reminderStoppCol = new UniTableColumn('DontSendReminders', 'Purrestopp').setTemplate((item) => {
             return item.DontSendReminders ? 'Ja' : 'Nei';
@@ -347,14 +327,12 @@ export class ReminderList {
         });
 
         // Setup table
-        this.reminderTable = new UniTableConfig('sales.reminders.reminderList', true, true, 25)
+        this.reminderTable = new UniTableConfig('sales.reminders.reminderList', false, true, 25)
             .setSearchable(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setAutoAddNewRow(false)
             .setSearchListVisible(true)
-            .setEditable(false)
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,

@@ -1,9 +1,12 @@
 uni-query-read-only
     display: flex
-    uni-table
-        font-size: .9rem
+    flex-direction: column
+    position: relative
+    min-height: 10rem
 
-    .edit_original_link
-        float: right
-        margin-top: 1rem
+    button.add-new-button
+        position: absolute
+        right: 0
 
+    ag-grid-wrapper
+        flex: 1

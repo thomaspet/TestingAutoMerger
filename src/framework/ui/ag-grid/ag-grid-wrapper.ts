@@ -339,7 +339,9 @@ export class AgGridWrapper {
             const hasSumRow = !!this.dataService.sumRow$.value;
 
             let tableHeight;
-            if (rowCount < pageSize) {
+            if (this.config && this.config.virtualScroll) {
+                tableHeight = '1px'; // flex grow will take care of height
+            } else if (rowCount < pageSize) {
                 let heightMultiplier = 1 + (rowCount || 1);
                 if (hasSumRow) {
                     heightMultiplier += 1;

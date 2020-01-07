@@ -4,6 +4,7 @@
 </uni-toolbar>
 <section class="application">
     <ag-grid-wrapper
+        class="borders"
         [resource]="sellers"
         [config]="sellerTableConfig"
         (rowSelect)="onRowSelected($event)"
