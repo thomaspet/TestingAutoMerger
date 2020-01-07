@@ -4,6 +4,7 @@
 </uni-toolbar>
 <article class="application">
     <ag-grid-wrapper
+        class="borders"
         [resource]="categories"
         [config]="tableConfig"
         (rowSelectionChange)="rowSelected($event)">

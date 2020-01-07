@@ -5,6 +5,7 @@
 
 <section class="application">
     <ag-grid-wrapper
+        class="borders"
         [resource]="dataSource"
         [config]="tableConfig"
         (rowSelectionChange)="onRowSelected($event)">
