@@ -15,6 +15,9 @@
         [model]="dimensions$ | async"
         (changeEvent)="onDimensionsChange($event)"
     ></uni-form>
-    <button class="bad" (click)="deleteAccount()" [disabled]="deleteButtonDisabled">Slett</button>
+
+    <button class="secondary bad" (click)="deleteAccount()" *ngIf="!deleteButtonDisabled">
+        Slett konto
+    </button>
 </div>
 
