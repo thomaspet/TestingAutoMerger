@@ -121,6 +121,6 @@ export const salesRoutes: Routes = [
     },
     {
         path: 'batch-invoices',
-        loadChildren: './batch-invoice/batch-invoice.module#BatchInvoiceModule',
+        loadChildren: () => import('./batch-invoice/batch-invoice.module').then(m => m.BatchInvoiceModule),
     },
 ];

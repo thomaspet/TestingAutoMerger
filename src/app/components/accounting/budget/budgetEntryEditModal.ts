@@ -60,7 +60,7 @@ export class UniBudgetEntryEditModal implements OnInit, IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
     posts: any[] = [

@@ -2,11 +2,9 @@ import {Component, ViewChild, OnInit, Type} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {ReportDefinition, UniQueryDefinition, ReportParameter} from '../../unientities';
+import {ReportDefinition, UniQueryDefinition} from '../../unientities';
 import {ReportDefinitionService, UniQueryDefinitionService, ErrorService, PageStateService} from '../../services/services';
 import {Report} from '../../models/reports/report';
-import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
-import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
 import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
@@ -39,18 +37,15 @@ interface ISubGroup {
 export class UniReports implements OnInit {
 
     // TODO: remove old modals when they are written using generic modal (ReportParamModal)
-    @ViewChild(BalanceReportFilterModal) private balanceListModal: BalanceReportFilterModal;
 
-    @ViewChild(ResultAndBalanceReportFilterModal) private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
+    @ViewChild(SalaryPaymentListReportFilterModal, { static: true }) private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
 
-    @ViewChild(SalaryPaymentListReportFilterModal) private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
+    @ViewChild(VacationPayBaseReportFilterModal, { static: true }) private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
 
-    @ViewChild(VacationPayBaseReportFilterModal) private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
-
-    @ViewChild(SalaryWithholdingAndAGAReportFilterModal)
+    @ViewChild(SalaryWithholdingAndAGAReportFilterModal, { static: true })
         private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
 
-    @ViewChild(PayCheckReportFilterModal) private paycheckReportFilterModal: PayCheckReportFilterModal;
+    @ViewChild(PayCheckReportFilterModal, { static: true }) private paycheckReportFilterModal: PayCheckReportFilterModal;
 
     public activeTabIndex: number = 0;
     public mainGroups: Array<IMainGroup> = [
@@ -202,10 +197,12 @@ export class UniReports implements OnInit {
 
     public ngOnInit() {
         Observable.forkJoin(
-            this.reportDefinitionService.GetAll<ReportDefinition>(null),
-            this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null))
-            .subscribe( result => this.showReportsEx(result)
-            , err => this.errorService.handle(err));
+            this.reportDefinitionService.GetAll(null),
+            this.uniQueryDefinitionService.GetAll(null)
+        ).subscribe(
+            result => this.showReportsEx(result),
+            err => this.errorService.handle(err)
+        );
     }
 
     private showReportsEx(response) {

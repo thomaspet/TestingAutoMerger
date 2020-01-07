@@ -24,7 +24,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     @Input() public salaryBalance: SalaryBalance;
     @Input() public busy: boolean;
     @Output() public changeEvent: EventEmitter<SalaryBalanceLine[]> = new EventEmitter();
-    @ViewChild(AgGridWrapper) private table: UniTable;
+    @ViewChild(AgGridWrapper, { static: false }) private table: UniTable;
     public editMode: boolean;
     private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
     public tableModel$: BehaviorSubject<SalaryBalanceLine[]>;

@@ -11,7 +11,7 @@ import {Observable} from 'rxjs';
     styleUrls: ['./new-task-modal.sass']
 })
 export class NewTaskModal implements IUniModal {
-    @ViewChild('textInput') input: ElementRef;
+    @ViewChild('textInput', { static: true }) input: ElementRef;
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 

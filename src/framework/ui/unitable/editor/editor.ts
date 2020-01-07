@@ -41,7 +41,7 @@ export interface IEditorChangeEvent {
     },
 })
 export class UnitableEditor {
-    @ViewChild('editor', {read: ViewContainerRef})
+    @ViewChild('editor', { read: ViewContainerRef, static: true })
     private editorContainer: ViewContainerRef;
 
     @Output()

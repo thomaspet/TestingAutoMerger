@@ -98,8 +98,8 @@ export interface IContextMenuItem {
     templateUrl: './toolbar.html'
 })
 export class UniToolbar {
-    @ViewChild(ToolbarSharingStatus) sharingStatus: ToolbarSharingStatus;
-    @ViewChild(UniSave) save: UniSave;
+    @ViewChild(ToolbarSharingStatus, { static: false }) sharingStatus: ToolbarSharingStatus;
+    @ViewChild(UniSave, { static: false }) save: UniSave;
 
     @Input() tags: ITag[];
     @Input() tagConfig: IUniTagsConfig;

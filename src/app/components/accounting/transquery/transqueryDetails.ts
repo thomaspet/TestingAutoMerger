@@ -59,10 +59,10 @@ interface ISearchParams {
     templateUrl: './transqueryDetails.html',
 })
 export class TransqueryDetails implements OnInit {
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: false })
     private uniForm: UniForm;
 
     summaryData: TransqueryDetailsCalculationsSummary;

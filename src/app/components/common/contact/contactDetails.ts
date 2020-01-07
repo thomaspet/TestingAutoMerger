@@ -37,7 +37,7 @@ export class ContactDetails {
     @Input() public contactID: any;
     @Input() public modalMode: boolean;
     @Output() public contactUpdated: EventEmitter<Contact> = new EventEmitter<Contact>();
-    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniForm, { static: true }) public form: UniForm;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

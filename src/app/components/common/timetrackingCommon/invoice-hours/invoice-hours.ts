@@ -15,7 +15,7 @@ import {WorkitemTransferWizard} from './transfer-wizard';
     styleUrls: ['./invoice-hours.sass']
 })
 export class InvoiceHours {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     saveactions = [{ label: 'Ny overføring', action: (done) => this.createNew(done) }];
     dataSource;

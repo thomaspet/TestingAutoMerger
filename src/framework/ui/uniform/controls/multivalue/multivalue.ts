@@ -22,8 +22,8 @@ import {KeyCodes} from '@app/services/common/keyCodes';
     templateUrl: './multivalue.html'
 })
 export class UniMultivalueInput extends BaseControl implements OnChanges, AfterViewInit {
-    @ViewChild('filterElement') private filterInput: ElementRef;
-    @ViewChild('mainInput') private mainInput: ElementRef;
+    @ViewChild('filterElement', { static: false }) private filterInput: ElementRef;
+    @ViewChild('mainInput', { static: true }) private mainInput: ElementRef;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;

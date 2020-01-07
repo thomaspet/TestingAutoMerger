@@ -19,7 +19,7 @@ import {ReconciliationResponseModalComponent} from '../reconciliation-response-m
 export class ReconciliationModalComponent implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     @Input() public options?: IModalOptions;
-    @ViewChild(AltinnReceiptListComponent) public receiptList: AltinnReceiptListComponent;
+    @ViewChild(AltinnReceiptListComponent, { static: true }) public receiptList: AltinnReceiptListComponent;
     public receiptListOptions$: ReplaySubject<IAltinnReceiptListOptions> = new ReplaySubject(1);
     public model: BehaviorSubject<A06Options> = new BehaviorSubject(new A06Options());
 

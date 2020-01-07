@@ -30,8 +30,8 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
     templateUrl: './payments.html'
 })
 export class Payments {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
-    @ViewChild(JournalEntryManual) public journalEntryManual: JournalEntryManual;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
+    @ViewChild(JournalEntryManual, { static: true }) public journalEntryManual: JournalEntryManual;
 
     public contextMenuItems: IContextMenuItem[] = [];
     public invoiceTable: UniTableConfig;

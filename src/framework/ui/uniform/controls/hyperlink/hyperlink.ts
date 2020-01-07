@@ -20,7 +20,7 @@ export class UniHyperlinkInput extends BaseControl implements OnChanges {
 
     @Output() public readyEvent: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
     @Output() public focusEvent: EventEmitter<UniHyperlinkInput> = new EventEmitter<UniHyperlinkInput>(true);
-    @ViewChild('element') public input: ElementRef;
+    @ViewChild('element', { static: true }) public input: ElementRef;
 
     constructor() {
         super();

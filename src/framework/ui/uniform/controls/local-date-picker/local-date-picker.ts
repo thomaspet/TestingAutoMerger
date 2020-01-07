@@ -11,7 +11,7 @@ import {get, set} from 'lodash';
     templateUrl: './local-date-picker.html'
 })
 export class LocalDatePickerInput extends BaseControl {
-    @ViewChild('input') inputElement: ElementRef;
+    @ViewChild('input', { static: true }) inputElement: ElementRef;
 
     @Input() field: UniFieldLayout;
     @Input() model: any;

@@ -65,7 +65,7 @@ enum LoginState {
 export class AltinnAuthenticationModal implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<AltinnAuthenticationData> = new EventEmitter<AltinnAuthenticationData>();
     @Input() public options: IModalOptions;
-    @ViewChild(UniForm) private form: UniForm;
+    @ViewChild(UniForm, { static: false }) private form: UniForm;
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
     public userLoginData$: BehaviorSubject<AltinnAuthenticationData>

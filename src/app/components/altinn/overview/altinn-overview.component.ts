@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
 })
 export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     receipts$: BehaviorSubject<AltinnReceipt[]> = new BehaviorSubject([]);
     config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);

@@ -39,7 +39,7 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
     styleUrls: ['./variable-payrolls.component.sass']
 })
 export class VariablePayrollsComponent {
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: false })
     public table: AgGridWrapper;
 
     saveActions: IUniSaveAction[] = [];

@@ -25,7 +25,7 @@ import { forkJoin } from 'rxjs';
 })
 export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
   public busy: boolean;
-  @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+  @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
   public model$: BehaviorSubject<TravelType[]> = new BehaviorSubject([]);
   public travelTable: UniTableConfig;
   public saveActions: IUniSaveAction[] = [{

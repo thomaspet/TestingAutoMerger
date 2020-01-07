@@ -24,7 +24,7 @@ export class UniStaticTextInput extends BaseControl implements OnChanges {
     @Output() public focusEvent: EventEmitter<UniStaticTextInput> = new EventEmitter<UniStaticTextInput>(true);
 
 
-    @ViewChild('input') private inputElement: ElementRef;
+    @ViewChild('input', { static: true }) private inputElement: ElementRef;
 
     constructor() {
         super();

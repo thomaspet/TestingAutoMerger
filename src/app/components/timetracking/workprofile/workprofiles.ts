@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class WorkprofileListview implements OnInit {
 
-    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    @ViewChild(UniTickerWrapper, { static: true }) private tickerWrapper: UniTickerWrapper;
 
     public tickercode: string = 'workprofile_list';
 

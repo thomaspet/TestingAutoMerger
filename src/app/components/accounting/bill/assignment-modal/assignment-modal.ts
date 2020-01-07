@@ -14,7 +14,7 @@ import {catchError} from 'rxjs/operators';
 export class BillAssignmentModal implements IUniModal {
     // Override tab handling on ng-select
     // Should probably make a wrapper component for this
-    @ViewChild(NgSelectComponent) set ngSelect(ngSelect: NgSelectComponent) {
+    @ViewChild(NgSelectComponent, { static: false }) set ngSelect(ngSelect: NgSelectComponent) {
         if (ngSelect) {
             (<any> ngSelect)._handleTab = function() {
                 if (this.isOpen) {

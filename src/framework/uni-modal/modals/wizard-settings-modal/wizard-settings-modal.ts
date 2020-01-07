@@ -30,7 +30,7 @@ enum SETTINGS_STEPS {
 })
 export class WizardSettingsModal implements IUniModal {
 
-    @ViewChild(MatStepper)
+    @ViewChild(MatStepper, { static: false })
     stepper: MatStepper;
 
     @Input()

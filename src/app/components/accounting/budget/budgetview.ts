@@ -22,7 +22,7 @@ import PerfectScrollbar from 'perfect-scrollbar';
 
 export class UniBudgetView {
 
-    @ViewChild('chart')
+    @ViewChild('chart', { static: false })
     private chart: ElementRef;
 
     displayData;

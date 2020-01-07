@@ -95,7 +95,7 @@ import { environment } from 'src/environments/environment';
 })
 export class BankComponent {
 
-    @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
+    @ViewChild(UniTickerContainer, { static: true }) public tickerContainer: UniTickerContainer;
 
     private rows: Array<any> = [];
     private canEdit: boolean = true;

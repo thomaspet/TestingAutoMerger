@@ -32,7 +32,7 @@ declare const _;
     templateUrl: './reminderList.html'
 })
 export class ReminderList {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     public reminderTable: UniTableConfig;
     public reminderList: any;

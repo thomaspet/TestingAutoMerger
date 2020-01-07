@@ -55,7 +55,7 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
     `
 })
 export class VacationPayBaseReportFilterModal implements OnInit {
-    @ViewChild(UniModal)
+    @ViewChild(UniModal, { static: true })
     private modal: UniModal;
 
     public modalConfig: ModalConfig;

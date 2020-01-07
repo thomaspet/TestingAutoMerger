@@ -26,7 +26,7 @@ export interface IDimType {
     styleUrls: ['./dimensiontypereport.sass']
 })
 export class DimensionTypeReport {
-    @ViewChild(DimensionsOverviewReportPart) public report: DimensionsOverviewReportPart;
+    @ViewChild(DimensionsOverviewReportPart, { static: true }) public report: DimensionsOverviewReportPart;
     public toolbarconfig: IToolbarConfig;
     public periodFilter1: PeriodFilter;
     public periodFilter2: PeriodFilter;

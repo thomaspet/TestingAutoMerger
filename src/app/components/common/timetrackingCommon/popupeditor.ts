@@ -76,7 +76,7 @@ export class UniTimeModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(WorkEditor)
+    @ViewChild(WorkEditor, { static: true })
     private editor: WorkEditor;
 
     public date: Date;

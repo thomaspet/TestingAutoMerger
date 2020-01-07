@@ -36,8 +36,8 @@ declare var _;
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
-    @ViewChild(UniForm) public uniform: UniForm;
-    @ViewChild(SubEntityList) public subEntityList: SubEntityList;
+    @ViewChild(UniForm, { static: true }) public uniform: UniForm;
+    @ViewChild(SubEntityList, { static: true }) public subEntityList: SubEntityList;
 
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;

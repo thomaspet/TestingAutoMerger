@@ -35,7 +35,7 @@ interface IVacationPayHeader {
 })
 
 export class VacationPayModal implements OnInit, IUniModal {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
 

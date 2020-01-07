@@ -14,7 +14,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BatchInvoiceDetails {
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) table: AgGridWrapper;
     @Input() batchInvoice: BatchInvoice;
     @Output() close = new EventEmitter();
     @Output() reloadList = new EventEmitter();

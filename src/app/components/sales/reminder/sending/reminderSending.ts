@@ -55,7 +55,7 @@ export interface CustomReminder extends CustomerInvoiceReminder {
 export class ReminderSending {
     @Input() config: any;
     @Input() modalMode: boolean;
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: false })
     private table: AgGridWrapper;
 
     public reminderTable: UniTableConfig;

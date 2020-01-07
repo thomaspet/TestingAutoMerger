@@ -83,8 +83,6 @@ import {JournalEntryMode} from '../../../../../services/accounting/journalEntryS
 import {RequestMethod} from '@uni-framework/core/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
-import { pipe } from '@angular/core/src/render3';
-import { concatAll } from 'rxjs-compat/operator/concatAll';
 
 @Component({
     selector: 'journal-entry-professional',
@@ -106,7 +104,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeries: NumberSeries;
     @Input() public orgNumber: string;
 
-    @ViewChild(UniTable) table: UniTable;
+    @ViewChild(UniTable, { static: false }) table: UniTable;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];

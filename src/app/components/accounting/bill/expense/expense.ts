@@ -38,8 +38,8 @@ import { safeDec } from '@app/components/common/utils/utils';
     styleUrls: [ './expense.sass' ]
 })
 export class Expense implements OnInit {
-    @ViewChild(ExpensePrepaid) prepaidView: ExpensePrepaid;
-    @ViewChild(UniImage) public uniImage: UniImage;
+    @ViewChild(ExpensePrepaid, { static: false }) prepaidView: ExpensePrepaid;
+    @ViewChild(UniImage, { static: true }) public uniImage: UniImage;
 
     busy = true;
     fileIds: number[] = [];

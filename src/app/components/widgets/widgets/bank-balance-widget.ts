@@ -75,7 +75,7 @@ import {Observable} from 'rxjs';
 })
 
 export class BankBalanceWidget implements AfterViewInit {
-    @ViewChild('bankBalance')
+    @ViewChild('bankBalance', { static: false })
     private bankBalance: ElementRef;
 
     widget: IUniWidget;

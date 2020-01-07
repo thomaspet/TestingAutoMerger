@@ -76,10 +76,10 @@ import * as _ from 'lodash';
     templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: false })
     public form: UniForm;
 
-    @ViewChild(ReminderSettings)
+    @ViewChild(ReminderSettings, { static: false })
     public reminderSettings: ReminderSettings;
 
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);

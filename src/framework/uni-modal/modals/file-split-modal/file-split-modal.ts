@@ -15,7 +15,7 @@ import {UniModalService} from '../../modalService';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FileSplitModal implements IUniModal {
-    @ViewChild('thumbnailcontainer') thumbnailContainer;
+    @ViewChild('thumbnailcontainer', { static: true }) thumbnailContainer;
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter(false);
 

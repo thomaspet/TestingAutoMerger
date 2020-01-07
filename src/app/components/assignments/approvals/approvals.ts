@@ -13,7 +13,7 @@ import * as moment from 'moment';
     templateUrl: './approvals.html'
 })
 export class UniApprovals {
-    @ViewChild('approvalList')
+    @ViewChild('approvalList', { static: true })
     private approvalList: ElementRef;
 
     private routeParam: number;

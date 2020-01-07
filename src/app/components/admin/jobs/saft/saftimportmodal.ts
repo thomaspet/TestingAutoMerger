@@ -24,7 +24,7 @@ export class SaftImportModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(MatStepper) stepper: MatStepper;
+    @ViewChild(MatStepper, { static: true }) stepper: MatStepper;
     public currentStep = 1;
     public totalSteps = 4;
 

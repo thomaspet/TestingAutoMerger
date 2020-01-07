@@ -13,7 +13,7 @@ import {environment} from 'src/environments/environment';
     styleUrls: ['./login.sass']
 })
 export class Login {
-    @ViewChild(UniSelect) select: UniSelect;
+    @ViewChild(UniSelect, { static: false }) select: UniSelect;
     @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
 
     isAuthenticated: boolean = true;

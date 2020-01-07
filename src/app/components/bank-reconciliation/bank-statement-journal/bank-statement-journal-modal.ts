@@ -17,7 +17,7 @@ import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 export class BankStatementJournalModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
 
     busy: boolean;
     bankAccounts: BankAccount[];

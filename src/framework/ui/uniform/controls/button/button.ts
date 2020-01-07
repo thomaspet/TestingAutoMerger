@@ -11,7 +11,7 @@ import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces/index';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniButtonInput extends BaseControl implements OnInit {
-    @ViewChild('button') private buttonElement: ElementRef;
+    @ViewChild('button', { static: true }) private buttonElement: ElementRef;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;

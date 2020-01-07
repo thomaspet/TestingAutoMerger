@@ -35,7 +35,7 @@ export interface ITemplate {
 })
 
 export class SideMenu {
-    @ViewChild(UniCalendar) public calendar: UniCalendar;
+    @ViewChild(UniCalendar, { static: true }) public calendar: UniCalendar;
 
     @Input() public periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();

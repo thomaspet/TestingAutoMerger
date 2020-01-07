@@ -16,7 +16,7 @@ declare const _; // lodash
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerOverview {
-    @ViewChild(UniTickerContainer)
+    @ViewChild(UniTickerContainer, { static: false })
     private tickerContainer: UniTickerContainer;
 
     private tickers: Ticker[];

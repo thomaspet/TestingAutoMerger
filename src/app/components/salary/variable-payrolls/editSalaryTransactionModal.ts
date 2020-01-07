@@ -42,7 +42,7 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
     public tableData: any[] = [];

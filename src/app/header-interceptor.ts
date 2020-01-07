@@ -43,9 +43,8 @@ export class HeaderInterceptor implements HttpInterceptor {
             if (!headers.get('year')) {
                 let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
                 year = year || this.browserStorage.getItem('ActiveYear');
-
                 if (year) {
-                    headers = headers.set('Year', year.Year);
+                    headers = headers.set('Year', year.Year + '');
                 }
             }
         }

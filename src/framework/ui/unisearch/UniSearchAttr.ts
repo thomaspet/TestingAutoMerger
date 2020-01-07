@@ -41,7 +41,7 @@ declare const module;
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearchAttr implements OnInit, OnChanges {
-    @ViewChild('container')
+    @ViewChild('container', { static: false })
     private container: ElementRef;
 
     @Input()

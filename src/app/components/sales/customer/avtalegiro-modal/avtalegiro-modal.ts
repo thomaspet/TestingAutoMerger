@@ -34,7 +34,7 @@ export class AvtaleGiroModal implements IUniModal {
     @Input() options: IModalOptions;
     @Output() onClose: EventEmitter<any> = new EventEmitter<any>(true);
 
-    @ViewChild(UniTable)
+    @ViewChild(UniTable, { static: false })
     public unitable: UniTable
 
     public uniTableConfig: UniTableConfig;

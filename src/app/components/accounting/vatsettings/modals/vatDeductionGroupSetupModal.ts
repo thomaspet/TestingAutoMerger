@@ -37,7 +37,7 @@ import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
     `
 })
 export class VatDeductionGroupSetupModal implements IUniModal {
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
 
     options: IModalOptions;
     onClose: EventEmitter<boolean> = new EventEmitter();

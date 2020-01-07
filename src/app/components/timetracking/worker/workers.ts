@@ -9,7 +9,7 @@ import { UniTickerWrapper } from '@app/components/uniticker/tickerWrapper/ticker
 })
 export class WorkerListview implements OnInit {
 
-    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    @ViewChild(UniTickerWrapper, { static: true }) private tickerWrapper: UniTickerWrapper;
 
     public tickercode: string = 'worker_main_list';
 

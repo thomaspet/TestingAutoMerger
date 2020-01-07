@@ -31,7 +31,7 @@ import {ToolbarDropdownButton} from '@app/components/common/toolbar/toolbar';
     ]
 })
 export class BatchInvoiceList {
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) table: AgGridWrapper;
 
     saveactions: IUniSaveAction[] = [{
         label: 'Ny samlefakturering',

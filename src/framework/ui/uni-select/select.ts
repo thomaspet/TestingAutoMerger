@@ -23,9 +23,9 @@ export interface ISelectConfig {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSelect implements OnChanges, AfterViewInit {
-    @ViewChild('searchInput') public searchInput: ElementRef;
-    @ViewChild('valueInput') public valueInput: ElementRef;
-    @ViewChild('itemDropdown') public itemDropdown: ElementRef;
+    @ViewChild('searchInput', { static: false }) public searchInput: ElementRef;
+    @ViewChild('valueInput', { static: false }) public valueInput: ElementRef;
+    @ViewChild('itemDropdown', { static: false }) public itemDropdown: ElementRef;
 
     @Input() public items: any[];
     @Input() public readonly: boolean;

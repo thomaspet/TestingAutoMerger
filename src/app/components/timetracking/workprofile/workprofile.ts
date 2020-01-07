@@ -10,7 +10,7 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
     template: '<genericdetail [viewconfig]="viewconfig"></genericdetail>'
 })
 export class WorkprofileDetailview {
-    @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
+    @ViewChild(GenericDetailview, { static: true }) private genericDetail: GenericDetailview;
     public viewconfig: IViewConfig;
     constructor() {
         this.viewconfig = this.createLayout();

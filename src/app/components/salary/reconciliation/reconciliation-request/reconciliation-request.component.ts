@@ -18,7 +18,7 @@ export class ReconciliationRequestComponent implements OnInit {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autoFocus: true});
     public error: string;
     @Output() public newReconciliation: EventEmitter<AltinnReceipt> = new EventEmitter();
-    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniForm, { static: true }) public form: UniForm;
     constructor(
         private altinnIntegrationService: AltinnIntegrationService,
         private errorService: ErrorService,

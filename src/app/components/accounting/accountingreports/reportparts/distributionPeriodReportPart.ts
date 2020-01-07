@@ -68,7 +68,7 @@ export class NumberAsMoneyPipe implements PipeTransform {
     templateUrl: './distributionPeriodReportPart.html',
 })
 export class DistributionPeriodReportPart implements OnChanges {
-    @ViewChild('chartElement') chartElement: ElementRef;
+    @ViewChild('chartElement', { static: true }) chartElement: ElementRef;
 
     @Input() public accountYear1: any;
     @Input() public accountYear2: any;

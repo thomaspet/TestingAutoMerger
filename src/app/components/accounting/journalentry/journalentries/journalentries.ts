@@ -26,7 +26,7 @@ import {ConfirmCreditedJournalEntryWithDate} from '../../../common/modals/confir
     templateUrl: './journalentries.html'
 })
 export class JournalEntries {
-    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
+    @ViewChild(JournalEntryManual, { static: true }) journalEntryManual: JournalEntryManual;
     public contextMenuItems: IContextMenuItem[] = [];
 
     public toolbarConfig: IToolbarConfig = {

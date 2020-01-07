@@ -15,7 +15,7 @@ import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
 })
 
 export class PaycheckSenderModal implements OnInit, IUniModal {
-    @ViewChild(PaycheckSending) private paycheckSending: PaycheckSending;
+    @ViewChild(PaycheckSending, { static: true }) private paycheckSending: PaycheckSending;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
     public saveActions: ComboButtonAction[] = [];

@@ -9,7 +9,7 @@ import {FormControl} from '@angular/forms';
     `
 })
 export class UnitableNumberInput {
-    @ViewChild('input')
+    @ViewChild('input', { static: true })
     public inputElement: ElementRef;
 
     @Input()

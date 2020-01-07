@@ -23,8 +23,8 @@ import { ImportTemplateModal } from '@app/components/import-central/modals/impor
     templateUrl: './accountSettings.html',
 })
 export class AccountSettings {
-    @ViewChild(AccountList) private accountlist: AccountList;
-    @ViewChild(AccountDetails) private accountDetails: AccountDetails;
+    @ViewChild(AccountList, { static: true }) private accountlist: AccountList;
+    @ViewChild(AccountDetails, { static: true }) private accountDetails: AccountDetails;
 
     saveaction: IUniSaveAction[] = [{
         label: 'Lagre',

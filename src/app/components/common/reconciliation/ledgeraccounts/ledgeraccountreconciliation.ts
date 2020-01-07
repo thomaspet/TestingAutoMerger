@@ -107,7 +107,7 @@ export class LedgerAccountReconciliation {
     @Output()
     public saveComplete: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: false })
     private table: AgGridWrapper;
 
     showMarkedEntries: boolean = false;

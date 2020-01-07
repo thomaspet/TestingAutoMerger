@@ -18,7 +18,7 @@ export class WagetypeList implements OnInit {
     public tableConfig: UniTableConfig;
     public lookupFunction: (urlParams: HttpParams) => any;
     public contextMenuItems: IContextMenuItem[] = [];
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
     public busy: boolean;
 
     public toolbarActions = [{

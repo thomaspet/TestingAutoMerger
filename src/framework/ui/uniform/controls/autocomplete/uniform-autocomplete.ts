@@ -37,8 +37,8 @@ import {take, debounceTime} from 'rxjs/operators';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniFormAutocomplete extends BaseControl {
-    @ViewChild('list') private list: ElementRef;
-    @ViewChild('inputElement') private inputElement: ElementRef;
+    @ViewChild('list', { static: false }) private list: ElementRef;
+    @ViewChild('inputElement', { static: true }) private inputElement: ElementRef;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;

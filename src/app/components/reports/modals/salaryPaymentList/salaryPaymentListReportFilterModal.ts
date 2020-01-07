@@ -109,7 +109,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     `
 })
 export class SalaryPaymentListReportFilterModal implements OnInit {
-    @ViewChild(UniModal)
+    @ViewChild(UniModal, { static: true })
     private modal: UniModal;
 
     public modalConfig: IModalConfig;

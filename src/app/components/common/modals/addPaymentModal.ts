@@ -57,7 +57,7 @@ import { PaymentCodeService } from '@app/services/accounting/paymentCodeService'
 })
 export class AddPaymentModal implements IUniModal {
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: true })
     public form: UniForm;
 
     @Input()

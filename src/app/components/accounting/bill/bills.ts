@@ -60,7 +60,7 @@ interface ISearchParams {
     templateUrl: './bills.html'
 })
 export class BillsView implements OnInit {
-    @ViewChild(UniImage) public uniImage: UniImage;
+    @ViewChild(UniImage, { static: false }) public uniImage: UniImage;
 
     public loading$: Subject<boolean> = new Subject();
 

@@ -31,7 +31,7 @@ interface IPeriode {
 })
 
 export class PaymentWidget implements AfterViewInit {
-    @ViewChild('chartCanvas') private canvas: ElementRef;
+    @ViewChild('chartCanvas', { static: true }) private canvas: ElementRef;
 
     widget: IUniWidget;
     header: string = 'Fakturert siste 12 mnd';

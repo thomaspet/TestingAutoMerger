@@ -23,7 +23,7 @@ export interface IUniTab {
     styleUrls: ['./uni-tabs.sass']
 })
 export class UniTabs {
-    @ViewChild('tabContainer') tabContainer: ElementRef<HTMLElement>;
+    @ViewChild('tabContainer', { static: true }) tabContainer: ElementRef<HTMLElement>;
 
     @Input() tabs: IUniTab[];
     @Input() queryParamsHandling: 'merge' | 'preserve' | '' = '';

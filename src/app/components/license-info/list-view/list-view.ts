@@ -47,7 +47,7 @@ export class CellValuePipe implements PipeTransform {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListView {
-    @ViewChild('listBody') listBody: CdkVirtualScrollViewport ;
+    @ViewChild('listBody', { static: true }) listBody: CdkVirtualScrollViewport ;
 
     @Input() orderBy: string;
     @Input() rows: any[];

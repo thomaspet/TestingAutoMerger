@@ -25,8 +25,8 @@ import {Company} from '@uni-entities';
     templateUrl: './company-search.html',
 })
 export class UniCompanySearch {
-    @ViewChild('searchInput') searchInput: ElementRef;
-    @ViewChild('list') resultContainer: ElementRef;
+    @ViewChild('searchInput', { static: true }) searchInput: ElementRef;
+    @ViewChild('list', { static: true }) resultContainer: ElementRef;
     @ViewChildren(UniSmartSearchItem) listItems: QueryList<UniSmartSearchItem>;
 
     scrollbar: PerfectScrollbar;

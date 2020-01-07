@@ -33,7 +33,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 })
 export class SaveQueryDefinitionForm implements OnInit {
     @Input() public config: any = {};
-    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniForm, { static: true }) public form: UniForm;
     @Output() public querySaved: EventEmitter<any> = new EventEmitter<any>();
 
     public fields$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);
@@ -197,7 +197,7 @@ export class SaveQueryDefinitionForm implements OnInit {
     `
 })
 export class SaveQueryDefinitionModal {
-    @ViewChild(UniModal) public modal: UniModal;
+    @ViewChild(UniModal, { static: false }) public modal: UniModal;
 
     @Output() public saved: EventEmitter<UniQueryDefinition> = new EventEmitter<UniQueryDefinition>();
     @Output() public cancelled: EventEmitter<any> = new EventEmitter<boolean>();

@@ -23,7 +23,7 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
     @Output() public updatedList: EventEmitter<Travel[]> = new EventEmitter();
     @Output() public selectionChange: EventEmitter<Travel[]> = new EventEmitter();
     @Output() public updateListAndSave: EventEmitter<Travel[]> = new EventEmitter();
-    @ViewChild(AgGridWrapper) public grid: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) public grid: AgGridWrapper;
     private grid$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
     public busy: boolean;
 

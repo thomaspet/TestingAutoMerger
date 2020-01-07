@@ -22,7 +22,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 })
 
 export class UniTimetrackingCharts implements AfterViewInit {
-    @ViewChild('chartCanvas') private canvas: ElementRef;
+    @ViewChild('chartCanvas', { static: true }) private canvas: ElementRef;
 
     widget: IUniWidget;
     showPeriodSelector: boolean = false;

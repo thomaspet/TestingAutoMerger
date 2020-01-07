@@ -24,7 +24,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView {
   public employees: Employee[] = [];
   private ignoreFields: string[] = ['EmployeeID', 'FromDate', 'ToDate', 'SalaryBalanceTemplateID', 'Amount'];
 
-  @ViewChild(UniForm) public uniform: UniForm;
+  @ViewChild(UniForm, { static: true }) public uniform: UniForm;
 
   constructor(
     private route: ActivatedRoute,

@@ -39,7 +39,7 @@ export class ImageModal implements IUniModal {
     private files: any;
     private singleImage: boolean = true;
 
-    @ViewChild(UniImage)
+    @ViewChild(UniImage, { static: false })
     public uniImage: UniImage;
 
     @Output()

@@ -40,7 +40,7 @@ export class TaxCardRequest {
     public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: true })
     public uniform: UniForm;
 
     public empCount: number = 0;

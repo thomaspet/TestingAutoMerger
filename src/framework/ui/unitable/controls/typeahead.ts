@@ -51,8 +51,8 @@ export interface ITypeaheadOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UnitableTypeahead implements OnInit {
-    @ViewChild('input') inputElement: ElementRef;
-    @ViewChild('dropdown') dropdown: ElementRef;
+    @ViewChild('input', { static: true }) inputElement: ElementRef;
+    @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
 
     @Input()
     private column: any;

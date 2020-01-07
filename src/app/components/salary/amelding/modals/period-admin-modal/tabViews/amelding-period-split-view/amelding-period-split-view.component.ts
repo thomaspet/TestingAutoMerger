@@ -15,7 +15,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
     @Input() public companySalary: CompanySalary;
     @Input() public ameldingerInPeriod: AmeldingData[];
     @Output() public changeEvent: EventEmitter<boolean> = new EventEmitter();
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
     public tableConfig: UniTableConfig;
     public selectedAmelding: AmeldingData;
     public loading: boolean;

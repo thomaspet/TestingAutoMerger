@@ -10,7 +10,7 @@ import {SalarybalanceLine} from '../salarybalanceLine';
 export class SalaryBalanceLineModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @ViewChild(SalarybalanceLine) public salaryBalanceLine: SalarybalanceLine;
+    @ViewChild(SalarybalanceLine, { static: true }) public salaryBalanceLine: SalarybalanceLine;
     constructor() { }
 
     public ngOnInit() { }

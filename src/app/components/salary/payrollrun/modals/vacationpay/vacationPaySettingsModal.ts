@@ -26,7 +26,7 @@ export interface IVacationPaySettingsReturn {
     templateUrl: './vacationPaySettingsModal.html'
 })
 export class VacationPaySettingsModal implements OnInit, IUniModal {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<IVacationPaySettingsReturn> = new EventEmitter<IVacationPaySettingsReturn>();
 

@@ -69,10 +69,10 @@ export class SupplierDetails implements OnInit {
     @Output()
     public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: false })
     public form: UniForm;
 
-    @ViewChild(LedgerAccountReconciliation)
+    @ViewChild(LedgerAccountReconciliation, { static: false })
     private postpost: LedgerAccountReconciliation;
 
     public supplierID: number;

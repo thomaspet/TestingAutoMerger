@@ -28,7 +28,7 @@ interface IMonthAndYear {
 
 export class ProjectOverview {
 
-    @ViewChild('chartElement1')
+    @ViewChild('chartElement1', { static: false })
     private chartElement1: ElementRef;
 
     private MONTHS: string[] = [
@@ -182,7 +182,7 @@ export class ProjectOverview {
             return;
         }
 
-        const queries = [];
+        const queries: Observable<any>[] = [];
 
         if (this.projectService.hasJournalEntryLineModule) {
             this.onActiveChartTypeFilterChange(this.currentChartDataTypeFilter);
@@ -197,9 +197,6 @@ export class ProjectOverview {
 
         if (this.project.ProjectCustomerID) {
             queries.push(this.customerService.Get(this.project.ProjectCustomerID));
-            this.customerService.Get(this.project.ProjectCustomerID).subscribe((customer: Customer) => {
-
-            });
         } else {
             this.customerName = 'Kunde ikke valgt';
         }

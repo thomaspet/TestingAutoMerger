@@ -79,7 +79,7 @@ enum LAYOUT_WIDTH {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniWidgetCanvas {
-    @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('canvas', { static: true }) canvas: ElementRef;
     @ViewChildren(UniWidget) widgetElements: QueryList<UniWidget>;
 
     @Input() layoutName: string;

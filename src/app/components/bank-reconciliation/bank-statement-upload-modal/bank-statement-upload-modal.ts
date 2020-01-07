@@ -15,7 +15,7 @@ import { ImportTemplate } from './bankformatModels';
 export class BankStatementUploadModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
-    @ViewChild(BankFileEditor) bankFileEditor: BankFileEditor;
+    @ViewChild(BankFileEditor, { static: false }) bankFileEditor: BankFileEditor;
 
     busy: boolean;
     files;

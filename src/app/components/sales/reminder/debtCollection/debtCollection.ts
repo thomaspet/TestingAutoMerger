@@ -31,7 +31,7 @@ export class DebtCollection implements OnInit {
     @Input()
     public config: any;
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: false })
     private table: AgGridWrapper;
 
     public remindersToDebtCollect: any;

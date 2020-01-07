@@ -51,25 +51,25 @@ export class TimeEntry {
     private currentDate: Date = new Date();
     private getTotalsFromQueryParams: boolean = false;
 
-    @ViewChild(RegtimeTotals)
+    @ViewChild(RegtimeTotals, { static: true })
     private regtimeTotals: RegtimeTotals;
 
-    @ViewChild(TimeTableReport)
+    @ViewChild(TimeTableReport, { static: false })
     private timeTable: TimeTableReport;
 
-    @ViewChild(RegtimeBalance)
+    @ViewChild(RegtimeBalance, { static: true })
     private regtimeBalance: RegtimeBalance;
 
-    @ViewChild(WorkEditor)
+    @ViewChild(WorkEditor, { static: false })
     private workEditor: WorkEditor;
 
-    @ViewChild(SideMenu)
+    @ViewChild(SideMenu, { static: false })
     private sideMenu: SideMenu;
 
-    @ViewChild(TeamworkReport)
+    @ViewChild(TeamworkReport, { static: false })
     private teamreport: TeamworkReport;
 
-    @ViewChild(Vacation)
+    @ViewChild(Vacation, { static: false })
     private vacation: Vacation;
 
     public preSaveConfig: IPreSaveConfig = {

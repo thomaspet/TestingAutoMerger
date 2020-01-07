@@ -117,10 +117,10 @@ interface ILocalValidation {
     templateUrl: './bill.html'
 })
 export class BillView implements OnInit {
-    @ViewChild(Autocomplete) autocomplete: Autocomplete;
-    @ViewChild(UniForm) uniForm: UniForm;
-    @ViewChild(UniImage) uniImage: UniImage;
-    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
+    @ViewChild(Autocomplete, { static: false }) autocomplete: Autocomplete;
+    @ViewChild(UniForm, { static: false }) uniForm: UniForm;
+    @ViewChild(UniImage, { static: true }) uniImage: UniImage;
+    @ViewChild(JournalEntryManual, { static: false }) journalEntryManual: JournalEntryManual;
 
     uploadStepActive: boolean;
 

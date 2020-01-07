@@ -20,7 +20,7 @@ import {FormControl} from '@angular/forms';
     `
 })
 export class UnitableDateTimepicker {
-    @ViewChild('input') inputElement: ElementRef;
+    @ViewChild('input', { static: true }) inputElement: ElementRef;
     @Input() inputControl: FormControl;
 
     focus() {

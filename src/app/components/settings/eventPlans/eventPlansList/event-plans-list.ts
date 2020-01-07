@@ -18,7 +18,7 @@ export class EventPlansList {
     @Output() eventplanSelected: EventEmitter<Eventplan> = new EventEmitter<Eventplan>(true);
     @Output() eventplanDeleted: EventEmitter<Eventplan> = new EventEmitter<Eventplan>(true);
 
-    @ViewChild('table') table: AgGridWrapper;
+    @ViewChild('table', { static: true }) table: AgGridWrapper;
     config: UniTableConfig;
 
     constructor() {

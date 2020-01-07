@@ -12,7 +12,7 @@ import { UP_ARROW, DOWN_ARROW, ENTER } from '@angular/cdk/keycodes';
     styleUrls: ['./file-from-inbox-modal.sass'],
 })
 export class FileFromInboxModal implements IUniModal {
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) table: AgGridWrapper;
 
     options: IModalOptions = {};
     onClose: EventEmitter<File> = new EventEmitter();

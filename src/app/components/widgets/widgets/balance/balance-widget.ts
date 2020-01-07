@@ -31,7 +31,7 @@ import {theme} from 'src/themes/theme';
 })
 
 export class BalanceWidget {
-    @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('canvas', { static: true }) canvas: ElementRef;
 
     widget: IUniWidget;
 

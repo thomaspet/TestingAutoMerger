@@ -34,8 +34,8 @@ import {IUniTab} from '@uni-framework/uni-tabs';
     templateUrl: './vatreportview.html'
 })
 export class VatReportView implements OnInit, OnDestroy {
-    @ViewChild(CreateCorrectedVatReportModal) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
-    @ViewChild(ReceiptVat) private receiptVat: ReceiptVat;
+    @ViewChild(CreateCorrectedVatReportModal, { static: true }) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
+    @ViewChild(ReceiptVat, { static: false }) private receiptVat: ReceiptVat;
 
     public internalComment: FormControl = new FormControl();
     public externalComment: FormControl = new FormControl();

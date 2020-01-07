@@ -17,7 +17,7 @@ export class WageTypeSettings extends UniView {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(UniForm, { static: true }) public uniform: UniForm;
 
     private wagetypeID: number;
     private limitTypes: { Type: LimitType, Name: string }[] = [];

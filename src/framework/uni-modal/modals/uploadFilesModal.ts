@@ -124,22 +124,22 @@ export class UniFileUploadModal implements IUniModal {
     }
 
     private uploadAllFiles(uploadedFiles) {
-        const queries =  [];
-        uploadedFiles.forEach(f => queries.push(this.fileUploadFunction(f)));
+        const uploadRequests: Observable<any>[] = [];
+        uploadedFiles.forEach(f => uploadRequests.push(this.fileUploadFunction(f)));
 
         this.loading$.next(true);
 
         // New endpoint that takes array of files?
-        Observable.forkJoin(queries).subscribe(result => {
+        Observable.forkJoin(uploadRequests).subscribe(result => {
 
-            const ques = [];
+            const getRequests: Observable<any>[] = [];
 
             result.forEach((file) => {
-                ques.push(this.fileService.Get(file.ExternalId));
+                getRequests.push(this.fileService.Get(file.ExternalId));
             });
 
             // New endpoint that takes array of ids?
-            Observable.forkJoin(ques).subscribe((files) => {
+            Observable.forkJoin(getRequests).subscribe((files) => {
                 this.uploadedFileIds = files.map(f => f.ID);
 
                 this.files = files;

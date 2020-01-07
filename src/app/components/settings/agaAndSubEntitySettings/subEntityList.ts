@@ -26,8 +26,8 @@ export class SubEntityList implements OnInit {
     private municipalities: Municipal[] = [];
     private agaZones: AGAZone[] = [];
 
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
-    @ViewChild(SubEntityDetails) private subEntityDetails: SubEntityDetails;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
+    @ViewChild(SubEntityDetails, { static: true }) private subEntityDetails: SubEntityDetails;
     @Output() public saveIsDisabled: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
     actions: ComboButtonAction[] = [

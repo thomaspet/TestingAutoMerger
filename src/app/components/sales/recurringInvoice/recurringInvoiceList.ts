@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
 })
 export class RecurringInvoiceList implements OnInit {
 
-    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    @ViewChild(UniTickerWrapper, { static: true }) private tickerWrapper: UniTickerWrapper;
 
     public createNewAction: IUniSaveAction = {
         label: 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NEW',

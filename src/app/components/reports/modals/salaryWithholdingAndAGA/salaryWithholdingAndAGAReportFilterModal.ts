@@ -157,7 +157,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     `
 })
 export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestroy {
-    @ViewChild(UniModal)
+    @ViewChild(UniModal, { static: false })
     private modal: UniModal;
 
     modalConfig: ModalConfig;

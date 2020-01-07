@@ -18,7 +18,7 @@ import {IUniSaveAction} from '@uni-framework/save/save';
 })
 export class QuoteList implements OnInit {
 
-    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    @ViewChild(UniTickerWrapper, { static: true }) private tickerWrapper: UniTickerWrapper;
 
     public actionOverrides: ITickerActionOverride[] = this.customerQuoteService.actionOverrides;
 

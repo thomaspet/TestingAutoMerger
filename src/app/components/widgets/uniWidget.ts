@@ -116,7 +116,7 @@ export class WidgetContainer {
     `
 })
 export class UniWidget {
-    @ViewChild(WidgetContainer)
+    @ViewChild(WidgetContainer, { static: true })
     private widgetContainer: WidgetContainer;
 
     @Input()

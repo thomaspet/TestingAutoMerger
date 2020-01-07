@@ -137,7 +137,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         template: tag => `${tag.linkID} - ${tag.title}`
     };
 
-    @ViewChild(UniToolbar) public toolbar: UniToolbar;
+    @ViewChild(UniToolbar, { static: true }) public toolbar: UniToolbar;
 
     constructor(
         private route: ActivatedRoute,

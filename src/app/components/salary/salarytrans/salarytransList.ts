@@ -34,7 +34,7 @@ const SALARY_TRANS_KEY: string = 'salaryTransactions';
 })
 
 export class SalaryTransactionEmployeeList extends UniView implements OnChanges, OnInit, OnDestroy {
-    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) public table: AgGridWrapper;
 
     @Input() private employee: IEmployee;
 

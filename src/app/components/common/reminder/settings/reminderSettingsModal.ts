@@ -22,7 +22,7 @@ import { CustomerInvoiceReminderSettings, CompanySettings } from '@uni-entities'
     `
 })
 export class UniReminderSettingsModal implements IUniModal, OnInit {
-    @ViewChild(ReminderSettings) private settingsComponent: ReminderSettings;
+    @ViewChild(ReminderSettings, { static: true }) private settingsComponent: ReminderSettings;
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<boolean> = new EventEmitter();
 

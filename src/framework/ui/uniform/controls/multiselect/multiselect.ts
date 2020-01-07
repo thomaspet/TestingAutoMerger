@@ -36,7 +36,7 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
     @Output() public moveForwardEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
 
-    @ViewChild('input') private inputElement: NgSelectComponent;
+    @ViewChild('input', { static: true }) private inputElement: NgSelectComponent;
 
     public lastControlValue: any;
     public tempModel: Array<any> = [];

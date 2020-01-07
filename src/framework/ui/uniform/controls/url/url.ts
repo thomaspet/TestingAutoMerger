@@ -25,7 +25,7 @@ export class UniUrlInput extends BaseControl implements OnChanges, AfterViewInit
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
 
     private lastControlValue: string;
-    @ViewChild('input') private inputElement: ElementRef;
+    @ViewChild('input', { static: false }) private inputElement: ElementRef;
 
     constructor(public elementRef: ElementRef) {
         super();

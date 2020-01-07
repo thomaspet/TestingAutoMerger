@@ -40,7 +40,7 @@ export class EditSupplierInvoicePayments implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
     public payments: Array<any> = [];

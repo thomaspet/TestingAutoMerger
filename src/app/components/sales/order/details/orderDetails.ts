@@ -83,8 +83,8 @@ import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
     styleUrls: ['./orderDetails.sass']
 })
 export class OrderDetails implements OnInit, AfterViewInit {
-    @ViewChild(TofHead) private tofHead: TofHead;
-    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
+    @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
+    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
 
     @Input() orderID: any;
 

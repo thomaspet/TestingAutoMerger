@@ -17,7 +17,7 @@ const SALARYBALANCES_ON_TEMPLATE_KEY = 'salarybalancesontemplate';
 })
 export class SalarybalanceTemplateEmployeeListComponent extends UniView implements OnInit {
   @Input() currentTemplate: SalaryBalanceTemplate;
-  @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+  @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
   public employees: Employee[] = [];
   public tableConfig: UniTableConfig;
   public salarybalances: SalaryBalance[] = [];

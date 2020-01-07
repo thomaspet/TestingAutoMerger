@@ -12,8 +12,8 @@ import { Employee } from '@uni-entities';
 export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
     @Input() public options: IModalOptions;
-    @ViewChild(TaxCardRequest) private taxCardRequest: TaxCardRequest;
-    @ViewChild(ReadTaxCard) private readTaxCard: ReadTaxCard;
+    @ViewChild(TaxCardRequest, { static: true }) private taxCardRequest: TaxCardRequest;
+    @ViewChild(ReadTaxCard, { static: true }) private readTaxCard: ReadTaxCard;
 
     public changeEvent: EventEmitter<any>;
     public employee: Employee;

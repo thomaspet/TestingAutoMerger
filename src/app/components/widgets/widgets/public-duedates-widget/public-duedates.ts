@@ -15,7 +15,7 @@ import * as moment from 'moment';
 
 export class PublicDueDatesWidget {
 
-    @ViewChild('canvas')
+    @ViewChild('canvas', { static: true })
     private canvas: ElementRef;
 
     widget: IUniWidget;

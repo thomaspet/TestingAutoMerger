@@ -27,7 +27,7 @@ export class UniTickerWrapper {
 
     private tickers: Array<Ticker>;
     public selectedTicker: Ticker;
-    @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
+    @ViewChild(UniTickerContainer, { static: true }) public tickerContainer: UniTickerContainer;
     constructor(
         private uniTickerService: UniTickerService,
         private cdr: ChangeDetectorRef

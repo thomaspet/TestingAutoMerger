@@ -11,7 +11,7 @@ import {ApikeyLine} from '@app/components/common/apikey/apikeyLine';
 export class ApikeyLineModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @ViewChild(ApikeyLine) public apikey: ApikeyLine;
+    @ViewChild(ApikeyLine, { static: true }) public apikey: ApikeyLine;
 
     constructor() { }
 

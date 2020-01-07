@@ -102,9 +102,9 @@ export enum CollectorStatus {
     templateUrl: './invoice.html'
 })
 export class InvoiceDetails implements OnInit, AfterViewInit {
-    @ViewChild(UniToolbar) toolbar: UniToolbar;
-    @ViewChild(TofHead) tofHead: TofHead;
-    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
+    @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
+    @ViewChild(TofHead, { static: true }) tofHead: TofHead;
+    @ViewChild(TradeItemTable, { static: false }) tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 

@@ -17,7 +17,7 @@ import * as moment from 'moment';
     `
 })
 export class TofDetailsForm {
-    @ViewChild(UniForm) form: UniForm;
+    @ViewChild(UniForm, { static: true }) form: UniForm;
 
     @Input() readonly: boolean;
     @Input() entityType: string;

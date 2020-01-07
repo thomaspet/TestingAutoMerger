@@ -13,7 +13,7 @@ import * as Chart from 'chart.js';
 })
 
 export class LiquidityWidget {
-    @ViewChild('liquidity') liquidityChart: ElementRef;
+    @ViewChild('liquidity', { static: false }) liquidityChart: ElementRef;
 
     mode: string = 'table';
     data: any = [];

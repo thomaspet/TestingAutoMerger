@@ -39,7 +39,7 @@ export class EditVacationModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: true })
     public form: UniForm;
 
     errorMsg: string = '';

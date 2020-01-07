@@ -30,7 +30,7 @@ declare var _;
 })
 
 export class ProjectEditmode {
-    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) public table: AgGridWrapper;
 
     config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

@@ -96,10 +96,10 @@ const isNumber = (value) => _.reduce(value, (res, letter) => {
     templateUrl: './customerDetails.html'
 })
 export class CustomerDetails implements OnInit {
-    @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
-    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
-    @ViewChild(SubCompanyComponent) private subCompany: SubCompanyComponent;
+    @ViewChild(UniForm, { static: false }) public form: UniForm;
+    @ViewChild(LedgerAccountReconciliation, { static: false }) private postpost: LedgerAccountReconciliation;
+    @ViewChild(ReminderSettings, { static: false }) public reminderSettings: ReminderSettings;
+    @ViewChild(SubCompanyComponent, { static: true }) private subCompany: SubCompanyComponent;
 
     private customerID: any;
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});

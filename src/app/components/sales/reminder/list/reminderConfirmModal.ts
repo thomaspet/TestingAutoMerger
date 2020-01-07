@@ -55,7 +55,7 @@ export class ReminderConfirmForm implements OnInit {
     template: `<uni-modal [type]='type' [config]='config'></uni-modal>`
 })
 export class ReminderConfirmModal {
-    @ViewChild(UniModal) public modal: UniModal;
+    @ViewChild(UniModal, { static: true }) public modal: UniModal;
 
     public config: IReminderConfirmModalConfig;
     public type: Type<any> = ReminderConfirmForm;

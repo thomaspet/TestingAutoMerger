@@ -16,9 +16,9 @@ import {IUniTab} from '@uni-framework/uni-tabs';
     templateUrl: './worker.html'
 })
 export class WorkerDetailview {
-    @ViewChild(GenericDetailview) private detailForm: GenericDetailview;
-    @ViewChild(RelationsSubView) private relationsView: RelationsSubView;
-    @ViewChild(BalancesSubView) private balancesSubView: BalancesSubView;
+    @ViewChild(GenericDetailview, { static: true }) private detailForm: GenericDetailview;
+    @ViewChild(RelationsSubView, { static: true }) private relationsView: RelationsSubView;
+    @ViewChild(BalancesSubView, { static: true }) private balancesSubView: BalancesSubView;
     public viewconfig: IViewConfig;
     public currentId: number = 0;
     private hasRelationChanges: boolean = false;

@@ -21,7 +21,7 @@ const EMPLOYEE_KEY = 'employee';
     templateUrl: './employments.html'
 })
 export class Employments extends UniView implements OnInit, OnDestroy {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     public employee: Employee;
     public employments: Employment[] = [];
