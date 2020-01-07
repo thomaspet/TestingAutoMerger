@@ -31,7 +31,7 @@ export class BankUtil {
     }
 
     static isCloseToZero(value: number): boolean {
-        return (value < 0.01 && value > -0.01);
+        return (value < 0.005 && value > -0.005);
     }
 
     static createGuid(): string {
