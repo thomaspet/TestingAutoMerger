@@ -324,7 +324,9 @@ export class EmploymentService extends BizHttp<Employment> {
                         FieldSet: 3,
                         Section: 0,
                         Options: {
-                            format: 'money'
+                            decimalLength: 2,
+                            decimalSeparator: ',',
+                            thousandSeparator: ' ',
                         }
                     },
                     {
@@ -452,7 +454,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldSet: 5,
                     Legend: 'Regulativ',
                     Section: 0,
-                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'half-width' : '',
+                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
                     Options: {
                         valueProperty: 'ID',
                         template: (regulativeGroup: RegulativeGroup) => regulativeGroup ? `${regulativeGroup.ID} - ${regulativeGroup.Name}` : '',
@@ -476,12 +478,12 @@ export class EmploymentService extends BizHttp<Employment> {
                     Label: 'Lønnstrinn',
                     FieldSet: 5,
                     Section: 0,
-                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'half-width' : '',
+                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
                     ReadOnly: this.stepFieldIsReadonly(),
                     Options: {
                         valueProperty: 'Step',
                         template: (step: RegulativeStep) => step
-                            ? `${step.Step} - ${step.Amount}`
+                            ? `${step.Step}`
                             : '',
                         getDefaultData: () => this.employment$
                             .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeSteps$.take(1)))
