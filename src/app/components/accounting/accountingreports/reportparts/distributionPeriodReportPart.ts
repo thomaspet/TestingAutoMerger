@@ -459,8 +459,10 @@ export class DistributionPeriodReportPart implements OnChanges {
             borderWidth: 2
         });
 
+        let prevYearData, budgetYear2Data, budgetYear1Data;
+
         if (this.showPreviousAccountYear) {
-            dataSets.push({
+            prevYearData = {
                 label: this.accountYear1.toString(),
                 data: [],
                 backgroundColor: this.colors[0],
@@ -468,11 +470,11 @@ export class DistributionPeriodReportPart implements OnChanges {
                 fill: false,
                 lineTension: 0,
                 borderWidth: 2
-            });
+            };
         }
 
         if (this.hasBudgetYear2) {
-            dataSets.push({
+            budgetYear2Data = {
                 label: 'Budsjett - ' + this.accountYear2.toString(),
                 data: [],
                 backgroundColor: this.colors[2],
@@ -480,11 +482,11 @@ export class DistributionPeriodReportPart implements OnChanges {
                 fill: false,
                 lineTension: 0,
                 borderWidth: 2
-            });
+            };
         }
 
         if (this.hasBudgetYear1) {
-            dataSets.push({
+            budgetYear1Data = {
                 label: 'Budsjett - ' + this.accountYear1.toString(),
                 data: [],
                 backgroundColor: this.colors[3],
@@ -492,27 +494,37 @@ export class DistributionPeriodReportPart implements OnChanges {
                 fill: false,
                 lineTension: 0,
                 borderWidth: 2
-            });
+            };
         }
 
         for (let i = 0; i < this.distributionPeriodData.length; i++) {
-            // don't include sums in the chart
             if (this.distributionPeriodData[i].periodNo >= 1 && this.distributionPeriodData[i].periodNo <= 12) {
                 labels.push(this.distributionPeriodData[i].periodName.substr(0, 3));
-                if (this.showPreviousAccountYear) {
-                    dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear2);
-                    dataSets[1].data.push(this.distributionPeriodData[i].amountPeriodYear1);
-                    if (this.hasBudgetYear2) {
-                        dataSets[2].data.push(this.distributionPeriodData[i].budgetPeriodYear2 || 0);
-                    }
+                dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                if (prevYearData) {
+                    prevYearData.data.push(this.distributionPeriodData[i].amountPeriodYear1);
+                }
 
-                    if (this.hasBudgetYear1) {
-                        dataSets[3].data.push(this.distributionPeriodData[i].budgetPeriodYear1 || 0);
-                    }
-                } else {
-                    dataSets[0].data.push(this.distributionPeriodData[i].amountPeriodYear2);
+                if (budgetYear2Data) {
+                    budgetYear2Data.data.push(this.distributionPeriodData[i].budgetPeriodYear2 || 0);
+                }
+
+                if (budgetYear1Data) {
+                    budgetYear1Data.data.push(this.distributionPeriodData[i].budgetPeriodYear1 || 0);
                 }
             }
+        }
+
+        if (prevYearData) {
+            dataSets.push(prevYearData);
+        }
+
+        if (budgetYear2Data) {
+            dataSets.push(budgetYear2Data);
+        }
+
+        if (budgetYear1Data) {
+            dataSets.push(budgetYear1Data);
         }
 
         const chartConfig = {
