@@ -1284,11 +1284,8 @@ export class BankComponent {
                     this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber, response.creditDate)
                         .subscribe(() => {
                             this.toastService.addToast('Kreditering utført', ToastType.good, ToastTime.short);
-                            // After crediting the journal entry, update status on payments with that journal entry
-                            this.paymentService.updateStatusCreditedJournalEntry(item.JournalEntryID)
-                            .subscribe(() => {
-                                res();
-                            });
+                            this.tickerContainer.getFilterCounts();
+                            res();
                         }, err => {
                             this.errorService.handle(err);
                             res();

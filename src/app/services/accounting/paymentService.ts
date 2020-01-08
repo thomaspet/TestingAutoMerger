@@ -81,15 +81,4 @@ export class PaymentService extends BizHttp<Payment> {
             .send()
             .map(response => response.body);
     }
-
-    public updateStatusCreditedJournalEntry(journalEntryID: number) {
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(
-                this.relativeURL + '?action=update-payment-statuses-to-ignored&journalEntryID=' + journalEntryID
-            )
-            .send()
-            .map(response => response.body);
-    }
 }
