@@ -230,8 +230,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -689,9 +689,9 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultReminderFeeAccount: Account;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -2265,6 +2265,7 @@ export class SalaryBalance extends UniEntity {
     public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
+    public EmploymentID: number;
     public FromDate: Date;
     public ID: number;
     public Instalment: number;
@@ -2286,6 +2287,7 @@ export class SalaryBalance extends UniEntity {
     public Employee: Employee;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
+    public Employment: Employment;
     public CustomFields: any;
 }
 
@@ -3344,7 +3346,6 @@ export class UserVerification extends UniEntity {
 
     public _createguid: string;
     public CompanyId: number;
-    public CompanyKey: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -6400,6 +6401,31 @@ export class BankStatementMatch extends UniEntity {
 }
 
 
+export class BankStatementRule extends UniEntity {
+    public static RelativeUrl = 'bankstatementrules';
+    public static EntityType = 'BankStatementRule';
+
+    public _createguid: string;
+    public AccountID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public EntryText: string;
+    public ID: number;
+    public IsActive: boolean;
+    public Name: string;
+    public Priority: number;
+    public Rule: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Dimensions: Dimensions;
+    public Account: Account;
+    public CustomFields: any;
+}
+
+
 export class Budget extends UniEntity {
     public static RelativeUrl = 'budgets';
     public static EntityType = 'Budget';
@@ -7067,11 +7093,11 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
-    public Supplier: Supplier;
     public Payments: Array<Payment>;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
+    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -7709,6 +7735,7 @@ export class InvoicesAndRemindersReadyToRemind extends UniEntity {
     public DontSendReminders: boolean;
     public DueDate: Date;
     public EmailAddress: string;
+    public ExternalReference: string;
     public Fee: number;
     public Interest: number;
     public InvoiceDate: Date;
@@ -7948,6 +7975,11 @@ export class AnnualStatementReportSetup extends UniEntity {
 export class AnnualStatementEmailInfo extends UniEntity {
     public Message: string;
     public Subject: string;
+}
+
+
+export class HandleState extends UniEntity {
+    public inState: State;
 }
 
 
@@ -8239,19 +8271,19 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
-    public License: ElsaUserLicenseInfo;
+    public License: UserLicenseInformation;
     public CustomFields: any;
 }
 
 
-export class ElsaUserLicenseInfo extends UniEntity {
+export class UserLicenseInformation extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
     public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
-    public Company: ElsaCompanyLicenseInfo;
+    public Company: CompanyLicenseInfomation;
     public ContractType: ContractLicenseType;
     public UserLicenseAgreement: LicenseAgreementInfo;
 }
@@ -8271,7 +8303,7 @@ export class UserLicenseType extends UniEntity {
 }
 
 
-export class ElsaCompanyLicenseInfo extends UniEntity {
+export class CompanyLicenseInfomation extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
     public ContractID: number;
@@ -8279,7 +8311,7 @@ export class ElsaCompanyLicenseInfo extends UniEntity {
     public ID: number;
     public Key: string;
     public Name: string;
-    public StatusCode: LicenseStatus;
+    public StatusCode: LicenseEntityStatus;
     public Agency: Agency;
 }
 
@@ -8740,7 +8772,10 @@ export class BudgetImport extends UniEntity {
 
 
 export class LiquidityTableDTO extends UniEntity {
-    public OverdueInvoices: number;
+    public BankBalance: number;
+    public BankBalanceRefferance: BankBalanceType;
+    public OverdueCustomerInvoices: number;
+    public OverdueSupplierInvoices: number;
     public Period: Array<DetailsDTO>;
 }
 
@@ -9692,12 +9727,20 @@ export enum WorkStatus{
 }
 
 
-export enum LicenseStatus{
+export enum State{
+    NoOp = 0,
+    BalanceCreate = 1,
+}
+
+
+export enum LicenseEntityStatus{
     Draft = 0,
     Pending = 3,
     Active = 5,
     Paused = 10,
-    Canceled = 11,
+    Inactive = 11,
+    SoftDeleted = 20,
+    HardDeleted = 25,
 }
 
 
@@ -9773,6 +9816,13 @@ export enum BankfileField{
     Text2 = 8,
     SecondaryAccount = 9,
     Category = 10,
+}
+
+
+export enum BankBalanceType{
+    None = 0,
+    BankAccount = 1,
+    MainLedgerAccount = 2,
 }
 
 
