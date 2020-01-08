@@ -1,6 +1,6 @@
 // Angular imports
 import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
@@ -35,7 +35,7 @@ import {UniCompanySaftAccountModal} from './jobs/saft/companySaftAccountModal/co
         FlowModal
     ],
     imports: [
-        BrowserModule,
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule,
