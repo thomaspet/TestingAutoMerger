@@ -66,6 +66,10 @@ export class FileService extends BizHttp<File> {
             switchMap(url => this.httpClient.get(url, { responseType: 'blob' }))
         ).subscribe(
             (blob: Blob) => {
+                if (file.ContentType) {
+                    blob = new Blob([blob], {type: file.ContentType});
+                }
+
                 saveAs(blob, file.Name);
             },
             err => this.errorService.handle(err)
@@ -80,18 +84,6 @@ export class FileService extends BizHttp<File> {
             }),
             map(res => new Blob([res], { type: type }))
         );
-
-        // return this.http
-        //     .asGET()
-        //     .withDefaultHeaders()
-        //     .usingBusinessDomain()
-        //     .withEndPoint(`files/${fileID}?action=download`)
-        //     .send()
-        //     .switchMap((urlResponse: HttpResponse<any>) => {
-        //         const url = urlResponse.body.replace(/\"/g, '');
-        //         return this.http.http.get(url, {responseType: 'text'});
-        //     })
-        //     .map(res => new Blob([res], { type: type }));
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {
