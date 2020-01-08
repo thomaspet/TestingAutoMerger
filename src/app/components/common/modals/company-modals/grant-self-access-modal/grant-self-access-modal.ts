@@ -92,6 +92,7 @@ export class GrantSelfAccessModal implements IUniModal {
         selfInvite.CompanyLicenses = this.grantAccessData.companies;
         selfInvite.UserLicenses = this.grantAccessData.users;
         selfInvite.Products = this.grantAccessData.products;
+        selfInvite.IsSelfInvite = true;
 
         this.busy = true;
         this.jobService.startJob('MassInviteBureau', 0, selfInvite).subscribe(
