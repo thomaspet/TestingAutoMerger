@@ -230,8 +230,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -2207,7 +2207,6 @@ export class SalaryBalance extends UniEntity {
     public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
-    public EmploymentID: number;
     public FromDate: Date;
     public ID: number;
     public Instalment: number;
@@ -2229,7 +2228,6 @@ export class SalaryBalance extends UniEntity {
     public Employee: Employee;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
-    public Employment: Employment;
     public CustomFields: any;
 }
 
@@ -6958,6 +6956,7 @@ export class SupplierInvoice extends UniEntity {
     public PaymentDueDate: LocalDate;
     public PaymentID: string;
     public PaymentInformation: string;
+    public PaymentStatus: number;
     public PaymentTerm: string;
     public PaymentTermsID: number;
     public PrintStatus: number;
@@ -6987,11 +6986,11 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public Supplier: Supplier;
     public Payments: Array<Payment>;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
-    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -7583,9 +7582,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -8155,19 +8154,19 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
-    public License: UserLicenseInformation;
+    public License: ElsaUserLicenseInfo;
     public CustomFields: any;
 }
 
 
-export class UserLicenseInformation extends UniEntity {
+export class ElsaUserLicenseInfo extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
     public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
-    public Company: CompanyLicenseInfomation;
+    public Company: ElsaCompanyLicenseInfo;
     public ContractType: ContractLicenseType;
     public UserLicenseAgreement: LicenseAgreementInfo;
 }
@@ -8187,7 +8186,7 @@ export class UserLicenseType extends UniEntity {
 }
 
 
-export class CompanyLicenseInfomation extends UniEntity {
+export class ElsaCompanyLicenseInfo extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
     public ContractID: number;
@@ -8195,7 +8194,7 @@ export class CompanyLicenseInfomation extends UniEntity {
     public ID: number;
     public Key: string;
     public Name: string;
-    public StatusCode: LicenseEntityStatus;
+    public StatusCode: LicenseStatus;
     public Agency: Agency;
 }
 
@@ -8660,7 +8659,6 @@ export class IActionResult extends UniEntity {
 
 
 export class LiquidityTableDTO extends UniEntity {
-    public BankBalance: number;
     public OverdueInvoices: number;
     public Period: Array<DetailsDTO>;
 }
@@ -9613,14 +9611,12 @@ export enum WorkStatus{
 }
 
 
-export enum LicenseEntityStatus{
+export enum LicenseStatus{
     Draft = 0,
     Pending = 3,
     Active = 5,
     Paused = 10,
-    Inactive = 11,
-    SoftDeleted = 20,
-    HardDeleted = 25,
+    Canceled = 11,
 }
 
 
