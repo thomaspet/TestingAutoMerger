@@ -169,22 +169,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.body.Data);
     }
 
-    public getPaymentStatus(supplierInvoice: SupplierInvoice): string {
-
-        if(supplierInvoice.TaxInclusiveAmount > 0) {
-            if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
-            if (supplierInvoice.TaxInclusiveAmount > supplierInvoice.RestAmount && supplierInvoice.RestAmount > 0) { return 'Delvis betalt'; }
-            if (supplierInvoice.TaxInclusiveAmount > 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til betaling'; }
-        } else if (supplierInvoice.TaxExclusiveAmount < 0 ) {
-            if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount === 0) { return 'Betalt'; }
-            if (supplierInvoice.TaxInclusiveAmount < supplierInvoice.RestAmount && supplierInvoice.RestAmount < 0) { return 'Delvis betalt'; }
-            if (supplierInvoice.TaxInclusiveAmount < 0 && supplierInvoice.RestAmount == supplierInvoice.TaxInclusiveAmount && supplierInvoice.IsSentToPayment) { return 'Sendt til betaling'; }
-        } else {
-            return '';
-        }
-        return 'Ubetalt';
-    }
-
     public getInvoiceList(httpParams: HttpParams, userIDFilter: string = ''): Observable<any> {
 
         if (userIDFilter !== '' && userIDFilter !== null) {

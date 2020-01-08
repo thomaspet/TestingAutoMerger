@@ -360,12 +360,23 @@ export class BillsView implements OnInit {
         }
 
         if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {
-            this.saveActions.push({
-                label: `Til betalingsliste (${selectedRowCount} stk)`,
-                action: (done) => this.massTransition(BillMassTransition.ToPayment, done),
-                main: true,
-                disabled: selectedRowCount === 0
-            });
+            let showToPaymentMenu = true;
+            if (this.selectedItems) {
+                this.selectedItems.forEach(invoice => {
+                    if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112) {
+                        showToPaymentMenu = false;
+                    }
+                });
+
+                if (showToPaymentMenu) {
+                    this.saveActions.push({
+                        label: `Til betalingsliste (${selectedRowCount} stk)`,
+                        action: (done) => this.massTransition(BillMassTransition.ToPayment, done),
+                        main: true,
+                        disabled: selectedRowCount === 0
+                    });
+                }
+            }
         }
 
         if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {

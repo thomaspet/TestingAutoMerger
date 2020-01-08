@@ -367,7 +367,6 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (current) {
             current.ID = value;
-            current['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(current);
             this.current.next(Object.assign({}, current));
         }
     }
@@ -394,7 +393,6 @@ export class BillView implements OnInit {
 
                 if (this.current.getValue()) {
                     const val = this.current.getValue();
-                    val['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(val);
                     this.current.next(Object.assign({}, val));
                 }
 
@@ -2086,7 +2084,6 @@ export class BillView implements OnInit {
                 current.BankAccount = supplier.Info.DefaultBankAccount;
             }
         }
-        current['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(current);
         this.current.next(current);
 
         this.currentSupplierID = 0;
@@ -2229,29 +2226,27 @@ export class BillView implements OnInit {
                 || it.StatusCode === StatusCodeSupplierInvoice.Draft
                 || it.StatusCode === StatusCodeSupplierInvoice.Approved
             ) {
-                const sts = this.supplierInvoiceService.getPaymentStatus(it);
-                if (sts !== 'Betalt') {
-                    if (!it.IsSentToPayment) {
+                if (it.PaymentStatus !== 30112) {
+                    if (it.PaymentStatus !== 30110) {
                         list.push({
-                            label: 'Legg til betaling',
-                            action: (done) => this.sendForPayment()
-                                .subscribe((done2) => {
-                                    this.fetchInvoice(this.currentID, true);
-                                    this.updateInvoicePayments().add(done());
-                            }),
-                            main: true,
-                            disabled: false
-                        });
+                                label: 'Legg til betaling',
+                                action: (done) => this.sendForPayment()
+                                    .subscribe((done2) => {
+                                        this.fetchInvoice(this.currentID, true);
+                                        this.updateInvoicePayments().add(done());
+                                }),
+                                main: true,
+                                disabled: false
+                            });
+                        list.push(
+                            {
+                                label: 'Legg til del-betaling',
+                                action: (done) => this.addPayment(done),
+                                main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
+                                disabled: false
+                            }
+                        );
                     }
-
-                    list.push(
-                        {
-                            label: 'Legg til del-betaling',
-                            action: (done) => this.addPayment(done),
-                            main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
-                            disabled: false
-                        }
-                    );
 
                     if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
                         list.push(
@@ -2911,7 +2906,6 @@ export class BillView implements OnInit {
                     this.invoicePayments = (bankPayments || []).concat(registeredPayments || []);
                     this.sumOfPayments = sumOfPayments[0];
 
-                    invoice['_paymentStatus'] = this.supplierInvoiceService.getPaymentStatus(invoice);
                     this.current.next(invoice);
                     this.currentFreeTxt = invoice.FreeTxt;
                     this.detailsTabs[1].tooltip = this.currentFreeTxt;
