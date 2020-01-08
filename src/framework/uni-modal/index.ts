@@ -34,7 +34,6 @@ import {BarnepassProductsModal} from './modals/barnepassModals/barnepassProducts
 import {BarnepassSenderModal} from './modals/barnepassModals/barnepassSenderModal';
 import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
 import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
-import { UniCompanySaftAccountModal } from '@app/components/admin/jobs/saft/companySaftAccountModal/companySaftAccountModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -110,6 +109,5 @@ export const MODALS = [
     BarnepassSenderModal,
     FileSplitModal,
     TofEmailModal,
-    UniCompanySaftAccountModal
 ];
 

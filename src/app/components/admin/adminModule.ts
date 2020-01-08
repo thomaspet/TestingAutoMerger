@@ -24,9 +24,11 @@ import {FlowModal} from './flow/flow-modal/flow-modal';
 import {FlowList} from './flow/flow-list/flow-list';
 import {FlowTemplates} from './flow/templates/templates';
 import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
+import {UniCompanySaftAccountModal} from './jobs/saft/companySaftAccountModal/companySaftAccountModal';
 
 @NgModule({
     entryComponents: [
+        UniCompanySaftAccountModal,
         SaftImportModal,
         SaftExportModal,
         FlowTemplateModal,
@@ -51,6 +53,7 @@ import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal'
         JobLog,
         SaftExportView,
         SaftImportModal,
+        UniCompanySaftAccountModal,
         SaftExportModal,
         UniGdprPeopleList,
 
