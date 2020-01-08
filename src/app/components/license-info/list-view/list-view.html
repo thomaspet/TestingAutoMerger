@@ -21,11 +21,13 @@
         <span class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu">
             <i class="material-icons">more_horiz</i>
             <mat-menu #menu="matMenu" xPosition="before">
-                <button mat-menu-item
-                    *ngFor="let item of contextMenu"
-                    (click)="item.action(row)">
-                    {{item.label}}
-                </button>
+                <div *ngFor="let item of contextMenu">
+                    <button mat-menu-item
+                        *ngIf="!item.hidden || !item.hidden(row)"
+                        (click)="item.action(row)">
+                        {{item.label}}
+                    </button>
+                </div>
             </mat-menu>
         </span>
     </section>

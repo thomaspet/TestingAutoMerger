@@ -52,7 +52,7 @@ export class ListView {
     @Input() orderBy: string;
     @Input() rows: any[];
     @Input() columns: ListViewColumn[];
-    @Input() contextMenu: {label: string; action: (row) => void}[];
+    @Input() contextMenu: {label: string; action: (row) => void; hidden?: (row) => boolean}[];
 
     @Output() rowClick = new EventEmitter();
 

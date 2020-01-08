@@ -66,10 +66,15 @@ import {
     MatSlideToggleModule,
     MatRadioModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    MatListModule
 } from '@angular/material';
 
 import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
+import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
 import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
@@ -92,7 +97,11 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         MatSelectModule,
         MatSlideToggleModule,
         MatRadioModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatFormFieldModule,
+        MatExpansionModule,
+        MatProgressSpinnerModule,
+        MatListModule,
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -162,6 +171,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
+        GrantSelfAccessModal,
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -179,6 +189,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         UniMarkingDetailsModal,
         WorkitemTransferWizard,
         GrantAccessModal,
+        GrantSelfAccessModal,
         UniNewCompanyModal,
         ImportCentralTemplateModal,
         JournalingRulesModal,

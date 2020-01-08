@@ -8,7 +8,7 @@ import {ElsaContractService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
 import {UniModalService, WizardSettingsModal} from '@uni-framework/uni-modal';
-import {GrantAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
+import {GrantAccessModal, GrantSelfAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 
@@ -43,6 +43,15 @@ export class CompanyList {
             label: 'Slett selskap',
             action: (company: ElsaCompanyLicense) => {
                 this.deleteCompanyModal(company);
+            }
+        },
+        {
+            label: 'Gi meg selv tilgang',
+            action: (company: ElsaCompanyLicense) => {
+                this.grantSelfAccess(company);
+            },
+            hidden: (company: ElsaCompanyLicense) => {
+                return company['_ueCompany'];
             }
         }
     ];
@@ -82,7 +91,7 @@ export class CompanyList {
                                 license['_orgNumberText'] = license.OrgNumber.match(/.{1,3}/g).join(' ');
                             }
 
-                            license['_ueCompany'] = ueCompanies.find(c => c.Key === license.CompanyKey);
+                            license['_ueCompany'] = ueCompanies.find(c => c.Key.toLowerCase() === license.CompanyKey.toLowerCase());
                             return license;
                         });
 
@@ -105,6 +114,16 @@ export class CompanyList {
         this.modalService.open(GrantAccessModal, {
             data: { contractID: this.contractID }
         });
+    }
+
+    grantSelfAccess(company: ElsaCompanyLicense) {
+        this.modalService.open(GrantSelfAccessModal, {
+            data: {
+                contractID: this.contractID,
+                companyLicense: company,
+                userIdentity: this.authService.currentUser.License.GlobalIdentity
+            }
+        }).onClose.subscribe(() => this.loadData());
     }
 
     createCompany() {
