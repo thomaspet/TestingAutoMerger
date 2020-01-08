@@ -557,8 +557,8 @@ export class UniImage {
 
         if (this.rotateAllowed) {
             items.push(
-                { label: 'Roter venstre', action: () => this.rotateLeft() },
-                { label: 'Roter høyre', action: () => this.rotateRight() }
+                { label: 'Roter mot klokken', action: () => this.rotateLeft() },
+                { label: 'Roter med klokken', action: () => this.rotateRight() }
             );
         }
 
