@@ -42,11 +42,11 @@ export class UniPhoneModal implements IUniModal {
     formConfig$ = new BehaviorSubject({autofocus: true});
     formModel$ = new BehaviorSubject(null);
     formFields$ = new BehaviorSubject([]);
-    initialState: any;
+    initialPhone: any;
 
     ngOnInit() {
         const phone = this.options.data || {};
-        this.initialState = Object.assign({}, phone);
+        this.initialPhone = phone;
         const fields = this.getFormFields();
 
         if (phone._initValue && fields[0] && !phone[fields[0].Property]) {
@@ -63,7 +63,18 @@ export class UniPhoneModal implements IUniModal {
     }
 
     close(emitValue?: boolean) {
-        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
+        if (emitValue) {
+            // Since multivalue currently depends on memory references we need to
+            // map the updated values to the initial object and return that,
+            // instead of returning the edited one.
+            const address = this.formModel$.getValue();
+            Object.keys(address).forEach(key => {
+                this.initialPhone[key] = address[key];
+                this.onClose.emit(this.initialPhone);
+            });
+        } else {
+            this.onClose.emit(null);
+        }
     }
 
     private getFormFields(): UniFieldLayout[] {

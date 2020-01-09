@@ -45,7 +45,7 @@ export class UniAddressModal implements IUniModal {
     formModel$ = new BehaviorSubject(null);
     formFields$ = new BehaviorSubject([]);
 
-    initialState: any;
+    initialAddress: Address;
 
     constructor(
         private countryService: CountryService,
@@ -60,7 +60,8 @@ export class UniAddressModal implements IUniModal {
         if (address._initValue && fields[0] && !address[fields[0].Property]) {
             address[fields[0].Property] = address._initValue;
         }
-        this.initialState = Object.assign({}, address);
+
+        this.initialAddress = address;
         this.formModel$.next(Object.assign({}, address));
         this.formFields$.next(fields);
     }
@@ -86,7 +87,18 @@ export class UniAddressModal implements IUniModal {
     }
 
     close(emitValue?: boolean) {
-        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
+        if (emitValue) {
+            // Since multivalue currently depends on memory references we need to
+            // map the updated values to the initial object and return that,
+            // instead of returning the edited one.
+            const address = this.formModel$.getValue();
+            Object.keys(address).forEach(key => {
+                this.initialAddress[key] = address[key];
+                this.onClose.emit(this.initialAddress);
+            });
+        } else {
+            this.onClose.emit(null);
+        }
     }
 
     private getFormFields(): UniFieldLayout[] {
