@@ -96,7 +96,7 @@ export class UniBankAccountModal implements IUniModal {
                 this.accountInfo.Bank = banks.find(x => x.ID === this.accountInfo.BankID);
             }
 
-            this.formModel$.next(this.accountInfo);
+            this.formModel$.next(Object.assign({}, this.accountInfo));
             this.formFields$.next(this.getFormFields());
             if (this.options && this.options.modalConfig && this.options.modalConfig.defaultAccountNumber) {
                 this.busy = true;
