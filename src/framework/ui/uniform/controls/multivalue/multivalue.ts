@@ -39,6 +39,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     public isOpen: boolean;
     private editorIsOpen: boolean;
 
+    public displayValue: string = '';
     public rows: any[] = [];
     public filteredRows: any[] = [];
 
@@ -64,6 +65,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
     public ngOnChanges() {
         this.field.Options = this.field.Options || {};
+        this.displayValue = '';
         this.readOnly$.next(this.field && this.field.ReadOnly);
 
         // update default option
@@ -75,17 +77,8 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             }
 
             const modelValue = _.get(this.model, this.field.Options.storeResultInProperty);
-            const displayValue = this.getDisplayValue(modelValue);
-
-            this.focusedRow = this.selectedRow = this.rows.find(row => {
-                if (modelValue && modelValue.ID && modelValue.ID === row.ID) {
-                    return true;
-                } else if (modelValue && modelValue._createguid && modelValue._createguid === row._createguid) {
-                    return true;
-                } else {
-                    return this.getDisplayValue(row) === displayValue;
-                }
-            });
+            this.displayValue = this.getDisplayValue(modelValue);
+            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) === this.displayValue);
 
             if (this.field.Options.onChange) {
                 this.changeEvent.subscribe(value => this.field.Options.onChange(this.selectedRow));
@@ -104,10 +97,22 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                     return value.includes(filterString);
                 });
 
-                this.focusedRow = this.filteredRows[0];
+                this.updateFocusedRow();
                 this.cd.markForCheck();
             });
         this.readyEvent.emit(this);
+    }
+
+    private updateFocusedRow() {
+        const exactMatch = this.filteredRows.find(row => this.getDisplayValue(row) === this.displayValue);
+        const startsWithMatch = this.filteredRows
+            .find(row => this.getDisplayValue(row).toLowerCase().startsWith(this.filter.toLowerCase()));
+
+        if (!!exactMatch) {
+            this.focusedRow = exactMatch;
+        } else {
+            this.focusedRow = startsWithMatch;
+        }
     }
 
     public focus() {
@@ -173,6 +178,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         const previousValue = _.cloneDeep(this.selectedRow);
         this.focusedRow = this.rows[0];
         this.selectedRow = null;
+        this.displayValue = '';
 
         _.set(this.model, this.field.Options.storeResultInProperty, null);
         if (this.field.Options.storeIdInProperty) {
@@ -194,6 +200,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         }
         const previousValue = _.cloneDeep(this.selectedRow);
         this.focusedRow = this.selectedRow = row || null;
+        this.displayValue = this.getDisplayValue(row);
 
         _.set(this.model, this.field.Options.storeResultInProperty, row);
 
@@ -243,6 +250,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
         const oldRows = this.rows;
 
+        let editedValue;
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
                 this.editorIsOpen = true;
@@ -256,25 +264,38 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                     }
 
                     const index = this.rows.findIndex(r => r === row);
-
-                    if (index >= 0) {
-                        this.rows[index] = editedEntity;
-                        this.selectRow(editedEntity, true);
-                    } else {
-                        this.rows.push(editedEntity);
-                        this.selectRow(editedEntity, true);
+                    if (_.isEqual(editedEntity, this.rows[index]) || index === -1) {
+                        editedEntity['_isDirty'] = true;
                     }
-
-                    this.filteredRows = this.rows;
-                    _.set(this.model, listProperty, this.rows);
-                    this.emitChange(oldRows, this.rows);
-                    this.cd.markForCheck();
+                    editedValue = editedEntity;
+                    if (editedEntity['_isDirty']) {
+                        if (index >= 0) {
+                            this.rows[index] = editedEntity;
+                            this.selectRow(editedEntity, true);
+                        } else {
+                            this.rows.push(editedEntity);
+                            this.selectRow(editedEntity, true);
+                        }
+                    } else {
+                        this.rows[index] = editedEntity;
+                        this.selectedRow = this.rows[index];
+                        this.displayValue = this.getDisplayValue(editedEntity);
+                    }
+                    return this.rows;
                 })
-                .catch(() => {
+                .then(rows => this.filteredRows = rows)
+                .then(rows => {
+                    // let listProperty = this.field.Options.listProperty || this.field.Property;
+                    _.set(this.model, listProperty, rows);
+                    if (editedValue['_isDirty']) {
+                        this.emitChange(oldRows, rows);
+                    }
+                })
+                .catch((err) => {
                     this.editorIsOpen = false;
                     this.close();
-                    this.cd.markForCheck();
-                });
+                })
+                .then(() => this.cd.markForCheck());
             }
         } else {
             console.warn('MultiValue is missing an editor');
@@ -302,7 +323,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             _.set(this.model, listProperty, this.rows);
 
             this.selectedRow = null;
-            this.focusedRow = undefined;
+            this.updateFocusedRow();
         }
 
         // Delete the row
