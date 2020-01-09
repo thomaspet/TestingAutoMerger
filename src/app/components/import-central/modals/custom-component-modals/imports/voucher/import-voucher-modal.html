@@ -71,7 +71,7 @@
             </mat-checkbox>
         </label>
 
-        <label class="uni-label label-left">
+        <label class="uni-label label-left" *ngIf='selectedOption.type !== post'>
             <span>Legg til beskrivelse</span>
             <input type="text" [(ngModel)]="draftDescription">
         </label>

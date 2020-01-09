@@ -88,6 +88,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     }
 
     public onSelectChange(selectedItem) {
+        this.draftDescription = '';
         this.selectedOption = selectedItem;
     }
 
