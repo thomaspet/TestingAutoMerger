@@ -31,7 +31,7 @@ export class ImportCentralPage implements OnInit {
     payroll: new ImportUIPermission(),
     saft: new ImportSaftUIPermission(),
     voucher: new ImportUIPermission(),
-
+    order: new ImportUIPermission(),
   }
 
   constructor(
@@ -139,15 +139,27 @@ export class ImportCentralPage implements OnInit {
       },
       {
         uiPermission: {
-          hasComponentAccess: true, //this.uiPermission.voucher.hasComponentAccess
+          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess, 
           hasImportAccess: true,
-          hasTemplateAccess: true//this.uiPermission.voucher.hasTemplateAccess
+          hasTemplateAccess: this.uiPermission.voucher.hasTemplateAccess
         },
         iconName: 'card_giftcard',
         title: 'Bilag',
         importText: 'Importer bilag',
         downloadText: 'Last ned mal',
         type: TemplateType.Voucher
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: true, //this.uiPermission.order.hasComponentAccess
+          hasImportAccess: true,
+          hasTemplateAccess: true//this.uiPermission.order.hasTemplateAccess
+        },
+        iconName: 'shopping_cart',
+        title: 'Orders',
+        importText: 'Importer order',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Order
       }
     );
     this.importCardsList = this.importCardsList.filter(x => x.uiPermission.hasComponentAccess);
@@ -233,6 +245,14 @@ export class ImportCentralPage implements OnInit {
         type = 'bilag';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER
         break;
+      case TemplateType.Order:
+        header = 'Importer Order';
+        jobName = ImportJobName.Order;
+        type = 'Order';
+        conditionalStatement = ImportStatement.OrderConditionalStatement;
+        formatStatement = ImportStatement.OrderFormatStatement;
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.ORDER
+        break;
       default:
         header = '';
         jobName = '';
@@ -301,6 +321,10 @@ export class ImportCentralPage implements OnInit {
       case TemplateType.Voucher:
         header = 'Voucher Eksportmal';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton }
+        break;
+      case TemplateType.Order:
+        header = 'Order Eksportmal';
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.ORDER, EntityType: templateType, FileName: 'OrderExportedFile', Permisions: this.uiPermission.order, downloadButton: downloadButton }
         break;
       default:
         header = '';

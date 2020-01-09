@@ -75,7 +75,7 @@
         </div>
 
         <div class="radio-button-group"
-            *ngIf="(options.data.entity !== payrollType) && (options.data.entity !== saftType)">
+            *ngIf="(options.data.entity !== payrollType) && (options.data.entity !== saftType)  && (options.data.entity !== orderType)">
             <mat-radio-group [(ngModel)]="importOption">
                 <mat-radio-button [value]="skip" [checked]="true">
                     Hopp over dupliserte {{options.data.entity === mainLedgerType ? 'Konto': options.data.type}}
@@ -106,6 +106,11 @@
 
             <mat-checkbox class="check-box" [(ngModel)]="isAutomatic">
                 Automatisk merking av reskontroposter
+            </mat-checkbox>
+        </div>
+        <div class="check-box-section">
+            <mat-checkbox class="check-box" [(ngModel)]="isOrderDraft">
+                Kladd?
             </mat-checkbox>
         </div>
     </article>

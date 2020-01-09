@@ -13,7 +13,8 @@ export class ImportCentralService {
         ledger: new ImportUIPermission(),
         payroll: new ImportUIPermission(),
         saft: new ImportSaftUIPermission(),
-        voucher: new ImportUIPermission()
+        voucher: new ImportUIPermission(),
+        order: new ImportUIPermission()
     }
 
     public getTemplateWithData(entityType) {
@@ -38,7 +39,7 @@ export class ImportCentralService {
 
     public getAccessibleComponents(permissions) {
         this.resetSaftUIPermissions();
-        const imports = ['customer', 'product', 'supplier', 'ledger', 'payroll', 'voucher'];
+        const imports = ['customer', 'product', 'supplier', 'ledger', 'payroll', 'voucher', 'order'];
         imports.forEach(ent => this.resetUIPermissions(ent));
         if (permissions.length) {
             permissions.map(per => {

@@ -29,7 +29,8 @@ export class ImportCentralLog implements OnInit {
         ledger: new ImportUIPermission(),
         payroll: new ImportUIPermission(),
         saft: new ImportSaftUIPermission(),
-        voucher: new ImportUIPermission()
+        voucher: new ImportUIPermission(),
+        order: new ImportUIPermission()
     }
 
     constructor(
@@ -93,6 +94,10 @@ export class ImportCentralLog implements OnInit {
         if (this.uiPermission.voucher.hasComponentAccess) {
             templateType.push({ id: TemplateType.Voucher, name: 'Bilag' });
         }
+        // have to setup order ui permissions in order to work.
+        if (this.uiPermission.order.hasComponentAccess) {
+            templateType.push({ id: TemplateType.Order, name: 'Order' });
+        }
         this.operators = [...templateType];
     }
 
@@ -120,6 +125,9 @@ export class ImportCentralLog implements OnInit {
                 break;
             case TemplateType.Voucher:
                 this.selectedType = { id: TemplateType.Voucher, name: 'Bilag' }
+                break;
+            case TemplateType.Order:
+                this.selectedType = { id: TemplateType.Order, name: 'Order' }
                 break;
             default:
                 this.selectedType = { id: TemplateType.All, name: 'All' }
