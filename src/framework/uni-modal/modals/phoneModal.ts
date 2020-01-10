@@ -70,8 +70,9 @@ export class UniPhoneModal implements IUniModal {
             const address = this.formModel$.getValue();
             Object.keys(address).forEach(key => {
                 this.initialPhone[key] = address[key];
-                this.onClose.emit(this.initialPhone);
             });
+
+            this.onClose.emit(this.initialPhone);
         } else {
             this.onClose.emit(null);
         }

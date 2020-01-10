@@ -94,8 +94,9 @@ export class UniAddressModal implements IUniModal {
             const address = this.formModel$.getValue();
             Object.keys(address).forEach(key => {
                 this.initialAddress[key] = address[key];
-                this.onClose.emit(this.initialAddress);
             });
+
+            this.onClose.emit(this.initialAddress);
         } else {
             this.onClose.emit(null);
         }

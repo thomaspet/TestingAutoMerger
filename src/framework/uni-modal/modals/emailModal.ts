@@ -71,8 +71,9 @@ export class UniEmailModal implements IUniModal {
             const address = this.formModel$.getValue();
             Object.keys(address).forEach(key => {
                 this.initialEmail[key] = address[key];
-                this.onClose.emit(this.initialEmail);
             });
+
+            this.onClose.emit(this.initialEmail);
         } else {
             this.onClose.emit(null);
         }
