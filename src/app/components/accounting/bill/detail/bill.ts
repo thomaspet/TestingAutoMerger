@@ -3109,6 +3109,10 @@ export class BillView implements OnInit {
                     this.uniForm.readMode();
                     return;
 
+                case StatusCode.Completed:
+                    this.uniForm.readMode();
+                    return;
+
                 case StatusCodeSupplierInvoice.Journaled:
                     this.uniForm.readMode();
                     this.uniForm.field('PaymentID').editMode();

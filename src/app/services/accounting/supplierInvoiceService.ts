@@ -17,6 +17,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCodeSupplierInvoice.Rejected, Text: 'Avvist', isPrimary: false},
         { Code: StatusCodeSupplierInvoice.Approved, Text: 'Godkjent', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført', isPrimary: true },
+        { Code: StatusCode.Completed, Text: 'Arkivert', isPrimary: false},
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
