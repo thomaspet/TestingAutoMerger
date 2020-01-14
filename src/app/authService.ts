@@ -148,7 +148,6 @@ export class AuthService {
                 this.cleanStorageAndRedirect();
                 this.setLoadIndicatorVisibility(false);
             });
-
         });
 
         this.userManager.events.addUserLoaded(() => {
@@ -357,33 +356,34 @@ export class AuthService {
     /**
      * Removes web token from localStorage and memory, then redirects to /login
      */
-    public clearAuthAndGotoLogin(): void {
-        this.authentication$.pipe(take(1)).subscribe(auth => {
-            let cleanTokens: boolean = false;
-            if (auth && auth.user) {
-                cleanTokens = true;
-                this.authentication$.next({
-                    activeCompany: undefined,
-                    user: undefined,
-                    hasActiveContract: false,
-                });
-
-                this.setLoadIndicatorVisibility(true, true);
-
-                // Hotfix 20.12.19. This should only be necessary until the next release.
-                this.runLogoutRequest();
-                //
-
-                this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
-                    document.getElementById('silentLogout').setAttribute('src', req.url);
-                });
-
-            }
-            if (!cleanTokens) {
-                this.cleanStorageAndRedirect();
-            }
-
+    public clearAuthAndGotoLogin(forceRedirect?: boolean): void {
+        this.token$.next(undefined);
+        this.authentication$.next({
+            activeCompany: undefined,
+            user: undefined,
+            hasActiveContract: false,
         });
+
+        this.setLoadIndicatorVisibility(true, true);
+
+        // Hotfix 20.12.19. This should only be necessary until the next release.
+        this.runLogoutRequest();
+        //
+
+
+        this.storage.removeOnUser('activeCompany');
+        this.storage.removeOnUser('activeFinancialYear');
+        this.jwt = undefined;
+        this.activeCompany = undefined;
+        this.setLoadIndicatorVisibility(false);
+
+        this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
+            document.getElementById('silentLogout').setAttribute('src', req.url);
+        });
+
+        if (forceRedirect || !this.router.url.startsWith('/init')) {
+            this.router.navigate(['/init/login']);
+        }
     }
 
     // Hotfix 20.12.19. This should only be necessary until the next release.

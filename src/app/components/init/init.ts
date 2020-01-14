@@ -46,4 +46,8 @@ export class UniInit {
         this.onDestroy$.next();
         this.onDestroy$.complete();
     }
+
+    logout() {
+        this.authService.clearAuthAndGotoLogin(true);
+    }
 }
