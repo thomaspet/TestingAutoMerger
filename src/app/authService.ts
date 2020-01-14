@@ -419,10 +419,7 @@ export class AuthService {
         }
 
         const rootRoute = this.getRootRoute(url);
-        if (
-            !rootRoute ||
-            PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)
-        ) {
+        if (!rootRoute || PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)) {
             return true;
         }
 
@@ -435,14 +432,8 @@ export class AuthService {
     }
 
     public hasUIPermission(user: UserDto, permission: string) {
-        if (!user) {
+        if (!user || !user['Permissions'] || !user['Permissions'].length) {
             return false;
-        }
-
-        // Treat missing or empty permissions array as access to everything
-        const userPermissions = user['Permissions'] || [];
-        if (!userPermissions.length) {
-            return true;
         }
 
         permission = permission.trim();

@@ -106,6 +106,16 @@ export class App {
                     );
                 }
 
+                const permissions = authDetails.user['Permissions'];
+                if (!permissions || !permissions.length) {
+                    this.modalService.confirm({
+                        header: 'Ingen roller i selskap',
+                        message: 'Det ser ikke ut som du har noen tilganger på dette selskapet.'
+                            + '<br>En administrator må tildele deg minimum en rolle under Innstillinger > Brukere.',
+                        buttonLabels: {},
+                    });
+                }
+
                 if (!this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
                 }
