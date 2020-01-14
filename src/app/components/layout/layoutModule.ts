@@ -10,7 +10,7 @@ import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
+// import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
 import {NavbarLinkService} from './navbar/navbar-link-service';
 
@@ -76,7 +76,7 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         BoostChat,
     ],
     providers: [
-        UniNumberFormatPipe,
+        // UniNumberFormatPipe,
         SmartSearchService,
         SmartSearchDataService
     ],

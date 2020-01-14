@@ -34,6 +34,7 @@ const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 export class App {
     private licenseAgreementModalOpen: boolean;
     private userlicenseModalOpen: boolean;
+    private missingRolesModalOpen: boolean;
 
     isSrEnvironment = environment.isSrEnvironment;
     isAuthenticated: boolean;
@@ -100,12 +101,16 @@ export class App {
                 }
 
                 const permissions = authDetails.user['Permissions'];
-                if (!permissions || !permissions.length) {
+                if ((!permissions || !permissions.length) && !this.missingRolesModalOpen) {
+                    this.missingRolesModalOpen = true;
                     this.modalService.confirm({
                         header: 'Ingen roller i selskap',
                         message: 'Det ser ikke ut som du har noen tilganger på dette selskapet.'
                             + '<br>En administrator må tildele deg minimum en rolle under Innstillinger > Brukere.',
                         buttonLabels: {},
+                    }).onClose.subscribe(() => {
+                        this.missingRolesModalOpen = false;
+                        console.log('dialog closed');
                     });
                 }
 
