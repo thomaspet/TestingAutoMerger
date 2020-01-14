@@ -405,19 +405,22 @@ export class AuthService {
                 this.filesToken$.next(undefined);
                 this.setLoadIndicatorVisibility(true, true);
 
-                // Hotfix 20.12.19. This should only be necessary until the next release.
-                this.runLogoutRequest();
-                //
-
-                this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
-                    document.getElementById('silentLogout').setAttribute('src', req.url);
-                });
-
+                this.idsLogout();
             }
+
             if (!cleanTokens) {
                 this.cleanStorageAndRedirect();
             }
+        });
+    }
 
+    idsLogout() {
+        // Hotfix 20.12.19. This should only be necessary until the next release.
+        this.runLogoutRequest();
+        //
+
+        this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
+            document.getElementById('silentLogout').setAttribute('src', req.url);
         });
     }
 

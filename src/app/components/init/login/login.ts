@@ -88,13 +88,13 @@ export class Login {
 
     public resetLogin() {
         this.missingCompanies = false;
-        this._authService.clearAuthAndGotoLogin();
+        this._authService.idsLogout();
+        this.isAuthenticated = false;
     }
 
     public onCompanySelected(company) {
         if (company) {
-            const url =
-                this.browserStorage.getItem('lastNavigationAttempt') || '/';
+            const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');
             this._authService.setActiveCompany(company, url);
         }
